@@ -3,8 +3,8 @@ import {
   calculateTotal,
   calculateDiscountedTRN,
   formatNumber,
-} from "../../utils/invoiceUtils";
-import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+} from '../../utils/invoiceUtils';
+import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
 
 /**
  * Invoice Totals Section Component
@@ -32,7 +32,7 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
   const discountPercent = parseFloat(invoice.discountPercentage) || 0;
   const discountFlat = parseFloat(invoice.discountAmount) || 0;
   const computedDiscount =
-    (invoice.discountType === "percentage"
+    (invoice.discountType === 'percentage'
       ? (computedSubtotal * discountPercent) / 100
       : discountFlat) || 0;
   const computedTotal = calculateTotal(
@@ -44,38 +44,38 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
   const advanceAmount = parseFloat(invoice.advanceReceived) || 0;
   const balanceDue = Math.max(0, computedTotal - advanceAmount);
 
-  const fontFamily = fonts.body || "Inter, system-ui, sans-serif";
+  const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
 
   return (
     <div className="invoice-totals-section" style={{ fontFamily }}>
       <div
         style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "20px",
+          display: 'flex',
+          justifyContent: 'flex-end',
+          marginBottom: '20px',
         }}
       >
         <div
           style={{
-            width: "300px",
-            padding: "15px",
-            backgroundColor: "#f9fafb",
-            borderRadius: "4px",
+            width: '300px',
+            padding: '15px',
+            backgroundColor: '#f9fafb',
+            borderRadius: '4px',
           }}
         >
           {/* SubTotal */}
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "12px",
-              fontSize: "10.5pt",
-              padding: "5px 0",
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: '12px',
+              fontSize: '10.5pt',
+              padding: '5px 0',
             }}
           >
-            <span style={{ color: "#555", fontWeight: 500 }}>SubTotal</span>
+            <span style={{ color: '#555', fontWeight: 500 }}>SubTotal</span>
             <span
-              style={{ textAlign: "right", color: "#333", fontWeight: 500 }}
+              style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}
             >
               AED {formatNumber(computedSubtotal)}
             </span>
@@ -85,16 +85,16 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
           {computedDiscount > 0 && (
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "12px",
-                fontSize: "10.5pt",
-                padding: "5px 0",
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '12px',
+                fontSize: '10.5pt',
+                padding: '5px 0',
               }}
             >
-              <span style={{ color: "#555", fontWeight: 500 }}>Discount</span>
+              <span style={{ color: '#555', fontWeight: 500 }}>Discount</span>
               <span
-                style={{ textAlign: "right", color: "#333", fontWeight: 500 }}
+                style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}
               >
                 - AED {formatNumber(computedDiscount)}
               </span>
@@ -104,16 +104,16 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
           {/* VAT */}
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "12px",
-              fontSize: "10.5pt",
-              padding: "5px 0",
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: '12px',
+              fontSize: '10.5pt',
+              padding: '5px 0',
             }}
           >
-            <span style={{ color: "#555", fontWeight: 500 }}>VAT</span>
+            <span style={{ color: '#555', fontWeight: 500 }}>VAT</span>
             <span
-              style={{ textAlign: "right", color: "#333", fontWeight: 500 }}
+              style={{ textAlign: 'right', color: '#333', fontWeight: 500 }}
             >
               AED {formatNumber(computedVatAmount)}
             </span>
@@ -122,17 +122,17 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
           {/* TOTAL */}
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
+              display: 'flex',
+              justifyContent: 'space-between',
               borderTop: `2px solid ${colors.primary || color}`,
-              paddingTop: "12px",
-              marginTop: "10px",
-              fontSize: "13pt",
-              fontWeight: "bold",
+              paddingTop: '12px',
+              marginTop: '10px',
+              fontSize: '13pt',
+              fontWeight: 'bold',
             }}
           >
             <span>TOTAL</span>
-            <span style={{ textAlign: "right" }}>
+            <span style={{ textAlign: 'right' }}>
               AED {formatNumber(computedTotal)}
             </span>
           </div>
@@ -142,33 +142,33 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
             <>
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderTop: "2px solid #d1d5db",
-                  paddingTop: "10px",
-                  marginTop: "10px",
-                  fontSize: "11pt",
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  borderTop: '2px solid #d1d5db',
+                  paddingTop: '10px',
+                  marginTop: '10px',
+                  fontSize: '11pt',
                   color: colors.primary || color,
                 }}
               >
                 <span>Less: Advance Received</span>
-                <span style={{ textAlign: "right" }}>
+                <span style={{ textAlign: 'right' }}>
                   - AED {formatNumber(advanceAmount)}
                 </span>
               </div>
 
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "8px",
-                  fontSize: "12pt",
-                  fontWeight: "bold",
-                  color: balanceDue > 0 ? "#dc2626" : "#059669",
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '8px',
+                  fontSize: '12pt',
+                  fontWeight: 'bold',
+                  color: balanceDue > 0 ? '#dc2626' : '#059669',
                 }}
               >
                 <span>Balance Due</span>
-                <span style={{ textAlign: "right" }}>
+                <span style={{ textAlign: 'right' }}>
                   AED {formatNumber(balanceDue)}
                 </span>
               </div>

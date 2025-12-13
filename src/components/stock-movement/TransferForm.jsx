@@ -5,7 +5,7 @@
  * Form for creating new stock transfers
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -28,23 +28,23 @@ import {
   Autocomplete,
   Chip,
   Divider,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Save as SaveIcon,
   ArrowBack as BackIcon,
   SwapHoriz as TransferIcon,
-} from "@mui/icons-material";
-import { stockMovementService } from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
-import { productService } from "../../services/dataService";
+} from '@mui/icons-material';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
+import { productService } from '../../services/dataService';
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = "KG") => {
-  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = 'KG') => {
+  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 const TransferForm = ({ onCancel, onSuccess }) => {
@@ -54,10 +54,10 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
 
-  const [sourceWarehouseId, setSourceWarehouseId] = useState("");
-  const [destinationWarehouseId, setDestinationWarehouseId] = useState("");
-  const [expectedDate, setExpectedDate] = useState("");
-  const [notes, setNotes] = useState("");
+  const [sourceWarehouseId, setSourceWarehouseId] = useState('');
+  const [destinationWarehouseId, setDestinationWarehouseId] = useState('');
+  const [expectedDate, setExpectedDate] = useState('');
+  const [notes, setNotes] = useState('');
   const [items, setItems] = useState([]);
 
   const [saving, setSaving] = useState(false);
@@ -71,8 +71,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error("Error loading warehouses:", err);
-        setError("Failed to load warehouses");
+        console.error('Error loading warehouses:', err);
+        setError('Failed to load warehouses');
       } finally {
         setLoadingWarehouses(false);
       }
@@ -88,8 +88,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         const result = await productService.getProducts({ limit: 1000 });
         setProducts(result.data || []);
       } catch (err) {
-        console.error("Error loading products:", err);
-        setError("Failed to load products");
+        console.error('Error loading products:', err);
+        setError('Failed to load products');
       } finally {
         setLoadingProducts(false);
       }
@@ -116,12 +116,12 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           levels[item.productId] = {
             quantityOnHand: parseFloat(item.quantityOnHand) || 0,
             quantityAvailable: parseFloat(item.quantityAvailable) || 0,
-            unit: item.unit || "KG",
+            unit: item.unit || 'KG',
           };
         });
         setStockLevels(levels);
       } catch (err) {
-        console.error("Error loading stock levels:", err);
+        console.error('Error loading stock levels:', err);
       }
     };
 
@@ -134,11 +134,11 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       ...items,
       {
         id: Date.now(),
-        productId: "",
+        productId: '',
         product: null,
-        quantity: "",
-        unit: "KG",
-        notes: "",
+        quantity: '',
+        unit: 'KG',
+        notes: '',
       },
     ]);
   };
@@ -157,9 +157,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         const updates = { [field]: value };
 
         // If product changed, update productId and unit
-        if (field === "product" && value) {
+        if (field === 'product' && value) {
           updates.productId = value.id;
-          updates.unit = stockLevels[value.id]?.unit || "KG";
+          updates.unit = stockLevels[value.id]?.unit || 'KG';
         }
 
         return { ...item, ...updates };
@@ -170,37 +170,37 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   // Validate form
   const validateForm = () => {
     if (!sourceWarehouseId) {
-      setError("Please select a source warehouse");
+      setError('Please select a source warehouse');
       return false;
     }
     if (!destinationWarehouseId) {
-      setError("Please select a destination warehouse");
+      setError('Please select a destination warehouse');
       return false;
     }
     if (sourceWarehouseId === destinationWarehouseId) {
-      setError("Source and destination warehouses must be different");
+      setError('Source and destination warehouses must be different');
       return false;
     }
     if (items.length === 0) {
-      setError("Please add at least one item to transfer");
+      setError('Please add at least one item to transfer');
       return false;
     }
 
     // Validate each item
     for (const item of items) {
       if (!item.productId) {
-        setError("Please select a product for all items");
+        setError('Please select a product for all items');
         return false;
       }
       const qty = parseFloat(item.quantity) || 0;
       if (qty <= 0) {
-        setError("Quantity must be greater than 0 for all items");
+        setError('Quantity must be greater than 0 for all items');
         return false;
       }
       const available = stockLevels[item.productId]?.quantityAvailable || 0;
       if (qty > available) {
         setError(
-          `Insufficient stock for ${item.product?.name || "product"}. Available: ${formatQuantity(available, item.unit)}`,
+          `Insufficient stock for ${item.product?.name || 'product'}. Available: ${formatQuantity(available, item.unit)}`,
         );
         return false;
       }
@@ -236,8 +236,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       const result = await stockMovementService.createTransfer(transferData);
       onSuccess?.(result);
     } catch (err) {
-      console.error("Error creating transfer:", err);
-      setError(err.message || "Failed to create transfer");
+      console.error('Error creating transfer:', err);
+      setError(err.message || 'Failed to create transfer');
     } finally {
       setSaving(false);
     }
@@ -256,13 +256,13 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       {/* Header */}
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           mb: 3,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TransferIcon fontSize="large" color="primary" />
           <Typography variant="h5">Create Stock Transfer</Typography>
         </Box>
@@ -285,7 +285,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
-        <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
           {/* Source Warehouse */}
           <FormControl sx={{ minWidth: 250 }} disabled={loadingWarehouses}>
             <InputLabel>Source Warehouse *</InputLabel>
@@ -298,7 +298,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 .filter((wh) => wh.id !== parseInt(destinationWarehouseId))
                 .map((wh) => (
                   <MenuItem key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ""}
+                    {wh.name} {wh.code ? `(${wh.code})` : ''}
                   </MenuItem>
                 ))}
             </Select>
@@ -316,7 +316,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 .filter((wh) => wh.id !== parseInt(sourceWarehouseId))
                 .map((wh) => (
                   <MenuItem key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ""}
+                    {wh.name} {wh.code ? `(${wh.code})` : ''}
                   </MenuItem>
                 ))}
             </Select>
@@ -350,9 +350,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             mb: 2,
           }}
         >
@@ -380,7 +380,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ backgroundColor: "grey.50" }}>
+                <TableRow sx={{ backgroundColor: 'grey.50' }}>
                   <TableCell sx={{ minWidth: 300 }}>Product</TableCell>
                   <TableCell align="right">Available</TableCell>
                   <TableCell align="right" sx={{ width: 150 }}>
@@ -395,7 +395,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 {items.map((item) => {
                   const available =
                     stockLevels[item.productId]?.quantityAvailable || 0;
-                  const stockUnit = stockLevels[item.productId]?.unit || "KG";
+                  const stockUnit = stockLevels[item.productId]?.unit || 'KG';
 
                   return (
                     <TableRow key={item.id}>
@@ -404,11 +404,11 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                           size="small"
                           options={getAvailableProducts(item.id)}
                           getOptionLabel={(option) =>
-                            `${option.name} (${option.sku || "No SKU"})`
+                            `${option.name} (${option.sku || 'No SKU'})`
                           }
                           value={item.product}
                           onChange={(e, newValue) =>
-                            handleItemChange(item.id, "product", newValue)
+                            handleItemChange(item.id, 'product', newValue)
                           }
                           renderInput={(params) => (
                             <TextField
@@ -424,11 +424,11 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                           <Chip
                             label={formatQuantity(available, stockUnit)}
                             size="small"
-                            color={available > 0 ? "success" : "error"}
+                            color={available > 0 ? 'success' : 'error'}
                             variant="outlined"
                           />
                         ) : (
-                          "-"
+                          '-'
                         )}
                       </TableCell>
                       <TableCell align="right">
@@ -439,7 +439,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                           onChange={(e) =>
                             handleItemChange(
                               item.id,
-                              "quantity",
+                              'quantity',
                               e.target.value,
                             )
                           }
@@ -459,7 +459,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                           size="small"
                           value={item.notes}
                           onChange={(e) =>
-                            handleItemChange(item.id, "notes", e.target.value)
+                            handleItemChange(item.id, 'notes', e.target.value)
                           }
                           placeholder="Optional..."
                           fullWidth
@@ -484,7 +484,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       </Paper>
 
       {/* Actions */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <Button onClick={onCancel} disabled={saving}>
           Cancel
         </Button>
@@ -494,7 +494,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           onClick={handleSubmit}
           disabled={saving || items.length === 0}
         >
-          {saving ? "Creating..." : "Create Transfer"}
+          {saving ? 'Creating...' : 'Create Transfer'}
         </Button>
       </Box>
     </Box>

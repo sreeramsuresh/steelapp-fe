@@ -6,9 +6,9 @@ import {
   Trash2,
   Printer,
   Download,
-} from "lucide-react";
-import AddPaymentForm from "./AddPaymentForm";
-import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
+} from 'lucide-react';
+import AddPaymentForm from './AddPaymentForm';
+import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
 
 /**
  * Unified Payment Drawer Component
@@ -52,7 +52,7 @@ const PaymentDrawer = ({
   isVoidingPayment = false,
   voidDropdownPaymentId = null,
   onVoidDropdownToggle,
-  voidCustomReason = "",
+  voidCustomReason = '',
   onVoidCustomReasonChange,
   onSubmitCustomVoidReason,
   downloadingReceiptId = null,
@@ -69,36 +69,36 @@ const PaymentDrawer = ({
 
   // Compute actual status from amounts (not from potentially stale paymentStatus field)
   const computedStatus = (() => {
-    if (outstanding <= 0 && invoiceAmount > 0) return "paid";
-    if (received > 0 && outstanding > 0) return "partially_paid";
-    return "unpaid";
+    if (outstanding <= 0 && invoiceAmount > 0) return 'paid';
+    if (received > 0 && outstanding > 0) return 'partially_paid';
+    return 'unpaid';
   })();
 
   const getPaymentStatusColor = () => {
     switch (computedStatus) {
-      case "paid":
+      case 'paid':
         return isDarkMode
-          ? "bg-green-900/30 text-green-400 border-green-700"
-          : "bg-green-100 text-green-800 border-green-300";
-      case "partially_paid":
+          ? 'bg-green-900/30 text-green-400 border-green-700'
+          : 'bg-green-100 text-green-800 border-green-300';
+      case 'partially_paid':
         return isDarkMode
-          ? "bg-yellow-900/30 text-yellow-400 border-yellow-700"
-          : "bg-yellow-100 text-yellow-800 border-yellow-300";
+          ? 'bg-yellow-900/30 text-yellow-400 border-yellow-700'
+          : 'bg-yellow-100 text-yellow-800 border-yellow-300';
       default:
         return isDarkMode
-          ? "bg-red-900/30 text-red-400 border-red-700"
-          : "bg-red-100 text-red-800 border-red-300";
+          ? 'bg-red-900/30 text-red-400 border-red-700'
+          : 'bg-red-100 text-red-800 border-red-300';
     }
   };
 
   const getPaymentStatusLabel = () => {
     switch (computedStatus) {
-      case "paid":
-        return "Paid";
-      case "partially_paid":
-        return "Partially Paid";
+      case 'paid':
+        return 'Paid';
+      case 'partially_paid':
+        return 'Partially Paid';
       default:
-        return "Unpaid";
+        return 'Unpaid';
     }
   };
 
@@ -113,7 +113,7 @@ const PaymentDrawer = ({
       {/* Drawer */}
       <div
         className={`relative z-10 w-full sm:max-w-xl h-full overflow-auto ${
-          isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
+          isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
         } shadow-xl`}
       >
         {/* Header */}
@@ -123,7 +123,7 @@ const PaymentDrawer = ({
               {invoice.invoiceNo || invoice.invoiceNumber}
             </div>
             <div className="text-sm opacity-70">
-              {invoice.customer?.name || ""}
+              {invoice.customer?.name || ''}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -146,15 +146,15 @@ const PaymentDrawer = ({
           <div
             className={`mx-4 mt-3 px-3 py-2 rounded-lg border ${
               isDarkMode
-                ? "bg-amber-900/30 border-amber-700 text-amber-400"
-                : "bg-amber-50 border-amber-200 text-amber-800"
+                ? 'bg-amber-900/30 border-amber-700 text-amber-400'
+                : 'bg-amber-50 border-amber-200 text-amber-800'
             } text-sm flex items-center gap-2`}
           >
             <span>⚠️</span>
             <span>
-              Currently being edited by{" "}
+              Currently being edited by{' '}
               <strong>
-                {[...new Set(otherSessions.map((s) => s.userName))].join(", ")}
+                {[...new Set(otherSessions.map((s) => s.userName))].join(', ')}
               </strong>
               . Your changes may conflict.
             </span>
@@ -167,13 +167,13 @@ const PaymentDrawer = ({
           <div
             className={`p-4 rounded-lg border-2 ${
               isDarkMode
-                ? "bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border-blue-700"
-                : "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-300"
+                ? 'bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border-blue-700'
+                : 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-300'
             }`}
           >
             <div
               className={`text-sm font-semibold mb-3 flex items-center gap-2 ${
-                isDarkMode ? "text-blue-100" : "text-blue-900"
+                isDarkMode ? 'text-blue-100' : 'text-blue-900'
               }`}
             >
               <CircleDollarSign size={18} />
@@ -183,14 +183,14 @@ const PaymentDrawer = ({
               <div>
                 <div
                   className={`text-xs mb-1 ${
-                    isDarkMode ? "text-blue-300" : "text-blue-700"
+                    isDarkMode ? 'text-blue-300' : 'text-blue-700'
                   }`}
                 >
                   Total Amount
                 </div>
                 <div
                   className={`font-bold text-lg ${
-                    isDarkMode ? "text-blue-100" : "text-blue-900"
+                    isDarkMode ? 'text-blue-100' : 'text-blue-900'
                   }`}
                 >
                   {formatCurrency(invoiceAmount)}
@@ -199,14 +199,14 @@ const PaymentDrawer = ({
               <div>
                 <div
                   className={`text-xs mb-1 ${
-                    isDarkMode ? "text-blue-300" : "text-blue-700"
+                    isDarkMode ? 'text-blue-300' : 'text-blue-700'
                   }`}
                 >
                   Paid Amount
                 </div>
                 <div
                   className={`font-bold text-lg ${
-                    isDarkMode ? "text-green-400" : "text-green-600"
+                    isDarkMode ? 'text-green-400' : 'text-green-600'
                   }`}
                 >
                   {formatCurrency(received)}
@@ -215,14 +215,14 @@ const PaymentDrawer = ({
               <div>
                 <div
                   className={`text-xs mb-1 ${
-                    isDarkMode ? "text-blue-300" : "text-blue-700"
+                    isDarkMode ? 'text-blue-300' : 'text-blue-700'
                   }`}
                 >
                   Balance Due
                 </div>
                 <div
                   className={`font-bold text-lg ${
-                    isDarkMode ? "text-red-400" : "text-red-600"
+                    isDarkMode ? 'text-red-400' : 'text-red-600'
                   }`}
                 >
                   {formatCurrency(outstanding)}
@@ -232,22 +232,22 @@ const PaymentDrawer = ({
             <div
               className={`pt-3 border-t grid grid-cols-2 gap-2 text-xs ${
                 isDarkMode
-                  ? "border-blue-700 text-blue-300"
-                  : "border-blue-300 text-blue-700"
+                  ? 'border-blue-700 text-blue-300'
+                  : 'border-blue-300 text-blue-700'
               }`}
             >
               <div>
-                <strong>Invoice Date:</strong>{" "}
-                {formatDate(invoice.invoiceDate) || "N/A"}
+                <strong>Invoice Date:</strong>{' '}
+                {formatDate(invoice.invoiceDate) || 'N/A'}
               </div>
               <div
                 className={
-                  computedStatus === "paid" ? "opacity-50 line-through" : ""
+                  computedStatus === 'paid' ? 'opacity-50 line-through' : ''
                 }
               >
-                <strong>Due Date:</strong>{" "}
-                {formatDate(invoice.dueDate) || "N/A"}
-                {computedStatus === "paid" && (
+                <strong>Due Date:</strong>{' '}
+                {formatDate(invoice.dueDate) || 'N/A'}
+                {computedStatus === 'paid' && (
                   <span className="ml-1 no-underline">(Cleared)</span>
                 )}
               </div>
@@ -262,8 +262,8 @@ const PaymentDrawer = ({
               <div
                 className={`text-sm p-4 rounded-lg border ${
                   isDarkMode
-                    ? "bg-gray-800/50 border-gray-700 text-gray-400"
-                    : "bg-gray-50 border-gray-200 text-gray-500"
+                    ? 'bg-gray-800/50 border-gray-700 text-gray-400'
+                    : 'bg-gray-50 border-gray-200 text-gray-500'
                 }`}
               >
                 No payments recorded yet.
@@ -271,15 +271,15 @@ const PaymentDrawer = ({
             ) : (
               <div
                 className={`rounded-lg border ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                  isDarkMode ? 'border-gray-700' : 'border-gray-200'
                 }`}
               >
                 {/* Header Row */}
                 <div
                   className={`grid grid-cols-12 gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
                     isDarkMode
-                      ? "bg-gray-800 text-gray-400 border-b border-gray-700"
-                      : "bg-gray-100 text-gray-600 border-b border-gray-200"
+                      ? 'bg-gray-800 text-gray-400 border-b border-gray-700'
+                      : 'bg-gray-100 text-gray-600 border-b border-gray-200'
                   }`}
                 >
                   <div className="col-span-2">Date</div>
@@ -292,7 +292,7 @@ const PaymentDrawer = ({
                 {/* Payment Rows */}
                 <div
                   className={`divide-y ${
-                    isDarkMode ? "divide-gray-700" : "divide-gray-200"
+                    isDarkMode ? 'divide-gray-700' : 'divide-gray-200'
                   }`}
                 >
                   {[...(invoice.payments || [])]
@@ -316,12 +316,12 @@ const PaymentDrawer = ({
                     })
                     .map((p, idx) => {
                       const methodValue =
-                        p.paymentMethod || p.payment_method || p.method || "";
+                        p.paymentMethod || p.payment_method || p.method || '';
                       const normalizedMethod = String(methodValue)
-                        .replace(/^PAYMENT_METHOD_/i, "")
+                        .replace(/^PAYMENT_METHOD_/i, '')
                         .toLowerCase()
                         .trim()
-                        .replace(/\s+/g, "_");
+                        .replace(/\s+/g, '_');
                       const paymentMode =
                         PAYMENT_MODES[normalizedMethod] || PAYMENT_MODES.other;
                       const isVoided = p.voided || p.voidedAt || p.voided_at;
@@ -331,9 +331,9 @@ const PaymentDrawer = ({
 
                       // VAT Compliance Fields (Migration 113-114)
                       const receiptNumber =
-                        p.receiptNumber || p.receipt_number || "";
+                        p.receiptNumber || p.receipt_number || '';
                       const receiptStatus =
-                        p.receiptStatus || p.receipt_status || "draft";
+                        p.receiptStatus || p.receipt_status || 'draft';
                       const isAdvancePayment =
                         p.isAdvancePayment || p.is_advance_payment || false;
 
@@ -345,15 +345,15 @@ const PaymentDrawer = ({
                         <div
                           key={p.id || idx}
                           className={`${
-                            isDarkMode ? "bg-gray-900/50" : "bg-white"
-                          } ${isVoided ? "opacity-70" : ""}`}
+                            isDarkMode ? 'bg-gray-900/50' : 'bg-white'
+                          } ${isVoided ? 'opacity-70' : ''}`}
                         >
                           {/* Main Payment Row */}
                           <div className="grid grid-cols-12 gap-2 px-3 py-3 items-center text-sm">
                             {/* Date */}
                             <div
                               className={`col-span-2 ${
-                                isDarkMode ? "text-gray-300" : "text-gray-700"
+                                isDarkMode ? 'text-gray-300' : 'text-gray-700'
                               }`}
                             >
                               {formatDate(p.paymentDate || p.payment_date)}
@@ -362,10 +362,10 @@ const PaymentDrawer = ({
                             {/* Method with Icon */}
                             <div
                               className={`col-span-2 flex items-center gap-1 ${
-                                isDarkMode ? "text-gray-300" : "text-gray-700"
+                                isDarkMode ? 'text-gray-300' : 'text-gray-700'
                               }`}
                             >
-                              <span>{paymentMode?.icon || ""}</span>
+                              <span>{paymentMode?.icon || ''}</span>
                               <span className="truncate">
                                 {paymentMode?.label || methodValue}
                               </span>
@@ -374,23 +374,23 @@ const PaymentDrawer = ({
                             {/* Reference */}
                             <div
                               className={`col-span-2 truncate ${
-                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
                               }`}
                             >
                               {p.referenceNo ||
                                 p.referenceNumber ||
                                 p.reference_no ||
-                                "-"}
+                                '-'}
                             </div>
 
                             {/* Amount */}
                             <div
                               className={`col-span-2 text-right font-medium ${
                                 isVoided
-                                  ? "line-through text-gray-400"
+                                  ? 'line-through text-gray-400'
                                   : isDarkMode
-                                    ? "text-green-400"
-                                    : "text-green-600"
+                                    ? 'text-green-400'
+                                    : 'text-green-600'
                               }`}
                             >
                               {formatCurrency(p.amount || 0)}
@@ -402,8 +402,8 @@ const PaymentDrawer = ({
                                 <span
                                   className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
                                     isDarkMode
-                                      ? "bg-red-900/50 text-red-400"
-                                      : "bg-red-100 text-red-700"
+                                      ? 'bg-red-900/50 text-red-400'
+                                      : 'bg-red-100 text-red-700'
                                   }`}
                                 >
                                   VOIDED
@@ -414,19 +414,19 @@ const PaymentDrawer = ({
                                   {receiptNumber && (
                                     <span
                                       className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
-                                        receiptStatus === "printed"
+                                        receiptStatus === 'printed'
                                           ? isDarkMode
-                                            ? "bg-blue-900/50 text-blue-400"
-                                            : "bg-blue-100 text-blue-700"
+                                            ? 'bg-blue-900/50 text-blue-400'
+                                            : 'bg-blue-100 text-blue-700'
                                           : isDarkMode
-                                            ? "bg-amber-900/50 text-amber-400"
-                                            : "bg-amber-100 text-amber-700"
+                                            ? 'bg-amber-900/50 text-amber-400'
+                                            : 'bg-amber-100 text-amber-700'
                                       }`}
-                                      title={`Receipt: ${receiptNumber}${isAdvancePayment ? " (Advance Payment)" : ""}`}
+                                      title={`Receipt: ${receiptNumber}${isAdvancePayment ? ' (Advance Payment)' : ''}`}
                                     >
-                                      {receiptStatus === "printed"
-                                        ? "✓ PRINTED"
-                                        : "DRAFT"}
+                                      {receiptStatus === 'printed'
+                                        ? '✓ PRINTED'
+                                        : 'DRAFT'}
                                     </span>
                                   )}
 
@@ -437,10 +437,10 @@ const PaymentDrawer = ({
                                       disabled={isPrinting}
                                       className={`p-1.5 rounded transition-colors ${
                                         isPrinting
-                                          ? "opacity-50 cursor-not-allowed"
+                                          ? 'opacity-50 cursor-not-allowed'
                                           : isDarkMode
-                                            ? "text-purple-400 hover:bg-purple-900/30"
-                                            : "text-purple-600 hover:bg-purple-50"
+                                            ? 'text-purple-400 hover:bg-purple-900/30'
+                                            : 'text-purple-600 hover:bg-purple-50'
                                       }`}
                                       title="Print payment receipt"
                                     >
@@ -457,10 +457,10 @@ const PaymentDrawer = ({
                                       disabled={isDownloading}
                                       className={`p-1.5 rounded transition-colors ${
                                         isDownloading
-                                          ? "opacity-50 cursor-not-allowed"
+                                          ? 'opacity-50 cursor-not-allowed'
                                           : isDarkMode
-                                            ? "text-teal-400 hover:bg-teal-900/30"
-                                            : "text-teal-600 hover:bg-teal-50"
+                                            ? 'text-teal-400 hover:bg-teal-900/30'
+                                            : 'text-teal-600 hover:bg-teal-50'
                                       }`}
                                       title="Download payment receipt"
                                     >
@@ -479,12 +479,12 @@ const PaymentDrawer = ({
                                       disabled={isVoidingPayment}
                                       className={`p-1.5 rounded transition-colors ${
                                         isDarkMode
-                                          ? "text-gray-400 hover:text-red-400 hover:bg-red-900/30"
-                                          : "text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                          ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/30'
+                                          : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
                                       } ${
                                         isVoidingPayment
-                                          ? "opacity-50 cursor-not-allowed"
-                                          : ""
+                                          ? 'opacity-50 cursor-not-allowed'
+                                          : ''
                                       }`}
                                       title="Void payment"
                                     >
@@ -497,16 +497,16 @@ const PaymentDrawer = ({
                                     <div
                                       className={`void-dropdown absolute right-0 top-full mt-1 z-[9999] w-56 rounded-lg shadow-xl border ${
                                         isDarkMode
-                                          ? "bg-gray-800 border-gray-700"
-                                          : "bg-white border-gray-200"
+                                          ? 'bg-gray-800 border-gray-700'
+                                          : 'bg-white border-gray-200'
                                       }`}
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <div
                                         className={`px-3 py-2 text-xs font-semibold border-b ${
                                           isDarkMode
-                                            ? "text-gray-400 border-gray-700"
-                                            : "text-gray-500 border-gray-200"
+                                            ? 'text-gray-400 border-gray-700'
+                                            : 'text-gray-500 border-gray-200'
                                         }`}
                                       >
                                         Select void reason
@@ -521,12 +521,12 @@ const PaymentDrawer = ({
                                             disabled={isVoidingPayment}
                                             className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                                               isDarkMode
-                                                ? "text-gray-300 hover:bg-gray-700"
-                                                : "text-gray-700 hover:bg-gray-100"
+                                                ? 'text-gray-300 hover:bg-gray-700'
+                                                : 'text-gray-700 hover:bg-gray-100'
                                             } ${
                                               isVoidingPayment
-                                                ? "opacity-50"
-                                                : ""
+                                                ? 'opacity-50'
+                                                : ''
                                             }`}
                                           >
                                             {reason.label}
@@ -538,8 +538,8 @@ const PaymentDrawer = ({
                                       <div
                                         className={`px-3 py-2 border-t ${
                                           isDarkMode
-                                            ? "border-gray-700"
-                                            : "border-gray-200"
+                                            ? 'border-gray-700'
+                                            : 'border-gray-200'
                                         }`}
                                       >
                                         <input
@@ -553,12 +553,12 @@ const PaymentDrawer = ({
                                           placeholder="Or type custom reason..."
                                           className={`w-full px-2 py-1.5 text-sm rounded border ${
                                             isDarkMode
-                                              ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                                              : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                                              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
                                           }`}
                                           onKeyDown={(e) => {
                                             if (
-                                              e.key === "Enter" &&
+                                              e.key === 'Enter' &&
                                               voidCustomReason.trim()
                                             ) {
                                               onSubmitCustomVoidReason(p.id);
@@ -573,17 +573,17 @@ const PaymentDrawer = ({
                                             disabled={isVoidingPayment}
                                             className={`mt-2 w-full px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                                               isDarkMode
-                                                ? "bg-red-600 text-white hover:bg-red-700"
-                                                : "bg-red-600 text-white hover:bg-red-700"
+                                                ? 'bg-red-600 text-white hover:bg-red-700'
+                                                : 'bg-red-600 text-white hover:bg-red-700'
                                             } ${
                                               isVoidingPayment
-                                                ? "opacity-50 cursor-not-allowed"
-                                                : ""
+                                                ? 'opacity-50 cursor-not-allowed'
+                                                : ''
                                             }`}
                                           >
                                             {isVoidingPayment
-                                              ? "Voiding..."
-                                              : "Void with this reason"}
+                                              ? 'Voiding...'
+                                              : 'Void with this reason'}
                                           </button>
                                         )}
                                       </div>
@@ -598,15 +598,15 @@ const PaymentDrawer = ({
                           {(p.notes || p.receiptNumber) && (
                             <div
                               className={`px-3 pb-2 -mt-1 ${
-                                isDarkMode ? "text-gray-500" : "text-gray-500"
+                                isDarkMode ? 'text-gray-500' : 'text-gray-500'
                               }`}
                             >
                               {p.receiptNumber && (
                                 <div
                                   className={`text-xs font-semibold ${
                                     isDarkMode
-                                      ? "text-teal-400"
-                                      : "text-teal-600"
+                                      ? 'text-teal-400'
+                                      : 'text-teal-600'
                                   }`}
                                 >
                                   Receipt: {p.receiptNumber}
@@ -625,15 +625,15 @@ const PaymentDrawer = ({
                             <div className="px-3 pb-2 -mt-1">
                               <div
                                 className={`text-xs flex items-center gap-1 ${
-                                  isDarkMode ? "text-red-400" : "text-red-600"
+                                  isDarkMode ? 'text-red-400' : 'text-red-600'
                                 }`}
                               >
                                 <AlertCircle size={12} />
                                 <span>
-                                  Voided: {voidReason || "No reason provided"}
+                                  Voided: {voidReason || 'No reason provided'}
                                   {voidedBy && ` (${voidedBy}`}
                                   {voidedAt && `, ${formatDate(voidedAt)}`}
-                                  {voidedBy && ")"}
+                                  {voidedBy && ')'}
                                 </span>
                               </div>
                             </div>
@@ -658,8 +658,8 @@ const PaymentDrawer = ({
             <div
               className={`p-3 rounded-lg border flex items-center gap-2 ${
                 isDarkMode
-                  ? "border-amber-700 bg-amber-900/30 text-amber-400"
-                  : "border-amber-300 bg-amber-50 text-amber-700"
+                  ? 'border-amber-700 bg-amber-900/30 text-amber-400'
+                  : 'border-amber-300 bg-amber-50 text-amber-700'
               }`}
             >
               <CheckCircle size={18} />
@@ -673,8 +673,8 @@ const PaymentDrawer = ({
                 <div
                   className={`p-3 rounded-lg border text-sm ${
                     isDarkMode
-                      ? "border-gray-700 bg-gray-800/50 text-gray-400"
-                      : "border-gray-200 bg-gray-50 text-gray-600"
+                      ? 'border-gray-700 bg-gray-800/50 text-gray-400'
+                      : 'border-gray-200 bg-gray-50 text-gray-600'
                   }`}
                 >
                   You don&apos;t have permission to add payments.
@@ -683,8 +683,8 @@ const PaymentDrawer = ({
               <div
                 className={`p-3 rounded-lg border flex items-center gap-2 ${
                   isDarkMode
-                    ? "border-green-700 bg-green-900/30 text-green-400"
-                    : "border-green-300 bg-green-50 text-green-700"
+                    ? 'border-green-700 bg-green-900/30 text-green-400'
+                    : 'border-green-300 bg-green-50 text-green-700'
                 }`}
               >
                 <CheckCircle size={18} />

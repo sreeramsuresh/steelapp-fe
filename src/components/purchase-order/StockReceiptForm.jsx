@@ -10,7 +10,7 @@
  * - Notes and batch/coil/heat tracking
  */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -38,7 +38,7 @@ import {
   InputAdornment,
   IconButton,
   Tooltip,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Inventory as InventoryIcon,
   LocalShipping as ShippingIcon,
@@ -46,16 +46,16 @@ import {
   CheckCircle as CheckCircleIcon,
   Close as CloseIcon,
   Warehouse as WarehouseIcon,
-} from "@mui/icons-material";
-import { stockMovementService } from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
+} from '@mui/icons-material';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (quantity, unit = "KG") => {
+const formatQuantity = (quantity, unit = 'KG') => {
   const num = parseFloat(quantity) || 0;
-  return `${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -66,11 +66,11 @@ const getReceivingStatus = (item) => {
   const received = parseFloat(item.receivedQuantity) || 0;
 
   if (received >= ordered) {
-    return { status: "complete", label: "Complete", color: "success" };
+    return { status: 'complete', label: 'Complete', color: 'success' };
   } else if (received > 0) {
-    return { status: "partial", label: "Partial", color: "warning" };
+    return { status: 'partial', label: 'Partial', color: 'warning' };
   }
-  return { status: "pending", label: "Pending", color: "default" };
+  return { status: 'pending', label: 'Pending', color: 'default' };
 };
 
 const StockReceiptForm = ({
@@ -85,11 +85,11 @@ const StockReceiptForm = ({
   // State
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState(
-    defaultWarehouseId || "",
+    defaultWarehouseId || '',
   );
   const [selectedItems, setSelectedItems] = useState({});
   const [quantities, setQuantities] = useState({});
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [error, setError] = useState(null);
@@ -110,7 +110,7 @@ const StockReceiptForm = ({
           setSelectedWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error("Error fetching warehouses:", err);
+        console.error('Error fetching warehouses:', err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -238,7 +238,7 @@ const StockReceiptForm = ({
 
       // Validate
       if (!selectedWarehouseId) {
-        setError("Please select a warehouse");
+        setError('Please select a warehouse');
         return;
       }
 
@@ -261,7 +261,7 @@ const StockReceiptForm = ({
       });
 
       if (itemsToReceive.length === 0) {
-        setError("No items selected for receiving");
+        setError('No items selected for receiving');
         return;
       }
 
@@ -286,11 +286,11 @@ const StockReceiptForm = ({
           onClose();
         }, 1500);
       } else if (result.errors && result.errors.length > 0) {
-        setError(result.errors.join(", "));
+        setError(result.errors.join(', '));
       }
     } catch (err) {
-      console.error("Error receiving stock:", err);
-      setError(err.message || "Failed to receive stock");
+      console.error('Error receiving stock:', err);
+      setError(err.message || 'Failed to receive stock');
     } finally {
       setLoading(false);
     }
@@ -316,18 +316,18 @@ const StockReceiptForm = ({
       maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { maxHeight: "90vh" },
+        sx: { maxHeight: '90vh' },
       }}
     >
       <DialogTitle>
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <ShippingIcon color="primary" />
             <Typography variant="h6">Receive Stock - {poNumber}</Typography>
           </Box>
@@ -354,7 +354,7 @@ const StockReceiptForm = ({
         <Box sx={{ mb: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel id="warehouse-select-label">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <WarehouseIcon fontSize="small" />
                 Destination Warehouse
               </Box>
@@ -368,8 +368,8 @@ const StockReceiptForm = ({
             >
               {warehouses.map((wh) => (
                 <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name} {wh.code ? `(${wh.code})` : ""}{" "}
-                  {wh.isDefault && "(Default)"}
+                  {wh.name} {wh.code ? `(${wh.code})` : ''}{' '}
+                  {wh.isDefault && '(Default)'}
                 </MenuItem>
               ))}
             </Select>
@@ -385,8 +385,8 @@ const StockReceiptForm = ({
         ) : (
           <>
             {/* Summary Cards */}
-            <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
-              <Paper sx={{ p: 2, flex: "1 1 150px", textAlign: "center" }}>
+            <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">
                   Total Ordered
                 </Typography>
@@ -394,7 +394,7 @@ const StockReceiptForm = ({
                   {formatQuantity(totals.totalOrdered)}
                 </Typography>
               </Paper>
-              <Paper sx={{ p: 2, flex: "1 1 150px", textAlign: "center" }}>
+              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">
                   Already Received
                 </Typography>
@@ -402,7 +402,7 @@ const StockReceiptForm = ({
                   {formatQuantity(totals.totalReceived)}
                 </Typography>
               </Paper>
-              <Paper sx={{ p: 2, flex: "1 1 150px", textAlign: "center" }}>
+              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">
                   Pending
                 </Typography>
@@ -413,10 +413,10 @@ const StockReceiptForm = ({
               <Paper
                 sx={{
                   p: 2,
-                  flex: "1 1 150px",
-                  textAlign: "center",
-                  bgcolor: "primary.main",
-                  color: "white",
+                  flex: '1 1 150px',
+                  textAlign: 'center',
+                  bgcolor: 'primary.main',
+                  color: 'white',
                 }}
               >
                 <Typography variant="caption">To Receive Now</Typography>
@@ -430,7 +430,7 @@ const StockReceiptForm = ({
             <TableContainer component={Paper} variant="outlined">
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: "grey.50" }}>
+                  <TableRow sx={{ backgroundColor: 'grey.50' }}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={allSelected}
@@ -464,8 +464,8 @@ const StockReceiptForm = ({
                         sx={{
                           opacity: isComplete ? 0.5 : 1,
                           bgcolor: selectedItems[item.id]
-                            ? "action.selected"
-                            : "inherit",
+                            ? 'action.selected'
+                            : 'inherit',
                         }}
                       >
                         <TableCell padding="checkbox">
@@ -503,7 +503,7 @@ const StockReceiptForm = ({
                         <TableCell align="right">
                           <Typography
                             color={
-                              pending > 0 ? "warning.main" : "text.secondary"
+                              pending > 0 ? 'warning.main' : 'text.secondary'
                             }
                           >
                             {formatQuantity(pending, item.unit)}
@@ -522,7 +522,7 @@ const StockReceiptForm = ({
                             <TextField
                               type="number"
                               size="small"
-                              value={quantities[item.id] || ""}
+                              value={quantities[item.id] || ''}
                               onChange={(e) =>
                                 handleQuantityChange(item.id, e.target.value)
                               }
@@ -594,7 +594,7 @@ const StockReceiptForm = ({
           }
         >
           {loading
-            ? "Receiving..."
+            ? 'Receiving...'
             : `Receive ${formatQuantity(totals.totalToReceive)}`}
         </Button>
       </DialogActions>

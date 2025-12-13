@@ -227,7 +227,7 @@ const QuotationForm = () => {
 
   // Pricelist state
   const [selectedPricelistId, setSelectedPricelistId] = useState(null);
-  const [pricelistName, setPricelistName] = useState(null);
+  const [_pricelistName, setPricelistName] = useState(null);
 
   // Pinned products (localStorage)
   const [pinnedProductIds, setPinnedProductIds] = useState(() => {
@@ -346,6 +346,7 @@ const QuotationForm = () => {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit]);
 
   // Fetch quotation data for editing
@@ -876,7 +877,7 @@ const QuotationForm = () => {
     );
 
     // Calculate VAT amount
-    const vatAmount = items.reduce((sum, item) => {
+    const _vatAmount = items.reduce((sum, item) => {
       const rate = parseFloat(item.vatRate) || 0;
       const taxable = parseFloat(item.taxableAmount) || 0;
       return sum + (taxable * rate) / 100;

@@ -5,7 +5,7 @@
  * Form for creating new stock reservations
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -23,17 +23,17 @@ import {
   Typography,
   Chip,
   Autocomplete,
-} from "@mui/material";
-import { BookmarkBorder as ReservationIcon } from "@mui/icons-material";
-import { stockMovementService } from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
-import { productService } from "../../services/dataService";
+} from '@mui/material';
+import { BookmarkBorder as ReservationIcon } from '@mui/icons-material';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
+import { productService } from '../../services/dataService';
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = "KG") => {
-  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = 'KG') => {
+  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 const ReservationForm = ({ open, onClose, onSuccess }) => {
@@ -42,11 +42,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
 
-  const [warehouseId, setWarehouseId] = useState("");
+  const [warehouseId, setWarehouseId] = useState('');
   const [product, setProduct] = useState(null);
-  const [quantity, setQuantity] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [notes, setNotes] = useState("");
+  const [quantity, setQuantity] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [notes, setNotes] = useState('');
 
   const [availableStock, setAvailableStock] = useState(null);
   const [loadingStock, setLoadingStock] = useState(false);
@@ -67,7 +67,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           setWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error("Error loading warehouses:", err);
+        console.error('Error loading warehouses:', err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -86,7 +86,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         const result = await productService.getProducts({ limit: 1000 });
         setProducts(result.data || []);
       } catch (err) {
-        console.error("Error loading products:", err);
+        console.error('Error loading products:', err);
       } finally {
         setLoadingProducts(false);
       }
@@ -117,10 +117,10 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         setAvailableStock({
           quantityOnHand: parseFloat(warehouse?.quantityOnHand) || 0,
           quantityAvailable: parseFloat(warehouse?.quantityAvailable) || 0,
-          unit: warehouse?.unit || "KG",
+          unit: warehouse?.unit || 'KG',
         });
       } catch (err) {
-        console.error("Error loading stock:", err);
+        console.error('Error loading stock:', err);
         setAvailableStock(null);
       } finally {
         setLoadingStock(false);
@@ -134,9 +134,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   useEffect(() => {
     if (open) {
       setProduct(null);
-      setQuantity("");
-      setExpiryDate("");
-      setNotes("");
+      setQuantity('');
+      setExpiryDate('');
+      setNotes('');
       setError(null);
     }
   }, [open]);
@@ -144,16 +144,16 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   // Validate form
   const validateForm = () => {
     if (!warehouseId) {
-      setError("Please select a warehouse");
+      setError('Please select a warehouse');
       return false;
     }
     if (!product) {
-      setError("Please select a product");
+      setError('Please select a product');
       return false;
     }
     const qty = parseFloat(quantity) || 0;
     if (qty <= 0) {
-      setError("Quantity must be greater than 0");
+      setError('Quantity must be greater than 0');
       return false;
     }
     if (availableStock && qty > availableStock.quantityAvailable) {
@@ -189,8 +189,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       onSuccess?.(result);
       onClose();
     } catch (err) {
-      console.error("Error creating reservation:", err);
-      setError(err.message || "Failed to create reservation");
+      console.error('Error creating reservation:', err);
+      setError(err.message || 'Failed to create reservation');
     } finally {
       setSaving(false);
     }
@@ -199,7 +199,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ReservationIcon color="primary" />
           <Typography variant="h6">Create Stock Reservation</Typography>
         </Box>
@@ -212,7 +212,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           </Alert>
         )}
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* Warehouse */}
           <FormControl fullWidth disabled={loadingWarehouses}>
             <InputLabel>Warehouse *</InputLabel>
@@ -223,7 +223,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             >
               {warehouses.map((wh) => (
                 <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name} {wh.code ? `(${wh.code})` : ""}
+                  {wh.name} {wh.code ? `(${wh.code})` : ''}
                 </MenuItem>
               ))}
             </Select>
@@ -233,7 +233,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <Autocomplete
             options={products}
             getOptionLabel={(option) =>
-              `${option.name} (${option.sku || "No SKU"})`
+              `${option.name} (${option.sku || 'No SKU'})`
             }
             value={product}
             onChange={(e, newValue) => setProduct(newValue)}
@@ -249,7 +249,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
           {/* Available Stock */}
           {availableStock !== null && (
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
               <Chip
                 label={`On Hand: ${formatQuantity(availableStock.quantityOnHand, availableStock.unit)}`}
                 variant="outlined"
@@ -258,7 +258,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               <Chip
                 label={`Available: ${formatQuantity(availableStock.quantityAvailable, availableStock.unit)}`}
                 color={
-                  availableStock.quantityAvailable > 0 ? "success" : "error"
+                  availableStock.quantityAvailable > 0 ? 'success' : 'error'
                 }
                 variant="outlined"
                 size="small"
@@ -266,7 +266,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             </Box>
           )}
           {loadingStock && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <CircularProgress size={16} />
               <Typography variant="caption" color="text.secondary">
                 Loading stock levels...
@@ -288,7 +288,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             helperText={
               availableStock
                 ? `Max: ${availableStock.quantityAvailable} ${availableStock.unit}`
-                : ""
+                : ''
             }
           />
 
@@ -324,7 +324,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           disabled={saving || !product || !quantity}
           startIcon={saving && <CircularProgress size={16} />}
         >
-          {saving ? "Creating..." : "Create Reservation"}
+          {saving ? 'Creating...' : 'Create Reservation'}
         </Button>
       </DialogActions>
     </Dialog>

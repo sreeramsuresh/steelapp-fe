@@ -1,17 +1,17 @@
-import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, AlertCircle, Info, Loader2 } from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { customerService } from "../services/customerService";
-import { notificationService } from "../services/notificationService";
-import CustomerCreditPanel from "../components/credit/CustomerCreditPanel";
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Save, AlertCircle, Info, Loader2 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { customerService } from '../services/customerService';
+import { notificationService } from '../services/notificationService';
+import CustomerCreditPanel from '../components/credit/CustomerCreditPanel';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../components/ui/dialog";
+} from '../components/ui/dialog';
 
 /**
  * CustomerForm Component
@@ -30,17 +30,17 @@ const CustomerForm = () => {
 
   // Form State
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
-    company: "",
-    email: "",
-    phone: "",
-    address: "",
-    vatNumber: "",
-    trn: "",
+    id: '',
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    address: '',
+    vatNumber: '',
+    trn: '',
     creditLimit: 0,
-    paymentTerms: "",
-    customerCode: "",
+    paymentTerms: '',
+    customerCode: '',
     dsoValue: 0,
     creditUtilization: 0,
   });
@@ -50,7 +50,7 @@ const CustomerForm = () => {
     creditUsed: 0,
     creditAvailable: 0,
     creditScore: 0,
-    creditGrade: "A",
+    creditGrade: 'A',
     dsoDays: 0,
     agingCurrent: 0,
     aging1To30: 0,
@@ -65,9 +65,9 @@ const CustomerForm = () => {
   // UI State
   const [loading, setLoading] = useState(!!customerId);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isEditMode, setIsEditMode] = useState(!customerId);
-  const [activeTab, setActiveTab] = useState("basic");
+  const [activeTab, setActiveTab] = useState('basic');
 
   // Modals
   const [isAgingModalOpen, setIsAgingModalOpen] = useState(false);
@@ -86,21 +86,21 @@ const CustomerForm = () => {
   const fetchCustomer = async () => {
     try {
       setLoading(true);
-      setError("");
+      setError('');
       const customer = await customerService.getCustomerById(customerId);
 
       setFormData({
-        id: customer.id || "",
-        name: customer.name || "",
-        company: customer.company || "",
-        email: customer.email || "",
-        phone: customer.phone || "",
-        address: customer.address || "",
-        vatNumber: customer.vatNumber || "",
-        trn: customer.trn || "",
+        id: customer.id || '',
+        name: customer.name || '',
+        company: customer.company || '',
+        email: customer.email || '',
+        phone: customer.phone || '',
+        address: customer.address || '',
+        vatNumber: customer.vatNumber || '',
+        trn: customer.trn || '',
         creditLimit: customer.creditLimit || 0,
-        paymentTerms: customer.paymentTerms || "",
-        customerCode: customer.customerCode || "",
+        paymentTerms: customer.paymentTerms || '',
+        customerCode: customer.customerCode || '',
         dsoValue: customer.dsoValue || 0,
         creditUtilization: customer.creditUtilization || 0,
       });
@@ -109,7 +109,7 @@ const CustomerForm = () => {
         creditUsed: customer.creditUsed || 0,
         creditAvailable: customer.creditAvailable || 0,
         creditScore: customer.creditScore || 0,
-        creditGrade: customer.creditGrade || "A",
+        creditGrade: customer.creditGrade || 'A',
         dsoDays: customer.dsoDay || customer.dsoDays || 0,
         agingCurrent: customer.agingCurrent || 0,
         aging1To30: customer.aging1To30 || 0,
@@ -121,8 +121,8 @@ const CustomerForm = () => {
         lastCreditUpdated: customer.lastCreditUpdated || null,
       });
     } catch (err) {
-      console.error("Error fetching customer:", err);
-      setError("Failed to load customer data");
+      console.error('Error fetching customer:', err);
+      setError('Failed to load customer data');
     } finally {
       setLoading(false);
     }
@@ -139,11 +139,11 @@ const CustomerForm = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      setError("");
+      setError('');
 
       // Validation
       if (!formData.name.trim()) {
-        setError("Customer name is required");
+        setError('Customer name is required');
         return;
       }
 
@@ -174,15 +174,15 @@ const CustomerForm = () => {
 
       notificationService.success(
         customerId
-          ? "Customer updated successfully"
-          : "Customer created successfully",
+          ? 'Customer updated successfully'
+          : 'Customer created successfully',
       );
 
       // Navigate to customer list or detail view
-      navigate("/payables");
+      navigate('/payables');
     } catch (err) {
-      console.error("Error saving customer:", err);
-      setError(err.message || "Failed to save customer");
+      console.error('Error saving customer:', err);
+      setError(err.message || 'Failed to save customer');
     } finally {
       setSaving(false);
     }
@@ -195,14 +195,14 @@ const CustomerForm = () => {
   }) => {
     try {
       setSaving(true);
-      setError("");
+      setError('');
 
       await customerService.updateCreditLimit(cId, {
         credit_limit: parseFloat(newLimit),
         review_reason: reason,
       });
 
-      notificationService.success("Credit limit updated successfully");
+      notificationService.success('Credit limit updated successfully');
       setFormData((prev) => ({
         ...prev,
         creditLimit: newLimit,
@@ -213,9 +213,9 @@ const CustomerForm = () => {
         fetchCustomer();
       }
     } catch (err) {
-      console.error("Error updating credit limit:", err);
-      setError("Failed to update credit limit");
-      notificationService.error("Failed to update credit limit");
+      console.error('Error updating credit limit:', err);
+      setError('Failed to update credit limit');
+      notificationService.error('Failed to update credit limit');
     } finally {
       setSaving(false);
     }
@@ -232,8 +232,8 @@ const CustomerForm = () => {
       setPaymentHistory(history || []);
       setIsPaymentHistoryModalOpen(true);
     } catch (err) {
-      console.error("Error fetching payment history:", err);
-      notificationService.error("Failed to load payment history");
+      console.error('Error fetching payment history:', err);
+      notificationService.error('Failed to load payment history');
     }
   };
 
@@ -249,16 +249,16 @@ const CustomerForm = () => {
   );
 
   // CSS Classes
-  const containerBg = isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]";
+  const containerBg = isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]';
   const cardBg = isDarkMode
-    ? "bg-[#1E2328] border-[#37474F]"
-    : "bg-white border-[#E0E0E0]";
-  const textColor = isDarkMode ? "text-white" : "text-gray-900";
-  const mutedColor = isDarkMode ? "text-gray-400" : "text-gray-600";
+    ? 'bg-[#1E2328] border-[#37474F]'
+    : 'bg-white border-[#E0E0E0]';
+  const textColor = isDarkMode ? 'text-white' : 'text-gray-900';
+  const mutedColor = isDarkMode ? 'text-gray-400' : 'text-gray-600';
   const inputBg = isDarkMode
-    ? "bg-[#2A3035] border-[#37474F] text-white"
-    : "bg-white border-gray-300 text-gray-900";
-  const labelColor = isDarkMode ? "text-gray-300" : "text-gray-700";
+    ? 'bg-[#2A3035] border-[#37474F] text-white'
+    : 'bg-white border-gray-300 text-gray-900';
+  const labelColor = isDarkMode ? 'text-gray-300' : 'text-gray-700';
 
   if (loading && customerId) {
     return (
@@ -281,19 +281,19 @@ const CustomerForm = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate("/payables")}
-              className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
+              onClick={() => navigate('/payables')}
+              className={`p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-600'}`}
             >
               <ArrowLeft size={20} />
             </button>
             <div>
               <h1 className={`text-2xl font-semibold ${textColor}`}>
-                {customerId ? "Edit Customer" : "Create New Customer"}
+                {customerId ? 'Edit Customer' : 'Create New Customer'}
               </h1>
               <p className={mutedColor}>
                 {customerId
-                  ? "Update customer details and credit management settings"
-                  : "Add a new customer to the system"}
+                  ? 'Update customer details and credit management settings'
+                  : 'Add a new customer to the system'}
               </p>
             </div>
           </div>
@@ -303,14 +303,14 @@ const CustomerForm = () => {
               className={`px-4 py-2 rounded font-medium transition ${
                 isEditMode
                   ? isDarkMode
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-red-100 text-red-700 hover:bg-red-200"
+                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    : 'bg-red-100 text-red-700 hover:bg-red-200'
                   : isDarkMode
-                    ? "bg-teal-600 hover:bg-teal-700 text-white"
-                    : "bg-teal-100 text-teal-700 hover:bg-teal-200"
+                    ? 'bg-teal-600 hover:bg-teal-700 text-white'
+                    : 'bg-teal-100 text-teal-700 hover:bg-teal-200'
               }`}
             >
-              {isEditMode ? "Cancel Edit" : "Edit"}
+              {isEditMode ? 'Cancel Edit' : 'Edit'}
             </button>
           )}
         </div>
@@ -320,8 +320,8 @@ const CustomerForm = () => {
           <div
             className={`mb-6 p-4 rounded-lg border flex gap-3 ${
               isDarkMode
-                ? "bg-red-900/20 border-red-700 text-red-300"
-                : "bg-red-50 border-red-200 text-red-800"
+                ? 'bg-red-900/20 border-red-700 text-red-300'
+                : 'bg-red-50 border-red-200 text-red-800'
             }`}
           >
             <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
@@ -335,32 +335,32 @@ const CustomerForm = () => {
         {/* Tabs */}
         <div
           className="flex gap-4 border-b mb-6"
-          style={{ borderColor: isDarkMode ? "#37474F" : "#E0E0E0" }}
+          style={{ borderColor: isDarkMode ? '#37474F' : '#E0E0E0' }}
         >
           <button
-            onClick={() => setActiveTab("basic")}
+            onClick={() => setActiveTab('basic')}
             className={`px-4 py-3 font-medium border-b-2 transition ${
-              activeTab === "basic"
+              activeTab === 'basic'
                 ? isDarkMode
-                  ? "text-teal-400 border-teal-400"
-                  : "text-teal-600 border-teal-600"
+                  ? 'text-teal-400 border-teal-400'
+                  : 'text-teal-600 border-teal-600'
                 : isDarkMode
-                  ? "text-gray-400 border-transparent"
-                  : "text-gray-600 border-transparent"
+                  ? 'text-gray-400 border-transparent'
+                  : 'text-gray-600 border-transparent'
             }`}
           >
             Basic Information
           </button>
           <button
-            onClick={() => setActiveTab("credit")}
+            onClick={() => setActiveTab('credit')}
             className={`px-4 py-3 font-medium border-b-2 transition ${
-              activeTab === "credit"
+              activeTab === 'credit'
                 ? isDarkMode
-                  ? "text-teal-400 border-teal-400"
-                  : "text-teal-600 border-teal-600"
+                  ? 'text-teal-400 border-teal-400'
+                  : 'text-teal-600 border-teal-600'
                 : isDarkMode
-                  ? "text-gray-400 border-transparent"
-                  : "text-gray-600 border-transparent"
+                  ? 'text-gray-400 border-transparent'
+                  : 'text-gray-600 border-transparent'
             }`}
           >
             Credit Management
@@ -368,7 +368,7 @@ const CustomerForm = () => {
         </div>
 
         {/* Basic Information Tab */}
-        {activeTab === "basic" && (
+        {activeTab === 'basic' && (
           <div className="space-y-6">
             {/* Customer Name */}
             <div>
@@ -576,8 +576,8 @@ const CustomerForm = () => {
             <div
               className={`p-4 rounded-lg border flex gap-3 ${
                 isDarkMode
-                  ? "bg-blue-900/20 border-blue-700 text-blue-100"
-                  : "bg-blue-50 border-blue-200 text-blue-900"
+                  ? 'bg-blue-900/20 border-blue-700 text-blue-100'
+                  : 'bg-blue-50 border-blue-200 text-blue-900'
               }`}
             >
               <Info size={20} className="flex-shrink-0 mt-0.5" />
@@ -594,7 +594,7 @@ const CustomerForm = () => {
         )}
 
         {/* Credit Management Tab */}
-        {activeTab === "credit" && (
+        {activeTab === 'credit' && (
           <div className="space-y-6">
             {/* Credit Limit Input (editable) */}
             {isEditMode && (
@@ -635,8 +635,8 @@ const CustomerForm = () => {
               <div
                 className={`p-4 rounded-lg border text-center ${
                   isDarkMode
-                    ? "bg-gray-800/50 border-gray-700 text-gray-400"
-                    : "bg-gray-50 border-gray-200 text-gray-600"
+                    ? 'bg-gray-800/50 border-gray-700 text-gray-400'
+                    : 'bg-gray-50 border-gray-200 text-gray-600'
                 }`}
               >
                 <p className="text-sm">
@@ -649,8 +649,8 @@ const CustomerForm = () => {
             <div
               className={`p-4 rounded-lg border flex gap-3 ${
                 isDarkMode
-                  ? "bg-blue-900/20 border-blue-700 text-blue-100"
-                  : "bg-blue-50 border-blue-200 text-blue-900"
+                  ? 'bg-blue-900/20 border-blue-700 text-blue-100'
+                  : 'bg-blue-50 border-blue-200 text-blue-900'
               }`}
             >
               <Info size={20} className="flex-shrink-0 mt-0.5" />
@@ -678,13 +678,13 @@ const CustomerForm = () => {
                   setIsEditMode(false);
                   fetchCustomer(); // Reset to original data
                 } else {
-                  navigate("/payables");
+                  navigate('/payables');
                 }
               }}
               className={`px-6 py-2 rounded font-medium transition ${
                 isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-white"
-                  : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                  ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
               }`}
             >
               Cancel
@@ -694,8 +694,8 @@ const CustomerForm = () => {
               disabled={saving}
               className={`px-6 py-2 rounded font-medium flex items-center gap-2 transition ${
                 isDarkMode
-                  ? "bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50"
-                  : "bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50"
+                  ? 'bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50'
+                  : 'bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50'
               }`}
             >
               {saving ? (
@@ -703,7 +703,7 @@ const CustomerForm = () => {
               ) : (
                 <Save size={18} />
               )}
-              {customerId ? "Update Customer" : "Create Customer"}
+              {customerId ? 'Update Customer' : 'Create Customer'}
             </button>
           </div>
         )}
@@ -712,7 +712,7 @@ const CustomerForm = () => {
       {/* Aging Analysis Modal */}
       <Dialog open={isAgingModalOpen} onOpenChange={setIsAgingModalOpen}>
         <DialogContent
-          className={isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"}
+          className={isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}
         >
           <DialogHeader>
             <DialogTitle className={textColor}>
@@ -726,36 +726,36 @@ const CustomerForm = () => {
           <div className="space-y-4">
             {[
               {
-                label: "Current (0 days)",
+                label: 'Current (0 days)',
                 value: creditData.agingCurrent,
-                color: "text-green-600",
+                color: 'text-green-600',
               },
               {
-                label: "1-30 days overdue",
+                label: '1-30 days overdue',
                 value: creditData.aging1To30,
-                color: "text-yellow-600",
+                color: 'text-yellow-600',
               },
               {
-                label: "31-60 days overdue",
+                label: '31-60 days overdue',
                 value: creditData.aging31To60,
-                color: "text-orange-600",
+                color: 'text-orange-600',
               },
               {
-                label: "61-90 days overdue",
+                label: '61-90 days overdue',
                 value: creditData.aging61To90,
-                color: "text-orange-700",
+                color: 'text-orange-700',
               },
               {
-                label: "90+ days overdue",
+                label: '90+ days overdue',
                 value: creditData.aging90Plus,
-                color: "text-red-600",
+                color: 'text-red-600',
               },
             ].map((bucket, idx) => (
               <div key={idx} className="flex items-center justify-between">
                 <span className={mutedColor}>{bucket.label}</span>
                 <span className={`font-semibold ${bucket.color}`}>
-                  AED{" "}
-                  {bucket.value.toLocaleString("en-US", {
+                  AED{' '}
+                  {bucket.value.toLocaleString('en-US', {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -763,19 +763,19 @@ const CustomerForm = () => {
             ))}
             <div
               className={`border-t pt-4 flex items-center justify-between font-bold ${
-                isDarkMode ? "border-gray-700" : "border-gray-200"
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
               }`}
             >
               <span className={textColor}>Total Outstanding</span>
               <span className={textColor}>
-                AED{" "}
+                AED{' '}
                 {(
                   creditData.agingCurrent +
                   creditData.aging1To30 +
                   creditData.aging31To60 +
                   creditData.aging61To90 +
                   creditData.aging90Plus
-                ).toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                ).toLocaleString('en-US', { maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -788,7 +788,7 @@ const CustomerForm = () => {
         onOpenChange={setIsPaymentHistoryModalOpen}
       >
         <DialogContent
-          className={`${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"} max-w-2xl`}
+          className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-w-2xl`}
         >
           <DialogHeader>
             <DialogTitle className={textColor}>
@@ -801,39 +801,39 @@ const CustomerForm = () => {
 
           <div
             className={`rounded border overflow-hidden ${
-              isDarkMode ? "border-gray-700" : "border-gray-200"
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
             }`}
           >
             <table
               className="min-w-full divide-y"
-              style={{ borderColor: isDarkMode ? "#374151" : "#e5e7eb" }}
+              style={{ borderColor: isDarkMode ? '#374151' : '#e5e7eb' }}
             >
-              <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+              <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                 <tr>
                   <th
-                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                   >
                     Date
                   </th>
                   <th
-                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                   >
                     Amount (AED)
                   </th>
                   <th
-                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                   >
                     Reference
                   </th>
                   <th
-                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                    className={`px-4 py-2 text-left text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                   >
                     Status
                   </th>
                 </tr>
               </thead>
               <tbody
-                className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+                className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
               >
                 {paymentHistory.length > 0 ? (
                   paymentHistory.map((payment, idx) => (
@@ -844,24 +844,24 @@ const CustomerForm = () => {
                       <td
                         className={`px-4 py-2 text-sm font-medium ${textColor}`}
                       >
-                        AED{" "}
-                        {payment.amount.toLocaleString("en-US", {
+                        AED{' '}
+                        {payment.amount.toLocaleString('en-US', {
                           maximumFractionDigits: 2,
                         })}
                       </td>
                       <td className={`px-4 py-2 text-sm ${mutedColor}`}>
-                        {payment.reference || "-"}
+                        {payment.reference || '-'}
                       </td>
                       <td className={`px-4 py-2 text-sm`}>
                         <span
                           className={`inline-flex px-2 py-1 rounded text-xs font-semibold ${
-                            payment.status === "completed"
+                            payment.status === 'completed'
                               ? isDarkMode
-                                ? "bg-green-900 text-green-200"
-                                : "bg-green-100 text-green-800"
+                                ? 'bg-green-900 text-green-200'
+                                : 'bg-green-100 text-green-800'
                               : isDarkMode
-                                ? "bg-yellow-900 text-yellow-200"
-                                : "bg-yellow-100 text-yellow-800"
+                                ? 'bg-yellow-900 text-yellow-200'
+                                : 'bg-yellow-100 text-yellow-800'
                           }`}
                         >
                           {payment.status}

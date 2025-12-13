@@ -5,44 +5,44 @@
  * Submits to backend which handles inventory restock and scrap creation.
  */
 
-import { useState, useEffect } from "react";
-import { X, ClipboardCheck, Package, Loader2, Warehouse } from "lucide-react";
-import { creditNoteService } from "../../services/creditNoteService";
-import { notificationService } from "../../services/notificationService";
-import { warehouseService } from "../../services/warehouseService";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { X, ClipboardCheck, Package, Loader2, Warehouse } from 'lucide-react';
+import { creditNoteService } from '../../services/creditNoteService';
+import { notificationService } from '../../services/notificationService';
+import { warehouseService } from '../../services/warehouseService';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const QC_RESULTS = [
   {
-    value: "GOOD",
-    label: "Good - All items can be restocked",
-    color: "text-green-600",
+    value: 'GOOD',
+    label: 'Good - All items can be restocked',
+    color: 'text-green-600',
   },
   {
-    value: "BAD",
-    label: "Bad - All items defective/damaged",
-    color: "text-red-600",
+    value: 'BAD',
+    label: 'Bad - All items defective/damaged',
+    color: 'text-red-600',
   },
   {
-    value: "PARTIAL",
-    label: "Partial - Some good, some bad",
-    color: "text-yellow-600",
+    value: 'PARTIAL',
+    label: 'Partial - Some good, some bad',
+    color: 'text-yellow-600',
   },
 ];
 
 const SCRAP_REASON_CATEGORIES = [
-  { value: "MANUFACTURING_DEFECT", label: "Manufacturing Defect" },
-  { value: "SHIPPING_DAMAGE", label: "Shipping Damage" },
-  { value: "CUSTOMER_DAMAGE", label: "Customer Damage" },
-  { value: "QUALITY_ISSUE", label: "Quality Issue" },
-  { value: "EXPIRED", label: "Expired" },
-  { value: "OTHER", label: "Other" },
+  { value: 'MANUFACTURING_DEFECT', label: 'Manufacturing Defect' },
+  { value: 'SHIPPING_DAMAGE', label: 'Shipping Damage' },
+  { value: 'CUSTOMER_DAMAGE', label: 'Customer Damage' },
+  { value: 'QUALITY_ISSUE', label: 'Quality Issue' },
+  { value: 'EXPIRED', label: 'Expired' },
+  { value: 'OTHER', label: 'Other' },
 ];
 
 const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
   const { isDarkMode } = useTheme();
-  const [qcResult, setQcResult] = useState("GOOD");
-  const [qcNotes, setQcNotes] = useState("");
+  const [qcResult, setQcResult] = useState('GOOD');
+  const [qcNotes, setQcNotes] = useState('');
   const [itemResults, setItemResults] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -53,8 +53,8 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
   // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setQcResult("GOOD");
-      setQcNotes("");
+      setQcResult('GOOD');
+      setQcNotes('');
       setItemResults([]);
       setFullCreditNote(null);
       setLoading(false);
@@ -71,7 +71,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
         const response = await warehouseService.getAll({ isActive: true });
         setWarehouses(response.data || response.warehouses || response || []);
       } catch (error) {
-        console.error("Failed to fetch warehouses:", error);
+        console.error('Failed to fetch warehouses:', error);
         // Don't block - user can still proceed without warehouse selection
       } finally {
         setWarehousesLoading(false);
@@ -98,8 +98,8 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
         const fetched = await creditNoteService.getCreditNote(creditNote.id);
         setFullCreditNote(fetched);
       } catch (error) {
-        console.error("Failed to fetch credit note:", error);
-        notificationService.error("Failed to load credit note items");
+        console.error('Failed to fetch credit note:', error);
+        notificationService.error('Failed to load credit note items');
       } finally {
         setLoading(false);
       }
@@ -118,18 +118,18 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
         fullCreditNote.items.map((item) => ({
           id: item.id,
           creditNoteItemId: item.id,
-          productName: item.productName || item.product_name || "",
+          productName: item.productName || item.product_name || '',
           quantityReturned:
             item.quantityReturned || item.quantity_returned || 0,
           restockedQuantity:
             item.quantityReturned || item.quantity_returned || 0,
           damagedQuantity: 0,
           defectiveQuantity: 0,
-          inspectionNotes: "",
+          inspectionNotes: '',
           warehouseId:
             item.warehouseId || item.warehouse_id || defaultWarehouseId,
-          scrapReasonCategory: "OTHER",
-          scrapReason: "",
+          scrapReasonCategory: 'OTHER',
+          scrapReason: '',
         })),
       );
     } else if (fullCreditNote?.items) {
@@ -138,17 +138,17 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
         fullCreditNote.items.map((item) => ({
           id: item.id,
           creditNoteItemId: item.id,
-          productName: item.productName || item.product_name || "",
+          productName: item.productName || item.product_name || '',
           quantityReturned:
             item.quantityReturned || item.quantity_returned || 0,
           restockedQuantity:
             item.quantityReturned || item.quantity_returned || 0,
           damagedQuantity: 0,
           defectiveQuantity: 0,
-          inspectionNotes: "",
+          inspectionNotes: '',
           warehouseId: item.warehouseId || item.warehouse_id || 0,
-          scrapReasonCategory: "OTHER",
-          scrapReason: "",
+          scrapReasonCategory: 'OTHER',
+          scrapReason: '',
         })),
       );
     }
@@ -162,7 +162,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
       // Auto-adjust quantities
       const item = updated[index];
       const total = item.quantityReturned;
-      if (field === "restockedQuantity") {
+      if (field === 'restockedQuantity') {
         const remaining = total - parseFloat(value || 0);
         updated[index].damagedQuantity = Math.max(0, remaining);
         updated[index].defectiveQuantity = 0;
@@ -180,7 +180,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
 
     if (itemsMissingWarehouse.length > 0) {
       notificationService.error(
-        "Please select a warehouse for all items being restocked",
+        'Please select a warehouse for all items being restocked',
       );
       return false;
     }
@@ -209,12 +209,12 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
         })),
       });
 
-      notificationService.success("Items inspected successfully");
+      notificationService.success('Items inspected successfully');
       if (onSuccess) onSuccess(result);
       onClose();
     } catch (error) {
-      console.error("Failed to submit inspection:", error);
-      notificationService.error(error.message || "Failed to submit inspection");
+      console.error('Failed to submit inspection:', error);
+      notificationService.error(error.message || 'Failed to submit inspection');
     } finally {
       setSubmitting(false);
     }
@@ -229,13 +229,13 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`max-w-4xl w-full mx-4 rounded-lg shadow-xl max-h-[90vh] overflow-hidden ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
         }`}
       >
         {/* Header */}
         <div
           className={`flex items-center justify-between p-4 border-b ${
-            isDarkMode ? "border-gray-700" : "border-gray-200"
+            isDarkMode ? 'border-gray-700' : 'border-gray-200'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -246,8 +246,8 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
             onClick={onClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode
-                ? "hover:bg-gray-700 text-gray-400"
-                : "hover:bg-gray-100 text-gray-600"
+                ? 'hover:bg-gray-700 text-gray-400'
+                : 'hover:bg-gray-100 text-gray-600'
             }`}
             aria-label="Close"
           >
@@ -262,7 +262,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
               <span
-                className={`ml-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Loading items...
               </span>
@@ -272,12 +272,12 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
           {/* No Items Warning */}
           {!isLoading && itemResults.length === 0 && (
             <div
-              className={`text-center py-8 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
+              className={`text-center py-8 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
             >
               <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
               <p>No items found for inspection.</p>
               <p
-                className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 This credit note may not have any items to inspect.
               </p>
@@ -290,7 +290,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
               <div className="mb-6">
                 <span
                   className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? "text-gray-200" : "text-gray-700"
+                    isDarkMode ? 'text-gray-200' : 'text-gray-700'
                   }`}
                 >
                   Overall QC Result
@@ -322,7 +322,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                 <label
                   htmlFor="qc-notes"
                   className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? "text-gray-200" : "text-gray-700"
+                    isDarkMode ? 'text-gray-200' : 'text-gray-700'
                   }`}
                 >
                   QC Notes
@@ -334,8 +334,8 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                   rows={2}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300 text-gray-900"
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
                   }`}
                   placeholder="General inspection notes..."
                 />
@@ -352,12 +352,12 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                   <div
                     key={item.id}
                     className={`p-4 border rounded-lg ${
-                      isDarkMode ? "border-gray-600" : "border-gray-200"
+                      isDarkMode ? 'border-gray-600' : 'border-gray-200'
                     }`}
                   >
                     <div className="font-medium mb-3">{item.productName}</div>
                     <div
-                      className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-sm mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       Returned Qty: {item.quantityReturned}
                     </div>
@@ -367,32 +367,32 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                       <label
                         htmlFor={`warehouse-${item.id}`}
                         className={`block text-xs mb-1 flex items-center gap-1 ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
                         }`}
                       >
                         <Warehouse className="w-3 h-3" />
-                        Restock to Warehouse{" "}
+                        Restock to Warehouse{' '}
                         <span className="text-red-500">*</span>
                       </label>
                       <select
                         id={`warehouse-${item.id}`}
-                        value={item.warehouseId || ""}
+                        value={item.warehouseId || ''}
                         onChange={(e) =>
                           handleItemChange(
                             index,
-                            "warehouseId",
+                            'warehouseId',
                             parseInt(e.target.value, 10) || 0,
                           )
                         }
                         className={`w-full px-2 py-1 border rounded text-sm ${
                           isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-900"
+                            ? 'bg-gray-700 border-gray-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-900'
                         } ${
                           parseFloat(item.restockedQuantity) > 0 &&
                           !item.warehouseId
-                            ? "border-red-500 ring-1 ring-red-500"
-                            : ""
+                            ? 'border-red-500 ring-1 ring-red-500'
+                            : ''
                         }`}
                       >
                         <option value="">-- Select Warehouse --</option>
@@ -404,17 +404,17 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                       </select>
                       {parseFloat(item.restockedQuantity) > 0 &&
                         !item.warehouseId && (
-                          <p className="text-xs text-red-500 mt-1">
+                        <p className="text-xs text-red-500 mt-1">
                             Warehouse required for restocking
-                          </p>
-                        )}
+                        </p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-3 gap-4 mb-3">
                       <div>
                         <label
                           htmlFor={`restock-${item.id}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Restock Qty
                         </label>
@@ -427,21 +427,21 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              "restockedQuantity",
+                              'restockedQuantity',
                               e.target.value,
                             )
                           }
                           className={`w-full px-2 py-1 border rounded text-sm ${
                             isDarkMode
-                              ? "bg-gray-700 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
                           }`}
                         />
                       </div>
                       <div>
                         <label
                           htmlFor={`damaged-${item.id}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Damaged Qty
                         </label>
@@ -453,21 +453,21 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              "damagedQuantity",
+                              'damagedQuantity',
                               e.target.value,
                             )
                           }
                           className={`w-full px-2 py-1 border rounded text-sm ${
                             isDarkMode
-                              ? "bg-gray-700 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
                           }`}
                         />
                       </div>
                       <div>
                         <label
                           htmlFor={`defective-${item.id}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Defective Qty
                         </label>
@@ -479,14 +479,14 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              "defectiveQuantity",
+                              'defectiveQuantity',
                               e.target.value,
                             )
                           }
                           className={`w-full px-2 py-1 border rounded text-sm ${
                             isDarkMode
-                              ? "bg-gray-700 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
                           }`}
                         />
                       </div>
@@ -496,13 +496,13 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                       parseFloat(item.defectiveQuantity) > 0) && (
                       <div
                         className={`grid grid-cols-2 gap-4 mt-3 p-3 rounded ${
-                          isDarkMode ? "bg-red-900/20" : "bg-red-50"
+                          isDarkMode ? 'bg-red-900/20' : 'bg-red-50'
                         }`}
                       >
                         <div>
                           <label
                             htmlFor={`scrap-category-${item.id}`}
-                            className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
                             Scrap Reason Category
                           </label>
@@ -512,14 +512,14 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "scrapReasonCategory",
+                                'scrapReasonCategory',
                                 e.target.value,
                               )
                             }
                             className={`w-full px-2 py-1 border rounded text-sm ${
                               isDarkMode
-                                ? "bg-gray-700 border-gray-600 text-white"
-                                : "bg-white border-gray-300 text-gray-900"
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
                             }`}
                           >
                             {SCRAP_REASON_CATEGORIES.map((cat) => (
@@ -532,7 +532,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                         <div>
                           <label
                             htmlFor={`scrap-reason-${item.id}`}
-                            className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
                             Scrap Reason
                           </label>
@@ -543,14 +543,14 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "scrapReason",
+                                'scrapReason',
                                 e.target.value,
                               )
                             }
                             className={`w-full px-2 py-1 border rounded text-sm ${
                               isDarkMode
-                                ? "bg-gray-700 border-gray-600 text-white"
-                                : "bg-white border-gray-300 text-gray-900"
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
                             }`}
                             placeholder="Details..."
                           />
@@ -567,7 +567,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
         {/* Footer */}
         <div
           className={`flex justify-end gap-3 p-4 border-t ${
-            isDarkMode ? "border-gray-700" : "border-gray-200"
+            isDarkMode ? 'border-gray-700' : 'border-gray-200'
           }`}
         >
           <button
@@ -575,8 +575,8 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
             disabled={submitting}
             className={`px-4 py-2 text-sm rounded-md transition-colors ${
               isDarkMode
-                ? "text-gray-300 hover:bg-gray-700"
-                : "text-gray-700 hover:bg-gray-100"
+                ? 'text-gray-300 hover:bg-gray-700'
+                : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
             Cancel

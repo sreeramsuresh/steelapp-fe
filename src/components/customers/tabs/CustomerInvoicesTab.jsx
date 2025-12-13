@@ -22,10 +22,10 @@
  * @returns {JSX.Element} Invoice list with filters and summary
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { useTheme } from "../../../contexts/ThemeContext";
-import { apiClient } from "../../../services/api";
-import { formatCurrency, formatDate } from "../../../utils/invoiceUtils";
+import { useState, useEffect, useCallback } from 'react';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { apiClient } from '../../../services/api';
+import { formatCurrency, formatDate } from '../../../utils/invoiceUtils';
 import {
   FileText,
   RefreshCw,
@@ -33,7 +33,7 @@ import {
   DollarSign,
   Clock,
   AlertCircle,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function CustomerInvoicesTab({ customerId }) {
   const { isDarkMode } = useTheme();
@@ -50,12 +50,12 @@ export default function CustomerInvoicesTab({ customerId }) {
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Filters
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateRangeFilter, setDateRangeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateRangeFilter, setDateRangeFilter] = useState('all');
 
   // Sorting
-  const [sortField, setSortField] = useState("date");
-  const [sortDirection, setSortDirection] = useState("desc");
+  const [sortField, setSortField] = useState('date');
+  const [sortDirection, setSortDirection] = useState('desc');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,8 +83,8 @@ export default function CustomerInvoicesTab({ customerId }) {
       setCachedData(invoiceData);
       setCacheTimestamp(Date.now());
     } catch (err) {
-      console.error("Failed to fetch invoices:", err);
-      setError(err.message || "Failed to load invoices");
+      console.error('Failed to fetch invoices:', err);
+      setError(err.message || 'Failed to load invoices');
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,7 @@ export default function CustomerInvoicesTab({ customerId }) {
     let filtered = [...invoices];
 
     // Status filter
-    if (statusFilter !== "all") {
+    if (statusFilter !== 'all') {
       filtered = filtered.filter(
         (inv) => inv.status?.toLowerCase() === statusFilter,
       );
@@ -125,7 +125,7 @@ export default function CustomerInvoicesTab({ customerId }) {
 
     // Date range filter
     const now = new Date();
-    if (dateRangeFilter !== "all") {
+    if (dateRangeFilter !== 'all') {
       const daysBack = parseInt(dateRangeFilter);
       const cutoffDate = new Date(
         now.getTime() - daysBack * 24 * 60 * 60 * 1000,
@@ -137,20 +137,20 @@ export default function CustomerInvoicesTab({ customerId }) {
     filtered.sort((a, b) => {
       let aVal, bVal;
 
-      if (sortField === "date") {
+      if (sortField === 'date') {
         aVal = new Date(a.date);
         bVal = new Date(b.date);
-      } else if (sortField === "dueDate") {
+      } else if (sortField === 'dueDate') {
         aVal = new Date(a.dueDate);
         bVal = new Date(b.dueDate);
-      } else if (sortField === "totalAmount") {
+      } else if (sortField === 'totalAmount') {
         aVal = parseFloat(a.totalAmount) || 0;
         bVal = parseFloat(b.totalAmount) || 0;
       } else {
         return 0;
       }
 
-      if (sortDirection === "asc") {
+      if (sortDirection === 'asc') {
         return aVal > bVal ? 1 : -1;
       } else {
         return aVal < bVal ? 1 : -1;
@@ -173,7 +173,7 @@ export default function CustomerInvoicesTab({ customerId }) {
       0,
     ),
     overdueCount: filteredInvoices.filter((inv) => {
-      if (inv.status?.toLowerCase() === "paid") return false;
+      if (inv.status?.toLowerCase() === 'paid') return false;
       const dueDate = new Date(inv.dueDate);
       return dueDate < new Date();
     }).length,
@@ -188,49 +188,49 @@ export default function CustomerInvoicesTab({ customerId }) {
 
   // Determine invoice status with overdue logic
   const getInvoiceStatus = (invoice) => {
-    const status = invoice.status?.toLowerCase() || "open";
-    if (status === "paid") return "paid";
+    const status = invoice.status?.toLowerCase() || 'open';
+    if (status === 'paid') return 'paid';
 
     const outstanding = parseFloat(invoice.outstandingAmount) || 0;
     const total = parseFloat(invoice.totalAmount) || 0;
 
-    if (outstanding === 0) return "paid";
-    if (outstanding < total && outstanding > 0) return "partially-paid";
+    if (outstanding === 0) return 'paid';
+    if (outstanding < total && outstanding > 0) return 'partially-paid';
 
     // Check if overdue
     const dueDate = new Date(invoice.dueDate);
     const now = new Date();
-    if (dueDate < now) return "overdue";
+    if (dueDate < now) return 'overdue';
 
-    return "open";
+    return 'open';
   };
 
   // Status badge component
   const StatusBadge = ({ status }) => {
     const statusConfig = {
       paid: {
-        bg: isDarkMode ? "bg-green-900/30" : "bg-green-100",
-        text: isDarkMode ? "text-green-400" : "text-green-700",
-        label: "Paid",
+        bg: isDarkMode ? 'bg-green-900/30' : 'bg-green-100',
+        text: isDarkMode ? 'text-green-400' : 'text-green-700',
+        label: 'Paid',
       },
       open: {
-        bg: isDarkMode ? "bg-blue-900/30" : "bg-blue-100",
-        text: isDarkMode ? "text-blue-400" : "text-blue-700",
-        label: "Open",
+        bg: isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100',
+        text: isDarkMode ? 'text-blue-400' : 'text-blue-700',
+        label: 'Open',
       },
-      "partially-paid": {
-        bg: isDarkMode ? "bg-yellow-900/30" : "bg-yellow-100",
-        text: isDarkMode ? "text-yellow-400" : "text-yellow-700",
-        label: "Partially Paid",
+      'partially-paid': {
+        bg: isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-100',
+        text: isDarkMode ? 'text-yellow-400' : 'text-yellow-700',
+        label: 'Partially Paid',
       },
       overdue: {
-        bg: isDarkMode ? "bg-red-900/30" : "bg-red-100",
-        text: isDarkMode ? "text-red-400" : "text-red-700",
-        label: "Overdue",
+        bg: isDarkMode ? 'bg-red-900/30' : 'bg-red-100',
+        text: isDarkMode ? 'text-red-400' : 'text-red-700',
+        label: 'Overdue',
       },
     };
 
-    const config = statusConfig[status] || statusConfig["open"];
+    const config = statusConfig[status] || statusConfig['open'];
 
     return (
       <span
@@ -244,19 +244,19 @@ export default function CustomerInvoicesTab({ customerId }) {
   // Sort handler
   const handleSort = (field) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDirection("desc");
+      setSortDirection('desc');
     }
   };
 
   // Styling
-  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
-  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-200";
-  const primaryText = isDarkMode ? "text-gray-100" : "text-gray-900";
-  const secondaryText = isDarkMode ? "text-gray-400" : "text-gray-600";
-  const hoverBg = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
+  const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const primaryText = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+  const secondaryText = isDarkMode ? 'text-gray-400' : 'text-gray-600';
+  const hoverBg = isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50';
 
   // Loading state
   if (loading) {
@@ -271,18 +271,18 @@ export default function CustomerInvoicesTab({ customerId }) {
   if (error) {
     return (
       <div
-        className={`p-6 rounded-lg ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"} border`}
+        className={`p-6 rounded-lg ${isDarkMode ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-200'} border`}
       >
         <div className="flex items-center gap-3 mb-2">
           <AlertTriangle size={20} className="text-red-500" />
           <p
-            className={`font-medium ${isDarkMode ? "text-red-400" : "text-red-700"}`}
+            className={`font-medium ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}
           >
             Error Loading Invoices
           </p>
         </div>
         <p
-          className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}
+          className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}
         >
           {error}
         </p>
@@ -308,12 +308,12 @@ export default function CustomerInvoicesTab({ customerId }) {
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode
-              ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400"
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400'
           }`}
           title="Refresh invoices data"
         >
-          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           Refresh
         </button>
       </div>
@@ -415,37 +415,37 @@ export default function CustomerInvoicesTab({ customerId }) {
       >
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+            <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
               <tr>
                 <th
                   className={`px-4 py-3 text-left text-xs font-medium ${secondaryText} uppercase tracking-wider cursor-pointer ${hoverBg}`}
-                  onClick={() => handleSort("invoiceNumber")}
+                  onClick={() => handleSort('invoiceNumber')}
                 >
                   Invoice Number
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-medium ${secondaryText} uppercase tracking-wider cursor-pointer ${hoverBg}`}
-                  onClick={() => handleSort("date")}
+                  onClick={() => handleSort('date')}
                 >
-                  Date{" "}
-                  {sortField === "date" &&
-                    (sortDirection === "asc" ? "↑" : "↓")}
+                  Date{' '}
+                  {sortField === 'date' &&
+                    (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-medium ${secondaryText} uppercase tracking-wider cursor-pointer ${hoverBg}`}
-                  onClick={() => handleSort("dueDate")}
+                  onClick={() => handleSort('dueDate')}
                 >
-                  Due Date{" "}
-                  {sortField === "dueDate" &&
-                    (sortDirection === "asc" ? "↑" : "↓")}
+                  Due Date{' '}
+                  {sortField === 'dueDate' &&
+                    (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th
                   className={`px-4 py-3 text-right text-xs font-medium ${secondaryText} uppercase tracking-wider cursor-pointer ${hoverBg}`}
-                  onClick={() => handleSort("totalAmount")}
+                  onClick={() => handleSort('totalAmount')}
                 >
-                  Total Amount{" "}
-                  {sortField === "totalAmount" &&
-                    (sortDirection === "asc" ? "↑" : "↓")}
+                  Total Amount{' '}
+                  {sortField === 'totalAmount' &&
+                    (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th
                   className={`px-4 py-3 text-right text-xs font-medium ${secondaryText} uppercase tracking-wider`}
@@ -460,7 +460,7 @@ export default function CustomerInvoicesTab({ customerId }) {
               </tr>
             </thead>
             <tbody
-              className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+              className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
             >
               {paginatedInvoices.length === 0 ? (
                 <tr>
@@ -518,8 +518,8 @@ export default function CustomerInvoicesTab({ customerId }) {
             className={`px-4 py-3 border-t ${borderColor} flex items-center justify-between`}
           >
             <div className={`text-sm ${secondaryText}`}>
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} of{" "}
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+              {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} of{' '}
               {filteredInvoices.length} invoices
             </div>
             <div className="flex gap-2">
@@ -549,7 +549,7 @@ export default function CustomerInvoicesTab({ customerId }) {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-3 py-1 rounded-md border ${borderColor} ${
                         currentPage === pageNum
-                          ? "bg-blue-600 text-white border-blue-600"
+                          ? 'bg-blue-600 text-white border-blue-600'
                           : `${primaryText} ${hoverBg}`
                       }`}
                     >

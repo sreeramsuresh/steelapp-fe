@@ -236,7 +236,7 @@ const PaymentForm = ({
 
 const Autocomplete = ({
   options = [],
-  value,
+  value: _value,
   onChange,
   onInputChange,
   inputValue,
@@ -324,6 +324,7 @@ const Autocomplete = ({
     }
     scored.sort((a, b) => a.score - b.score);
     return scored.map((s) => s.o);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -427,12 +428,21 @@ const Autocomplete = ({
             filteredOptions.map((option, index) => (
               <div
                 key={option.id || option.name || index}
+                role="option"
+                tabIndex={0}
+                aria-selected={false}
                 className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
                   isDarkMode
                     ? 'hover:bg-gray-700 text-white border-gray-700'
                     : 'hover:bg-gray-50 text-gray-900 border-gray-100'
                 }`}
                 onMouseDown={() => handleOptionSelect(option)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOptionSelect(option);
+                  }
+                }}
               >
                 {renderOption ? (
                   renderOption(option)
@@ -667,7 +677,7 @@ const PurchaseOrderForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [_errors, setErrors] = useState({});
   const [availableProducts, setAvailableProducts] = useState([]);
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
@@ -678,7 +688,7 @@ const PurchaseOrderForm = () => {
   const [payments, setPayments] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState('unpaid');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [expandedItems, setExpandedItems] = useState({});
+  const [_expandedItems, _setExpandedItems] = useState({});
   const [showPreview, setShowPreview] = useState(false);
 
   // Validation state - MANDATORY for all forms
@@ -687,7 +697,7 @@ const PurchaseOrderForm = () => {
 
   // Pinned products state (matching Invoice form)
   const [pinnedProductIds, setPinnedProductIds] = useState([]);
-  const { data: pinnedData, refetch: refetchPinned } = useApiData(
+  const { data: pinnedData, refetch: _refetchPinned } = useApiData(
     () => pinnedProductsService.getPinnedProducts(),
     [],
   );
@@ -1815,7 +1825,7 @@ const PurchaseOrderForm = () => {
 
       navigate('/purchase-orders');
     } catch (error) {
-      const action = id ? 'update' : 'create';
+      const _action = id ? 'update' : 'create';
 
       // Extract more detailed error message
       let errorMessage = 'Unknown error';
@@ -2954,7 +2964,7 @@ const PurchaseOrderForm = () => {
                   className={`divide-y ${isDarkMode ? 'bg-gray-800 divide-gray-600' : 'bg-white divide-gray-200'}`}
                 >
                   {purchaseOrder.items.map((item, index) => {
-                    const tooltip = [
+                    const _tooltip = [
                       item.name ? `Name: ${item.name}` : '',
                       item.grade ? `Grade: ${item.grade}` : '',
                       item.finish ? `Finish: ${item.finish}` : '',

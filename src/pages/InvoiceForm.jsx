@@ -1102,6 +1102,9 @@ const InvoiceForm = ({ onSave }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
 
+  // Phase 4: Auto drop-ship and partial allocation suggestion modals
+  // Removed popup modals - replaced with inline SourceTypeSelector dropdown
+
   // Form preferences state (with localStorage persistence)
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [showFreightCharges, setShowFreightCharges] = useState(false);
@@ -1665,10 +1668,11 @@ const InvoiceForm = ({ onSave }) => {
 
   /**
    * Auto-allocate batches using FIFO (First-In-First-Out) logic
+   * Enhanced with explicit FIFO sorting and multi-warehouse awareness
    * @param {number} itemIndex - Index of the item in invoice.items
    * @param {number} requiredQty - Required quantity to allocate
-   * @param {Array} batches - Available batches sorted by GRN date (FIFO order)
-   * @returns {Array} - Array of allocations
+   * @param {Array} batches - Available batches (will be sorted by received date)
+   * @returns {Array} - Array of allocations sorted by FIFO order
    */
   const autoAllocateFIFO = useCallback(
     (itemIndex, requiredQty, batches) => {
@@ -1676,34 +1680,42 @@ const InvoiceForm = ({ onSave }) => {
         return [];
       }
 
-      const allocations = [];
-      let remainingQty = requiredQty;
+      // Sort batches by received_date ASC (FIFO - oldest first)
+      // This ensures we always allocate from oldest stock first regardless of warehouse
+      const sortedBatches = [...batches].sort((a, b) => {
+        const dateA = new Date(a.receivedDate || a.received_date || a.grnDate || a.grn_date || a.createdAt || a.created_at);
+        const dateB = new Date(b.receivedDate || b.received_date || b.grnDate || b.grn_date || b.createdAt || b.created_at);
+        return dateA - dateB; // Oldest first
+      });
 
-      for (const batch of batches) {
-        if (remainingQty <= 0) break;
+      const allocations = [];
+      let remaining = requiredQty;
+
+      for (const batch of sortedBatches) {
+        if (remaining <= 0) break;
 
         const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
         if (available <= 0) continue;
 
-        const allocateQty = Math.min(available, remainingQty);
+        const allocateQty = Math.min(available, remaining);
 
         allocations.push({
           batchId: batch.id,
           batchNumber: batch.batchNumber || batch.batch_number || `BTH-${batch.id}`,
-          grnDate: batch.grnDate || batch.grn_date || batch.createdAt || batch.created_at,
+          receivedDate: batch.receivedDate || batch.received_date || batch.grnDate || batch.grn_date || batch.createdAt || batch.created_at,
           warehouseId: batch.warehouseId || batch.warehouse_id,
-          warehouseName: batch.warehouseName || batch.warehouse_name || '',
+          warehouseName: batch.warehouseName || batch.warehouse_name || 'Unknown Warehouse',
           availableQty: available,
           allocatedQty: allocateQty,
-          costPerUnit: parseFloat(batch.unitCost || batch.unit_cost || batch.landedCostPerUnit || batch.landed_cost_per_unit || 0),
+          unitCost: parseFloat(batch.unitCost || batch.unit_cost || batch.landedCostPerUnit || batch.landed_cost_per_unit || 0),
           procurementChannel: batch.procurementChannel || batch.procurement_channel || 'LOCAL',
         });
 
-        remainingQty -= allocateQty;
+        remaining -= allocateQty;
       }
 
-      // If there's remaining quantity after all batches, it needs drop ship
-      // This will be handled by the caller
+      // If there's remaining quantity after all batches, it needs drop ship or split
+      // This will be handled by the caller (auto drop-ship / auto-split suggestions)
 
       return allocations;
     },
@@ -1712,12 +1724,21 @@ const InvoiceForm = ({ onSave }) => {
 
   /**
    * Apply auto-allocation to a line item after product selection
+   * P0: Only allocates if sourceType === 'WAREHOUSE'
    * @param {number} itemIndex - Index of the item
    * @param {number|string} productId - Product ID
    * @param {number} quantity - Required quantity
    */
   const applyAutoAllocation = useCallback(
     async (itemIndex, productId, quantity) => {
+      const currentItem = invoice.items[itemIndex];
+
+      // P0: Only allocate for warehouse items
+      if (currentItem.sourceType !== 'WAREHOUSE') {
+        notificationService.info('Auto-allocation only available for Warehouse source type');
+        return;
+      }
+
       // Fetch batches for this product
       const batchData = await fetchBatchesForProduct(productId);
       if (!batchData) return;
@@ -1725,38 +1746,48 @@ const InvoiceForm = ({ onSave }) => {
       const { batches, totalStock } = batchData;
       const requiredQty = quantity || 1;
 
-      // Determine source type and allocations
       if (totalStock === 0) {
-        // No stock anywhere - auto-switch to DROP_SHIP
+        // AUTO-SELECT Local Drop Ship when no warehouse stock
         setInvoice((prev) => {
           const newItems = [...prev.items];
           newItems[itemIndex] = {
             ...newItems[itemIndex],
-            sourceType: 'DROP_SHIP',
-            manualAllocations: [],
+            sourceType: 'LOCAL_DROP_SHIP',
+            manualAllocations: null,
           };
           return { ...prev, items: newItems };
         });
-      } else {
-        // Stock available - apply FIFO allocation
-        const allocations = autoAllocateFIFO(itemIndex, requiredQty, batches);
-        const totalAllocated = allocations.reduce((sum, a) => sum + a.allocatedQty, 0);
+        return;
+      }
 
-        setInvoice((prev) => {
-          const newItems = [...prev.items];
-          newItems[itemIndex] = {
-            ...newItems[itemIndex],
-            sourceType: totalAllocated >= requiredQty ? 'WAREHOUSE' : 'WAREHOUSE', // Keep as warehouse even if partial
-            manualAllocations: allocations,
-            // Flag if partial allocation (needs drop ship for remaining)
-            partialAllocation: totalAllocated < requiredQty,
-            shortfallQty: requiredQty - totalAllocated,
-          };
-          return { ...prev, items: newItems };
-        });
+      // Stock available - apply FIFO allocation
+      const allocations = autoAllocateFIFO(itemIndex, requiredQty, batches);
+      const totalAllocated = allocations.reduce((sum, a) => sum + a.allocatedQty, 0);
+
+      setInvoice((prev) => {
+        const newItems = [...prev.items];
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          sourceType: 'WAREHOUSE',
+          manualAllocations: allocations,
+          partialAllocation: totalAllocated < requiredQty,
+          shortfallQty: requiredQty - totalAllocated,
+        };
+        return { ...prev, items: newItems };
+      });
+
+      // P1: Show partial stock warning
+      if (totalAllocated < requiredQty) {
+        const shortfall = requiredQty - totalAllocated;
+        notificationService.warning(
+          `Warehouse has ${totalAllocated}/${requiredQty} units. Consider splitting: ${totalAllocated} warehouse + ${shortfall} drop-ship`,
+          { autoClose: 8000 },
+        );
+      } else {
+        notificationService.success(`Allocated ${totalAllocated} units from warehouse batches (FIFO)`);
       }
     },
-    [fetchBatchesForProduct, autoAllocateFIFO],
+    [fetchBatchesForProduct, autoAllocateFIFO, invoice.items],
   );
 
   // Fetch warehouses once (active only)
@@ -2472,6 +2503,48 @@ const InvoiceForm = ({ onSave }) => {
 
   const handleItemChange = useCallback(
     async (index, field, value) => {
+      // P0 CRITICAL: Handle sourceType changes with allocation release and stock validation
+      if (field === 'sourceType') {
+        const currentItem = invoice.items[index];
+        const oldSourceType = currentItem.sourceType || 'WAREHOUSE';
+        const newSourceType = value;
+
+        // P0: Validate stock when switching TO warehouse
+        if (newSourceType === 'WAREHOUSE') {
+          const stockData = productBatchData[currentItem.productId];
+          const totalStock = stockData?.batches?.reduce((sum, b) => sum + (b.quantityAvailable || 0), 0) || 0;
+
+          if (totalStock === 0) {
+            notificationService.error('Cannot switch to Warehouse - no stock available');
+            return; // Block the change
+          }
+
+          if (totalStock > 0 && totalStock < currentItem.quantity) {
+            notificationService.warning(
+              `Only ${totalStock} units available in warehouse (${currentItem.quantity} required). Consider partial allocation.`,
+              { autoClose: 8000 },
+            );
+            // Allow switch but show warning
+          }
+        }
+
+        // P0: Release allocations when switching FROM warehouse TO drop-ship
+        if (oldSourceType === 'WAREHOUSE' && newSourceType !== 'WAREHOUSE') {
+          setInvoice((prev) => {
+            const newItems = [...prev.items];
+            newItems[index] = {
+              ...newItems[index],
+              sourceType: newSourceType,
+              manualAllocations: null,
+              allocationStatus: 'pending',
+            };
+            return { ...prev, items: newItems };
+          });
+          notificationService.info('Warehouse allocations released');
+          return;
+        }
+      }
+
       // First, update the item immediately
       setInvoice((prev) => {
         const newItems = [...prev.items];
@@ -2966,6 +3039,15 @@ const InvoiceForm = ({ onSave }) => {
         // Close preview modal if it's open
         setShowPreview(false);
 
+        // Phase 2.1: If invoice has pending confirmation, navigate to confirmation screen
+        if (newInvoice.expiresAt) {
+          notificationService.success(
+            'Invoice created! Please confirm batch allocation within 5 minutes.',
+          );
+          navigate(`/invoices/${newInvoice.id}/confirm-allocation`);
+          return;
+        }
+
         // Show success modal with options
         setShowSuccessModal(true);
 
@@ -3097,6 +3179,8 @@ const InvoiceForm = ({ onSave }) => {
       );
     }
   }, [createdInvoiceId, navigate]);
+
+  // Phase 4: Removed drop-ship popup handlers - now using inline SourceTypeSelector dropdown
 
   // Handle ESC key to close success modal (only for Draft/Proforma, not Final Tax Invoice)
   useEffect(() => {
@@ -4549,15 +4633,35 @@ const InvoiceForm = ({ onSave }) => {
                               className="bg-gray-50 px-4 py-3 border-l-4 border-teal-500"
                             >
                               <div className="space-y-3">
-                                {/* Header with status */}
-                                <div className="flex items-center justify-between">
-                                  <h4 className="text-sm font-semibold text-gray-700">
+                                {/* Header with Source Type Selector and stock status */}
+                                <div className="flex items-center justify-between gap-4">
+                                  <div className="flex items-center gap-3">
+                                    <h4 className="text-sm font-semibold text-gray-700">
                                       Stock Allocation Details
-                                  </h4>
+                                    </h4>
+                                    {/* P0: Source Type Selector with auto-selection */}
+                                    <SourceTypeSelector
+                                      id={`source-type-${index}`}
+                                      value={(() => {
+                                        // Auto-select based on stock availability
+                                        const currentSourceType = item.sourceType;
+                                        if (currentSourceType) return currentSourceType;
+
+                                        const stockData = productBatchData[item.productId];
+                                        const totalStock = stockData?.batches?.reduce((sum, b) => sum + (b.quantityAvailable || 0), 0) || 0;
+
+                                        return totalStock === 0 ? 'LOCAL_DROP_SHIP' : 'WAREHOUSE';
+                                      })()}
+                                      onChange={(sourceType) =>
+                                        handleItemChange(index, 'sourceType', sourceType)
+                                      }
+                                      disabled={false}
+                                    />
+                                  </div>
                                   {/* Stock availability display - all warehouses */}
-                                  <div className="flex items-center gap-1 mr-16">
+                                  <div className="flex items-center gap-1">
                                     <span className="text-xs text-gray-500">
-                                        Stock availability:
+                                      Stock availability:
                                     </span>
                                     <div className="flex items-center gap-4 ml-2">
                                       {warehouses.map((wh) => {
@@ -4591,83 +4695,97 @@ const InvoiceForm = ({ onSave }) => {
                                   </div>
                                 </div>
 
-                                {/* Batch Allocation Table */}
-                                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                                  <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
-                                    <span className="text-xs font-semibold text-gray-600">
+                                {/* P0: Conditional rendering based on sourceType */}
+                                {(item.sourceType || 'WAREHOUSE') === 'WAREHOUSE' ? (
+                                  /* Batch Allocation Table - only show for WAREHOUSE */
+                                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
+                                      <span className="text-xs font-semibold text-gray-600">
                                         Batch Allocation
-                                    </span>
-                                    {(() => {
-                                      const allocatedQty = (
-                                        item.manualAllocations || []
-                                      ).reduce(
-                                        (sum, a) =>
-                                          sum + (a.allocatedQty || 0),
-                                        0,
-                                      );
-                                      const requiredQty = item.quantity || 0;
+                                      </span>
+                                      {(() => {
+                                        const allocatedQty = (
+                                          item.manualAllocations || []
+                                        ).reduce(
+                                          (sum, a) =>
+                                            sum + (a.allocatedQty || 0),
+                                          0,
+                                        );
+                                        const requiredQty = item.quantity || 0;
 
-                                      return (
-                                        <span className="text-xs text-gray-500">
+                                        return (
+                                          <span className="text-xs text-gray-500">
                                             Allocated:{' '}
-                                          <strong className="text-teal-600">
-                                            {allocatedQty}
-                                          </strong>{' '}
+                                            <strong className="text-teal-600">
+                                              {allocatedQty}
+                                            </strong>{' '}
                                             / Required: {requiredQty}
-                                        </span>
-                                      );
-                                    })()}
-                                  </div>
-                                  <table className="min-w-full text-xs">
-                                    <thead className="bg-gray-50">
-                                      <tr>
-                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                          </span>
+                                        );
+                                      })()}
+                                    </div>
+                                    <table className="min-w-full text-xs">
+                                      <thead className="bg-gray-50">
+                                        <tr>
+                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
                                             Batch #
-                                        </th>
-                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                          </th>
+                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
                                             GRN Date
-                                        </th>
-                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                          </th>
+                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                            Channel
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
                                             Available
-                                        </th>
-                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
                                             Allocated
-                                        </th>
-                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
                                             Cost/Unit
-                                        </th>
-                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
                                             Actions
-                                        </th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100 bg-white">
-                                      {(item.manualAllocations || []).map(
-                                        (allocation, allocIndex) => (
-                                          <tr key={allocIndex}>
-                                            <td className="px-3 py-2 font-mono text-gray-700">
-                                              {allocation.batchNumber ||
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-gray-100 bg-white">
+                                        {(item.manualAllocations || []).map(
+                                          (allocation, allocIndex) => (
+                                            <tr key={allocIndex}>
+                                              <td className="px-3 py-2 font-mono text-gray-700">
+                                                {allocation.batchNumber ||
                                                   'BTH-2024-003421'}
-                                            </td>
-                                            <td className="px-3 py-2 text-gray-600">
-                                              {allocation.grnDate ||
+                                              </td>
+                                              <td className="px-3 py-2 text-gray-600">
+                                                {allocation.grnDate ||
                                                   '2024-11-28'}
-                                            </td>
-                                            <td className="px-3 py-2 text-right text-gray-700">
-                                              {allocation.availableQty || 0}
-                                            </td>
-                                            <td className="px-3 py-2 text-right">
-                                              <input
-                                                type="number"
-                                                value={
-                                                  allocation.allocatedQty || 0
-                                                }
-                                                onChange={(e) => {
-                                                  const newAllocations = [
-                                                    ...(item.manualAllocations ||
+                                              </td>
+                                              <td className="px-3 py-2">
+                                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                                  (allocation.procurementChannel || 'LOCAL') === 'LOCAL'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-blue-100 text-blue-800'
+                                                }`}>
+                                                  {allocation.procurementChannel || 'LOCAL'}
+                                                </span>
+                                              </td>
+                                              <td className="px-3 py-2 text-right text-gray-700">
+                                                {allocation.availableQty || 0}
+                                              </td>
+                                              <td className="px-3 py-2 text-right">
+                                                <input
+                                                  type="number"
+                                                  value={
+                                                    allocation.allocatedQty || 0
+                                                  }
+                                                  onChange={(e) => {
+                                                    const newAllocations = [
+                                                      ...(item.manualAllocations ||
                                                         []),
-                                                  ];
-                                                  newAllocations[allocIndex] =
+                                                    ];
+                                                    newAllocations[allocIndex] =
                                                       {
                                                         ...newAllocations[
                                                           allocIndex
@@ -4677,87 +4795,108 @@ const InvoiceForm = ({ onSave }) => {
                                                             e.target.value,
                                                           ) || 0,
                                                       };
-                                                  handleItemChange(
-                                                    index,
-                                                    'manualAllocations',
-                                                    newAllocations,
-                                                  );
-                                                }}
-                                                className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
-                                              />
-                                            </td>
-                                            <td className="px-3 py-2 text-right text-gray-600">
-                                              {allocation.costPerUnit?.toFixed(
-                                                2,
-                                              ) || '0.00'}
-                                            </td>
-                                            <td className="px-3 py-2 text-right">
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  const newAllocations = (
-                                                    item.manualAllocations ||
+                                                    handleItemChange(
+                                                      index,
+                                                      'manualAllocations',
+                                                      newAllocations,
+                                                    );
+                                                  }}
+                                                  className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                                                />
+                                              </td>
+                                              <td className="px-3 py-2 text-right text-gray-600">
+                                                {allocation.costPerUnit?.toFixed(
+                                                  2,
+                                                ) || '0.00'}
+                                              </td>
+                                              <td className="px-3 py-2 text-right">
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    const newAllocations = (
+                                                      item.manualAllocations ||
                                                       []
-                                                  ).filter(
-                                                    (_, i) =>
-                                                      i !== allocIndex,
-                                                  );
-                                                  handleItemChange(
-                                                    index,
-                                                    'manualAllocations',
-                                                    newAllocations,
-                                                  );
-                                                }}
-                                                className="text-red-500 hover:text-red-700 text-xs"
-                                              >
+                                                    ).filter(
+                                                      (_, i) =>
+                                                        i !== allocIndex,
+                                                    );
+                                                    handleItemChange(
+                                                      index,
+                                                      'manualAllocations',
+                                                      newAllocations,
+                                                    );
+                                                  }}
+                                                  className="text-red-500 hover:text-red-700 text-xs"
+                                                >
                                                   Remove
-                                              </button>
-                                            </td>
-                                          </tr>
-                                        ),
-                                      )}
-                                      {(!item.manualAllocations ||
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ),
+                                        )}
+                                        {(!item.manualAllocations ||
                                           item.manualAllocations.length ===
                                             0) && (
-                                        <tr>
-                                          <td
-                                            colSpan="6"
-                                            className="px-3 py-4 text-center text-gray-500 text-xs"
-                                          >
+                                          <tr>
+                                            <td
+                                              colSpan="7"
+                                              className="px-3 py-4 text-center text-gray-500 text-xs"
+                                            >
                                               No batches allocated. Click &quot;Add
                                               Batch&quot; or &quot;Auto-Allocate (FIFO)&quot;
                                               below.
-                                          </td>
-                                        </tr>
-                                      )}
-                                    </tbody>
-                                  </table>
-                                  <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
+                                            </td>
+                                          </tr>
+                                        )}
+                                      </tbody>
+                                    </table>
+                                    <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
                                         // TODO: Implement add batch modal
-                                        console.log(
-                                          'Add batch clicked for item index:',
-                                          index,
-                                        );
-                                      }}
-                                      className="text-xs text-teal-600 hover:text-teal-800 font-medium"
-                                    >
+                                          console.log(
+                                            'Add batch clicked for item index:',
+                                            index,
+                                          );
+                                        }}
+                                        className="text-xs text-teal-600 hover:text-teal-800 font-medium"
+                                      >
                                         + Add Batch
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
                                         // Re-apply FIFO auto-allocation (useful after manual changes)
-                                        applyAutoAllocation(index, item.productId, item.quantity || 1);
-                                      }}
-                                      className="text-xs bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
-                                    >
+                                          applyAutoAllocation(index, item.productId, item.quantity || 1);
+                                        }}
+                                        disabled={(item.sourceType || 'WAREHOUSE') !== 'WAREHOUSE'}
+                                        className={`text-xs px-3 py-1 rounded transition-colors ${
+                                          (item.sourceType || 'WAREHOUSE') === 'WAREHOUSE'
+                                            ? 'bg-teal-600 text-white hover:bg-teal-700'
+                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                      >
                                         Auto-Allocate (FIFO)
-                                    </button>
+                                      </button>
+                                    </div>
                                   </div>
-                                </div>
+                                ) : (
+                                  /* P0: Drop-ship indicator for non-warehouse items */
+                                  <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                    <div className="flex items-center gap-2">
+                                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                      </svg>
+                                      <span className="text-sm font-medium text-blue-800">
+                                        {(item.sourceType || 'WAREHOUSE') === 'LOCAL_DROP_SHIP' ? 'Local Drop Ship' : 'Import Drop Ship'}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-blue-700 mt-1 ml-7">
+                                      Goods will be shipped directly from supplier to customer. No warehouse allocation needed.
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -5000,23 +5139,7 @@ const InvoiceForm = ({ onSave }) => {
                         />
                       </div>
 
-                      {/* Source Type Selector */}
-                      <div>
-                        <label
-                          htmlFor={`source-type-${index}`}
-                          className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                        >
-                          Source Type
-                        </label>
-                        <SourceTypeSelector
-                          id={`source-type-${index}`}
-                          value={item.sourceType || 'WAREHOUSE'}
-                          onChange={(sourceType) =>
-                            handleItemChange(index, 'sourceType', sourceType)
-                          }
-                          disabled={false}
-                        />
-                      </div>
+                      {/* Source Type Selector moved to batch allocation section */}
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
@@ -5941,6 +6064,8 @@ const InvoiceForm = ({ onSave }) => {
             </div>
           );
         })()}
+
+      {/* Phase 4: Removed drop-ship popup modals - now using inline SourceTypeSelector dropdown */}
 
       {/* Duplicate Product Warning Dialog */}
       {duplicateWarning && (

@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
 /**
  * Reusable status badge component with consistent styling
@@ -11,7 +11,7 @@ const StatusBadge = ({
   isDarkMode,
   onClick,
   title,
-  size = "default",
+  size = 'default',
   fullWidth = false,
 }) => {
   const className = isDarkMode
@@ -20,11 +20,11 @@ const StatusBadge = ({
 
   // Size variants for padding and text
   const sizeClasses =
-    size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1 text-xs";
+    size === 'sm' ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1 text-xs';
 
-  const widthClasses = fullWidth ? "w-full justify-center" : "";
+  const widthClasses = fullWidth ? 'w-full justify-center' : '';
 
-  const sharedClasses = `inline-flex items-center ${icon ? "gap-1" : ""} ${sizeClasses} ${widthClasses} font-semibold rounded-full border ${className}`;
+  const sharedClasses = `inline-flex items-center ${icon ? 'gap-1' : ''} ${sizeClasses} ${widthClasses} font-semibold rounded-full border ${className}`;
 
   // If clickable, render as button for accessibility
   if (onClick) {
@@ -64,7 +64,7 @@ StatusBadge.propTypes = {
   isDarkMode: PropTypes.bool.isRequired,
   onClick: PropTypes.func,
   title: PropTypes.string,
-  size: PropTypes.oneOf(["default", "sm"]),
+  size: PropTypes.oneOf(['default', 'sm']),
   fullWidth: PropTypes.bool,
 };
 

@@ -4,7 +4,7 @@
  * Comprehensive help documentation for Role-Based Access Control (RBAC)
  */
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
   HelpCircle,
   Users,
@@ -20,8 +20,8 @@ import {
   ChevronRight,
   ChevronsDown,
   ChevronsUp,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Collapsible section component
 const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
@@ -29,40 +29,40 @@ const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
 
   return (
     <div
-      className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}
+      className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}
     >
       <button
         type="button"
         onClick={onToggle}
         className={`w-full flex items-center justify-between py-4 px-1 text-left hover:bg-opacity-50 transition-colors ${
-          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center gap-3">
           {Icon && (
             <Icon
-              className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+              className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
             />
           )}
           <span
-            className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {title}
           </span>
         </div>
         {isOpen ? (
           <ChevronDown
-            className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           />
         ) : (
           <ChevronRight
-            className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           />
         )}
       </button>
       {isOpen && (
         <div
-          className={`pb-4 px-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+          className={`pb-4 px-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
         >
           {children}
         </div>
@@ -89,13 +89,13 @@ const RolesHelpPanel = () => {
       setOpenSections([]);
     } else {
       setOpenSections([
-        "overview",
-        "system-roles",
-        "director-roles",
-        "custom-roles",
-        "assigning-roles",
-        "permissions",
-        "best-practices",
+        'overview',
+        'system-roles',
+        'director-roles',
+        'custom-roles',
+        'assigning-roles',
+        'permissions',
+        'best-practices',
       ]);
     }
     setExpandAll(!expandAll);
@@ -103,19 +103,19 @@ const RolesHelpPanel = () => {
 
   return (
     <div
-      className={`h-full flex flex-col ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+      className={`h-full flex flex-col ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
     >
       {/* Header */}
       <div
-        className={`px-5 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        className={`px-5 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <HelpCircle
-              className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+              className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
             />
             <h2
-              className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Help & Documentation
             </h2>
@@ -124,20 +124,20 @@ const RolesHelpPanel = () => {
             <button
               onClick={() => {
                 setOpenSections([
-                  "overview",
-                  "system-roles",
-                  "director-roles",
-                  "custom-roles",
-                  "assigning-roles",
-                  "permissions",
-                  "best-practices",
+                  'overview',
+                  'system-roles',
+                  'director-roles',
+                  'custom-roles',
+                  'assigning-roles',
+                  'permissions',
+                  'best-practices',
                 ]);
                 setExpandAll(true);
               }}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
-                  ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
-                  : "hover:bg-gray-100 text-gray-600 hover:text-teal-600"
+                  ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400'
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
               }`}
               title="Expand All"
             >
@@ -150,8 +150,8 @@ const RolesHelpPanel = () => {
               }}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
-                  ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
-                  : "hover:bg-gray-100 text-gray-600 hover:text-teal-600"
+                  ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400'
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
               }`}
               title="Collapse All"
             >
@@ -167,8 +167,8 @@ const RolesHelpPanel = () => {
         <HelpSection
           title="What is Role-Based Access Control?"
           icon={BookOpen}
-          isOpen={openSections.includes("overview")}
-          onToggle={() => toggleSection("overview")}
+          isOpen={openSections.includes('overview')}
+          onToggle={() => toggleSection('overview')}
         >
           <div className="space-y-3">
             <p>
@@ -179,7 +179,7 @@ const RolesHelpPanel = () => {
               permissions.
             </p>
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-blue-900/20" : "bg-blue-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}
             >
               <div className="flex gap-2">
                 <Info
@@ -188,12 +188,12 @@ const RolesHelpPanel = () => {
                 />
                 <div>
                   <p
-                    className={`font-semibold ${isDarkMode ? "text-blue-300" : "text-blue-900"}`}
+                    className={`font-semibold ${isDarkMode ? 'text-blue-300' : 'text-blue-900'}`}
                   >
                     How it works
                   </p>
                   <p
-                    className={`text-sm mt-1 ${isDarkMode ? "text-blue-200" : "text-blue-800"}`}
+                    className={`text-sm mt-1 ${isDarkMode ? 'text-blue-200' : 'text-blue-800'}`}
                   >
                     User → Assigned Roles → Role Permissions → System Access
                   </p>
@@ -207,8 +207,8 @@ const RolesHelpPanel = () => {
         <HelpSection
           title="Pre-defined System Roles"
           icon={Lock}
-          isOpen={openSections.includes("system-roles")}
-          onToggle={() => toggleSection("system-roles")}
+          isOpen={openSections.includes('system-roles')}
+          onToggle={() => toggleSection('system-roles')}
         >
           <div className="space-y-3">
             <p>
@@ -218,15 +218,15 @@ const RolesHelpPanel = () => {
             </p>
             <div className="space-y-2">
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
               >
                 <h4
-                  className={`font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   The 12 System Roles:
                 </h4>
                 <ul
-                  className={`text-sm space-y-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  className={`text-sm space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   <li>
                     • <strong>Managing Director</strong> - Chief executive with
@@ -278,8 +278,8 @@ const RolesHelpPanel = () => {
         <HelpSection
           title="Director Roles"
           icon={Crown}
-          isOpen={openSections.includes("director-roles")}
-          onToggle={() => toggleSection("director-roles")}
+          isOpen={openSections.includes('director-roles')}
+          onToggle={() => toggleSection('director-roles')}
         >
           <div className="space-y-3">
             <p>
@@ -288,7 +288,7 @@ const RolesHelpPanel = () => {
               permissions and oversight capabilities.
             </p>
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-purple-900/20" : "bg-purple-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-purple-900/20' : 'bg-purple-50'}`}
             >
               <div className="flex gap-2">
                 <Crown
@@ -297,12 +297,12 @@ const RolesHelpPanel = () => {
                 />
                 <div>
                   <p
-                    className={`font-semibold ${isDarkMode ? "text-purple-300" : "text-purple-900"}`}
+                    className={`font-semibold ${isDarkMode ? 'text-purple-300' : 'text-purple-900'}`}
                   >
                     Default Director Roles
                   </p>
                   <ul
-                    className={`text-sm mt-1 space-y-1 ${isDarkMode ? "text-purple-200" : "text-purple-800"}`}
+                    className={`text-sm mt-1 space-y-1 ${isDarkMode ? 'text-purple-200' : 'text-purple-800'}`}
                   >
                     <li>• Managing Director</li>
                     <li>• Operations Manager</li>
@@ -323,8 +323,8 @@ const RolesHelpPanel = () => {
         <HelpSection
           title="Creating Custom Roles"
           icon={Users}
-          isOpen={openSections.includes("custom-roles")}
-          onToggle={() => toggleSection("custom-roles")}
+          isOpen={openSections.includes('custom-roles')}
+          onToggle={() => toggleSection('custom-roles')}
         >
           <div className="space-y-3">
             <p>
@@ -333,7 +333,7 @@ const RolesHelpPanel = () => {
               flexibility to define unique access patterns.
             </p>
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-green-900/20" : "bg-green-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-green-900/20' : 'bg-green-50'}`}
             >
               <div className="flex gap-2">
                 <CheckCircle
@@ -342,12 +342,12 @@ const RolesHelpPanel = () => {
                 />
                 <div>
                   <p
-                    className={`font-semibold ${isDarkMode ? "text-green-300" : "text-green-900"}`}
+                    className={`font-semibold ${isDarkMode ? 'text-green-300' : 'text-green-900'}`}
                   >
                     Steps to Create Custom Role
                   </p>
                   <ol
-                    className={`text-sm mt-1 space-y-1 list-decimal list-inside ${isDarkMode ? "text-green-200" : "text-green-800"}`}
+                    className={`text-sm mt-1 space-y-1 list-decimal list-inside ${isDarkMode ? 'text-green-200' : 'text-green-800'}`}
                   >
                     <li>Click &quot;Manage Roles&quot; button</li>
                     <li>Click &quot;Create New Role&quot;</li>
@@ -370,8 +370,8 @@ const RolesHelpPanel = () => {
         <HelpSection
           title="Assigning Roles to Users"
           icon={Users}
-          isOpen={openSections.includes("assigning-roles")}
-          onToggle={() => toggleSection("assigning-roles")}
+          isOpen={openSections.includes('assigning-roles')}
+          onToggle={() => toggleSection('assigning-roles')}
         >
           <div className="space-y-3">
             <p>
@@ -380,7 +380,7 @@ const RolesHelpPanel = () => {
               roles (cumulative permissions).
             </p>
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-amber-900/20" : "bg-amber-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-900/20' : 'bg-amber-50'}`}
             >
               <div className="flex gap-2">
                 <Lightbulb
@@ -389,12 +389,12 @@ const RolesHelpPanel = () => {
                 />
                 <div>
                   <p
-                    className={`font-semibold ${isDarkMode ? "text-amber-300" : "text-amber-900"}`}
+                    className={`font-semibold ${isDarkMode ? 'text-amber-300' : 'text-amber-900'}`}
                   >
                     How to Assign Roles
                   </p>
                   <ol
-                    className={`text-sm mt-1 space-y-1 list-decimal list-inside ${isDarkMode ? "text-amber-200" : "text-amber-800"}`}
+                    className={`text-sm mt-1 space-y-1 list-decimal list-inside ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}
                   >
                     <li>Click the edit icon (✏️) next to a user</li>
                     <li>
@@ -419,8 +419,8 @@ const RolesHelpPanel = () => {
         <HelpSection
           title="Understanding Permissions"
           icon={Key}
-          isOpen={openSections.includes("permissions")}
-          onToggle={() => toggleSection("permissions")}
+          isOpen={openSections.includes('permissions')}
+          onToggle={() => toggleSection('permissions')}
         >
           <div className="space-y-3">
             <p>
@@ -430,15 +430,15 @@ const RolesHelpPanel = () => {
             </p>
             <div className="space-y-2">
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
               >
                 <h4
-                  className={`font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Common Permission Types:
                 </h4>
                 <ul
-                  className={`text-sm space-y-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  className={`text-sm space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   <li>
                     • <strong>Create</strong> - Add new records
@@ -473,20 +473,20 @@ const RolesHelpPanel = () => {
         <HelpSection
           title="Best Practices"
           icon={Lightbulb}
-          isOpen={openSections.includes("best-practices")}
-          onToggle={() => toggleSection("best-practices")}
+          isOpen={openSections.includes('best-practices')}
+          onToggle={() => toggleSection('best-practices')}
         >
           <div className="space-y-3">
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-teal-900/20" : "bg-teal-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-teal-900/20' : 'bg-teal-50'}`}
             >
               <h4
-                className={`font-semibold mb-2 ${isDarkMode ? "text-teal-300" : "text-teal-900"}`}
+                className={`font-semibold mb-2 ${isDarkMode ? 'text-teal-300' : 'text-teal-900'}`}
               >
                 ✓ Security Best Practices
               </h4>
               <ul
-                className={`text-sm space-y-1 ${isDarkMode ? "text-teal-200" : "text-teal-800"}`}
+                className={`text-sm space-y-1 ${isDarkMode ? 'text-teal-200' : 'text-teal-800'}`}
               >
                 <li>
                   • <strong>Principle of Least Privilege:</strong> Grant users
@@ -511,7 +511,7 @@ const RolesHelpPanel = () => {
               </ul>
             </div>
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-red-900/20" : "bg-red-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-red-900/20' : 'bg-red-50'}`}
             >
               <div className="flex gap-2">
                 <AlertTriangle
@@ -520,12 +520,12 @@ const RolesHelpPanel = () => {
                 />
                 <div>
                   <p
-                    className={`font-semibold ${isDarkMode ? "text-red-300" : "text-red-900"}`}
+                    className={`font-semibold ${isDarkMode ? 'text-red-300' : 'text-red-900'}`}
                   >
                     Common Mistakes to Avoid
                   </p>
                   <ul
-                    className={`text-sm mt-1 space-y-1 ${isDarkMode ? "text-red-200" : "text-red-800"}`}
+                    className={`text-sm mt-1 space-y-1 ${isDarkMode ? 'text-red-200' : 'text-red-800'}`}
                   >
                     <li>• Don&apos;t assign too many roles to one user</li>
                     <li>

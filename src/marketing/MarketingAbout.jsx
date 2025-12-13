@@ -1,93 +1,93 @@
-import { Link } from "react-router-dom";
-import MarketingLayout from "./MarketingLayout";
+import { Link } from 'react-router-dom';
+import MarketingLayout from './MarketingLayout';
 
 const About = () => {
   const products = [
-    "Structural Steel (Beams, Channels, Angles)",
-    "Steel Pipes & Tubes",
-    "Roofing & Cladding Sheets",
-    "Steel Plates & Coils",
-    "Reinforcement Bars (Rebars)",
-    "Customized Fabrication Solutions",
+    'Structural Steel (Beams, Channels, Angles)',
+    'Steel Pipes & Tubes',
+    'Roofing & Cladding Sheets',
+    'Steel Plates & Coils',
+    'Reinforcement Bars (Rebars)',
+    'Customized Fabrication Solutions',
   ];
 
   const whyChooseUs = [
     {
-      title: "Premium Quality",
+      title: 'Premium Quality',
       description:
-        "We source and supply only the best steel materials, adhering to international standards.",
-      icon: "⭐",
-      color: "from-amber-500 to-yellow-500",
+        'We source and supply only the best steel materials, adhering to international standards.',
+      icon: '⭐',
+      color: 'from-amber-500 to-yellow-500',
     },
     {
-      title: "Competitive Pricing",
+      title: 'Competitive Pricing',
       description:
-        "We provide cost-effective solutions without compromising on quality.",
-      icon: "💰",
-      color: "from-green-500 to-emerald-500",
+        'We provide cost-effective solutions without compromising on quality.',
+      icon: '💰',
+      color: 'from-green-500 to-emerald-500',
     },
     {
-      title: "Timely Delivery",
+      title: 'Timely Delivery',
       description:
-        "With a strong distribution network across the UAE, we ensure prompt delivery.",
-      icon: "🚛",
-      color: "from-blue-500 to-indigo-500",
+        'With a strong distribution network across the UAE, we ensure prompt delivery.',
+      icon: '🚛',
+      color: 'from-blue-500 to-indigo-500',
     },
     {
-      title: "Expert Support",
+      title: 'Expert Support',
       description:
-        "Our team of professionals is always ready to assist with technical guidance and customized solutions.",
-      icon: "👨‍🔧",
-      color: "from-purple-500 to-pink-500",
+        'Our team of professionals is always ready to assist with technical guidance and customized solutions.',
+      icon: '👨‍🔧',
+      color: 'from-purple-500 to-pink-500',
     },
     {
-      title: "Customer Satisfaction",
+      title: 'Customer Satisfaction',
       description:
-        "Your success is our priority, and we strive to exceed expectations with every order.",
-      icon: "❤️",
-      color: "from-red-500 to-rose-500",
+        'Your success is our priority, and we strive to exceed expectations with every order.',
+      icon: '❤️',
+      color: 'from-red-500 to-rose-500',
     },
   ];
 
   const galleryImages = [
     {
-      src: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&h=600&fit=crop",
-      alt: "Arc welding steel construction site",
-      title: "Precision Welding",
+      src: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&h=600&fit=crop',
+      alt: 'Arc welding steel construction site',
+      title: 'Precision Welding',
     },
     {
-      src: "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=800&h=600&fit=crop",
-      alt: "Factory worker in warehouse",
-      title: "Industrial Operations",
+      src: 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=800&h=600&fit=crop',
+      alt: 'Factory worker in warehouse',
+      title: 'Industrial Operations',
     },
     {
-      src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
-      alt: "Worker in metalworking plant",
-      title: "Expert Craftsmanship",
+      src: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      alt: 'Worker in metalworking plant',
+      title: 'Expert Craftsmanship',
     },
     {
-      src: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=800&h=600&fit=crop",
-      alt: "Factory production hall",
-      title: "Modern Facilities",
+      src: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=800&h=600&fit=crop',
+      alt: 'Factory production hall',
+      title: 'Modern Facilities',
     },
     {
-      src: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=600&fit=crop",
-      alt: "Steel manufacturing",
-      title: "Quality Manufacturing",
+      src: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=600&fit=crop',
+      alt: 'Steel manufacturing',
+      title: 'Quality Manufacturing',
     },
     {
-      src: "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=800&h=600&fit=crop",
-      alt: "Steel plates",
-      title: "Premium Materials",
+      src: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=800&h=600&fit=crop',
+      alt: 'Steel plates',
+      title: 'Premium Materials',
     },
   ];
 
   const emirates = [
-    { name: "Ajman", status: "headquarters", color: "bg-blue-600" },
-    { name: "Dubai", status: "serving", color: "bg-emerald-600" },
-    { name: "Abu Dhabi", status: "serving", color: "bg-purple-600" },
-    { name: "Sharjah", status: "serving", color: "bg-orange-600" },
-    { name: "Other Emirates", status: "serving", color: "bg-indigo-600" },
+    { name: 'Ajman', status: 'headquarters', color: 'bg-blue-600' },
+    { name: 'Dubai', status: 'serving', color: 'bg-emerald-600' },
+    { name: 'Abu Dhabi', status: 'serving', color: 'bg-purple-600' },
+    { name: 'Sharjah', status: 'serving', color: 'bg-orange-600' },
+    { name: 'Other Emirates', status: 'serving', color: 'bg-indigo-600' },
   ];
 
   return (
@@ -131,7 +131,7 @@ const About = () => {
                 <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mb-8"></div>
 
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Welcome to{" "}
+                  Welcome to{' '}
                   <span className="font-bold text-blue-600">
                     Ultimate Steels
                   </span>
@@ -331,12 +331,12 @@ const About = () => {
                     </h3>
                     <span
                       className={`text-sm px-3 py-1 rounded-full ${
-                        emirate.status === "headquarters"
-                          ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
-                          : "bg-green-500/20 text-green-300 border border-green-500/30"
+                        emirate.status === 'headquarters'
+                          ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                          : 'bg-green-500/20 text-green-300 border border-green-500/30'
                       }`}
                     >
-                      {emirate.status === "headquarters" ? "HQ" : "Serving"}
+                      {emirate.status === 'headquarters' ? 'HQ' : 'Serving'}
                     </span>
                   </div>
                 ))}

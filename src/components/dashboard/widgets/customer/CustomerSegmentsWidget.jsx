@@ -5,8 +5,8 @@
  * Displays customer distribution by industry, size, and geography
  */
 
-import { useState, useEffect } from "react";
-import { useTheme } from "../../../../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   PieChart,
   Building2,
@@ -14,98 +14,98 @@ import {
   Users,
   Info,
   RefreshCw,
-} from "lucide-react";
+} from 'lucide-react';
 // Mock segmentation data
 const MOCK_SEGMENTS_DATA = {
   byIndustry: [
     {
-      name: "Fabricators",
+      name: 'Fabricators',
       count: 58,
       revenue: 12500000,
       percent: 37,
-      color: "#14B8A6",
+      color: '#14B8A6',
     },
     {
-      name: "Traders",
+      name: 'Traders',
       count: 42,
       revenue: 8900000,
       percent: 27,
-      color: "#3B82F6",
+      color: '#3B82F6',
     },
     {
-      name: "OEMs",
+      name: 'OEMs',
       count: 28,
       revenue: 7200000,
       percent: 18,
-      color: "#F59E0B",
+      color: '#F59E0B',
     },
     {
-      name: "Projects",
+      name: 'Projects',
       count: 18,
       revenue: 4800000,
       percent: 12,
-      color: "#8B5CF6",
+      color: '#8B5CF6',
     },
     {
-      name: "Others",
+      name: 'Others',
       count: 10,
       revenue: 1600000,
       percent: 6,
-      color: "#6B7280",
+      color: '#6B7280',
     },
   ],
   bySize: [
     {
-      name: "Enterprise",
+      name: 'Enterprise',
       count: 25,
       revenue: 15200000,
       percent: 16,
-      color: "#22C55E",
+      color: '#22C55E',
     },
     {
-      name: "SMB",
+      name: 'SMB',
       count: 68,
       revenue: 12800000,
       percent: 44,
-      color: "#3B82F6",
+      color: '#3B82F6',
     },
     {
-      name: "Small",
+      name: 'Small',
       count: 63,
       revenue: 7000000,
       percent: 40,
-      color: "#F59E0B",
+      color: '#F59E0B',
     },
   ],
   byGeography: [
     {
-      name: "Dubai",
+      name: 'Dubai',
       count: 65,
       revenue: 14500000,
       percent: 42,
-      color: "#14B8A6",
+      color: '#14B8A6',
     },
     {
-      name: "Abu Dhabi",
+      name: 'Abu Dhabi',
       count: 38,
       revenue: 8200000,
       percent: 24,
-      color: "#3B82F6",
+      color: '#3B82F6',
     },
     {
-      name: "Sharjah",
+      name: 'Sharjah',
       count: 28,
       revenue: 5800000,
       percent: 18,
-      color: "#F59E0B",
+      color: '#F59E0B',
     },
-    { name: "RAK", count: 15, revenue: 3200000, percent: 10, color: "#8B5CF6" },
+    { name: 'RAK', count: 15, revenue: 3200000, percent: 10, color: '#8B5CF6' },
     {
-      name: "Others",
+      name: 'Others',
       count: 10,
       revenue: 2300000,
       percent: 6,
-      color: "#6B7280",
+      color: '#6B7280',
     },
   ],
   totalCustomers: 156,
@@ -113,9 +113,9 @@ const MOCK_SEGMENTS_DATA = {
 };
 
 const SEGMENT_VIEWS = [
-  { key: "byIndustry", label: "By Industry", icon: Building2 },
-  { key: "bySize", label: "By Size", icon: Users },
-  { key: "byGeography", label: "By Geography", icon: MapPin },
+  { key: 'byIndustry', label: 'By Industry', icon: Building2 },
+  { key: 'bySize', label: 'By Size', icon: Users },
+  { key: 'byGeography', label: 'By Geography', icon: MapPin },
 ];
 
 const CustomerSegmentsWidget = ({
@@ -130,7 +130,7 @@ const CustomerSegmentsWidget = ({
     propData || MOCK_SEGMENTS_DATA,
   );
   const [loading, setLoading] = useState(false);
-  const [activeView, setActiveView] = useState("byIndustry");
+  const [activeView, setActiveView] = useState('byIndustry');
 
   useEffect(() => {
     if (propData) {
@@ -158,9 +158,9 @@ const CustomerSegmentsWidget = ({
     } else if (safeAmount >= 1000) {
       return `AED ${(safeAmount / 1000).toFixed(0)}K`;
     }
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(safeAmount);
@@ -195,14 +195,14 @@ const CustomerSegmentsWidget = ({
       <div
         className={`rounded-xl border p-6 ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-[#E0E0E0]"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-[#E0E0E0]'
         }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <PieChart size={20} className="text-indigo-500" />
           <h3
-            className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             Customer Segments
           </h3>
@@ -210,10 +210,10 @@ const CustomerSegmentsWidget = ({
         <div className="text-center py-8">
           <PieChart
             size={48}
-            className={`mx-auto mb-4 opacity-50 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           />
           <p
-            className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
           >
             No segmentation data available
           </p>
@@ -229,8 +229,8 @@ const CustomerSegmentsWidget = ({
     <div
       className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
         isDarkMode
-          ? "bg-[#1E2328] border-[#37474F] hover:border-indigo-600"
-          : "bg-white border-[#E0E0E0] hover:border-indigo-500"
+          ? 'bg-[#1E2328] border-[#37474F] hover:border-indigo-600'
+          : 'bg-white border-[#E0E0E0] hover:border-indigo-500'
       }`}
     >
       {/* Header */}
@@ -242,7 +242,7 @@ const CustomerSegmentsWidget = ({
           <div>
             <h3
               className={`text-base font-semibold flex items-center gap-1.5 ${
-                isDarkMode ? "text-white" : "text-gray-900"
+                isDarkMode ? 'text-white' : 'text-gray-900'
               }`}
             >
               Customer Segments
@@ -254,8 +254,8 @@ const CustomerSegmentsWidget = ({
                 <span
                   className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs rounded shadow-md whitespace-nowrap ${
                     isDarkMode
-                      ? "bg-gray-700 text-white"
-                      : "bg-yellow-100 text-gray-800 border border-yellow-300"
+                      ? 'bg-gray-700 text-white'
+                      : 'bg-yellow-100 text-gray-800 border border-yellow-300'
                   }`}
                 >
                   Customer distribution by segment
@@ -263,7 +263,7 @@ const CustomerSegmentsWidget = ({
               </span>
             </h3>
             <p
-              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               {segmentData.totalCustomers} total customers
             </p>
@@ -275,9 +275,9 @@ const CustomerSegmentsWidget = ({
           disabled={loading || isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
-              ? "hover:bg-[#2E3B4E] text-gray-400 hover:text-white"
-              : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-          } ${loading || isLoading ? "animate-spin" : ""}`}
+              ? 'hover:bg-[#2E3B4E] text-gray-400 hover:text-white'
+              : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+          } ${loading || isLoading ? 'animate-spin' : ''}`}
         >
           <RefreshCw size={16} />
         </button>
@@ -287,7 +287,7 @@ const CustomerSegmentsWidget = ({
       <div
         className="flex gap-1 mb-4 p-1 rounded-lg bg-opacity-50"
         style={{
-          backgroundColor: isDarkMode ? "#2E3B4E" : "#F3F4F6",
+          backgroundColor: isDarkMode ? '#2E3B4E' : '#F3F4F6',
         }}
       >
         {SEGMENT_VIEWS.map((view) => {
@@ -298,15 +298,15 @@ const CustomerSegmentsWidget = ({
               onClick={() => setActiveView(view.key)}
               className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-md text-xs font-medium transition-all ${
                 activeView === view.key
-                  ? "bg-indigo-500 text-white shadow-sm"
+                  ? 'bg-indigo-500 text-white shadow-sm'
                   : isDarkMode
-                    ? "text-gray-400 hover:text-white hover:bg-gray-700"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-white"
+                    ? 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white'
               }`}
             >
               <Icon size={14} />
               <span className="hidden sm:inline">
-                {view.label.split(" ")[1]}
+                {view.label.split(' ')[1]}
               </span>
             </button>
           );
@@ -327,7 +327,7 @@ const CustomerSegmentsWidget = ({
                 d={slice.path}
                 fill={slice.color}
                 className="transition-all duration-300 hover:opacity-80"
-                style={{ cursor: "pointer" }}
+                style={{ cursor: 'pointer' }}
               />
             ))}
             {/* Center hole for donut effect */}
@@ -335,14 +335,14 @@ const CustomerSegmentsWidget = ({
               cx="50"
               cy="50"
               r="20"
-              fill={isDarkMode ? "#1E2328" : "#FFFFFF"}
+              fill={isDarkMode ? '#1E2328' : '#FFFFFF'}
             />
           </svg>
           {/* Center text */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <p
-                className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 {segmentData.totalCustomers}
               </p>
@@ -359,20 +359,20 @@ const CustomerSegmentsWidget = ({
                 onViewSegment && onViewSegment(segment, activeView)
               }
               className={`flex items-center gap-2 p-1 rounded transition-colors ${
-                onViewSegment ? "cursor-pointer hover:bg-opacity-50" : ""
-              } ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
+                onViewSegment ? 'cursor-pointer hover:bg-opacity-50' : ''
+              } ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
             >
               <div
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: segment.color }}
               />
               <span
-                className={`text-xs flex-1 truncate ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                className={`text-xs flex-1 truncate ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
               >
                 {segment.name}
               </span>
               <span
-                className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-xs font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 {segment.percent}%
               </span>
@@ -380,7 +380,7 @@ const CustomerSegmentsWidget = ({
           ))}
           {activeSegments.length > 4 && (
             <p
-              className={`text-xs pl-5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+              className={`text-xs pl-5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
             >
               +{activeSegments.length - 4} more
             </p>
@@ -395,8 +395,8 @@ const CustomerSegmentsWidget = ({
             key={idx}
             onClick={() => onViewSegment && onViewSegment(segment, activeView)}
             className={`p-3 rounded-lg transition-all duration-200 ${
-              onViewSegment ? "cursor-pointer" : ""
-            } ${isDarkMode ? "bg-[#2E3B4E] hover:bg-[#374151]" : "bg-gray-50 hover:bg-gray-100"}`}
+              onViewSegment ? 'cursor-pointer' : ''
+            } ${isDarkMode ? 'bg-[#2E3B4E] hover:bg-[#374151]' : 'bg-gray-50 hover:bg-gray-100'}`}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -405,27 +405,27 @@ const CustomerSegmentsWidget = ({
                   style={{ backgroundColor: segment.color }}
                 />
                 <span
-                  className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   {segment.name}
                 </span>
               </div>
               <span
-                className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 {formatCurrency(segment.revenue)}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+              <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
                 {segment.count} customers
               </span>
-              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+              <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
                 {segment.percent}% of total
               </span>
             </div>
             <div
-              className={`mt-2 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
+              className={`mt-2 h-1.5 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
             >
               <div
                 className="h-full rounded-full transition-all duration-500"
@@ -442,16 +442,16 @@ const CustomerSegmentsWidget = ({
       {/* Total Revenue */}
       <div
         className={`mt-4 pt-3 border-t flex justify-between items-center ${
-          isDarkMode ? "border-[#37474F]" : "border-gray-200"
+          isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
         }`}
       >
         <span
-          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           Total Revenue
         </span>
         <span
-          className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
         >
           {formatCurrency(segmentData.totalRevenue)}
         </span>
@@ -463,8 +463,8 @@ const CustomerSegmentsWidget = ({
           onClick={() => onViewDetails(segmentData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode
-              ? "bg-indigo-600 hover:bg-indigo-500 text-white"
-              : "bg-indigo-500 hover:bg-indigo-600 text-white"
+              ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
+              : 'bg-indigo-500 hover:bg-indigo-600 text-white'
           }`}
         >
           View Full Analysis

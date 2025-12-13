@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Save,
   ArrowLeft,
@@ -7,17 +7,17 @@ import {
   Package,
   Warehouse,
   ChevronDown,
-} from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   stockMovementService,
   MOVEMENT_TYPES,
   REFERENCE_TYPES,
   parseGrpcError,
-} from "../../services/stockMovementService";
-import { productService } from "../../services/dataService";
-import { warehouseService } from "../../services/warehouseService";
-import { notificationService } from "../../services/notificationService";
+} from '../../services/stockMovementService';
+import { productService } from '../../services/dataService';
+import { warehouseService } from '../../services/warehouseService';
+import { notificationService } from '../../services/notificationService';
 
 /**
  * Stock Movement Form
@@ -35,19 +35,19 @@ const StockMovementForm = () => {
 
   // Form state
   const [formData, setFormData] = useState({
-    productId: "",
-    warehouseId: "",
-    movementType: "IN",
-    quantity: "",
-    unit: "KG",
-    referenceType: "ADJUSTMENT",
-    referenceNumber: "",
-    notes: "",
+    productId: '',
+    warehouseId: '',
+    movementType: 'IN',
+    quantity: '',
+    unit: 'KG',
+    referenceType: 'ADJUSTMENT',
+    referenceNumber: '',
+    notes: '',
     movementDate: new Date().toISOString().slice(0, 10),
-    unitCost: "",
-    batchNumber: "",
-    coilNumber: "",
-    heatNumber: "",
+    unitCost: '',
+    batchNumber: '',
+    coilNumber: '',
+    heatNumber: '',
   });
 
   // Data state
@@ -59,13 +59,13 @@ const StockMovementForm = () => {
   const [existingMovement, setExistingMovement] = useState(null);
 
   // Product autocomplete search state
-  const [productQuery, setProductQuery] = useState("");
+  const [productQuery, setProductQuery] = useState('');
   const [productOptions, setProductOptions] = useState([]);
   const [productSearching, setProductSearching] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Available units
-  const UNITS = ["KG", "MT", "PCS", "SHEETS", "COILS", "BUNDLES", "METERS"];
+  const UNITS = ['KG', 'MT', 'PCS', 'SHEETS', 'COILS', 'BUNDLES', 'METERS'];
 
   // Allowed movement types for manual creation
   const MANUAL_MOVEMENT_TYPES = {
@@ -86,7 +86,7 @@ const StockMovementForm = () => {
         setProducts(productsRes?.data || productsRes || []);
         setWarehouses(warehousesRes?.data || warehousesRes || []);
       } catch (err) {
-        notificationService.error("Failed to load products or warehouses");
+        notificationService.error('Failed to load products or warehouses');
       }
     };
 
@@ -102,23 +102,23 @@ const StockMovementForm = () => {
           const movement = await stockMovementService.getById(id);
           setExistingMovement(movement);
           setFormData({
-            productId: movement.productId?.toString() || "",
-            warehouseId: movement.warehouseId?.toString() || "",
-            movementType: movement.movementType || "IN",
-            quantity: movement.quantity?.toString() || "",
-            unit: movement.unit || "KG",
-            referenceType: movement.referenceType || "ADJUSTMENT",
-            referenceNumber: movement.referenceNumber || "",
-            notes: movement.notes || "",
-            movementDate: movement.movementDate?.slice(0, 10) || "",
-            unitCost: movement.unitCost?.toString() || "",
-            batchNumber: movement.batchNumber || "",
-            coilNumber: movement.coilNumber || "",
-            heatNumber: movement.heatNumber || "",
+            productId: movement.productId?.toString() || '',
+            warehouseId: movement.warehouseId?.toString() || '',
+            movementType: movement.movementType || 'IN',
+            quantity: movement.quantity?.toString() || '',
+            unit: movement.unit || 'KG',
+            referenceType: movement.referenceType || 'ADJUSTMENT',
+            referenceNumber: movement.referenceNumber || '',
+            notes: movement.notes || '',
+            movementDate: movement.movementDate?.slice(0, 10) || '',
+            unitCost: movement.unitCost?.toString() || '',
+            batchNumber: movement.batchNumber || '',
+            coilNumber: movement.coilNumber || '',
+            heatNumber: movement.heatNumber || '',
           });
         } catch (err) {
-          notificationService.error("Failed to load stock movement");
-          navigate("/inventory/stock-movements");
+          notificationService.error('Failed to load stock movement');
+          navigate('/inventory/stock-movements');
         } finally {
           setLoading(false);
         }
@@ -148,9 +148,9 @@ const StockMovementForm = () => {
         const res = (await productService.searchProducts)
           ? await productService.searchProducts(productQuery, { limit: 10 })
           : await productService.getProducts({
-              search: productQuery,
-              limit: 10,
-            });
+            search: productQuery,
+            limit: 10,
+          });
         const rows = res?.data || res?.products || res || [];
         setProductOptions(rows);
       } catch (e) {
@@ -170,7 +170,7 @@ const StockMovementForm = () => {
       ...prev,
       productId: product.id,
     }));
-    setProductQuery("");
+    setProductQuery('');
     setProductOptions([]);
     if (errors.productId) {
       setErrors((prev) => ({ ...prev, productId: null }));
@@ -180,7 +180,7 @@ const StockMovementForm = () => {
   // Clear linked product
   const clearLinkedProduct = () => {
     setSelectedProduct(null);
-    setFormData((prev) => ({ ...prev, productId: "" }));
+    setFormData((prev) => ({ ...prev, productId: '' }));
   };
 
   // Validate form
@@ -188,19 +188,19 @@ const StockMovementForm = () => {
     const newErrors = {};
 
     if (!formData.productId) {
-      newErrors.productId = "Product is required";
+      newErrors.productId = 'Product is required';
     }
     if (!formData.warehouseId) {
-      newErrors.warehouseId = "Warehouse is required";
+      newErrors.warehouseId = 'Warehouse is required';
     }
     if (!formData.movementType) {
-      newErrors.movementType = "Movement type is required";
+      newErrors.movementType = 'Movement type is required';
     }
     if (!formData.quantity || parseFloat(formData.quantity) <= 0) {
-      newErrors.quantity = "Quantity must be greater than 0";
+      newErrors.quantity = 'Quantity must be greater than 0';
     }
     if (!formData.unit) {
-      newErrors.unit = "Unit is required";
+      newErrors.unit = 'Unit is required';
     }
 
     setErrors(newErrors);
@@ -212,7 +212,7 @@ const StockMovementForm = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      notificationService.error("Please fix the validation errors");
+      notificationService.error('Please fix the validation errors');
       return;
     }
 
@@ -235,17 +235,17 @@ const StockMovementForm = () => {
       };
 
       await stockMovementService.create(movementData);
-      notificationService.success("Stock movement created successfully");
-      navigate("/inventory/stock-movements");
+      notificationService.success('Stock movement created successfully');
+      navigate('/inventory/stock-movements');
     } catch (err) {
       const parsedError = parseGrpcError(err);
 
       // Provide specific feedback for known error types
-      if (parsedError.code === "FAILED_PRECONDITION") {
+      if (parsedError.code === 'FAILED_PRECONDITION') {
         notificationService.error(
           `${parsedError.message}. ${parsedError.originalMessage}`,
         );
-      } else if (parsedError.code === "INVALID_ARGUMENT") {
+      } else if (parsedError.code === 'INVALID_ARGUMENT') {
         notificationService.error(
           `Validation error: ${parsedError.originalMessage}`,
         );
@@ -261,15 +261,15 @@ const StockMovementForm = () => {
   const getInputClass = (fieldName) => {
     const baseClass = `w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
       isDarkMode
-        ? "bg-gray-800 text-white placeholder-gray-400"
-        : "bg-white text-gray-900 placeholder-gray-500"
+        ? 'bg-gray-800 text-white placeholder-gray-400'
+        : 'bg-white text-gray-900 placeholder-gray-500'
     }`;
 
     const borderClass = errors[fieldName]
-      ? "border-red-500"
+      ? 'border-red-500'
       : isDarkMode
-        ? "border-gray-600"
-        : "border-gray-300";
+        ? 'border-gray-600'
+        : 'border-gray-300';
 
     return `${baseClass} ${borderClass}`;
   };
@@ -278,12 +278,12 @@ const StockMovementForm = () => {
   if (loading) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
           <span
-            className={`ml-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+            className={`ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
           >
             Loading...
           </span>
@@ -294,37 +294,37 @@ const StockMovementForm = () => {
 
   return (
     <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
     >
       <div
         className={`p-4 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-[#E0E0E0]"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-[#E0E0E0]'
         }`}
       >
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <button
-            onClick={() => navigate("/inventory/stock-movements")}
+            onClick={() => navigate('/inventory/stock-movements')}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
-                ? "hover:bg-gray-700 text-gray-300"
-                : "hover:bg-gray-100 text-gray-600"
+                ? 'hover:bg-gray-700 text-gray-300'
+                : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
             <ArrowLeft size={24} />
           </button>
           <div>
             <h1
-              className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
-              {isEditing ? "View Stock Movement" : "New Stock Movement"}
+              {isEditing ? 'View Stock Movement' : 'New Stock Movement'}
             </h1>
-            <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               {isEditing
-                ? "Stock movements are immutable for audit purposes"
-                : "Create a manual stock movement"}
+                ? 'Stock movements are immutable for audit purposes'
+                : 'Create a manual stock movement'}
             </p>
           </div>
         </div>
@@ -334,49 +334,49 @@ const StockMovementForm = () => {
           <div
             className={`mb-6 p-4 rounded-lg border ${
               isDarkMode
-                ? "bg-gray-800/50 border-gray-700"
-                : "bg-gray-50 border-gray-200"
+                ? 'bg-gray-800/50 border-gray-700'
+                : 'bg-gray-50 border-gray-200'
             }`}
           >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <span
-                  className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
                   ID
                 </span>
-                <p className={isDarkMode ? "text-white" : "text-gray-900"}>
+                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
                   {existingMovement.id}
                 </p>
               </div>
               <div>
                 <span
-                  className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
                   Created By
                 </span>
-                <p className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {existingMovement.createdByName || "System"}
+                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                  {existingMovement.createdByName || 'System'}
                 </p>
               </div>
               <div>
                 <span
-                  className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
                   Balance After
                 </span>
-                <p className={isDarkMode ? "text-white" : "text-gray-900"}>
+                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
                   {existingMovement.balanceAfter} {existingMovement.unit}
                 </p>
               </div>
               <div>
                 <span
-                  className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
                   Total Cost
                 </span>
-                <p className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {existingMovement.totalCost?.toFixed(2) || "-"}
+                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                  {existingMovement.totalCost?.toFixed(2) || '-'}
                 </p>
               </div>
             </div>
@@ -389,7 +389,7 @@ const StockMovementForm = () => {
             {/* Product with Autocomplete Search */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 <div className="flex items-center gap-2">
                   <Package size={16} />
@@ -401,7 +401,7 @@ const StockMovementForm = () => {
                 <div className="relative">
                   <select
                     value={formData.productId}
-                    className={getInputClass("productId")}
+                    className={getInputClass('productId')}
                     disabled={true}
                   >
                     <option value="">Select a product...</option>
@@ -411,14 +411,14 @@ const StockMovementForm = () => {
                           product.display_name ||
                           product.uniqueName ||
                           product.unique_name ||
-                          "N/A"}{" "}
-                        {product.sku ? `(${product.sku})` : ""}
+                          'N/A'}{' '}
+                        {product.sku ? `(${product.sku})` : ''}
                       </option>
                     ))}
                   </select>
                   <ChevronDown
                     size={16}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   />
                 </div>
               ) : selectedProduct || formData.productId ? (
@@ -426,8 +426,8 @@ const StockMovementForm = () => {
                 <div
                   className={`flex items-center justify-between px-4 py-3 rounded-lg border ${
                     isDarkMode
-                      ? "bg-gray-800 border-gray-600 text-white"
-                      : "bg-gray-50 border-gray-300 text-gray-900"
+                      ? 'bg-gray-800 border-gray-600 text-white'
+                      : 'bg-gray-50 border-gray-300 text-gray-900'
                   }`}
                 >
                   <div>
@@ -439,26 +439,26 @@ const StockMovementForm = () => {
                           selectedProduct.unique_name ||
                           selectedProduct.name
                         : products.find(
-                            (p) =>
-                              p.id.toString() === formData.productId.toString(),
-                          )?.name || "Product Selected"}
+                          (p) =>
+                            p.id.toString() === formData.productId.toString(),
+                        )?.name || 'Product Selected'}
                     </div>
                     <div
-                      className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       {selectedProduct?.origin
                         ? `${selectedProduct.origin} | `
-                        : ""}
-                      {selectedProduct?.category || ""}{" "}
+                        : ''}
+                      {selectedProduct?.category || ''}{' '}
                       {selectedProduct?.grade
                         ? `| ${selectedProduct.grade}`
-                        : ""}
+                        : ''}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={clearLinkedProduct}
-                    className={`px-3 py-1 rounded border text-sm ${isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-100"}`}
+                    className={`px-3 py-1 rounded border text-sm ${isDarkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-100'}`}
                   >
                     Change
                   </button>
@@ -471,11 +471,11 @@ const StockMovementForm = () => {
                     value={productQuery}
                     onChange={(e) => setProductQuery(e.target.value)}
                     placeholder="Search for a product..."
-                    className={getInputClass("productId")}
+                    className={getInputClass('productId')}
                   />
                   {productSearching && (
                     <div
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       Searching...
                     </div>
@@ -484,8 +484,8 @@ const StockMovementForm = () => {
                     <div
                       className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow-lg ${
                         isDarkMode
-                          ? "bg-[#1E2328] border-gray-700"
-                          : "bg-white border-gray-200"
+                          ? 'bg-[#1E2328] border-gray-700'
+                          : 'bg-white border-gray-200'
                       }`}
                     >
                       {productOptions.map((p) => (
@@ -495,12 +495,12 @@ const StockMovementForm = () => {
                           onClick={() => handleSelectProduct(p)}
                           className={`w-full text-left px-4 py-3 transition-colors ${
                             isDarkMode
-                              ? "hover:bg-gray-700"
-                              : "hover:bg-gray-50"
+                              ? 'hover:bg-gray-700'
+                              : 'hover:bg-gray-50'
                           }`}
                         >
                           <div
-                            className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
                             {p.displayName ||
                               p.display_name ||
@@ -509,11 +509,11 @@ const StockMovementForm = () => {
                               p.name}
                           </div>
                           <div
-                            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
-                            {p.origin ? `${p.origin} | ` : ""}
-                            {p.category} {p.grade ? `| ${p.grade}` : ""}{" "}
-                            {p.size ? `| ${p.size}` : ""}
+                            {p.origin ? `${p.origin} | ` : ''}
+                            {p.category} {p.grade ? `| ${p.grade}` : ''}{' '}
+                            {p.size ? `| ${p.size}` : ''}
                           </div>
                         </button>
                       ))}
@@ -532,7 +532,7 @@ const StockMovementForm = () => {
             {/* Warehouse */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 <div className="flex items-center gap-2">
                   <Warehouse size={16} />
@@ -542,21 +542,21 @@ const StockMovementForm = () => {
               <div className="relative">
                 <select
                   value={formData.warehouseId}
-                  onChange={(e) => handleChange("warehouseId", e.target.value)}
-                  className={getInputClass("warehouseId")}
+                  onChange={(e) => handleChange('warehouseId', e.target.value)}
+                  className={getInputClass('warehouseId')}
                   disabled={isEditing}
                 >
                   <option value="">Select a warehouse...</option>
                   {warehouses.map((warehouse) => (
                     <option key={warehouse.id} value={warehouse.id}>
-                      {warehouse.name}{" "}
-                      {warehouse.code ? `(${warehouse.code})` : ""}
+                      {warehouse.name}{' '}
+                      {warehouse.code ? `(${warehouse.code})` : ''}
                     </option>
                   ))}
                 </select>
                 <ChevronDown
                   size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 />
               </div>
               {errors.warehouseId && (
@@ -573,15 +573,15 @@ const StockMovementForm = () => {
             {/* Movement Type */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Movement Type *
               </label>
               <div className="relative">
                 <select
                   value={formData.movementType}
-                  onChange={(e) => handleChange("movementType", e.target.value)}
-                  className={getInputClass("movementType")}
+                  onChange={(e) => handleChange('movementType', e.target.value)}
+                  className={getInputClass('movementType')}
                   disabled={isEditing}
                 >
                   {Object.entries(
@@ -594,7 +594,7 @@ const StockMovementForm = () => {
                 </select>
                 <ChevronDown
                   size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 />
               </div>
               {errors.movementType && (
@@ -608,7 +608,7 @@ const StockMovementForm = () => {
             {/* Quantity */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Quantity *
               </label>
@@ -617,9 +617,9 @@ const StockMovementForm = () => {
                 step="0.01"
                 min="0"
                 value={formData.quantity}
-                onChange={(e) => handleChange("quantity", e.target.value)}
+                onChange={(e) => handleChange('quantity', e.target.value)}
                 placeholder="0.00"
-                className={getInputClass("quantity")}
+                className={getInputClass('quantity')}
                 disabled={isEditing}
               />
               {errors.quantity && (
@@ -633,15 +633,15 @@ const StockMovementForm = () => {
             {/* Unit */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Unit *
               </label>
               <div className="relative">
                 <select
                   value={formData.unit}
-                  onChange={(e) => handleChange("unit", e.target.value)}
-                  className={getInputClass("unit")}
+                  onChange={(e) => handleChange('unit', e.target.value)}
+                  className={getInputClass('unit')}
                   disabled={isEditing}
                 >
                   {UNITS.map((unit) => (
@@ -652,7 +652,7 @@ const StockMovementForm = () => {
                 </select>
                 <ChevronDown
                   size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 />
               </div>
               {errors.unit && (
@@ -669,7 +669,7 @@ const StockMovementForm = () => {
             {/* Reference Type */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Reference Type
               </label>
@@ -677,9 +677,9 @@ const StockMovementForm = () => {
                 <select
                   value={formData.referenceType}
                   onChange={(e) =>
-                    handleChange("referenceType", e.target.value)
+                    handleChange('referenceType', e.target.value)
                   }
-                  className={getInputClass("referenceType")}
+                  className={getInputClass('referenceType')}
                   disabled={isEditing}
                 >
                   {Object.entries(REFERENCE_TYPES).map(([key, { label }]) => (
@@ -690,7 +690,7 @@ const StockMovementForm = () => {
                 </select>
                 <ChevronDown
                   size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 />
               </div>
             </div>
@@ -698,7 +698,7 @@ const StockMovementForm = () => {
             {/* Reference Number */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Reference Number
               </label>
@@ -706,10 +706,10 @@ const StockMovementForm = () => {
                 type="text"
                 value={formData.referenceNumber}
                 onChange={(e) =>
-                  handleChange("referenceNumber", e.target.value)
+                  handleChange('referenceNumber', e.target.value)
                 }
                 placeholder="INV-001, PO-001, etc."
-                className={getInputClass("referenceNumber")}
+                className={getInputClass('referenceNumber')}
                 disabled={isEditing}
               />
             </div>
@@ -717,15 +717,15 @@ const StockMovementForm = () => {
             {/* Movement Date */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Movement Date
               </label>
               <input
                 type="date"
                 value={formData.movementDate}
-                onChange={(e) => handleChange("movementDate", e.target.value)}
-                className={getInputClass("movementDate")}
+                onChange={(e) => handleChange('movementDate', e.target.value)}
+                className={getInputClass('movementDate')}
                 disabled={isEditing}
               />
             </div>
@@ -736,7 +736,7 @@ const StockMovementForm = () => {
             {/* Unit Cost */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Unit Cost
               </label>
@@ -745,9 +745,9 @@ const StockMovementForm = () => {
                 step="0.01"
                 min="0"
                 value={formData.unitCost}
-                onChange={(e) => handleChange("unitCost", e.target.value)}
+                onChange={(e) => handleChange('unitCost', e.target.value)}
                 placeholder="0.00"
-                className={getInputClass("unitCost")}
+                className={getInputClass('unitCost')}
                 disabled={isEditing}
               />
             </div>
@@ -755,16 +755,16 @@ const StockMovementForm = () => {
             {/* Batch Number */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Batch Number
               </label>
               <input
                 type="text"
                 value={formData.batchNumber}
-                onChange={(e) => handleChange("batchNumber", e.target.value)}
+                onChange={(e) => handleChange('batchNumber', e.target.value)}
                 placeholder="Batch #"
-                className={getInputClass("batchNumber")}
+                className={getInputClass('batchNumber')}
                 disabled={isEditing}
               />
             </div>
@@ -772,16 +772,16 @@ const StockMovementForm = () => {
             {/* Coil Number */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Coil Number
               </label>
               <input
                 type="text"
                 value={formData.coilNumber}
-                onChange={(e) => handleChange("coilNumber", e.target.value)}
+                onChange={(e) => handleChange('coilNumber', e.target.value)}
                 placeholder="Coil #"
-                className={getInputClass("coilNumber")}
+                className={getInputClass('coilNumber')}
                 disabled={isEditing}
               />
             </div>
@@ -789,16 +789,16 @@ const StockMovementForm = () => {
             {/* Heat Number */}
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Heat Number
               </label>
               <input
                 type="text"
                 value={formData.heatNumber}
-                onChange={(e) => handleChange("heatNumber", e.target.value)}
+                onChange={(e) => handleChange('heatNumber', e.target.value)}
                 placeholder="Heat #"
-                className={getInputClass("heatNumber")}
+                className={getInputClass('heatNumber')}
                 disabled={isEditing}
               />
             </div>
@@ -807,16 +807,16 @@ const StockMovementForm = () => {
           {/* Notes */}
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
               Notes
             </label>
             <textarea
               value={formData.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
+              onChange={(e) => handleChange('notes', e.target.value)}
               rows={3}
               placeholder="Additional notes about this movement..."
-              className={getInputClass("notes")}
+              className={getInputClass('notes')}
               disabled={isEditing}
             />
           </div>
@@ -825,14 +825,14 @@ const StockMovementForm = () => {
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
-              onClick={() => navigate("/inventory/stock-movements")}
+              onClick={() => navigate('/inventory/stock-movements')}
               className={`px-6 py-3 border rounded-lg transition-colors ${
                 isDarkMode
-                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
-              {isEditing ? "Back to List" : "Cancel"}
+              {isEditing ? 'Back to List' : 'Cancel'}
             </button>
 
             {!isEditing && (
@@ -840,7 +840,7 @@ const StockMovementForm = () => {
                 type="submit"
                 disabled={saving}
                 className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
-                  saving ? "opacity-50 cursor-not-allowed" : ""
+                  saving ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
                 {saving ? (

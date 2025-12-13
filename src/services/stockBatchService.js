@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from './api';
 
 /**
  * Stock Batch Service
@@ -33,7 +33,7 @@ export const stockBatchService = {
     if (params.warehouseId) queryParams.warehouseId = params.warehouseId;
     if (params.hasStock !== undefined) queryParams.hasStock = params.hasStock;
 
-    return apiClient.get("/stock-batches", queryParams);
+    return apiClient.get('/stock-batches', queryParams);
   },
 
   /**
@@ -97,7 +97,7 @@ export const stockBatchService = {
    * @param {string} data.millName - Mill/manufacturer name for imports
    */
   async createBatch(data) {
-    return apiClient.post("/stock-batches", data);
+    return apiClient.post('/stock-batches', data);
   },
 
   /**

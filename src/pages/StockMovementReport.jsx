@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -25,25 +25,25 @@ import {
   OutlinedInput,
   Pagination,
   TableFooter,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Search as SearchIcon,
   FileDownload as DownloadIcon,
   PictureAsPdf as PdfIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 import {
   stockMovementService,
   MOVEMENT_TYPES,
-} from "../services/stockMovementService";
-import { warehouseService } from "../services/warehouseService";
-import { productService } from "../services/dataService";
-import { toast } from "react-toastify";
-import { toUAETime } from "../utils/timezone";
+} from '../services/stockMovementService';
+import { warehouseService } from '../services/warehouseService';
+import { productService } from '../services/dataService';
+import { toast } from 'react-toastify';
+import { toUAETime } from '../utils/timezone';
 
 const PROCUREMENT_CHANNELS = [
-  { value: "ALL", label: "All Channels" },
-  { value: "LOCAL", label: "Local" },
-  { value: "IMPORTED", label: "Imported" },
+  { value: 'ALL', label: 'All Channels' },
+  { value: 'LOCAL', label: 'Local' },
+  { value: 'IMPORTED', label: 'Imported' },
 ];
 
 export default function StockMovementReport() {
@@ -53,12 +53,12 @@ export default function StockMovementReport() {
   const [products, setProducts] = useState([]);
 
   // Filters
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [selectedWarehouse, setSelectedWarehouse] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedMovementTypes, setSelectedMovementTypes] = useState([]);
-  const [procurementChannel, setProcurementChannel] = useState("ALL");
+  const [procurementChannel, setProcurementChannel] = useState('ALL');
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -84,8 +84,8 @@ export default function StockMovementReport() {
       const response = await warehouseService.getAll();
       setWarehouses(response.data || []);
     } catch (error) {
-      console.error("Error fetching warehouses:", error);
-      toast.error("Failed to load warehouses");
+      console.error('Error fetching warehouses:', error);
+      toast.error('Failed to load warehouses');
     }
   };
 
@@ -94,14 +94,14 @@ export default function StockMovementReport() {
       const response = await productService.getAll();
       setProducts(response.data || []);
     } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Failed to load products");
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
     }
   };
 
   const fetchMovements = async (pageNum = 1) => {
     if (!dateFrom || !dateTo) {
-      toast.error("Please select both start and end dates");
+      toast.error('Please select both start and end dates');
       return;
     }
 
@@ -117,7 +117,7 @@ export default function StockMovementReport() {
         productId: selectedProduct || undefined,
         movementType:
           selectedMovementTypes.length > 0
-            ? selectedMovementTypes.join(",")
+            ? selectedMovementTypes.join(',')
             : undefined,
       };
 
@@ -126,7 +126,7 @@ export default function StockMovementReport() {
       let filteredMovements = response.data || [];
 
       // Apply procurement channel filter if needed (client-side for now)
-      if (procurementChannel !== "ALL") {
+      if (procurementChannel !== 'ALL') {
         filteredMovements = filteredMovements.filter((m) => {
           // This would require product procurement info - placeholder logic
           // In reality, you'd add this to the backend filter
@@ -142,8 +142,8 @@ export default function StockMovementReport() {
       // Calculate summary
       calculateSummary(filteredMovements);
     } catch (error) {
-      console.error("Error fetching stock movements:", error);
-      toast.error("Failed to load stock movements");
+      console.error('Error fetching stock movements:', error);
+      toast.error('Failed to load stock movements');
     } finally {
       setLoading(false);
     }
@@ -159,13 +159,13 @@ export default function StockMovementReport() {
       const cost = movement.totalCost || 0;
 
       if (
-        movement.movementType === "IN" ||
-        movement.movementType === "TRANSFER_IN"
+        movement.movementType === 'IN' ||
+        movement.movementType === 'TRANSFER_IN'
       ) {
         totalIn += qty;
       } else if (
-        movement.movementType === "OUT" ||
-        movement.movementType === "TRANSFER_OUT"
+        movement.movementType === 'OUT' ||
+        movement.movementType === 'TRANSFER_OUT'
       ) {
         totalOut += qty;
       }
@@ -192,77 +192,77 @@ export default function StockMovementReport() {
 
   const handleExportCSV = () => {
     if (movements.length === 0) {
-      toast.warning("No data to export");
+      toast.warning('No data to export');
       return;
     }
 
     try {
       // CSV Headers
       const headers = [
-        "Date",
-        "Product",
-        "SKU",
-        "Batch #",
-        "Type",
-        "Quantity",
-        "UOM",
-        "Unit Cost",
-        "Total Cost",
-        "Reference",
-        "Warehouse",
-        "Notes",
+        'Date',
+        'Product',
+        'SKU',
+        'Batch #',
+        'Type',
+        'Quantity',
+        'UOM',
+        'Unit Cost',
+        'Total Cost',
+        'Reference',
+        'Warehouse',
+        'Notes',
       ];
 
       // CSV Rows
       const rows = movements.map((m) => [
-        toUAETime(m.movementDate || m.createdAt, { format: "datetime" }),
-        m.productName || m.productDisplayName || "",
-        m.productSku || "",
-        m.batchNumber || "",
+        toUAETime(m.movementDate || m.createdAt, { format: 'datetime' }),
+        m.productName || m.productDisplayName || '',
+        m.productSku || '',
+        m.batchNumber || '',
         MOVEMENT_TYPES[m.movementType]?.label || m.movementType,
-        m.quantity?.toFixed(2) || "0.00",
-        m.unit || "KG",
-        m.unitCost?.toFixed(2) || "0.00",
-        m.totalCost?.toFixed(2) || "0.00",
-        m.referenceNumber || "",
-        m.warehouseName || "",
-        m.notes || "",
+        m.quantity?.toFixed(2) || '0.00',
+        m.unit || 'KG',
+        m.unitCost?.toFixed(2) || '0.00',
+        m.totalCost?.toFixed(2) || '0.00',
+        m.referenceNumber || '',
+        m.warehouseName || '',
+        m.notes || '',
       ]);
 
       // Build CSV content
       const csvContent = [
-        headers.join(","),
-        ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
-      ].join("\n");
+        headers.join(','),
+        ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+      ].join('\n');
 
       // Download
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
+      link.setAttribute('href', url);
       link.setAttribute(
-        "download",
+        'download',
         `stock-movements-${dateFrom}-to-${dateTo}.csv`,
       );
-      link.style.visibility = "hidden";
+      link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success("CSV exported successfully");
+      toast.success('CSV exported successfully');
     } catch (error) {
-      console.error("Error exporting CSV:", error);
-      toast.error("Failed to export CSV");
+      console.error('Error exporting CSV:', error);
+      toast.error('Failed to export CSV');
     }
   };
 
   const handleExportPDF = () => {
-    toast.info("PDF export coming soon");
+    toast.info('PDF export coming soon');
     // Placeholder for PDF export functionality
   };
 
   const getMovementTypeColor = (type) => {
-    return MOVEMENT_TYPES[type]?.color || "default";
+    return MOVEMENT_TYPES[type]?.color || 'default';
   };
 
   const getMovementTypeLabel = (type) => {
@@ -331,7 +331,7 @@ export default function StockMovementReport() {
                     {product.uniqueName ||
                       product.displayName ||
                       product.name ||
-                      "N/A"}
+                      'N/A'}
                   </MenuItem>
                 ))}
               </TextField>
@@ -345,7 +345,7 @@ export default function StockMovementReport() {
                   onChange={(e) => setSelectedMovementTypes(e.target.value)}
                   input={<OutlinedInput label="Movement Type" />}
                   renderValue={(selected) => (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                       {selected.map((value) => (
                         <Chip
                           key={value}
@@ -383,7 +383,7 @@ export default function StockMovementReport() {
               <Stack
                 direction="row"
                 spacing={1}
-                sx={{ height: "100%", alignItems: "center" }}
+                sx={{ height: '100%', alignItems: 'center' }}
               >
                 <Button
                   variant="contained"
@@ -453,10 +453,10 @@ export default function StockMovementReport() {
                   variant="h6"
                   fontWeight="bold"
                   color={
-                    summary.netMovement >= 0 ? "success.main" : "error.main"
+                    summary.netMovement >= 0 ? 'success.main' : 'error.main'
                   }
                 >
-                  {summary.netMovement >= 0 ? "+" : ""}
+                  {summary.netMovement >= 0 ? '+' : ''}
                   {summary.netMovement.toFixed(2)} KG
                 </Typography>
               </CardContent>
@@ -524,7 +524,7 @@ export default function StockMovementReport() {
                             {toUAETime(
                               movement.movementDate || movement.createdAt,
                               {
-                                format: "date",
+                                format: 'date',
                               },
                             )}
                           </Typography>
@@ -532,7 +532,7 @@ export default function StockMovementReport() {
                             {toUAETime(
                               movement.movementDate || movement.createdAt,
                               {
-                                format: "time",
+                                format: 'time',
                               },
                             )}
                           </Typography>
@@ -541,7 +541,7 @@ export default function StockMovementReport() {
                           <Typography variant="body2" fontWeight="medium">
                             {movement.productName ||
                               movement.productDisplayName ||
-                              "N/A"}
+                              'N/A'}
                           </Typography>
                           {movement.productSku && (
                             <Typography variant="caption" color="textSecondary">
@@ -551,7 +551,7 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
-                            {movement.batchNumber || "-"}
+                            {movement.batchNumber || '-'}
                           </Typography>
                           {movement.coilNumber && (
                             <Typography variant="caption" color="textSecondary">
@@ -569,15 +569,15 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell align="right">
                           <Typography variant="body2" fontWeight="medium">
-                            {movement.quantity?.toFixed(2) || "0.00"}{" "}
-                            {movement.unit || "KG"}
+                            {movement.quantity?.toFixed(2) || '0.00'}{' '}
+                            {movement.unit || 'KG'}
                           </Typography>
                         </TableCell>
                         <TableCell align="right">
                           <Typography variant="body2">
                             {movement.unitCost
                               ? `AED ${movement.unitCost.toFixed(2)}`
-                              : "-"}
+                              : '-'}
                           </Typography>
                           {movement.totalCost && movement.totalCost > 0 && (
                             <Typography variant="caption" color="textSecondary">
@@ -587,7 +587,7 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
-                            {movement.referenceNumber || "-"}
+                            {movement.referenceNumber || '-'}
                           </Typography>
                           {movement.referenceType && (
                             <Typography variant="caption" color="textSecondary">
@@ -597,7 +597,7 @@ export default function StockMovementReport() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
-                            {movement.warehouseName || "N/A"}
+                            {movement.warehouseName || 'N/A'}
                           </Typography>
                           {movement.destinationWarehouseName && (
                             <Typography variant="caption" color="textSecondary">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
  * useApiHealth - Hook that polls the API Gateway health endpoint
@@ -21,7 +21,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 export const useApiHealth = (options = {}) => {
   const {
     pollingInterval = 30000, // 30 seconds
-    healthUrl = "http://localhost:3000/health",
+    healthUrl = 'http://localhost:3000/health',
     enabled = true,
   } = options;
 
@@ -47,10 +47,10 @@ export const useApiHealth = (options = {}) => {
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
       const response = await fetch(healthUrl, {
-        method: "GET",
+        method: 'GET',
         signal: controller.signal,
         // Don't send credentials for health check
-        credentials: "omit",
+        credentials: 'omit',
       });
 
       clearTimeout(timeoutId);
@@ -70,12 +70,12 @@ export const useApiHealth = (options = {}) => {
         setIsHealthy(false);
 
         // Provide user-friendly error messages
-        if (err.name === "AbortError") {
-          setError("Server is not responding (timeout)");
-        } else if (err.message.includes("Failed to fetch")) {
-          setError("Cannot connect to server");
+        if (err.name === 'AbortError') {
+          setError('Server is not responding (timeout)');
+        } else if (err.message.includes('Failed to fetch')) {
+          setError('Cannot connect to server');
         } else {
-          setError(err.message || "Health check failed");
+          setError(err.message || 'Health check failed');
         }
         setLastChecked(new Date());
       }

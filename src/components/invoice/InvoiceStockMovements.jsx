@@ -9,33 +9,33 @@
  * Phase 3: Invoice-Stock Integration
  */
 
-import { useState, useEffect } from "react";
-import { invoiceService } from "../../services/invoiceService";
-import { format } from "date-fns";
+import { useState, useEffect } from 'react';
+import { invoiceService } from '../../services/invoiceService';
+import { format } from 'date-fns';
 
 const movementTypeColors = {
-  OUT: "bg-red-100 text-red-800",
-  IN: "bg-green-100 text-green-800",
-  TRANSFER_OUT: "bg-orange-100 text-orange-800",
-  TRANSFER_IN: "bg-blue-100 text-blue-800",
-  ADJUSTMENT: "bg-purple-100 text-purple-800",
+  OUT: 'bg-red-100 text-red-800',
+  IN: 'bg-green-100 text-green-800',
+  TRANSFER_OUT: 'bg-orange-100 text-orange-800',
+  TRANSFER_IN: 'bg-blue-100 text-blue-800',
+  ADJUSTMENT: 'bg-purple-100 text-purple-800',
 };
 
 const referenceTypeLabels = {
-  INVOICE: "Invoice",
-  RETURN: "Return",
-  CREDIT_NOTE: "Credit Note",
-  PURCHASE_ORDER: "Purchase Order",
-  ADJUSTMENT: "Adjustment",
-  TRANSFER: "Transfer",
-  INITIAL: "Initial Stock",
+  INVOICE: 'Invoice',
+  RETURN: 'Return',
+  CREDIT_NOTE: 'Credit Note',
+  PURCHASE_ORDER: 'Purchase Order',
+  ADJUSTMENT: 'Adjustment',
+  TRANSFER: 'Transfer',
+  INITIAL: 'Initial Stock',
 };
 
 export default function InvoiceStockMovements({
   invoiceId,
   invoiceNumber,
   showHeader = true,
-  className = "",
+  className = '',
   onStockDeducted = null,
 }) {
   const [movements, setMovements] = useState([]);
@@ -57,8 +57,8 @@ export default function InvoiceStockMovements({
       const data = await invoiceService.getInvoiceStockMovements(invoiceId);
       setMovements(data);
     } catch (err) {
-      console.error("Failed to fetch stock movements:", err);
-      setError(err.message || "Failed to load stock movements");
+      console.error('Failed to fetch stock movements:', err);
+      setError(err.message || 'Failed to load stock movements');
     } finally {
       setLoading(false);
     }
@@ -76,33 +76,33 @@ export default function InvoiceStockMovements({
           onStockDeducted(result);
         }
       } else if (result.errors?.length > 0) {
-        setError(result.errors.join(", "));
+        setError(result.errors.join(', '));
       }
     } catch (err) {
-      console.error("Failed to create stock movements:", err);
-      setError(err.message || "Failed to deduct stock");
+      console.error('Failed to create stock movements:', err);
+      setError(err.message || 'Failed to deduct stock');
     } finally {
       setDeducting(false);
     }
   };
 
   const formatDate = (dateValue) => {
-    if (!dateValue) return "-";
+    if (!dateValue) return '-';
     // Handle both timestamp object and ISO string
     const date = dateValue.seconds
       ? new Date(dateValue.seconds * 1000)
       : new Date(dateValue);
-    return format(date, "dd MMM yyyy HH:mm");
+    return format(date, 'dd MMM yyyy HH:mm');
   };
 
   const formatQuantity = (qty, unit) => {
     const num = parseFloat(qty) || 0;
-    return `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit || "KG"}`;
+    return `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit || 'KG'}`;
   };
 
   // Group movements by type for summary
-  const outMovements = movements.filter((m) => m.movementType === "OUT");
-  const inMovements = movements.filter((m) => m.movementType === "IN");
+  const outMovements = movements.filter((m) => m.movementType === 'OUT');
+  const inMovements = movements.filter((m) => m.movementType === 'IN');
 
   const totalOut = outMovements.reduce(
     (sum, m) => sum + (parseFloat(m.quantity) || 0),
@@ -136,7 +136,7 @@ export default function InvoiceStockMovements({
               disabled={deducting}
               className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              {deducting ? "Deducting..." : "Deduct Stock Manually"}
+              {deducting ? 'Deducting...' : 'Deduct Stock Manually'}
             </button>
           )}
         </div>
@@ -235,7 +235,7 @@ export default function InvoiceStockMovements({
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
                       <div className="font-medium">
-                        {movement.productName || "Unknown Product"}
+                        {movement.productName || 'Unknown Product'}
                       </div>
                       {movement.productSku && (
                         <div className="text-xs text-gray-500">
@@ -247,12 +247,12 @@ export default function InvoiceStockMovements({
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                           movementTypeColors[movement.movementType] ||
-                          "bg-gray-100 text-gray-800"
+                          'bg-gray-100 text-gray-800'
                         }`}
                       >
                         {movement.movementType}
                       </span>
-                      {movement.referenceType !== "INVOICE" && (
+                      {movement.referenceType !== 'INVOICE' && (
                         <span className="ml-1 text-xs text-gray-500">
                           (
                           {referenceTypeLabels[movement.referenceType] ||
@@ -264,17 +264,17 @@ export default function InvoiceStockMovements({
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-right">
                       <span
                         className={
-                          movement.movementType === "OUT"
-                            ? "text-red-600"
-                            : "text-green-600"
+                          movement.movementType === 'OUT'
+                            ? 'text-red-600'
+                            : 'text-green-600'
                         }
                       >
-                        {movement.movementType === "OUT" ? "-" : "+"}
+                        {movement.movementType === 'OUT' ? '-' : '+'}
                         {formatQuantity(movement.quantity, movement.unit)}
                       </span>
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                      {movement.warehouseName || movement.warehouseCode || "-"}
+                      {movement.warehouseName || movement.warehouseCode || '-'}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-right text-gray-700">
                       {formatQuantity(movement.balanceAfter, movement.unit)}

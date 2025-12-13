@@ -256,7 +256,7 @@ const Input = ({
   );
 };
 
-const Select = ({
+const _Select = ({
   label,
   children,
   error,
@@ -2737,6 +2737,7 @@ const VendorBillForm = () => {
                 <div className="flex justify-between items-center pt-2">
                   <span className="font-medium">Create Batches:</span>
                   <label className="relative inline-flex items-center cursor-pointer">
+                    <span className="sr-only">Toggle batch creation</span>
                     <input
                       type="checkbox"
                       checked={bill.triggerBatchCreation}

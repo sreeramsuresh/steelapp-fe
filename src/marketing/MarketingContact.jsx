@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import MarketingLayout from "./MarketingLayout";
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import MarketingLayout from './MarketingLayout';
 
 const Contact = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -21,7 +21,7 @@ const Contact = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: "50px" },
+      { threshold: 0.1, rootMargin: '50px' },
     );
 
     document.querySelectorAll('[id^="section-"]').forEach((el) => {
@@ -61,9 +61,9 @@ const Contact = () => {
         <section
           id="section-main"
           className={`py-20 transition-all duration-1000 ${
-            isVisible["section-main"]
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-20"
+            isVisible['section-main']
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">
@@ -175,9 +175,9 @@ const Contact = () => {
         <section
           id="section-serving"
           className={`py-20 bg-gradient-to-br from-gray-50 to-slate-100 transition-all duration-1000 ${
-            isVisible["section-serving"]
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-20"
+            isVisible['section-serving']
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-20'
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">
@@ -201,24 +201,24 @@ const Contact = () => {
                 <div className="grid grid-cols-2 gap-4 mt-8">
                   {[
                     {
-                      name: "Ajman",
-                      status: "Headquarters",
-                      color: "bg-blue-600",
+                      name: 'Ajman',
+                      status: 'Headquarters',
+                      color: 'bg-blue-600',
                     },
                     {
-                      name: "Dubai",
-                      status: "Full Service",
-                      color: "bg-green-600",
+                      name: 'Dubai',
+                      status: 'Full Service',
+                      color: 'bg-green-600',
                     },
                     {
-                      name: "Abu Dhabi",
-                      status: "Full Service",
-                      color: "bg-purple-600",
+                      name: 'Abu Dhabi',
+                      status: 'Full Service',
+                      color: 'bg-purple-600',
                     },
                     {
-                      name: "Sharjah",
-                      status: "Full Service",
-                      color: "bg-orange-600",
+                      name: 'Sharjah',
+                      status: 'Full Service',
+                      color: 'bg-orange-600',
                     },
                   ].map((area, index) => (
                     <div

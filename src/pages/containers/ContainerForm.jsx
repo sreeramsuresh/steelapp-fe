@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import { X, Loader2, Save } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import { importContainerService } from "../../services/importContainerService";
-import { suppliersAPI, purchaseOrdersAPI } from "../../services/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { X, Loader2, Save } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { importContainerService } from '../../services/importContainerService';
+import { suppliersAPI, purchaseOrdersAPI } from '../../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 /**
  * ContainerForm - Modal form for create/edit import containers
@@ -24,23 +24,23 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
   const isEditing = Boolean(container?.id);
 
   const [formData, setFormData] = useState({
-    containerNumber: "",
-    billOfLading: "",
-    supplierId: "",
-    shippingLine: "",
-    vesselName: "",
-    portOfLoading: "",
-    portOfDischarge: "Jebel Ali, UAE",
-    departureDate: "",
-    eta: "",
-    totalFob: "",
-    totalFreight: "",
-    totalInsurance: "",
-    totalCustomsDuty: "",
-    totalHandling: "",
-    totalOtherCosts: "",
-    purchaseOrderId: "",
-    notes: "",
+    containerNumber: '',
+    billOfLading: '',
+    supplierId: '',
+    shippingLine: '',
+    vesselName: '',
+    portOfLoading: '',
+    portOfDischarge: 'Jebel Ali, UAE',
+    departureDate: '',
+    eta: '',
+    totalFob: '',
+    totalFreight: '',
+    totalInsurance: '',
+    totalCustomsDuty: '',
+    totalHandling: '',
+    totalOtherCosts: '',
+    purchaseOrderId: '',
+    notes: '',
   });
 
   const [suppliers, setSuppliers] = useState([]);
@@ -57,12 +57,12 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
       try {
         const [suppliersRes, posRes] = await Promise.all([
           suppliersAPI.getAll(),
-          purchaseOrdersAPI.getAll({ companyId, status: "CONFIRMED" }),
+          purchaseOrdersAPI.getAll({ companyId, status: 'CONFIRMED' }),
         ]);
         setSuppliers(suppliersRes || []);
         setPurchaseOrders(posRes?.purchaseOrders || posRes || []);
       } catch (err) {
-        console.error("Failed to load form data:", err);
+        console.error('Failed to load form data:', err);
       } finally {
         setLoading(false);
       }
@@ -74,23 +74,23 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
   useEffect(() => {
     if (container) {
       setFormData({
-        containerNumber: container.containerNumber || "",
-        billOfLading: container.billOfLading || "",
-        supplierId: container.supplierId?.toString() || "",
-        shippingLine: container.shippingLine || "",
-        vesselName: container.vesselName || "",
-        portOfLoading: container.portOfLoading || "",
-        portOfDischarge: container.portOfDischarge || "Jebel Ali, UAE",
-        departureDate: container.departureDate?.split("T")[0] || "",
-        eta: container.eta?.split("T")[0] || "",
-        totalFob: container.totalFob || "",
-        totalFreight: container.totalFreight || "",
-        totalInsurance: container.totalInsurance || "",
-        totalCustomsDuty: container.totalCustomsDuty || "",
-        totalHandling: container.totalHandling || "",
-        totalOtherCosts: container.totalOtherCosts || "",
-        purchaseOrderId: container.purchaseOrderId?.toString() || "",
-        notes: container.notes || "",
+        containerNumber: container.containerNumber || '',
+        billOfLading: container.billOfLading || '',
+        supplierId: container.supplierId?.toString() || '',
+        shippingLine: container.shippingLine || '',
+        vesselName: container.vesselName || '',
+        portOfLoading: container.portOfLoading || '',
+        portOfDischarge: container.portOfDischarge || 'Jebel Ali, UAE',
+        departureDate: container.departureDate?.split('T')[0] || '',
+        eta: container.eta?.split('T')[0] || '',
+        totalFob: container.totalFob || '',
+        totalFreight: container.totalFreight || '',
+        totalInsurance: container.totalInsurance || '',
+        totalCustomsDuty: container.totalCustomsDuty || '',
+        totalHandling: container.totalHandling || '',
+        totalOtherCosts: container.totalOtherCosts || '',
+        purchaseOrderId: container.purchaseOrderId?.toString() || '',
+        notes: container.notes || '',
       });
     }
   }, [container]);
@@ -105,7 +105,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
   const validate = () => {
     const errors = {};
     if (!formData.containerNumber.trim()) {
-      errors.containerNumber = "Container number is required";
+      errors.containerNumber = 'Container number is required';
     }
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -130,12 +130,12 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         portOfDischarge: formData.portOfDischarge.trim(),
         departureDate: formData.departureDate || null,
         eta: formData.eta || null,
-        totalFob: formData.totalFob || "0",
-        totalFreight: formData.totalFreight || "0",
-        totalInsurance: formData.totalInsurance || "0",
-        totalCustomsDuty: formData.totalCustomsDuty || "0",
-        totalHandling: formData.totalHandling || "0",
-        totalOtherCosts: formData.totalOtherCosts || "0",
+        totalFob: formData.totalFob || '0',
+        totalFreight: formData.totalFreight || '0',
+        totalInsurance: formData.totalInsurance || '0',
+        totalCustomsDuty: formData.totalCustomsDuty || '0',
+        totalHandling: formData.totalHandling || '0',
+        totalOtherCosts: formData.totalOtherCosts || '0',
         purchaseOrderId: formData.purchaseOrderId
           ? parseInt(formData.purchaseOrderId)
           : null,
@@ -154,8 +154,8 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
 
       onSave(result);
     } catch (err) {
-      console.error("Failed to save container:", err);
-      setError(err.message || "Failed to save container");
+      console.error('Failed to save container:', err);
+      setError(err.message || 'Failed to save container');
     } finally {
       setSaving(false);
     }
@@ -163,19 +163,19 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
 
   const inputClass = `w-full px-3 py-2 border rounded-lg ${
     isDarkMode
-      ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
   }`;
 
   const labelClass = `block text-sm font-medium mb-1 ${
-    isDarkMode ? "text-gray-300" : "text-gray-700"
+    isDarkMode ? 'text-gray-300' : 'text-gray-700'
   }`;
 
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div
-          className={`p-8 rounded-xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
+          className={`p-8 rounded-xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}
         >
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
@@ -187,24 +187,24 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div
         className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
-          isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
+          isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
         }`}
       >
         {/* Header */}
         <div
           className={`sticky top-0 flex items-center justify-between p-4 border-b ${
             isDarkMode
-              ? "bg-[#1E2328] border-gray-700"
-              : "bg-white border-gray-200"
+              ? 'bg-[#1E2328] border-gray-700'
+              : 'bg-white border-gray-200'
           }`}
         >
           <h2 className="text-xl font-semibold">
-            {isEditing ? "Edit Container" : "Add New Container"}
+            {isEditing ? 'Edit Container' : 'Add New Container'}
           </h2>
           <button
             onClick={onClose}
             className={`p-2 rounded-lg hover:bg-gray-100 ${
-              isDarkMode ? "hover:bg-gray-700" : ""
+              isDarkMode ? 'hover:bg-gray-700' : ''
             }`}
           >
             <X className="h-5 w-5" />
@@ -222,7 +222,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Container Identification */}
           <div className="space-y-4">
             <h3
-              className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
             >
               Container Identification
             </h3>
@@ -234,7 +234,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Input
                   value={formData.containerNumber}
                   onChange={(e) =>
-                    handleChange("containerNumber", e.target.value)
+                    handleChange('containerNumber', e.target.value)
                   }
                   placeholder="e.g., MSKU1234567"
                   className={inputClass}
@@ -249,7 +249,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Label className={labelClass}>Bill of Lading</Label>
                 <Input
                   value={formData.billOfLading}
-                  onChange={(e) => handleChange("billOfLading", e.target.value)}
+                  onChange={(e) => handleChange('billOfLading', e.target.value)}
                   placeholder="B/L number"
                   className={inputClass}
                 />
@@ -260,7 +260,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Supplier & PO */}
           <div className="space-y-4">
             <h3
-              className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
             >
               Supplier & Purchase Order
             </h3>
@@ -269,7 +269,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Label className={labelClass}>Supplier</Label>
                 <Select
                   value={formData.supplierId}
-                  onValueChange={(value) => handleChange("supplierId", value)}
+                  onValueChange={(value) => handleChange('supplierId', value)}
                 >
                   <SelectTrigger className={inputClass}>
                     <SelectValue placeholder="Select supplier" />
@@ -291,7 +291,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Select
                   value={formData.purchaseOrderId}
                   onValueChange={(value) =>
-                    handleChange("purchaseOrderId", value)
+                    handleChange('purchaseOrderId', value)
                   }
                 >
                   <SelectTrigger className={inputClass}>
@@ -300,7 +300,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   <SelectContent>
                     {purchaseOrders.map((po) => (
                       <SelectItem key={po.id} value={po.id.toString()}>
-                        {po.poNumber || po.po_number} -{" "}
+                        {po.poNumber || po.po_number} -{' '}
                         {po.supplierName || po.supplier_name}
                       </SelectItem>
                     ))}
@@ -313,7 +313,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Shipping Details */}
           <div className="space-y-4">
             <h3
-              className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
             >
               Shipping Details
             </h3>
@@ -322,7 +322,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Label className={labelClass}>Shipping Line</Label>
                 <Input
                   value={formData.shippingLine}
-                  onChange={(e) => handleChange("shippingLine", e.target.value)}
+                  onChange={(e) => handleChange('shippingLine', e.target.value)}
                   placeholder="e.g., Maersk, MSC, CMA CGM"
                   className={inputClass}
                 />
@@ -331,7 +331,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Label className={labelClass}>Vessel Name</Label>
                 <Input
                   value={formData.vesselName}
-                  onChange={(e) => handleChange("vesselName", e.target.value)}
+                  onChange={(e) => handleChange('vesselName', e.target.value)}
                   placeholder="Vessel name"
                   className={inputClass}
                 />
@@ -341,7 +341,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Input
                   value={formData.portOfLoading}
                   onChange={(e) =>
-                    handleChange("portOfLoading", e.target.value)
+                    handleChange('portOfLoading', e.target.value)
                   }
                   placeholder="e.g., Shanghai, China"
                   className={inputClass}
@@ -352,7 +352,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Input
                   value={formData.portOfDischarge}
                   onChange={(e) =>
-                    handleChange("portOfDischarge", e.target.value)
+                    handleChange('portOfDischarge', e.target.value)
                   }
                   placeholder="e.g., Jebel Ali, UAE"
                   className={inputClass}
@@ -364,7 +364,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Dates */}
           <div className="space-y-4">
             <h3
-              className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
             >
               Dates
             </h3>
@@ -375,7 +375,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   type="date"
                   value={formData.departureDate}
                   onChange={(e) =>
-                    handleChange("departureDate", e.target.value)
+                    handleChange('departureDate', e.target.value)
                   }
                   className={inputClass}
                 />
@@ -385,7 +385,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                 <Input
                   type="date"
                   value={formData.eta}
-                  onChange={(e) => handleChange("eta", e.target.value)}
+                  onChange={(e) => handleChange('eta', e.target.value)}
                   className={inputClass}
                 />
               </div>
@@ -395,7 +395,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Cost Fields */}
           <div className="space-y-4">
             <h3
-              className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
             >
               Costs (AED)
             </h3>
@@ -406,7 +406,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   type="number"
                   step="0.01"
                   value={formData.totalFob}
-                  onChange={(e) => handleChange("totalFob", e.target.value)}
+                  onChange={(e) => handleChange('totalFob', e.target.value)}
                   placeholder="0.00"
                   className={inputClass}
                 />
@@ -417,7 +417,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   type="number"
                   step="0.01"
                   value={formData.totalFreight}
-                  onChange={(e) => handleChange("totalFreight", e.target.value)}
+                  onChange={(e) => handleChange('totalFreight', e.target.value)}
                   placeholder="0.00"
                   className={inputClass}
                 />
@@ -429,7 +429,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   step="0.01"
                   value={formData.totalInsurance}
                   onChange={(e) =>
-                    handleChange("totalInsurance", e.target.value)
+                    handleChange('totalInsurance', e.target.value)
                   }
                   placeholder="0.00"
                   className={inputClass}
@@ -442,7 +442,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   step="0.01"
                   value={formData.totalCustomsDuty}
                   onChange={(e) =>
-                    handleChange("totalCustomsDuty", e.target.value)
+                    handleChange('totalCustomsDuty', e.target.value)
                   }
                   placeholder="0.00"
                   className={inputClass}
@@ -455,7 +455,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   step="0.01"
                   value={formData.totalHandling}
                   onChange={(e) =>
-                    handleChange("totalHandling", e.target.value)
+                    handleChange('totalHandling', e.target.value)
                   }
                   placeholder="0.00"
                   className={inputClass}
@@ -468,7 +468,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   step="0.01"
                   value={formData.totalOtherCosts}
                   onChange={(e) =>
-                    handleChange("totalOtherCosts", e.target.value)
+                    handleChange('totalOtherCosts', e.target.value)
                   }
                   placeholder="0.00"
                   className={inputClass}
@@ -480,13 +480,13 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Notes */}
           <div className="space-y-4">
             <h3
-              className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
             >
               Notes
             </h3>
             <Textarea
               value={formData.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
+              onChange={(e) => handleChange('notes', e.target.value)}
               placeholder="Additional notes about this container..."
               rows={3}
               className={inputClass}
@@ -496,7 +496,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Footer */}
           <div
             className={`flex justify-end gap-3 pt-4 border-t ${
-              isDarkMode ? "border-gray-700" : "border-gray-200"
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
             }`}
           >
             <Button
@@ -516,7 +516,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {isEditing ? "Update Container" : "Create Container"}
+                  {isEditing ? 'Update Container' : 'Create Container'}
                 </>
               )}
             </Button>

@@ -13,9 +13,9 @@
  */
 export function normalizeDeliveryNote(
   rawDN: any,
-  source = "unknown",
+  source = 'unknown',
 ): any | null {
-  if (!rawDN || typeof rawDN !== "object") {
+  if (!rawDN || typeof rawDN !== 'object') {
     console.error(
       `❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`,
       rawDN,
@@ -34,7 +34,7 @@ export function normalizeDeliveryNote(
       }
 
       // Handle string dates
-      if (typeof value === "string") {
+      if (typeof value === 'string') {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
           return parsed.toISOString();
@@ -50,7 +50,7 @@ export function normalizeDeliveryNote(
       id: rawDN.id || 0,
       companyId: rawDN.company_id || rawDN.companyId,
       deliveryNoteNumber:
-        rawDN.deliveryNoteNumber || rawDN.delivery_note_number || "",
+        rawDN.deliveryNoteNumber || rawDN.delivery_note_number || '',
       deliveryDate: parseDate(rawDN.deliveryDate || rawDN.delivery_date),
 
       // Related documents
@@ -101,7 +101,7 @@ export function normalizeDeliveryNote(
       `❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`,
       error,
     );
-    console.error("   Raw data:", rawDN);
+    console.error('   Raw data:', rawDN);
     return null;
   }
 }
@@ -112,7 +112,7 @@ export function normalizeDeliveryNote(
  * @param source - Source identifier for debugging
  * @returns Array of normalized DeliveryNote objects
  */
-export function normalizeDeliveryNotes(rawDNs: any[], source = "list"): any[] {
+export function normalizeDeliveryNotes(rawDNs: any[], source = 'list'): any[] {
   if (!Array.isArray(rawDNs)) {
     console.error(
       `❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`,

@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { useTheme } from "../../../../contexts/ThemeContext";
-import { Layers, TrendingUp, TrendingDown, Calendar } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useTheme } from '../../../../contexts/ThemeContext';
+import { Layers, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 
 const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
   const { isDarkMode } = useTheme();
   const [categories, setCategories] = useState([]);
-  const [period, setPeriod] = useState("This Month");
+  const [period, setPeriod] = useState('This Month');
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
   useEffect(() => {
@@ -25,8 +25,8 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
       <div
         className={`rounded-xl border p-4 ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-[#E0E0E0]"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-[#E0E0E0]'
         }`}
       >
         {/* Header */}
@@ -37,12 +37,12 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
             </div>
             <div>
               <h3
-                className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Category Performance
               </h3>
               <p
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Revenue & margin by product type
               </p>
@@ -50,7 +50,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
           </div>
         </div>
         <div
-          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           <span className="text-sm">No data available</span>
         </div>
@@ -62,9 +62,9 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
     if (amount >= 1000000) {
       return `AED ${(amount / 1000000).toFixed(2)}M`;
     }
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -86,21 +86,21 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
 
   const getCategoryBgClass = (name) => {
     const classes = {
-      Sheets: "from-blue-500 to-blue-600",
-      Coils: "from-emerald-500 to-emerald-600",
-      Pipes: "from-purple-500 to-purple-600",
-      Tubes: "from-amber-500 to-amber-600",
-      Flats: "from-rose-500 to-rose-600",
+      Sheets: 'from-blue-500 to-blue-600',
+      Coils: 'from-emerald-500 to-emerald-600',
+      Pipes: 'from-purple-500 to-purple-600',
+      Tubes: 'from-amber-500 to-amber-600',
+      Flats: 'from-rose-500 to-rose-600',
     };
-    return classes[name] || "from-gray-500 to-gray-600";
+    return classes[name] || 'from-gray-500 to-gray-600';
   };
 
   return (
     <div
       className={`rounded-xl border p-4 ${
         isDarkMode
-          ? "bg-[#1E2328] border-[#37474F]"
-          : "bg-white border-[#E0E0E0]"
+          ? 'bg-[#1E2328] border-[#37474F]'
+          : 'bg-white border-[#E0E0E0]'
       }`}
     >
       {/* Header */}
@@ -111,12 +111,12 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
           </div>
           <div>
             <h3
-              className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Category Performance
             </h3>
             <p
-              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               Revenue & margin by product type
             </p>
@@ -130,11 +130,11 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
             onChange={(e) => setPeriod(e.target.value)}
             className={`appearance-none text-xs font-medium px-3 py-1.5 pr-7 rounded-lg border cursor-pointer ${
               isDarkMode
-                ? "bg-[#121418] border-[#37474F] text-white"
-                : "bg-gray-50 border-gray-200 text-gray-700"
+                ? 'bg-[#121418] border-[#37474F] text-white'
+                : 'bg-gray-50 border-gray-200 text-gray-700'
             }`}
           >
-            {["This Month", "Last Month", "This Quarter", "This Year"].map(
+            {['This Month', 'Last Month', 'This Quarter', 'This Year'].map(
               (p) => (
                 <option key={p} value={p}>
                   {p}
@@ -145,7 +145,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
           <Calendar
             size={12}
             className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${
-              isDarkMode ? "text-gray-500" : "text-gray-400"
+              isDarkMode ? 'text-gray-500' : 'text-gray-400'
             }`}
           />
         </div>
@@ -154,7 +154,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
       {/* Stacked Bar Chart */}
       <div className="mb-4">
         <div
-          className={`h-8 rounded-lg overflow-hidden flex ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+          className={`h-8 rounded-lg overflow-hidden flex ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}
         >
           {categories.map((cat, index) => {
             const width = (cat.revenue / totalRevenue) * 100;
@@ -163,10 +163,10 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
                 key={cat.name}
                 className={`h-full transition-all duration-300 cursor-pointer relative ${
                   hoveredCategory === cat.name
-                    ? "opacity-100"
+                    ? 'opacity-100'
                     : hoveredCategory
-                      ? "opacity-50"
-                      : "opacity-100"
+                      ? 'opacity-50'
+                      : 'opacity-100'
                 }`}
                 style={{
                   width: `${width}%`,
@@ -195,11 +195,11 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
             className={`p-3 rounded-lg cursor-pointer transition-all ${
               hoveredCategory === category.name
                 ? isDarkMode
-                  ? "bg-[#2E3B4E]"
-                  : "bg-gray-100"
+                  ? 'bg-[#2E3B4E]'
+                  : 'bg-gray-100'
                 : isDarkMode
-                  ? "hover:bg-[#2E3B4E]"
-                  : "hover:bg-gray-50"
+                  ? 'hover:bg-[#2E3B4E]'
+                  : 'hover:bg-gray-50'
             }`}
             onMouseEnter={() => setHoveredCategory(category.name)}
             onMouseLeave={() => setHoveredCategory(null)}
@@ -216,12 +216,12 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
                 </div>
                 <div>
                   <p
-                    className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {category.name}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     {category.orders} orders | {category.volume.toFixed(1)} MT
                   </p>
@@ -230,7 +230,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
 
               <div className="text-right">
                 <p
-                  className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   {formatCurrency(category.revenue)}
                 </p>
@@ -238,15 +238,15 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
                   <span
                     className={`text-xs font-medium px-1.5 py-0.5 rounded ${
                       isDarkMode
-                        ? "bg-teal-500/20 text-teal-400"
-                        : "bg-teal-100 text-teal-700"
+                        ? 'bg-teal-500/20 text-teal-400'
+                        : 'bg-teal-100 text-teal-700'
                     }`}
                   >
                     {category.margin.toFixed(1)}% margin
                   </span>
                   <span
                     className={`text-xs flex items-center gap-0.5 ${
-                      category.growth >= 0 ? "text-green-500" : "text-red-500"
+                      category.growth >= 0 ? 'text-green-500' : 'text-red-500'
                     }`}
                   >
                     {category.growth >= 0 ? (
@@ -262,7 +262,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
 
             {/* Revenue Bar */}
             <div
-              className={`mt-2 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+              className={`mt-2 h-1.5 rounded-full overflow-hidden ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}
             >
               <div
                 className={`h-full rounded-full bg-gradient-to-r ${getCategoryBgClass(category.name)} transition-all duration-500`}
@@ -276,29 +276,29 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
       {/* Summary Footer */}
       <div
         className={`mt-4 pt-3 border-t grid grid-cols-3 gap-4 ${
-          isDarkMode ? "border-[#37474F]" : "border-gray-200"
+          isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
         }`}
       >
         <div className="text-center">
           <p
-            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             Total Revenue
           </p>
           <p
-            className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {formatCurrency(totalRevenue)}
           </p>
         </div>
         <div className="text-center">
           <p
-            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             Avg Margin
           </p>
           <p
-            className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {(
               categories.reduce((sum, c) => sum + c.margin, 0) /
@@ -309,12 +309,12 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
         </div>
         <div className="text-center">
           <p
-            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             Total Volume
           </p>
           <p
-            className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {categories.reduce((sum, c) => sum + c.volume, 0).toFixed(1)} MT
           </p>
