@@ -4355,7 +4355,7 @@ const InvoiceForm = ({ onSave }) => {
                           {/* Column 8: Amount (CALCULATED - gray div, NOT input) */}
                           <td className="px-2 py-2 w-36">
                             <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-semibold text-gray-900">
-                              {formatCurrency(1000000)}
+                              {formatCurrency(item.amount)}
                             </div>
                           </td>
 
