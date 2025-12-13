@@ -51,8 +51,18 @@ const transformInvoiceForServer = (invoiceData) => {
       rate: item.rate,
       vat_rate: item.vatRate,
       amount: item.amount,
+      // Source type and warehouse for batch allocation
+      source_type: item.source_type || item.sourceType || 'WAREHOUSE',
+      warehouse_id: item.warehouse_id || item.warehouseId || null,
+      // Batch allocation mode
+      allocation_mode: item.allocation_mode || item.allocationMode || 'AUTO_FIFO',
+      manual_allocations: item.manual_allocations || item.manualAllocations || [],
+      // Pricing & Commercial Fields
+      pricing_basis: item.pricing_basis || item.pricingBasis || 'PER_MT',
+      unit_weight_kg: item.unit_weight_kg || item.unitWeightKg || null,
+      theoretical_weight_kg: item.theoretical_weight_kg || item.theoreticalWeightKg || null,
       // Phase 2: UOM tracking for audit trail
-      quantity_uom: item.quantityUom || item.unit || 'PCS',
+      quantity_uom: item.quantity_uom || item.quantityUom || item.unit || 'PCS',
     })) || [],
   };
 };

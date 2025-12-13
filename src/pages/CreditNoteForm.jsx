@@ -18,7 +18,7 @@ import { creditNoteService } from '../services/creditNoteService';
 import { invoiceService } from '../services/invoiceService';
 import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
-import { formatCurrency, formatDateForInput, validateQuantityPrecision } from '../utils/invoiceUtils';
+import { formatCurrency, formatDateForInput, validateQuantityPrecision, calculateItemAmount } from '../utils/invoiceUtils';
 import useCreditNoteDrafts from '../hooks/useCreditNoteDrafts';
 import DraftConflictModal from '../components/DraftConflictModal';
 import CreditNotePreview from '../components/credit-notes/CreditNotePreview';
@@ -127,6 +127,11 @@ const CreditNoteForm = () => {
     subtotal: 0,
     vatAmount: 0,
     totalCredit: 0,
+    // Invoice discount info for proportional allocation
+    invoiceDiscountType: 'none', // 'none', 'percentage', 'amount'
+    invoiceDiscountValue: 0,
+    invoiceSubtotal: 0,
+    discountAmount: 0, // Calculated discount for credit note
     notes: '',
     // Refund Information
     refundMethod: '',
@@ -496,12 +501,43 @@ const CreditNoteForm = () => {
 
       setSelectedInvoice(invoice);
 
+      // Determine invoice discount type and value
+      const discountPerc = parseFloat(invoice.discountPercentage) || 0;
+      const discountFlat = parseFloat(invoice.discountAmount) || 0;
+      let invoiceDiscountType = 'none';
+      let invoiceDiscountValue = 0;
+
+      if (invoice.discountType === 'percentage' && discountPerc > 0) {
+        invoiceDiscountType = 'percentage';
+        invoiceDiscountValue = discountPerc;
+      } else if (invoice.discountType === 'amount' && discountFlat > 0) {
+        invoiceDiscountType = 'amount';
+        invoiceDiscountValue = discountFlat;
+      } else if (discountPerc > 0) {
+        // Fallback: if no discountType but percentage exists
+        invoiceDiscountType = 'percentage';
+        invoiceDiscountValue = discountPerc;
+      } else if (discountFlat > 0) {
+        // Fallback: if no discountType but amount exists
+        invoiceDiscountType = 'amount';
+        invoiceDiscountValue = discountFlat;
+      }
+
+      // Calculate invoice subtotal (sum of item amounts before discount)
+      const invoiceSubtotal = parseFloat(invoice.subtotal) ||
+        invoice.items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
       // Populate credit note with invoice data
       setCreditNote(prev => ({
         ...prev,
         invoiceId: invoice.id,
         invoiceNumber: invoice.invoiceNumber,
         customer: invoice.customer,
+        // Store invoice discount info for proportional allocation
+        invoiceDiscountType,
+        invoiceDiscountValue,
+        invoiceSubtotal,
+        discountAmount: 0,
         items: invoice.items.map(item => ({
           invoiceItemId: item.id,
           productId: item.productId,
@@ -514,8 +550,16 @@ const CreditNoteForm = () => {
           amount: 0,
           vatRate: item.vatRate || 5,
           vatAmount: 0,
+          discountAmount: 0, // Item-level discount for credit note
+          netAmount: 0, // Amount after discount
           returnStatus: 'not_returned',
           selected: false,
+          // Weight-based pricing fields (needed for proper amount calculation)
+          pricingBasis: item.pricingBasis || 'PER_MT',
+          unitWeightKg: item.unitWeightKg || null,
+          quantityUom: item.quantityUom || 'PCS',
+          // Store original item amount for proportional discount calculation
+          originalItemAmount: parseFloat(item.amount) || 0,
         })),
       }));
 
@@ -567,8 +611,34 @@ const CreditNoteForm = () => {
     });
 
     item.quantityReturned = qty;
-    item.amount = qty * item.rate;
-    item.vatAmount = (item.amount * item.vatRate) / 100;
+    // Use proper weight-based pricing calculation (same as Invoice)
+    item.amount = calculateItemAmount(
+      qty,
+      item.rate,
+      item.pricingBasis,
+      item.unitWeightKg,
+      item.quantityUom,
+    );
+
+    // Calculate proportional discount for this item based on original invoice discount
+    let itemDiscount = 0;
+    if (creditNote.invoiceDiscountType === 'percentage' && creditNote.invoiceDiscountValue > 0) {
+      // Apply same percentage discount to the credit note item amount
+      itemDiscount = (item.amount * creditNote.invoiceDiscountValue) / 100;
+    } else if (creditNote.invoiceDiscountType === 'amount' && creditNote.invoiceSubtotal > 0 && creditNote.invoiceDiscountValue > 0) {
+      // Proportional allocation of fixed discount based on item's share of invoice total
+      // Use ratio of returned amount to original item amount, then apply proportional discount
+      const originalItemShare = item.originalItemAmount / creditNote.invoiceSubtotal;
+      const itemsFullDiscount = creditNote.invoiceDiscountValue * originalItemShare;
+      // Scale by proportion of quantity returned
+      const returnRatio = item.originalQuantity > 0 ? qty / item.originalQuantity : 0;
+      itemDiscount = itemsFullDiscount * returnRatio;
+    }
+
+    item.discountAmount = itemDiscount;
+    item.netAmount = item.amount - itemDiscount;
+    // VAT is calculated on the net amount (after discount)
+    item.vatAmount = (item.netAmount * item.vatRate) / 100;
     item.selected = qty > 0;
 
     setCreditNote(prev => ({ ...prev, items: updatedItems }));
@@ -579,12 +649,15 @@ const CreditNoteForm = () => {
     const returnedItems = items.filter(item => item.selected && item.quantityReturned > 0);
 
     const subtotal = returnedItems.reduce((sum, item) => sum + item.amount, 0);
+    const discountAmount = returnedItems.reduce((sum, item) => sum + (item.discountAmount || 0), 0);
+    const netTaxable = subtotal - discountAmount;
     const vatAmount = returnedItems.reduce((sum, item) => sum + item.vatAmount, 0);
-    const totalCredit = subtotal + vatAmount;
+    const totalCredit = netTaxable + vatAmount;
 
     setCreditNote(prev => ({
       ...prev,
       subtotal,
+      discountAmount,
       vatAmount,
       totalCredit,
     }));
@@ -712,6 +785,7 @@ const CreditNoteForm = () => {
       // Prepare items based on credit note type
       let itemsToSave = [];
       let subtotal = creditNote.subtotal;
+      let discountAmount = creditNote.discountAmount || 0;
       let vatAmount = creditNote.vatAmount;
       let totalCredit = creditNote.totalCredit;
 
@@ -725,6 +799,7 @@ const CreditNoteForm = () => {
         // Calculate VAT-exclusive subtotal (VAT is 5%)
         subtotal = totalCredit / 1.05;
         vatAmount = totalCredit - subtotal;
+        discountAmount = 0; // No discount for manual credit
       }
 
       // Format customer address as string if it's an object
@@ -744,6 +819,7 @@ const CreditNoteForm = () => {
         ...creditNote,
         items: itemsToSave,
         subtotal,
+        discountAmount,
         vatAmount,
         totalCredit,
         customerAddress,
@@ -1266,7 +1342,12 @@ const CreditNoteForm = () => {
                               <div>Rate: {formatCurrency(item.rate)}</div>
                               {item.selected && item.quantityReturned > 0 && (
                                 <div className="font-semibold text-teal-600">
-                                  Credit: {formatCurrency(item.amount + item.vatAmount)}
+                                  Credit: {formatCurrency((item.netAmount || item.amount) + item.vatAmount)}
+                                  {item.discountAmount > 0 && (
+                                    <span className="text-xs text-red-500 ml-1">
+                                      (incl. disc: -{formatCurrency(item.discountAmount)})
+                                    </span>
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -1889,6 +1970,27 @@ const CreditNoteForm = () => {
                           {formatCurrency(creditNote.subtotal)}
                         </span>
                       </div>
+                      {/* Discount allocation (if invoice had discount) */}
+                      {creditNote.discountAmount > 0 && (
+                        <div className="flex justify-between">
+                          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                            Discount Allocation
+                            {creditNote.invoiceDiscountType === 'percentage' && ` (${creditNote.invoiceDiscountValue}%)`}:
+                          </span>
+                          <span className={`font-medium text-red-500`}>
+                            -{formatCurrency(creditNote.discountAmount)}
+                          </span>
+                        </div>
+                      )}
+                      {/* Net Taxable (if discount was applied) */}
+                      {creditNote.discountAmount > 0 && (
+                        <div className="flex justify-between">
+                          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Net Taxable:</span>
+                          <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {formatCurrency(creditNote.subtotal - creditNote.discountAmount)}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>VAT (5%):</span>
                         <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>

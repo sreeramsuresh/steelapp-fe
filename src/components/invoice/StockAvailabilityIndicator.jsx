@@ -46,7 +46,8 @@ const StockAvailabilityIndicator = ({
 
     try {
       const params = { productId: numericProductId };
-      if (warehouseId) {
+      // Only add warehouseId if it's a valid value (not undefined, null, empty string, or string "undefined")
+      if (warehouseId && warehouseId !== 'undefined' && warehouseId !== 'null') {
         params.warehouseId = warehouseId;
       }
 

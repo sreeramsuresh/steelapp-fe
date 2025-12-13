@@ -20,9 +20,11 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { quotationsAPI, customersAPI, productsAPI, apiClient } from '../services/api';
 import pricelistService from '../services/pricelistService';
-import { formatCurrency } from '../utils/invoiceUtils';
+import { formatCurrency, calculateItemAmount } from '../utils/invoiceUtils';
 import { STEEL_GRADES, FINISHES } from '../types';
 import QuotationPreview from '../components/quotations/QuotationPreview';
+import StockAvailabilityIndicator from '../components/invoice/StockAvailabilityIndicator';
+import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
 
 const QuotationForm = () => {
   const navigate = useNavigate();
@@ -269,6 +271,8 @@ const QuotationForm = () => {
               vatRate: item.vatRate || 5,
               amount: item.amount || 0,
               netAmount: item.netAmount || 0,
+              // Stock & Source Fields (Phase 3)
+              sourceType: item.sourceType || 'WAREHOUSE',
             })),
             subtotal: response.subtotal || 0,
             vatAmount: response.vatAmount || 0,
@@ -406,6 +410,46 @@ const QuotationForm = () => {
       }
     }
 
+    // Determine quantityUom from product's primary_uom or fallback to category detection
+    const primaryUom = (product.primaryUom || product.primary_uom || '').toUpperCase();
+    let quantityUom;
+    if (primaryUom === 'MT' || primaryUom === 'KG') {
+      quantityUom = primaryUom;
+    } else {
+      const category = (product.category || '').toLowerCase();
+      const isCoil = category.includes('coil');
+      quantityUom = isCoil ? 'MT' : 'PCS';
+    }
+
+    // Get pricing basis and unit weight from product
+    const pricingBasis = product.pricingBasis || product.pricing_basis || 'PER_MT';
+    const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
+    const quantity = 1;
+
+    // Flag if weight is missing for weight-based pricing
+    const missingWeightWarning = (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG')
+      && quantityUom === 'PCS'
+      && !unitWeightKg;
+
+    // Calculate theoretical weight
+    let theoreticalWeightKg = null;
+    if (quantityUom === 'MT') {
+      theoreticalWeightKg = quantity * 1000;
+    } else if (quantityUom === 'KG') {
+      theoreticalWeightKg = quantity;
+    } else if (unitWeightKg) {
+      theoreticalWeightKg = quantity * unitWeightKg;
+    }
+
+    // Calculate amount using pricing-aware function
+    const grossAmount = calculateItemAmount(
+      quantity,
+      sellingPrice,
+      pricingBasis,
+      unitWeightKg,
+      quantityUom,
+    );
+
     const newItem = {
       productId: product.id || '',
       name: productDisplayName,
@@ -417,23 +461,23 @@ const QuotationForm = () => {
       description: product.description || '',
       hsnCode: product.hsnCode || '',
       unit: product.unit || 'kg',
-      quantity: 1,
+      quantity,
       rate: sellingPrice,
       discount: 0,
       discountType: 'amount',
-      taxableAmount: 0,
+      taxableAmount: grossAmount,
       vatRate: 5,
-      amount: 0,
-      netAmount: 0,
+      amount: grossAmount,
+      netAmount: grossAmount + (grossAmount * 5 / 100),
+      // Pricing & Commercial Fields
+      pricingBasis,
+      unitWeightKg,
+      quantityUom,
+      theoreticalWeightKg,
+      missingWeightWarning,
+      // Stock & Source Fields (Phase 3)
+      sourceType: 'WAREHOUSE',
     };
-
-    // Calculate amounts
-    const qty = newItem.quantity;
-    const rate = newItem.rate;
-    const grossAmount = qty * rate;
-    newItem.taxableAmount = grossAmount;
-    newItem.amount = grossAmount;
-    newItem.netAmount = grossAmount + (grossAmount * newItem.vatRate / 100);
 
     setFormData(prev => ({
       ...prev,
@@ -465,6 +509,14 @@ const QuotationForm = () => {
         vatRate: 5,
         amount: 0,
         netAmount: 0,
+        // Pricing & Commercial Fields
+        pricingBasis: 'PER_MT',
+        unitWeightKg: null,
+        quantityUom: 'PCS',
+        theoreticalWeightKg: null,
+        missingWeightWarning: false,
+        // Stock & Source Fields (Phase 3)
+        sourceType: 'WAREHOUSE',
       }],
     }));
   };
@@ -498,6 +550,26 @@ const QuotationForm = () => {
           }
         }
 
+        // Determine quantityUom from product's primary_uom or fallback to category detection
+        const primaryUom = (product.primaryUom || product.primary_uom || '').toUpperCase();
+        let quantityUom;
+        if (primaryUom === 'MT' || primaryUom === 'KG') {
+          quantityUom = primaryUom;
+        } else {
+          const category = (product.category || '').toLowerCase();
+          const isCoil = category.includes('coil');
+          quantityUom = isCoil ? 'MT' : 'PCS';
+        }
+
+        // Get pricing basis and unit weight from product
+        const pricingBasis = product.pricingBasis || product.pricing_basis || 'PER_MT';
+        const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
+
+        // Flag if weight is missing for weight-based pricing
+        const missingWeightWarning = (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG')
+          && quantityUom === 'PCS'
+          && !unitWeightKg;
+
         newItems[index] = {
           ...newItems[index],
           name: productDisplayName,
@@ -510,18 +582,30 @@ const QuotationForm = () => {
           hsnCode: product.hsnCode || '',
           unit: product.unit || 'pcs',
           rate: sellingPrice,
+          // Pricing & Commercial Fields
+          pricingBasis,
+          unitWeightKg,
+          quantityUom,
+          missingWeightWarning,
         };
       }
     }
 
-    // Calculate item totals
+    // Calculate item totals using pricing-aware calculation
     const item = newItems[index];
     const quantity = parseFloat(item.quantity) || 0;
     const rate = parseFloat(item.rate) || 0;
     const discount = parseFloat(item.discount) || 0;
     const vatRate = parseFloat(item.vatRate) || 0;
 
-    const grossAmount = quantity * rate;
+    // Use calculateItemAmount for proper pricing calculation
+    const grossAmount = calculateItemAmount(
+      quantity,
+      rate,
+      item.pricingBasis || 'PER_MT',
+      item.unitWeightKg,
+      item.quantityUom || 'PCS',
+    );
     const discountAmount = item.discountType === 'percentage'
       ? (grossAmount * discount / 100)
       : discount;
@@ -530,11 +614,24 @@ const QuotationForm = () => {
     const vatAmountItem = taxableAmount * vatRate / 100;
     const netAmount = taxableAmount + vatAmountItem;
 
+    // Update theoretical weight when quantity changes
+    let theoreticalWeightKg = item.theoreticalWeightKg;
+    if (field === 'quantity' || field === 'unitWeightKg' || field === 'productId') {
+      if (item.quantityUom === 'MT') {
+        theoreticalWeightKg = quantity * 1000;
+      } else if (item.quantityUom === 'KG') {
+        theoreticalWeightKg = quantity;
+      } else if (item.unitWeightKg) {
+        theoreticalWeightKg = quantity * item.unitWeightKg;
+      }
+    }
+
     newItems[index] = {
       ...item,
       taxableAmount,
       amount: taxableAmount,
       netAmount,
+      theoreticalWeightKg,
     };
 
     setFormData(prev => ({ ...prev, items: newItems }));
@@ -628,6 +725,10 @@ const QuotationForm = () => {
         if (!item.quantity || item.quantity <= 0) {
           errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
         }
+        // CRITICAL: Block save when unit weight is missing for weight-based pricing
+        if (item.missingWeightWarning) {
+          errors.push(`Item ${index + 1}: Unit weight is missing for "${item.name}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`);
+        }
         if (!item.rate || item.rate <= 0) {
           errors.push(`Item ${index + 1}: Rate must be greater than 0`);
         }
@@ -683,6 +784,13 @@ const QuotationForm = () => {
           vat_rate: parseFloat(item.vatRate) || 0,
           amount: parseFloat(item.amount) || 0,
           net_amount: parseFloat(item.netAmount) || 0,
+          // Pricing & Commercial Fields
+          pricing_basis: item.pricingBasis || 'PER_MT',
+          unit_weight_kg: item.unitWeightKg ? parseFloat(item.unitWeightKg) : null,
+          quantity_uom: item.quantityUom || 'PCS',
+          theoretical_weight_kg: item.theoreticalWeightKg ? parseFloat(item.theoreticalWeightKg) : null,
+          // Stock & Source Fields (Phase 3)
+          source_type: item.sourceType || 'WAREHOUSE',
         })),
         subtotal: parseFloat(formData.subtotal) || 0,
         vat_amount: parseFloat(formData.vatAmount) || 0,
@@ -749,8 +857,8 @@ const QuotationForm = () => {
   }
 
   // Input component with validation
-  const Input = ({ label, inputError, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const Input = ({ label, inputError, className = '', required = false, validationState = null, showValidation = true, id: elementId, ...props }) => {
+    const inputId = elementId || `input-${Math.random().toString(36).substr(2, 9)}`;
 
     const getValidationClasses = () => {
       if (!showValidation) {
@@ -789,8 +897,8 @@ const QuotationForm = () => {
     );
   };
 
-  const Select = ({ label, children, selectError, className = '', required = false, validationState = null, showValidation = true, id, ...props }) => {
-    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+  const Select = ({ label, children, selectError, className = '', required = false, validationState = null, showValidation = true, id: elementId, ...props }) => {
+    const selectId = elementId || `select-${Math.random().toString(36).substr(2, 9)}`;
 
     const getValidationClasses = () => {
       if (!showValidation) {
@@ -1194,7 +1302,7 @@ const QuotationForm = () => {
                               : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                         }`}
                       >
-                        {product.uniqueName || product.unique_name || 'N/A'}
+                        {product.displayName || product.display_name || product.uniqueName || product.unique_name || 'N/A'}
                       </button>
                       <button
                         type="button"
@@ -1237,6 +1345,37 @@ const QuotationForm = () => {
                 <div key={index} className={`p-3 md:p-4 border rounded-lg ${
                   isDarkMode ? 'border-gray-600 bg-gray-800/50' : 'border-gray-200 bg-gray-50'
                 }`}>
+                  {/* Stock Availability & Source Type Row */}
+                  <div className="flex items-center gap-3 mb-3">
+                    {/* Stock Availability Indicator - icon-only compact mode */}
+                    {item.productId && formData.warehouseId && (
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Stock:
+                        </span>
+                        <StockAvailabilityIndicator
+                          productId={item.productId}
+                          warehouseId={formData.warehouseId}
+                          requiredQty={item.quantity || 0}
+                          compact
+                          iconOnly
+                        />
+                      </div>
+                    )}
+
+                    {/* Source Type Selector */}
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Source:
+                      </span>
+                      <SourceTypeSelector
+                        value={item.sourceType || 'WAREHOUSE'}
+                        onChange={(value) => updateItem(index, 'sourceType', value)}
+                        id={`source-type-${index}`}
+                      />
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
                     <div className="sm:col-span-2">
                       <Select
@@ -1247,7 +1386,7 @@ const QuotationForm = () => {
                         <option value="">Select or enter manually</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product.uniqueName || product.unique_name || 'N/A'}
+                            {product.displayName || product.display_name || product.uniqueName || product.unique_name || 'N/A'}
                           </option>
                         ))}
                       </Select>
@@ -1298,25 +1437,99 @@ const QuotationForm = () => {
                       placeholder="e.g., 1.2mm"
                     />
 
-                    <Input
-                      label="Quantity"
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                      min="0"
-                      step="0.01"
-                      required
-                    />
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                        Quantity ({item.quantityUom || 'PCS'})
+                      </label>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const allowDecimal = item.quantityUom === 'MT' || item.quantityUom === 'KG';
+                          const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                          updateItem(index, 'quantity', isNaN(val) ? '' : val);
+                        }}
+                        min="0"
+                        step={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '0.001' : '1'}
+                        className={`w-full px-3 py-2 text-sm border rounded-md ${
+                          isDarkMode
+                            ? 'bg-gray-700 border-gray-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-900'
+                        }`}
+                        required
+                      />
+                    </div>
 
-                    <Input
-                      label={`Rate (${formData.currency})`}
-                      type="number"
-                      value={item.rate}
-                      onChange={(e) => updateItem(index, 'rate', e.target.value)}
-                      min="0"
-                      step="0.01"
-                      required
-                    />
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                        Unit Wt (kg)
+                      </label>
+                      <input
+                        type="number"
+                        value={item.unitWeightKg || ''}
+                        onChange={(e) => updateItem(index, 'unitWeightKg', e.target.value === '' ? null : parseFloat(e.target.value))}
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        className={`w-full px-3 py-2 text-sm border rounded-md ${
+                          isDarkMode
+                            ? 'bg-gray-700 border-gray-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-900'
+                        } ${item.missingWeightWarning ? 'border-red-500' : ''}`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                        Total Wt (kg)
+                      </label>
+                      <div className={`px-3 py-2 text-sm border rounded-md ${
+                        isDarkMode
+                          ? 'bg-gray-700/50 border-gray-600 text-gray-300'
+                          : 'bg-gray-100 border-gray-300 text-gray-600'
+                      }`}>
+                        {(() => {
+                          const totalWt = item.theoreticalWeightKg || (item.quantity * (item.unitWeightKg || 0));
+                          return totalWt ? totalWt.toFixed(2) : '-';
+                        })()}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                        Rate ({formData.currency})
+                      </label>
+                      <div className={`flex rounded-md overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                        <input
+                          type="number"
+                          value={item.rate}
+                          onChange={(e) => updateItem(index, 'rate', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          step="0.01"
+                          className={`flex-1 px-3 py-2 text-sm border-0 ${
+                            isDarkMode
+                              ? 'bg-gray-700 text-white'
+                              : 'bg-white text-gray-900'
+                          }`}
+                          required
+                        />
+                        <select
+                          value={item.pricingBasis || 'PER_MT'}
+                          onChange={(e) => updateItem(index, 'pricingBasis', e.target.value)}
+                          className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
+                            item.pricingBasis === 'PER_KG'
+                              ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700'
+                              : item.pricingBasis === 'PER_PCS'
+                                ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700'
+                                : 'bg-gray-50 text-gray-600 border-gray-300'
+                          }`}
+                        >
+                          <option value="PER_MT">/MT</option>
+                          <option value="PER_KG">/kg</option>
+                          <option value="PER_PCS">/pc</option>
+                        </select>
+                      </div>
+                    </div>
 
                     <Input
                       label="VAT (%)"
@@ -1353,6 +1566,16 @@ const QuotationForm = () => {
                       </button>
                     </div>
                   </div>
+
+                  {/* Missing Weight Warning */}
+                  {item.missingWeightWarning && (
+                    <div className={`mt-2 p-2 rounded-md border ${isDarkMode ? 'bg-amber-900/30 border-amber-600' : 'bg-amber-50 border-amber-200'}`}>
+                      <p className={`text-xs ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>
+                        <AlertCircle className="inline h-3 w-3 mr-1" />
+                        Unit weight missing for weight-based pricing ({item.pricingBasis}). Contact admin to update product master.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Additional fields - collapsible on mobile */}
                   <details className="mt-2 md:mt-3">

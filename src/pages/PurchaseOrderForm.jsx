@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2, Eye, Pin, PinOff } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, X, AlertCircle, ChevronDown, AlertTriangle, Loader2, Eye, Pin, PinOff, Settings } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   formatCurrency,
@@ -407,6 +407,100 @@ const Autocomplete = ({
   );
 };
 
+// Form Settings Panel Component
+const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange }) => {
+  const { isDarkMode } = useTheme();
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (panelRef.current && !panelRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const ToggleSwitch = ({ enabled, onChange, label, description }) => (
+    <div className="flex items-start justify-between py-3">
+      <div className="flex-1 pr-4">
+        <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+          {label}
+        </p>
+        <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          {description}
+        </p>
+      </div>
+      <button
+        onClick={onChange}
+        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+          enabled
+            ? 'bg-teal-600'
+            : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+        }`}
+      >
+        <span
+          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+            enabled ? 'translate-x-5' : 'translate-x-0'
+          }`}
+        />
+      </button>
+    </div>
+  );
+
+  return (
+    <div
+      ref={panelRef}
+      className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
+        isDarkMode
+          ? 'bg-gray-800 border-gray-600'
+          : 'bg-white border-gray-200'
+      }`}
+    >
+      <div className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+        <div className="flex items-center justify-between">
+          <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+            Form Settings
+          </h3>
+          <button
+            onClick={onClose}
+            className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 py-2 divide-y divide-gray-200 dark:divide-gray-700">
+        <ToggleSwitch
+          enabled={preferences.showValidationHighlighting}
+          onChange={() => onPreferenceChange('showValidationHighlighting', !preferences.showValidationHighlighting)}
+          label="Field Validation Highlighting"
+          description="Show red/green borders for invalid/valid fields"
+        />
+        <ToggleSwitch
+          enabled={preferences.showSpeedButtons}
+          onChange={() => onPreferenceChange('showSpeedButtons', !preferences.showSpeedButtons)}
+          label="Quick Add Speed Buttons"
+          description="Show pinned & top products for quick adding"
+        />
+      </div>
+
+      <div className={`px-4 py-2 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+        Settings are saved automatically
+      </div>
+    </div>
+  );
+};
+
 const PurchaseOrderForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -422,7 +516,9 @@ const PurchaseOrderForm = () => {
     expectedDeliveryDate: '',
     gracePeriodDays: 5, // Phase 4: Grace period for on-time delivery evaluation (default 5 days)
     status: 'draft',
-    stockStatus: 'retain', // Default to 'retain'
+    stockStatus: 'retain', // Default to 'retain' (form-level, deprecated for new POs)
+    // Exchange rate for multi-currency POs
+    exchangeRate: null, // Exchange rate to AED (null when currency is AED)
     // Incoterms and delivery
     incoterms: '', // FOB, CIF, EXW, etc.
     // Buyer/Purchaser information
@@ -455,6 +551,14 @@ const PurchaseOrderForm = () => {
         vatRate: 5, // Configurable VAT rate per item (default 5%)
         supplyType: 'standard', // standard, zero_rated, exempt (matching Invoice form)
         amount: 0,
+        // Phase 4: Stock-In Enhancements - Line-level fields
+        lineStockStatus: 'PENDING', // PENDING, PARTIAL, RECEIVED - supports partial receipts
+        expectedWeightKg: null, // Expected weight at PO time for variance tracking
+        // GRN linkage fields (populated when GRN is created)
+        grnId: null,
+        grnNumber: null,
+        receivedQty: null, // Quantity actually received via GRN
+        receivedWeightKg: null, // Actual weight received via GRN
       },
     ],
     subtotal: 0,
@@ -483,6 +587,7 @@ const PurchaseOrderForm = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState({});
   const [availableProducts, setAvailableProducts] = useState([]);
+  const [showFormSettings, setShowFormSettings] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState('');
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
@@ -509,6 +614,7 @@ const PurchaseOrderForm = () => {
   const [formPreferences, setFormPreferences] = useState(() => {
     const saved = localStorage.getItem('purchaseOrderFormPreferences');
     return saved ? JSON.parse(saved) : {
+      showValidationHighlighting: true,
       showSpeedButtons: true,
     };
   });
@@ -579,6 +685,13 @@ const PurchaseOrderForm = () => {
       procurementChannel: 'LOCAL',
       importContainerId: null,
       expectedMarginPct: 8,
+      // Phase 4: Stock-In Enhancements - Line-level fields
+      lineStockStatus: 'PENDING',
+      expectedWeightKg: null,
+      grnId: null,
+      grnNumber: null,
+      receivedQty: null,
+      receivedWeightKg: null,
     };
 
     setPurchaseOrder((prev) => {
@@ -747,6 +860,7 @@ const PurchaseOrderForm = () => {
           supplierContactName: data.supplierContactName || '',
           supplierContactEmail: data.supplierContactEmail || data.supplierEmail || '',
           supplierContactPhone: data.supplierContactPhone || data.supplierPhone || '',
+          exchangeRate: data.exchangeRate || null,
           items: Array.isArray(data.items) ? data.items.map(it => ({
             productType: it.name || '',
             name: it.name || '',
@@ -758,6 +872,13 @@ const PurchaseOrderForm = () => {
             quantity: it.quantity || 0,
             rate: it.rate || 0,
             amount: it.amount || 0,
+            // Phase 4: Stock-In Enhancement fields
+            lineStockStatus: it.lineStockStatus || it.line_stock_status || 'PENDING',
+            expectedWeightKg: it.expectedWeightKg || it.expected_weight_kg || null,
+            grnId: it.grnId || it.grn_id || null,
+            grnNumber: it.grnNumber || it.grn_number || null,
+            receivedQty: it.receivedQty || it.received_qty || null,
+            receivedWeightKg: it.receivedWeightKg || it.received_weight_kg || null,
           })) : prev.items,
           subtotal: data.subtotal || 0,
           vatAmount: data.vatAmount || data.taxAmount || 0,
@@ -934,13 +1055,13 @@ const PurchaseOrderForm = () => {
     const product = typeof selectedProduct === 'object' && selectedProduct !== null
       ? selectedProduct
       : availableProducts.find(p => p.id === selectedProduct || p.name === selectedProduct);
-    
+
     if (product && typeof product === 'object') {
       const updatedItems = [...purchaseOrder.items];
-      
+
       // Try multiple possible field names for finish and thickness
       const rawFinish = product.finish || product.surfaceFinish || product.finishType || '';
-      
+
       // Match finish with predefined FINISHES options (case-insensitive)
       const finish = (() => {
         if (!rawFinish) return '';
@@ -948,10 +1069,47 @@ const PurchaseOrderForm = () => {
         const matchedFinish = FINISHES.find(f => f.toLowerCase() === rawFinishLower);
         return matchedFinish || rawFinish; // Use matched finish or original if no match
       })();
-      
+
       const thickness = product.thickness || product.thick || getThickness(product);
-      
+
       const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name;
+
+      // Determine quantityUom from product's primary_uom or fallback to category detection
+      const primaryUom = (product.primaryUom || product.primary_uom || '').toUpperCase();
+      let quantityUom;
+      if (primaryUom === 'MT' || primaryUom === 'KG') {
+        quantityUom = primaryUom;
+      } else {
+        const category = (product.category || '').toLowerCase();
+        const isCoil = category.includes('coil');
+        quantityUom = isCoil ? 'MT' : 'PCS';
+      }
+
+      // Get pricing basis and unit weight from product
+      const pricingBasis = product.pricingBasis || product.pricing_basis || 'PER_MT';
+      const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
+
+      // Flag if weight is missing for weight-based pricing
+      const missingWeightWarning = (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG')
+        && quantityUom === 'PCS'
+        && !unitWeightKg;
+
+      const quantity = updatedItems[index].quantity || 0;
+      const rate = product.sellingPrice || product.purchasePrice || product.price || 0;
+
+      // Calculate theoretical weight
+      let theoreticalWeightKg = null;
+      if (quantityUom === 'MT') {
+        theoreticalWeightKg = quantity * 1000;
+      } else if (quantityUom === 'KG') {
+        theoreticalWeightKg = quantity;
+      } else if (unitWeightKg) {
+        theoreticalWeightKg = quantity * unitWeightKg;
+      }
+
+      // Calculate amount using pricing-aware function
+      const amount = calculateItemAmount(quantity, rate, pricingBasis, unitWeightKg, quantityUom);
+
       updatedItems[index] = {
         ...updatedItems[index],
         productType: productDisplayName,
@@ -964,15 +1122,17 @@ const PurchaseOrderForm = () => {
         specification: product.specification || product.description || '',
         hsnCode: product.hsnCode || '',
         unit: product.unit || 'kg',
-        rate: product.sellingPrice || product.purchasePrice || product.price || 0,
+        rate,
         supplyType: updatedItems[index].supplyType || 'standard',
         vatRate: updatedItems[index].vatRate || 5,
+        amount,
+        // Pricing & Commercial Fields
+        pricingBasis,
+        unitWeightKg,
+        quantityUom,
+        theoreticalWeightKg,
+        missingWeightWarning,
       };
-
-      // Calculate amount if quantity exists
-      if (updatedItems[index].quantity) {
-        updatedItems[index].amount = updatedItems[index].quantity * (product.sellingPrice || product.purchasePrice || 0);
-      }
 
       // Recalculate totals with item-level VAT rates
       const subtotal = calculateSubtotal(updatedItems);
@@ -1062,16 +1222,19 @@ const PurchaseOrderForm = () => {
       }
     }
 
-    // Calculate amount when quantity, rate, discount, or VAT changes
-    if (field === 'quantity' || field === 'rate' || field === 'discount' || field === 'discountType' || field === 'vatRate' || field === 'supplyType') {
+    // Calculate amount when quantity, rate, discount, unitWeightKg, or pricingBasis changes
+    if (field === 'quantity' || field === 'rate' || field === 'discount' || field === 'discountType' || field === 'vatRate' || field === 'supplyType' || field === 'unitWeightKg' || field === 'pricingBasis') {
       const item = updatedItems[index];
-      const quantity = field === 'quantity' ? (parseFloat(value) || 0) : item.quantity;
-      const rate = field === 'rate' ? (parseFloat(value) || 0) : item.rate;
+      const quantity = field === 'quantity' ? (parseFloat(value) || 0) : (item.quantity || 0);
+      const rate = field === 'rate' ? (parseFloat(value) || 0) : (item.rate || 0);
       const discount = field === 'discount' ? (parseFloat(value) || 0) : (item.discount || 0);
       const discountType = field === 'discountType' ? value : (item.discountType || 'amount');
+      const unitWeightKg = field === 'unitWeightKg' ? (parseFloat(value) || null) : item.unitWeightKg;
+      const pricingBasis = field === 'pricingBasis' ? value : (item.pricingBasis || 'PER_MT');
+      const quantityUom = item.quantityUom || 'PCS';
 
-      // Calculate gross amount
-      const grossAmount = quantity * rate;
+      // Calculate gross amount using pricing-aware function
+      const grossAmount = calculateItemAmount(quantity, rate, pricingBasis, unitWeightKg, quantityUom);
 
       // Apply item-level discount
       const discountAmount = discountType === 'percentage'
@@ -1080,6 +1243,24 @@ const PurchaseOrderForm = () => {
 
       // Net amount after discount (before VAT)
       updatedItems[index].amount = grossAmount - discountAmount;
+
+      // Update theoretical weight when quantity or unitWeightKg changes
+      if (field === 'quantity' || field === 'unitWeightKg') {
+        if (quantityUom === 'MT') {
+          updatedItems[index].theoreticalWeightKg = quantity * 1000;
+        } else if (quantityUom === 'KG') {
+          updatedItems[index].theoreticalWeightKg = quantity;
+        } else if (unitWeightKg) {
+          updatedItems[index].theoreticalWeightKg = quantity * unitWeightKg;
+        }
+      }
+
+      // Update missing weight warning
+      if (field === 'unitWeightKg' || field === 'pricingBasis') {
+        updatedItems[index].missingWeightWarning = (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG')
+          && quantityUom === 'PCS'
+          && !unitWeightKg;
+      }
     }
 
     setPurchaseOrder((prev) => {
@@ -1151,6 +1332,20 @@ const PurchaseOrderForm = () => {
           procurementChannel: 'LOCAL',
           importContainerId: null,
           expectedMarginPct: 8, // Default 8% for LOCAL, 18% for IMPORTED
+          // Pricing & Commercial Fields
+          pricingBasis: 'PER_MT',
+          unitWeightKg: null,
+          quantityUom: 'PCS',
+          theoreticalWeightKg: null,
+          missingWeightWarning: false,
+          // Phase 4: Stock-In Enhancements - Line-level fields
+          lineStockStatus: 'PENDING', // PENDING, PARTIAL, RECEIVED - supports partial receipts
+          expectedWeightKg: null, // Expected weight at PO time for variance tracking
+          // GRN linkage fields (populated when GRN is created)
+          grnId: null,
+          grnNumber: null,
+          receivedQty: null, // Quantity actually received via GRN
+          receivedWeightKg: null, // Actual weight received via GRN
         },
       ],
     }));
@@ -1221,6 +1416,12 @@ const PurchaseOrderForm = () => {
           submitValidationErrors.push(`Item ${index + 1}: Rate must be greater than 0`);
           invalidFieldsSet.add(`item.${index}.rate`);
         }
+
+        // CRITICAL: Block save when unit weight is missing for weight-based pricing
+        if (item.missingWeightWarning) {
+          submitValidationErrors.push(`Item ${index + 1}: Unit weight is missing for "${item.name}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`);
+          invalidFieldsSet.add(`item.${index}.unitWeight`);
+        }
       });
 
       if (!hasValidItem) {
@@ -1272,6 +1473,7 @@ const PurchaseOrderForm = () => {
         status: poData.status,
         stock_status: poData.stockStatus,
         currency: poData.currency || 'AED',
+        exchange_rate: poData.exchangeRate || null, // Phase 4: Exchange rate for multi-currency POs
         payment_terms: poData.paymentTerms || poData.terms || null,
         due_date: poData.dueDate || null,
         supplier_contact_name: poData.supplierContactName || null,
@@ -1330,6 +1532,18 @@ const PurchaseOrderForm = () => {
           amount: parseFloat(item.amount) || 0,
           vat_rate: parseFloat(item.vatRate) || 5,
           unit: item.unit || 'kg',
+          // Pricing & Commercial Fields
+          pricing_basis: item.pricingBasis || 'PER_MT',
+          unit_weight_kg: item.unitWeightKg ? parseFloat(item.unitWeightKg) : null,
+          quantity_uom: item.quantityUom || 'PCS',
+          theoretical_weight_kg: item.theoreticalWeightKg ? parseFloat(item.theoreticalWeightKg) : null,
+          // Phase 4: Stock-In Enhancement fields
+          line_stock_status: item.lineStockStatus || 'PENDING',
+          expected_weight_kg: item.expectedWeightKg ? parseFloat(item.expectedWeightKg) : null,
+          grn_id: item.grnId || null,
+          grn_number: item.grnNumber || null,
+          received_qty: item.receivedQty ? parseFloat(item.receivedQty) : null,
+          received_weight_kg: item.receivedWeightKg ? parseFloat(item.receivedWeightKg) : null,
         })),
       };
 
@@ -1426,7 +1640,29 @@ const PurchaseOrderForm = () => {
                 🛒 {id ? 'Edit' : 'Create'} Purchase Order
               </h1>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-start relative">
+              <button
+                onClick={() => setShowFormSettings(!showFormSettings)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'text-gray-300 hover:bg-gray-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                aria-label="Form settings"
+                title="Form Settings"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+
+              <FormSettingsPanel
+                isOpen={showFormSettings}
+                onClose={() => setShowFormSettings(false)}
+                preferences={formPreferences}
+                onPreferenceChange={(key, value) => {
+                  setFormPreferences(prev => ({ ...prev, [key]: value }));
+                }}
+              />
+
               <button
                 onClick={() => setShowPreview(true)}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
@@ -1766,8 +2002,8 @@ const PurchaseOrderForm = () => {
                       value={purchaseOrder.currency}
                       onChange={(e) => handleInputChange('currency', e.target.value)}
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                        isDarkMode 
-                          ? 'bg-gray-800 border-gray-600 text-white' 
+                        isDarkMode
+                          ? 'bg-gray-800 border-gray-600 text-white'
                           : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     >
@@ -1777,6 +2013,38 @@ const PurchaseOrderForm = () => {
                       <option value="EUR">EUR</option>
                     </select>
                   </div>
+                  {/* Phase 4: Exchange Rate field - shown when currency is not AED */}
+                  {purchaseOrder.currency && purchaseOrder.currency !== 'AED' && (
+                    <div>
+                      <label htmlFor="exchange-rate" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        Exchange Rate to AED
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="exchange-rate"
+                          type="number"
+                          step="0.0001"
+                          min="0"
+                          value={purchaseOrder.exchangeRate || ''}
+                          onChange={(e) => handleInputChange('exchangeRate', e.target.value === '' ? null : parseFloat(e.target.value))}
+                          placeholder="e.g., 3.6725"
+                          className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                          }`}
+                        />
+                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          1 {purchaseOrder.currency} = ? AED
+                        </span>
+                      </div>
+                      {purchaseOrder.exchangeRate && purchaseOrder.total > 0 && (
+                        <p className={`text-xs mt-1 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}>
+                          AED Equivalent: {formatCurrency(purchaseOrder.total * purchaseOrder.exchangeRate)}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="supplier-email" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -2108,28 +2376,40 @@ const PurchaseOrderForm = () => {
               <table className="min-w-full table-fixed divide-y ${isDarkMode ? 'divide-gray-600' : 'divide-gray-200'}">
                 <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                   <tr>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '28%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '18%' }}>
                       Product
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '5%' }}>
                       Qty
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '10%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '5%' }}>
+                      Unit Wt
+                    </th>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '5%' }}>
+                      Exp. Wt
+                    </th>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
                       Rate
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '12%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
                       Channel
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '10%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
                       Supply Type
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '6%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '5%' }}>
                       VAT %
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '12%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
                       Amount
                     </th>
-                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '6%' }}>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '7%' }}>
+                      Stock
+                    </th>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '8%' }}>
+                      GRN
+                    </th>
+                    <th className={`px-2 py-2 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-100' : 'text-gray-700'}`} style={{ width: '4%' }}>
                       Action
                     </th>
                   </tr>
@@ -2184,11 +2464,15 @@ const PurchaseOrderForm = () => {
                           <input
                             type="number"
                             value={item.quantity || ''}
-                            onChange={(e) => handleItemChange(index, 'quantity', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                            onChange={(e) => {
+                              const allowDecimal = item.quantityUom === 'MT' || item.quantityUom === 'KG';
+                              const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                              handleItemChange(index, 'quantity', e.target.value === '' ? '' : (isNaN(val) ? '' : val));
+                            }}
                             min="0"
-                            step="1"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
+                            step={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '0.001' : '1'}
+                            inputMode={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? 'decimal' : 'numeric'}
+                            pattern={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '[0-9]*\\.?[0-9]*' : '[0-9]*'}
                             className={`w-full px-2 py-1.5 text-sm border rounded-md text-right ${
                               isDarkMode
                                 ? 'bg-gray-800 border-gray-600 text-white'
@@ -2196,19 +2480,72 @@ const PurchaseOrderForm = () => {
                             } ${invalidFields.has(`item.${index}.quantity`) ? 'border-red-500' : ''}`}
                           />
                         </td>
+                        {/* Unit Weight (kg) */}
                         <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
-                            value={item.rate || ''}
-                            onChange={(e) => handleItemChange(index, 'rate', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                            value={item.unitWeightKg || ''}
+                            onChange={(e) => handleItemChange(index, 'unitWeightKg', e.target.value === '' ? null : parseFloat(e.target.value))}
                             min="0"
                             step="0.01"
+                            placeholder="0.00"
                             className={`w-full px-2 py-1.5 text-sm border rounded-md text-right ${
                               isDarkMode
-                                ? 'bg-gray-800 border-gray-600 text-white'
+                                ? 'bg-gray-700 border-gray-600 text-white'
                                 : 'bg-white border-gray-300 text-gray-900'
-                            } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
+                            } ${item.missingWeightWarning ? 'border-red-500' : ''}`}
                           />
+                        </td>
+                        {/* Expected Weight (kg) - Phase 4: Weight variance tracking */}
+                        <td className="px-2 py-2 align-middle">
+                          <input
+                            type="number"
+                            value={item.expectedWeightKg || ''}
+                            onChange={(e) => handleItemChange(index, 'expectedWeightKg', e.target.value === '' ? null : parseFloat(e.target.value))}
+                            min="0"
+                            step="0.01"
+                            placeholder={(() => {
+                              const calcWt = item.theoreticalWeightKg || (item.quantity * (item.unitWeightKg || 0));
+                              return calcWt ? calcWt.toFixed(2) : '0.00';
+                            })()}
+                            title="Expected total weight at PO time for GRN variance tracking"
+                            className={`w-full px-2 py-1.5 text-sm border rounded-md text-right ${
+                              isDarkMode
+                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500'
+                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                            }`}
+                          />
+                        </td>
+                        {/* Rate with Pricing Basis Dropdown */}
+                        <td className="px-1 py-2 align-middle">
+                          <div className={`flex rounded overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                            <input
+                              type="number"
+                              value={item.rate || ''}
+                              onChange={(e) => handleItemChange(index, 'rate', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                              min="0"
+                              step="0.01"
+                              className={`flex-1 w-full px-2 py-1.5 text-sm border-0 outline-none text-right ${
+                                isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+                              } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
+                              style={{ minWidth: 0 }}
+                            />
+                            <select
+                              value={item.pricingBasis || 'PER_MT'}
+                              onChange={(e) => handleItemChange(index, 'pricingBasis', e.target.value)}
+                              className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
+                                item.pricingBasis === 'PER_KG'
+                                  ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700'
+                                  : item.pricingBasis === 'PER_PCS'
+                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700'
+                                    : 'bg-gray-50 text-gray-600 border-gray-300'
+                              }`}
+                            >
+                              <option value="PER_MT">/MT</option>
+                              <option value="PER_KG">/kg</option>
+                              <option value="PER_PCS">/pc</option>
+                            </select>
+                          </div>
                         </td>
                         {/* Procurement Channel Column */}
                         <td className="px-2 py-2 align-middle">
@@ -2284,6 +2621,44 @@ const PurchaseOrderForm = () => {
                           <div className={`font-medium text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             {formatCurrency(item.amount)}
                           </div>
+                        </td>
+                        {/* Phase 4: Line-level Stock Status */}
+                        <td className="px-2 py-2 align-middle">
+                          <select
+                            value={item.lineStockStatus || 'PENDING'}
+                            onChange={(e) => handleItemChange(index, 'lineStockStatus', e.target.value)}
+                            className={`w-full px-1 py-1 border rounded text-xs ${
+                              isDarkMode
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
+                            } ${
+                              item.lineStockStatus === 'RECEIVED'
+                                ? 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700'
+                                : item.lineStockStatus === 'PARTIAL'
+                                  ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700'
+                                  : ''
+                            }`}
+                            title="Line-level stock receipt status"
+                          >
+                            <option value="PENDING">Pending</option>
+                            <option value="PARTIAL">Partial</option>
+                            <option value="RECEIVED">Received</option>
+                          </select>
+                        </td>
+                        {/* Phase 4: GRN Linkage Display */}
+                        <td className="px-2 py-2 align-middle">
+                          {item.grnNumber ? (
+                            <div className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              <span className="font-medium text-teal-600 dark:text-teal-400">{item.grnNumber}</span>
+                              {item.receivedQty && (
+                                <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Rcvd: {item.receivedQty} {item.receivedWeightKg ? `(${item.receivedWeightKg}kg)` : ''}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>-</span>
+                          )}
                         </td>
                         <td className="px-2 py-2 align-middle text-center">
                           <button
@@ -2366,14 +2741,19 @@ const PurchaseOrderForm = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label htmlFor={`item-quantity-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          Quantity
+                          Quantity ({item.quantityUom || 'PCS'})
                         </label>
                         <input
                           id={`item-quantity-${index}`}
                           type="number"
                           value={item.quantity || ''}
-                          onChange={(e) => handleItemChange(index, 'quantity', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                          onChange={(e) => {
+                            const allowDecimal = item.quantityUom === 'MT' || item.quantityUom === 'KG';
+                            const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                            handleItemChange(index, 'quantity', e.target.value === '' ? '' : (isNaN(val) ? '' : val));
+                          }}
                           min="0"
+                          step={item.quantityUom === 'MT' || item.quantityUom === 'KG' ? '0.001' : '1'}
                           className={`w-full px-3 py-2 border rounded-md ${
                             isDarkMode
                               ? 'bg-gray-800 border-gray-600 text-white'
@@ -2385,21 +2765,83 @@ const PurchaseOrderForm = () => {
                         <label htmlFor={`item-rate-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           Rate
                         </label>
-                        <input
-                          id={`item-rate-${index}`}
-                          type="number"
-                          value={item.rate || ''}
-                          onChange={(e) => handleItemChange(index, 'rate', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                          min="0"
-                          step="0.01"
-                          className={`w-full px-3 py-2 border rounded-md ${
-                            isDarkMode
-                              ? 'bg-gray-800 border-gray-600 text-white'
-                              : 'bg-white border-gray-300 text-gray-900'
-                          } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
-                        />
+                        <div className={`flex rounded-md overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                          <input
+                            id={`item-rate-${index}`}
+                            type="number"
+                            value={item.rate || ''}
+                            onChange={(e) => handleItemChange(index, 'rate', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                            min="0"
+                            step="0.01"
+                            className={`flex-1 px-3 py-2 border-0 outline-none ${
+                              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+                            } ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
+                          />
+                          <select
+                            value={item.pricingBasis || 'PER_MT'}
+                            onChange={(e) => handleItemChange(index, 'pricingBasis', e.target.value)}
+                            className={`text-xs font-bold px-1.5 border-l cursor-pointer outline-none ${
+                              item.pricingBasis === 'PER_KG'
+                                ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700'
+                                : item.pricingBasis === 'PER_PCS'
+                                  ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700'
+                                  : 'bg-gray-50 text-gray-600 border-gray-300'
+                            }`}
+                          >
+                            <option value="PER_MT">/MT</option>
+                            <option value="PER_KG">/kg</option>
+                            <option value="PER_PCS">/pc</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Unit Weight & Total Weight - Mobile */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor={`item-unitweight-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Unit Wt (kg)
+                        </label>
+                        <input
+                          id={`item-unitweight-${index}`}
+                          type="number"
+                          value={item.unitWeightKg || ''}
+                          onChange={(e) => handleItemChange(index, 'unitWeightKg', e.target.value === '' ? null : parseFloat(e.target.value))}
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } ${item.missingWeightWarning ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Total Wt (kg)
+                        </label>
+                        <div className={`px-3 py-2 border rounded-md ${
+                          isDarkMode
+                            ? 'bg-gray-700/50 border-gray-600 text-gray-300'
+                            : 'bg-gray-100 border-gray-300 text-gray-600'
+                        }`}>
+                          {(() => {
+                            const totalWt = item.theoreticalWeightKg || (item.quantity * (item.unitWeightKg || 0));
+                            return totalWt ? totalWt.toFixed(2) : '-';
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Missing Weight Warning - Mobile */}
+                    {item.missingWeightWarning && (
+                      <div className={`p-2 rounded-md border ${isDarkMode ? 'bg-amber-900/30 border-amber-600' : 'bg-amber-50 border-amber-200'}`}>
+                        <p className={`text-xs ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>
+                          Unit weight missing for weight-based pricing ({item.pricingBasis}).
+                        </p>
+                      </div>
+                    )}
 
                     {/* Procurement Channel - Mobile */}
                     <div className="grid grid-cols-2 gap-4">
@@ -2490,6 +2932,72 @@ const PurchaseOrderForm = () => {
                         />
                       </div>
                     </div>
+
+                    {/* Phase 4: Expected Weight - Mobile */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor={`item-expected-weight-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Expected Wt (kg)
+                        </label>
+                        <input
+                          id={`item-expected-weight-${index}`}
+                          type="number"
+                          value={item.expectedWeightKg || ''}
+                          onChange={(e) => handleItemChange(index, 'expectedWeightKg', e.target.value === '' ? null : parseFloat(e.target.value))}
+                          min="0"
+                          step="0.01"
+                          placeholder={(() => {
+                            const calcWt = item.theoreticalWeightKg || (item.quantity * (item.unitWeightKg || 0));
+                            return calcWt ? calcWt.toFixed(2) : '0.00';
+                          })()}
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500'
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor={`item-stock-status-${index}`} className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          Stock Status
+                        </label>
+                        <select
+                          id={`item-stock-status-${index}`}
+                          value={item.lineStockStatus || 'PENDING'}
+                          onChange={(e) => handleItemChange(index, 'lineStockStatus', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-md ${
+                            isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } ${
+                            item.lineStockStatus === 'RECEIVED'
+                              ? 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700'
+                              : item.lineStockStatus === 'PARTIAL'
+                                ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700'
+                                : ''
+                          }`}
+                        >
+                          <option value="PENDING">Pending</option>
+                          <option value="PARTIAL">Partial</option>
+                          <option value="RECEIVED">Received</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Phase 4: GRN Linkage Display - Mobile */}
+                    {item.grnNumber && (
+                      <div className={`p-2 rounded-md border ${isDarkMode ? 'bg-teal-900/30 border-teal-600' : 'bg-teal-50 border-teal-200'}`}>
+                        <div className={`text-xs ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}>
+                          <span className="font-medium">GRN:</span> {item.grnNumber}
+                          {item.receivedQty && (
+                            <span className="ml-2">| Rcvd: {item.receivedQty}</span>
+                          )}
+                          {item.receivedWeightKg && (
+                            <span className="ml-1">({item.receivedWeightKg}kg)</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     <div className={`pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                       <div className="flex justify-between items-center">
