@@ -1624,7 +1624,7 @@ const InvoiceForm = ({ onSave }) => {
         const response = await stockBatchService.getBatches({
           productId,
           companyId: company.id,
-          hasStock: true,
+          activeOnly: true,
           limit: 100, // Get all available batches
         });
 
