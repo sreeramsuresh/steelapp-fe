@@ -4399,7 +4399,7 @@ const InvoiceForm = ({ onSave }) => {
                                       Stock Allocation Details
                                     </h4>
                                     {/* Stock availability display - all warehouses */}
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-1 mr-16">
                                       <span className="text-xs text-gray-500">
                                         Stock availability:
                                       </span>
