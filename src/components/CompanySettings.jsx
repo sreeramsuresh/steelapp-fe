@@ -4089,7 +4089,9 @@ const CompanySettings = () => {
                       className={`text-sm font-medium ${isDarkMode ? "text-teal-400" : "text-teal-700"}`}
                     >
                       {customPermission.permissionKeys.length} permission
-                      {customPermission.permissionKeys.length !== 1 ? "s" : ""}{" "}
+                      {customPermission.permissionKeys.length !== 1
+                        ? "s"
+                        : ""}{" "}
                       selected
                     </p>
                   </div>

@@ -65,6 +65,7 @@ import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
 import AllocationPanel from "../components/invoice/AllocationPanel";
 import BatchPicker from "../components/invoice/BatchPicker";
 import StockAvailabilityIndicator from "../components/invoice/StockAvailabilityIndicator";
+import WarehouseStockSelector from "../components/invoice/WarehouseStockSelector";
 
 // Custom Tailwind Components
 const Button = ({
@@ -4113,62 +4114,54 @@ const InvoiceForm = ({ onSave }) => {
                   isDarkMode ? "divide-gray-600" : "divide-gray-200"
                 }`}
               >
-                <thead className={isDarkMode ? "bg-teal-700" : "bg-teal-600"}>
-                  <tr>
-                    {/* Expand/Collapse */}
-                    <th className="py-3" style={{ width: "28px" }}></th>
-                    {/* Drag Handle */}
-                    <th className="py-3" style={{ width: "18px" }}></th>
+                <thead className="bg-teal-600">
+                  <tr className="h-11">
+                    {/* Expand Button Column */}
+                    <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                      #
+                    </th>
+                    {/* Product Description */}
                     <th
-                      className="pl-1 pr-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white"
+                      className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
                       style={{ width: "30%" }}
                     >
-                      Product
+                      Product Description
                     </th>
-                    <th
-                      className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: "6%" }}
-                    >
+                    {/* Qty */}
+                    <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
                       Qty
                     </th>
-                    <th
-                      className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: "9%" }}
-                    >
-                      Rate
+                    {/* Unit Wt (kg) */}
+                    <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                      Unit Wt
+                      <span className="font-normal opacity-75 ml-0.5">
+                        (kg)
+                      </span>
                     </th>
-                    <th
-                      className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: "8%" }}
-                    >
-                      Source
+                    {/* Total Wt (kg) */}
+                    <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                      Total Wt
+                      <span className="font-normal opacity-75 ml-0.5">
+                        (kg)
+                      </span>
                     </th>
-                    <th
-                      className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: "10%" }}
-                      title="Warehouse for stock allocation"
-                    >
-                      WH
+                    {/* Rate + Basis */}
+                    <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-36">
+                      Rate + Basis
                     </th>
-                    <th
-                      className="px-1 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: "7%" }}
-                    >
-                      VAT
+                    {/* VAT % */}
+                    <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
+                      VAT %
                     </th>
-                    <th
-                      className="px-1 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: "4%" }}
-                    >
-                      %
-                    </th>
-                    <th
-                      className="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white"
-                      style={{ width: "10%" }}
-                    >
+                    {/* Amount */}
+                    <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
                       Amount
+                      <span className="font-normal opacity-75 ml-0.5">
+                        (AED)
+                      </span>
                     </th>
-                    <th className="py-3 w-8"></th>
+                    {/* Delete */}
+                    <th className="py-2 w-10"></th>
                   </tr>
                 </thead>
                 <tbody
@@ -4202,238 +4195,107 @@ const InvoiceForm = ({ onSave }) => {
 
                     return (
                       <Fragment key={item.id || `item-${index}`}>
-                        <tr
-                          data-item-index={index}
-                          {...getDragItemProps(index)}
-                          className={`
-                            ${isDropTarget(index) ? (isDarkMode ? "bg-teal-900/30" : "bg-teal-50") : ""}
-                            ${isDragSource(index) ? "opacity-50" : ""}
-                            transition-colors duration-150
-                          `}
-                        >
-                          {/* Expand/Collapse Button */}
-                          <td
-                            className="py-2 px-1 align-middle text-center"
-                            style={{ width: "28px" }}
-                          >
+                        <tr className="hover:bg-gray-50">
+                          {/* Column 1: Expand button */}
+                          <td className="py-2 px-2 text-center">
                             {item.productId &&
                               item.sourceType === "WAREHOUSE" && (
                                 <button
                                   type="button"
                                   onClick={() => toggleAllocationPanel(index)}
-                                  className={`p-0.5 rounded hover:bg-opacity-20 transition-colors ${
-                                    isDarkMode
-                                      ? "hover:bg-gray-600"
-                                      : "hover:bg-gray-200"
-                                  }`}
+                                  className={
+                                    isExpanded
+                                      ? "text-teal-600 p-0.5"
+                                      : "text-gray-400 hover:text-teal-600 p-0.5"
+                                  }
                                   title={
                                     isExpanded
-                                      ? "Hide allocation details"
-                                      : "Show allocation details"
+                                      ? "Collapse allocation details"
+                                      : "Expand allocation details"
                                   }
                                 >
-                                  {isExpanded ? (
-                                    <ChevronDown
-                                      size={16}
-                                      className={
-                                        isDarkMode
-                                          ? "text-gray-400"
-                                          : "text-gray-600"
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d={
+                                        isExpanded
+                                          ? "M19 9l-7 7-7-7"
+                                          : "M9 5l7 7-7 7"
                                       }
                                     />
-                                  ) : (
-                                    <ChevronRight
-                                      size={16}
-                                      className={
-                                        isDarkMode
-                                          ? "text-gray-400"
-                                          : "text-gray-600"
-                                      }
-                                    />
-                                  )}
+                                  </svg>
                                 </button>
                               )}
                           </td>
-                          {/* Drag Handle */}
-                          <td
-                            className="py-2 px-0 align-middle"
-                            style={{ width: "18px" }}
-                          >
-                            <div
-                              {...getDragHandleProps(index)}
-                              className={`cursor-grab active:cursor-grabbing ${
-                                isDarkMode
-                                  ? "text-gray-400 hover:text-gray-300"
-                                  : "text-gray-400 hover:text-gray-600"
-                              }`}
-                            >
-                              <DragHandleIcon size={14} />
+                          {/* Column 2: Product Description */}
+                          <td className="pl-3 pr-2 py-2">
+                            <input
+                              type="text"
+                              value={searchInputs[index] || item.name || ""}
+                              onChange={(e) =>
+                                handleSearchInputChange(index, e.target.value)
+                              }
+                              placeholder="Product description..."
+                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                            />
+                          </td>
+                          {/* Column 3: Qty */}
+                          <td className="px-2 py-2">
+                            <input
+                              type="number"
+                              value={item.quantity || ""}
+                              onChange={(e) =>
+                                handleItemChange(
+                                  index,
+                                  "quantity",
+                                  e.target.value === ""
+                                    ? ""
+                                    : parseFloat(e.target.value),
+                                )
+                              }
+                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
+                            />
+                          </td>
+                          {/* Column 4: Unit Wt */}
+                          <td className="px-2 py-2">
+                            <input
+                              type="number"
+                              value={
+                                item.unitWeightKg || item.unit_weight_kg || ""
+                              }
+                              onChange={(e) =>
+                                handleItemChange(
+                                  index,
+                                  "unitWeightKg",
+                                  e.target.value === ""
+                                    ? ""
+                                    : parseFloat(e.target.value),
+                                )
+                              }
+                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
+                            />
+                          </td>
+
+                          {/* Column 5: Total Wt (CALCULATED - gray div, NOT input) */}
+                          <td className="px-2 py-2">
+                            <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-medium text-gray-700">
+                              {item.theoreticalWeightKg
+                                ? item.theoreticalWeightKg.toFixed(2)
+                                : "0.00"}
                             </div>
                           </td>
-                          <td className="pl-1 pr-2 py-2 align-middle">
-                            <div className="w-full">
-                              <Autocomplete
-                                options={
-                                  searchInputs[index]
-                                    ? searchOptions.length
-                                      ? searchOptions
-                                      : productOptions
-                                    : productOptions
-                                }
-                                value={
-                                  item.productId
-                                    ? productOptions.find(
-                                        (p) => p.id === item.productId,
-                                      )
-                                    : null
-                                }
-                                inputValue={
-                                  searchInputs[index] || item.name || ""
-                                }
-                                onInputChange={(event, newInputValue) => {
-                                  handleSearchInputChange(index, newInputValue);
-                                }}
-                                onChange={(event, newValue) => {
-                                  if (newValue) {
-                                    handleProductSelect(index, newValue);
-                                  }
-                                }}
-                                placeholder="Search products..."
-                                disabled={loadingProducts}
-                                title={tooltip}
-                                error={invalidFields.has(`item.${index}.name`)}
-                                renderOption={(option) => (
-                                  <div>
-                                    <div className="font-medium">
-                                      {option.uniqueName ||
-                                        option.unique_name ||
-                                        option.displayName ||
-                                        option.display_name}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                      {option.origin
-                                        ? `${option.origin} • `
-                                        : ""}
-                                      {option.subtitle}
-                                    </div>
-                                  </div>
-                                )}
-                                noOptionsText="No products found"
-                              />
-                            </div>
-                          </td>
-                          <td
-                            className={`px-2 py-2 align-middle transition-all duration-300 ${blinkingRowIndex === index ? "ring-2 ring-red-400 ring-inset rounded animate-pulse" : ""}`}
-                          >
-                            <div className="flex flex-col">
-                              <Input
-                                type="number"
-                                value={item.quantity || ""}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    "quantity",
-                                    e.target.value === ""
-                                      ? ""
-                                      : Number.isNaN(Number(e.target.value))
-                                        ? ""
-                                        : item.quantityUom === "MT" ||
-                                            item.quantityUom === "KG"
-                                          ? parseFloat(e.target.value) // Allow decimals for weight
-                                          : parseInt(e.target.value, 10),
-                                  )
-                                }
-                                min="0"
-                                step={
-                                  item.quantityUom === "MT" ||
-                                  item.quantityUom === "KG"
-                                    ? "0.001"
-                                    : "1"
-                                }
-                                inputMode={
-                                  item.quantityUom === "MT" ||
-                                  item.quantityUom === "KG"
-                                    ? "decimal"
-                                    : "numeric"
-                                }
-                                pattern={
-                                  item.quantityUom === "MT" ||
-                                  item.quantityUom === "KG"
-                                    ? "[0-9]*\\.?[0-9]*"
-                                    : "[0-9]*"
-                                }
-                                error={invalidFields.has(
-                                  `item.${index}.quantity`,
-                                )}
-                                onKeyDown={(e) => {
-                                  const allow = [
-                                    "Backspace",
-                                    "Delete",
-                                    "Tab",
-                                    "Escape",
-                                    "Enter",
-                                    "ArrowLeft",
-                                    "ArrowRight",
-                                    "Home",
-                                    "End",
-                                  ];
-                                  if (
-                                    allow.includes(e.key) ||
-                                    e.ctrlKey ||
-                                    e.metaKey
-                                  ) {
-                                    return;
-                                  }
-                                  // Allow decimal point for weight-based quantities
-                                  const allowDecimal =
-                                    item.quantityUom === "MT" ||
-                                    item.quantityUom === "KG";
-                                  if (
-                                    !/^[0-9]$/.test(e.key) &&
-                                    !(allowDecimal && e.key === ".")
-                                  ) {
-                                    e.preventDefault();
-                                  }
-                                }}
-                                onPaste={(e) => {
-                                  e.preventDefault();
-                                  const t = (
-                                    e.clipboardData || window.clipboardData
-                                  ).getData("text");
-                                  const allowDecimal =
-                                    item.quantityUom === "MT" ||
-                                    item.quantityUom === "KG";
-                                  const cleaned = allowDecimal
-                                    ? (t || "").replace(/[^\d.]/g, "")
-                                    : (t || "").replace(/\D/g, "");
-                                  handleItemChange(
-                                    index,
-                                    "quantity",
-                                    cleaned
-                                      ? allowDecimal
-                                        ? parseFloat(cleaned)
-                                        : parseInt(cleaned, 10)
-                                      : "",
-                                  );
-                                }}
-                                onWheel={(e) => e.currentTarget.blur()}
-                                className="w-full text-right"
-                              />
-                              {/* Quantity UOM indicator */}
-                              <span
-                                className={`text-[10px] text-right mt-0.5 font-medium ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
-                              >
-                                {item.quantityUom === "MT"
-                                  ? "MT"
-                                  : item.quantityUom === "KG"
-                                    ? "kg"
-                                    : "pcs"}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-2 py-2 align-middle">
-                            <div className="flex flex-col">
-                              <Input
+
+                          {/* Column 6: Rate + Basis (COMBINED flex container) */}
+                          <td className="px-2 py-2">
+                            <div className="flex border border-gray-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
+                              <input
                                 type="number"
                                 value={item.rate || ""}
                                 onChange={(e) =>
@@ -4445,122 +4307,35 @@ const InvoiceForm = ({ onSave }) => {
                                       : parseFloat(e.target.value),
                                   )
                                 }
-                                min="0"
-                                step="0.01"
-                                className="w-full text-right"
-                                error={invalidFields.has(`item.${index}.rate`)}
+                                className="flex-1 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
+                                style={{ minWidth: 0 }}
                               />
-                              {/* Pricing basis and weight indicator */}
-                              <div className="flex flex-col items-end mt-0.5">
-                                <span
-                                  className={`text-[10px] font-medium ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
-                                >
-                                  {item.pricingBasis === "PER_KG"
-                                    ? "/kg"
+                              <select
+                                value={item.pricingBasis || "PER_MT"}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    "pricingBasis",
+                                    e.target.value,
+                                  )
+                                }
+                                className={`text-[10px] font-bold px-1.5 cursor-pointer outline-none ${
+                                  item.pricingBasis === "PER_KG"
+                                    ? "border-l border-blue-200 bg-blue-100 text-blue-700"
                                     : item.pricingBasis === "PER_PCS"
-                                      ? "/pc"
-                                      : item.pricingBasis === "PER_METER"
-                                        ? "/m"
-                                        : item.pricingBasis === "PER_LOT"
-                                          ? "/lot"
-                                          : "/MT"}
-                                </span>
-                                {/* Show calculated weight for PER_MT/PER_KG products with pieces */}
-                                {item.quantityUom === "PCS" &&
-                                  item.theoreticalWeightKg > 0 &&
-                                  (item.pricingBasis === "PER_MT" ||
-                                    item.pricingBasis === "PER_KG") && (
-                                    <span
-                                      className={`text-[9px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-                                    >
-                                      {item.theoreticalWeightKg >= 1000
-                                        ? `${(item.theoreticalWeightKg / 1000).toFixed(3)} MT`
-                                        : `${item.theoreticalWeightKg.toFixed(2)} kg`}
-                                    </span>
-                                  )}
-                              </div>
+                                      ? "border-l border-emerald-200 bg-emerald-100 text-emerald-700"
+                                      : "border-l border-gray-200 bg-gray-50 text-gray-600"
+                                }`}
+                              >
+                                <option value="PER_MT">/MT</option>
+                                <option value="PER_KG">/kg</option>
+                                <option value="PER_PCS">/pc</option>
+                              </select>
                             </div>
                           </td>
-                          <td className="px-1 py-2 align-middle">
-                            <SourceTypeSelector
-                              value={item.sourceType || "WAREHOUSE"}
-                              onChange={(sourceType) =>
-                                handleItemChange(
-                                  index,
-                                  "sourceType",
-                                  sourceType,
-                                )
-                              }
-                              disabled={false}
-                            />
-                          </td>
-                          {/* Per-line-item Warehouse Selection with inline stock indicator */}
-                          <td className="px-1 py-2 align-middle">
-                            {item.sourceType === "WAREHOUSE" ||
-                            !item.sourceType ? (
-                              <div className="flex items-center gap-1">
-                                <select
-                                  value={
-                                    item.warehouseId ||
-                                    invoice.warehouseId ||
-                                    ""
-                                  }
-                                  onChange={(e) => {
-                                    const whId = e.target.value;
-                                    const wh = warehouses.find(
-                                      (w) => w.id.toString() === whId,
-                                    );
-                                    handleItemChange(
-                                      index,
-                                      "warehouseId",
-                                      whId,
-                                    );
-                                    handleItemChange(
-                                      index,
-                                      "warehouseName",
-                                      wh?.name || "",
-                                    );
-                                  }}
-                                  className={`flex-1 min-w-0 px-1 py-1.5 border rounded text-xs ${
-                                    isDarkMode
-                                      ? "bg-gray-700 border-gray-600 text-white"
-                                      : "bg-white border-gray-300 text-gray-900"
-                                  }`}
-                                  title="Select warehouse for this item"
-                                >
-                                  {warehouses.map((wh) => (
-                                    <option
-                                      key={wh.id}
-                                      value={wh.id.toString()}
-                                    >
-                                      {wh.code ||
-                                        wh.name?.substring(0, 8) ||
-                                        `WH${wh.id}`}
-                                    </option>
-                                  ))}
-                                </select>
-                                {/* Inline stock indicator - icon only */}
-                                {item.productId && (
-                                  <StockAvailabilityIndicator
-                                    productId={item.productId}
-                                    warehouseId={
-                                      item.warehouseId || invoice.warehouseId
-                                    }
-                                    requiredQty={item.quantity || 0}
-                                    compact={true}
-                                    iconOnly={true}
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <span
-                                className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-                              >
-                                N/A
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-1 py-2 align-middle">
+
+                          {/* Column 7: VAT % dropdown */}
+                          <td className="px-2 py-2">
                             <select
                               value={item.supplyType || "standard"}
                               onChange={(e) =>
@@ -4570,64 +4345,40 @@ const InvoiceForm = ({ onSave }) => {
                                   e.target.value,
                                 )
                               }
-                              className={`w-full px-1 py-1 border rounded text-xs ${
-                                isDarkMode
-                                  ? "bg-gray-700 border-gray-600 text-white"
-                                  : "bg-white border-gray-300 text-gray-900"
-                              }`}
+                              className="w-full px-1 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-teal-500"
                             >
-                              <option value="standard">5% Std</option>
-                              <option value="zero_rated">0% Zero</option>
+                              <option value="standard">5%</option>
+                              <option value="zero_rated">0%</option>
                               <option value="exempt">Exempt</option>
                             </select>
                           </td>
-                          <td className="px-1 py-2 align-middle">
-                            <Input
-                              type="number"
-                              value={item.vatRate || ""}
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  "vatRate",
-                                  e.target.value === ""
-                                    ? ""
-                                    : parseFloat(e.target.value),
-                                )
-                              }
-                              min="0"
-                              max="15"
-                              step="0.01"
-                              placeholder="5"
-                              className="w-full text-right"
-                            />
-                          </td>
-                          <td className="px-2 py-2 align-middle">
-                            <div
-                              className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"} text-right whitespace-nowrap`}
-                            >
+
+                          {/* Column 8: Amount (CALCULATED - gray div, NOT input) */}
+                          <td className="px-2 py-2">
+                            <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-semibold text-gray-900">
                               {formatCurrency(item.amount)}
                             </div>
-                            {/* Critical warning for missing unit weight */}
-                            {item.missingWeightWarning && (
-                              <div
-                                className="flex items-center justify-end gap-1 mt-1"
-                                title="Unit weight is missing - amount may be incorrect"
-                              >
-                                <AlertTriangle className="h-3 w-3 text-red-500" />
-                                <span className="text-[9px] text-red-500 font-medium">
-                                  Missing weight!
-                                </span>
-                              </div>
-                            )}
                           </td>
-                          <td className="py-2 pr-1 align-middle text-center w-8">
+
+                          {/* Column 9: Delete button */}
+                          <td className="py-2 pr-2 text-center">
                             <button
                               onClick={() => removeItem(index)}
-                              className={`hover:text-red-300 ${
-                                isDarkMode ? "text-red-400" : "text-red-500"
-                              }`}
+                              className="text-gray-400 hover:text-red-500 p-1"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
                             </button>
                           </td>
                         </tr>
@@ -4638,219 +4389,285 @@ const InvoiceForm = ({ onSave }) => {
                           item.sourceType === "WAREHOUSE" && (
                             <tr key={`${item.id}-allocation`}>
                               <td
-                                colSpan={11}
-                                className={`px-4 py-3 ${isDarkMode ? "bg-gray-800/50" : "bg-gray-50"}`}
+                                colSpan="9"
+                                className="bg-gray-50 px-4 py-3 border-l-4 border-teal-500"
                               >
                                 <div className="space-y-3">
-                                  {/* Header: Title + Status Badge */}
+                                  {/* Header with status */}
                                   <div className="flex items-center justify-between">
-                                    <h4
-                                      className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
-                                    >
+                                    <h4 className="text-sm font-semibold text-gray-700">
                                       Stock Allocation Details
                                     </h4>
-                                    {/* Allocation Status Badge */}
-                                    <div className="flex items-center gap-2">
-                                      <span
-                                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                                      >
-                                        Status:
+                                    {/* Stock availability display - all warehouses */}
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-xs text-gray-500">
+                                        Stock availability:
                                       </span>
-                                      {getAllocationStatusBadge(item)}
+                                      <div className="flex items-center gap-4 ml-2">
+                                        {/* TODO: Replace with actual stock data per warehouse */}
+                                        {warehouses.map((wh, whIdx) => {
+                                          // Mock stock data for now
+                                          const mockStock =
+                                            [5, 8, 0][whIdx] || 0;
+                                          const hasStock = mockStock > 0;
+                                          return (
+                                            <span
+                                              key={wh.id}
+                                              className={`text-xs font-medium ${
+                                                hasStock
+                                                  ? "text-gray-700"
+                                                  : "text-red-500"
+                                              }`}
+                                            >
+                                              {wh.name || wh.code}{" "}
+                                              <span
+                                                className={
+                                                  hasStock
+                                                    ? "text-green-600 font-bold"
+                                                    : "text-red-500 font-bold"
+                                                }
+                                              >
+                                                {mockStock}
+                                              </span>
+                                            </span>
+                                          );
+                                        })}
+                                      </div>
                                     </div>
                                   </div>
 
-                                  {/* UOM Conversion Info */}
-                                  {uomConversionText && (
-                                    <div
-                                      className={`text-xs p-2 rounded border ${
-                                        isDarkMode
-                                          ? "bg-blue-900/20 border-blue-700 text-blue-300"
-                                          : "bg-blue-50 border-blue-200 text-blue-700"
-                                      }`}
-                                    >
-                                      <Info size={14} className="inline mr-1" />
-                                      <strong>UOM Conversion:</strong>{" "}
-                                      {uomConversionText}
+                                  {/* Batch Allocation Table */}
+                                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
+                                      <span className="text-xs font-semibold text-gray-600">
+                                        Batch Allocation
+                                      </span>
+                                      {(() => {
+                                        const allocatedQty = (
+                                          item.manualAllocations || []
+                                        ).reduce(
+                                          (sum, a) =>
+                                            sum + (a.allocatedQty || 0),
+                                          0,
+                                        );
+                                        const requiredQty = item.quantity || 0;
+
+                                        return (
+                                          <span className="text-xs text-gray-500">
+                                            Allocated:{" "}
+                                            <strong className="text-teal-600">
+                                              {allocatedQty}
+                                            </strong>{" "}
+                                            / Required: {requiredQty}
+                                          </span>
+                                        );
+                                      })()}
                                     </div>
-                                  )}
-
-                                  {/* Stock Availability Indicator - Always show at top */}
-                                  <StockAvailabilityIndicator
-                                    productId={item.productId}
-                                    warehouseId={
-                                      item.warehouseId || invoice.warehouseId
-                                    }
-                                    requiredQty={item.quantity || 0}
-                                    compact={false}
-                                  />
-
-                                  {/* Allocation Mode Toggle + Panel */}
-                                  {(() => {
-                                    const allocationsData = hasAllocations
-                                      ? item.allocations
-                                      : [];
-                                    const lockedAllocation =
-                                      allocationsData.find(
-                                        (a) =>
-                                          a.consumed_by_delivery_note_id ||
-                                          a.consumedByDeliveryNoteId,
-                                      );
-                                    const isBatchLocked = !!lockedAllocation;
-                                    const dnNumber =
-                                      lockedAllocation?.delivery_note_number ||
-                                      lockedAllocation?.deliveryNoteNumber ||
-                                      null;
-                                    const currentMode =
-                                      item.allocationMode || "AUTO_FIFO";
-
-                                    // For new invoices: show mode toggle + appropriate panel
-                                    // For existing invoices: show read-only AllocationPanel
-                                    if (!id && !isBatchLocked) {
-                                      return (
-                                        <div className="space-y-3">
-                                          {/* Allocation Mode Toggle */}
-                                          <div
-                                            className={`p-3 rounded-lg border ${
-                                              isDarkMode
-                                                ? "bg-gray-800 border-gray-700"
-                                                : "bg-white border-gray-200"
-                                            }`}
-                                          >
-                                            <div className="flex items-center gap-4">
-                                              <span
-                                                className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                                              >
-                                                Allocation Mode:
-                                              </span>
-                                              <div className="flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
-                                                <button
-                                                  type="button"
-                                                  onClick={() =>
+                                    <table className="min-w-full text-xs">
+                                      <thead className="bg-gray-50">
+                                        <tr>
+                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                            Batch #
+                                          </th>
+                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                            GRN Date
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Available
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Allocated
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Cost/Unit
+                                          </th>
+                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Actions
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-gray-100 bg-white">
+                                        {(item.manualAllocations || []).map(
+                                          (allocation, allocIndex) => (
+                                            <tr key={allocIndex}>
+                                              <td className="px-3 py-2 font-mono text-gray-700">
+                                                {allocation.batchNumber ||
+                                                  "BTH-2024-003421"}
+                                              </td>
+                                              <td className="px-3 py-2 text-gray-600">
+                                                {allocation.grnDate ||
+                                                  "2024-11-28"}
+                                              </td>
+                                              <td className="px-3 py-2 text-right text-gray-700">
+                                                {allocation.availableQty || 0}
+                                              </td>
+                                              <td className="px-3 py-2 text-right">
+                                                <input
+                                                  type="number"
+                                                  value={
+                                                    allocation.allocatedQty || 0
+                                                  }
+                                                  onChange={(e) => {
+                                                    const newAllocations = [
+                                                      ...(item.manualAllocations ||
+                                                        []),
+                                                    ];
+                                                    newAllocations[allocIndex] =
+                                                      {
+                                                        ...newAllocations[
+                                                          allocIndex
+                                                        ],
+                                                        allocatedQty:
+                                                          parseFloat(
+                                                            e.target.value,
+                                                          ) || 0,
+                                                      };
                                                     handleItemChange(
                                                       index,
-                                                      "allocationMode",
-                                                      "AUTO_FIFO",
-                                                    )
-                                                  }
-                                                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                                                    currentMode === "AUTO_FIFO"
-                                                      ? isDarkMode
-                                                        ? "bg-teal-600 text-white"
-                                                        : "bg-teal-500 text-white"
-                                                      : isDarkMode
-                                                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                                  }`}
-                                                >
-                                                  Auto (FIFO)
-                                                </button>
+                                                      "manualAllocations",
+                                                      newAllocations,
+                                                    );
+                                                  }}
+                                                  className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                                                />
+                                              </td>
+                                              <td className="px-3 py-2 text-right text-gray-600">
+                                                {allocation.costPerUnit?.toFixed(
+                                                  2,
+                                                ) || "0.00"}
+                                              </td>
+                                              <td className="px-3 py-2 text-right">
                                                 <button
                                                   type="button"
-                                                  onClick={() =>
+                                                  onClick={() => {
+                                                    const newAllocations = (
+                                                      item.manualAllocations ||
+                                                      []
+                                                    ).filter(
+                                                      (_, i) =>
+                                                        i !== allocIndex,
+                                                    );
                                                     handleItemChange(
                                                       index,
-                                                      "allocationMode",
-                                                      "MANUAL",
-                                                    )
-                                                  }
-                                                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                                                    currentMode === "MANUAL"
-                                                      ? isDarkMode
-                                                        ? "bg-teal-600 text-white"
-                                                        : "bg-teal-500 text-white"
-                                                      : isDarkMode
-                                                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                                  }`}
+                                                      "manualAllocations",
+                                                      newAllocations,
+                                                    );
+                                                  }}
+                                                  className="text-red-500 hover:text-red-700 text-xs"
                                                 >
-                                                  Manual
+                                                  Remove
                                                 </button>
-                                              </div>
-                                              <span
-                                                className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-                                              >
-                                                {currentMode === "AUTO_FIFO"
-                                                  ? "System will auto-allocate oldest batches when invoice is issued"
-                                                  : "Select specific batches below"}
-                                              </span>
-                                            </div>
-                                          </div>
-
-                                          {/* Show BatchPicker for Manual mode */}
-                                          {currentMode === "MANUAL" && (
-                                            <>
-                                              {console.log(
-                                                "[InvoiceForm] Rendering BatchPicker with:",
-                                                {
-                                                  itemProductId: item.productId,
-                                                  itemName: item.name,
-                                                  itemId: item.id,
-                                                  invoiceWarehouseId:
-                                                    invoice.warehouseId,
-                                                  index,
-                                                },
-                                              )}
-                                              <BatchPicker
-                                                productId={item.productId}
-                                                warehouseId={
-                                                  item.warehouseId ||
-                                                  invoice.warehouseId ||
-                                                  null
-                                                }
-                                                requiredQty={item.quantity || 0}
-                                                onSelectAllocations={(
-                                                  allocations,
-                                                ) => {
-                                                  handleItemChange(
-                                                    index,
-                                                    "manualAllocations",
-                                                    allocations,
-                                                  );
-                                                }}
-                                                initialAllocations={
-                                                  item.manualAllocations || []
-                                                }
-                                                disabled={false}
-                                              />
-                                            </>
-                                          )}
-                                        </div>
-                                      );
-                                    }
-
-                                    // For existing/locked invoices: show read-only AllocationPanel
-                                    return (
-                                      <AllocationPanel
-                                        productId={item.productId}
-                                        warehouseId={
-                                          item.warehouseId ||
-                                          invoice.warehouseId ||
-                                          null
-                                        }
-                                        requiredQty={item.quantity || 0}
-                                        allocations={allocationsData}
-                                        disabled={true}
-                                        isNewInvoice={!id}
-                                        isLocked={isBatchLocked}
-                                        deliveryNoteNumber={dnNumber}
-                                        invoiceItemId={item.id}
-                                        onReallocationComplete={(
-                                          newAllocations,
-                                        ) => {
-                                          // Update local allocations state after reallocation
-                                          setItemAllocations((prev) => ({
-                                            ...prev,
-                                            [item.id]: newAllocations,
-                                          }));
+                                              </td>
+                                            </tr>
+                                          ),
+                                        )}
+                                        {(!item.manualAllocations ||
+                                          item.manualAllocations.length ===
+                                            0) && (
+                                          <tr>
+                                            <td
+                                              colSpan="6"
+                                              className="px-3 py-4 text-center text-gray-500 text-xs"
+                                            >
+                                              No batches allocated. Click "Add
+                                              Batch" or "Auto-Allocate (FIFO)"
+                                              below.
+                                            </td>
+                                          </tr>
+                                        )}
+                                      </tbody>
+                                    </table>
+                                    <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          // TODO: Implement add batch modal
+                                          console.log(
+                                            "Add batch clicked for item index:",
+                                            index,
+                                          );
                                         }}
-                                      />
-                                    );
-                                  })()}
+                                        className="text-xs text-teal-600 hover:text-teal-800 font-medium"
+                                      >
+                                        + Add Batch
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          // TODO: Implement FIFO auto-allocation
+                                          console.log(
+                                            "Auto-allocate FIFO clicked for item index:",
+                                            index,
+                                          );
+                                        }}
+                                        className="text-xs bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
+                                      >
+                                        Auto-Allocate (FIFO)
+                                      </button>
+                                    </div>
+                                  </div>
                                 </div>
                               </td>
                             </tr>
                           )}
+
+                        {/* Keep existing AllocationPanel for locked/existing invoices */}
+                        {isExpanded &&
+                          item.productId &&
+                          item.sourceType === "WAREHOUSE" &&
+                          id && // Only show for existing invoices
+                          (() => {
+                            const allocationsData = hasAllocations
+                              ? item.allocations
+                              : [];
+                            const lockedAllocation = allocationsData.find(
+                              (a) =>
+                                a.consumed_by_delivery_note_id ||
+                                a.consumedByDeliveryNoteId,
+                            );
+                            const isBatchLocked = !!lockedAllocation;
+
+                            if (isBatchLocked) {
+                              return (
+                                <tr key={`${item.id}-allocation-readonly`}>
+                                  <td
+                                    colSpan="9"
+                                    className="bg-gray-50 px-4 py-3"
+                                  >
+                                    <AllocationPanel
+                                      productId={item.productId}
+                                      warehouseId={
+                                        item.warehouseId ||
+                                        invoice.warehouseId ||
+                                        null
+                                      }
+                                      requiredQty={item.quantity || 0}
+                                      allocations={allocationsData}
+                                      disabled={true}
+                                      isNewInvoice={!id}
+                                      isLocked={isBatchLocked}
+                                      deliveryNoteNumber={
+                                        lockedAllocation?.delivery_note_number ||
+                                        lockedAllocation?.deliveryNoteNumber ||
+                                        null
+                                      }
+                                      invoiceItemId={item.id}
+                                      onReallocationComplete={(
+                                        newAllocations,
+                                      ) => {
+                                        // Update local allocations state after reallocation
+                                        setItemAllocations((prev) => ({
+                                          ...prev,
+                                          [item.id]: newAllocations,
+                                        }));
+                                      }}
+                                    />
+                                  </td>
+                                </tr>
+                              );
+                            }
+                            return null;
+                          })()}
                       </Fragment>
                     );
                   })}

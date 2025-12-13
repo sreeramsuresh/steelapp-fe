@@ -8,7 +8,7 @@ export function uuid() {
       : typeof window !== "undefined"
         ? window
         : {};
-  const c = g.crypto || g.msCrypto /* IE11 */;
+  const c = g.crypto || g.msCrypto; /* IE11 */
 
   if (c && typeof c.randomUUID === "function") {
     try {
