@@ -67,6 +67,9 @@ import AllocationPanel from '../components/invoice/AllocationPanel';
 import BatchPicker from '../components/invoice/BatchPicker';
 import StockAvailabilityIndicator from '../components/invoice/StockAvailabilityIndicator';
 import WarehouseStockSelector from '../components/invoice/WarehouseStockSelector';
+import AllocationDrawer from '../components/AllocationDrawer';
+import { batchReservationService } from '../services/batchReservationService';
+import { v4 as uuidv4 } from 'uuid';
 
 // Custom Tailwind Components
 const Button = ({
@@ -1148,6 +1151,10 @@ const InvoiceForm = ({ onSave }) => {
 
   // Item allocations state (for reallocation modal updates)
   const [itemAllocations, setItemAllocations] = useState({});
+
+  // Phase 3: AllocationDrawer integration - 60/40 layout mode
+  // When true, shows the new drawer-based line item entry UI
+  const [useDrawerMode] = useState(true); // Set to true to enable new drawer mode
 
   // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
   const [fieldValidation, setFieldValidation] = useState({});
@@ -2739,6 +2746,201 @@ const InvoiceForm = ({ onSave }) => {
     });
   }, []);
 
+  // ============================================================
+  // PHASE 3: AllocationDrawer Line Item Handlers
+  // ============================================================
+
+  /**
+   * Handle adding a line item from the AllocationDrawer
+   * This callback receives the full line item data including allocations
+   */
+  const handleAddLineItem = useCallback((lineItemData) => {
+    // lineItemData structure from AllocationDrawer:
+    // {
+    //   lineItemTempId: 'uuid-v4-string',
+    //   productId: 123,
+    //   product: { ... full product object },
+    //   name: 'SS-304-Sheet-2B-1220mm-1.5mm-2440mm',
+    //   quantity: 500,
+    //   unit: 'KG',
+    //   rate: 75.00,
+    //   amount: 37500.00,
+    //   sourceType: 'WAREHOUSE',
+    //   warehouseId: 1,
+    //   allocations: [ ... batch allocations with reservation data ],
+    //   reservationId: 456,
+    //   expiresAt: '2024-12-14T11:30:00Z'
+    // }
+
+    setInvoice((prev) => {
+      // Remove empty placeholder items (items without productId)
+      const existingValidItems = prev.items.filter(
+        (item) => item.productId || item.name,
+      );
+
+      // Create the new line item with all data from drawer
+      const newItem = {
+        id: uuidv4(),
+        lineItemTempId: lineItemData.lineItemTempId,
+        productId: lineItemData.productId,
+        name: lineItemData.name,
+        // Copy product details for display
+        category: lineItemData.product?.category || '',
+        commodity: lineItemData.product?.commodity || '',
+        grade: lineItemData.product?.grade || '',
+        finish: lineItemData.product?.finish || '',
+        size: lineItemData.product?.size || '',
+        thickness: lineItemData.product?.thickness || '',
+        origin: lineItemData.product?.origin || '',
+        // Quantity and pricing
+        quantity: parseFloat(lineItemData.quantity),
+        quantityUom: lineItemData.unit || 'KG',
+        rate: parseFloat(lineItemData.rate),
+        pricingBasis: 'PER_KG', // Default, will be updated
+        amount: parseFloat(lineItemData.amount),
+        // Stock source
+        sourceType: lineItemData.sourceType,
+        warehouseId: lineItemData.warehouseId,
+        // Allocations from reservation
+        allocations: lineItemData.allocations || [],
+        manualAllocations: (lineItemData.allocations || []).map((a) => ({
+          batchId: a.batchId,
+          batchNumber: a.batchNumber,
+          allocatedQty: parseFloat(a.quantity),
+          unitCost: parseFloat(a.unitCost || 0),
+        })),
+        // Reservation tracking
+        reservationId: lineItemData.reservationId,
+        reservationExpiresAt: lineItemData.expiresAt,
+        // Weight info (calculated)
+        unitWeightKg: lineItemData.product?.unitWeightKg || 1,
+        theoreticalWeightKg: parseFloat(lineItemData.quantity),
+        // VAT (default 5%)
+        supplyType: 'standard',
+      };
+
+      return {
+        ...prev,
+        items: [...existingValidItems, newItem],
+      };
+    });
+
+    // Show success notification
+    notificationService.success(
+      `Added: ${lineItemData.name} (${lineItemData.quantity} ${lineItemData.unit})`,
+    );
+
+    // Trigger recalculation of totals
+    setFormDirty(true);
+  }, []);
+
+  /**
+   * Handle deleting a line item that was added via the drawer
+   * This also cancels any associated reservations
+   */
+  const handleDeleteLineItem = useCallback(
+    async (lineItemTempId) => {
+      // Find the item to get reservation info
+      const itemToDelete = invoice.items.find(
+        (item) => item.lineItemTempId === lineItemTempId,
+      );
+
+      if (!itemToDelete) {
+        notificationService.error('Item not found');
+        return;
+      }
+
+      // Cancel reservations for this line item if it has any
+      if (itemToDelete.lineItemTempId && itemToDelete.sourceType === 'WAREHOUSE') {
+        try {
+          await batchReservationService.cancelLineItemReservations({
+            draftInvoiceId: invoice.id || 0,
+            lineItemTempId: itemToDelete.lineItemTempId,
+          });
+        } catch (err) {
+          console.warn('Failed to cancel reservation on delete:', err);
+          // Continue with deletion even if reservation cancel fails
+        }
+      }
+
+      // Remove the item from invoice
+      setInvoice((prev) => {
+        const newItems = prev.items.filter(
+          (item) => item.lineItemTempId !== lineItemTempId,
+        );
+        // Always maintain at least one empty row if all items deleted
+        if (newItems.length === 0) {
+          newItems.push(createSteelItem());
+        }
+        return { ...prev, items: newItems };
+      });
+
+      notificationService.success('Line item deleted');
+      setFormDirty(true);
+    },
+    [invoice.id, invoice.items],
+  );
+
+  /**
+   * Get status icon for a line item based on its allocation state
+   */
+  const getLineItemStatusIcon = useCallback((item) => {
+    // Drop-ship items show ship icon
+    if (
+      item.sourceType === 'LOCAL_DROP_SHIP' ||
+      item.sourceType === 'IMPORT_DROP_SHIP'
+    ) {
+      return {
+        icon: 'ship',
+        title: 'Drop-ship order',
+        className: 'text-blue-500',
+      };
+    }
+
+    // Warehouse items - check allocation status
+    if (!item.allocations || item.allocations.length === 0) {
+      if (!item.manualAllocations || item.manualAllocations.length === 0) {
+        return {
+          icon: 'empty',
+          title: 'Not allocated',
+          className: 'text-gray-400',
+        };
+      }
+    }
+
+    const allocatedQty = (item.allocations || item.manualAllocations || []).reduce(
+      (sum, a) => sum + parseFloat(a.quantity || a.allocatedQty || 0),
+      0,
+    );
+    const requiredQty = parseFloat(item.quantity) || 0;
+
+    if (Math.abs(allocatedQty - requiredQty) < 0.001) {
+      return {
+        icon: 'check',
+        title: 'Fully allocated',
+        className: 'text-green-500',
+      };
+    }
+
+    if (allocatedQty > 0 && allocatedQty < requiredQty) {
+      return {
+        icon: 'partial',
+        title: `Partially allocated (${allocatedQty.toFixed(2)}/${requiredQty.toFixed(2)})`,
+        className: 'text-amber-500',
+      };
+    }
+
+    return {
+      icon: 'empty',
+      title: 'Not allocated',
+      className: 'text-gray-400',
+    };
+  }, []);
+
+  // ============================================================
+  // END PHASE 3: AllocationDrawer Line Item Handlers
+  // ============================================================
+
   const handleSave = async () => {
     // Prevent double-click / rapid clicks at entry point
     if (isSaving) {
@@ -3066,7 +3268,75 @@ const InvoiceForm = ({ onSave }) => {
         // Close preview modal if it's open
         setShowPreview(false);
 
+        // Phase 4: Finalize invoice with batch allocations
+        // Check if invoice has warehouse items with allocations (lineItemTempId indicates Phase 3+ allocation)
+        const warehouseItemsWithAllocations = invoice.items.filter(
+          (item) => item.sourceType === 'WAREHOUSE' && item.lineItemTempId
+        );
+
+        if (warehouseItemsWithAllocations.length > 0 && newInvoice.items?.length > 0) {
+          try {
+            // Build line item mappings from frontend items to backend items
+            // Match by lineItemTempId which is stored in both
+            const lineItemMappings = warehouseItemsWithAllocations
+              .map((frontendItem) => {
+                // Find corresponding backend item by line_item_temp_id
+                const backendItem = newInvoice.items.find(
+                  (bi) => bi.lineItemTempId === frontendItem.lineItemTempId ||
+                         bi.line_item_temp_id === frontendItem.lineItemTempId
+                );
+                if (backendItem) {
+                  return {
+                    lineItemTempId: frontendItem.lineItemTempId,
+                    invoiceItemId: backendItem.id,
+                  };
+                }
+                return null;
+              })
+              .filter(Boolean);
+
+            if (lineItemMappings.length > 0) {
+              console.log('[InvoiceForm-Phase4] Finalizing invoice with', lineItemMappings.length, 'line item mappings');
+
+              const finalizeResult = await batchReservationService.finalizeInvoice({
+                draftInvoiceId: newInvoice.id,
+                lineItemMappings: lineItemMappings,
+                targetStatus: effectiveStatus,  // 'issued' or 'proforma'
+                skipStockDeduction: false,
+              });
+
+              if (finalizeResult.success) {
+                console.log('[InvoiceForm-Phase4] Finalization successful:', finalizeResult.invoiceNumber);
+                // Update invoice number if it was generated during finalization
+                if (finalizeResult.invoiceNumber) {
+                  setInvoice((prev) => ({
+                    ...prev,
+                    invoiceNumber: finalizeResult.invoiceNumber,
+                  }));
+                }
+              } else {
+                console.warn('[InvoiceForm-Phase4] Finalization returned success=false:', finalizeResult.message);
+                notificationService.warning('Invoice saved but stock finalization incomplete. Please review.');
+              }
+            }
+          } catch (finalizeError) {
+            console.error('[InvoiceForm-Phase4] Finalization error:', finalizeError);
+            // Check for specific error types
+            const errorMessage = finalizeError?.response?.data?.message || finalizeError?.message || 'Unknown error';
+
+            if (errorMessage.toLowerCase().includes('expired')) {
+              notificationService.error('Some batch reservations have expired. Invoice saved but stock not deducted. Please re-allocate batches.');
+            } else if (errorMessage.toLowerCase().includes('insufficient') || errorMessage.toLowerCase().includes('stock')) {
+              notificationService.error('Stock no longer available. Invoice saved but stock not deducted. Another user may have used the same batches.');
+            } else {
+              notificationService.warning(`Invoice saved but finalization failed: ${errorMessage}`);
+            }
+            // Continue - invoice is saved, just finalization failed
+          }
+        }
+
         // Phase 2.1: If invoice has pending confirmation, navigate to confirmation screen
+        // NOTE: This is from the old Phase 2 flow - now superseded by Phase 4 finalize
         if (newInvoice.expiresAt) {
           notificationService.success(
             'Invoice created! Please confirm batch allocation within 5 minutes.',
@@ -3490,1375 +3760,1550 @@ const InvoiceForm = ({ onSave }) => {
           </div>
         </header>
 
-        {/* Main Content - Single Column Layout */}
-        <main className="max-w-7xl mx-auto px-4 py-4 space-y-4">
-          {/* UAE VAT COMPLIANCE: Locked Invoice Warning Banner */}
-          {isLocked && (
-            <div
-              className={`p-4 rounded-lg border-2 flex items-start gap-3 ${
-                isDarkMode
-                  ? 'bg-amber-900/20 border-amber-600 text-amber-200'
-                  : 'bg-amber-50 border-amber-500 text-amber-800'
-              }`}
-            >
-              <AlertTriangle
-                className={`flex-shrink-0 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
-                size={24}
-              />
-              <div className="flex-1">
-                <h4 className="font-bold text-lg">
-                  Final Tax Invoice - Locked
-                </h4>
-                <p className="text-sm mt-1">
-                  This invoice has been issued as a Final Tax Invoice and cannot
-                  be modified. UAE VAT compliance requires any corrections to be
-                  made via Credit Note.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-3"
-                  onClick={() =>
-                    navigate(`/credit-notes/new?invoiceId=${invoice.id}`)
-                  }
-                >
-                  Create Credit Note
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Validation Errors Alert */}
-          {validationErrors.length > 0 && (
-            <div
-              id="validation-errors-alert"
-              className={`mt-6 p-4 rounded-lg border-2 ${
-                isDarkMode
-                  ? 'bg-red-900/20 border-red-600 text-red-200'
-                  : 'bg-red-50 border-red-500 text-red-800'
-              }`}
-            >
-              <div className="flex items-start gap-3">
+        {/* Main Content - 60/40 Layout when using drawer mode */}
+        <main
+          className={`${
+            useDrawerMode
+              ? 'flex gap-0 h-[calc(100vh-80px)]'
+              : 'max-w-7xl mx-auto px-4 py-4 space-y-4'
+          }`}
+        >
+          {/* Left Panel (70%) - Main Form Content */}
+          <div
+            className={`${
+              useDrawerMode
+                ? 'flex-[0_0_70%] overflow-y-auto px-4 py-4 space-y-4'
+                : 'w-full'
+            } ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+          >
+            {/* UAE VAT COMPLIANCE: Locked Invoice Warning Banner */}
+            {isLocked && (
+              <div
+                className={`p-4 rounded-lg border-2 flex items-start gap-3 ${
+                  isDarkMode
+                    ? 'bg-amber-900/20 border-amber-600 text-amber-200'
+                    : 'bg-amber-50 border-amber-500 text-amber-800'
+                }`}
+              >
                 <AlertTriangle
-                  className={`flex-shrink-0 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+                  className={`flex-shrink-0 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
                   size={24}
                 />
                 <div className="flex-1">
-                  <h4 className="font-bold text-lg mb-2">
-                    Please fix the following errors:
+                  <h4 className="font-bold text-lg">
+                  Final Tax Invoice - Locked
                   </h4>
-                  <ul className="space-y-1 text-sm">
-                    {validationErrors.map((error, index) => {
-                      // Parse error to extract field name for scrolling
-                      let fieldName = null;
-                      if (error.includes('Customer'))
-                        fieldName = 'customer.name';
-                      else if (error.includes('Invoice date'))
-                        fieldName = 'date';
-                      else if (error.includes('Due date'))
-                        fieldName = 'dueDate';
-                      else if (error.match(/Item \d+/)) {
-                        const match = error.match(/Item (\d+)/);
-                        if (match) {
-                          const itemNum = parseInt(match[1], 10) - 1; // Convert to 0-indexed
-                          if (error.includes('Rate'))
-                            fieldName = `item.${itemNum}.rate`;
-                          else if (error.includes('Quantity'))
-                            fieldName = `item.${itemNum}.quantity`;
-                          else if (error.includes('Product'))
-                            fieldName = `item.${itemNum}.name`;
-                          else fieldName = `item.${itemNum}`;
-                        }
-                      }
-
-                      return (
-                        <li key={index}>
-                          <button
-                            onClick={() =>
-                              fieldName && scrollToField(fieldName)
-                            }
-                            disabled={!fieldName}
-                            className={`flex items-center gap-2 w-full text-left ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : 'opacity-60 cursor-default'}`}
-                            title={fieldName ? 'Click to scroll to field' : ''}
-                          >
-                            <span className="text-red-500">•</span>
-                            <span>{error}</span>
-                            {fieldName && (
-                              <span className="text-xs opacity-60">↓</span>
-                            )}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  <button
-                    onClick={() => {
-                      setValidationErrors([]);
-                      setInvalidFields(new Set());
-                    }}
-                    className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                      isDarkMode
-                        ? 'bg-red-800 hover:bg-red-700 text-white'
-                        : 'bg-red-600 hover:bg-red-700 text-white'
-                    }`}
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Two-Column Header Layout - Customer/Sales + Invoice Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* LEFT COLUMN: Customer & Sales Information */}
-            <Card
-              className={`p-3 md:p-4 ${
-                isDarkMode ? 'bg-gray-800' : 'bg-white'
-              }`}
-            >
-              {/* Customer Selection - Priority #1 */}
-              <div className="mb-4" ref={customerRef}>
-                <h3
-                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  Customer Information
-                </h3>
-                {/* Customer Selector - Enhanced with Search */}
-                <div className="space-y-0.5">
-                  <Autocomplete
-                    label="Select Customer"
-                    data-testid="customer-autocomplete"
-                    options={(customersData?.customers || []).map((c) => ({
-                      id: c.id,
-                      label: `${titleCase(normalizeLLC(c.name))} - ${c.email || 'No email'}`,
-                      name: c.name,
-                      email: c.email,
-                      phone: c.phone,
-                    }))}
-                    value={
-                      invoice.customer.id
-                        ? {
-                          id: invoice.customer.id,
-                          label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || 'No email'}`,
-                        }
-                        : null
+                  <p className="text-sm mt-1">
+                  This invoice has been issued as a Final Tax Invoice and cannot
+                  be modified. UAE VAT compliance requires any corrections to be
+                  made via Credit Note.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() =>
+                      navigate(`/credit-notes/new?invoiceId=${invoice.id}`)
                     }
-                    onChange={(e, selected) => {
-                      if (selected?.id) {
-                        handleCustomerSelect(selected.id);
-                        // Show selected customer name in the input field
-                        setCustomerSearchInput(
-                          titleCase(normalizeLLC(selected.name || '')),
-                        );
-                      }
-                    }}
-                    inputValue={customerSearchInput}
-                    onInputChange={(e, value) => setCustomerSearchInput(value)}
-                    placeholder="Search customers by name or email..."
-                    disabled={loadingCustomers}
-                    noOptionsText={
-                      loadingCustomers
-                        ? 'Loading customers...'
-                        : 'No customers found'
-                    }
-                    error={invalidFields.has('customer.name')}
-                    className="text-base"
-                    required={true}
-                    validationState={fieldValidation.customer}
-                    showValidation={formPreferences.showValidationHighlighting}
-                  />
-                  {invalidFields.has('customer.name') && (
-                    <p
-                      className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
-                    >
-                      Customer is required
-                    </p>
-                  )}
-                </div>
-
-                {/* Display customer details - always visible */}
-                <div
-                  className={`p-4 rounded-lg border ${
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600'
-                      : 'bg-gray-100 border-gray-200'
-                  }`}
-                >
-                  <h4
-                    className={`font-medium mb-2 ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}
                   >
-                    {invoice.customer.name
-                      ? 'Selected Customer:'
-                      : 'Customer Details:'}
-                  </h4>
-                  <div
-                    className={`space-y-1 text-sm ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}
-                  >
-                    <p>
-                      <span className="font-medium">Name:</span>{' '}
-                      {invoice.customer.name
-                        ? titleCase(normalizeLLC(invoice.customer.name))
-                        : ''}
-                    </p>
-                    <p>
-                      <span className="font-medium">Email:</span>{' '}
-                      {invoice.customer.email || ''}
-                    </p>
-                    <p>
-                      <span className="font-medium">Phone:</span>{' '}
-                      {invoice.customer.phone || ''}
-                    </p>
-                    <p>
-                      <span className="font-medium">TRN:</span>{' '}
-                      {invoice.customer.vatNumber || ''}
-                    </p>
-                    <p>
-                      <span className="font-medium">Address:</span>{' '}
-                      {invoice.customer.address?.street ||
-                      invoice.customer.address?.city
-                        ? [
-                          invoice.customer.address.street,
-                          invoice.customer.address.city,
-                          invoice.customer.address.emirate,
-                          invoice.customer.address.poBox,
-                        ]
-                          .filter(Boolean)
-                          .join(', ')
-                        : ''}
-                    </p>
-                    <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
-                      <span className="font-medium">Price List:</span>{' '}
-                      {pricelistName && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
-                          {pricelistName}
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Trade License Status Alert */}
-                {showTradeLicenseAlert && tradeLicenseStatus && (
-                  <Alert
-                    variant="warning"
-                    onClose={() => setShowTradeLicenseAlert(false)}
-                  >
-                    <div>
-                      <h4 className="font-medium mb-1">Trade License Alert</h4>
-                      <p className="text-sm">{tradeLicenseStatus.message}</p>
-                      {tradeLicenseStatus.licenseNumber && (
-                        <p className="text-sm mt-1">
-                          <span className="font-medium">License Number:</span>{' '}
-                          {tradeLicenseStatus.licenseNumber}
-                        </p>
-                      )}
-                      {tradeLicenseStatus.expiryDate && (
-                        <p className="text-sm">
-                          <span className="font-medium">Expiry Date:</span>{' '}
-                          {new Date(
-                            tradeLicenseStatus.expiryDate,
-                          ).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  </Alert>
-                )}
-
-                {loadingCustomers && (
-                  <div className="flex items-center space-x-2">
-                    <LoadingSpinner size="sm" />
-                    <span
-                      className={`text-sm ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      }`}
-                    >
-                      Loading customers...
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Sales Agent Selection */}
-              <div
-                className="border-t pt-4 mt-4"
-                style={{
-                  borderColor: isDarkMode
-                    ? 'rgb(75 85 99)'
-                    : 'rgb(229 231 235)',
-                }}
-              >
-                <h3
-                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  Sales Information
-                </h3>
-                <Select
-                  label="Sales Agent (Optional)"
-                  value={invoice.salesAgentId || ''}
-                  onChange={(e) => handleSalesAgentSelect(e.target.value)}
-                  disabled={loadingAgents}
-                  className="text-base"
-                >
-                  <option value="">No sales agent</option>
-                  {(salesAgentsData?.data || []).map((agent) => (
-                    <option key={agent.id} value={agent.id}>
-                      {agent.fullName || agent.username}
-                      {agent.defaultCommissionRate
-                        ? ` (${agent.defaultCommissionRate}% commission)`
-                        : ''}
-                    </option>
-                  ))}
-                </Select>
-                {loadingAgents && (
-                  <div className="flex items-center space-x-2 mt-2">
-                    <LoadingSpinner size="sm" />
-                    <span
-                      className={`text-sm ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      }`}
-                    >
-                      Loading sales agents...
-                    </span>
-                  </div>
-                )}
-
-                {/* Commission Details - Only shown when sales agent is selected */}
-                {invoice.salesAgentId && (
-                  <div
-                    className="border-t pt-4 mt-4"
-                    style={{
-                      borderColor: isDarkMode
-                        ? 'rgb(75 85 99)'
-                        : 'rgb(229 231 235)',
-                    }}
-                  >
-                    <div className="space-y-3">
-                      <Input
-                        label="Commission Percentage (%)"
-                        type="number"
-                        value={invoice.commissionPercentage || 10}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          if (raw === '') {
-                            setInvoice((prev) => ({
-                              ...prev,
-                              commissionPercentage: 0,
-                            }));
-                            return;
-                          }
-                          const num = Number(raw);
-                          if (Number.isNaN(num)) return;
-                          const clamped = Math.max(0, Math.min(100, num));
-                          setInvoice((prev) => ({
-                            ...prev,
-                            commissionPercentage: clamped,
-                          }));
-                        }}
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        placeholder="10.00"
-                        inputMode="decimal"
-                        onKeyDown={(e) => {
-                          const blocked = ['e', 'E', '+', '-'];
-                          if (blocked.includes(e.key)) e.preventDefault();
-                        }}
-                        disabled={isLocked}
-                        className="text-base"
-                      />
-                      <div
-                        className={`p-3 rounded ${
-                          isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                        }`}
-                      >
-                        <p
-                          className={`text-xs ${
-                            isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                          } mb-2`}
-                        >
-                          Commission Amount (Accrual)
-                        </p>
-                        <p
-                          className={`text-lg font-bold ${
-                            isDarkMode ? 'text-teal-400' : 'text-teal-600'
-                          }`}
-                        >
-                          AED{' '}
-                          {(
-                            (computedTotal *
-                              (invoice.commissionPercentage || 10)) /
-                            100
-                          ).toFixed(2)}
-                        </p>
-                        <p
-                          className={`text-xs ${
-                            isDarkMode ? 'text-gray-500' : 'text-gray-500'
-                          } mt-2`}
-                        >
-                          Accrues when invoice is issued. 15-day grace period
-                          for adjustments.
-                        </p>
-                      </div>
-                      {id && invoice.commissionStatus && (
-                        <div
-                          className={`p-3 rounded border ${
-                            isDarkMode
-                              ? 'bg-gray-700 border-gray-600'
-                              : 'bg-blue-50 border-blue-200'
-                          }`}
-                        >
-                          <p
-                            className={`text-xs font-semibold ${
-                              isDarkMode ? 'text-blue-300' : 'text-blue-800'
-                            } mb-1`}
-                          >
-                            Commission Status
-                          </p>
-                          <p
-                            className={`text-sm font-medium ${
-                              invoice.commissionStatus === 'PAID'
-                                ? 'text-green-600'
-                                : invoice.commissionStatus === 'APPROVED'
-                                  ? 'text-blue-600'
-                                  : invoice.commissionStatus === 'PENDING'
-                                    ? 'text-yellow-600'
-                                    : 'text-red-600'
-                            }`}
-                          >
-                            {invoice.commissionStatus}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {/* RIGHT COLUMN: Invoice Details */}
-            <Card
-              className={`p-3 md:p-4 ${
-                isDarkMode ? 'bg-gray-800' : 'bg-white'
-              }`}
-            >
-              <h3
-                className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}
-              >
-                Invoice Details
-              </h3>
-              <div className="space-y-4">
-                {/* Invoice Number and Status - Invoice identity */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Input
-                    label="Invoice Number"
-                    value={invoice.invoiceNumber}
-                    readOnly
-                    className="text-base bg-gray-50"
-                    placeholder="Auto-generated on save"
-                  />
-                  <Select
-                    label="Invoice Status"
-                    value={invoice.status}
-                    required={true}
-                    validationState={fieldValidation.status}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    error={invalidFields.has('status')}
-                    onChange={(e) => {
-                      const newStatus = e.target.value;
-                      setInvoice((prev) => ({
-                        ...prev,
-                        status: newStatus,
-                        invoiceNumber: !id
-                          ? withStatusPrefix(prev.invoiceNumber, newStatus)
-                          : prev.invoiceNumber,
-                      }));
-                      validateField('status', newStatus);
-                    }}
-                    className="text-base"
-                  >
-                    <option value="">Select status</option>
-                    <option value="draft">Draft Invoice</option>
-                    <option value="proforma">Proforma Invoice</option>
-                    <option value="issued">Final Tax Invoice</option>
-                  </Select>
-                </div>
-
-                {/* Invoice Date and Due Date - Date fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Input
-                    label="Invoice Date"
-                    type="date"
-                    value={formatDateForInput(invoice.date)}
-                    readOnly
-                    error={invalidFields.has('date')}
-                    className="text-base"
-                  />
-                  <div ref={dueDateRef}>
-                    <Input
-                      label="Due Date"
-                      type="date"
-                      value={formatDateForInput(invoice.dueDate)}
-                      min={dueMinStr}
-                      max={dueMaxStr}
-                      required={true}
-                      validationState={fieldValidation.dueDate}
-                      showValidation={
-                        formPreferences.showValidationHighlighting
-                      }
-                      error={invalidFields.has('dueDate')}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        let validatedValue = v;
-                        if (v && v < dueMinStr) validatedValue = dueMinStr;
-                        if (v && v > dueMaxStr) validatedValue = dueMaxStr;
-                        setInvoice((prev) => ({
-                          ...prev,
-                          dueDate: validatedValue,
-                        }));
-                        validateField('dueDate', validatedValue);
-                      }}
-                      className="text-base"
-                    />
-                  </div>
-                </div>
-
-                {/* Payment Terms and Currency - Transaction settings */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Select
-                    ref={paymentModeRef}
-                    label="Payment Terms"
-                    value={invoice.modeOfPayment || ''}
-                    required={false}
-                    validationState={fieldValidation.paymentMode}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    error={invalidFields.has('paymentMode')}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setInvoice((prev) => ({
-                        ...prev,
-                        modeOfPayment: value,
-                      }));
-                      validateField('paymentMode', value);
-                      // Auto-focus to next mandatory field after payment terms selection
-                      if (value) {
-                        setTimeout(() => focusNextMandatoryField(), 100);
-                      }
-                    }}
-                    className="text-base"
-                  >
-                    <option value="">Select expected payment method</option>
-                    {Object.values(PAYMENT_MODES).map((mode) => (
-                      <option key={mode.value} value={mode.value}>
-                        {mode.icon} {mode.label}
-                      </option>
-                    ))}
-                  </Select>
-                  <Select
-                    label="Currency"
-                    value={invoice.currency || 'AED'}
-                    required={true}
-                    validationState={fieldValidation.currency}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setInvoice((prev) => ({
-                        ...prev,
-                        currency: value,
-                      }));
-                      validateField('currency', value);
-                    }}
-                    className="text-base"
-                  >
-                    <option value="AED">AED (UAE Dirham)</option>
-                    <option value="USD">USD (US Dollar)</option>
-                    <option value="EUR">EUR (Euro)</option>
-                    <option value="GBP">GBP (British Pound)</option>
-                    <option value="SAR">SAR (Saudi Riyal)</option>
-                    <option value="QAR">QAR (Qatari Riyal)</option>
-                    <option value="OMR">OMR (Omani Rial)</option>
-                    <option value="BHD">BHD (Bahraini Dinar)</option>
-                    <option value="KWD">KWD (Kuwaiti Dinar)</option>
-                  </Select>
-                </div>
-
-                {/* Warehouse - Only shown when warehouse items exist */}
-                {needsWarehouseSelector && (
-                  <div className="grid grid-cols-1 gap-2">
-                    <Select
-                      label="Warehouse"
-                      value={invoice.warehouseId || ''}
-                      required={invoice.status !== 'draft'}
-                      validationState={fieldValidation.warehouse}
-                      showValidation={
-                        formPreferences.showValidationHighlighting
-                      }
-                      onChange={(e) => {
-                        const warehouseId = e.target.value;
-                        const w = warehouses.find(
-                          (wh) => wh.id.toString() === warehouseId,
-                        );
-                        setInvoice((prev) => ({
-                          ...prev,
-                          warehouseId,
-                          warehouseName: w ? w.name : '',
-                          warehouseCode: w ? w.code : '',
-                          warehouseCity: w ? w.city : '',
-                        }));
-                        validateField('warehouse', warehouseId);
-                      }}
-                      className="text-base"
-                    >
-                      <option value="">Select warehouse</option>
-                      {warehouses.map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.name} - {w.city}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                )}
-
-                {/* Customer PO Fields - Customer reference info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Input
-                    label="Customer PO Number"
-                    value={invoice.customerPurchaseOrderNumber || ''}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        customerPurchaseOrderNumber: e.target.value,
-                      }))
-                    }
-                    placeholder="PO number"
-                    className="text-base"
-                  />
-                  <Input
-                    label="Customer PO Date"
-                    type="date"
-                    value={invoice.customerPurchaseOrderDate || ''}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        customerPurchaseOrderDate: e.target.value,
-                      }))
-                    }
-                    className="text-base"
-                  />
-                </div>
-
-                {/* VAT Compliance Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Select
-                    label={
-                      <span className="inline-flex items-center gap-1">
-                        <span>
-                          Place of Supply
-                          {invoice.status === 'issued' && (
-                            <span className="text-red-500 ml-0.5">*</span>
-                          )}
-                        </span>
-                        <VatHelpIcon
-                          content={[
-                            'When required: Mandatory for all invoices.',
-                            'Specifies which Emirate the supply is made from.',
-                            'Used for compliance with FTA Form 201.',
-                          ]}
-                        />
-                      </span>
-                    }
-                    value={invoice.placeOfSupply || ''}
-                    validationState={fieldValidation.placeOfSupply}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    onChange={(e) => {
-                      setInvoice((prev) => ({
-                        ...prev,
-                        placeOfSupply: e.target.value,
-                      }));
-                      validateField('placeOfSupply', e.target.value);
-                    }}
-                    className="text-base"
-                  >
-                    <option value="">Select emirate</option>
-                    {UAE_EMIRATES.map((emirate) => (
-                      <option key={emirate} value={emirate}>
-                        {emirate}
-                      </option>
-                    ))}
-                  </Select>
-                  <Input
-                    label={
-                      <span className="inline-flex items-center gap-1">
-                        <span>Supply Date</span>
-                        <VatHelpIcon
-                          content={[
-                            'When required: Mandatory. Determines VAT liability date.',
-                            'Must be the date supply is made (goods delivered/services rendered).',
-                            'Defaults to invoice date if empty.',
-                          ]}
-                        />
-                      </span>
-                    }
-                    type="date"
-                    value={invoice.supplyDate || ''}
-                    validationState={fieldValidation.supplyDate}
-                    showValidation={formPreferences.showValidationHighlighting}
-                    onChange={(e) => {
-                      setInvoice((prev) => ({
-                        ...prev,
-                        supplyDate: e.target.value,
-                      }));
-                      validateField('supplyDate', e.target.value);
-                    }}
-                    className="text-base"
-                  />
-                </div>
-
-                {/* Exchange Rate Date - Conditional (shown for foreign currency) */}
-                {invoice.currency && invoice.currency !== 'AED' && (
-                  <Input
-                    label="Exchange Rate Date"
-                    type="date"
-                    value={invoice.exchangeRateDate || ''}
-                    onChange={(e) =>
-                      setInvoice((prev) => ({
-                        ...prev,
-                        exchangeRateDate: e.target.value,
-                      }))
-                    }
-                    className="text-base"
-                  />
-                )}
-              </div>
-            </Card>
-          </div>
-
-          {/* Items Section - Responsive */}
-          <Card
-            className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-            ref={itemsRef}
-          >
-            <div className="mb-4">
-              <h3
-                className={`text-xs font-semibold uppercase tracking-wide ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}
-              >
-                Line Items
-              </h3>
-            </div>
-
-            {/* Quick Add Speed Buttons - Pinned & Top Products */}
-            {formPreferences.showSpeedButtons && (
-              <div className="mb-4">
-                <p
-                  className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Quick Add (Pinned & Top Products)
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {sortedProducts.slice(0, 8).map((product) => {
-                    const isPinned = pinnedProductIds.includes(product.id);
-                    return (
-                      <div key={product.id} className="relative group">
-                        <button
-                          onClick={() => {
-                            // Check if product already exists - if so, increment quantity directly
-                            const existingIndex = findDuplicateProduct(
-                              product.id,
-                              -1,
-                            );
-                            if (
-                              existingIndex !== -1 &&
-                              existingIndex !== null
-                            ) {
-                              // Product exists - increment quantity and recalculate amount
-                              setInvoice((prev) => {
-                                const newItems = [...prev.items];
-                                const existingItem = newItems[existingIndex];
-                                const newQuantity =
-                                  (existingItem.quantity || 0) + 1;
-                                // Recalculate theoretical weight
-                                let theoreticalWeightKg =
-                                  existingItem.theoreticalWeightKg;
-                                if (
-                                  existingItem.unitWeightKg &&
-                                  existingItem.quantityUom === 'PCS'
-                                ) {
-                                  theoreticalWeightKg =
-                                    newQuantity * existingItem.unitWeightKg;
-                                } else if (existingItem.quantityUom === 'MT') {
-                                  theoreticalWeightKg = newQuantity * 1000;
-                                } else if (existingItem.quantityUom === 'KG') {
-                                  theoreticalWeightKg = newQuantity;
-                                }
-                                newItems[existingIndex] = {
-                                  ...existingItem,
-                                  quantity: newQuantity,
-                                  theoreticalWeightKg,
-                                  amount: calculateItemAmount(
-                                    newQuantity,
-                                    existingItem.rate,
-                                    existingItem.pricingBasis,
-                                    existingItem.unitWeightKg,
-                                    existingItem.quantityUom,
-                                  ),
-                                };
-                                return { ...prev, items: newItems };
-                              });
-                              // Trigger blink animation (3 seconds)
-                              setBlinkingRowIndex(existingIndex);
-                              setTimeout(() => setBlinkingRowIndex(null), 3000);
-                              return;
-                            }
-
-                            // Product doesn't exist - fill empty row or create new one
-                            let targetIndex = findEmptyItemIndex();
-                            if (targetIndex === -1) {
-                              // No empty row - add one and use that index
-                              targetIndex = invoice.items.length;
-                              setInvoice((prev) => ({
-                                ...prev,
-                                items: [...prev.items, createSteelItem()],
-                              }));
-                            }
-                            // Use handleProductSelect for consistent pricing (pricelist support)
-                            setTimeout(
-                              () => handleProductSelect(targetIndex, product),
-                              0,
-                            );
-                          }}
-                          className={`w-full px-3 py-2 pr-8 rounded-lg border text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
-                            isPinned
-                              ? isDarkMode
-                                ? 'border-gray-500 bg-gray-700 text-gray-200 hover:bg-gray-600 shadow-sm'
-                                : 'border-gray-400 bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm'
-                              : isDarkMode
-                                ? 'border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700'
-                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                          }`}
-                          title={
-                            product.displayName || product.display_name || 'N/A'
-                          }
-                        >
-                          {product.uniqueName || product.unique_name || 'N/A'}
-                        </button>
-                        <button
-                          onClick={(e) => handleTogglePin(e, product.id)}
-                          className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
-                            isPinned
-                              ? isDarkMode
-                                ? 'text-gray-300 hover:text-white'
-                                : 'text-gray-700 hover:text-gray-900'
-                              : isDarkMode
-                                ? 'text-gray-500 hover:text-gray-300'
-                                : 'text-gray-400 hover:text-gray-600'
-                          }`}
-                          title={isPinned ? 'Unpin product' : 'Pin product'}
-                        >
-                          {isPinned ? (
-                            <Pin size={14} fill="currentColor" />
-                          ) : (
-                            <Pin size={14} />
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })}
+                  Create Credit Note
+                  </Button>
                 </div>
               </div>
             )}
 
-            {/* Items Table - Desktop & Tablet */}
-            <div className="hidden md:block overflow-x-auto">
-              <table
-                className={`min-w-full table-fixed divide-y ${
-                  isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+            {/* Validation Errors Alert */}
+            {validationErrors.length > 0 && (
+              <div
+                id="validation-errors-alert"
+                className={`mt-6 p-4 rounded-lg border-2 ${
+                  isDarkMode
+                    ? 'bg-red-900/20 border-red-600 text-red-200'
+                    : 'bg-red-50 border-red-500 text-red-800'
                 }`}
               >
-                <thead className="bg-teal-600">
-                  <tr className="h-11">
-                    {/* Expand Button Column */}
-                    <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
-                      #
-                    </th>
-                    {/* Product Description */}
-                    <th
-                      className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
-                      style={{ width: '38%' }}
+                <div className="flex items-start gap-3">
+                  <AlertTriangle
+                    className={`flex-shrink-0 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+                    size={24}
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-bold text-lg mb-2">
+                    Please fix the following errors:
+                    </h4>
+                    <ul className="space-y-1 text-sm">
+                      {validationErrors.map((error, index) => {
+                      // Parse error to extract field name for scrolling
+                        let fieldName = null;
+                        if (error.includes('Customer'))
+                          fieldName = 'customer.name';
+                        else if (error.includes('Invoice date'))
+                          fieldName = 'date';
+                        else if (error.includes('Due date'))
+                          fieldName = 'dueDate';
+                        else if (error.match(/Item \d+/)) {
+                          const match = error.match(/Item (\d+)/);
+                          if (match) {
+                            const itemNum = parseInt(match[1], 10) - 1; // Convert to 0-indexed
+                            if (error.includes('Rate'))
+                              fieldName = `item.${itemNum}.rate`;
+                            else if (error.includes('Quantity'))
+                              fieldName = `item.${itemNum}.quantity`;
+                            else if (error.includes('Product'))
+                              fieldName = `item.${itemNum}.name`;
+                            else fieldName = `item.${itemNum}`;
+                          }
+                        }
+
+                        return (
+                          <li key={index}>
+                            <button
+                              onClick={() =>
+                                fieldName && scrollToField(fieldName)
+                              }
+                              disabled={!fieldName}
+                              className={`flex items-center gap-2 w-full text-left ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : 'opacity-60 cursor-default'}`}
+                              title={fieldName ? 'Click to scroll to field' : ''}
+                            >
+                              <span className="text-red-500">•</span>
+                              <span>{error}</span>
+                              {fieldName && (
+                                <span className="text-xs opacity-60">↓</span>
+                              )}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    <button
+                      onClick={() => {
+                        setValidationErrors([]);
+                        setInvalidFields(new Set());
+                      }}
+                      className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                        isDarkMode
+                          ? 'bg-red-800 hover:bg-red-700 text-white'
+                          : 'bg-red-600 hover:bg-red-700 text-white'
+                      }`}
                     >
-                      Product Description
-                    </th>
-                    {/* Qty */}
-                    <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
-                      Qty
-                    </th>
-                    {/* Unit Wt (kg) */}
-                    <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                      Unit Wt
-                      <span className="font-normal opacity-75 ml-0.5">
-                        (kg)
+                    Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Two-Column Header Layout - Customer/Sales + Invoice Details */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {/* LEFT COLUMN: Customer & Sales Information */}
+              <Card
+                className={`p-3 md:p-4 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}
+              >
+                {/* Customer Selection - Priority #1 */}
+                <div className="mb-4" ref={customerRef}>
+                  <h3
+                    className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                  >
+                  Customer Information
+                  </h3>
+                  {/* Customer Selector - Enhanced with Search */}
+                  <div className="space-y-0.5">
+                    <Autocomplete
+                      label="Select Customer"
+                      data-testid="customer-autocomplete"
+                      options={(customersData?.customers || []).map((c) => ({
+                        id: c.id,
+                        label: `${titleCase(normalizeLLC(c.name))} - ${c.email || 'No email'}`,
+                        name: c.name,
+                        email: c.email,
+                        phone: c.phone,
+                      }))}
+                      value={
+                        invoice.customer.id
+                          ? {
+                            id: invoice.customer.id,
+                            label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || 'No email'}`,
+                          }
+                          : null
+                      }
+                      onChange={(e, selected) => {
+                        if (selected?.id) {
+                          handleCustomerSelect(selected.id);
+                          // Show selected customer name in the input field
+                          setCustomerSearchInput(
+                            titleCase(normalizeLLC(selected.name || '')),
+                          );
+                        }
+                      }}
+                      inputValue={customerSearchInput}
+                      onInputChange={(e, value) => setCustomerSearchInput(value)}
+                      placeholder="Search customers by name or email..."
+                      disabled={loadingCustomers}
+                      noOptionsText={
+                        loadingCustomers
+                          ? 'Loading customers...'
+                          : 'No customers found'
+                      }
+                      error={invalidFields.has('customer.name')}
+                      className="text-base"
+                      required={true}
+                      validationState={fieldValidation.customer}
+                      showValidation={formPreferences.showValidationHighlighting}
+                    />
+                    {invalidFields.has('customer.name') && (
+                      <p
+                        className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+                      >
+                      Customer is required
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Display customer details - always visible */}
+                  <div
+                    className={`p-4 rounded-lg border ${
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600'
+                        : 'bg-gray-100 border-gray-200'
+                    }`}
+                  >
+                    <h4
+                      className={`font-medium mb-2 ${
+                        isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}
+                    >
+                      {invoice.customer.name
+                        ? 'Selected Customer:'
+                        : 'Customer Details:'}
+                    </h4>
+                    <div
+                      className={`space-y-1 text-sm ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}
+                    >
+                      <p>
+                        <span className="font-medium">Name:</span>{' '}
+                        {invoice.customer.name
+                          ? titleCase(normalizeLLC(invoice.customer.name))
+                          : ''}
+                      </p>
+                      <p>
+                        <span className="font-medium">Email:</span>{' '}
+                        {invoice.customer.email || ''}
+                      </p>
+                      <p>
+                        <span className="font-medium">Phone:</span>{' '}
+                        {invoice.customer.phone || ''}
+                      </p>
+                      <p>
+                        <span className="font-medium">TRN:</span>{' '}
+                        {invoice.customer.vatNumber || ''}
+                      </p>
+                      <p>
+                        <span className="font-medium">Address:</span>{' '}
+                        {invoice.customer.address?.street ||
+                      invoice.customer.address?.city
+                          ? [
+                            invoice.customer.address.street,
+                            invoice.customer.address.city,
+                            invoice.customer.address.emirate,
+                            invoice.customer.address.poBox,
+                          ]
+                            .filter(Boolean)
+                            .join(', ')
+                          : ''}
+                      </p>
+                      <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+                        <span className="font-medium">Price List:</span>{' '}
+                        {pricelistName && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+                            {pricelistName}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Trade License Status Alert */}
+                  {showTradeLicenseAlert && tradeLicenseStatus && (
+                    <Alert
+                      variant="warning"
+                      onClose={() => setShowTradeLicenseAlert(false)}
+                    >
+                      <div>
+                        <h4 className="font-medium mb-1">Trade License Alert</h4>
+                        <p className="text-sm">{tradeLicenseStatus.message}</p>
+                        {tradeLicenseStatus.licenseNumber && (
+                          <p className="text-sm mt-1">
+                            <span className="font-medium">License Number:</span>{' '}
+                            {tradeLicenseStatus.licenseNumber}
+                          </p>
+                        )}
+                        {tradeLicenseStatus.expiryDate && (
+                          <p className="text-sm">
+                            <span className="font-medium">Expiry Date:</span>{' '}
+                            {new Date(
+                              tradeLicenseStatus.expiryDate,
+                            ).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </Alert>
+                  )}
+
+                  {loadingCustomers && (
+                    <div className="flex items-center space-x-2">
+                      <LoadingSpinner size="sm" />
+                      <span
+                        className={`text-sm ${
+                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                      Loading customers...
                       </span>
-                    </th>
-                    {/* Total Wt (kg) */}
-                    <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                      Total Wt
-                      <span className="font-normal opacity-75 ml-0.5">
-                        (kg)
+                    </div>
+                  )}
+                </div>
+
+                {/* Sales Agent Selection */}
+                <div
+                  className="border-t pt-4 mt-4"
+                  style={{
+                    borderColor: isDarkMode
+                      ? 'rgb(75 85 99)'
+                      : 'rgb(229 231 235)',
+                  }}
+                >
+                  <h3
+                    className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                  >
+                  Sales Information
+                  </h3>
+                  <Select
+                    label="Sales Agent (Optional)"
+                    value={invoice.salesAgentId || ''}
+                    onChange={(e) => handleSalesAgentSelect(e.target.value)}
+                    disabled={loadingAgents}
+                    className="text-base"
+                  >
+                    <option value="">No sales agent</option>
+                    {(salesAgentsData?.data || []).map((agent) => (
+                      <option key={agent.id} value={agent.id}>
+                        {agent.fullName || agent.username}
+                        {agent.defaultCommissionRate
+                          ? ` (${agent.defaultCommissionRate}% commission)`
+                          : ''}
+                      </option>
+                    ))}
+                  </Select>
+                  {loadingAgents && (
+                    <div className="flex items-center space-x-2 mt-2">
+                      <LoadingSpinner size="sm" />
+                      <span
+                        className={`text-sm ${
+                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                      Loading sales agents...
                       </span>
-                    </th>
-                    {/* Rate + Basis */}
-                    <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-36">
-                      Rate + Basis
-                    </th>
-                    {/* VAT % */}
-                    <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
-                      VAT %
-                    </th>
-                    {/* Amount */}
-                    <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                      Amount
-                      <span className="font-normal opacity-75 ml-0.5">
-                        (AED)
-                      </span>
-                    </th>
-                    {/* Delete */}
-                    <th className="py-2 w-10"></th>
-                  </tr>
-                </thead>
-                <tbody
-                  className={`divide-y ${
-                    isDarkMode
-                      ? 'bg-gray-800 divide-gray-600'
-                      : 'bg-white divide-gray-200'
+                    </div>
+                  )}
+
+                  {/* Commission Details - Only shown when sales agent is selected */}
+                  {invoice.salesAgentId && (
+                    <div
+                      className="border-t pt-4 mt-4"
+                      style={{
+                        borderColor: isDarkMode
+                          ? 'rgb(75 85 99)'
+                          : 'rgb(229 231 235)',
+                      }}
+                    >
+                      <div className="space-y-3">
+                        <Input
+                          label="Commission Percentage (%)"
+                          type="number"
+                          value={invoice.commissionPercentage || 10}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setInvoice((prev) => ({
+                                ...prev,
+                                commissionPercentage: 0,
+                              }));
+                              return;
+                            }
+                            const num = Number(raw);
+                            if (Number.isNaN(num)) return;
+                            const clamped = Math.max(0, Math.min(100, num));
+                            setInvoice((prev) => ({
+                              ...prev,
+                              commissionPercentage: clamped,
+                            }));
+                          }}
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          placeholder="10.00"
+                          inputMode="decimal"
+                          onKeyDown={(e) => {
+                            const blocked = ['e', 'E', '+', '-'];
+                            if (blocked.includes(e.key)) e.preventDefault();
+                          }}
+                          disabled={isLocked}
+                          className="text-base"
+                        />
+                        <div
+                          className={`p-3 rounded ${
+                            isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                          }`}
+                        >
+                          <p
+                            className={`text-xs ${
+                              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                            } mb-2`}
+                          >
+                          Commission Amount (Accrual)
+                          </p>
+                          <p
+                            className={`text-lg font-bold ${
+                              isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                            }`}
+                          >
+                          AED{' '}
+                            {(
+                              (computedTotal *
+                              (invoice.commissionPercentage || 10)) /
+                            100
+                            ).toFixed(2)}
+                          </p>
+                          <p
+                            className={`text-xs ${
+                              isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                            } mt-2`}
+                          >
+                          Accrues when invoice is issued. 15-day grace period
+                          for adjustments.
+                          </p>
+                        </div>
+                        {id && invoice.commissionStatus && (
+                          <div
+                            className={`p-3 rounded border ${
+                              isDarkMode
+                                ? 'bg-gray-700 border-gray-600'
+                                : 'bg-blue-50 border-blue-200'
+                            }`}
+                          >
+                            <p
+                              className={`text-xs font-semibold ${
+                                isDarkMode ? 'text-blue-300' : 'text-blue-800'
+                              } mb-1`}
+                            >
+                            Commission Status
+                            </p>
+                            <p
+                              className={`text-sm font-medium ${
+                                invoice.commissionStatus === 'PAID'
+                                  ? 'text-green-600'
+                                  : invoice.commissionStatus === 'APPROVED'
+                                    ? 'text-blue-600'
+                                    : invoice.commissionStatus === 'PENDING'
+                                      ? 'text-yellow-600'
+                                      : 'text-red-600'
+                              }`}
+                            >
+                              {invoice.commissionStatus}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              {/* RIGHT COLUMN: Invoice Details */}
+              <Card
+                className={`p-3 md:p-4 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}
+              >
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
-                  {deferredItems.slice(0, 20).map((item, index) => {
-                    const tooltip = [
-                      item.name ? `Name: ${item.name}` : '',
-                      item.category ? `Category: ${item.category}` : '',
-                      item.commodity ? `Commodity: ${item.commodity}` : '',
-                      item.grade ? `Grade: ${item.grade}` : '',
-                      item.finish ? `Finish: ${item.finish}` : '',
-                      item.size ? `Size: ${item.size}` : '',
-                      item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
-                      item.od ? `OD: ${item.od}` : '',
-                      item.length ? `Length: ${item.length}` : '',
-                      item.thickness ? `Thickness: ${item.thickness}` : '',
-                      item.unit ? `Unit: ${item.unit}` : '',
-                      item.hsnCode ? `HSN: ${item.hsnCode}` : '',
-                    ]
-                      .filter(Boolean)
-                      .join('\n');
-                    const isExpanded = expandedAllocations.has(index);
-                    const hasAllocations =
-                      item.allocations && item.allocations.length > 0;
-                    const uomConversionText = getUomConversionText(item);
+                Invoice Details
+                </h3>
+                <div className="space-y-4">
+                  {/* Invoice Number and Status - Invoice identity */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Input
+                      label="Invoice Number"
+                      value={invoice.invoiceNumber}
+                      readOnly
+                      className="text-base bg-gray-50"
+                      placeholder="Auto-generated on save"
+                    />
+                    <Select
+                      label="Invoice Status"
+                      value={invoice.status}
+                      required={true}
+                      validationState={fieldValidation.status}
+                      showValidation={formPreferences.showValidationHighlighting}
+                      error={invalidFields.has('status')}
+                      onChange={(e) => {
+                        const newStatus = e.target.value;
+                        setInvoice((prev) => ({
+                          ...prev,
+                          status: newStatus,
+                          invoiceNumber: !id
+                            ? withStatusPrefix(prev.invoiceNumber, newStatus)
+                            : prev.invoiceNumber,
+                        }));
+                        validateField('status', newStatus);
+                      }}
+                      className="text-base"
+                    >
+                      <option value="">Select status</option>
+                      <option value="draft">Draft Invoice</option>
+                      <option value="proforma">Proforma Invoice</option>
+                      <option value="issued">Final Tax Invoice</option>
+                    </Select>
+                  </div>
 
-                    return (
-                      <Fragment key={item.id || `item-${index}`}>
-                        <tr className="hover:bg-gray-50">
-                          {/* Column 1: Expand button */}
-                          <td className="py-2 px-2 text-center">
-                            {item.productId && (
+                  {/* Invoice Date and Due Date - Date fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Input
+                      label="Invoice Date"
+                      type="date"
+                      value={formatDateForInput(invoice.date)}
+                      readOnly
+                      error={invalidFields.has('date')}
+                      className="text-base"
+                    />
+                    <div ref={dueDateRef}>
+                      <Input
+                        label="Due Date"
+                        type="date"
+                        value={formatDateForInput(invoice.dueDate)}
+                        min={dueMinStr}
+                        max={dueMaxStr}
+                        required={true}
+                        validationState={fieldValidation.dueDate}
+                        showValidation={
+                          formPreferences.showValidationHighlighting
+                        }
+                        error={invalidFields.has('dueDate')}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          let validatedValue = v;
+                          if (v && v < dueMinStr) validatedValue = dueMinStr;
+                          if (v && v > dueMaxStr) validatedValue = dueMaxStr;
+                          setInvoice((prev) => ({
+                            ...prev,
+                            dueDate: validatedValue,
+                          }));
+                          validateField('dueDate', validatedValue);
+                        }}
+                        className="text-base"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Payment Terms and Currency - Transaction settings */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Select
+                      ref={paymentModeRef}
+                      label="Payment Terms"
+                      value={invoice.modeOfPayment || ''}
+                      required={false}
+                      validationState={fieldValidation.paymentMode}
+                      showValidation={formPreferences.showValidationHighlighting}
+                      error={invalidFields.has('paymentMode')}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setInvoice((prev) => ({
+                          ...prev,
+                          modeOfPayment: value,
+                        }));
+                        validateField('paymentMode', value);
+                        // Auto-focus to next mandatory field after payment terms selection
+                        if (value) {
+                          setTimeout(() => focusNextMandatoryField(), 100);
+                        }
+                      }}
+                      className="text-base"
+                    >
+                      <option value="">Select expected payment method</option>
+                      {Object.values(PAYMENT_MODES).map((mode) => (
+                        <option key={mode.value} value={mode.value}>
+                          {mode.icon} {mode.label}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      label="Currency"
+                      value={invoice.currency || 'AED'}
+                      required={true}
+                      validationState={fieldValidation.currency}
+                      showValidation={formPreferences.showValidationHighlighting}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setInvoice((prev) => ({
+                          ...prev,
+                          currency: value,
+                        }));
+                        validateField('currency', value);
+                      }}
+                      className="text-base"
+                    >
+                      <option value="AED">AED (UAE Dirham)</option>
+                      <option value="USD">USD (US Dollar)</option>
+                      <option value="EUR">EUR (Euro)</option>
+                      <option value="GBP">GBP (British Pound)</option>
+                      <option value="SAR">SAR (Saudi Riyal)</option>
+                      <option value="QAR">QAR (Qatari Riyal)</option>
+                      <option value="OMR">OMR (Omani Rial)</option>
+                      <option value="BHD">BHD (Bahraini Dinar)</option>
+                      <option value="KWD">KWD (Kuwaiti Dinar)</option>
+                    </Select>
+                  </div>
+
+                  {/* Warehouse - Only shown when warehouse items exist */}
+                  {needsWarehouseSelector && (
+                    <div className="grid grid-cols-1 gap-2">
+                      <Select
+                        label="Warehouse"
+                        value={invoice.warehouseId || ''}
+                        required={invoice.status !== 'draft'}
+                        validationState={fieldValidation.warehouse}
+                        showValidation={
+                          formPreferences.showValidationHighlighting
+                        }
+                        onChange={(e) => {
+                          const warehouseId = e.target.value;
+                          const w = warehouses.find(
+                            (wh) => wh.id.toString() === warehouseId,
+                          );
+                          setInvoice((prev) => ({
+                            ...prev,
+                            warehouseId,
+                            warehouseName: w ? w.name : '',
+                            warehouseCode: w ? w.code : '',
+                            warehouseCity: w ? w.city : '',
+                          }));
+                          validateField('warehouse', warehouseId);
+                        }}
+                        className="text-base"
+                      >
+                        <option value="">Select warehouse</option>
+                        {warehouses.map((w) => (
+                          <option key={w.id} value={w.id}>
+                            {w.name} - {w.city}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Customer PO Fields - Customer reference info */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Input
+                      label="Customer PO Number"
+                      value={invoice.customerPurchaseOrderNumber || ''}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          customerPurchaseOrderNumber: e.target.value,
+                        }))
+                      }
+                      placeholder="PO number"
+                      className="text-base"
+                    />
+                    <Input
+                      label="Customer PO Date"
+                      type="date"
+                      value={invoice.customerPurchaseOrderDate || ''}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          customerPurchaseOrderDate: e.target.value,
+                        }))
+                      }
+                      className="text-base"
+                    />
+                  </div>
+
+                  {/* VAT Compliance Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Select
+                      label={
+                        <span className="inline-flex items-center gap-1">
+                          <span>
+                          Place of Supply
+                            {invoice.status === 'issued' && (
+                              <span className="text-red-500 ml-0.5">*</span>
+                            )}
+                          </span>
+                          <VatHelpIcon
+                            content={[
+                              'When required: Mandatory for all invoices.',
+                              'Specifies which Emirate the supply is made from.',
+                              'Used for compliance with FTA Form 201.',
+                            ]}
+                          />
+                        </span>
+                      }
+                      value={invoice.placeOfSupply || ''}
+                      validationState={fieldValidation.placeOfSupply}
+                      showValidation={formPreferences.showValidationHighlighting}
+                      onChange={(e) => {
+                        setInvoice((prev) => ({
+                          ...prev,
+                          placeOfSupply: e.target.value,
+                        }));
+                        validateField('placeOfSupply', e.target.value);
+                      }}
+                      className="text-base"
+                    >
+                      <option value="">Select emirate</option>
+                      {UAE_EMIRATES.map((emirate) => (
+                        <option key={emirate} value={emirate}>
+                          {emirate}
+                        </option>
+                      ))}
+                    </Select>
+                    <Input
+                      label={
+                        <span className="inline-flex items-center gap-1">
+                          <span>Supply Date</span>
+                          <VatHelpIcon
+                            content={[
+                              'When required: Mandatory. Determines VAT liability date.',
+                              'Must be the date supply is made (goods delivered/services rendered).',
+                              'Defaults to invoice date if empty.',
+                            ]}
+                          />
+                        </span>
+                      }
+                      type="date"
+                      value={invoice.supplyDate || ''}
+                      validationState={fieldValidation.supplyDate}
+                      showValidation={formPreferences.showValidationHighlighting}
+                      onChange={(e) => {
+                        setInvoice((prev) => ({
+                          ...prev,
+                          supplyDate: e.target.value,
+                        }));
+                        validateField('supplyDate', e.target.value);
+                      }}
+                      className="text-base"
+                    />
+                  </div>
+
+                  {/* Exchange Rate Date - Conditional (shown for foreign currency) */}
+                  {invoice.currency && invoice.currency !== 'AED' && (
+                    <Input
+                      label="Exchange Rate Date"
+                      type="date"
+                      value={invoice.exchangeRateDate || ''}
+                      onChange={(e) =>
+                        setInvoice((prev) => ({
+                          ...prev,
+                          exchangeRateDate: e.target.value,
+                        }))
+                      }
+                      className="text-base"
+                    />
+                  )}
+                </div>
+              </Card>
+            </div>
+
+            {/* Items Section - Responsive */}
+            <Card
+              className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+              ref={itemsRef}
+            >
+              <div className="mb-4 flex justify-between items-center">
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}
+                >
+                Line Items
+                  {useDrawerMode && invoice.items.filter(i => i.productId).length > 0 && (
+                    <span className="ml-2 text-teal-600">
+                    ({invoice.items.filter(i => i.productId).length} items)
+                    </span>
+                  )}
+                </h3>
+                {useDrawerMode && (
+                  <p className="text-xs text-gray-500">
+                  Use the panel on the right to add products
+                  </p>
+                )}
+              </div>
+
+              {/* DRAWER MODE: Read-Only Line Items Display */}
+              {useDrawerMode ? (
+                <div className="overflow-x-auto">
+                  {/* Empty state when no items */}
+                  {invoice.items.filter(item => item.productId || item.name).length === 0 ? (
+                    <div
+                      className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
+                        isDarkMode ? 'border-gray-600 text-gray-400' : 'border-gray-300 text-gray-500'
+                      }`}
+                    >
+                      <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
+                      <p className="text-sm font-medium mb-1">No line items yet</p>
+                      <p className="text-xs opacity-75">
+                      Search for products in the panel on the right and click &quot;Add to Invoice&quot;
+                      </p>
+                    </div>
+                  ) : (
+                    <table
+                      className={`min-w-full table-fixed divide-y ${
+                        isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+                      }`}
+                    >
+                      <thead className="bg-teal-600">
+                        <tr className="h-10">
+                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                          #
+                          </th>
+                          <th className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white" style={{ width: '35%' }}>
+                          Product
+                          </th>
+                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                          Qty
+                          </th>
+                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                          Rate
+                          </th>
+                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                          Amount
+                          </th>
+                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
+                          Status
+                          </th>
+                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        className={`divide-y ${
+                          isDarkMode ? 'bg-gray-800 divide-gray-600' : 'bg-white divide-gray-200'
+                        }`}
+                      >
+                        {invoice.items
+                          .filter(item => item.productId || item.name)
+                          .map((item, index) => {
+                            const statusInfo = getLineItemStatusIcon(item);
+                            return (
+                              <tr
+                                key={item.lineItemTempId || item.id || `item-${index}`}
+                                className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
+                              >
+                                {/* # */}
+                                <td className="py-2 px-2 text-center text-sm">
+                                  {index + 1}
+                                </td>
+                                {/* Product */}
+                                <td className="pl-3 pr-2 py-2">
+                                  <div>
+                                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                      {item.name || 'Unnamed Product'}
+                                    </div>
+                                    {item.sourceType === 'WAREHOUSE' && item.allocations?.length > 0 && (
+                                      <div className="text-xs text-gray-500 mt-0.5">
+                                        {item.allocations.slice(0, 2).map((alloc, i) => (
+                                          <span key={i}>
+                                            {alloc.batchNumber || `Batch ${alloc.batchId}`}: {parseFloat(alloc.quantity).toFixed(0)} kg
+                                            {i < Math.min(item.allocations.length - 1, 1) && ', '}
+                                          </span>
+                                        ))}
+                                        {item.allocations.length > 2 && (
+                                          <span className="text-teal-600"> +{item.allocations.length - 2} more</span>
+                                        )}
+                                      </div>
+                                    )}
+                                    {(item.sourceType === 'LOCAL_DROP_SHIP' || item.sourceType === 'IMPORT_DROP_SHIP') && (
+                                      <div className="text-xs text-blue-500 mt-0.5">
+                                        {item.sourceType === 'LOCAL_DROP_SHIP' ? 'Local Drop-Ship' : 'Import Drop-Ship'}
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                                {/* Qty */}
+                                <td className="px-2 py-2 text-center text-sm">
+                                  {item.quantity || 0} {item.quantityUom || 'KG'}
+                                </td>
+                                {/* Rate */}
+                                <td className="px-2 py-2 text-right text-sm">
+                                  {formatCurrency(item.rate || 0)}
+                                </td>
+                                {/* Amount */}
+                                <td className="px-2 py-2 text-right text-sm font-medium">
+                                  {formatCurrency(item.amount || (item.quantity * item.rate) || 0)}
+                                </td>
+                                {/* Status Icon */}
+                                <td className="px-2 py-2 text-center">
+                                  <span
+                                    className={statusInfo.className}
+                                    title={statusInfo.title}
+                                  >
+                                    {statusInfo.icon === 'check' && (
+                                      <CheckCircle className="w-5 h-5 inline" />
+                                    )}
+                                    {statusInfo.icon === 'partial' && (
+                                      <AlertTriangle className="w-5 h-5 inline" />
+                                    )}
+                                    {statusInfo.icon === 'empty' && (
+                                      <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
+                                    )}
+                                    {statusInfo.icon === 'ship' && (
+                                      <span className="text-lg">🚢</span>
+                                    )}
+                                  </span>
+                                </td>
+                                {/* Delete */}
+                                <td className="py-2 px-2 text-center">
+                                  <button
+                                    onClick={() => {
+                                      if (window.confirm(`Delete "${item.name}"?`)) {
+                                        if (item.lineItemTempId) {
+                                          handleDeleteLineItem(item.lineItemTempId);
+                                        } else {
+                                          removeItem(invoice.items.findIndex(i => i.id === item.id));
+                                        }
+                                      }
+                                    }}
+                                    className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                                    title="Delete item"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              ) : (
+              /* LEGACY MODE: Editable Line Items Table */
+                <>
+                  {/* Quick Add Speed Buttons - Pinned & Top Products */}
+                  {formPreferences.showSpeedButtons && (
+                    <div className="mb-4">
+                      <p
+                        className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      >
+                  Quick Add (Pinned & Top Products)
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {sortedProducts.slice(0, 8).map((product) => {
+                          const isPinned = pinnedProductIds.includes(product.id);
+                          return (
+                            <div key={product.id} className="relative group">
                               <button
-                                type="button"
-                                onClick={() => toggleAllocationPanel(index)}
-                                className={
-                                  isExpanded
-                                    ? 'text-teal-600 p-0.5'
-                                    : 'text-gray-400 hover:text-teal-600 p-0.5'
-                                }
+                                onClick={() => {
+                                  // Check if product already exists - if so, increment quantity directly
+                                  const existingIndex = findDuplicateProduct(
+                                    product.id,
+                                    -1,
+                                  );
+                                  if (
+                                    existingIndex !== -1 &&
+                              existingIndex !== null
+                                  ) {
+                                    // Product exists - increment quantity and recalculate amount
+                                    setInvoice((prev) => {
+                                      const newItems = [...prev.items];
+                                      const existingItem = newItems[existingIndex];
+                                      const newQuantity =
+                                  (existingItem.quantity || 0) + 1;
+                                      // Recalculate theoretical weight
+                                      let theoreticalWeightKg =
+                                  existingItem.theoreticalWeightKg;
+                                      if (
+                                        existingItem.unitWeightKg &&
+                                  existingItem.quantityUom === 'PCS'
+                                      ) {
+                                        theoreticalWeightKg =
+                                    newQuantity * existingItem.unitWeightKg;
+                                      } else if (existingItem.quantityUom === 'MT') {
+                                        theoreticalWeightKg = newQuantity * 1000;
+                                      } else if (existingItem.quantityUom === 'KG') {
+                                        theoreticalWeightKg = newQuantity;
+                                      }
+                                      newItems[existingIndex] = {
+                                        ...existingItem,
+                                        quantity: newQuantity,
+                                        theoreticalWeightKg,
+                                        amount: calculateItemAmount(
+                                          newQuantity,
+                                          existingItem.rate,
+                                          existingItem.pricingBasis,
+                                          existingItem.unitWeightKg,
+                                          existingItem.quantityUom,
+                                        ),
+                                      };
+                                      return { ...prev, items: newItems };
+                                    });
+                                    // Trigger blink animation (3 seconds)
+                                    setBlinkingRowIndex(existingIndex);
+                                    setTimeout(() => setBlinkingRowIndex(null), 3000);
+                                    return;
+                                  }
+
+                                  // Product doesn't exist - fill empty row or create new one
+                                  let targetIndex = findEmptyItemIndex();
+                                  if (targetIndex === -1) {
+                                    // No empty row - add one and use that index
+                                    targetIndex = invoice.items.length;
+                                    setInvoice((prev) => ({
+                                      ...prev,
+                                      items: [...prev.items, createSteelItem()],
+                                    }));
+                                  }
+                                  // Use handleProductSelect for consistent pricing (pricelist support)
+                                  setTimeout(
+                                    () => handleProductSelect(targetIndex, product),
+                                    0,
+                                  );
+                                }}
+                                className={`w-full px-3 py-2 pr-8 rounded-lg border text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
+                                  isPinned
+                                    ? isDarkMode
+                                      ? 'border-gray-500 bg-gray-700 text-gray-200 hover:bg-gray-600 shadow-sm'
+                                      : 'border-gray-400 bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm'
+                                    : isDarkMode
+                                      ? 'border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                }`}
                                 title={
-                                  isExpanded
-                                    ? 'Collapse allocation details'
-                                    : 'Expand allocation details'
+                                  product.displayName || product.display_name || 'N/A'
                                 }
                               >
-                                <svg
-                                  className="w-4 h-4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d={
-                                      isExpanded
-                                        ? 'M19 9l-7 7-7-7'
-                                        : 'M9 5l7 7-7 7'
-                                    }
-                                  />
-                                </svg>
+                                {product.uniqueName || product.unique_name || 'N/A'}
                               </button>
-                            )}
-                          </td>
-                          {/* Column 2: Product Description */}
-                          <td className="pl-3 pr-2 py-2 relative">
-                            <Autocomplete
-                              data-testid={`product-autocomplete-${index}`}
-                              options={
-                                searchInputs[index]
-                                  ? searchOptions.length
-                                    ? searchOptions
-                                    : productOptions
-                                  : productOptions
-                              }
-                              value={
-                                item.productId
-                                  ? productOptions.find(
-                                    (p) => p.id === item.productId,
-                                  )
-                                  : null
-                              }
-                              inputValue={searchInputs[index] || item.name || ''}
-                              onInputChange={(event, newInputValue) => {
-                                handleSearchInputChange(index, newInputValue);
-                              }}
-                              onChange={(event, newValue) => {
-                                if (newValue) {
-                                  handleProductSelect(index, newValue);
-                                }
-                              }}
-                              placeholder="Search products..."
-                              disabled={loadingProducts}
-                              title={tooltip}
-                              renderOption={(option) => (
-                                <div>
-                                  <div className="font-medium">
-                                    {option.displayName ||
+                              <button
+                                onClick={(e) => handleTogglePin(e, product.id)}
+                                className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
+                                  isPinned
+                                    ? isDarkMode
+                                      ? 'text-gray-300 hover:text-white'
+                                      : 'text-gray-700 hover:text-gray-900'
+                                    : isDarkMode
+                                      ? 'text-gray-500 hover:text-gray-300'
+                                      : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                                title={isPinned ? 'Unpin product' : 'Pin product'}
+                              >
+                                {isPinned ? (
+                                  <Pin size={14} fill="currentColor" />
+                                ) : (
+                                  <Pin size={14} />
+                                )}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Items Table - Desktop & Tablet */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table
+                      className={`min-w-full table-fixed divide-y ${
+                        isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+                      }`}
+                    >
+                      <thead className="bg-teal-600">
+                        <tr className="h-11">
+                          {/* Expand Button Column */}
+                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                      #
+                          </th>
+                          {/* Product Description */}
+                          <th
+                            className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
+                            style={{ width: '38%' }}
+                          >
+                      Product Description
+                          </th>
+                          {/* Qty */}
+                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
+                      Qty
+                          </th>
+                          {/* Unit Wt (kg) */}
+                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                      Unit Wt
+                            <span className="font-normal opacity-75 ml-0.5">
+                        (kg)
+                            </span>
+                          </th>
+                          {/* Total Wt (kg) */}
+                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                      Total Wt
+                            <span className="font-normal opacity-75 ml-0.5">
+                        (kg)
+                            </span>
+                          </th>
+                          {/* Rate + Basis */}
+                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-36">
+                      Rate + Basis
+                          </th>
+                          {/* VAT % */}
+                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
+                      VAT %
+                          </th>
+                          {/* Amount */}
+                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                      Amount
+                            <span className="font-normal opacity-75 ml-0.5">
+                        (AED)
+                            </span>
+                          </th>
+                          {/* Delete */}
+                          <th className="py-2 w-10"></th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        className={`divide-y ${
+                          isDarkMode
+                            ? 'bg-gray-800 divide-gray-600'
+                            : 'bg-white divide-gray-200'
+                        }`}
+                      >
+                        {deferredItems.slice(0, 20).map((item, index) => {
+                          const tooltip = [
+                            item.name ? `Name: ${item.name}` : '',
+                            item.category ? `Category: ${item.category}` : '',
+                            item.commodity ? `Commodity: ${item.commodity}` : '',
+                            item.grade ? `Grade: ${item.grade}` : '',
+                            item.finish ? `Finish: ${item.finish}` : '',
+                            item.size ? `Size: ${item.size}` : '',
+                            item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
+                            item.od ? `OD: ${item.od}` : '',
+                            item.length ? `Length: ${item.length}` : '',
+                            item.thickness ? `Thickness: ${item.thickness}` : '',
+                            item.unit ? `Unit: ${item.unit}` : '',
+                            item.hsnCode ? `HSN: ${item.hsnCode}` : '',
+                          ]
+                            .filter(Boolean)
+                            .join('\n');
+                          const isExpanded = expandedAllocations.has(index);
+                          const hasAllocations =
+                      item.allocations && item.allocations.length > 0;
+                          const uomConversionText = getUomConversionText(item);
+
+                          return (
+                            <Fragment key={item.id || `item-${index}`}>
+                              <tr className="hover:bg-gray-50">
+                                {/* Column 1: Expand button */}
+                                <td className="py-2 px-2 text-center">
+                                  {item.productId && (
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleAllocationPanel(index)}
+                                      className={
+                                        isExpanded
+                                          ? 'text-teal-600 p-0.5'
+                                          : 'text-gray-400 hover:text-teal-600 p-0.5'
+                                      }
+                                      title={
+                                        isExpanded
+                                          ? 'Collapse allocation details'
+                                          : 'Expand allocation details'
+                                      }
+                                    >
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d={
+                                            isExpanded
+                                              ? 'M19 9l-7 7-7-7'
+                                              : 'M9 5l7 7-7 7'
+                                          }
+                                        />
+                                      </svg>
+                                    </button>
+                                  )}
+                                </td>
+                                {/* Column 2: Product Description */}
+                                <td className="pl-3 pr-2 py-2 relative">
+                                  <Autocomplete
+                                    data-testid={`product-autocomplete-${index}`}
+                                    options={
+                                      searchInputs[index]
+                                        ? searchOptions.length
+                                          ? searchOptions
+                                          : productOptions
+                                        : productOptions
+                                    }
+                                    value={
+                                      item.productId
+                                        ? productOptions.find(
+                                          (p) => p.id === item.productId,
+                                        )
+                                        : null
+                                    }
+                                    inputValue={searchInputs[index] || item.name || ''}
+                                    onInputChange={(event, newInputValue) => {
+                                      handleSearchInputChange(index, newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                      if (newValue) {
+                                        handleProductSelect(index, newValue);
+                                      }
+                                    }}
+                                    placeholder="Search products..."
+                                    disabled={loadingProducts}
+                                    title={tooltip}
+                                    renderOption={(option) => (
+                                      <div>
+                                        <div className="font-medium">
+                                          {option.displayName ||
                                       option.display_name ||
                                       option.uniqueName ||
                                       option.unique_name ||
                                       option.name}
+                                        </div>
+                                        <div className="text-sm text-gray-500">
+                                          {option.origin ? `${option.origin} • ` : ''}
+                                          {option.subtitle}
+                                        </div>
+                                      </div>
+                                    )}
+                                    noOptionsText="No products found"
+                                    size="small"
+                                    className="autocomplete-table-cell"
+                                  />
+                                </td>
+                                {/* Column 3: Qty */}
+                                <td className="px-2 py-2">
+                                  <input
+                                    type="number"
+                                    value={item.quantity || ''}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        'quantity',
+                                        e.target.value === ''
+                                          ? ''
+                                          : parseFloat(e.target.value),
+                                      )
+                                    }
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
+                                  />
+                                </td>
+                                {/* Column 4: Unit Wt */}
+                                <td className="px-2 py-2">
+                                  <input
+                                    type="number"
+                                    value={
+                                      item.unitWeightKg || item.unit_weight_kg || ''
+                                    }
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        'unitWeightKg',
+                                        e.target.value === ''
+                                          ? ''
+                                          : parseFloat(e.target.value),
+                                      )
+                                    }
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
+                                  />
+                                </td>
+
+                                {/* Column 5: Total Wt (CALCULATED - gray div, NOT input) */}
+                                <td className="px-2 py-2">
+                                  <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-medium text-gray-700">
+                                    {item.theoreticalWeightKg
+                                      ? item.theoreticalWeightKg.toFixed(2)
+                                      : '0.00'}
                                   </div>
-                                  <div className="text-sm text-gray-500">
-                                    {option.origin ? `${option.origin} • ` : ''}
-                                    {option.subtitle}
-                                  </div>
-                                </div>
-                              )}
-                              noOptionsText="No products found"
-                              size="small"
-                              className="autocomplete-table-cell"
-                            />
-                          </td>
-                          {/* Column 3: Qty */}
-                          <td className="px-2 py-2">
-                            <input
-                              type="number"
-                              value={item.quantity || ''}
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  'quantity',
-                                  e.target.value === ''
-                                    ? ''
-                                    : parseFloat(e.target.value),
-                                )
-                              }
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
-                            />
-                          </td>
-                          {/* Column 4: Unit Wt */}
-                          <td className="px-2 py-2">
-                            <input
-                              type="number"
-                              value={
-                                item.unitWeightKg || item.unit_weight_kg || ''
-                              }
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  'unitWeightKg',
-                                  e.target.value === ''
-                                    ? ''
-                                    : parseFloat(e.target.value),
-                                )
-                              }
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
-                            />
-                          </td>
+                                </td>
 
-                          {/* Column 5: Total Wt (CALCULATED - gray div, NOT input) */}
-                          <td className="px-2 py-2">
-                            <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-medium text-gray-700">
-                              {item.theoreticalWeightKg
-                                ? item.theoreticalWeightKg.toFixed(2)
-                                : '0.00'}
-                            </div>
-                          </td>
-
-                          {/* Column 6: Rate + Basis (COMBINED flex container) */}
-                          <td className="px-2 py-2 w-28">
-                            <div className="flex border border-gray-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
-                              <input
-                                type="number"
-                                value={item.rate || ''}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    'rate',
-                                    e.target.value === ''
-                                      ? ''
-                                      : parseFloat(e.target.value),
-                                  )
-                                }
-                                className="w-16 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
-                              />
-                              <select
-                                value={item.pricingBasis || 'PER_MT'}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    'pricingBasis',
-                                    e.target.value,
-                                  )
-                                }
-                                className={`text-[10px] font-bold px-1.5 cursor-pointer outline-none ${
-                                  item.pricingBasis === 'PER_KG'
-                                    ? 'border-l border-blue-200 bg-blue-100 text-blue-700'
-                                    : item.pricingBasis === 'PER_PCS'
-                                      ? 'border-l border-emerald-200 bg-emerald-100 text-emerald-700'
-                                      : 'border-l border-gray-200 bg-gray-50 text-gray-600'
-                                }`}
-                              >
-                                <option value="PER_MT">/MT</option>
-                                <option value="PER_KG">/kg</option>
-                                <option value="PER_PCS">/pc</option>
-                              </select>
-                            </div>
-                          </td>
-
-                          {/* Column 7: VAT % dropdown */}
-                          <td className="px-2 py-2">
-                            <select
-                              value={item.supplyType || 'standard'}
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  'supplyType',
-                                  e.target.value,
-                                )
-                              }
-                              className="w-full px-1 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-teal-500"
-                            >
-                              <option value="standard">5%</option>
-                              <option value="zero_rated">0%</option>
-                              <option value="exempt">Exempt</option>
-                            </select>
-                          </td>
-
-                          {/* Column 8: Amount (CALCULATED - gray div, NOT input) */}
-                          <td className="px-2 py-2 w-36">
-                            <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-semibold text-gray-900">
-                              {formatCurrency(item.amount)}
-                            </div>
-                          </td>
-
-                          {/* Column 9: Delete button */}
-                          <td className="py-2 pr-2 text-center">
-                            <button
-                              onClick={() => removeItem(index)}
-                              className="text-gray-400 hover:text-red-500 p-1"
-                            >
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                />
-                              </svg>
-                            </button>
-                          </td>
-                        </tr>
-
-                        {/* Expandable Allocation Panel Row */}
-                        {isExpanded && item.productId && (
-                          <tr key={`${item.id}-allocation`}>
-                            <td
-                              colSpan="9"
-                              className="bg-gray-50 px-4 py-3 border-l-4 border-teal-500"
-                            >
-                              <div className="space-y-3">
-                                {/* Header with Source Type Selector and stock status */}
-                                <div className="flex items-center justify-between gap-4">
-                                  <div className="flex items-center gap-3">
-                                    <h4 className="text-sm font-semibold text-gray-700">
-                                      Stock Allocation Details
-                                    </h4>
-                                    {/* P0: Source Type Selector with auto-selection */}
-                                    <SourceTypeSelector
-                                      id={`source-type-${index}`}
-                                      data-testid={`source-type-${index}`}
-                                      value={(() => {
-                                        // Auto-select based on stock availability
-                                        const currentSourceType = item.sourceType;
-                                        if (currentSourceType) return currentSourceType;
-
-                                        const stockData = productBatchData[item.productId];
-                                        // Use totalStock from batchData (cached, accurate)
-                                        const totalStock = stockData?.totalStock ?? 0;
-
-                                        return totalStock === 0 ? 'LOCAL_DROP_SHIP' : 'WAREHOUSE';
-                                      })()}
-                                      onChange={(sourceType) =>
-                                        handleItemChange(index, 'sourceType', sourceType)
+                                {/* Column 6: Rate + Basis (COMBINED flex container) */}
+                                <td className="px-2 py-2 w-28">
+                                  <div className="flex border border-gray-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
+                                    <input
+                                      type="number"
+                                      value={item.rate || ''}
+                                      onChange={(e) =>
+                                        handleItemChange(
+                                          index,
+                                          'rate',
+                                          e.target.value === ''
+                                            ? ''
+                                            : parseFloat(e.target.value),
+                                        )
                                       }
-                                      disabled={false}
+                                      className="w-16 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
                                     />
+                                    <select
+                                      value={item.pricingBasis || 'PER_MT'}
+                                      onChange={(e) =>
+                                        handleItemChange(
+                                          index,
+                                          'pricingBasis',
+                                          e.target.value,
+                                        )
+                                      }
+                                      className={`text-[10px] font-bold px-1.5 cursor-pointer outline-none ${
+                                        item.pricingBasis === 'PER_KG'
+                                          ? 'border-l border-blue-200 bg-blue-100 text-blue-700'
+                                          : item.pricingBasis === 'PER_PCS'
+                                            ? 'border-l border-emerald-200 bg-emerald-100 text-emerald-700'
+                                            : 'border-l border-gray-200 bg-gray-50 text-gray-600'
+                                      }`}
+                                    >
+                                      <option value="PER_MT">/MT</option>
+                                      <option value="PER_KG">/kg</option>
+                                      <option value="PER_PCS">/pc</option>
+                                    </select>
                                   </div>
-                                  {/* Stock availability display - all warehouses */}
-                                  <div className="flex items-center gap-1">
-                                    <span className="text-xs text-gray-500">
-                                      Stock availability:
-                                    </span>
-                                    <div className="flex items-center gap-4 ml-2" data-testid={`allocation-stock-warehouses-${index}`}>
-                                      {warehouses.map((wh) => {
-                                        // Get real stock from productBatchData
-                                        const stockByWarehouse = productBatchData[item.productId]?.stockByWarehouse || {};
-                                        // CRITICAL: Normalize wh.id to string to match stockByWarehouse keys
-                                        const stockQty = stockByWarehouse[String(wh.id)] || 0;
-                                        const hasStock = stockQty > 0;
-                                        const isLoading = item.productId && !productBatchData[item.productId];
-                                        return (
-                                          <span
-                                            key={wh.id}
-                                            data-testid={`stock-warehouse-${wh.id}`}
-                                            className={`text-xs font-medium ${
-                                              hasStock
-                                                ? 'text-gray-700'
-                                                : 'text-red-500'
-                                            }`}
-                                          >
-                                            {wh.name || wh.code}{' '}
-                                            <span
-                                              className={
-                                                hasStock
-                                                  ? 'text-green-600 font-bold'
-                                                  : isLoading
-                                                  ? 'text-gray-400 font-bold'
-                                                  : 'text-red-500 font-bold'
-                                              }
-                                            >
-                                              {isLoading ? '...' : stockQty}
-                                            </span>
-                                          </span>
-                                        );
-                                      })}
-                                    </div>
+                                </td>
+
+                                {/* Column 7: VAT % dropdown */}
+                                <td className="px-2 py-2">
+                                  <select
+                                    value={item.supplyType || 'standard'}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        'supplyType',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full px-1 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-teal-500"
+                                  >
+                                    <option value="standard">5%</option>
+                                    <option value="zero_rated">0%</option>
+                                    <option value="exempt">Exempt</option>
+                                  </select>
+                                </td>
+
+                                {/* Column 8: Amount (CALCULATED - gray div, NOT input) */}
+                                <td className="px-2 py-2 w-36">
+                                  <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-semibold text-gray-900">
+                                    {formatCurrency(item.amount)}
                                   </div>
-                                </div>
+                                </td>
 
-                                {/* P0: Conditional rendering based on sourceType */}
-                                {(item.sourceType || 'WAREHOUSE') === 'WAREHOUSE' ? (
-                                  /* Batch Allocation Table - only show for WAREHOUSE */
-                                  <div className="border border-gray-200 rounded-lg overflow-hidden" data-testid={`allocation-panel-${index}`}>
-                                    <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
-                                      <span className="text-xs font-semibold text-gray-600">
-                                        Batch Allocation
-                                      </span>
-                                      {(() => {
-                                        const allocatedQty = (
-                                          item.manualAllocations || []
-                                        ).reduce(
-                                          (sum, a) =>
-                                            sum + (a.allocatedQty || 0),
-                                          0,
-                                        );
-                                        const requiredQty = item.quantity || 0;
+                                {/* Column 9: Delete button */}
+                                <td className="py-2 pr-2 text-center">
+                                  <button
+                                    onClick={() => removeItem(index)}
+                                    className="text-gray-400 hover:text-red-500 p-1"
+                                  >
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                      />
+                                    </svg>
+                                  </button>
+                                </td>
+                              </tr>
 
-                                        return (
+                              {/* Expandable Allocation Panel Row */}
+                              {isExpanded && item.productId && (
+                                <tr key={`${item.id}-allocation`}>
+                                  <td
+                                    colSpan="9"
+                                    className="bg-gray-50 px-4 py-3 border-l-4 border-teal-500"
+                                  >
+                                    <div className="space-y-3">
+                                      {/* Header with Source Type Selector and stock status */}
+                                      <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-3">
+                                          <h4 className="text-sm font-semibold text-gray-700">
+                                      Stock Allocation Details
+                                          </h4>
+                                          {/* P0: Source Type Selector with auto-selection */}
+                                          <SourceTypeSelector
+                                            id={`source-type-${index}`}
+                                            data-testid={`source-type-${index}`}
+                                            value={(() => {
+                                              // Auto-select based on stock availability
+                                              const currentSourceType = item.sourceType;
+                                              if (currentSourceType) return currentSourceType;
+
+                                              const stockData = productBatchData[item.productId];
+                                              // Use totalStock from batchData (cached, accurate)
+                                              const totalStock = stockData?.totalStock ?? 0;
+
+                                              return totalStock === 0 ? 'LOCAL_DROP_SHIP' : 'WAREHOUSE';
+                                            })()}
+                                            onChange={(sourceType) =>
+                                              handleItemChange(index, 'sourceType', sourceType)
+                                            }
+                                            disabled={false}
+                                          />
+                                        </div>
+                                        {/* Stock availability display - all warehouses */}
+                                        <div className="flex items-center gap-1">
                                           <span className="text-xs text-gray-500">
-                                            Allocated:{' '}
-                                            <strong className="text-teal-600">
-                                              {allocatedQty}
-                                            </strong>{' '}
-                                            / Required: {requiredQty}
+                                      Stock availability:
                                           </span>
-                                        );
-                                      })()}
-                                    </div>
-                                    <table className="min-w-full text-xs" data-testid={`batch-allocation-table-${index}`}>
-                                      <thead className="bg-gray-50">
-                                        <tr>
-                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                            Batch #
-                                          </th>
-                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                            GRN Date
-                                          </th>
-                                          <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                            Channel
-                                          </th>
-                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Available
-                                          </th>
-                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Allocated
-                                          </th>
-                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Cost/Unit
-                                          </th>
-                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Actions
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-gray-100 bg-white">
-                                        {(item.manualAllocations || []).map(
-                                          (allocation, allocIndex) => (
-                                            <tr key={allocIndex}>
-                                              <td className="px-3 py-2 font-mono text-gray-700">
-                                                {allocation.batchNumber ||
-                                                  'BTH-2024-003421'}
-                                              </td>
-                                              <td className="px-3 py-2 text-gray-600">
-                                                {allocation.grnDate ||
-                                                  '2024-11-28'}
-                                              </td>
-                                              <td className="px-3 py-2">
-                                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                                  (allocation.procurementChannel || 'LOCAL') === 'LOCAL'
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-blue-100 text-blue-800'
-                                                }`}>
-                                                  {allocation.procurementChannel || 'LOCAL'}
+                                          <div className="flex items-center gap-4 ml-2" data-testid={`allocation-stock-warehouses-${index}`}>
+                                            {warehouses.map((wh) => {
+                                              // Get real stock from productBatchData
+                                              const stockByWarehouse = productBatchData[item.productId]?.stockByWarehouse || {};
+                                              // CRITICAL: Normalize wh.id to string to match stockByWarehouse keys
+                                              const stockQty = stockByWarehouse[String(wh.id)] || 0;
+                                              const hasStock = stockQty > 0;
+                                              const isLoading = item.productId && !productBatchData[item.productId];
+                                              return (
+                                                <span
+                                                  key={wh.id}
+                                                  data-testid={`stock-warehouse-${wh.id}`}
+                                                  className={`text-xs font-medium ${
+                                                    hasStock
+                                                      ? 'text-gray-700'
+                                                      : 'text-red-500'
+                                                  }`}
+                                                >
+                                                  {wh.name || wh.code}{' '}
+                                                  <span
+                                                    className={
+                                                      hasStock
+                                                        ? 'text-green-600 font-bold'
+                                                        : isLoading
+                                                          ? 'text-gray-400 font-bold'
+                                                          : 'text-red-500 font-bold'
+                                                    }
+                                                  >
+                                                    {isLoading ? '...' : stockQty}
+                                                  </span>
                                                 </span>
-                                              </td>
-                                              <td className="px-3 py-2 text-right text-gray-700">
-                                                {allocation.availableQty || 0}
-                                              </td>
-                                              <td className="px-3 py-2 text-right">
-                                                <input
-                                                  type="number"
-                                                  value={
-                                                    allocation.allocatedQty || 0
-                                                  }
-                                                  onChange={(e) => {
-                                                    const newAllocations = [
-                                                      ...(item.manualAllocations ||
+                                              );
+                                            })}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* P0: Conditional rendering based on sourceType */}
+                                      {(item.sourceType || 'WAREHOUSE') === 'WAREHOUSE' ? (
+                                      /* Batch Allocation Table - only show for WAREHOUSE */
+                                        <div className="border border-gray-200 rounded-lg overflow-hidden" data-testid={`allocation-panel-${index}`}>
+                                          <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
+                                            <span className="text-xs font-semibold text-gray-600">
+                                        Batch Allocation
+                                            </span>
+                                            {(() => {
+                                              const allocatedQty = (
+                                                item.manualAllocations || []
+                                              ).reduce(
+                                                (sum, a) =>
+                                                  sum + (a.allocatedQty || 0),
+                                                0,
+                                              );
+                                              const requiredQty = item.quantity || 0;
+
+                                              return (
+                                                <span className="text-xs text-gray-500">
+                                            Allocated:{' '}
+                                                  <strong className="text-teal-600">
+                                                    {allocatedQty}
+                                                  </strong>{' '}
+                                            / Required: {requiredQty}
+                                                </span>
+                                              );
+                                            })()}
+                                          </div>
+                                          <table className="min-w-full text-xs" data-testid={`batch-allocation-table-${index}`}>
+                                            <thead className="bg-gray-50">
+                                              <tr>
+                                                <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                            Batch #
+                                                </th>
+                                                <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                            GRN Date
+                                                </th>
+                                                <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                            Channel
+                                                </th>
+                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Available
+                                                </th>
+                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Allocated
+                                                </th>
+                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Cost/Unit
+                                                </th>
+                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                            Actions
+                                                </th>
+                                              </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 bg-white">
+                                              {(item.manualAllocations || []).map(
+                                                (allocation, allocIndex) => (
+                                                  <tr key={allocIndex}>
+                                                    <td className="px-3 py-2 font-mono text-gray-700">
+                                                      {allocation.batchNumber ||
+                                                  'BTH-2024-003421'}
+                                                    </td>
+                                                    <td className="px-3 py-2 text-gray-600">
+                                                      {allocation.grnDate ||
+                                                  '2024-11-28'}
+                                                    </td>
+                                                    <td className="px-3 py-2">
+                                                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                                        (allocation.procurementChannel || 'LOCAL') === 'LOCAL'
+                                                          ? 'bg-green-100 text-green-800'
+                                                          : 'bg-blue-100 text-blue-800'
+                                                      }`}>
+                                                        {allocation.procurementChannel || 'LOCAL'}
+                                                      </span>
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right text-gray-700">
+                                                      {allocation.availableQty || 0}
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right">
+                                                      <input
+                                                        type="number"
+                                                        value={
+                                                          allocation.allocatedQty || 0
+                                                        }
+                                                        onChange={(e) => {
+                                                          const newAllocations = [
+                                                            ...(item.manualAllocations ||
                                                         []),
-                                                    ];
-                                                    newAllocations[allocIndex] =
+                                                          ];
+                                                          newAllocations[allocIndex] =
                                                       {
                                                         ...newAllocations[
                                                           allocIndex
@@ -4868,115 +5313,115 @@ const InvoiceForm = ({ onSave }) => {
                                                             e.target.value,
                                                           ) || 0,
                                                       };
-                                                    handleItemChange(
-                                                      index,
-                                                      'manualAllocations',
-                                                      newAllocations,
-                                                    );
-                                                  }}
-                                                  className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
-                                                />
-                                              </td>
-                                              <td className="px-3 py-2 text-right text-gray-600">
-                                                {allocation.costPerUnit?.toFixed(
-                                                  2,
-                                                ) || '0.00'}
-                                              </td>
-                                              <td className="px-3 py-2 text-right">
-                                                <button
-                                                  type="button"
-                                                  onClick={() => {
-                                                    const newAllocations = (
-                                                      item.manualAllocations ||
+                                                          handleItemChange(
+                                                            index,
+                                                            'manualAllocations',
+                                                            newAllocations,
+                                                          );
+                                                        }}
+                                                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                                                      />
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right text-gray-600">
+                                                      {allocation.costPerUnit?.toFixed(
+                                                        2,
+                                                      ) || '0.00'}
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right">
+                                                      <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                          const newAllocations = (
+                                                            item.manualAllocations ||
                                                       []
-                                                    ).filter(
-                                                      (_, i) =>
-                                                        i !== allocIndex,
-                                                    );
-                                                    handleItemChange(
-                                                      index,
-                                                      'manualAllocations',
-                                                      newAllocations,
-                                                    );
-                                                  }}
-                                                  className="text-red-500 hover:text-red-700 text-xs"
-                                                >
+                                                          ).filter(
+                                                            (_, i) =>
+                                                              i !== allocIndex,
+                                                          );
+                                                          handleItemChange(
+                                                            index,
+                                                            'manualAllocations',
+                                                            newAllocations,
+                                                          );
+                                                        }}
+                                                        className="text-red-500 hover:text-red-700 text-xs"
+                                                      >
                                                   Remove
-                                                </button>
-                                              </td>
-                                            </tr>
-                                          ),
-                                        )}
-                                        {(!item.manualAllocations ||
+                                                      </button>
+                                                    </td>
+                                                  </tr>
+                                                ),
+                                              )}
+                                              {(!item.manualAllocations ||
                                           item.manualAllocations.length ===
                                             0) && (
-                                          <tr>
-                                            <td
-                                              colSpan="7"
-                                              className="px-3 py-4 text-center text-gray-500 text-xs"
-                                            >
+                                                <tr>
+                                                  <td
+                                                    colSpan="7"
+                                                    className="px-3 py-4 text-center text-gray-500 text-xs"
+                                                  >
                                               No batches allocated. Click &quot;Add
                                               Batch&quot; or &quot;Auto-Allocate (FIFO)&quot;
                                               below.
-                                            </td>
-                                          </tr>
-                                        )}
-                                      </tbody>
-                                    </table>
-                                    <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                        // TODO: Implement add batch modal
-                                          console.log(
-                                            'Add batch clicked for item index:',
-                                            index,
-                                          );
-                                        }}
-                                        className="text-xs text-teal-600 hover:text-teal-800 font-medium"
-                                      >
+                                                  </td>
+                                                </tr>
+                                              )}
+                                            </tbody>
+                                          </table>
+                                          <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                // TODO: Implement add batch modal
+                                                console.log(
+                                                  'Add batch clicked for item index:',
+                                                  index,
+                                                );
+                                              }}
+                                              className="text-xs text-teal-600 hover:text-teal-800 font-medium"
+                                            >
                                         + Add Batch
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={async () => {
-                                        // Re-apply FIFO auto-allocation (useful after manual changes)
-                                          await applyAutoAllocation(index, item.productId, item.quantity || 1);
-                                        }}
-                                        disabled={(item.sourceType || 'WAREHOUSE') !== 'WAREHOUSE'}
-                                        className={`text-xs px-3 py-1 rounded transition-colors ${
-                                          (item.sourceType || 'WAREHOUSE') === 'WAREHOUSE'
-                                            ? 'bg-teal-600 text-white hover:bg-teal-700'
-                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        }`}
-                                      >
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={async () => {
+                                                // Re-apply FIFO auto-allocation (useful after manual changes)
+                                                await applyAutoAllocation(index, item.productId, item.quantity || 1);
+                                              }}
+                                              disabled={(item.sourceType || 'WAREHOUSE') !== 'WAREHOUSE'}
+                                              className={`text-xs px-3 py-1 rounded transition-colors ${
+                                                (item.sourceType || 'WAREHOUSE') === 'WAREHOUSE'
+                                                  ? 'bg-teal-600 text-white hover:bg-teal-700'
+                                                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                              }`}
+                                            >
                                         Auto-Allocate (FIFO)
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  /* P0: Drop-ship indicator for non-warehouse items */
-                                  <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                                    <div className="flex items-center gap-2">
-                                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                      </svg>
-                                      <span className="text-sm font-medium text-blue-800">
-                                        {(item.sourceType || 'WAREHOUSE') === 'LOCAL_DROP_SHIP' ? 'Local Drop Ship' : 'Import Drop Ship'}
-                                      </span>
-                                    </div>
-                                    <p className="text-xs text-blue-700 mt-1 ml-7">
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                      /* P0: Drop-ship indicator for non-warehouse items */
+                                        <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                          <div className="flex items-center gap-2">
+                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                            </svg>
+                                            <span className="text-sm font-medium text-blue-800">
+                                              {(item.sourceType || 'WAREHOUSE') === 'LOCAL_DROP_SHIP' ? 'Local Drop Ship' : 'Import Drop Ship'}
+                                            </span>
+                                          </div>
+                                          <p className="text-xs text-blue-700 mt-1 ml-7">
                                       Goods will be shipped directly from supplier to customer. No warehouse allocation needed.
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
 
-                        {/* Keep existing AllocationPanel for locked/existing invoices */}
-                        {isExpanded &&
+                              {/* Keep existing AllocationPanel for locked/existing invoices */}
+                              {isExpanded &&
                           item.productId &&
                           id && // Only show for existing invoices
                           (() => {
@@ -5031,835 +5476,863 @@ const InvoiceForm = ({ onSave }) => {
                             }
                             return null;
                           })()}
-                      </Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                            </Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
 
-            {/* Items Cards - Mobile */}
-            <div className="md:hidden space-y-4">
-              {deferredItems.slice(0, 10).map((item, index) => {
-                const tooltip = [
-                  item.name ? `Name: ${item.name}` : '',
-                  item.category ? `Category: ${item.category}` : '',
-                  item.commodity ? `Commodity: ${item.commodity}` : '',
-                  item.grade ? `Grade: ${item.grade}` : '',
-                  item.finish ? `Finish: ${item.finish}` : '',
-                  item.size ? `Size: ${item.size}` : '',
-                  item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
-                  item.od ? `OD: ${item.od}` : '',
-                  item.length ? `Length: ${item.length}` : '',
-                  item.thickness ? `Thickness: ${item.thickness}` : '',
-                  item.unit ? `Unit: ${item.unit}` : '',
-                  item.hsnCode ? `HSN: ${item.hsnCode}` : '',
-                ]
-                  .filter(Boolean)
-                  .join('\n');
-                return (
-                  <Card
-                    key={item.id || `mobile-item-${index}`}
-                    className="p-4"
-                    data-item-index={index}
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <h4
-                        className={`font-medium ${
-                          isDarkMode ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
+                  {/* Items Cards - Mobile */}
+                  <div className="md:hidden space-y-4">
+                    {deferredItems.slice(0, 10).map((item, index) => {
+                      const tooltip = [
+                        item.name ? `Name: ${item.name}` : '',
+                        item.category ? `Category: ${item.category}` : '',
+                        item.commodity ? `Commodity: ${item.commodity}` : '',
+                        item.grade ? `Grade: ${item.grade}` : '',
+                        item.finish ? `Finish: ${item.finish}` : '',
+                        item.size ? `Size: ${item.size}` : '',
+                        item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
+                        item.od ? `OD: ${item.od}` : '',
+                        item.length ? `Length: ${item.length}` : '',
+                        item.thickness ? `Thickness: ${item.thickness}` : '',
+                        item.unit ? `Unit: ${item.unit}` : '',
+                        item.hsnCode ? `HSN: ${item.hsnCode}` : '',
+                      ]
+                        .filter(Boolean)
+                        .join('\n');
+                      return (
+                        <Card
+                          key={item.id || `mobile-item-${index}`}
+                          className="p-4"
+                          data-item-index={index}
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <h4
+                              className={`font-medium ${
+                                isDarkMode ? 'text-white' : 'text-gray-900'
+                              }`}
+                            >
                         Item #{index + 1}
-                      </h4>
-                      <button
-                        onClick={() => removeItem(index)}
-                        className={`hover:text-red-300 ${
-                          isDarkMode ? 'text-red-400' : 'text-red-500'
-                        }`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                            </h4>
+                            <button
+                              onClick={() => removeItem(index)}
+                              className={`hover:text-red-300 ${
+                                isDarkMode ? 'text-red-400' : 'text-red-500'
+                              }`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
 
-                    <div className="space-y-4">
-                      <Autocomplete
-                        options={
-                          searchInputs[index]
-                            ? searchOptions.length
-                              ? searchOptions
-                              : productOptions
-                            : productOptions
-                        }
-                        value={
-                          item.productId
-                            ? productOptions.find(
-                              (p) => p.id === item.productId,
-                            )
-                            : null
-                        }
-                        inputValue={searchInputs[index] || item.name || ''}
-                        onInputChange={(event, newInputValue) => {
-                          handleSearchInputChange(index, newInputValue);
-                        }}
-                        onChange={(event, newValue) => {
-                          if (newValue) {
-                            handleProductSelect(index, newValue);
-                          }
-                        }}
-                        label="Product"
-                        placeholder="Search products..."
-                        disabled={loadingProducts}
-                        title={tooltip}
-                        error={invalidFields.has(`item.${index}.name`)}
-                        renderOption={(option) => (
-                          <div>
-                            <div className="font-medium">
-                              {option.displayName ||
+                          <div className="space-y-4">
+                            <Autocomplete
+                              options={
+                                searchInputs[index]
+                                  ? searchOptions.length
+                                    ? searchOptions
+                                    : productOptions
+                                  : productOptions
+                              }
+                              value={
+                                item.productId
+                                  ? productOptions.find(
+                                    (p) => p.id === item.productId,
+                                  )
+                                  : null
+                              }
+                              inputValue={searchInputs[index] || item.name || ''}
+                              onInputChange={(event, newInputValue) => {
+                                handleSearchInputChange(index, newInputValue);
+                              }}
+                              onChange={(event, newValue) => {
+                                if (newValue) {
+                                  handleProductSelect(index, newValue);
+                                }
+                              }}
+                              label="Product"
+                              placeholder="Search products..."
+                              disabled={loadingProducts}
+                              title={tooltip}
+                              error={invalidFields.has(`item.${index}.name`)}
+                              renderOption={(option) => (
+                                <div>
+                                  <div className="font-medium">
+                                    {option.displayName ||
                                 option.display_name ||
                                 option.uniqueName ||
                                 option.unique_name ||
                                 option.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {option.origin ? `${option.origin} • ` : ''}
-                              {option.subtitle}
-                            </div>
-                          </div>
-                        )}
-                        noOptionsText="No products found"
-                      />
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {option.origin ? `${option.origin} • ` : ''}
+                                    {option.subtitle}
+                                  </div>
+                                </div>
+                              )}
+                              noOptionsText="No products found"
+                            />
 
-                      {/* Removed Grade, Finish, Size, Thickness fields */}
+                            {/* Removed Grade, Finish, Size, Thickness fields */}
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <div
-                          className={`transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 rounded animate-pulse' : ''}`}
-                        >
-                          <Input
-                            label="Qty"
-                            type="number"
-                            value={item.quantity || ''}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                'quantity',
-                                e.target.value === ''
-                                  ? ''
-                                  : Number.isNaN(Number(e.target.value))
-                                    ? ''
-                                    : parseInt(e.target.value, 10),
-                              )
-                            }
-                            min="0"
-                            step="1"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            error={invalidFields.has(`item.${index}.quantity`)}
-                            onKeyDown={(e) => {
-                              const allow = [
-                                'Backspace',
-                                'Delete',
-                                'Tab',
-                                'Escape',
-                                'Enter',
-                                'ArrowLeft',
-                                'ArrowRight',
-                                'Home',
-                                'End',
-                              ];
-                              if (
-                                allow.includes(e.key) ||
+                            <div className="grid grid-cols-2 gap-2">
+                              <div
+                                className={`transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 rounded animate-pulse' : ''}`}
+                              >
+                                <Input
+                                  label="Qty"
+                                  type="number"
+                                  value={item.quantity || ''}
+                                  onChange={(e) =>
+                                    handleItemChange(
+                                      index,
+                                      'quantity',
+                                      e.target.value === ''
+                                        ? ''
+                                        : Number.isNaN(Number(e.target.value))
+                                          ? ''
+                                          : parseInt(e.target.value, 10),
+                                    )
+                                  }
+                                  min="0"
+                                  step="1"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  error={invalidFields.has(`item.${index}.quantity`)}
+                                  onKeyDown={(e) => {
+                                    const allow = [
+                                      'Backspace',
+                                      'Delete',
+                                      'Tab',
+                                      'Escape',
+                                      'Enter',
+                                      'ArrowLeft',
+                                      'ArrowRight',
+                                      'Home',
+                                      'End',
+                                    ];
+                                    if (
+                                      allow.includes(e.key) ||
                                 e.ctrlKey ||
                                 e.metaKey
-                              ) {
-                                return;
-                              }
-                              if (!/^[0-9]$/.test(e.key)) {
-                                e.preventDefault();
-                              }
-                            }}
-                            onPaste={(e) => {
-                              e.preventDefault();
-                              const t = (
-                                e.clipboardData || window.clipboardData
-                              ).getData('text');
-                              const digits = (t || '').replace(/\D/g, '');
-                              handleItemChange(
-                                index,
-                                'quantity',
-                                digits ? parseInt(digits, 10) : '',
-                              );
-                            }}
-                            onWheel={(e) => e.currentTarget.blur()}
-                          />
-                        </div>
-                        <Input
-                          label={`Rate${item.pricingBasis && item.pricingBasis !== 'PER_MT' ? ` (${item.pricingBasis.replace('PER_', 'per ').replace('_', ' ')})` : ' (per MT)'}`}
-                          type="number"
-                          value={item.rate || ''}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              'rate',
-                              e.target.value === ''
-                                ? ''
-                                : parseFloat(e.target.value),
-                            )
-                          }
-                          min="0"
-                          step="0.01"
-                          error={invalidFields.has(`item.${index}.rate`)}
-                        />
-                      </div>
+                                    ) {
+                                      return;
+                                    }
+                                    if (!/^[0-9]$/.test(e.key)) {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  onPaste={(e) => {
+                                    e.preventDefault();
+                                    const t = (
+                                      e.clipboardData || window.clipboardData
+                                    ).getData('text');
+                                    const digits = (t || '').replace(/\D/g, '');
+                                    handleItemChange(
+                                      index,
+                                      'quantity',
+                                      digits ? parseInt(digits, 10) : '',
+                                    );
+                                  }}
+                                  onWheel={(e) => e.currentTarget.blur()}
+                                />
+                              </div>
+                              <Input
+                                label={`Rate${item.pricingBasis && item.pricingBasis !== 'PER_MT' ? ` (${item.pricingBasis.replace('PER_', 'per ').replace('_', ' ')})` : ' (per MT)'}`}
+                                type="number"
+                                value={item.rate || ''}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    'rate',
+                                    e.target.value === ''
+                                      ? ''
+                                      : parseFloat(e.target.value),
+                                  )
+                                }
+                                min="0"
+                                step="0.01"
+                                error={invalidFields.has(`item.${index}.rate`)}
+                              />
+                            </div>
 
-                      {/* Source Type Selector moved to batch allocation section */}
+                            {/* Source Type Selector moved to batch allocation section */}
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label
-                            htmlFor={`supply-type-${index}`}
-                            className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                          >
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label
+                                  htmlFor={`supply-type-${index}`}
+                                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                                >
                             Supply Type
-                          </label>
-                          <select
-                            id={`supply-type-${index}`}
-                            value={item.supplyType || 'standard'}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                'supplyType',
-                                e.target.value,
-                              )
-                            }
-                            className={`w-full px-3 py-2 border rounded ${
-                              isDarkMode
-                                ? 'bg-gray-700 border-gray-600 text-white'
-                                : 'bg-white border-gray-300 text-gray-900'
-                            }`}
-                          >
-                            <option value="standard">5% Std</option>
-                            <option value="zero_rated">0% Zero</option>
-                            <option value="exempt">Exempt</option>
-                          </select>
-                        </div>
-                        <Input
-                          label="VAT %"
-                          type="number"
-                          value={item.vatRate || ''}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              'vatRate',
-                              e.target.value === ''
-                                ? ''
-                                : parseFloat(e.target.value),
-                            )
-                          }
-                          min="0"
-                          max="15"
-                          step="0.01"
-                          placeholder="5.00"
-                        />
-                      </div>
+                                </label>
+                                <select
+                                  id={`supply-type-${index}`}
+                                  value={item.supplyType || 'standard'}
+                                  onChange={(e) =>
+                                    handleItemChange(
+                                      index,
+                                      'supplyType',
+                                      e.target.value,
+                                    )
+                                  }
+                                  className={`w-full px-3 py-2 border rounded ${
+                                    isDarkMode
+                                      ? 'bg-gray-700 border-gray-600 text-white'
+                                      : 'bg-white border-gray-300 text-gray-900'
+                                  }`}
+                                >
+                                  <option value="standard">5% Std</option>
+                                  <option value="zero_rated">0% Zero</option>
+                                  <option value="exempt">Exempt</option>
+                                </select>
+                              </div>
+                              <Input
+                                label="VAT %"
+                                type="number"
+                                value={item.vatRate || ''}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    'vatRate',
+                                    e.target.value === ''
+                                      ? ''
+                                      : parseFloat(e.target.value),
+                                  )
+                                }
+                                min="0"
+                                max="15"
+                                step="0.01"
+                                placeholder="5.00"
+                              />
+                            </div>
 
+                            <div
+                              className={`flex justify-end p-3 rounded-md ${
+                                isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+                              }`}
+                            >
+                              <span
+                                className={`font-medium ${
+                                  isDarkMode ? 'text-white' : 'text-gray-900'
+                                }`}
+                              >
+                          Amount: {formatCurrency(item.amount)}
+                              </span>
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                    {deferredItems.length > 10 && (
                       <div
-                        className={`flex justify-end p-3 rounded-md ${
-                          isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+                        className={`text-center py-4 text-sm ${
+                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
                         }`}
                       >
-                        <span
-                          className={`font-medium ${
-                            isDarkMode ? 'text-white' : 'text-gray-900'
-                          }`}
-                        >
-                          Amount: {formatCurrency(item.amount)}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-              {deferredItems.length > 10 && (
-                <div
-                  className={`text-center py-4 text-sm ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}
-                >
                   Showing first 10 items. Add more items as needed.
-                </div>
-              )}
-            </div>
-
-            {/* Add Item Button - Below Items for Easy Access */}
-            <div
-              className={`mt-4 pt-4 border-t border-dashed ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
-            >
-              <Button
-                ref={addItemButtonRef}
-                onClick={addItem}
-                variant="primary"
-                size="sm"
-                className="min-h-[44px]"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Add Item</span>
-                <span className="sm:hidden">Add</span>
-              </Button>
-            </div>
-          </Card>
-
-          {/* Freight and Loading Charges (Phase 1) */}
-          <Card
-            className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-          >
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-3">
-                <h3
-                  className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  <span>Freight and Loading Charges</span>
-                  <VatHelpIcon
-                    heading="Auxiliary Charges & VAT Treatment (Article 45)"
-                    content={[
-                      'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
-                      'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
-                      'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
-                      'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
-                    ]}
-                  />
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowFreightCharges(!showFreightCharges)}
-                  className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                    showFreightCharges
-                      ? isDarkMode
-                        ? 'bg-teal-600 text-white'
-                        : 'bg-teal-500 text-white'
-                      : isDarkMode
-                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  {showFreightCharges ? 'ON' : 'OFF'}
-                </button>
-              </div>
-              {showFreightCharges && (
-                <label
-                  className={`flex items-center gap-2 cursor-pointer ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={invoice.isExport || false}
-                    onChange={(e) => {
-                      const isExport = e.target.checked;
-                      // When export flag changes, recalculate all charge VAT values
-                      setInvoice((prev) => ({
-                        ...prev,
-                        isExport,
-                        packingChargesVat: isExport
-                          ? 0
-                          : (parseFloat(prev.packingCharges) || 0) * 0.05,
-                        freightChargesVat: isExport
-                          ? 0
-                          : (parseFloat(prev.freightCharges) || 0) * 0.05,
-                        insuranceChargesVat: isExport
-                          ? 0
-                          : (parseFloat(prev.insuranceCharges) || 0) * 0.05,
-                        loadingChargesVat: isExport
-                          ? 0
-                          : (parseFloat(prev.loadingCharges) || 0) * 0.05,
-                        otherChargesVat: isExport
-                          ? 0
-                          : (parseFloat(prev.otherCharges) || 0) * 0.05,
-                      }));
-                    }}
-                    className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
-                  />
-                  <span className="text-sm font-medium flex items-center gap-1">
-                    Export Invoice (0% VAT)
-                    <VatHelpIcon
-                      content={[
-                        'Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.',
-                        'Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).',
-                        'Requires export proof: Bill of Lading, Export License, or Customs declaration.',
-                        'Retain all export documents for FTA audit and VAT return (Box 10) compliance.',
-                        'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
-                      ]}
-                    />
-                  </span>
-                </label>
-              )}
-            </div>
-
-            {showFreightCharges && (
-              <>
-                {/* Charge Inputs with VAT */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {/* Packing Charges */}
-                  <div className="space-y-1">
-                    <Input
-                      label="Packing Charges"
-                      type="number"
-                      value={invoice.packingCharges || ''}
-                      onChange={(e) => {
-                        const amount = parseFloat(e.target.value) || 0;
-                        const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice((prev) => ({
-                          ...prev,
-                          packingCharges: amount,
-                          packingChargesVat: vat,
-                        }));
-                      }}
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <div
-                      className={`text-xs px-2 py-1 rounded ${
-                        isDarkMode
-                          ? 'bg-gray-700 text-gray-400'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      VAT: {formatCurrency(invoice.packingChargesVat || 0)}{' '}
-                      {invoice.isExport ? '(0% export)' : '(5%)'}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Freight Charges */}
-                  <div className="space-y-1">
-                    <Input
-                      label="Freight Charges"
-                      type="number"
-                      value={invoice.freightCharges || ''}
-                      onChange={(e) => {
-                        const amount = parseFloat(e.target.value) || 0;
-                        const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice((prev) => ({
-                          ...prev,
-                          freightCharges: amount,
-                          freightChargesVat: vat,
-                        }));
-                      }}
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <div
-                      className={`text-xs px-2 py-1 rounded ${
-                        isDarkMode
-                          ? 'bg-gray-700 text-gray-400'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      VAT: {formatCurrency(invoice.freightChargesVat || 0)}{' '}
-                      {invoice.isExport ? '(0% export)' : '(5%)'}
-                    </div>
-                  </div>
-
-                  {/* Insurance Charges */}
-                  <div className="space-y-1">
-                    <Input
-                      label="Insurance Charges"
-                      type="number"
-                      value={invoice.insuranceCharges || ''}
-                      onChange={(e) => {
-                        const amount = parseFloat(e.target.value) || 0;
-                        const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice((prev) => ({
-                          ...prev,
-                          insuranceCharges: amount,
-                          insuranceChargesVat: vat,
-                        }));
-                      }}
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <div
-                      className={`text-xs px-2 py-1 rounded ${
-                        isDarkMode
-                          ? 'bg-gray-700 text-gray-400'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      VAT: {formatCurrency(invoice.insuranceChargesVat || 0)}{' '}
-                      {invoice.isExport ? '(0% export)' : '(5%)'}
-                    </div>
-                  </div>
-
-                  {/* Loading Charges */}
-                  <div className="space-y-1">
-                    <Input
-                      label="Loading Charges"
-                      type="number"
-                      value={invoice.loadingCharges || ''}
-                      onChange={(e) => {
-                        const amount = parseFloat(e.target.value) || 0;
-                        const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice((prev) => ({
-                          ...prev,
-                          loadingCharges: amount,
-                          loadingChargesVat: vat,
-                        }));
-                      }}
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <div
-                      className={`text-xs px-2 py-1 rounded ${
-                        isDarkMode
-                          ? 'bg-gray-700 text-gray-400'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      VAT: {formatCurrency(invoice.loadingChargesVat || 0)}{' '}
-                      {invoice.isExport ? '(0% export)' : '(5%)'}
-                    </div>
-                  </div>
-
-                  {/* Other Charges */}
-                  <div className="space-y-1">
-                    <Input
-                      label="Other Charges"
-                      type="number"
-                      value={invoice.otherCharges || ''}
-                      onChange={(e) => {
-                        const amount = parseFloat(e.target.value) || 0;
-                        const vat = invoice.isExport ? 0 : amount * 0.05;
-                        setInvoice((prev) => ({
-                          ...prev,
-                          otherCharges: amount,
-                          otherChargesVat: vat,
-                        }));
-                      }}
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    <div
-                      className={`text-xs px-2 py-1 rounded ${
-                        isDarkMode
-                          ? 'bg-gray-700 text-gray-400'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      VAT: {formatCurrency(invoice.otherChargesVat || 0)}{' '}
-                      {invoice.isExport ? '(0% export)' : '(5%)'}
-                    </div>
-                  </div>
-
-                  {/* Total Charge VAT Summary */}
+                  {/* Add Item Button - Below Items for Easy Access (Legacy Mode Only) */}
                   <div
-                    className={`p-3 rounded-lg ${
-                      isDarkMode ? 'bg-gray-700' : 'bg-teal-50'
+                    className={`mt-4 pt-4 border-t border-dashed ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+                  >
+                    <Button
+                      ref={addItemButtonRef}
+                      onClick={addItem}
+                      variant="primary"
+                      size="sm"
+                      className="min-h-[44px]"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden sm:inline">Add Item</span>
+                      <span className="sm:hidden">Add</span>
+                    </Button>
+                  </div>
+                </>
+              )}
+              {/* End Drawer Mode Conditional */}
+            </Card>
+
+            {/* Freight and Loading Charges (Phase 1) */}
+            <Card
+              className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-3">
+                  <h3
+                    className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
-                    <div
-                      className={`text-xs font-semibold uppercase mb-1 ${
-                        isDarkMode ? 'text-gray-400' : 'text-teal-700'
-                      }`}
-                    >
-                      Total Charges VAT
+                    <span>Freight and Loading Charges</span>
+                    <VatHelpIcon
+                      heading="Auxiliary Charges & VAT Treatment (Article 45)"
+                      content={[
+                        'Add charges for services with supply: packing (packaging materials/labor), freight (transport), insurance (cargo protection), loading (handling), other (auxiliary services). These are taxable under UAE VAT Article 45.',
+                        'All charges subject to 5% VAT by default. System auto-calculates VAT per charge type. Each charge appears separately on tax invoice with corresponding VAT for FTA compliance and Form 201 reporting.',
+                        'Check "Export Invoice" for supplies outside GCC (zero-rated under Article 45). Auto-applies 0% VAT to all charges. Requires export proof: Bill of Lading, Export License, or Customs declaration. Retain documents for FTA audit and VAT return (Box 10).',
+                        'Ensure: charges accurately described, VAT calculated correctly (5% or 0% export), export invoices reference proof documents, totals match supporting documentation (quotations, agreements). Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
+                      ]}
+                    />
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowFreightCharges(!showFreightCharges)}
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                      showFreightCharges
+                        ? isDarkMode
+                          ? 'bg-teal-600 text-white'
+                          : 'bg-teal-500 text-white'
+                        : isDarkMode
+                          ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
+                  >
+                    {showFreightCharges ? 'ON' : 'OFF'}
+                  </button>
+                </div>
+                {showFreightCharges && (
+                  <label
+                    className={`flex items-center gap-2 cursor-pointer ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={invoice.isExport || false}
+                      onChange={(e) => {
+                        const isExport = e.target.checked;
+                        // When export flag changes, recalculate all charge VAT values
+                        setInvoice((prev) => ({
+                          ...prev,
+                          isExport,
+                          packingChargesVat: isExport
+                            ? 0
+                            : (parseFloat(prev.packingCharges) || 0) * 0.05,
+                          freightChargesVat: isExport
+                            ? 0
+                            : (parseFloat(prev.freightCharges) || 0) * 0.05,
+                          insuranceChargesVat: isExport
+                            ? 0
+                            : (parseFloat(prev.insuranceCharges) || 0) * 0.05,
+                          loadingChargesVat: isExport
+                            ? 0
+                            : (parseFloat(prev.loadingCharges) || 0) * 0.05,
+                          otherChargesVat: isExport
+                            ? 0
+                            : (parseFloat(prev.otherCharges) || 0) * 0.05,
+                        }));
+                      }}
+                      className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
+                    />
+                    <span className="text-sm font-medium flex items-center gap-1">
+                    Export Invoice (0% VAT)
+                      <VatHelpIcon
+                        content={[
+                          'Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.',
+                          'Auto-applies 0% VAT to all charges (packing, freight, insurance, loading, other).',
+                          'Requires export proof: Bill of Lading, Export License, or Customs declaration.',
+                          'Retain all export documents for FTA audit and VAT return (Box 10) compliance.',
+                          'Non-compliance triggers FTA penalties up to 300% of unpaid VAT.',
+                        ]}
+                      />
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {showFreightCharges && (
+                <>
+                  {/* Charge Inputs with VAT */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {/* Packing Charges */}
+                    <div className="space-y-1">
+                      <Input
+                        label="Packing Charges"
+                        type="number"
+                        value={invoice.packingCharges || ''}
+                        onChange={(e) => {
+                          const amount = parseFloat(e.target.value) || 0;
+                          const vat = invoice.isExport ? 0 : amount * 0.05;
+                          setInvoice((prev) => ({
+                            ...prev,
+                            packingCharges: amount,
+                            packingChargesVat: vat,
+                          }));
+                        }}
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                      <div
+                        className={`text-xs px-2 py-1 rounded ${
+                          isDarkMode
+                            ? 'bg-gray-700 text-gray-400'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                      VAT: {formatCurrency(invoice.packingChargesVat || 0)}{' '}
+                        {invoice.isExport ? '(0% export)' : '(5%)'}
+                      </div>
                     </div>
+
+                    {/* Freight Charges */}
+                    <div className="space-y-1">
+                      <Input
+                        label="Freight Charges"
+                        type="number"
+                        value={invoice.freightCharges || ''}
+                        onChange={(e) => {
+                          const amount = parseFloat(e.target.value) || 0;
+                          const vat = invoice.isExport ? 0 : amount * 0.05;
+                          setInvoice((prev) => ({
+                            ...prev,
+                            freightCharges: amount,
+                            freightChargesVat: vat,
+                          }));
+                        }}
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                      <div
+                        className={`text-xs px-2 py-1 rounded ${
+                          isDarkMode
+                            ? 'bg-gray-700 text-gray-400'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                      VAT: {formatCurrency(invoice.freightChargesVat || 0)}{' '}
+                        {invoice.isExport ? '(0% export)' : '(5%)'}
+                      </div>
+                    </div>
+
+                    {/* Insurance Charges */}
+                    <div className="space-y-1">
+                      <Input
+                        label="Insurance Charges"
+                        type="number"
+                        value={invoice.insuranceCharges || ''}
+                        onChange={(e) => {
+                          const amount = parseFloat(e.target.value) || 0;
+                          const vat = invoice.isExport ? 0 : amount * 0.05;
+                          setInvoice((prev) => ({
+                            ...prev,
+                            insuranceCharges: amount,
+                            insuranceChargesVat: vat,
+                          }));
+                        }}
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                      <div
+                        className={`text-xs px-2 py-1 rounded ${
+                          isDarkMode
+                            ? 'bg-gray-700 text-gray-400'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                      VAT: {formatCurrency(invoice.insuranceChargesVat || 0)}{' '}
+                        {invoice.isExport ? '(0% export)' : '(5%)'}
+                      </div>
+                    </div>
+
+                    {/* Loading Charges */}
+                    <div className="space-y-1">
+                      <Input
+                        label="Loading Charges"
+                        type="number"
+                        value={invoice.loadingCharges || ''}
+                        onChange={(e) => {
+                          const amount = parseFloat(e.target.value) || 0;
+                          const vat = invoice.isExport ? 0 : amount * 0.05;
+                          setInvoice((prev) => ({
+                            ...prev,
+                            loadingCharges: amount,
+                            loadingChargesVat: vat,
+                          }));
+                        }}
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                      <div
+                        className={`text-xs px-2 py-1 rounded ${
+                          isDarkMode
+                            ? 'bg-gray-700 text-gray-400'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                      VAT: {formatCurrency(invoice.loadingChargesVat || 0)}{' '}
+                        {invoice.isExport ? '(0% export)' : '(5%)'}
+                      </div>
+                    </div>
+
+                    {/* Other Charges */}
+                    <div className="space-y-1">
+                      <Input
+                        label="Other Charges"
+                        type="number"
+                        value={invoice.otherCharges || ''}
+                        onChange={(e) => {
+                          const amount = parseFloat(e.target.value) || 0;
+                          const vat = invoice.isExport ? 0 : amount * 0.05;
+                          setInvoice((prev) => ({
+                            ...prev,
+                            otherCharges: amount,
+                            otherChargesVat: vat,
+                          }));
+                        }}
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                      <div
+                        className={`text-xs px-2 py-1 rounded ${
+                          isDarkMode
+                            ? 'bg-gray-700 text-gray-400'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                      VAT: {formatCurrency(invoice.otherChargesVat || 0)}{' '}
+                        {invoice.isExport ? '(0% export)' : '(5%)'}
+                      </div>
+                    </div>
+
+                    {/* Total Charge VAT Summary */}
                     <div
-                      className={`text-lg font-bold ${
-                        isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                      className={`p-3 rounded-lg ${
+                        isDarkMode ? 'bg-gray-700' : 'bg-teal-50'
                       }`}
                     >
-                      {formatCurrency(
-                        (invoice.packingChargesVat || 0) +
+                      <div
+                        className={`text-xs font-semibold uppercase mb-1 ${
+                          isDarkMode ? 'text-gray-400' : 'text-teal-700'
+                        }`}
+                      >
+                      Total Charges VAT
+                      </div>
+                      <div
+                        className={`text-lg font-bold ${
+                          isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                        }`}
+                      >
+                        {formatCurrency(
+                          (invoice.packingChargesVat || 0) +
                           (invoice.freightChargesVat || 0) +
                           (invoice.insuranceChargesVat || 0) +
                           (invoice.loadingChargesVat || 0) +
                           (invoice.otherChargesVat || 0),
-                      )}
-                    </div>
-                    {invoice.isExport && (
-                      <div className="text-xs text-amber-600 mt-1">
-                        Zero-rated for export
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-          </Card>
-
-          {/* Summary & Notes - Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* LEFT COLUMN: Invoice Summary */}
-            <Card
-              className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-            >
-              <h3
-                className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}
-              >
-                Summary & Totals
-              </h3>
-              <div>
-                <div className="space-y-4">
-                  <div
-                    className={`flex justify-between items-center ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}
-                  >
-                    <span>Subtotal:</span>
-                    <span className="font-medium">
-                      {formatCurrency(computedSubtotal)}
-                    </span>
-                  </div>
-
-                  {/* Discount Section */}
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-1 gap-3">
-                      <Select
-                        label="Discount Type"
-                        value={invoice.discountType || 'amount'}
-                        onChange={(e) =>
-                          setInvoice((prev) => ({
-                            ...prev,
-                            discountType: e.target.value,
-                            discountAmount: '',
-                            discountPercentage: '',
-                          }))
-                        }
-                      >
-                        <option value="amount">Amount</option>
-                        <option value="percentage">Percentage</option>
-                      </Select>
-
-                      {invoice.discountType === 'percentage' ? (
-                        <Input
-                          label="Discount Percentage (%)"
-                          type="number"
-                          value={invoice.discountPercentage || ''}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '') {
-                              setInvoice((prev) => ({
-                                ...prev,
-                                discountPercentage: '',
-                              }));
-                              return;
-                            }
-                            const num = Number(raw);
-                            if (Number.isNaN(num)) return;
-                            const clamped = Math.max(0, Math.min(100, num));
-                            setInvoice((prev) => ({
-                              ...prev,
-                              discountPercentage: clamped,
-                            }));
-                          }}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          placeholder="0.00"
-                          inputMode="decimal"
-                          onKeyDown={(e) => {
-                            // Disallow exponent & plus/minus signs
-                            const blocked = ['e', 'E', '+', '-'];
-                            if (blocked.includes(e.key)) e.preventDefault();
-                          }}
-                        />
-                      ) : (
-                        <Input
-                          label="Discount Amount"
-                          type="number"
-                          value={invoice.discountAmount || ''}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '') {
-                              setInvoice((prev) => ({
-                                ...prev,
-                                discountAmount: '',
-                              }));
-                              return;
-                            }
-                            const num = Number(raw);
-                            if (Number.isNaN(num)) return;
-                            const clamped = Math.max(
-                              0,
-                              Math.min(computedSubtotal, num),
-                            );
-                            setInvoice((prev) => ({
-                              ...prev,
-                              discountAmount: clamped,
-                            }));
-                          }}
-                          min="0"
-                          max={computedSubtotal}
-                          step="0.01"
-                          placeholder="0.00"
-                          inputMode="decimal"
-                          onKeyDown={(e) => {
-                            const blocked = ['e', 'E', '+', '-'];
-                            if (blocked.includes(e.key)) e.preventDefault();
-                          }}
-                          onWheel={(e) => e.currentTarget.blur()}
-                        />
+                      {invoice.isExport && (
+                        <div className="text-xs text-amber-600 mt-1">
+                        Zero-rated for export
+                        </div>
                       )}
                     </div>
                   </div>
+                </>
+              )}
+            </Card>
 
-                  {computedDiscountAmount > 0 && (
+            {/* Summary & Notes - Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {/* LEFT COLUMN: Invoice Summary */}
+              <Card
+                className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+              >
+                <h3
+                  className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}
+                >
+                Summary & Totals
+                </h3>
+                <div>
+                  <div className="space-y-4">
                     <div
                       className={`flex justify-between items-center ${
                         isDarkMode ? 'text-white' : 'text-gray-900'
                       }`}
                     >
-                      <span>Discount:</span>
-                      <span className="font-medium text-red-500">
-                        -{formatCurrency(computedDiscountAmount)}
+                      <span>Subtotal:</span>
+                      <span className="font-medium">
+                        {formatCurrency(computedSubtotal)}
                       </span>
                     </div>
-                  )}
 
-                  <div
-                    className={`flex justify-between items-center ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}
-                  >
-                    <span>VAT Amount:</span>
-                    <span className="font-medium">
-                      {formatCurrency(computedVatAmount)}
-                    </span>
-                  </div>
+                    {/* Discount Section */}
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 gap-3">
+                        <Select
+                          label="Discount Type"
+                          value={invoice.discountType || 'amount'}
+                          onChange={(e) =>
+                            setInvoice((prev) => ({
+                              ...prev,
+                              discountType: e.target.value,
+                              discountAmount: '',
+                              discountPercentage: '',
+                            }))
+                          }
+                        >
+                          <option value="amount">Amount</option>
+                          <option value="percentage">Percentage</option>
+                        </Select>
 
-                  <div
-                    className={`border-t pt-4 ${
-                      isDarkMode ? 'border-gray-600' : 'border-gray-200'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={`text-lg font-bold ${
+                        {invoice.discountType === 'percentage' ? (
+                          <Input
+                            label="Discount Percentage (%)"
+                            type="number"
+                            value={invoice.discountPercentage || ''}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setInvoice((prev) => ({
+                                  ...prev,
+                                  discountPercentage: '',
+                                }));
+                                return;
+                              }
+                              const num = Number(raw);
+                              if (Number.isNaN(num)) return;
+                              const clamped = Math.max(0, Math.min(100, num));
+                              setInvoice((prev) => ({
+                                ...prev,
+                                discountPercentage: clamped,
+                              }));
+                            }}
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            placeholder="0.00"
+                            inputMode="decimal"
+                            onKeyDown={(e) => {
+                            // Disallow exponent & plus/minus signs
+                              const blocked = ['e', 'E', '+', '-'];
+                              if (blocked.includes(e.key)) e.preventDefault();
+                            }}
+                          />
+                        ) : (
+                          <Input
+                            label="Discount Amount"
+                            type="number"
+                            value={invoice.discountAmount || ''}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setInvoice((prev) => ({
+                                  ...prev,
+                                  discountAmount: '',
+                                }));
+                                return;
+                              }
+                              const num = Number(raw);
+                              if (Number.isNaN(num)) return;
+                              const clamped = Math.max(
+                                0,
+                                Math.min(computedSubtotal, num),
+                              );
+                              setInvoice((prev) => ({
+                                ...prev,
+                                discountAmount: clamped,
+                              }));
+                            }}
+                            min="0"
+                            max={computedSubtotal}
+                            step="0.01"
+                            placeholder="0.00"
+                            inputMode="decimal"
+                            onKeyDown={(e) => {
+                              const blocked = ['e', 'E', '+', '-'];
+                              if (blocked.includes(e.key)) e.preventDefault();
+                            }}
+                            onWheel={(e) => e.currentTarget.blur()}
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {computedDiscountAmount > 0 && (
+                      <div
+                        className={`flex justify-between items-center ${
                           isDarkMode ? 'text-white' : 'text-gray-900'
                         }`}
                       >
-                        Total:
-                      </span>
-                      <span className="text-lg font-bold text-teal-400">
-                        {formatCurrency(computedTotal)}
+                        <span>Discount:</span>
+                        <span className="font-medium text-red-500">
+                        -{formatCurrency(computedDiscountAmount)}
+                        </span>
+                      </div>
+                    )}
+
+                    <div
+                      className={`flex justify-between items-center ${
+                        isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}
+                    >
+                      <span>VAT Amount:</span>
+                      <span className="font-medium">
+                        {formatCurrency(computedVatAmount)}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Note: Payments are recorded separately via Payment Drawer (industry standard) */}
-                  <p
-                    className={`text-xs mt-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                  >
+                    <div
+                      className={`border-t pt-4 ${
+                        isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span
+                          className={`text-lg font-bold ${
+                            isDarkMode ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                        Total:
+                        </span>
+                        <span className="text-lg font-bold text-teal-400">
+                          {formatCurrency(computedTotal)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Note: Payments are recorded separately via Payment Drawer (industry standard) */}
+                    <p
+                      className={`text-xs mt-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                    >
                     Payments are recorded after invoice creation via the Payment
                     Drawer
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* RIGHT COLUMN: Notes & Payment Terms */}
+              <Card
+                className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+              >
+                {/* Invoice Notes */}
+                <div className="mb-4">
+                  <h3
+                    className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                  >
+                  Notes
+                  </h3>
+                  <Textarea
+                    value={invoice.notes}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({ ...prev, notes: e.target.value }))
+                    }
+                    placeholder="Additional notes for the customer..."
+                    autoGrow={true}
+                    className="text-base"
+                  />
+                </div>
+
+                {/* VAT Tax Notes */}
+                <div
+                  className="border-t pt-4"
+                  style={{
+                    borderColor: isDarkMode
+                      ? 'rgb(75 85 99)'
+                      : 'rgb(229 231 235)',
+                  }}
+                >
+                  <h3
+                    className={`text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-1 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                  >
+                    <span>VAT Tax Notes</span>
+                    <VatHelpIcon
+                      content={[
+                        'When required: Required if supply is zero-rated or reverse charge applies.',
+                        'Must explain reason for 0% VAT treatment (e.g., export, services in designated zone).',
+                        'Part of FTA Form 201 compliance documentation.',
+                      ]}
+                    />
+                  </h3>
+                  <Textarea
+                    value={invoice.taxNotes || ''}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({
+                        ...prev,
+                        taxNotes: e.target.value,
+                      }))
+                    }
+                    placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
+                    autoGrow={true}
+                    className="text-base"
+                  />
+                  <p
+                    className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  >
+                  Required when items are zero-rated or exempt from VAT
                   </p>
                 </div>
-              </div>
-            </Card>
 
-            {/* RIGHT COLUMN: Notes & Payment Terms */}
-            <Card
-              className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-            >
-              {/* Invoice Notes */}
-              <div className="mb-4">
-                <h3
-                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
+                {/* Payment Terms - Inline */}
+                <div
+                  className="border-t pt-4"
+                  style={{
+                    borderColor: isDarkMode
+                      ? 'rgb(75 85 99)'
+                      : 'rgb(229 231 235)',
+                  }}
                 >
-                  Notes
-                </h3>
-                <Textarea
-                  value={invoice.notes}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({ ...prev, notes: e.target.value }))
-                  }
-                  placeholder="Additional notes for the customer..."
-                  autoGrow={true}
-                  className="text-base"
-                />
-              </div>
-
-              {/* VAT Tax Notes */}
-              <div
-                className="border-t pt-4"
-                style={{
-                  borderColor: isDarkMode
-                    ? 'rgb(75 85 99)'
-                    : 'rgb(229 231 235)',
-                }}
-              >
-                <h3
-                  className={`text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-1 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  <span>VAT Tax Notes</span>
-                  <VatHelpIcon
-                    content={[
-                      'When required: Required if supply is zero-rated or reverse charge applies.',
-                      'Must explain reason for 0% VAT treatment (e.g., export, services in designated zone).',
-                      'Part of FTA Form 201 compliance documentation.',
-                    ]}
-                  />
-                </h3>
-                <Textarea
-                  value={invoice.taxNotes || ''}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({
-                      ...prev,
-                      taxNotes: e.target.value,
-                    }))
-                  }
-                  placeholder="Explanation for zero-rated or exempt supplies (FTA requirement)..."
-                  autoGrow={true}
-                  className="text-base"
-                />
-                <p
-                  className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Required when items are zero-rated or exempt from VAT
-                </p>
-              </div>
-
-              {/* Payment Terms - Inline */}
-              <div
-                className="border-t pt-4"
-                style={{
-                  borderColor: isDarkMode
-                    ? 'rgb(75 85 99)'
-                    : 'rgb(229 231 235)',
-                }}
-              >
-                <h3
-                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
+                  <h3
+                    className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                  >
                   Payment Terms & Conditions
-                </h3>
-                <Textarea
-                  value={invoice.terms}
-                  onChange={(e) =>
-                    setInvoice((prev) => ({ ...prev, terms: e.target.value }))
-                  }
-                  placeholder="Enter payment terms and conditions..."
-                  rows="2"
-                  autoGrow={true}
-                  className="text-base"
-                />
-              </div>
-            </Card>
+                  </h3>
+                  <Textarea
+                    value={invoice.terms}
+                    onChange={(e) =>
+                      setInvoice((prev) => ({ ...prev, terms: e.target.value }))
+                    }
+                    placeholder="Enter payment terms and conditions..."
+                    rows="2"
+                    autoGrow={true}
+                    className="text-base"
+                  />
+                </div>
+              </Card>
+            </div>
           </div>
+          {/* End Left Panel */}
+
+          {/* Right Panel (30%) - AllocationDrawer */}
+          {useDrawerMode && (
+            <div
+              className={`flex-[0_0_30%] border-l overflow-hidden ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-white border-gray-200'
+              }`}
+            >
+              <AllocationDrawer
+                draftInvoiceId={typeof invoice.id === 'number' ? invoice.id : null}
+                warehouseId={
+                  invoice.warehouseId
+                    ? parseInt(invoice.warehouseId, 10)
+                    : warehouses[0]?.id || 1
+                }
+                companyId={company?.id || 1}
+                onAddLineItem={handleAddLineItem}
+                visible={true}
+              />
+            </div>
+          )}
         </main>
 
         {/* Sticky Mobile Footer - Actions & Total */}

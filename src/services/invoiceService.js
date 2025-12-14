@@ -68,6 +68,8 @@ const transformInvoiceForServer = (invoiceData) => {
         // Phase 2: UOM tracking for audit trail
         quantity_uom:
           item.quantity_uom || item.quantityUom || item.unit || 'PCS',
+        // Phase 4: Line item temp ID for linking to draft_batch_reservations
+        line_item_temp_id: item.line_item_temp_id || item.lineItemTempId || null,
       })) || [],
   };
 };
