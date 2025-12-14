@@ -749,7 +749,10 @@ const Autocomplete = ({
                 role="option"
                 aria-selected={index === highlightedIndex}
                 tabIndex={-1}
-                onMouseDown={() => handleOptionSelect(option)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleOptionSelect(option);
+                }}
                 onMouseEnter={() => setHighlightedIndex(index)}
               >
                 {renderOption ? (

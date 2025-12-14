@@ -85,8 +85,8 @@ describe('Invoice Form - Stock Allocation Panel', () => {
       // Invoice Details section
       cy.contains(/invoice.*details/i).should('be.visible');
 
-      // Line items table
-      cy.get('table').should('be.visible');
+      // Line items table - scroll into view first as it may be in a scrollable container
+      cy.get('table').scrollIntoView().should('be.visible');
 
       cy.log('✓ All form sections are present');
     });

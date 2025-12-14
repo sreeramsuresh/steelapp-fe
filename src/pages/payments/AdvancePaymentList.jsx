@@ -5,7 +5,7 @@
  * UAE VAT requires VAT to be accounted for when advance payment is received.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -72,6 +72,357 @@ const STATUS_COLORS = {
   },
 };
 
+// Input component for Autocomplete
+const Input = ({
+  label,
+  error,
+  className = '',
+  required = false,
+  validationState = null,
+  showValidation = true,
+  id,
+  'data-testid': dataTestId,
+  ...props
+}) => {
+  const { isDarkMode } = useTheme();
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+
+  const getValidationClasses = () => {
+    if (!showValidation) {
+      return isDarkMode
+        ? 'border-gray-600 bg-gray-800'
+        : 'border-gray-300 bg-white';
+    }
+
+    if (error || validationState === 'invalid') {
+      return isDarkMode
+        ? 'border-red-500 bg-red-900/10'
+        : 'border-red-500 bg-red-50';
+    }
+    if (validationState === 'valid') {
+      return isDarkMode
+        ? 'border-green-500 bg-green-900/10'
+        : 'border-green-500 bg-green-50';
+    }
+    if (required && validationState === null) {
+      return isDarkMode
+        ? 'border-yellow-600/50 bg-yellow-900/5'
+        : 'border-yellow-400/50 bg-yellow-50/30';
+    }
+    return isDarkMode
+      ? 'border-gray-600 bg-gray-800'
+      : 'border-gray-300 bg-white';
+  };
+
+  return (
+    <div className="space-y-0.5">
+      {label && (
+        <label
+          htmlFor={inputId}
+          className={`block text-xs font-medium ${
+            isDarkMode ? 'text-gray-400' : 'text-gray-700'
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
+        >
+          {label}
+        </label>
+      )}
+      <input
+        id={inputId}
+        data-testid={dataTestId}
+        className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
+          isDarkMode
+            ? 'text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
+            : 'text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+        } ${getValidationClasses()} ${className}`}
+        {...props}
+      />
+      {error && (
+        <p
+          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// Autocomplete component with fuzzy search
+const Autocomplete = ({
+  options = [],
+  value: _value,
+  onChange,
+  onInputChange,
+  inputValue,
+  placeholder,
+  label,
+  disabled = false,
+  renderOption,
+  noOptionsText = 'No options',
+  className = '',
+  title,
+  error,
+  required = false,
+  validationState = null,
+  showValidation = true,
+  'data-testid': dataTestId,
+}) => {
+  const { isDarkMode } = useTheme();
+  const [isOpen, setIsOpen] = useState(false);
+  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [filteredOptions]);
+
+  // Fuzzy match helpers
+  const norm = (s) => (s || '').toString().toLowerCase().trim();
+  const ed1 = (a, b) => {
+    if (a === b) return 0;
+    const la = a.length,
+      lb = b.length;
+    if (Math.abs(la - lb) > 1) return 2;
+    let dpPrev = new Array(lb + 1);
+    let dpCurr = new Array(lb + 1);
+    for (let j = 0; j <= lb; j++) dpPrev[j] = j;
+    for (let i = 1; i <= la; i++) {
+      dpCurr[0] = i;
+      const ca = a.charCodeAt(i - 1);
+      for (let j = 1; j <= lb; j++) {
+        const cost = ca === b.charCodeAt(j - 1) ? 0 : 1;
+        dpCurr[j] = Math.min(
+          dpPrev[j] + 1,
+          dpCurr[j - 1] + 1,
+          dpPrev[j - 1] + cost,
+        );
+      }
+      const tmp = dpPrev;
+      dpPrev = dpCurr;
+      dpCurr = tmp;
+    }
+    return dpPrev[lb];
+  };
+
+  const tokenMatch = useCallback((token, optLabel) => {
+    const t = norm(token);
+    const l = norm(optLabel);
+    if (!t) return true;
+    if (l.includes(t)) return true;
+    const words = l.split(/\s+/);
+    for (const w of words) {
+      if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
+    }
+    return false;
+  }, []);
+
+  const fuzzyFilter = useCallback(
+    (opts, query) => {
+      const q = norm(query);
+      if (!q) return opts;
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const scored = [];
+      for (const o of opts) {
+        const optLabel = norm(o.label || o.name || '');
+        if (!optLabel) continue;
+        let ok = true;
+        let score = 0;
+        for (const t of tokens) {
+          if (!tokenMatch(t, optLabel)) {
+            ok = false;
+            break;
+          }
+          const idx = optLabel.indexOf(norm(t));
+          score += idx >= 0 ? 0 : 1;
+        }
+        if (ok) scored.push({ o, score });
+      }
+      scored.sort((a, b) => a.score - b.score);
+      return scored.map((s) => s.o);
+    },
+    [tokenMatch],
+  );
+
+  useEffect(() => {
+    if (inputValue) {
+      const filtered = fuzzyFilter(options, inputValue);
+      setFilteredOptions(filtered.slice(0, 20));
+    } else {
+      setFilteredOptions(options);
+    }
+  }, [options, inputValue, fuzzyFilter]);
+
+  const handleInputChange = (e) => {
+    const newValue = e.target.value;
+    onInputChange?.(e, newValue);
+    setIsOpen(true);
+  };
+
+  const handleOptionSelect = (option) => {
+    onChange?.(null, option);
+    setIsOpen(false);
+    setHighlightedIndex(-1);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!isOpen) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        setIsOpen(true);
+        return;
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev < filteredOptions.length - 1 ? prev + 1 : 0,
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev > 0 ? prev - 1 : filteredOptions.length - 1,
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (
+          highlightedIndex >= 0 &&
+          highlightedIndex < filteredOptions.length
+        ) {
+          handleOptionSelect(filteredOptions[highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+        setIsOpen(false);
+        setHighlightedIndex(-1);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const updateDropdownPosition = useCallback(() => {
+    if (dropdownRef.current && inputRef.current && isOpen) {
+      const inputRect = inputRef.current.getBoundingClientRect();
+      const dropdown = dropdownRef.current;
+
+      dropdown.style.position = 'fixed';
+      dropdown.style.top = `${inputRect.bottom + 4}px`;
+      dropdown.style.left = `${inputRect.left}px`;
+      dropdown.style.minWidth = `${inputRect.width}px`;
+      dropdown.style.width = 'auto';
+      dropdown.style.maxWidth = '90vw';
+      dropdown.style.zIndex = '9999';
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+      const handleScroll = () => updateDropdownPosition();
+      const handleResize = () => updateDropdownPosition();
+
+      window.addEventListener('scroll', handleScroll, true);
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true);
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, [isOpen, updateDropdownPosition]);
+
+  return (
+    <div className="relative">
+      <div ref={inputRef}>
+        <Input
+          label={label}
+          value={inputValue || ''}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={className}
+          title={title}
+          error={error}
+          required={required}
+          validationState={validationState}
+          showValidation={showValidation}
+          data-testid={dataTestId}
+        />
+      </div>
+
+      {isOpen && (
+        <div
+          ref={dropdownRef}
+          data-testid={dataTestId ? `${dataTestId}-listbox` : undefined}
+          role="listbox"
+          className={`border rounded-lg shadow-xl max-h-60 overflow-auto ${
+            isDarkMode
+              ? 'bg-gray-800 border-gray-600'
+              : 'bg-white border-gray-200'
+          }`}
+        >
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option, index) => (
+              <div
+                key={option.id || index}
+                data-testid={dataTestId ? `${dataTestId}-option-${index}` : undefined}
+                className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
+                  index === highlightedIndex
+                    ? isDarkMode
+                      ? 'bg-teal-700 text-white border-gray-700'
+                      : 'bg-teal-100 text-gray-900 border-gray-100'
+                    : isDarkMode
+                      ? 'hover:bg-gray-700 text-white border-gray-700'
+                      : 'hover:bg-gray-50 text-gray-900 border-gray-100'
+                }`}
+                role="option"
+                aria-selected={index === highlightedIndex}
+                tabIndex={-1}
+                onMouseDown={() => handleOptionSelect(option)}
+                onMouseEnter={() => setHighlightedIndex(index)}
+              >
+                {renderOption ? (
+                  renderOption(option)
+                ) : (
+                  <div>
+                    <div className="font-medium">{option.name}</div>
+                    {option.subtitle && (
+                      <div
+                        className={`text-sm ${
+                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}
+                      >
+                        {option.subtitle}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div
+              className={`px-3 py-2 text-sm ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}
+            >
+              {noOptionsText}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const AdvancePaymentList = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
@@ -88,6 +439,7 @@ const AdvancePaymentList = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [customerFilter, setCustomerFilter] = useState('');
+  const [customerInputValue, setCustomerInputValue] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -241,6 +593,7 @@ const AdvancePaymentList = () => {
     setSearchTerm('');
     setStatusFilter('');
     setCustomerFilter('');
+    setCustomerInputValue('');
     setStartDate('');
     setEndDate('');
     setCurrentPage(1);
@@ -489,27 +842,31 @@ const AdvancePaymentList = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Customer */}
                 <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Customer
-                  </label>
-                  <select
-                    value={customerFilter}
-                    onChange={(e) => setCustomerFilter(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  >
-                    <option value="">All Customers</option>
-                    {customers.map((customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name}
-                      </option>
-                    ))}
-                  </select>
+                  <Autocomplete
+                    label="Customer"
+                    placeholder="All Customers"
+                    options={customers.map(c => ({
+                      id: c.id,
+                      label: c.name,
+                      name: c.name,
+                    }))}
+                    value={customerFilter ? customers.find(c => c.id === parseInt(customerFilter)) : null}
+                    inputValue={customerInputValue}
+                    onInputChange={(e, newValue) => {
+                      setCustomerInputValue(newValue || '');
+                    }}
+                    onChange={(e, selected) => {
+                      if (selected) {
+                        setCustomerFilter(String(selected.id));
+                        setCustomerInputValue(selected.name);
+                      } else {
+                        setCustomerFilter('');
+                        setCustomerInputValue('');
+                      }
+                      setCurrentPage(1);
+                    }}
+                    noOptionsText="No customers found"
+                  />
                 </div>
 
                 {/* Start Date */}

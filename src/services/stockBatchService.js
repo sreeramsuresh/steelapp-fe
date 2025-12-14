@@ -19,6 +19,7 @@ export const stockBatchService = {
    * @param {number} params.page - Page number (default: 1)
    * @param {number} params.limit - Items per page (default: 20)
    * @param {boolean} params.hasStock - Filter to only batches with remaining stock
+   * @param {boolean} params.activeOnly - Filter to only active batches (status = active)
    */
   async getBatches(params = {}) {
     const queryParams = {
@@ -32,6 +33,7 @@ export const stockBatchService = {
       queryParams.procurementChannel = params.procurementChannel;
     if (params.warehouseId) queryParams.warehouseId = params.warehouseId;
     if (params.hasStock !== undefined) queryParams.hasStock = params.hasStock;
+    if (params.activeOnly !== undefined) queryParams.activeOnly = params.activeOnly;
 
     return apiClient.get('/stock-batches', queryParams);
   },

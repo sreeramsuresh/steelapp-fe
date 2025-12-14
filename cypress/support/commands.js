@@ -117,10 +117,15 @@ Cypress.Commands.add('selectCustomer', (customerName) => {
   cy.wait(300);
 
   // Click the option that contains the customer name
+  // Note: Autocomplete uses onMouseDown, we need to click directly (not trigger)
+  // Using click() instead of trigger() to properly simulate user interaction
   cy.get('[data-testid="customer-autocomplete-listbox"]')
     .find('[role="option"]')
-    .contains(customerName)
-    .click({ force: true });
+    .contains(customerName, { matchCase: false })
+    .click();
+
+  // Wait for dropdown to close and selection to complete
+  cy.wait(500);
 
   cy.log(`✓ Customer "${customerName}" selected`);
 });
@@ -162,11 +167,13 @@ Cypress.Commands.add('selectProduct', (lineIndex, productName) => {
   cy.wait(500);
 
   // Click the option containing the product name
-  // Note: Product options have complex rendering with displayName/uniqueName
   cy.get(`[data-testid="${testId}-listbox"]`)
     .find('[role="option"]')
-    .contains(productName)
-    .click({ force: true });
+    .contains(productName, { matchCase: false })
+    .click();
+
+  // Wait for dropdown to close and product selection to complete
+  cy.wait(500);
 
   cy.log(`✓ Product "${productName}" added at line ${lineIndex}`);
 });
