@@ -28,7 +28,7 @@ export function useReservations({
   productId,
   warehouseId,
   lineItemTempId,
-  companyId,
+  companyId: _companyId,
 }) {
   // Reservation state
   const [reservationId, setReservationId] = useState(null);
@@ -139,7 +139,13 @@ export function useReservations({
         }
       }
     },
-    [draftInvoiceId, productId, warehouseId, lineItemTempId, processReservationResponse],
+    [
+      draftInvoiceId,
+      productId,
+      warehouseId,
+      lineItemTempId,
+      processReservationResponse,
+    ],
   );
 
   /**
@@ -188,7 +194,13 @@ export function useReservations({
         }
       }
     },
-    [draftInvoiceId, productId, warehouseId, lineItemTempId, processReservationResponse],
+    [
+      draftInvoiceId,
+      productId,
+      warehouseId,
+      lineItemTempId,
+      processReservationResponse,
+    ],
   );
 
   /**
@@ -335,8 +347,14 @@ export function useReservations({
 
     // Computed values
     hasAllocations: allocations.length > 0,
-    totalAllocated: allocations.reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0),
-    totalCost: allocations.reduce((sum, a) => sum + parseFloat(a.totalCost || 0), 0),
+    totalAllocated: allocations.reduce(
+      (sum, a) => sum + parseFloat(a.quantity || 0),
+      0,
+    ),
+    totalCost: allocations.reduce(
+      (sum, a) => sum + parseFloat(a.totalCost || 0),
+      0,
+    ),
   };
 }
 

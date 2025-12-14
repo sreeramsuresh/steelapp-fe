@@ -739,7 +739,9 @@ const Autocomplete = ({
             filteredOptions.map((option, index) => (
               <div
                 key={option.id || index}
-                data-testid={dataTestId ? `${dataTestId}-option-${index}` : undefined}
+                data-testid={
+                  dataTestId ? `${dataTestId}-option-${index}` : undefined
+                }
                 className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
                   index === highlightedIndex
                     ? isDarkMode
@@ -1649,8 +1651,12 @@ const InvoiceForm = ({ onSave }) => {
 
         // Sort by GRN date (oldest first = FIFO)
         const sortedBatches = [...batches].sort((a, b) => {
-          const dateA = new Date(a.grnDate || a.grn_date || a.createdAt || a.created_at);
-          const dateB = new Date(b.grnDate || b.grn_date || b.createdAt || b.created_at);
+          const dateA = new Date(
+            a.grnDate || a.grn_date || a.createdAt || a.created_at,
+          );
+          const dateB = new Date(
+            b.grnDate || b.grn_date || b.createdAt || b.created_at,
+          );
           return dateA - dateB;
         });
 
@@ -1660,7 +1666,9 @@ const InvoiceForm = ({ onSave }) => {
         let totalStock = 0;
         sortedBatches.forEach((batch) => {
           const whId = batch.warehouseId || batch.warehouse_id;
-          const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
+          const available = parseFloat(
+            batch.quantityAvailable || batch.quantity_available || 0,
+          );
           if (whId) {
             const key = String(whId); // Normalize to string
             stockByWarehouse[key] = (stockByWarehouse[key] || 0) + available;
@@ -1668,7 +1676,11 @@ const InvoiceForm = ({ onSave }) => {
           totalStock += available;
         });
 
-        const batchData = { batches: sortedBatches, stockByWarehouse, totalStock };
+        const batchData = {
+          batches: sortedBatches,
+          stockByWarehouse,
+          totalStock,
+        };
 
         // Update state
         setProductBatchData((prev) => ({
@@ -1693,53 +1705,81 @@ const InvoiceForm = ({ onSave }) => {
    * @param {Array} batches - Available batches (will be sorted by received date)
    * @returns {Array} - Array of allocations sorted by FIFO order
    */
-  const autoAllocateFIFO = useCallback(
-    (itemIndex, requiredQty, batches) => {
-      if (!batches || batches.length === 0 || requiredQty <= 0) {
-        return [];
-      }
+  const autoAllocateFIFO = useCallback((itemIndex, requiredQty, batches) => {
+    if (!batches || batches.length === 0 || requiredQty <= 0) {
+      return [];
+    }
 
-      // Sort batches by received_date ASC (FIFO - oldest first)
-      // This ensures we always allocate from oldest stock first regardless of warehouse
-      const sortedBatches = [...batches].sort((a, b) => {
-        const dateA = new Date(a.receivedDate || a.received_date || a.grnDate || a.grn_date || a.createdAt || a.created_at);
-        const dateB = new Date(b.receivedDate || b.received_date || b.grnDate || b.grn_date || b.createdAt || b.created_at);
-        return dateA - dateB; // Oldest first
+    // Sort batches by received_date ASC (FIFO - oldest first)
+    // This ensures we always allocate from oldest stock first regardless of warehouse
+    const sortedBatches = [...batches].sort((a, b) => {
+      const dateA = new Date(
+        a.receivedDate ||
+          a.received_date ||
+          a.grnDate ||
+          a.grn_date ||
+          a.createdAt ||
+          a.created_at,
+      );
+      const dateB = new Date(
+        b.receivedDate ||
+          b.received_date ||
+          b.grnDate ||
+          b.grn_date ||
+          b.createdAt ||
+          b.created_at,
+      );
+      return dateA - dateB; // Oldest first
+    });
+
+    const allocations = [];
+    let remaining = requiredQty;
+
+    for (const batch of sortedBatches) {
+      if (remaining <= 0) break;
+
+      const available = parseFloat(
+        batch.quantityAvailable || batch.quantity_available || 0,
+      );
+      if (available <= 0) continue;
+
+      const allocateQty = Math.min(available, remaining);
+
+      allocations.push({
+        batchId: batch.id,
+        batchNumber:
+          batch.batchNumber || batch.batch_number || `BTH-${batch.id}`,
+        receivedDate:
+          batch.receivedDate ||
+          batch.received_date ||
+          batch.grnDate ||
+          batch.grn_date ||
+          batch.createdAt ||
+          batch.created_at,
+        warehouseId: batch.warehouseId || batch.warehouse_id,
+        warehouseName:
+          batch.warehouseName || batch.warehouse_name || 'Unknown Warehouse',
+        availableQty: available,
+        allocatedQty: allocateQty,
+        unitCost: parseFloat(
+          batch.unitCost ||
+            batch.unit_cost ||
+            batch.landedCostPerUnit ||
+            batch.landed_cost_per_unit ||
+            0,
+        ),
+        procurementChannel:
+          batch.procurementChannel || batch.procurement_channel || 'LOCAL',
       });
 
-      const allocations = [];
-      let remaining = requiredQty;
+      remaining -= allocateQty;
+    }
 
-      for (const batch of sortedBatches) {
-        if (remaining <= 0) break;
+    // If there's remaining quantity after all batches, it needs drop ship or split
+    // This will be handled by the caller (auto drop-ship / auto-split suggestions)
 
-        const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
-        if (available <= 0) continue;
-
-        const allocateQty = Math.min(available, remaining);
-
-        allocations.push({
-          batchId: batch.id,
-          batchNumber: batch.batchNumber || batch.batch_number || `BTH-${batch.id}`,
-          receivedDate: batch.receivedDate || batch.received_date || batch.grnDate || batch.grn_date || batch.createdAt || batch.created_at,
-          warehouseId: batch.warehouseId || batch.warehouse_id,
-          warehouseName: batch.warehouseName || batch.warehouse_name || 'Unknown Warehouse',
-          availableQty: available,
-          allocatedQty: allocateQty,
-          unitCost: parseFloat(batch.unitCost || batch.unit_cost || batch.landedCostPerUnit || batch.landed_cost_per_unit || 0),
-          procurementChannel: batch.procurementChannel || batch.procurement_channel || 'LOCAL',
-        });
-
-        remaining -= allocateQty;
-      }
-
-      // If there's remaining quantity after all batches, it needs drop ship or split
-      // This will be handled by the caller (auto drop-ship / auto-split suggestions)
-
-      return allocations;
-    },
-    [],
-  );
+    return allocations;
+  }, []);
 
   /**
    * Apply auto-allocation to a line item after product selection
@@ -1754,7 +1794,9 @@ const InvoiceForm = ({ onSave }) => {
 
       // P0: Only allocate for warehouse items
       if (currentItem.sourceType !== 'WAREHOUSE') {
-        notificationService.info('Auto-allocation only available for Warehouse source type');
+        notificationService.info(
+          'Auto-allocation only available for Warehouse source type',
+        );
         return;
       }
 
@@ -1789,7 +1831,10 @@ const InvoiceForm = ({ onSave }) => {
 
       // Stock available - apply FIFO allocation
       const allocations = autoAllocateFIFO(itemIndex, requiredQty, batches);
-      const totalAllocated = allocations.reduce((sum, a) => sum + a.allocatedQty, 0);
+      const totalAllocated = allocations.reduce(
+        (sum, a) => sum + a.allocatedQty,
+        0,
+      );
 
       setInvoice((prev) => {
         const newItems = [...prev.items];
@@ -1818,7 +1863,9 @@ const InvoiceForm = ({ onSave }) => {
           { autoClose: 8000 },
         );
       } else {
-        notificationService.success(`Allocated ${totalAllocated} units from warehouse batches (FIFO)`);
+        notificationService.success(
+          `Allocated ${totalAllocated} units from warehouse batches (FIFO)`,
+        );
       }
     },
     [fetchBatchesForProduct, autoAllocateFIFO, invoice.items],
@@ -2407,7 +2454,12 @@ const InvoiceForm = ({ onSave }) => {
         await applyAutoAllocation(index, product.id, quantity);
       }
     },
-    [selectedPricelistId, findDuplicateProduct, invoice.items, applyAutoAllocation],
+    [
+      selectedPricelistId,
+      findDuplicateProduct,
+      invoice.items,
+      applyAutoAllocation,
+    ],
   );
 
   // Handle duplicate confirmation - add anyway
@@ -2546,10 +2598,16 @@ const InvoiceForm = ({ onSave }) => {
         // P0: Validate stock when switching TO warehouse
         if (newSourceType === 'WAREHOUSE') {
           const stockData = productBatchData[currentItem.productId];
-          const totalStock = stockData?.batches?.reduce((sum, b) => sum + (b.quantityAvailable || 0), 0) || 0;
+          const totalStock =
+            stockData?.batches?.reduce(
+              (sum, b) => sum + (b.quantityAvailable || 0),
+              0,
+            ) || 0;
 
           if (totalStock === 0) {
-            notificationService.error('Cannot switch to Warehouse - no stock available');
+            notificationService.error(
+              'Cannot switch to Warehouse - no stock available',
+            );
             return; // Block the change
           }
 
@@ -2851,7 +2909,10 @@ const InvoiceForm = ({ onSave }) => {
       }
 
       // Cancel reservations for this line item if it has any
-      if (itemToDelete.lineItemTempId && itemToDelete.sourceType === 'WAREHOUSE') {
+      if (
+        itemToDelete.lineItemTempId &&
+        itemToDelete.sourceType === 'WAREHOUSE'
+      ) {
         try {
           await batchReservationService.cancelLineItemReservations({
             draftInvoiceId: invoice.id || 0,
@@ -2908,7 +2969,11 @@ const InvoiceForm = ({ onSave }) => {
       }
     }
 
-    const allocatedQty = (item.allocations || item.manualAllocations || []).reduce(
+    const allocatedQty = (
+      item.allocations ||
+      item.manualAllocations ||
+      []
+    ).reduce(
       (sum, a) => sum + parseFloat(a.quantity || a.allocatedQty || 0),
       0,
     );
@@ -3271,10 +3336,13 @@ const InvoiceForm = ({ onSave }) => {
         // Phase 4: Finalize invoice with batch allocations
         // Check if invoice has warehouse items with allocations (lineItemTempId indicates Phase 3+ allocation)
         const warehouseItemsWithAllocations = invoice.items.filter(
-          (item) => item.sourceType === 'WAREHOUSE' && item.lineItemTempId
+          (item) => item.sourceType === 'WAREHOUSE' && item.lineItemTempId,
         );
 
-        if (warehouseItemsWithAllocations.length > 0 && newInvoice.items?.length > 0) {
+        if (
+          warehouseItemsWithAllocations.length > 0 &&
+          newInvoice.items?.length > 0
+        ) {
           try {
             // Build line item mappings from frontend items to backend items
             // Match by lineItemTempId which is stored in both
@@ -3282,8 +3350,9 @@ const InvoiceForm = ({ onSave }) => {
               .map((frontendItem) => {
                 // Find corresponding backend item by line_item_temp_id
                 const backendItem = newInvoice.items.find(
-                  (bi) => bi.lineItemTempId === frontendItem.lineItemTempId ||
-                         bi.line_item_temp_id === frontendItem.lineItemTempId
+                  (bi) =>
+                    bi.lineItemTempId === frontendItem.lineItemTempId ||
+                    bi.line_item_temp_id === frontendItem.lineItemTempId,
                 );
                 if (backendItem) {
                   return {
@@ -3296,17 +3365,25 @@ const InvoiceForm = ({ onSave }) => {
               .filter(Boolean);
 
             if (lineItemMappings.length > 0) {
-              console.log('[InvoiceForm-Phase4] Finalizing invoice with', lineItemMappings.length, 'line item mappings');
+              console.log(
+                '[InvoiceForm-Phase4] Finalizing invoice with',
+                lineItemMappings.length,
+                'line item mappings',
+              );
 
-              const finalizeResult = await batchReservationService.finalizeInvoice({
-                draftInvoiceId: newInvoice.id,
-                lineItemMappings: lineItemMappings,
-                targetStatus: effectiveStatus,  // 'issued' or 'proforma'
-                skipStockDeduction: false,
-              });
+              const finalizeResult =
+                await batchReservationService.finalizeInvoice({
+                  draftInvoiceId: newInvoice.id,
+                  lineItemMappings,
+                  targetStatus: effectiveStatus, // 'issued' or 'proforma'
+                  skipStockDeduction: false,
+                });
 
               if (finalizeResult.success) {
-                console.log('[InvoiceForm-Phase4] Finalization successful:', finalizeResult.invoiceNumber);
+                console.log(
+                  '[InvoiceForm-Phase4] Finalization successful:',
+                  finalizeResult.invoiceNumber,
+                );
                 // Update invoice number if it was generated during finalization
                 if (finalizeResult.invoiceNumber) {
                   setInvoice((prev) => ({
@@ -3315,21 +3392,41 @@ const InvoiceForm = ({ onSave }) => {
                   }));
                 }
               } else {
-                console.warn('[InvoiceForm-Phase4] Finalization returned success=false:', finalizeResult.message);
-                notificationService.warning('Invoice saved but stock finalization incomplete. Please review.');
+                console.warn(
+                  '[InvoiceForm-Phase4] Finalization returned success=false:',
+                  finalizeResult.message,
+                );
+                notificationService.warning(
+                  'Invoice saved but stock finalization incomplete. Please review.',
+                );
               }
             }
           } catch (finalizeError) {
-            console.error('[InvoiceForm-Phase4] Finalization error:', finalizeError);
+            console.error(
+              '[InvoiceForm-Phase4] Finalization error:',
+              finalizeError,
+            );
             // Check for specific error types
-            const errorMessage = finalizeError?.response?.data?.message || finalizeError?.message || 'Unknown error';
+            const errorMessage =
+              finalizeError?.response?.data?.message ||
+              finalizeError?.message ||
+              'Unknown error';
 
             if (errorMessage.toLowerCase().includes('expired')) {
-              notificationService.error('Some batch reservations have expired. Invoice saved but stock not deducted. Please re-allocate batches.');
-            } else if (errorMessage.toLowerCase().includes('insufficient') || errorMessage.toLowerCase().includes('stock')) {
-              notificationService.error('Stock no longer available. Invoice saved but stock not deducted. Another user may have used the same batches.');
+              notificationService.error(
+                'Some batch reservations have expired. Invoice saved but stock not deducted. Please re-allocate batches.',
+              );
+            } else if (
+              errorMessage.toLowerCase().includes('insufficient') ||
+              errorMessage.toLowerCase().includes('stock')
+            ) {
+              notificationService.error(
+                'Stock no longer available. Invoice saved but stock not deducted. Another user may have used the same batches.',
+              );
             } else {
-              notificationService.warning(`Invoice saved but finalization failed: ${errorMessage}`);
+              notificationService.warning(
+                `Invoice saved but finalization failed: ${errorMessage}`,
+              );
             }
             // Continue - invoice is saved, just finalization failed
           }
@@ -3791,12 +3888,12 @@ const InvoiceForm = ({ onSave }) => {
                 />
                 <div className="flex-1">
                   <h4 className="font-bold text-lg">
-                  Final Tax Invoice - Locked
+                    Final Tax Invoice - Locked
                   </h4>
                   <p className="text-sm mt-1">
-                  This invoice has been issued as a Final Tax Invoice and cannot
-                  be modified. UAE VAT compliance requires any corrections to be
-                  made via Credit Note.
+                    This invoice has been issued as a Final Tax Invoice and
+                    cannot be modified. UAE VAT compliance requires any
+                    corrections to be made via Credit Note.
                   </p>
                   <Button
                     variant="outline"
@@ -3806,7 +3903,7 @@ const InvoiceForm = ({ onSave }) => {
                       navigate(`/credit-notes/new?invoiceId=${invoice.id}`)
                     }
                   >
-                  Create Credit Note
+                    Create Credit Note
                   </Button>
                 </div>
               </div>
@@ -3829,11 +3926,11 @@ const InvoiceForm = ({ onSave }) => {
                   />
                   <div className="flex-1">
                     <h4 className="font-bold text-lg mb-2">
-                    Please fix the following errors:
+                      Please fix the following errors:
                     </h4>
                     <ul className="space-y-1 text-sm">
                       {validationErrors.map((error, index) => {
-                      // Parse error to extract field name for scrolling
+                        // Parse error to extract field name for scrolling
                         let fieldName = null;
                         if (error.includes('Customer'))
                           fieldName = 'customer.name';
@@ -3863,7 +3960,9 @@ const InvoiceForm = ({ onSave }) => {
                               }
                               disabled={!fieldName}
                               className={`flex items-center gap-2 w-full text-left ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : 'opacity-60 cursor-default'}`}
-                              title={fieldName ? 'Click to scroll to field' : ''}
+                              title={
+                                fieldName ? 'Click to scroll to field' : ''
+                              }
                             >
                               <span className="text-red-500">•</span>
                               <span>{error}</span>
@@ -3886,7 +3985,7 @@ const InvoiceForm = ({ onSave }) => {
                           : 'bg-red-600 hover:bg-red-700 text-white'
                       }`}
                     >
-                    Dismiss
+                      Dismiss
                     </button>
                   </div>
                 </div>
@@ -3908,7 +4007,7 @@ const InvoiceForm = ({ onSave }) => {
                       isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
-                  Customer Information
+                    Customer Information
                   </h3>
                   {/* Customer Selector - Enhanced with Search */}
                   <div className="space-y-0.5">
@@ -3940,7 +4039,9 @@ const InvoiceForm = ({ onSave }) => {
                         }
                       }}
                       inputValue={customerSearchInput}
-                      onInputChange={(e, value) => setCustomerSearchInput(value)}
+                      onInputChange={(e, value) =>
+                        setCustomerSearchInput(value)
+                      }
                       placeholder="Search customers by name or email..."
                       disabled={loadingCustomers}
                       noOptionsText={
@@ -3952,13 +4053,15 @@ const InvoiceForm = ({ onSave }) => {
                       className="text-base"
                       required={true}
                       validationState={fieldValidation.customer}
-                      showValidation={formPreferences.showValidationHighlighting}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
                     />
                     {invalidFields.has('customer.name') && (
                       <p
                         className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
                       >
-                      Customer is required
+                        Customer is required
                       </p>
                     )}
                   </div>
@@ -4006,7 +4109,7 @@ const InvoiceForm = ({ onSave }) => {
                       <p>
                         <span className="font-medium">Address:</span>{' '}
                         {invoice.customer.address?.street ||
-                      invoice.customer.address?.city
+                        invoice.customer.address?.city
                           ? [
                             invoice.customer.address.street,
                             invoice.customer.address.city,
@@ -4035,7 +4138,9 @@ const InvoiceForm = ({ onSave }) => {
                       onClose={() => setShowTradeLicenseAlert(false)}
                     >
                       <div>
-                        <h4 className="font-medium mb-1">Trade License Alert</h4>
+                        <h4 className="font-medium mb-1">
+                          Trade License Alert
+                        </h4>
                         <p className="text-sm">{tradeLicenseStatus.message}</p>
                         {tradeLicenseStatus.licenseNumber && (
                           <p className="text-sm mt-1">
@@ -4063,7 +4168,7 @@ const InvoiceForm = ({ onSave }) => {
                           isDarkMode ? 'text-gray-400' : 'text-gray-600'
                         }`}
                       >
-                      Loading customers...
+                        Loading customers...
                       </span>
                     </div>
                   )}
@@ -4083,7 +4188,7 @@ const InvoiceForm = ({ onSave }) => {
                       isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
-                  Sales Information
+                    Sales Information
                   </h3>
                   <Select
                     label="Sales Agent (Optional)"
@@ -4110,7 +4215,7 @@ const InvoiceForm = ({ onSave }) => {
                           isDarkMode ? 'text-gray-400' : 'text-gray-600'
                         }`}
                       >
-                      Loading sales agents...
+                        Loading sales agents...
                       </span>
                     </div>
                   )}
@@ -4169,18 +4274,18 @@ const InvoiceForm = ({ onSave }) => {
                               isDarkMode ? 'text-gray-400' : 'text-gray-600'
                             } mb-2`}
                           >
-                          Commission Amount (Accrual)
+                            Commission Amount (Accrual)
                           </p>
                           <p
                             className={`text-lg font-bold ${
                               isDarkMode ? 'text-teal-400' : 'text-teal-600'
                             }`}
                           >
-                          AED{' '}
+                            AED{' '}
                             {(
                               (computedTotal *
-                              (invoice.commissionPercentage || 10)) /
-                            100
+                                (invoice.commissionPercentage || 10)) /
+                              100
                             ).toFixed(2)}
                           </p>
                           <p
@@ -4188,8 +4293,8 @@ const InvoiceForm = ({ onSave }) => {
                               isDarkMode ? 'text-gray-500' : 'text-gray-500'
                             } mt-2`}
                           >
-                          Accrues when invoice is issued. 15-day grace period
-                          for adjustments.
+                            Accrues when invoice is issued. 15-day grace period
+                            for adjustments.
                           </p>
                         </div>
                         {id && invoice.commissionStatus && (
@@ -4205,7 +4310,7 @@ const InvoiceForm = ({ onSave }) => {
                                 isDarkMode ? 'text-blue-300' : 'text-blue-800'
                               } mb-1`}
                             >
-                            Commission Status
+                              Commission Status
                             </p>
                             <p
                               className={`text-sm font-medium ${
@@ -4239,7 +4344,7 @@ const InvoiceForm = ({ onSave }) => {
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
-                Invoice Details
+                  Invoice Details
                 </h3>
                 <div className="space-y-4">
                   {/* Invoice Number and Status - Invoice identity */}
@@ -4256,7 +4361,9 @@ const InvoiceForm = ({ onSave }) => {
                       value={invoice.status}
                       required={true}
                       validationState={fieldValidation.status}
-                      showValidation={formPreferences.showValidationHighlighting}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
                       error={invalidFields.has('status')}
                       onChange={(e) => {
                         const newStatus = e.target.value;
@@ -4325,7 +4432,9 @@ const InvoiceForm = ({ onSave }) => {
                       value={invoice.modeOfPayment || ''}
                       required={false}
                       validationState={fieldValidation.paymentMode}
-                      showValidation={formPreferences.showValidationHighlighting}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
                       error={invalidFields.has('paymentMode')}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -4353,7 +4462,9 @@ const InvoiceForm = ({ onSave }) => {
                       value={invoice.currency || 'AED'}
                       required={true}
                       validationState={fieldValidation.currency}
-                      showValidation={formPreferences.showValidationHighlighting}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
                       onChange={(e) => {
                         const value = e.target.value;
                         setInvoice((prev) => ({
@@ -4447,7 +4558,7 @@ const InvoiceForm = ({ onSave }) => {
                       label={
                         <span className="inline-flex items-center gap-1">
                           <span>
-                          Place of Supply
+                            Place of Supply
                             {invoice.status === 'issued' && (
                               <span className="text-red-500 ml-0.5">*</span>
                             )}
@@ -4463,7 +4574,9 @@ const InvoiceForm = ({ onSave }) => {
                       }
                       value={invoice.placeOfSupply || ''}
                       validationState={fieldValidation.placeOfSupply}
-                      showValidation={formPreferences.showValidationHighlighting}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
                       onChange={(e) => {
                         setInvoice((prev) => ({
                           ...prev,
@@ -4496,7 +4609,9 @@ const InvoiceForm = ({ onSave }) => {
                       type="date"
                       value={invoice.supplyDate || ''}
                       validationState={fieldValidation.supplyDate}
-                      showValidation={formPreferences.showValidationHighlighting}
+                      showValidation={
+                        formPreferences.showValidationHighlighting
+                      }
                       onChange={(e) => {
                         setInvoice((prev) => ({
                           ...prev,
@@ -4538,16 +4653,18 @@ const InvoiceForm = ({ onSave }) => {
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
-                Line Items
-                  {useDrawerMode && invoice.items.filter(i => i.productId).length > 0 && (
+                  Line Items
+                  {useDrawerMode &&
+                    invoice.items.filter((i) => i.productId).length > 0 && (
                     <span className="ml-2 text-teal-600">
-                    ({invoice.items.filter(i => i.productId).length} items)
+                        ({invoice.items.filter((i) => i.productId).length}{' '}
+                        items)
                     </span>
                   )}
                 </h3>
                 {useDrawerMode && (
                   <p className="text-xs text-gray-500">
-                  Use the panel on the right to add products
+                    Use the panel on the right to add products
                   </p>
                 )}
               </div>
@@ -4556,152 +4673,202 @@ const InvoiceForm = ({ onSave }) => {
               {useDrawerMode ? (
                 <div className="overflow-x-auto">
                   {/* Empty state when no items */}
-                  {invoice.items.filter(item => item.productId || item.name).length === 0 ? (
-                    <div
-                      className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
-                        isDarkMode ? 'border-gray-600 text-gray-400' : 'border-gray-300 text-gray-500'
-                      }`}
-                    >
-                      <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
-                      <p className="text-sm font-medium mb-1">No line items yet</p>
-                      <p className="text-xs opacity-75">
-                      Search for products in the panel on the right and click &quot;Add to Invoice&quot;
-                      </p>
-                    </div>
-                  ) : (
-                    <table
-                      className={`min-w-full table-fixed divide-y ${
-                        isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
-                      }`}
-                    >
-                      <thead className="bg-teal-600">
-                        <tr className="h-10">
-                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
-                          #
-                          </th>
-                          <th className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white" style={{ width: '35%' }}>
-                          Product
-                          </th>
-                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                          Qty
-                          </th>
-                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                          Rate
-                          </th>
-                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                          Amount
-                          </th>
-                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
-                          Status
-                          </th>
-                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
-
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody
-                        className={`divide-y ${
-                          isDarkMode ? 'bg-gray-800 divide-gray-600' : 'bg-white divide-gray-200'
+                  {invoice.items.filter((item) => item.productId || item.name)
+                    .length === 0 ? (
+                      <div
+                        className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
+                          isDarkMode
+                            ? 'border-gray-600 text-gray-400'
+                            : 'border-gray-300 text-gray-500'
                         }`}
                       >
-                        {invoice.items
-                          .filter(item => item.productId || item.name)
-                          .map((item, index) => {
-                            const statusInfo = getLineItemStatusIcon(item);
-                            return (
-                              <tr
-                                key={item.lineItemTempId || item.id || `item-${index}`}
-                                className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
-                              >
-                                {/* # */}
-                                <td className="py-2 px-2 text-center text-sm">
-                                  {index + 1}
-                                </td>
-                                {/* Product */}
-                                <td className="pl-3 pr-2 py-2">
-                                  <div>
-                                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                      {item.name || 'Unnamed Product'}
+                        <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
+                        <p className="text-sm font-medium mb-1">
+                        No line items yet
+                        </p>
+                        <p className="text-xs opacity-75">
+                        Search for products in the panel on the right and click
+                        &quot;Add to Invoice&quot;
+                        </p>
+                      </div>
+                    ) : (
+                      <table
+                        className={`min-w-full table-fixed divide-y ${
+                          isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+                        }`}
+                      >
+                        <thead className="bg-teal-600">
+                          <tr className="h-10">
+                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                            #
+                            </th>
+                            <th
+                              className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
+                              style={{ width: '35%' }}
+                            >
+                            Product
+                            </th>
+                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                            Qty
+                            </th>
+                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                            Rate
+                            </th>
+                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                            Amount
+                            </th>
+                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
+                            Status
+                            </th>
+                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody
+                          className={`divide-y ${
+                            isDarkMode
+                              ? 'bg-gray-800 divide-gray-600'
+                              : 'bg-white divide-gray-200'
+                          }`}
+                        >
+                          {invoice.items
+                            .filter((item) => item.productId || item.name)
+                            .map((item, index) => {
+                              const statusInfo = getLineItemStatusIcon(item);
+                              return (
+                                <tr
+                                  key={
+                                    item.lineItemTempId ||
+                                  item.id ||
+                                  `item-${index}`
+                                  }
+                                  className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
+                                >
+                                  {/* # */}
+                                  <td className="py-2 px-2 text-center text-sm">
+                                    {index + 1}
+                                  </td>
+                                  {/* Product */}
+                                  <td className="pl-3 pr-2 py-2">
+                                    <div>
+                                      <div
+                                        className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                      >
+                                        {item.name || 'Unnamed Product'}
+                                      </div>
+                                      {item.sourceType === 'WAREHOUSE' &&
+                                      item.allocations?.length > 0 && (
+                                        <div className="text-xs text-gray-500 mt-0.5">
+                                          {item.allocations
+                                            .slice(0, 2)
+                                            .map((alloc, i) => (
+                                              <span key={i}>
+                                                {alloc.batchNumber ||
+                                                  `Batch ${alloc.batchId}`}
+                                                :{' '}
+                                                {parseFloat(
+                                                  alloc.quantity,
+                                                ).toFixed(0)}{' '}
+                                                kg
+                                                {i <
+                                                  Math.min(
+                                                    item.allocations.length - 1,
+                                                    1,
+                                                  ) && ', '}
+                                              </span>
+                                            ))}
+                                          {item.allocations.length > 2 && (
+                                            <span className="text-teal-600">
+                                              {' '}
+                                              +{item.allocations.length -
+                                                2}{' '}
+                                              more
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                      {(item.sourceType === 'LOCAL_DROP_SHIP' ||
+                                      item.sourceType ===
+                                        'IMPORT_DROP_SHIP') && (
+                                        <div className="text-xs text-blue-500 mt-0.5">
+                                          {item.sourceType === 'LOCAL_DROP_SHIP'
+                                            ? 'Local Drop-Ship'
+                                            : 'Import Drop-Ship'}
+                                        </div>
+                                      )}
                                     </div>
-                                    {item.sourceType === 'WAREHOUSE' && item.allocations?.length > 0 && (
-                                      <div className="text-xs text-gray-500 mt-0.5">
-                                        {item.allocations.slice(0, 2).map((alloc, i) => (
-                                          <span key={i}>
-                                            {alloc.batchNumber || `Batch ${alloc.batchId}`}: {parseFloat(alloc.quantity).toFixed(0)} kg
-                                            {i < Math.min(item.allocations.length - 1, 1) && ', '}
-                                          </span>
-                                        ))}
-                                        {item.allocations.length > 2 && (
-                                          <span className="text-teal-600"> +{item.allocations.length - 2} more</span>
-                                        )}
-                                      </div>
+                                  </td>
+                                  {/* Qty */}
+                                  <td className="px-2 py-2 text-center text-sm">
+                                    {item.quantity || 0}{' '}
+                                    {item.quantityUom || 'KG'}
+                                  </td>
+                                  {/* Rate */}
+                                  <td className="px-2 py-2 text-right text-sm">
+                                    {formatCurrency(item.rate || 0)}
+                                  </td>
+                                  {/* Amount */}
+                                  <td className="px-2 py-2 text-right text-sm font-medium">
+                                    {formatCurrency(
+                                      item.amount ||
+                                      item.quantity * item.rate ||
+                                      0,
                                     )}
-                                    {(item.sourceType === 'LOCAL_DROP_SHIP' || item.sourceType === 'IMPORT_DROP_SHIP') && (
-                                      <div className="text-xs text-blue-500 mt-0.5">
-                                        {item.sourceType === 'LOCAL_DROP_SHIP' ? 'Local Drop-Ship' : 'Import Drop-Ship'}
-                                      </div>
-                                    )}
-                                  </div>
-                                </td>
-                                {/* Qty */}
-                                <td className="px-2 py-2 text-center text-sm">
-                                  {item.quantity || 0} {item.quantityUom || 'KG'}
-                                </td>
-                                {/* Rate */}
-                                <td className="px-2 py-2 text-right text-sm">
-                                  {formatCurrency(item.rate || 0)}
-                                </td>
-                                {/* Amount */}
-                                <td className="px-2 py-2 text-right text-sm font-medium">
-                                  {formatCurrency(item.amount || (item.quantity * item.rate) || 0)}
-                                </td>
-                                {/* Status Icon */}
-                                <td className="px-2 py-2 text-center">
-                                  <span
-                                    className={statusInfo.className}
-                                    title={statusInfo.title}
-                                  >
-                                    {statusInfo.icon === 'check' && (
-                                      <CheckCircle className="w-5 h-5 inline" />
-                                    )}
-                                    {statusInfo.icon === 'partial' && (
-                                      <AlertTriangle className="w-5 h-5 inline" />
-                                    )}
-                                    {statusInfo.icon === 'empty' && (
-                                      <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
-                                    )}
-                                    {statusInfo.icon === 'ship' && (
-                                      <span className="text-lg">🚢</span>
-                                    )}
-                                  </span>
-                                </td>
-                                {/* Delete */}
-                                <td className="py-2 px-2 text-center">
-                                  <button
-                                    onClick={() => {
-                                      if (window.confirm(`Delete "${item.name}"?`)) {
-                                        if (item.lineItemTempId) {
-                                          handleDeleteLineItem(item.lineItemTempId);
-                                        } else {
-                                          removeItem(invoice.items.findIndex(i => i.id === item.id));
+                                  </td>
+                                  {/* Status Icon */}
+                                  <td className="px-2 py-2 text-center">
+                                    <span
+                                      className={statusInfo.className}
+                                      title={statusInfo.title}
+                                    >
+                                      {statusInfo.icon === 'check' && (
+                                        <CheckCircle className="w-5 h-5 inline" />
+                                      )}
+                                      {statusInfo.icon === 'partial' && (
+                                        <AlertTriangle className="w-5 h-5 inline" />
+                                      )}
+                                      {statusInfo.icon === 'empty' && (
+                                        <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
+                                      )}
+                                      {statusInfo.icon === 'ship' && (
+                                        <span className="text-lg">🚢</span>
+                                      )}
+                                    </span>
+                                  </td>
+                                  {/* Delete */}
+                                  <td className="py-2 px-2 text-center">
+                                    <button
+                                      onClick={() => {
+                                        if (
+                                          window.confirm(`Delete "${item.name}"?`)
+                                        ) {
+                                          if (item.lineItemTempId) {
+                                            handleDeleteLineItem(
+                                              item.lineItemTempId,
+                                            );
+                                          } else {
+                                            removeItem(
+                                              invoice.items.findIndex(
+                                                (i) => i.id === item.id,
+                                              ),
+                                            );
+                                          }
                                         }
-                                      }
-                                    }}
-                                    className="text-gray-400 hover:text-red-500 p-1 transition-colors"
-                                    title="Delete item"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                      </tbody>
-                    </table>
-                  )}
+                                      }}
+                                      className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                                      title="Delete item"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    )}
                 </div>
               ) : (
-              /* LEGACY MODE: Editable Line Items Table */
+                /* LEGACY MODE: Editable Line Items Table */
                 <>
                   {/* Quick Add Speed Buttons - Pinned & Top Products */}
                   {formPreferences.showSpeedButtons && (
@@ -4709,11 +4876,13 @@ const InvoiceForm = ({ onSave }) => {
                       <p
                         className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                       >
-                  Quick Add (Pinned & Top Products)
+                        Quick Add (Pinned & Top Products)
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {sortedProducts.slice(0, 8).map((product) => {
-                          const isPinned = pinnedProductIds.includes(product.id);
+                          const isPinned = pinnedProductIds.includes(
+                            product.id,
+                          );
                           return (
                             <div key={product.id} className="relative group">
                               <button
@@ -4725,26 +4894,33 @@ const InvoiceForm = ({ onSave }) => {
                                   );
                                   if (
                                     existingIndex !== -1 &&
-                              existingIndex !== null
+                                    existingIndex !== null
                                   ) {
                                     // Product exists - increment quantity and recalculate amount
                                     setInvoice((prev) => {
                                       const newItems = [...prev.items];
-                                      const existingItem = newItems[existingIndex];
+                                      const existingItem =
+                                        newItems[existingIndex];
                                       const newQuantity =
-                                  (existingItem.quantity || 0) + 1;
+                                        (existingItem.quantity || 0) + 1;
                                       // Recalculate theoretical weight
                                       let theoreticalWeightKg =
-                                  existingItem.theoreticalWeightKg;
+                                        existingItem.theoreticalWeightKg;
                                       if (
                                         existingItem.unitWeightKg &&
-                                  existingItem.quantityUom === 'PCS'
+                                        existingItem.quantityUom === 'PCS'
                                       ) {
                                         theoreticalWeightKg =
-                                    newQuantity * existingItem.unitWeightKg;
-                                      } else if (existingItem.quantityUom === 'MT') {
-                                        theoreticalWeightKg = newQuantity * 1000;
-                                      } else if (existingItem.quantityUom === 'KG') {
+                                          newQuantity *
+                                          existingItem.unitWeightKg;
+                                      } else if (
+                                        existingItem.quantityUom === 'MT'
+                                      ) {
+                                        theoreticalWeightKg =
+                                          newQuantity * 1000;
+                                      } else if (
+                                        existingItem.quantityUom === 'KG'
+                                      ) {
                                         theoreticalWeightKg = newQuantity;
                                       }
                                       newItems[existingIndex] = {
@@ -4763,7 +4939,10 @@ const InvoiceForm = ({ onSave }) => {
                                     });
                                     // Trigger blink animation (3 seconds)
                                     setBlinkingRowIndex(existingIndex);
-                                    setTimeout(() => setBlinkingRowIndex(null), 3000);
+                                    setTimeout(
+                                      () => setBlinkingRowIndex(null),
+                                      3000,
+                                    );
                                     return;
                                   }
 
@@ -4779,7 +4958,8 @@ const InvoiceForm = ({ onSave }) => {
                                   }
                                   // Use handleProductSelect for consistent pricing (pricelist support)
                                   setTimeout(
-                                    () => handleProductSelect(targetIndex, product),
+                                    () =>
+                                      handleProductSelect(targetIndex, product),
                                     0,
                                   );
                                 }}
@@ -4793,10 +4973,14 @@ const InvoiceForm = ({ onSave }) => {
                                       : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                 }`}
                                 title={
-                                  product.displayName || product.display_name || 'N/A'
+                                  product.displayName ||
+                                  product.display_name ||
+                                  'N/A'
                                 }
                               >
-                                {product.uniqueName || product.unique_name || 'N/A'}
+                                {product.uniqueName ||
+                                  product.unique_name ||
+                                  'N/A'}
                               </button>
                               <button
                                 onClick={(e) => handleTogglePin(e, product.id)}
@@ -4809,7 +4993,9 @@ const InvoiceForm = ({ onSave }) => {
                                       ? 'text-gray-500 hover:text-gray-300'
                                       : 'text-gray-400 hover:text-gray-600'
                                 }`}
-                                title={isPinned ? 'Unpin product' : 'Pin product'}
+                                title={
+                                  isPinned ? 'Unpin product' : 'Pin product'
+                                }
                               >
                                 {isPinned ? (
                                   <Pin size={14} fill="currentColor" />
@@ -4835,46 +5021,46 @@ const InvoiceForm = ({ onSave }) => {
                         <tr className="h-11">
                           {/* Expand Button Column */}
                           <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
-                      #
+                            #
                           </th>
                           {/* Product Description */}
                           <th
                             className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
                             style={{ width: '38%' }}
                           >
-                      Product Description
+                            Product Description
                           </th>
                           {/* Qty */}
                           <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
-                      Qty
+                            Qty
                           </th>
                           {/* Unit Wt (kg) */}
                           <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                      Unit Wt
+                            Unit Wt
                             <span className="font-normal opacity-75 ml-0.5">
-                        (kg)
+                              (kg)
                             </span>
                           </th>
                           {/* Total Wt (kg) */}
                           <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                      Total Wt
+                            Total Wt
                             <span className="font-normal opacity-75 ml-0.5">
-                        (kg)
+                              (kg)
                             </span>
                           </th>
                           {/* Rate + Basis */}
                           <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-36">
-                      Rate + Basis
+                            Rate + Basis
                           </th>
                           {/* VAT % */}
                           <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-20">
-                      VAT %
+                            VAT %
                           </th>
                           {/* Amount */}
                           <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                      Amount
+                            Amount
                             <span className="font-normal opacity-75 ml-0.5">
-                        (AED)
+                              (AED)
                             </span>
                           </th>
                           {/* Delete */}
@@ -4892,14 +5078,20 @@ const InvoiceForm = ({ onSave }) => {
                           const tooltip = [
                             item.name ? `Name: ${item.name}` : '',
                             item.category ? `Category: ${item.category}` : '',
-                            item.commodity ? `Commodity: ${item.commodity}` : '',
+                            item.commodity
+                              ? `Commodity: ${item.commodity}`
+                              : '',
                             item.grade ? `Grade: ${item.grade}` : '',
                             item.finish ? `Finish: ${item.finish}` : '',
                             item.size ? `Size: ${item.size}` : '',
-                            item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
+                            item.sizeInch
+                              ? `Size (Inch): ${item.sizeInch}`
+                              : '',
                             item.od ? `OD: ${item.od}` : '',
                             item.length ? `Length: ${item.length}` : '',
-                            item.thickness ? `Thickness: ${item.thickness}` : '',
+                            item.thickness
+                              ? `Thickness: ${item.thickness}`
+                              : '',
                             item.unit ? `Unit: ${item.unit}` : '',
                             item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                           ]
@@ -4907,7 +5099,7 @@ const InvoiceForm = ({ onSave }) => {
                             .join('\n');
                           const isExpanded = expandedAllocations.has(index);
                           const hasAllocations =
-                      item.allocations && item.allocations.length > 0;
+                            item.allocations && item.allocations.length > 0;
                           const uomConversionText = getUomConversionText(item);
 
                           return (
@@ -4918,7 +5110,9 @@ const InvoiceForm = ({ onSave }) => {
                                   {item.productId && (
                                     <button
                                       type="button"
-                                      onClick={() => toggleAllocationPanel(index)}
+                                      onClick={() =>
+                                        toggleAllocationPanel(index)
+                                      }
                                       className={
                                         isExpanded
                                           ? 'text-teal-600 p-0.5'
@@ -4968,9 +5162,14 @@ const InvoiceForm = ({ onSave }) => {
                                         )
                                         : null
                                     }
-                                    inputValue={searchInputs[index] || item.name || ''}
+                                    inputValue={
+                                      searchInputs[index] || item.name || ''
+                                    }
                                     onInputChange={(event, newInputValue) => {
-                                      handleSearchInputChange(index, newInputValue);
+                                      handleSearchInputChange(
+                                        index,
+                                        newInputValue,
+                                      );
                                     }}
                                     onChange={(event, newValue) => {
                                       if (newValue) {
@@ -4984,13 +5183,15 @@ const InvoiceForm = ({ onSave }) => {
                                       <div>
                                         <div className="font-medium">
                                           {option.displayName ||
-                                      option.display_name ||
-                                      option.uniqueName ||
-                                      option.unique_name ||
-                                      option.name}
+                                            option.display_name ||
+                                            option.uniqueName ||
+                                            option.unique_name ||
+                                            option.name}
                                         </div>
                                         <div className="text-sm text-gray-500">
-                                          {option.origin ? `${option.origin} • ` : ''}
+                                          {option.origin
+                                            ? `${option.origin} • `
+                                            : ''}
                                           {option.subtitle}
                                         </div>
                                       </div>
@@ -5022,7 +5223,9 @@ const InvoiceForm = ({ onSave }) => {
                                   <input
                                     type="number"
                                     value={
-                                      item.unitWeightKg || item.unit_weight_kg || ''
+                                      item.unitWeightKg ||
+                                      item.unit_weight_kg ||
+                                      ''
                                     }
                                     onChange={(e) =>
                                       handleItemChange(
@@ -5148,7 +5351,7 @@ const InvoiceForm = ({ onSave }) => {
                                       <div className="flex items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
                                           <h4 className="text-sm font-semibold text-gray-700">
-                                      Stock Allocation Details
+                                            Stock Allocation Details
                                           </h4>
                                           {/* P0: Source Type Selector with auto-selection */}
                                           <SourceTypeSelector
@@ -5156,17 +5359,29 @@ const InvoiceForm = ({ onSave }) => {
                                             data-testid={`source-type-${index}`}
                                             value={(() => {
                                               // Auto-select based on stock availability
-                                              const currentSourceType = item.sourceType;
-                                              if (currentSourceType) return currentSourceType;
+                                              const currentSourceType =
+                                                item.sourceType;
+                                              if (currentSourceType)
+                                                return currentSourceType;
 
-                                              const stockData = productBatchData[item.productId];
+                                              const stockData =
+                                                productBatchData[
+                                                  item.productId
+                                                ];
                                               // Use totalStock from batchData (cached, accurate)
-                                              const totalStock = stockData?.totalStock ?? 0;
+                                              const totalStock =
+                                                stockData?.totalStock ?? 0;
 
-                                              return totalStock === 0 ? 'LOCAL_DROP_SHIP' : 'WAREHOUSE';
+                                              return totalStock === 0
+                                                ? 'LOCAL_DROP_SHIP'
+                                                : 'WAREHOUSE';
                                             })()}
                                             onChange={(sourceType) =>
-                                              handleItemChange(index, 'sourceType', sourceType)
+                                              handleItemChange(
+                                                index,
+                                                'sourceType',
+                                                sourceType,
+                                              )
                                             }
                                             disabled={false}
                                           />
@@ -5174,16 +5389,28 @@ const InvoiceForm = ({ onSave }) => {
                                         {/* Stock availability display - all warehouses */}
                                         <div className="flex items-center gap-1">
                                           <span className="text-xs text-gray-500">
-                                      Stock availability:
+                                            Stock availability:
                                           </span>
-                                          <div className="flex items-center gap-4 ml-2" data-testid={`allocation-stock-warehouses-${index}`}>
+                                          <div
+                                            className="flex items-center gap-4 ml-2"
+                                            data-testid={`allocation-stock-warehouses-${index}`}
+                                          >
                                             {warehouses.map((wh) => {
                                               // Get real stock from productBatchData
-                                              const stockByWarehouse = productBatchData[item.productId]?.stockByWarehouse || {};
+                                              const stockByWarehouse =
+                                                productBatchData[item.productId]
+                                                  ?.stockByWarehouse || {};
                                               // CRITICAL: Normalize wh.id to string to match stockByWarehouse keys
-                                              const stockQty = stockByWarehouse[String(wh.id)] || 0;
+                                              const stockQty =
+                                                stockByWarehouse[
+                                                  String(wh.id)
+                                                ] || 0;
                                               const hasStock = stockQty > 0;
-                                              const isLoading = item.productId && !productBatchData[item.productId];
+                                              const isLoading =
+                                                item.productId &&
+                                                !productBatchData[
+                                                  item.productId
+                                                ];
                                               return (
                                                 <span
                                                   key={wh.id}
@@ -5204,7 +5431,9 @@ const InvoiceForm = ({ onSave }) => {
                                                           : 'text-red-500 font-bold'
                                                     }
                                                   >
-                                                    {isLoading ? '...' : stockQty}
+                                                    {isLoading
+                                                      ? '...'
+                                                      : stockQty}
                                                   </span>
                                                 </span>
                                               );
@@ -5214,207 +5443,252 @@ const InvoiceForm = ({ onSave }) => {
                                       </div>
 
                                       {/* P0: Conditional rendering based on sourceType */}
-                                      {(item.sourceType || 'WAREHOUSE') === 'WAREHOUSE' ? (
-                                      /* Batch Allocation Table - only show for WAREHOUSE */
-                                        <div className="border border-gray-200 rounded-lg overflow-hidden" data-testid={`allocation-panel-${index}`}>
-                                          <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
-                                            <span className="text-xs font-semibold text-gray-600">
-                                        Batch Allocation
-                                            </span>
-                                            {(() => {
-                                              const allocatedQty = (
-                                                item.manualAllocations || []
-                                              ).reduce(
-                                                (sum, a) =>
-                                                  sum + (a.allocatedQty || 0),
-                                                0,
-                                              );
-                                              const requiredQty = item.quantity || 0;
+                                      {(item.sourceType || 'WAREHOUSE') ===
+                                      'WAREHOUSE' ? (
+                                        /* Batch Allocation Table - only show for WAREHOUSE */
+                                          <div
+                                            className="border border-gray-200 rounded-lg overflow-hidden"
+                                            data-testid={`allocation-panel-${index}`}
+                                          >
+                                            <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
+                                              <span className="text-xs font-semibold text-gray-600">
+                                              Batch Allocation
+                                              </span>
+                                              {(() => {
+                                                const allocatedQty = (
+                                                  item.manualAllocations || []
+                                                ).reduce(
+                                                  (sum, a) =>
+                                                    sum + (a.allocatedQty || 0),
+                                                  0,
+                                                );
+                                                const requiredQty =
+                                                item.quantity || 0;
 
-                                              return (
-                                                <span className="text-xs text-gray-500">
-                                            Allocated:{' '}
-                                                  <strong className="text-teal-600">
-                                                    {allocatedQty}
-                                                  </strong>{' '}
-                                            / Required: {requiredQty}
-                                                </span>
-                                              );
-                                            })()}
-                                          </div>
-                                          <table className="min-w-full text-xs" data-testid={`batch-allocation-table-${index}`}>
-                                            <thead className="bg-gray-50">
-                                              <tr>
-                                                <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                            Batch #
-                                                </th>
-                                                <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                            GRN Date
-                                                </th>
-                                                <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                            Channel
-                                                </th>
-                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Available
-                                                </th>
-                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Allocated
-                                                </th>
-                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Cost/Unit
-                                                </th>
-                                                <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                            Actions
-                                                </th>
-                                              </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-100 bg-white">
-                                              {(item.manualAllocations || []).map(
-                                                (allocation, allocIndex) => (
-                                                  <tr key={allocIndex}>
-                                                    <td className="px-3 py-2 font-mono text-gray-700">
-                                                      {allocation.batchNumber ||
-                                                  'BTH-2024-003421'}
-                                                    </td>
-                                                    <td className="px-3 py-2 text-gray-600">
-                                                      {allocation.grnDate ||
-                                                  '2024-11-28'}
-                                                    </td>
-                                                    <td className="px-3 py-2">
-                                                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                                        (allocation.procurementChannel || 'LOCAL') === 'LOCAL'
-                                                          ? 'bg-green-100 text-green-800'
-                                                          : 'bg-blue-100 text-blue-800'
-                                                      }`}>
-                                                        {allocation.procurementChannel || 'LOCAL'}
-                                                      </span>
-                                                    </td>
-                                                    <td className="px-3 py-2 text-right text-gray-700">
-                                                      {allocation.availableQty || 0}
-                                                    </td>
-                                                    <td className="px-3 py-2 text-right">
-                                                      <input
-                                                        type="number"
-                                                        value={
-                                                          allocation.allocatedQty || 0
-                                                        }
-                                                        onChange={(e) => {
-                                                          const newAllocations = [
-                                                            ...(item.manualAllocations ||
-                                                        []),
-                                                          ];
-                                                          newAllocations[allocIndex] =
-                                                      {
-                                                        ...newAllocations[
-                                                          allocIndex
-                                                        ],
-                                                        allocatedQty:
-                                                          parseFloat(
-                                                            e.target.value,
-                                                          ) || 0,
-                                                      };
-                                                          handleItemChange(
-                                                            index,
-                                                            'manualAllocations',
-                                                            newAllocations,
-                                                          );
-                                                        }}
-                                                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
-                                                      />
-                                                    </td>
-                                                    <td className="px-3 py-2 text-right text-gray-600">
-                                                      {allocation.costPerUnit?.toFixed(
-                                                        2,
-                                                      ) || '0.00'}
-                                                    </td>
-                                                    <td className="px-3 py-2 text-right">
-                                                      <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                          const newAllocations = (
-                                                            item.manualAllocations ||
-                                                      []
-                                                          ).filter(
-                                                            (_, i) =>
-                                                              i !== allocIndex,
-                                                          );
-                                                          handleItemChange(
-                                                            index,
-                                                            'manualAllocations',
-                                                            newAllocations,
-                                                          );
-                                                        }}
-                                                        className="text-red-500 hover:text-red-700 text-xs"
-                                                      >
-                                                  Remove
-                                                      </button>
+                                                return (
+                                                  <span className="text-xs text-gray-500">
+                                                  Allocated:{' '}
+                                                    <strong className="text-teal-600">
+                                                      {allocatedQty}
+                                                    </strong>{' '}
+                                                  / Required: {requiredQty}
+                                                  </span>
+                                                );
+                                              })()}
+                                            </div>
+                                            <table
+                                              className="min-w-full text-xs"
+                                              data-testid={`batch-allocation-table-${index}`}
+                                            >
+                                              <thead className="bg-gray-50">
+                                                <tr>
+                                                  <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                  Batch #
+                                                  </th>
+                                                  <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                  GRN Date
+                                                  </th>
+                                                  <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                  Channel
+                                                  </th>
+                                                  <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                  Available
+                                                  </th>
+                                                  <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                  Allocated
+                                                  </th>
+                                                  <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                  Cost/Unit
+                                                  </th>
+                                                  <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                  Actions
+                                                  </th>
+                                                </tr>
+                                              </thead>
+                                              <tbody className="divide-y divide-gray-100 bg-white">
+                                                {(
+                                                  item.manualAllocations || []
+                                                ).map(
+                                                  (allocation, allocIndex) => (
+                                                    <tr key={allocIndex}>
+                                                      <td className="px-3 py-2 font-mono text-gray-700">
+                                                        {allocation.batchNumber ||
+                                                        'BTH-2024-003421'}
+                                                      </td>
+                                                      <td className="px-3 py-2 text-gray-600">
+                                                        {allocation.grnDate ||
+                                                        '2024-11-28'}
+                                                      </td>
+                                                      <td className="px-3 py-2">
+                                                        <span
+                                                          className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                                            (allocation.procurementChannel ||
+                                                            'LOCAL') === 'LOCAL'
+                                                              ? 'bg-green-100 text-green-800'
+                                                              : 'bg-blue-100 text-blue-800'
+                                                          }`}
+                                                        >
+                                                          {allocation.procurementChannel ||
+                                                          'LOCAL'}
+                                                        </span>
+                                                      </td>
+                                                      <td className="px-3 py-2 text-right text-gray-700">
+                                                        {allocation.availableQty ||
+                                                        0}
+                                                      </td>
+                                                      <td className="px-3 py-2 text-right">
+                                                        <input
+                                                          type="number"
+                                                          value={
+                                                            allocation.allocatedQty ||
+                                                          0
+                                                          }
+                                                          onChange={(e) => {
+                                                            const newAllocations =
+                                                            [
+                                                              ...(item.manualAllocations ||
+                                                                []),
+                                                            ];
+                                                            newAllocations[
+                                                              allocIndex
+                                                            ] = {
+                                                              ...newAllocations[
+                                                                allocIndex
+                                                              ],
+                                                              allocatedQty:
+                                                              parseFloat(
+                                                                e.target.value,
+                                                              ) || 0,
+                                                            };
+                                                            handleItemChange(
+                                                              index,
+                                                              'manualAllocations',
+                                                              newAllocations,
+                                                            );
+                                                          }}
+                                                          className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                                                        />
+                                                      </td>
+                                                      <td className="px-3 py-2 text-right text-gray-600">
+                                                        {allocation.costPerUnit?.toFixed(
+                                                          2,
+                                                        ) || '0.00'}
+                                                      </td>
+                                                      <td className="px-3 py-2 text-right">
+                                                        <button
+                                                          type="button"
+                                                          onClick={() => {
+                                                            const newAllocations =
+                                                            (
+                                                              item.manualAllocations ||
+                                                              []
+                                                            ).filter(
+                                                              (_, i) =>
+                                                                i !==
+                                                                allocIndex,
+                                                            );
+                                                            handleItemChange(
+                                                              index,
+                                                              'manualAllocations',
+                                                              newAllocations,
+                                                            );
+                                                          }}
+                                                          className="text-red-500 hover:text-red-700 text-xs"
+                                                        >
+                                                        Remove
+                                                        </button>
+                                                      </td>
+                                                    </tr>
+                                                  ),
+                                                )}
+                                                {(!item.manualAllocations ||
+                                                item.manualAllocations
+                                                  .length === 0) && (
+                                                  <tr>
+                                                    <td
+                                                      colSpan="7"
+                                                      className="px-3 py-4 text-center text-gray-500 text-xs"
+                                                    >
+                                                    No batches allocated. Click
+                                                    &quot;Add Batch&quot; or
+                                                    &quot;Auto-Allocate
+                                                    (FIFO)&quot; below.
                                                     </td>
                                                   </tr>
-                                                ),
-                                              )}
-                                              {(!item.manualAllocations ||
-                                          item.manualAllocations.length ===
-                                            0) && (
-                                                <tr>
-                                                  <td
-                                                    colSpan="7"
-                                                    className="px-3 py-4 text-center text-gray-500 text-xs"
-                                                  >
-                                              No batches allocated. Click &quot;Add
-                                              Batch&quot; or &quot;Auto-Allocate (FIFO)&quot;
-                                              below.
-                                                  </td>
-                                                </tr>
-                                              )}
-                                            </tbody>
-                                          </table>
-                                          <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
-                                            <button
-                                              type="button"
-                                              onClick={() => {
+                                                )}
+                                              </tbody>
+                                            </table>
+                                            <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
+                                              <button
+                                                type="button"
+                                                onClick={() => {
                                                 // TODO: Implement add batch modal
-                                                console.log(
-                                                  'Add batch clicked for item index:',
-                                                  index,
-                                                );
-                                              }}
-                                              className="text-xs text-teal-600 hover:text-teal-800 font-medium"
-                                            >
-                                        + Add Batch
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={async () => {
+                                                  console.log(
+                                                    'Add batch clicked for item index:',
+                                                    index,
+                                                  );
+                                                }}
+                                                className="text-xs text-teal-600 hover:text-teal-800 font-medium"
+                                              >
+                                              + Add Batch
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={async () => {
                                                 // Re-apply FIFO auto-allocation (useful after manual changes)
-                                                await applyAutoAllocation(index, item.productId, item.quantity || 1);
-                                              }}
-                                              disabled={(item.sourceType || 'WAREHOUSE') !== 'WAREHOUSE'}
-                                              className={`text-xs px-3 py-1 rounded transition-colors ${
-                                                (item.sourceType || 'WAREHOUSE') === 'WAREHOUSE'
-                                                  ? 'bg-teal-600 text-white hover:bg-teal-700'
-                                                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                              }`}
-                                            >
-                                        Auto-Allocate (FIFO)
-                                            </button>
+                                                  await applyAutoAllocation(
+                                                    index,
+                                                    item.productId,
+                                                    item.quantity || 1,
+                                                  );
+                                                }}
+                                                disabled={
+                                                  (item.sourceType ||
+                                                  'WAREHOUSE') !== 'WAREHOUSE'
+                                                }
+                                                className={`text-xs px-3 py-1 rounded transition-colors ${
+                                                  (item.sourceType ||
+                                                  'WAREHOUSE') === 'WAREHOUSE'
+                                                    ? 'bg-teal-600 text-white hover:bg-teal-700'
+                                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                }`}
+                                              >
+                                              Auto-Allocate (FIFO)
+                                              </button>
+                                            </div>
                                           </div>
-                                        </div>
-                                      ) : (
-                                      /* P0: Drop-ship indicator for non-warehouse items */
-                                        <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                                          <div className="flex items-center gap-2">
-                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                            </svg>
-                                            <span className="text-sm font-medium text-blue-800">
-                                              {(item.sourceType || 'WAREHOUSE') === 'LOCAL_DROP_SHIP' ? 'Local Drop Ship' : 'Import Drop Ship'}
-                                            </span>
+                                        ) : (
+                                        /* P0: Drop-ship indicator for non-warehouse items */
+                                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                            <div className="flex items-center gap-2">
+                                              <svg
+                                                className="w-5 h-5 text-blue-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                              >
+                                                <path
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth={2}
+                                                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                                                />
+                                              </svg>
+                                              <span className="text-sm font-medium text-blue-800">
+                                                {(item.sourceType ||
+                                                'WAREHOUSE') ===
+                                              'LOCAL_DROP_SHIP'
+                                                  ? 'Local Drop Ship'
+                                                  : 'Import Drop Ship'}
+                                              </span>
+                                            </div>
+                                            <p className="text-xs text-blue-700 mt-1 ml-7">
+                                            Goods will be shipped directly from
+                                            supplier to customer. No warehouse
+                                            allocation needed.
+                                            </p>
                                           </div>
-                                          <p className="text-xs text-blue-700 mt-1 ml-7">
-                                      Goods will be shipped directly from supplier to customer. No warehouse allocation needed.
-                                          </p>
-                                        </div>
-                                      )}
+                                        )}
                                     </div>
                                   </td>
                                 </tr>
@@ -5422,60 +5696,62 @@ const InvoiceForm = ({ onSave }) => {
 
                               {/* Keep existing AllocationPanel for locked/existing invoices */}
                               {isExpanded &&
-                          item.productId &&
-                          id && // Only show for existing invoices
-                          (() => {
-                            const allocationsData = hasAllocations
-                              ? item.allocations
-                              : [];
-                            const lockedAllocation = allocationsData.find(
-                              (a) =>
-                                a.consumed_by_delivery_note_id ||
-                                a.consumedByDeliveryNoteId,
-                            );
-                            const isBatchLocked = !!lockedAllocation;
+                                item.productId &&
+                                id && // Only show for existing invoices
+                                (() => {
+                                  const allocationsData = hasAllocations
+                                    ? item.allocations
+                                    : [];
+                                  const lockedAllocation = allocationsData.find(
+                                    (a) =>
+                                      a.consumed_by_delivery_note_id ||
+                                      a.consumedByDeliveryNoteId,
+                                  );
+                                  const isBatchLocked = !!lockedAllocation;
 
-                            if (isBatchLocked) {
-                              return (
-                                <tr key={`${item.id}-allocation-readonly`}>
-                                  <td
-                                    colSpan="9"
-                                    className="bg-gray-50 px-4 py-3"
-                                  >
-                                    <AllocationPanel
-                                      productId={item.productId}
-                                      warehouseId={
-                                        item.warehouseId ||
-                                        invoice.warehouseId ||
-                                        null
-                                      }
-                                      requiredQty={item.quantity || 0}
-                                      allocations={allocationsData}
-                                      disabled={true}
-                                      isNewInvoice={!id}
-                                      isLocked={isBatchLocked}
-                                      deliveryNoteNumber={
-                                        lockedAllocation?.delivery_note_number ||
-                                        lockedAllocation?.deliveryNoteNumber ||
-                                        null
-                                      }
-                                      invoiceItemId={item.id}
-                                      onReallocationComplete={(
-                                        newAllocations,
-                                      ) => {
-                                        // Update local allocations state after reallocation
-                                        setItemAllocations((prev) => ({
-                                          ...prev,
-                                          [item.id]: newAllocations,
-                                        }));
-                                      }}
-                                    />
-                                  </td>
-                                </tr>
-                              );
-                            }
-                            return null;
-                          })()}
+                                  if (isBatchLocked) {
+                                    return (
+                                      <tr
+                                        key={`${item.id}-allocation-readonly`}
+                                      >
+                                        <td
+                                          colSpan="9"
+                                          className="bg-gray-50 px-4 py-3"
+                                        >
+                                          <AllocationPanel
+                                            productId={item.productId}
+                                            warehouseId={
+                                              item.warehouseId ||
+                                              invoice.warehouseId ||
+                                              null
+                                            }
+                                            requiredQty={item.quantity || 0}
+                                            allocations={allocationsData}
+                                            disabled={true}
+                                            isNewInvoice={!id}
+                                            isLocked={isBatchLocked}
+                                            deliveryNoteNumber={
+                                              lockedAllocation?.delivery_note_number ||
+                                              lockedAllocation?.deliveryNoteNumber ||
+                                              null
+                                            }
+                                            invoiceItemId={item.id}
+                                            onReallocationComplete={(
+                                              newAllocations,
+                                            ) => {
+                                              // Update local allocations state after reallocation
+                                              setItemAllocations((prev) => ({
+                                                ...prev,
+                                                [item.id]: newAllocations,
+                                              }));
+                                            }}
+                                          />
+                                        </td>
+                                      </tr>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                             </Fragment>
                           );
                         })}
@@ -5514,7 +5790,7 @@ const InvoiceForm = ({ onSave }) => {
                                 isDarkMode ? 'text-white' : 'text-gray-900'
                               }`}
                             >
-                        Item #{index + 1}
+                              Item #{index + 1}
                             </h4>
                             <button
                               onClick={() => removeItem(index)}
@@ -5542,7 +5818,9 @@ const InvoiceForm = ({ onSave }) => {
                                   )
                                   : null
                               }
-                              inputValue={searchInputs[index] || item.name || ''}
+                              inputValue={
+                                searchInputs[index] || item.name || ''
+                              }
                               onInputChange={(event, newInputValue) => {
                                 handleSearchInputChange(index, newInputValue);
                               }}
@@ -5560,10 +5838,10 @@ const InvoiceForm = ({ onSave }) => {
                                 <div>
                                   <div className="font-medium">
                                     {option.displayName ||
-                                option.display_name ||
-                                option.uniqueName ||
-                                option.unique_name ||
-                                option.name}
+                                      option.display_name ||
+                                      option.uniqueName ||
+                                      option.unique_name ||
+                                      option.name}
                                   </div>
                                   <div className="text-sm text-gray-500">
                                     {option.origin ? `${option.origin} • ` : ''}
@@ -5599,7 +5877,9 @@ const InvoiceForm = ({ onSave }) => {
                                   step="1"
                                   inputMode="numeric"
                                   pattern="[0-9]*"
-                                  error={invalidFields.has(`item.${index}.quantity`)}
+                                  error={invalidFields.has(
+                                    `item.${index}.quantity`,
+                                  )}
                                   onKeyDown={(e) => {
                                     const allow = [
                                       'Backspace',
@@ -5614,8 +5894,8 @@ const InvoiceForm = ({ onSave }) => {
                                     ];
                                     if (
                                       allow.includes(e.key) ||
-                                e.ctrlKey ||
-                                e.metaKey
+                                      e.ctrlKey ||
+                                      e.metaKey
                                     ) {
                                       return;
                                     }
@@ -5665,7 +5945,7 @@ const InvoiceForm = ({ onSave }) => {
                                   htmlFor={`supply-type-${index}`}
                                   className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                                 >
-                            Supply Type
+                                  Supply Type
                                 </label>
                                 <select
                                   id={`supply-type-${index}`}
@@ -5718,7 +5998,7 @@ const InvoiceForm = ({ onSave }) => {
                                   isDarkMode ? 'text-white' : 'text-gray-900'
                                 }`}
                               >
-                          Amount: {formatCurrency(item.amount)}
+                                Amount: {formatCurrency(item.amount)}
                               </span>
                             </div>
                           </div>
@@ -5731,7 +6011,7 @@ const InvoiceForm = ({ onSave }) => {
                           isDarkMode ? 'text-gray-400' : 'text-gray-600'
                         }`}
                       >
-                  Showing first 10 items. Add more items as needed.
+                        Showing first 10 items. Add more items as needed.
                       </div>
                     )}
                   </div>
@@ -5830,7 +6110,7 @@ const InvoiceForm = ({ onSave }) => {
                       className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
                     />
                     <span className="text-sm font-medium flex items-center gap-1">
-                    Export Invoice (0% VAT)
+                      Export Invoice (0% VAT)
                       <VatHelpIcon
                         content={[
                           'Enable for supplies outside GCC to apply zero-rated VAT treatment under UAE VAT Article 45.',
@@ -5875,7 +6155,7 @@ const InvoiceForm = ({ onSave }) => {
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                      VAT: {formatCurrency(invoice.packingChargesVat || 0)}{' '}
+                        VAT: {formatCurrency(invoice.packingChargesVat || 0)}{' '}
                         {invoice.isExport ? '(0% export)' : '(5%)'}
                       </div>
                     </div>
@@ -5906,7 +6186,7 @@ const InvoiceForm = ({ onSave }) => {
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                      VAT: {formatCurrency(invoice.freightChargesVat || 0)}{' '}
+                        VAT: {formatCurrency(invoice.freightChargesVat || 0)}{' '}
                         {invoice.isExport ? '(0% export)' : '(5%)'}
                       </div>
                     </div>
@@ -5937,7 +6217,7 @@ const InvoiceForm = ({ onSave }) => {
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                      VAT: {formatCurrency(invoice.insuranceChargesVat || 0)}{' '}
+                        VAT: {formatCurrency(invoice.insuranceChargesVat || 0)}{' '}
                         {invoice.isExport ? '(0% export)' : '(5%)'}
                       </div>
                     </div>
@@ -5968,7 +6248,7 @@ const InvoiceForm = ({ onSave }) => {
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                      VAT: {formatCurrency(invoice.loadingChargesVat || 0)}{' '}
+                        VAT: {formatCurrency(invoice.loadingChargesVat || 0)}{' '}
                         {invoice.isExport ? '(0% export)' : '(5%)'}
                       </div>
                     </div>
@@ -5999,7 +6279,7 @@ const InvoiceForm = ({ onSave }) => {
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                      VAT: {formatCurrency(invoice.otherChargesVat || 0)}{' '}
+                        VAT: {formatCurrency(invoice.otherChargesVat || 0)}{' '}
                         {invoice.isExport ? '(0% export)' : '(5%)'}
                       </div>
                     </div>
@@ -6015,7 +6295,7 @@ const InvoiceForm = ({ onSave }) => {
                           isDarkMode ? 'text-gray-400' : 'text-teal-700'
                         }`}
                       >
-                      Total Charges VAT
+                        Total Charges VAT
                       </div>
                       <div
                         className={`text-lg font-bold ${
@@ -6024,15 +6304,15 @@ const InvoiceForm = ({ onSave }) => {
                       >
                         {formatCurrency(
                           (invoice.packingChargesVat || 0) +
-                          (invoice.freightChargesVat || 0) +
-                          (invoice.insuranceChargesVat || 0) +
-                          (invoice.loadingChargesVat || 0) +
-                          (invoice.otherChargesVat || 0),
+                            (invoice.freightChargesVat || 0) +
+                            (invoice.insuranceChargesVat || 0) +
+                            (invoice.loadingChargesVat || 0) +
+                            (invoice.otherChargesVat || 0),
                         )}
                       </div>
                       {invoice.isExport && (
                         <div className="text-xs text-amber-600 mt-1">
-                        Zero-rated for export
+                          Zero-rated for export
                         </div>
                       )}
                     </div>
@@ -6052,7 +6332,7 @@ const InvoiceForm = ({ onSave }) => {
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
-                Summary & Totals
+                  Summary & Totals
                 </h3>
                 <div>
                   <div className="space-y-4">
@@ -6114,7 +6394,7 @@ const InvoiceForm = ({ onSave }) => {
                             placeholder="0.00"
                             inputMode="decimal"
                             onKeyDown={(e) => {
-                            // Disallow exponent & plus/minus signs
+                              // Disallow exponent & plus/minus signs
                               const blocked = ['e', 'E', '+', '-'];
                               if (blocked.includes(e.key)) e.preventDefault();
                             }}
@@ -6167,7 +6447,7 @@ const InvoiceForm = ({ onSave }) => {
                       >
                         <span>Discount:</span>
                         <span className="font-medium text-red-500">
-                        -{formatCurrency(computedDiscountAmount)}
+                          -{formatCurrency(computedDiscountAmount)}
                         </span>
                       </div>
                     )}
@@ -6194,7 +6474,7 @@ const InvoiceForm = ({ onSave }) => {
                             isDarkMode ? 'text-white' : 'text-gray-900'
                           }`}
                         >
-                        Total:
+                          Total:
                         </span>
                         <span className="text-lg font-bold text-teal-400">
                           {formatCurrency(computedTotal)}
@@ -6206,8 +6486,8 @@ const InvoiceForm = ({ onSave }) => {
                     <p
                       className={`text-xs mt-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                     >
-                    Payments are recorded after invoice creation via the Payment
-                    Drawer
+                      Payments are recorded after invoice creation via the
+                      Payment Drawer
                     </p>
                   </div>
                 </div>
@@ -6224,7 +6504,7 @@ const InvoiceForm = ({ onSave }) => {
                       isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
-                  Notes
+                    Notes
                   </h3>
                   <Textarea
                     value={invoice.notes}
@@ -6275,7 +6555,7 @@ const InvoiceForm = ({ onSave }) => {
                   <p
                     className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
-                  Required when items are zero-rated or exempt from VAT
+                    Required when items are zero-rated or exempt from VAT
                   </p>
                 </div>
 
@@ -6293,7 +6573,7 @@ const InvoiceForm = ({ onSave }) => {
                       isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
-                  Payment Terms & Conditions
+                    Payment Terms & Conditions
                   </h3>
                   <Textarea
                     value={invoice.terms}
@@ -6321,7 +6601,9 @@ const InvoiceForm = ({ onSave }) => {
               }`}
             >
               <AllocationDrawer
-                draftInvoiceId={typeof invoice.id === 'number' ? invoice.id : null}
+                draftInvoiceId={
+                  typeof invoice.id === 'number' ? invoice.id : null
+                }
                 warehouseId={
                   invoice.warehouseId
                     ? parseInt(invoice.warehouseId, 10)

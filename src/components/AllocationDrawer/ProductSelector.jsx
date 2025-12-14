@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { productsAPI } from '../../services/api';
 
@@ -8,7 +8,7 @@ import { productsAPI } from '../../services/api';
  * Autocomplete search for products with debounced API calls.
  * Displays product name in standard format with grade, form, and dimensions.
  */
-const ProductSelector = ({ companyId, selectedProduct, onSelectProduct }) => {
+const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProduct }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -20,29 +20,28 @@ const ProductSelector = ({ companyId, selectedProduct, onSelectProduct }) => {
   const debounceRef = useRef(null);
 
   // Search products with debounce
-  const searchProducts = useCallback(
-    async (query) => {
-      if (!query || query.length < 2) {
-        setProducts([]);
-        return;
-      }
+  const searchProducts = useCallback(async (query) => {
+    if (!query || query.length < 2) {
+      setProducts([]);
+      return;
+    }
 
-      setLoading(true);
-      try {
-        const response = await productsAPI.search(query);
-        // Handle different response formats
-        const productList =
-          response?.data || response?.products || (Array.isArray(response) ? response : []);
-        setProducts(productList.slice(0, 20)); // Limit to 20 results
-      } catch (error) {
-        console.error('Failed to search products:', error);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [companyId],
-  );
+    setLoading(true);
+    try {
+      const response = await productsAPI.search(query);
+      // Handle different response formats
+      const productList =
+        response?.data ||
+        response?.products ||
+        (Array.isArray(response) ? response : []);
+      setProducts(productList.slice(0, 20)); // Limit to 20 results
+    } catch (error) {
+      console.error('Failed to search products:', error);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Handle input change with debounce
   const handleInputChange = useCallback(
@@ -69,7 +68,9 @@ const ProductSelector = ({ companyId, selectedProduct, onSelectProduct }) => {
   const handleSelect = useCallback(
     (product) => {
       onSelectProduct(product);
-      setSearchTerm(product.displayName || product.uniqueName || product.name || '');
+      setSearchTerm(
+        product.displayName || product.uniqueName || product.name || '',
+      );
       setShowDropdown(false);
       setProducts([]);
     },
@@ -84,11 +85,15 @@ const ProductSelector = ({ companyId, selectedProduct, onSelectProduct }) => {
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          setHighlightedIndex((prev) => (prev < products.length - 1 ? prev + 1 : 0));
+          setHighlightedIndex((prev) =>
+            prev < products.length - 1 ? prev + 1 : 0,
+          );
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : products.length - 1));
+          setHighlightedIndex((prev) =>
+            prev > 0 ? prev - 1 : products.length - 1,
+          );
           break;
         case 'Enter':
           e.preventDefault();
@@ -194,18 +199,33 @@ const ProductSelector = ({ companyId, selectedProduct, onSelectProduct }) => {
           {products.map((product, index) => (
             <div
               key={product.id}
+              role="button"
+              tabIndex={0}
               className={`product-option ${index === highlightedIndex ? 'highlighted' : ''}`}
               onClick={() => handleSelect(product)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSelect(product);
+                }
+              }}
               onMouseEnter={() => setHighlightedIndex(index)}
             >
-              <div className="product-name">{formatProductDisplay(product)}</div>
-              <div className="product-details">{formatProductDetails(product)}</div>
+              <div className="product-name">
+                {formatProductDisplay(product)}
+              </div>
+              <div className="product-details">
+                {formatProductDetails(product)}
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {showDropdown && searchTerm.length >= 2 && products.length === 0 && !loading && (
+      {showDropdown &&
+        searchTerm.length >= 2 &&
+        products.length === 0 &&
+        !loading && (
         <div ref={dropdownRef} className="product-dropdown empty">
           <div className="product-option disabled">No products found</div>
         </div>

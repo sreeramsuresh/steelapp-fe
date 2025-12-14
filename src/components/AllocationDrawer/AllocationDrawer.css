@@ -116,7 +116,9 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .drawer-form-group input:focus,
@@ -173,7 +175,9 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .product-search-container input:focus {
@@ -292,7 +296,7 @@
   cursor: not-allowed;
 }
 
-.source-type-option input[type='radio'] {
+.source-type-option input[type="radio"] {
   margin: 0;
   width: 16px;
   height: 16px;
@@ -613,7 +617,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -656,7 +661,7 @@
 .timer-value {
   font-size: 18px;
   font-weight: 600;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .timer-normal .timer-value {
