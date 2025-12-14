@@ -44,7 +44,8 @@ export const supplierService = {
     try {
       const res = await apiClient.get('/suppliers', params);
       const suppliers = res.suppliers || res.items || res || [];
-      return { suppliers };
+      const pageInfo = res.pageInfo || {};
+      return { suppliers, pageInfo };
     } catch (e) {
       return { suppliers: ls.all() };
     }

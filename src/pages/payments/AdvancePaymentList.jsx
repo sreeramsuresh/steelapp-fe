@@ -117,7 +117,7 @@ const AdvancePaymentList = () => {
   useEffect(() => {
     const loadCustomers = async () => {
       try {
-        const response = await customerService.getCustomers();
+        const response = await customerService.getCustomers({ status: 'active', limit: 1000 });
         setCustomers(response.customers || response || []);
       } catch (error) {
         console.error('Failed to load customers:', error);

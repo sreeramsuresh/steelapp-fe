@@ -20,10 +20,10 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import {
   quotationsAPI,
-  customersAPI,
   productsAPI,
   apiClient,
 } from '../services/api';
+import { customerService } from '../services/customerService';
 import pricelistService from '../services/pricelistService';
 import { formatCurrency, calculateItemAmount } from '../utils/invoiceUtils';
 import { STEEL_GRADES, FINISHES } from '../types';
@@ -296,7 +296,7 @@ const QuotationForm = () => {
       try {
         const [customersResponse, productsResponse, warehousesResponse] =
           await Promise.all([
-            customersAPI.getAll({ limit: 1000 }),
+            customerService.getCustomers({ status: 'active', limit: 1000 }),
             productsAPI.getAll({ limit: 1000 }),
             apiClient.get('/warehouses'),
           ]);
@@ -1423,6 +1423,7 @@ const QuotationForm = () => {
               label="Select Customer"
               value={formData.customerId}
               onChange={(e) => handleCustomerChange(e.target.value)}
+              data-testid="customer-autocomplete"
             >
               <option value="">Select or enter manually</option>
               {customers.map((customer) => (

@@ -156,7 +156,7 @@ const AdvancePaymentForm = () => {
 
   const loadCustomers = async () => {
     try {
-      const response = await customerService.getCustomers();
+      const response = await customerService.getCustomers({ status: 'active', limit: 1000 });
       setCustomers(response.customers || response || []);
     } catch (error) {
       console.error('Failed to load customers:', error);
@@ -166,7 +166,7 @@ const AdvancePaymentForm = () => {
   const searchCustomers = async (query) => {
     try {
       setCustomerSearching(true);
-      const response = await customerService.searchCustomers(query);
+      const response = await customerService.searchCustomers(query, { status: 'active' });
       const results = response.customers || response || [];
       if (results.length > 0) {
         setShowCustomerDropdown(true);

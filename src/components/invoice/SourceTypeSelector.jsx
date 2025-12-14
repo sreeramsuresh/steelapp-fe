@@ -11,6 +11,7 @@ const SourceTypeSelector = ({
   onChange,
   disabled = false,
   id,
+  'data-testid': dataTestId,
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -43,6 +44,7 @@ const SourceTypeSelector = ({
     <div className="relative inline-block w-full min-w-[140px] max-w-[160px]">
       <select
         id={id}
+        data-testid={dataTestId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}

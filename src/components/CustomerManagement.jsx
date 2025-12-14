@@ -69,6 +69,9 @@ const CustomerManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showArchived, setShowArchived] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [supplierCurrentPage, setSupplierCurrentPage] = useState(1);
+  const [supplierSearchTerm, setSupplierSearchTerm] = useState('');
 
   // Table sorting state
   const [customerSortConfig, setCustomerSortConfig] = useState({
@@ -111,8 +114,10 @@ const CustomerManagement = () => {
     return customerService.getCustomers({
       search: searchTerm,
       status: filterStatus === 'all' ? undefined : filterStatus,
+      page: currentPage,
+      limit: 20,
     });
-  }, [searchTerm, filterStatus, canReadCustomers]);
+  }, [searchTerm, filterStatus, currentPage, canReadCustomers]);
 
   // Suppliers API hooks
   const {
@@ -120,7 +125,11 @@ const CustomerManagement = () => {
     loading: loadingSuppliers,
     error: suppliersError,
     refetch: refetchSuppliers,
-  } = useApiData(() => supplierService.getSuppliers(), []);
+  } = useApiData(() => supplierService.getSuppliers({
+    query: supplierSearchTerm,
+    page: supplierCurrentPage,
+    limit: 20
+  }), [supplierSearchTerm, supplierCurrentPage]);
 
   // Pricelists API hooks
   const { data: pricelistsData, loading: _loadingPricelists } = useApiData(
@@ -148,10 +157,24 @@ const CustomerManagement = () => {
   );
 
   const customers = customersData?.customers || [];
+  const pageInfo = customersData?.pageInfo || {};
+  const suppliers = suppliersData?.suppliers || [];
+  const supplierPageInfo = suppliersData?.pageInfo || {};
   const pricelists = pricelistsData?.data || [];
   const canDeleteCustomers =
     authService.hasPermission('customers', 'delete') ||
     authService.hasRole('admin');
+
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus]);
+
+  // Reset supplier page to 1 when search changes
+  useEffect(() => {
+    setSupplierCurrentPage(1);
+  }, [supplierSearchTerm]);
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -212,7 +235,6 @@ const CustomerManagement = () => {
   const filteredCustomers = customers.filter((c) =>
     showArchived ? true : c.status !== 'archived',
   );
-  const suppliers = suppliersData?.suppliers || [];
 
   // Helper to get cell value for customer columns
   const getCustomerCellValue = (customer, columnKey) => {
@@ -902,6 +924,47 @@ const CustomerManagement = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {pageInfo.totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className={textSecondary}>
+            Showing page {pageInfo.currentPage} of {pageInfo.totalPages} ({pageInfo.totalItems} total customers)
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              disabled={!pageInfo.hasPrev}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                pageInfo.hasPrev
+                  ? isDarkMode
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                  : isDarkMode
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+              }`}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={!pageInfo.hasNext}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                pageInfo.hasNext
+                  ? isDarkMode
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                  : isDarkMode
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -910,6 +973,24 @@ const CustomerManagement = () => {
       {/* Controls */}
       <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 mb-6">
         <h3 className={`text-lg font-semibold ${textPrimary}`}>Suppliers</h3>
+
+        {/* Search Input */}
+        <div className="flex-1 max-w-md">
+          <div className="relative">
+            <FaSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${textSecondary}`} />
+            <input
+              type="text"
+              placeholder="Search suppliers..."
+              value={supplierSearchTerm}
+              onChange={(e) => setSupplierSearchTerm(e.target.value)}
+              className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-colors ${
+                isDarkMode
+                  ? 'bg-[#1E2328] border-gray-600 text-white placeholder-gray-500 focus:border-teal-500'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-500'
+              } focus:outline-none focus:ring-2 focus:ring-teal-500/20`}
+            />
+          </div>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex gap-3 items-center">
@@ -1151,6 +1232,47 @@ const CustomerManagement = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {supplierPageInfo.totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className={textSecondary}>
+            Showing page {supplierPageInfo.currentPage} of {supplierPageInfo.totalPages} ({supplierPageInfo.totalItems} total suppliers)
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSupplierCurrentPage(prev => prev - 1)}
+              disabled={!supplierPageInfo.hasPrev}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                supplierPageInfo.hasPrev
+                  ? isDarkMode
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                  : isDarkMode
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+              }`}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setSupplierCurrentPage(prev => prev + 1)}
+              disabled={!supplierPageInfo.hasNext}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                supplierPageInfo.hasNext
+                  ? isDarkMode
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                  : isDarkMode
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 

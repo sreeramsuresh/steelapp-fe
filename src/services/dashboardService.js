@@ -991,7 +991,7 @@ export const dashboardService = {
             );
             return {};
           }),
-          customerService.getCustomers({ limit: 100 }).catch((err) => {
+          customerService.getCustomers({ limit: 100, status: 'active' }).catch((err) => {
             console.warn(
               '[dashboardService] getCustomers failed:',
               err.message,

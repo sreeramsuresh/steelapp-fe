@@ -140,6 +140,7 @@ const Input = ({
   validationState = null,
   showValidation = true,
   id,
+  'data-testid': dataTestId,
   ...props
 }) => {
   const { isDarkMode } = useTheme();
@@ -189,6 +190,7 @@ const Input = ({
       )}
       <input
         id={inputId}
+        data-testid={dataTestId}
         className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
           isDarkMode
             ? 'text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
@@ -517,6 +519,7 @@ const Autocomplete = ({
   required = false,
   validationState = null,
   showValidation = true,
+  'data-testid': dataTestId,
 }) => {
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -714,12 +717,15 @@ const Autocomplete = ({
           required={required}
           validationState={validationState}
           showValidation={showValidation}
+          data-testid={dataTestId}
         />
       </div>
 
       {isOpen && (
         <div
           ref={dropdownRef}
+          data-testid={dataTestId ? `${dataTestId}-listbox` : undefined}
+          role="listbox"
           className={`border rounded-lg shadow-xl max-h-60 overflow-auto ${
             isDarkMode
               ? 'bg-gray-800 border-gray-600'
@@ -730,6 +736,7 @@ const Autocomplete = ({
             filteredOptions.map((option, index) => (
               <div
                 key={option.id || index}
+                data-testid={dataTestId ? `${dataTestId}-option-${index}` : undefined}
                 className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
                   index === highlightedIndex
                     ? isDarkMode
@@ -1447,7 +1454,7 @@ const InvoiceForm = ({ onSave }) => {
     !id,
   );
   const { data: customersData, loading: loadingCustomers } = useApiData(
-    () => customerService.getCustomers({ status: 'active' }),
+    () => customerService.getCustomers({ status: 'active', limit: 1000 }),
     [],
   );
   const { data: salesAgentsData, loading: loadingAgents } = useApiData(
@@ -1638,13 +1645,15 @@ const InvoiceForm = ({ onSave }) => {
         });
 
         // Calculate stock by warehouse
+        // CRITICAL: Normalize keys to strings to prevent type mismatch with wh.id
         const stockByWarehouse = {};
         let totalStock = 0;
         sortedBatches.forEach((batch) => {
           const whId = batch.warehouseId || batch.warehouse_id;
           const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
           if (whId) {
-            stockByWarehouse[whId] = (stockByWarehouse[whId] || 0) + available;
+            const key = String(whId); // Normalize to string
+            stockByWarehouse[key] = (stockByWarehouse[key] || 0) + available;
           }
           totalStock += available;
         });
@@ -3618,6 +3627,7 @@ const InvoiceForm = ({ onSave }) => {
                 <div className="space-y-0.5">
                   <Autocomplete
                     label="Select Customer"
+                    data-testid="customer-autocomplete"
                     options={(customersData?.customers || []).map((c) => ({
                       id: c.id,
                       label: `${titleCase(normalizeLLC(c.name))} - ${c.email || 'No email'}`,
@@ -4493,15 +4503,53 @@ const InvoiceForm = ({ onSave }) => {
                             )}
                           </td>
                           {/* Column 2: Product Description */}
-                          <td className="pl-3 pr-2 py-2">
-                            <input
-                              type="text"
-                              value={searchInputs[index] || item.name || ''}
-                              onChange={(e) =>
-                                handleSearchInputChange(index, e.target.value)
+                          <td className="pl-3 pr-2 py-2 relative">
+                            <Autocomplete
+                              data-testid={`product-autocomplete-${index}`}
+                              options={
+                                searchInputs[index]
+                                  ? searchOptions.length
+                                    ? searchOptions
+                                    : productOptions
+                                  : productOptions
                               }
-                              placeholder="Product description..."
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                              value={
+                                item.productId
+                                  ? productOptions.find(
+                                    (p) => p.id === item.productId,
+                                  )
+                                  : null
+                              }
+                              inputValue={searchInputs[index] || item.name || ''}
+                              onInputChange={(event, newInputValue) => {
+                                handleSearchInputChange(index, newInputValue);
+                              }}
+                              onChange={(event, newValue) => {
+                                if (newValue) {
+                                  handleProductSelect(index, newValue);
+                                }
+                              }}
+                              placeholder="Search products..."
+                              disabled={loadingProducts}
+                              title={tooltip}
+                              renderOption={(option) => (
+                                <div>
+                                  <div className="font-medium">
+                                    {option.displayName ||
+                                      option.display_name ||
+                                      option.uniqueName ||
+                                      option.unique_name ||
+                                      option.name}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {option.origin ? `${option.origin} • ` : ''}
+                                    {option.subtitle}
+                                  </div>
+                                </div>
+                              )}
+                              noOptionsText="No products found"
+                              size="small"
+                              className="autocomplete-table-cell"
                             />
                           </td>
                           {/* Column 3: Qty */}
@@ -4657,13 +4705,15 @@ const InvoiceForm = ({ onSave }) => {
                                     {/* P0: Source Type Selector with auto-selection */}
                                     <SourceTypeSelector
                                       id={`source-type-${index}`}
+                                      data-testid={`source-type-${index}`}
                                       value={(() => {
                                         // Auto-select based on stock availability
                                         const currentSourceType = item.sourceType;
                                         if (currentSourceType) return currentSourceType;
 
                                         const stockData = productBatchData[item.productId];
-                                        const totalStock = stockData?.batches?.reduce((sum, b) => sum + (b.quantityAvailable || 0), 0) || 0;
+                                        // Use totalStock from batchData (cached, accurate)
+                                        const totalStock = stockData?.totalStock ?? 0;
 
                                         return totalStock === 0 ? 'LOCAL_DROP_SHIP' : 'WAREHOUSE';
                                       })()}
@@ -4678,15 +4728,18 @@ const InvoiceForm = ({ onSave }) => {
                                     <span className="text-xs text-gray-500">
                                       Stock availability:
                                     </span>
-                                    <div className="flex items-center gap-4 ml-2">
+                                    <div className="flex items-center gap-4 ml-2" data-testid={`allocation-stock-warehouses-${index}`}>
                                       {warehouses.map((wh) => {
                                         // Get real stock from productBatchData
                                         const stockByWarehouse = productBatchData[item.productId]?.stockByWarehouse || {};
-                                        const stockQty = stockByWarehouse[wh.id] || 0;
+                                        // CRITICAL: Normalize wh.id to string to match stockByWarehouse keys
+                                        const stockQty = stockByWarehouse[String(wh.id)] || 0;
                                         const hasStock = stockQty > 0;
+                                        const isLoading = item.productId && !productBatchData[item.productId];
                                         return (
                                           <span
                                             key={wh.id}
+                                            data-testid={`stock-warehouse-${wh.id}`}
                                             className={`text-xs font-medium ${
                                               hasStock
                                                 ? 'text-gray-700'
@@ -4698,10 +4751,12 @@ const InvoiceForm = ({ onSave }) => {
                                               className={
                                                 hasStock
                                                   ? 'text-green-600 font-bold'
+                                                  : isLoading
+                                                  ? 'text-gray-400 font-bold'
                                                   : 'text-red-500 font-bold'
                                               }
                                             >
-                                              {stockQty}
+                                              {isLoading ? '...' : stockQty}
                                             </span>
                                           </span>
                                         );
@@ -4713,7 +4768,7 @@ const InvoiceForm = ({ onSave }) => {
                                 {/* P0: Conditional rendering based on sourceType */}
                                 {(item.sourceType || 'WAREHOUSE') === 'WAREHOUSE' ? (
                                   /* Batch Allocation Table - only show for WAREHOUSE */
-                                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                  <div className="border border-gray-200 rounded-lg overflow-hidden" data-testid={`allocation-panel-${index}`}>
                                     <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
                                       <span className="text-xs font-semibold text-gray-600">
                                         Batch Allocation
@@ -4739,7 +4794,7 @@ const InvoiceForm = ({ onSave }) => {
                                         );
                                       })()}
                                     </div>
-                                    <table className="min-w-full text-xs">
+                                    <table className="min-w-full text-xs" data-testid={`batch-allocation-table-${index}`}>
                                       <thead className="bg-gray-50">
                                         <tr>
                                           <th className="px-3 py-2 text-left font-medium text-gray-500">
@@ -4881,9 +4936,9 @@ const InvoiceForm = ({ onSave }) => {
                                       </button>
                                       <button
                                         type="button"
-                                        onClick={() => {
+                                        onClick={async () => {
                                         // Re-apply FIFO auto-allocation (useful after manual changes)
-                                          applyAutoAllocation(index, item.productId, item.quantity || 1);
+                                          await applyAutoAllocation(index, item.productId, item.quantity || 1);
                                         }}
                                         disabled={(item.sourceType || 'WAREHOUSE') !== 'WAREHOUSE'}
                                         className={`text-xs px-3 py-1 rounded transition-colors ${
