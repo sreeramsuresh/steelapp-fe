@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
-import { apiClient } from '../services/api';
+import { warehouseService } from '../services/warehouseService';
 import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 
@@ -48,11 +48,8 @@ const WarehouseManagement = () => {
   const fetchWarehouses = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('/warehouses');
-      const list =
-        (response && response.warehouses) ||
-        (response && response.data && response.data.warehouses) ||
-        [];
+      const response = await warehouseService.getAll({ limit: 100 });
+      const list = response.data || [];
 
       // Transform the data to match component's expectations
       const transformedData = list.map((warehouse) => ({

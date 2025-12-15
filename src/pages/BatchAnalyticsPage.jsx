@@ -126,7 +126,7 @@ const HealthTab = ({ isDarkMode }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.get('/api/analytics/allocation-health');
+      const response = await apiClient.get('/analytics/allocation-health');
       setHealthData(response);
     } catch (err) {
       console.error('Error loading health data:', err);
@@ -333,7 +333,7 @@ const CostVarianceTab = ({ isDarkMode }) => {
       setLoading(true);
       setError(null);
       const response = await apiClient.get(
-        '/api/analytics/reports/cost-variance',
+        '/analytics/reports/cost-variance',
       );
       setVarianceData(response);
     } catch (err) {
@@ -543,7 +543,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
       if (filters.reason) params.reason = filters.reason;
 
       const response = await apiClient.get(
-        '/api/analytics/reports/batch-modification',
+        '/analytics/reports/batch-modification',
         { params },
       );
       setLogData(response.modifications || []);
@@ -867,7 +867,7 @@ const BatchAgingTab = ({ isDarkMode }) => {
       setLoading(true);
       setError(null);
       const response = await apiClient.get(
-        '/api/analytics/reports/batch-aging',
+        '/analytics/reports/batch-aging',
       );
       setAgingData(response);
     } catch (err) {

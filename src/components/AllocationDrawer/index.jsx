@@ -5,6 +5,7 @@ import ProductSelector from './ProductSelector';
 import BatchAllocationPanel from './BatchAllocationPanel';
 import ReservationTimer from './ReservationTimer';
 import SourceTypeSelector from './SourceTypeSelector';
+import WarehouseAvailability from './WarehouseAvailability';
 import { useReservations } from '../../hooks/useReservations';
 import './AllocationDrawer.css';
 
@@ -89,6 +90,14 @@ const AllocationDrawer = ({
     }
   }, []);
 
+  // Handle unit change
+  const handleUnitChange = useCallback((e) => {
+    setDrawerState((prev) => ({
+      ...prev,
+      unit: e.target.value,
+    }));
+  }, []);
+
   // Handle unit price change
   const handleUnitPriceChange = useCallback((e) => {
     const value = e.target.value;
@@ -98,14 +107,6 @@ const AllocationDrawer = ({
         unitPrice: value,
       }));
     }
-  }, []);
-
-  // Handle unit change
-  const handleUnitChange = useCallback((e) => {
-    setDrawerState((prev) => ({
-      ...prev,
-      unit: e.target.value,
-    }));
   }, []);
 
   // Handle source type change
@@ -254,43 +255,52 @@ const AllocationDrawer = ({
           onSelectProduct={handleProductSelect}
         />
 
-        {/* Quantity Input */}
-        <div className="drawer-form-group">
-          <label htmlFor="quantity">
-            Quantity <span className="required">*</span>
-          </label>
-          <div className="quantity-input-group">
-            <input
-              id="quantity"
-              type="text"
-              inputMode="decimal"
-              placeholder="Enter quantity"
-              value={drawerState.quantity}
-              onChange={handleQuantityChange}
-            />
-            <select value={drawerState.unit} onChange={handleUnitChange}>
-              <option value="KG">KG</option>
-              <option value="MT">MT</option>
-              <option value="PCS">PCS</option>
-              <option value="SET">SET</option>
-            </select>
-          </div>
-        </div>
+        {/* Warehouse Availability */}
+        <WarehouseAvailability productId={drawerState.productId} companyId={companyId} />
 
-        {/* Unit Price Input */}
-        <div className="drawer-form-group">
-          <label htmlFor="unitPrice">
-            Unit Price (AED) <span className="required">*</span>
-          </label>
-          <input
-            id="unitPrice"
-            type="text"
-            inputMode="decimal"
-            placeholder="Enter unit price"
-            value={drawerState.unitPrice}
-            onChange={handleUnitPriceChange}
-          />
-        </div>
+        {/* Quantity and Price Section */}
+        {drawerState.productId && (
+          <div className="quantity-price-section">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="quantity">Quantity *</label>
+                <div className="quantity-input-group">
+                  <input
+                    type="text"
+                    id="quantity"
+                    className="form-input"
+                    value={drawerState.quantity}
+                    onChange={handleQuantityChange}
+                    placeholder="0.00"
+                  />
+                  <select
+                    className="unit-select"
+                    value={drawerState.unit}
+                    onChange={handleUnitChange}
+                  >
+                    <option value="KG">KG</option>
+                    <option value="PCS">PCS</option>
+                    <option value="MT">MT</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="unitPrice">Unit Price (AED) *</label>
+                <input
+                  type="text"
+                  id="unitPrice"
+                  className="form-input"
+                  value={drawerState.unitPrice}
+                  onChange={handleUnitPriceChange}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Source Type Selector */}
         <SourceTypeSelector

@@ -351,14 +351,16 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
           {/* Action Buttons */}
           <Tooltip title="Refresh">
-            <IconButton
-              onClick={loadReservations}
-              disabled={loading}
-              size="small"
-              sx={{ border: 1, borderColor: 'divider' }}
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={loadReservations}
+                disabled={loading}
+                size="small"
+                sx={{ border: 1, borderColor: 'divider' }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
 
           <Button

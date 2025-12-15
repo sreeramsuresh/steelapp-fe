@@ -363,14 +363,16 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
           {/* Action Buttons */}
           <Tooltip title="Refresh">
-            <IconButton
-              onClick={loadTransfers}
-              disabled={loading}
-              size="small"
-              sx={{ border: 1, borderColor: 'divider' }}
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={loadTransfers}
+                disabled={loading}
+                size="small"
+                sx={{ border: 1, borderColor: 'divider' }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
 
           <Button

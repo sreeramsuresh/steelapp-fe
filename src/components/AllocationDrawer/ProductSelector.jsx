@@ -29,11 +29,12 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
     setLoading(true);
     try {
       const response = await productsAPI.search(query);
-      // Handle different response formats
+      // API Gateway returns { products: [...], pageInfo: {...} }
+      // Axios wraps in data: response.data = { products: [...], pageInfo: {...} }
       const productList =
-        response?.data ||
+        response?.data?.products ||
         response?.products ||
-        (Array.isArray(response) ? response : []);
+        [];
       setProducts(productList.slice(0, 20)); // Limit to 20 results
     } catch (error) {
       console.error('Failed to search products:', error);
@@ -67,6 +68,12 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
   // Handle product selection
   const handleSelect = useCallback(
     (product) => {
+      // Guard: Ensure product has required fields before passing to parent
+      if (!product || !product.id) {
+        console.error('[ProductSelector] Invalid product selected:', product);
+        return;
+      }
+
       onSelectProduct(product);
       setSearchTerm(
         product.displayName || product.uniqueName || product.name || '',
@@ -198,7 +205,7 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
         <div ref={dropdownRef} className="product-dropdown">
           {products.map((product, index) => (
             <div
-              key={product.id}
+              key={product.id || `product-${index}`}
               role="button"
               tabIndex={0}
               className={`product-option ${index === highlightedIndex ? 'highlighted' : ''}`}
