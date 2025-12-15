@@ -7,14 +7,16 @@ import { productService } from '../../services/productService';
  *
  * Displays stock availability for a selected product across all warehouses.
  * Shows warehouse name and available quantity with unit.
+ *
+ * Note: companyId is automatically determined from authenticated user context on backend
  */
-const WarehouseAvailability = ({ productId, companyId }) => {
+const WarehouseAvailability = ({ productId }) => {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!productId || !companyId) {
+    if (!productId) {
       setWarehouses([]);
       return;
     }
@@ -25,7 +27,8 @@ const WarehouseAvailability = ({ productId, companyId }) => {
 
       try {
         // Fetch warehouse availability for the selected product
-        const response = await productService.getWarehouseStock(productId, companyId);
+        // companyId is automatically added by backend from authenticated user
+        const response = await productService.getWarehouseStock(productId);
 
         // productService returns { data: [...] } via axios
         setWarehouses(response.data || []);
@@ -39,7 +42,7 @@ const WarehouseAvailability = ({ productId, companyId }) => {
     };
 
     fetchWarehouseStock();
-  }, [productId, companyId]);
+  }, [productId]);
 
   if (!productId) {
     return null;
@@ -99,7 +102,6 @@ const WarehouseAvailability = ({ productId, companyId }) => {
 
 WarehouseAvailability.propTypes = {
   productId: PropTypes.number,
-  companyId: PropTypes.number.isRequired,
 };
 
 export default WarehouseAvailability;

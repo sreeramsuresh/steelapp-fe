@@ -256,7 +256,7 @@ const AllocationDrawer = ({
         />
 
         {/* Warehouse Availability */}
-        <WarehouseAvailability productId={drawerState.productId} companyId={companyId} />
+        <WarehouseAvailability productId={drawerState.productId} />
 
         {/* Quantity and Price Section */}
         {drawerState.productId && (

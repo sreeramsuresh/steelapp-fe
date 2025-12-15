@@ -48,10 +48,10 @@ export const productService = {
     return apiClient.get('/products', { stock_status: 'low' });
   },
 
-  async getWarehouseStock(productId, companyId) {
+  async getWarehouseStock(productId) {
+    // companyId is automatically added by backend from authenticated user context
     return apiClient.get('/products/warehouse-stock', {
       productId,
-      companyId,
     });
   },
 

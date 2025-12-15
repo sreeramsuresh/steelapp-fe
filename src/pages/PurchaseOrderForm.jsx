@@ -20,6 +20,7 @@ import {
   calculateItemAmount,
   calculateSubtotal,
   generatePONumber,
+  formatAddress,
 } from '../utils/invoiceUtils';
 import { purchaseOrdersAPI } from '../services/api';
 import { productService, payablesService } from '../services/dataService';
@@ -2221,7 +2222,7 @@ const PurchaseOrderForm = () => {
                       {purchaseOrder.supplierAddress && (
                         <p>
                           <span className="font-medium">Address:</span>{' '}
-                          {purchaseOrder.supplierAddress}
+                          {formatAddress(purchaseOrder.supplierAddress).full}
                         </p>
                       )}
                       {(purchaseOrder.terms || purchaseOrder.currency) && (
