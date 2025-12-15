@@ -48,6 +48,13 @@ export const productService = {
     return apiClient.get('/products', { stock_status: 'low' });
   },
 
+  async getWarehouseStock(productId, companyId) {
+    return apiClient.get('/products/warehouse-stock', {
+      productId,
+      companyId,
+    });
+  },
+
   async downloadProducts() {
     const { apiService } = await import('./axiosApi');
     const blob = await apiService.request({

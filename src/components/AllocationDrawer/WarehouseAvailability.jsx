@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { apiClient } from '../../services/api';
+import { productService } from '../../services/productService';
 
 /**
  * WarehouseAvailability Component
@@ -25,12 +25,10 @@ const WarehouseAvailability = ({ productId, companyId }) => {
 
       try {
         // Fetch warehouse availability for the selected product
-        const response = await apiClient.get('/products/warehouse-stock', {
-          productId,
-          companyId,
-        });
+        const response = await productService.getWarehouseStock(productId, companyId);
 
-        setWarehouses(response.data || response || []);
+        // productService returns { data: [...] } via axios
+        setWarehouses(response.data || []);
       } catch (err) {
         console.error('Failed to fetch warehouse stock:', err);
         setError('Failed to load warehouse availability');
