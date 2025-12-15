@@ -3,7 +3,6 @@
  * Displays a "NEW" badge for records created within a specified time threshold.
  * Part of the unified Preview/Download system.
  */
-import React from 'react';
 import PropTypes from 'prop-types';
 
 /**

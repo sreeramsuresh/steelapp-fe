@@ -9,14 +9,10 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Target,
-  TrendingUp,
-  TrendingDown,
-  Award,
   ArrowUpRight,
   ArrowDownRight,
   Info,
   RefreshCw,
-  ChevronDown,
   User,
 } from 'lucide-react';
 

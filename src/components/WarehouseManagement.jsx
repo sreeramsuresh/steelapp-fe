@@ -15,6 +15,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService } from '../services/notificationService';
 import { warehouseService } from '../services/warehouseService';
+import { apiClient } from '../services/api';
 import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 

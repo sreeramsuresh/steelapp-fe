@@ -21,10 +21,10 @@ import {
   X,
   ChevronDown,
   Pin,
-  Link2,
   Ship,
   Scale,
   Layers,
+  Link2,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import vendorBillService from '../../services/vendorBillService';

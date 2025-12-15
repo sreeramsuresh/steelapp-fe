@@ -22,7 +22,7 @@ const DeliveryNoteDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isDarkMode } = useTheme();
-  const { checkAvailability } = useStockValidation();
+  const { checkAvailability: _checkAvailability } = useStockValidation();
 
   const [deliveryNote, setDeliveryNote] = useState(null);
   const [loading, setLoading] = useState(true);

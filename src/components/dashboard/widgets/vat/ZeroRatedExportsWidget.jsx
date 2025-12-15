@@ -15,7 +15,6 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Globe,
-  Ship,
   FileText,
   CheckCircle,
   AlertTriangle,
@@ -23,8 +22,6 @@ import {
   Upload,
   Info,
   ChevronRight,
-  ExternalLink,
-  Package,
 } from 'lucide-react';
 
 const ZeroRatedExportsWidget = ({
@@ -32,7 +29,7 @@ const ZeroRatedExportsWidget = ({
   onViewExport = null,
   onUploadDocument = null,
   onViewAll = null,
-  isLoading = false,
+  isLoading: _isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [exportData, setExportData] = useState(data || null);

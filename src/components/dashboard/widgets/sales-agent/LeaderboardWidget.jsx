@@ -9,7 +9,6 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Trophy,
-  Medal,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -167,7 +166,7 @@ const LeaderboardWidget = ({
     return null;
   };
 
-  const getTrendIcon = (trend, value) => {
+  const getTrendIcon = (trend, _value) => {
     if (trend === 'up')
       return { Icon: TrendingUp, color: 'text-green-500', bg: 'bg-green-100' };
     if (trend === 'down')

@@ -57,7 +57,7 @@ const CommissionTrackerWidget = ({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showHistory, setShowHistory] = useState(false);
+  const [_showHistory, _setShowHistory] = useState(false);
 
   // Fetch agents list on mount
   useEffect(() => {
@@ -134,7 +134,7 @@ const CommissionTrackerWidget = ({
     }).format(safeAmount);
   };
 
-  const formatCompact = (amount) => {
+  const _formatCompact = (amount) => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {

@@ -128,7 +128,7 @@ const CustomerManagement = () => {
   } = useApiData(() => supplierService.getSuppliers({
     query: supplierSearchTerm,
     page: supplierCurrentPage,
-    limit: 20
+    limit: 20,
   }), [supplierSearchTerm, supplierCurrentPage]);
 
   // Pricelists API hooks

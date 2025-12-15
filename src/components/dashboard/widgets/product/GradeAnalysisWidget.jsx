@@ -8,7 +8,7 @@ import {
   Snowflake,
 } from 'lucide-react';
 
-const MiniSparkline = ({ data, positive, isDarkMode }) => {
+const MiniSparkline = ({ data, positive, isDarkMode: _isDarkMode }) => {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;

@@ -7,7 +7,6 @@ import {
   MapPin,
   CheckCircle,
   Package,
-  DollarSign,
   AlertTriangle,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';

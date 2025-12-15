@@ -12,8 +12,8 @@ import {
   ChevronRight,
   X,
   AlertCircle,
-  CheckCircle,
   Loader2,
+  CheckCircle,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/axiosAuthService';

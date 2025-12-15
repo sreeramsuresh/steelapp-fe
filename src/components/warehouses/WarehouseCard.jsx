@@ -30,7 +30,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
     country,
     contactPerson,
     phone,
-    email,
+    email: _email,
     capacity,
     capacityUnit = 'MT',
     isActive,
@@ -45,7 +45,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
     return 'text-green-500';
   };
 
-  const getUtilizationBg = (percent) => {
+  const _getUtilizationBg = (percent) => {
     if (percent >= 90) return isDarkMode ? 'bg-red-900/30' : 'bg-red-100';
     if (percent >= 70) return isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-100';
     return isDarkMode ? 'bg-green-900/30' : 'bg-green-100';

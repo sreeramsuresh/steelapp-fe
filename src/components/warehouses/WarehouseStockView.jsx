@@ -3,7 +3,7 @@
  * Displays stock levels for a specific warehouse
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Package, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -90,7 +90,7 @@ const mockStockData = [
   },
 ];
 
-const WarehouseStockView = ({ warehouseId, warehouseName }) => {
+const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
   const { isDarkMode } = useTheme();
 
   const [stockItems, setStockItems] = useState([]);
@@ -132,7 +132,7 @@ const WarehouseStockView = ({ warehouseId, warehouseName }) => {
   const productTypes = [...new Set(stockItems.map((item) => item.productType))];
 
   // Summary stats
-  const totalItems = filteredItems.length;
+  const _totalItems = filteredItems.length;
   const lowStockCount = filteredItems.filter((item) => item.isLowStock).length;
 
   return (

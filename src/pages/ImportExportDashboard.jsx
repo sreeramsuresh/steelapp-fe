@@ -9,8 +9,6 @@ import {
   CreditCard,
   DollarSign,
   Globe,
-  TrendingUp,
-  FileText,
   BarChart3,
 } from 'lucide-react';
 

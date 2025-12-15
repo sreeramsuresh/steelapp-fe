@@ -31,7 +31,6 @@ import {
   Grid,
   Tabs,
   Tab,
-  Divider,
 } from '@mui/material';
 import {
   Assessment as ReportIcon,
@@ -39,7 +38,6 @@ import {
   Warning as WarningIcon,
   CheckCircle as CheckIcon,
   Refresh as RefreshIcon,
-  Download as DownloadIcon,
 } from '@mui/icons-material';
 import { stockMovementService } from '../../services/stockMovementService';
 import { warehouseService } from '../../services/warehouseService';

@@ -41,7 +41,7 @@ export default function ReconciliationReport() {
   const [reconciliationData, setReconciliationData] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [products, setProducts] = useState([]);
-  const [summary, setSummary] = useState({
+  const [_summary, setSummary] = useState({
     totalOpeningStock: 0,
     totalReceived: 0,
     totalConsumed: 0,
@@ -273,7 +273,7 @@ export default function ReconciliationReport() {
       },
     ];
 
-    const summary = {
+    const mockSummary = {
       totalOpeningStock: items.reduce(
         (sum, item) => sum + item.openingStock,
         0,
@@ -289,7 +289,7 @@ export default function ReconciliationReport() {
       totalVariance: items.reduce((sum, item) => sum + item.variance, 0),
     };
 
-    return { items, summary };
+    return { items, summary: mockSummary };
   };
 
   // Filter data based on selected filters

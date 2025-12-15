@@ -12,7 +12,6 @@ import {
   FileText,
   Phone,
   CheckCircle,
-  ArrowRight,
   Info,
   RefreshCw,
   TrendingUp,

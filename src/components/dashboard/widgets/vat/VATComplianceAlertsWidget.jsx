@@ -19,7 +19,6 @@ import {
   Info,
   XCircle,
   ChevronRight,
-  Bell,
   RefreshCw,
   CheckCircle,
 } from 'lucide-react';

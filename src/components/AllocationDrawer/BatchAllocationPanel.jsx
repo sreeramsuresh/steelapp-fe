@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { batchReservationService } from '../../services/batchReservationService';
 
@@ -19,11 +19,11 @@ const BatchAllocationPanel = ({
   productId,
   warehouseId,
   draftInvoiceId,
-  lineItemTempId,
+  _lineItemTempId,
   requiredQuantity,
   unit = 'KG',
-  companyId,
-  onAllocationsChange,
+  _companyId,
+  _onAllocationsChange,
   reserveFIFO,
   reserveManual,
   allocations = [],
@@ -158,7 +158,7 @@ const BatchAllocationPanel = ({
   const isPartialAllocation = shortfall > 0.001;
 
   // Format date for display
-  const formatDate = (dateStr) => {
+  const _formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     try {
       return new Date(dateStr).toLocaleDateString();

@@ -106,7 +106,7 @@ const ReorderAlertsWidget = ({
   };
 
   const getStockLevelColor = (current, reorder, max) => {
-    const percent = (current / max) * 100;
+    const _percent = (current / max) * 100;
     if (current <= reorder * 0.5) return 'bg-red-500';
     if (current <= reorder) return 'bg-amber-500';
     return 'bg-blue-500';

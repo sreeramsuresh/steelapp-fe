@@ -12,20 +12,16 @@ import {
   Ship,
   FileText,
   Package,
-  DollarSign,
   Upload,
   Calculator,
   Building2,
   Globe,
-  Calendar,
-  Anchor,
   Info,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { importOrderService } from '../services/importOrderService';
 import { supplierService } from '../services/supplierService';
 import { productService } from '../services/productService';
-import { exchangeRateService } from '../services/exchangeRateService';
 import { notificationService } from '../services/notificationService';
 
 // ============================================================
@@ -244,7 +240,7 @@ const Card = ({ children, className = '', title, icon: Icon }) => {
 };
 
 const StatusBadge = ({ status }) => {
-  const { isDarkMode } = useTheme();
+  const { isDarkMode: _isDarkMode } = useTheme();
 
   const statusConfig = {
     draft: { bg: 'bg-gray-500', text: 'Draft' },
@@ -586,7 +582,7 @@ const createEmptyOrder = () => ({
 const ImportOrderForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
+  const _location = useLocation();
   const { isDarkMode } = useTheme();
 
   const isEditMode = Boolean(id);
@@ -600,8 +596,8 @@ const ImportOrderForm = () => {
   // Reference Data
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
-  const [loadingSuppliers, setLoadingSuppliers] = useState(false);
-  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [_loadingSuppliers, setLoadingSuppliers] = useState(false);
+  const [_loadingProducts, setLoadingProducts] = useState(false);
 
   // ============================================================
   // DATA FETCHING
@@ -1045,12 +1041,12 @@ const ImportOrderForm = () => {
             .filter((item) => item.product_name && item.quantity > 0),
         };
 
-        let response;
+        let _response;
         if (isEditMode) {
-          response = await importOrderService.updateImportOrder(id, submitData);
+          _response = await importOrderService.updateImportOrder(id, submitData);
           notificationService.success('Import order updated successfully');
         } else {
-          response = await importOrderService.createImportOrder(submitData);
+          _response = await importOrderService.createImportOrder(submitData);
           notificationService.success('Import order created successfully');
         }
 

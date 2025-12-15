@@ -82,7 +82,7 @@ const VOID_REASONS = [
  * @param {Object} permissions - Computed permissions object
  * @param {Object} deliveryNoteStatus - Delivery note status state
  */
-const debugInvoiceRow = (invoice, permissions, deliveryNoteStatus) => {
+const debugInvoiceRow = (_invoice, _permissions, _deliveryNoteStatus) => {
   if (process.env.NODE_ENV === 'production') return;
 };
 
@@ -340,14 +340,14 @@ const assertPaymentConsistency = (invoice) => {
  * @param {Object} invoice - Invoice object with updatedAt/createdAt timestamp
  * @returns {boolean} True if created/updated within last hour
  */
-const isRecentlyModified = (invoice) => {
+const _isRecentlyModified = (_invoice) => {
   // Try updatedAt first (covers edits), then fallback to createdAt
   // Support both camelCase and snake_case field formats from API
   const timestamp =
-    invoice.updatedAt ||
-    invoice.updated_at ||
-    invoice.createdAt ||
-    invoice.created_at;
+    _invoice.updatedAt ||
+    _invoice.updated_at ||
+    _invoice.createdAt ||
+    _invoice.created_at;
   if (!timestamp) return false;
 
   // Handle both ISO string and gRPC timestamp {seconds, nanos} format
@@ -383,7 +383,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [summaryData, setSummaryData] = useState(null);
 
   // DEBUG: Track component instance to detect multiple mounts
-  const instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
+  const _instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
@@ -407,7 +407,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [calculatingCommissionIds, setCalculatingCommissionIds] = useState(
     new Set(),
   );
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [_selectedInvoice, _setSelectedInvoice] = useState(null);
   const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [createdDeliveryNote, setCreatedDeliveryNote] = useState(null);
@@ -434,7 +434,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
 
   // Presence tracking for payment drawer
-  const { otherSessions, updateMode } = useInvoicePresence(
+  const { otherSessions, updateMode: _updateMode } = useInvoicePresence(
     showRecordPaymentDrawer ? paymentDrawerInvoice?.id : null,
     'payment',
   );
@@ -817,7 +817,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     sessionStorage.setItem('invoiceListPageSize', validSize.toString());
   };
 
-  const getTotalAmount = () => {
+  const _getTotalAmount = () => {
     return invoices.reduce((sum, invoice) => sum + invoice.total, 0);
   };
 
@@ -1084,9 +1084,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   };
 
-  const handleGenerateStatement = (invoice) => {
-    const customerId = invoice.customer?.id || invoice.customerId;
-    const customerName = invoice.customer?.name || invoice.customerName;
+  const _handleGenerateStatement = (_invoice) => {
+    const customerId = _invoice.customer?.id || _invoice.customerId;
+    const customerName = _invoice.customer?.name || _invoice.customerName;
 
     // Navigate to Finance Dashboard with customer pre-selected for SOA generation
     navigate(
@@ -1104,7 +1104,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     setPaymentReminderInvoice(null);
   };
 
-  const handlePaymentReminderSaved = (reminder) => {
+  const handlePaymentReminderSaved = (_reminder) => {
     notificationService.success('Payment reminder note saved successfully!');
     // Refresh invoices to show updated promise indicator
     fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
@@ -1219,7 +1219,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   };
 
-  const handleCalculateCommission = async (invoice) => {
+  const _handleCalculateCommission = async (invoice) => {
     if (calculatingCommissionIds.has(invoice.id)) return;
 
     if (!invoice.salesAgentId) {
@@ -1618,7 +1618,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   };
 
-  const handleCreateDeliveryNote = async (invoice) => {
+  const _handleCreateDeliveryNote = async (invoice) => {
     try {
       const confirmed = await confirm({
         title: 'Create Delivery Note',
@@ -2503,7 +2503,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                   </td>
                 </tr>
               ) : (
-                filteredInvoices.map((invoice, index) => {
+                filteredInvoices.map((invoice, _index) => {
                   const isDeleted = invoice.deletedAt;
                   const isSelected = selectedInvoiceIds.has(invoice.id);
                   return (

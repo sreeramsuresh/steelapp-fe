@@ -29,7 +29,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import { exportOrderService } from '../services/exportOrderService';
 import { customerService } from '../services/customerService';
 import { productService } from '../services/productService';
-import { exchangeRateService } from '../services/exchangeRateService';
 import { notificationService } from '../services/notificationService';
 import pricelistService from '../services/pricelistService';
 
@@ -251,7 +250,7 @@ const Textarea = ({
   );
 };
 
-const Checkbox = ({
+const _Checkbox = ({
   label,
   checked,
   onChange,
@@ -1299,12 +1298,12 @@ const ExportOrderForm = () => {
   // Reference Data
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
-  const [loadingCustomers, setLoadingCustomers] = useState(false);
-  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [_loadingCustomers, setLoadingCustomers] = useState(false);
+  const [_loadingProducts, setLoadingProducts] = useState(false);
 
   // Pricelist state
   const [selectedPricelistId, setSelectedPricelistId] = useState(null);
-  const [pricelistName, setPricelistName] = useState(null);
+  const [_pricelistName, setPricelistName] = useState(null);
 
   // Search States
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
@@ -1877,12 +1876,12 @@ const ExportOrderForm = () => {
             .filter((item) => item.product_name && item.quantity > 0),
         };
 
-        let response;
+        let _response;
         if (isEditMode) {
-          response = await exportOrderService.updateExportOrder(id, submitData);
+          _response = await exportOrderService.updateExportOrder(id, submitData);
           notificationService.success('Export order updated successfully');
         } else {
-          response = await exportOrderService.createExportOrder(submitData);
+          _response = await exportOrderService.createExportOrder(submitData);
           notificationService.success('Export order created successfully');
         }
 

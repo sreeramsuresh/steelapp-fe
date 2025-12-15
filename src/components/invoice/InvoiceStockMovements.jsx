@@ -33,7 +33,7 @@ const referenceTypeLabels = {
 
 export default function InvoiceStockMovements({
   invoiceId,
-  invoiceNumber,
+  invoiceNumber: _invoiceNumber,
   showHeader = true,
   className = '',
   onStockDeducted = null,

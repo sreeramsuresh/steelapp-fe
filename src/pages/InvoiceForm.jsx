@@ -14,7 +14,6 @@ import {
   Eye,
   Download,
   ChevronDown,
-  ChevronRight,
   X,
   AlertTriangle,
   Info,
@@ -53,20 +52,14 @@ import useKeyboardShortcuts, {
   INVOICE_SHORTCUTS,
 } from '../hooks/useKeyboardShortcuts';
 // AutoSave removed - was causing status bug on new invoices
-import useDragReorder, { DragHandleIcon } from '../hooks/useDragReorder';
-import useBulkActions, {
-  BulkCheckbox,
-  BulkActionsToolbar,
-} from '../hooks/useBulkActions';
+import useDragReorder from '../hooks/useDragReorder';
+import useBulkActions from '../hooks/useBulkActions';
 import useInvoiceTemplates from '../hooks/useInvoiceTemplates';
 import { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import LoadingOverlay from '../components/LoadingOverlay';
 import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
 import AllocationPanel from '../components/invoice/AllocationPanel';
-import BatchPicker from '../components/invoice/BatchPicker';
-import StockAvailabilityIndicator from '../components/invoice/StockAvailabilityIndicator';
-import WarehouseStockSelector from '../components/invoice/WarehouseStockSelector';
 import AllocationDrawer from '../components/AllocationDrawer';
 import { batchReservationService } from '../services/batchReservationService';
 import { v4 as uuidv4 } from 'uuid';
@@ -1152,7 +1145,7 @@ const InvoiceForm = ({ onSave }) => {
   const [invalidFields, setInvalidFields] = useState(new Set());
 
   // Item allocations state (for reallocation modal updates)
-  const [itemAllocations, setItemAllocations] = useState({});
+  const [_itemAllocations, setItemAllocations] = useState({});
 
   // Phase 3: AllocationDrawer integration - 60/40 layout mode
   // When true, shows the new drawer-based line item entry UI
@@ -1288,7 +1281,7 @@ const InvoiceForm = ({ onSave }) => {
   );
 
   // Track if form has unsaved changes (for navigation warning)
-  const [formDirty, setFormDirty] = useState(false);
+  const [_formDirty, setFormDirty] = useState(false);
   // Removed unused states: showExitConfirmModal, setShowExitConfirmModal, pendingNavigation, setPendingNavigation
 
   // Track the ORIGINAL saved status for isLocked calculation
@@ -1509,7 +1502,7 @@ const InvoiceForm = ({ onSave }) => {
     setInvoice((prev) => ({ ...prev, items: newItems }));
   }, []);
 
-  const { getDragHandleProps, getDragItemProps, isDropTarget, isDragSource } =
+  const { getDragHandleProps: _getDragHandleProps, getDragItemProps: _getDragItemProps, isDropTarget: _isDropTarget, isDragSource: _isDragSource } =
     useDragReorder({
       items: invoice.items,
       onReorder: handleItemsReorder,
@@ -1519,15 +1512,15 @@ const InvoiceForm = ({ onSave }) => {
   // Bulk selection for line items
   const {
     selectedIds: _selectedItemIds,
-    isSelected: isItemSelected,
-    toggleSelect: toggleItemSelect,
+    isSelected: _isItemSelected,
+    toggleSelect: _toggleItemSelect,
     selectAll: _selectAllItems,
-    clearSelection: clearItemSelection,
-    toggleSelectAll: toggleSelectAllItems,
-    deleteSelected: deleteSelectedItems,
-    selectedCount: selectedItemCount,
-    isAllSelected: isAllItemsSelected,
-    isSomeSelected: isSomeItemsSelected,
+    clearSelection: _clearItemSelection,
+    toggleSelectAll: _toggleSelectAllItems,
+    deleteSelected: _deleteSelectedItems,
+    selectedCount: _selectedItemCount,
+    isAllSelected: _isAllItemsSelected,
+    isSomeSelected: _isSomeItemsSelected,
   } = useBulkActions({
     items: invoice.items,
     onUpdate: handleItemsReorder,
@@ -2186,7 +2179,7 @@ const InvoiceForm = ({ onSave }) => {
   // Get allocation status badge for a line item
   // Only show status badges for saved invoices (when id exists)
   // For new invoices, hide the "Pending" status as it's just noise
-  const getAllocationStatusBadge = useCallback(
+  const _getAllocationStatusBadge = useCallback(
     (item) => {
       const status = item.allocationStatus || 'pending';
 
@@ -2729,7 +2722,7 @@ const InvoiceForm = ({ onSave }) => {
                   });
                 }
               })
-              .catch((err) => {
+              .catch((_err) => {
                 // Volume discount price fetch failed, using default price
               });
           }
@@ -5100,7 +5093,7 @@ const InvoiceForm = ({ onSave }) => {
                           const isExpanded = expandedAllocations.has(index);
                           const hasAllocations =
                             item.allocations && item.allocations.length > 0;
-                          const uomConversionText = getUomConversionText(item);
+                          const _uomConversionText = getUomConversionText(item);
 
                           return (
                             <Fragment key={item.id || `item-${index}`}>

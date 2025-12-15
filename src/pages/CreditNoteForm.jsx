@@ -149,10 +149,9 @@ const CreditNoteForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [_invoiceLoading, setInvoiceLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [company, setCompany] = useState(null);
-  const [_invoiceLoading] = useState(false);
 
   // Form state
   const [creditNote, setCreditNote] = useState({

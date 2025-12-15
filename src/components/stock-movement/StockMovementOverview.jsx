@@ -20,8 +20,6 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import {
   stockMovementService,
-  TRANSFER_STATUSES,
-  RESERVATION_STATUSES,
 } from '../../services/stockMovementService';
 
 const StockMovementOverview = ({ onNavigateToTab }) => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Layers, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 
-const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
+const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryClick }) => {
   const { isDarkMode } = useTheme();
   const [categories, setCategories] = useState([]);
   const [period, setPeriod] = useState('This Month');
@@ -156,7 +156,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate, onCategoryClick }) => {
         <div
           className={`h-8 rounded-lg overflow-hidden flex ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}
         >
-          {categories.map((cat, index) => {
+          {categories.map((cat, _index) => {
             const width = (cat.revenue / totalRevenue) * 100;
             return (
               <div

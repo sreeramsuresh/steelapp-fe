@@ -90,7 +90,7 @@ const VATCollectionWidget = ({
     currentData.inputVAT,
     previousData.inputVAT,
   );
-  const netVATChange = calculateChange(currentData.netVAT, previousData.netVAT);
+  const _netVATChange = calculateChange(currentData.netVAT, previousData.netVAT);
 
   const isNetPayable = currentData.netVAT >= 0;
 

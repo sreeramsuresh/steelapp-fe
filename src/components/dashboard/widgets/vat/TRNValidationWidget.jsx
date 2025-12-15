@@ -20,7 +20,6 @@ import {
   XCircle,
   Clock,
   AlertTriangle,
-  Search,
   RefreshCw,
   Users,
   Building,
@@ -128,7 +127,7 @@ const mockTRNData = {
 
 const TRNValidationWidget = ({
   data = null,
-  onValidateTRN = null,
+  onValidateTRN: _onValidateTRN = null,
   onBatchValidate = null,
   onViewEntity = null,
   onViewAll = null,
@@ -137,7 +136,7 @@ const TRNValidationWidget = ({
   const { isDarkMode } = useTheme();
   const [trnData, setTRNData] = useState(data || mockTRNData);
   const [selectedTab, setSelectedTab] = useState('overview');
-  const [filterType, setFilterType] = useState('all');
+  const [_filterType, _setFilterType] = useState('all');
 
   useEffect(() => {
     if (data) {
@@ -195,7 +194,7 @@ const TRNValidationWidget = ({
     return `${trn.slice(0, 3)}-${trn.slice(3, 7)}-${trn.slice(7, 11)}-${trn.slice(11)}`;
   };
 
-  const formatDate = (dateString) => {
+  const _formatDate = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-AE', {
@@ -206,7 +205,7 @@ const TRNValidationWidget = ({
   };
 
   const filteredValidations = trnData.recentValidations.filter(
-    (v) => filterType === 'all' || v.entityType === filterType,
+    (v) => _filterType === 'all' || v.entityType === _filterType,
   );
 
   return (

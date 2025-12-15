@@ -841,7 +841,7 @@ const ExportOrderDetails = () => {
     isGCCCountry(orderData.destinationCountryCode) || orderData.isGccExport;
 
   // Calculate totals in AED
-  const subtotalAed = calculateAEDValue(
+  const _subtotalAed = calculateAEDValue(
     orderData.subtotal,
     orderData.exchangeRate,
   );

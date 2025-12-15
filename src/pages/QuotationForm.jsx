@@ -8,7 +8,6 @@ import {
   User,
   FileText,
   Calculator,
-  Package,
   AlertCircle,
   CheckCircle,
   X,
@@ -16,6 +15,7 @@ import {
   Settings,
   Loader2,
   Eye,
+  Package,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {

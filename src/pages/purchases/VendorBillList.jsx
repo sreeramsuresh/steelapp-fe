@@ -14,7 +14,6 @@ import {
   Edit,
   Trash2,
   Eye,
-  FileText,
   Download,
   Check,
   X,
@@ -33,7 +32,7 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import { useConfirm } from '../../hooks/useConfirm';
 
 // UAE Emirates for place of supply filter
-const EMIRATES = [
+const _EMIRATES = [
   { value: '', label: 'All Emirates' },
   { value: 'AE-AZ', label: 'Abu Dhabi' },
   { value: 'AE-DU', label: 'Dubai' },

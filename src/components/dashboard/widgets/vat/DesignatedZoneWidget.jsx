@@ -28,7 +28,7 @@ import {
   Building2,
 } from 'lucide-react';
 // UAE Designated Zones list
-const DESIGNATED_ZONES = [
+const _DESIGNATED_ZONES = [
   { code: 'JAFZA', name: 'Jebel Ali Free Zone', emirate: 'Dubai' },
   { code: 'DAFZA', name: 'Dubai Airport Free Zone', emirate: 'Dubai' },
   {
@@ -120,9 +120,9 @@ const mockZoneData = {
 const DesignatedZoneWidget = ({
   data = null,
   onViewTransaction = null,
-  onUploadDocument = null,
+  onUploadDocument: _onUploadDocument = null,
   onViewAll = null,
-  isLoading = false,
+  isLoading: _isLoading = false,
 }) => {
   const { isDarkMode } = useTheme();
   const [zoneData, setZoneData] = useState(data || mockZoneData);

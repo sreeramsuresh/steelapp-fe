@@ -66,7 +66,7 @@ const ImportOrderList = () => {
   };
 
   // Handle status update
-  const handleStatusUpdate = async (orderId, status) => {
+  const _handleStatusUpdate = async (orderId, status) => {
     try {
       await importOrderService.updateStatus(orderId, status);
       loadOrders(pagination.currentPage);

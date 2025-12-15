@@ -11,7 +11,7 @@ import {
 const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
   const { isDarkMode } = useTheme();
   const [products, setProducts] = useState([]);
-  const [thresholds, setThresholds] = useState({
+  const [_thresholds, setThresholds] = useState({
     volumeMedian: 60,
     marginMedian: 15,
   });

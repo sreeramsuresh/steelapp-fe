@@ -6,7 +6,6 @@ import {
   Trash2,
   Search,
   Plus,
-  FileText,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -20,6 +19,7 @@ import {
   Clock,
   Ban,
   FileCheck,
+  FileText,
   Loader2,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';

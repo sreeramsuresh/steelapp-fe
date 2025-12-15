@@ -14,7 +14,7 @@ const InvoiceFooter = ({
   primaryColor,
   template = null,
 }) => {
-  const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
+  const _color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
   const colors = template?.colors || {};
   const fonts = template?.fonts || {};
 

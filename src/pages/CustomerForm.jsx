@@ -163,10 +163,10 @@ const CustomerForm = () => {
         credit_utilization: parseFloat(formData.creditUtilization) || 0,
       };
 
-      let result;
+      let _result;
       if (customerId) {
         // Update existing customer
-        result = await customerService.updateCustomer(customerId, payload);
+        _result = await customerService.updateCustomer(customerId, payload);
       } else {
         // Create new customer
         await customerService.createCustomer(payload);

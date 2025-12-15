@@ -41,7 +41,6 @@ import {
   LocalShipping as ShipIcon,
   Inventory as ReceiveIcon,
   Cancel as CancelIcon,
-  SwapHoriz as TransferIcon,
   Refresh as RefreshIcon,
   Search as SearchIcon,
 } from '@mui/icons-material';

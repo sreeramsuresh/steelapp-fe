@@ -108,12 +108,12 @@ describe('Invoice Form - Stock Allocation Panel (Bug Fixes Verification)', () =>
 
     // Verify form elements exist
     const hasCustomerField = introspection.forms.some(form =>
-      form.fields.some(field => field.name.toLowerCase().includes('customer'))
+      form.fields.some(field => field.name.toLowerCase().includes('customer')),
     );
 
     const hasProductSection = introspection.sections.some(section =>
       section.name.toLowerCase().includes('product') ||
-      section.name.toLowerCase().includes('item')
+      section.name.toLowerCase().includes('item'),
     );
 
     if (!hasCustomerField) {
@@ -291,7 +291,7 @@ describe('Invoice Form - Stock Allocation Panel (Bug Fixes Verification)', () =>
     const batchTable = await mcpClient.introspect_page();
     const allocationTable = batchTable.tables.find(table =>
       table.name.toLowerCase().includes('batch') ||
-      table.name.toLowerCase().includes('allocation')
+      table.name.toLowerCase().includes('allocation'),
     );
 
     if (!allocationTable) {
@@ -389,7 +389,7 @@ describe('Invoice Form - Stock Allocation Panel (Bug Fixes Verification)', () =>
 
     // Find the request for our product
     const batchRequest = networkRequests.find(req =>
-      req.url.includes(`productId=${TEST_CONFIG.testProduct.id}`)
+      req.url.includes(`productId=${TEST_CONFIG.testProduct.id}`),
     );
 
     if (!batchRequest) {
@@ -579,7 +579,7 @@ describe('Invoice Form - Stock Allocation Panel (Bug Fixes Verification)', () =>
     // Parse console messages for errors
     const consoleErrors = evidence.console.filter(msg =>
       msg.level === 'error' &&
-      !msg.text.includes('favicon') // Ignore favicon errors
+      !msg.text.includes('favicon'), // Ignore favicon errors
     );
 
     if (consoleErrors.length > 0) {

@@ -7,13 +7,6 @@ import { useState, useEffect } from 'react';
 import {
   X,
   MapPin,
-  Building,
-  Phone,
-  Mail,
-  User,
-  Hash,
-  FileText,
-  Package,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
