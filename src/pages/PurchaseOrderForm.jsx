@@ -31,6 +31,7 @@ import { notificationService } from '../services/notificationService';
 import { pinnedProductsService } from '../services/pinnedProductsService';
 import { importContainerService } from '../services/importContainerService';
 import PurchaseOrderPreview from '../components/purchase-orders/PurchaseOrderPreview';
+import TRNInput from '../components/TRNInput';
 const { PAYMENT_MODES } = payablesService;
 
 // Payment Form Component
@@ -2507,28 +2508,13 @@ const PurchaseOrderForm = () => {
                     }`}
                   />
                 </div>
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Tax Registration Number (TRN){' '}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={purchaseOrder.supplierTRN}
-                    onChange={(e) =>
-                      handleInputChange('supplierTRN', e.target.value)
-                    }
-                    required
-                    placeholder="e.g., 123456789012345"
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                      isDarkMode
-                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                    } ${invalidFields.has('supplierTRN') ? 'border-red-500' : ''}`}
-                  />
-                </div>
+                {/* TRN - UAE VAT Compliance (Federal Decree-Law No. 8 of 2017, Article 65) */}
+                <TRNInput
+                  value={purchaseOrder.supplierTRN}
+                  onChange={(value) => handleInputChange('supplierTRN', value)}
+                  label="Tax Registration Number (TRN)"
+                  required={true}
+                />
               </div>
             </div>
           </div>

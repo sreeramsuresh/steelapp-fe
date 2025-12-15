@@ -125,9 +125,8 @@ function normalizePaymentStatus(rawStatus: any): string {
  * @param source - Source of the data for debugging
  * @returns Normalized Invoice with camelCase fields
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeInvoice(
-  rawInvoice: any,
+  rawInvoice: any, // eslint-disable-line @typescript-eslint/no-explicit-any -- raw API data
   source = 'unknown',
 ): Invoice | null {
   if (!rawInvoice || typeof rawInvoice !== 'object') {
@@ -142,8 +141,7 @@ export function normalizeInvoice(
 
   try {
     // Helper to safely parse dates
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const parseDate = (value: any, fieldName: string): string => {
+    const parseDate = (value: any, fieldName: string): string => { // eslint-disable-line @typescript-eslint/no-explicit-any -- raw date value
       if (!value) return new Date().toISOString();
 
       // Handle Timestamp objects from Firestore/backend
@@ -213,9 +211,8 @@ export function normalizeInvoice(
     };
 
     // Normalize payments
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizePayments = (
-      payments: any[],
+      payments: any[], // eslint-disable-line @typescript-eslint/no-explicit-any -- raw payment data
     ): PaymentRecord[] | undefined => {
       if (!Array.isArray(payments)) return undefined;
 
@@ -234,9 +231,8 @@ export function normalizeInvoice(
     };
 
     // Normalize delivery status
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizeDeliveryStatus = (
-      status: any,
+      status: any, // eslint-disable-line @typescript-eslint/no-explicit-any -- raw status data
     ): DeliveryStatus | undefined => {
       if (!status) return undefined;
 
@@ -540,9 +536,8 @@ export function normalizeInvoice(
  * @param source - Source identifier for debugging
  * @returns Array of normalized Invoice objects
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeInvoices(
-  rawInvoices: any[],
+  rawInvoices: any[], // eslint-disable-line @typescript-eslint/no-explicit-any -- raw API data
   source = 'list',
 ): Invoice[] {
   if (!Array.isArray(rawInvoices)) {

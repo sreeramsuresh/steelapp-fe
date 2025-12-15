@@ -5,6 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { customerService } from '../services/customerService';
 import { notificationService } from '../services/notificationService';
 import CustomerCreditPanel from '../components/credit/CustomerCreditPanel';
+import TRNInput from '../components/TRNInput';
 import {
   Dialog,
   DialogContent,
@@ -460,23 +461,16 @@ const CustomerForm = () => {
                 />
               </div>
 
-              {/* TRN */}
-              <div>
-                <label
-                  className={`block text-sm font-medium mb-2 ${labelColor}`}
-                >
-                  Tax Registration Number (TRN)
-                </label>
-                <input
-                  type="text"
-                  name="trn"
-                  value={formData.trn}
-                  onChange={handleInputChange}
-                  disabled={!isEditMode}
-                  placeholder="123456789012"
-                  className={`w-full px-3 py-2 rounded border ${inputBg} focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50`}
-                />
-              </div>
+              {/* TRN - UAE VAT Compliance (Federal Decree-Law No. 8 of 2017, Article 65) */}
+              <TRNInput
+                value={formData.trn}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, trn: value }))
+                }
+                disabled={!isEditMode}
+                label="Tax Registration Number (TRN)"
+                required={false}
+              />
 
               {/* Payment Terms */}
               <div>

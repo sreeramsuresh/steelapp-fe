@@ -18,9 +18,10 @@ import { apiClient } from './api';
  */
 const TRN_FORMATS = {
   AE: {
-    pattern: /^100\d{12}$/,
-    description: '15 digits starting with 100',
-    example: '100123456789012',
+    pattern: /^\d{15}$/,
+    description: '15 digits exactly (e.g., 100-1234-5678-9123)',
+    example: '100123456789123',
+    displayFormat: 'XXX-XXXX-XXXX-XXXX',
     country: 'UAE',
   },
   SA: {
@@ -59,6 +60,53 @@ const TRN_FORMATS = {
  * TRN Verification Service
  */
 export const trnService = {
+  /**
+   * Format TRN for display (XXX-XXXX-XXXX-XXXX)
+   * UAE Federal Decree-Law No. 8 of 2017, Article 65
+   *
+   * @param {string} trn - Raw 15-digit TRN
+   * @returns {string} Formatted TRN or original if invalid
+   */
+  formatForDisplay(trn) {
+    if (!trn) return '';
+    const clean = String(trn).replace(/[\s-]/g, '');
+    if (clean.length !== 15 || !/^\d{15}$/.test(clean)) return trn;
+    return `${clean.slice(0, 3)}-${clean.slice(3, 7)}-${clean.slice(7, 11)}-${clean.slice(11)}`;
+  },
+
+  /**
+   * Normalize TRN input (remove spaces and dashes, keep only digits)
+   *
+   * @param {string} trn - User input with possible formatting
+   * @returns {string} Clean 15-digit TRN or original if cannot normalize
+   */
+  normalizeInput(trn) {
+    if (!trn) return '';
+    return String(trn).replace(/[\s-]/g, '');
+  },
+
+  /**
+   * Validate and format TRN as user types (for controlled inputs)
+   * Allows partial input but formats complete 15-digit TRNs
+   *
+   * @param {string} trn - User input
+   * @returns {object} { value: string, isValid: boolean, isComplete: boolean }
+   */
+  handleInput(trn) {
+    const clean = this.normalizeInput(trn);
+    const digitsOnly = clean.replace(/\D/g, '');
+
+    // Limit to 15 digits
+    const limited = digitsOnly.slice(0, 15);
+
+    return {
+      value: limited,
+      isValid: limited.length === 15,
+      isComplete: limited.length === 15,
+      displayValue: limited.length === 15 ? this.formatForDisplay(limited) : limited,
+    };
+  },
+
   /**
    * Validate TRN format locally (instant, no API call)
    *

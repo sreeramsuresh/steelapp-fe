@@ -12,6 +12,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { supplierService } from '../services/supplierService';
 import { notificationService } from '../services/notificationService';
+import TRNInput from '../components/TRNInput';
 
 /**
  * Country codes for primary country selection
@@ -351,16 +352,13 @@ export function SupplierForm() {
                 />
               </div>
 
-              <div>
-                <label className={labelClasses}>Tax ID / TRN</label>
-                <input
-                  type="text"
-                  value={formData.taxId}
-                  onChange={(e) => handleChange('taxId', e.target.value)}
-                  className={inputClasses}
-                  placeholder="Tax registration number"
-                />
-              </div>
+              {/* Tax ID / TRN - UAE VAT Compliance */}
+              <TRNInput
+                value={formData.taxId}
+                onChange={(value) => handleChange('taxId', value)}
+                label="Tax ID / TRN"
+                required={false}
+              />
             </div>
           </div>
 

@@ -269,16 +269,16 @@ const StatusBadge = ({ status }) => {
 // CONSTANTS
 // ============================================================
 
-// UAE TRN Validation (15 digits starting with 100)
+// UAE TRN Validation (Federal Decree-Law No. 8 of 2017, Article 65)
+// Format: 15 digits exactly (displayed as XXX-XXXX-XXXX-XXXX)
 const validateTRN = (trn) => {
   if (!trn)
     return { valid: false, message: 'TRN is required for import orders' };
-  if (trn.length !== 15)
-    return { valid: false, message: 'TRN must be exactly 15 digits' };
-  if (!trn.startsWith('100'))
-    return { valid: false, message: 'UAE TRN must start with 100' };
-  if (!/^\d{15}$/.test(trn))
+  const cleanTRN = String(trn).replace(/[\s-]/g, '');
+  if (!/^\d+$/.test(cleanTRN))
     return { valid: false, message: 'TRN must contain only digits' };
+  if (cleanTRN.length !== 15)
+    return { valid: false, message: `TRN must be exactly 15 digits (${cleanTRN.length}/15)` };
   return { valid: true, message: 'Valid TRN' };
 };
 
