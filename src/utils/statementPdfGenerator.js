@@ -1,5 +1,5 @@
-import { formatCurrency, formatDate, getCompanyImages } from './invoiceUtils';
-import { getDocumentTemplateColor } from '../constants/defaultTemplateSettings';
+import { formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils";
+import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings";
 
 export const generateStatementPDF = async ({
   customerName,
@@ -9,12 +9,12 @@ export const generateStatementPDF = async ({
   company,
 }) => {
   try {
-    const { jsPDF } = await import('jspdf');
+    const { jsPDF } = await import("jspdf");
 
     // Get company images from company profile
     const { logoUrl, sealUrl } = getCompanyImages(company);
     // Get the template color for statements
-    const templateColor = getDocumentTemplateColor('statement', company);
+    const templateColor = getDocumentTemplateColor("statement", company);
     const element = createStatementElement({
       customerName,
       periodStart,
@@ -28,29 +28,29 @@ export const generateStatementPDF = async ({
     document.body.appendChild(element);
 
     await waitForImages(element);
-    const html2canvas = (await import('html2canvas')).default;
+    const html2canvas = (await import("html2canvas")).default;
 
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: "#ffffff",
       logging: false,
       removeContainer: true,
     });
 
     document.body.removeChild(element);
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-    const fname = `Statement-${(customerName || 'Customer').replace(/[\\/:*?"<>|]/g, '_')}-${periodStart || ''}_to_${periodEnd || ''}.pdf`;
+    const fname = `Statement-${(customerName || "Customer").replace(/[\\/:*?"<>|]/g, "_")}-${periodStart || ""}_to_${periodEnd || ""}.pdf`;
     pdf.save(fname);
     return true;
   } catch (e) {
-    console.error('Error generating Statement PDF:', e);
+    console.error("Error generating Statement PDF:", e);
     throw e;
   }
 };
@@ -63,9 +63,9 @@ const createStatementElement = ({
   company = {},
   logoUrl: logoCompany,
   sealUrl: _sealImage,
-  templateColor = '#4f46e5',
+  templateColor = "#4f46e5",
 }) => {
-  const el = document.createElement('div');
+  const el = document.createElement("div");
   el.style.cssText = `
     width: 210mm;
     min-height: 297mm;
@@ -80,7 +80,7 @@ const createStatementElement = ({
     left: -9999px;
   `;
 
-  const safe = (v) => (v === null || v === undefined ? '' : v);
+  const safe = (v) => (v === null || v === undefined ? "" : v);
   const comp = company || {};
   const compAddr = comp.address || {};
 
@@ -104,9 +104,9 @@ const createStatementElement = ({
           <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height:48px; width:auto; object-fit:contain;" />
         </div>
         <div style="margin-top:8px; line-height:1.3;">
-          <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || 'Company'}</strong></p>
+          <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || "Company"}</strong></p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.street)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${compAddr.emirate}` : ''} ${compAddr.poBox || ''}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${compAddr.emirate}` : ""} ${compAddr.poBox || ""}</p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>
@@ -116,7 +116,7 @@ const createStatementElement = ({
 
       <div style="text-align:left;">
         <div style="margin-bottom:6px;">
-          <p style="margin:2px 0;">${safe(customerName) || 'Customer'}</p>
+          <p style="margin:2px 0;">${safe(customerName) || "Customer"}</p>
         </div>
         <div style="margin-bottom:10px;">
           <p style="margin:2px 0;"><strong>Period:</strong> ${formatDate(periodStart)} - ${formatDate(periodEnd)}</p>
@@ -163,22 +163,22 @@ const createStatementElement = ({
         </thead>
         <tbody>
           ${items
-    .map((r, idx) => {
-      const debit = parseFloat(r.invoiceAmount) || 0;
-      const credit = parseFloat(r.received) || 0;
-      return `
-            <tr ${idx % 2 === 0 ? 'style="background-color:#fafafa;"' : ''}>
+            .map((r, idx) => {
+              const debit = parseFloat(r.invoiceAmount) || 0;
+              const credit = parseFloat(r.received) || 0;
+              return `
+            <tr ${idx % 2 === 0 ? 'style="background-color:#fafafa;"' : ""}>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${formatDate(r.invoiceDate || r.date)}</td>
-              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${debit > 0 ? 'Invoice' : 'Payment'}</td>
+              <td style="padding:6px; text-align:left; border:1px solid #ccc;">${debit > 0 ? "Invoice" : "Payment"}</td>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.invoiceNo || r.invoiceNumber)}</td>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${safe(r.description || `Invoice ${r.invoiceNo || r.invoiceNumber}`)}</td>
-              <td style="padding:6px; text-align:right; border:1px solid #ccc;">${debit > 0 ? formatCurrency(debit) : '-'}</td>
-              <td style="padding:6px; text-align:right; border:1px solid #ccc;">${credit > 0 ? formatCurrency(credit) : '-'}</td>
+              <td style="padding:6px; text-align:right; border:1px solid #ccc;">${debit > 0 ? formatCurrency(debit) : "-"}</td>
+              <td style="padding:6px; text-align:right; border:1px solid #ccc;">${credit > 0 ? formatCurrency(credit) : "-"}</td>
               <td style="padding:6px; text-align:right; border:1px solid #ccc; font-weight:600;">${formatCurrency(r.outstanding || 0)}</td>
             </tr>
           `;
-    })
-    .join('')}
+            })
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -192,7 +192,7 @@ const createStatementElement = ({
         <div style="text-align:center; min-width:180px;">
           <div style="border-bottom:1px solid #000; margin:0 0 8px 0; width:150px; margin-left:auto;"></div>
           <p style="margin:0; font-size:10px; font-weight:600;">Authorized Signatory</p>
-          <p style="margin:2px 0 0 0; font-size:10px; font-weight:600;">${safe(comp.name) || 'Company'}</p>
+          <p style="margin:2px 0 0 0; font-size:10px; font-weight:600;">${safe(comp.name) || "Company"}</p>
         </div>
       </div>
     </div>
@@ -201,7 +201,7 @@ const createStatementElement = ({
 };
 
 const waitForImages = (container) => {
-  const images = Array.from(container.querySelectorAll('img'));
+  const images = Array.from(container.querySelectorAll("img"));
   if (images.length === 0) return Promise.resolve();
   return Promise.all(
     images.map(
@@ -209,12 +209,12 @@ const waitForImages = (container) => {
         new Promise((resolve) => {
           if (img.complete && img.naturalWidth !== 0) return resolve();
           try {
-            img.crossOrigin = img.crossOrigin || 'anonymous';
+            img.crossOrigin = img.crossOrigin || "anonymous";
           } catch {
             // Ignore - crossOrigin may be read-only on some browsers
           }
-          img.addEventListener('load', resolve, { once: true });
-          img.addEventListener('error', resolve, { once: true });
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
         }),
     ),
   );

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Contract Registry - DEV-only API contract validation
@@ -22,13 +22,13 @@ import { z } from 'zod';
  * Used in invoice line items for batch allocation.
  */
 const ManualAllocationSchema = z.object({
-  batch_id: z.number().int().positive('batch_id must be positive'),
+  batch_id: z.number().int().positive("batch_id must be positive"),
   quantity: z.union([z.number(), z.string()]).refine(
     (val) => {
-      const num = typeof val === 'number' ? val : parseFloat(val);
+      const num = typeof val === "number" ? val : parseFloat(val);
       return !isNaN(num) && num > 0;
     },
-    { message: 'quantity must be a positive number or numeric string' }
+    { message: "quantity must be a positive number or numeric string" },
   ),
 });
 
@@ -45,23 +45,27 @@ const InvoiceItemSchema = z
     id: z.string().uuid().optional(),
     line_item_temp_id: z.string().uuid().optional(),
     product_id: z.number().int().positive().optional(),
-    name: z.string().min(1, 'name is required'),
+    name: z.string().min(1, "name is required"),
 
     // Quantities and pricing (snake_case)
-    quantity: z.number().positive('quantity must be positive'),
-    quantity_uom: z.enum(['KG', 'PCS', 'MT', 'M']).optional(),
-    rate: z.number().nonnegative('rate must be non-negative'),
-    amount: z.number().nonnegative('amount must be non-negative'),
+    quantity: z.number().positive("quantity must be positive"),
+    quantity_uom: z.enum(["KG", "PCS", "MT", "M"]).optional(),
+    rate: z.number().nonnegative("rate must be non-negative"),
+    amount: z.number().nonnegative("amount must be non-negative"),
 
     // Stock allocation (CRITICAL - snake_case)
-    source_type: z.enum(['WAREHOUSE', 'LOCAL_DROP_SHIP', 'IMPORT_DROP_SHIP']).optional(),
+    source_type: z
+      .enum(["WAREHOUSE", "LOCAL_DROP_SHIP", "IMPORT_DROP_SHIP"])
+      .optional(),
     warehouse_id: z.number().int().positive().optional().nullable(),
-    allocation_mode: z.enum(['AUTO_FIFO', 'MANUAL']).optional().nullable(),
+    allocation_mode: z.enum(["AUTO_FIFO", "MANUAL"]).optional().nullable(),
     manual_allocations: z.array(ManualAllocationSchema).optional(),
 
     // VAT (snake_case)
     vat_rate: z.number().min(0).max(100).optional(),
-    supply_type: z.enum(['standard', 'zero_rated', 'exempt', 'reverse_charge']).optional(),
+    supply_type: z
+      .enum(["standard", "zero_rated", "exempt", "reverse_charge"])
+      .optional(),
 
     // Optional fields (snake_case - not validated strictly)
     discount: z.number().optional(),
@@ -83,27 +87,29 @@ const InvoiceItemSchema = z
   // Custom validation: If source_type is WAREHOUSE, must have allocation_mode and manual_allocations
   .refine(
     (item) => {
-      if (item.source_type === 'WAREHOUSE') {
-        return item.allocation_mode !== undefined && item.allocation_mode !== null;
+      if (item.source_type === "WAREHOUSE") {
+        return (
+          item.allocation_mode !== undefined && item.allocation_mode !== null
+        );
       }
       return true;
     },
     {
-      message: 'WAREHOUSE items must have allocation_mode',
-      path: ['allocation_mode'],
-    }
+      message: "WAREHOUSE items must have allocation_mode",
+      path: ["allocation_mode"],
+    },
   )
   .refine(
     (item) => {
-      if (item.source_type === 'WAREHOUSE' && item.allocation_mode) {
+      if (item.source_type === "WAREHOUSE" && item.allocation_mode) {
         return Array.isArray(item.manual_allocations);
       }
       return true;
     },
     {
-      message: 'WAREHOUSE items must have manual_allocations array',
-      path: ['manual_allocations'],
-    }
+      message: "WAREHOUSE items must have manual_allocations array",
+      path: ["manual_allocations"],
+    },
   );
 
 // ============================================================================
@@ -121,15 +127,19 @@ const InvoiceItemSchema = z
  * IMPORTANT: Validates snake_case payload from transformInvoiceForServer()
  */
 const CreateInvoiceRequestSchema = z.object({
-  customer_id: z.number().int().positive('customer_id must be positive').nullable(),
+  customer_id: z
+    .number()
+    .int()
+    .positive("customer_id must be positive")
+    .nullable(),
   customer_details: z.any().optional(), // Allow any customer object shape
-  status: z.enum(['draft', 'proforma', 'issued']).optional(),
+  status: z.enum(["draft", "proforma", "issued"]).optional(),
   invoice_date: z.string().nullable().optional(),
   due_date: z.string().nullable().optional(),
-  items: z.array(InvoiceItemSchema).min(1, 'items array must not be empty'),
+  items: z.array(InvoiceItemSchema).min(1, "items array must not be empty"),
   discount_amount: z.number().nonnegative().optional(),
   discount_percentage: z.number().min(0).max(100).optional(),
-  discount_type: z.enum(['amount', 'percentage']).optional(),
+  discount_type: z.enum(["amount", "percentage"]).optional(),
   notes: z.string().optional(),
   terms: z.string().optional(),
   // Allow other fields without strict validation
@@ -171,8 +181,11 @@ const UpdateInvoiceResponseSchema = z.object({
  */
 const CancelLineItemReservationsRequestSchema = z
   .object({
-    draftInvoiceId: z.number().int().nonnegative('draftInvoiceId must be non-negative'),
-    lineItemTempId: z.string().uuid('lineItemTempId must be a valid UUID'),
+    draftInvoiceId: z
+      .number()
+      .int()
+      .nonnegative("draftInvoiceId must be non-negative"),
+    lineItemTempId: z.string().uuid("lineItemTempId must be a valid UUID"),
   })
   .strict(); // Reject unknown keys
 
@@ -191,31 +204,35 @@ const CancelLineItemReservationsResponseSchema = z.object({
 const ReserveBatchesFIFORequestSchema = z
   .object({
     draftInvoiceId: z.number().int().nonnegative(),
-    productId: z.number().int().positive('productId must be positive'),
-    warehouseId: z.number().int().positive('warehouseId must be positive'),
+    productId: z.number().int().positive("productId must be positive"),
+    warehouseId: z.number().int().positive("warehouseId must be positive"),
     requiredQuantity: z.union([z.number(), z.string()]).refine(
       (val) => {
-        const num = typeof val === 'number' ? val : parseFloat(val);
+        const num = typeof val === "number" ? val : parseFloat(val);
         return !isNaN(num) && num > 0;
       },
-      { message: 'requiredQuantity must be positive' }
+      { message: "requiredQuantity must be positive" },
     ),
-    unit: z.enum(['KG', 'PCS', 'MT', 'M']),
-    lineItemTempId: z.string().uuid('lineItemTempId must be a valid UUID'),
+    unit: z.enum(["KG", "PCS", "MT", "M"]),
+    lineItemTempId: z.string().uuid("lineItemTempId must be a valid UUID"),
   })
   .strict();
 
 const ReserveBatchesFIFOResponseSchema = z.object({
   success: z.boolean(),
   message: z.string().optional(),
-  allocations: z.array(z.object({
-    reservationId: z.number(),
-    batchId: z.number(),
-    batchNumber: z.string(),
-    quantity: z.number(),
-    unitCost: z.number(),
-    totalCost: z.number(),
-  })).optional(),
+  allocations: z
+    .array(
+      z.object({
+        reservationId: z.number(),
+        batchId: z.number(),
+        batchNumber: z.string(),
+        quantity: z.number(),
+        unitCost: z.number(),
+        totalCost: z.number(),
+      }),
+    )
+    .optional(),
   totalQuantity: z.number().optional(),
   totalCost: z.number().optional(),
   expiresAt: z.string().optional(),
@@ -234,23 +251,23 @@ export interface ContractDefinition {
 
 export const contractRegistry: Record<string, ContractDefinition> = {
   // Invoice Management
-  'POST /invoices': {
+  "POST /invoices": {
     request: CreateInvoiceRequestSchema,
     response: CreateInvoiceResponseSchema,
   },
 
-  'PUT /invoices/:id': {
+  "PUT /invoices/:id": {
     request: UpdateInvoiceRequestSchema,
     response: UpdateInvoiceResponseSchema,
   },
 
   // Batch Reservations
-  'DELETE /batch-reservations/line-item': {
+  "DELETE /batch-reservations/line-item": {
     request: CancelLineItemReservationsRequestSchema,
     response: CancelLineItemReservationsResponseSchema,
   },
 
-  'POST /batch-reservations/fifo': {
+  "POST /batch-reservations/fifo": {
     request: ReserveBatchesFIFORequestSchema,
     response: ReserveBatchesFIFOResponseSchema,
   },

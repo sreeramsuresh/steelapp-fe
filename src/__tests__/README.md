@@ -20,15 +20,19 @@ See `/TEST_QUICK_START.md` in project root for detailed instructions.
 ## Test Files
 
 ### Component Tests
+
 - **`../pages/__tests__/CreditNoteForm.test.jsx`** - Credit note form component (32 tests)
 
 ### Hook Tests
+
 - **`../hooks/__tests__/useCreditNoteDrafts.test.js`** - Draft management hook (20 tests)
 
 ### Utility Tests
+
 - **`../utils/__tests__/invoiceUtils.test.js`** - Date formatting utilities (25 tests)
 
 ### Integration Tests
+
 - **`credit-note-integration.test.jsx`** - End-to-end workflows (10 tests)
 
 ---
@@ -36,11 +40,13 @@ See `/TEST_QUICK_START.md` in project root for detailed instructions.
 ## Mock Data
 
 All mock data centralized in:
+
 ```
 steelapp-fe/src/test/mocks/creditNoteMocks.js
 ```
 
 Includes:
+
 - Mock credit notes (draft, issued, with items, etc.)
 - Mock invoices
 - Mock drafts for localStorage
@@ -52,6 +58,7 @@ Includes:
 ## What's Tested
 
 ### 1. Date Format Handling
+
 - ISO timestamps from backend → yyyy-MM-dd for HTML5 inputs
 - Credit note dates
 - Invoice dates
@@ -59,12 +66,14 @@ Includes:
 - Timezone conversions (UTC → UTC+4)
 
 ### 2. Auto-Save Functionality
+
 - Manual credit amount saves WITHOUT items
 - Auto-save triggers after debounce (2500ms)
 - Draft persists to localStorage
 - Draft structure validation
 
 ### 3. Draft Management
+
 - Save/load/delete operations
 - Conflict detection (same/different invoice)
 - Draft expiry (midnight)
@@ -72,12 +81,14 @@ Includes:
 - Clear draft after save
 
 ### 4. Validation
+
 - Required fields enforced
 - Manual amount OR items required for ACCOUNTING_ONLY
 - Items required for RETURN_WITH_QC
 - Error messages display correctly
 
 ### 5. Complete Workflows
+
 - Create → Save Draft → Resume → Save
 - Create → Issue Tax Document
 - Edit existing credit note
@@ -88,16 +99,19 @@ Includes:
 ## Bug Fixes Verified
 
 ### ✅ Bug 1: Date Format
+
 **Issue**: Backend ISO timestamp causes "Invalid date" in input
 **Fix**: `formatDateForInput()` converts to yyyy-MM-dd
 **Tests**: 12 tests in `invoiceUtils.test.js`
 
 ### ✅ Bug 2: Auto-Save
+
 **Issue**: Manual credit amount doesn't save to drafts
 **Fix**: Allow save with manual amount even if items empty
 **Tests**: 8 tests across multiple files
 
 ### ✅ Bug 3: List Scroll
+
 **Issue**: Credit note list not horizontally scrollable
 **Fix**: Changed overflow-hidden → overflow-x-auto
 **Tests**: Manual UI verification
@@ -107,6 +121,7 @@ Includes:
 ## Test Structure
 
 ### Standard Test Pattern
+
 ```javascript
 describe('Feature Name', () => {
   beforeEach(() => {
@@ -138,25 +153,25 @@ describe('Feature Name', () => {
 ### Common Patterns
 
 **Rendering with Context**:
+
 ```javascript
 const TestWrapper = ({ children }) => (
   <BrowserRouter>
-    <ThemeProvider>
-      {children}
-    </ThemeProvider>
+    <ThemeProvider>{children}</ThemeProvider>
   </BrowserRouter>
 );
 
 render(
   <TestWrapper>
     <CreditNoteForm />
-  </TestWrapper>
+  </TestWrapper>,
 );
 ```
 
 **Mocking Services**:
+
 ```javascript
-vi.mock('../services/creditNoteService', () => ({
+vi.mock("../services/creditNoteService", () => ({
   creditNoteService: {
     getCreditNote: vi.fn(),
     createCreditNote: vi.fn(),
@@ -165,6 +180,7 @@ vi.mock('../services/creditNoteService', () => ({
 ```
 
 **localStorage Mock**:
+
 ```javascript
 let localStorageMock = {};
 global.localStorage = {
@@ -179,26 +195,31 @@ global.localStorage = {
 ```
 
 **Waiting for Auto-Save**:
+
 ```javascript
 // Auto-save has 2500ms debounce
-await waitFor(() => {
-  const drafts = JSON.parse(localStorage.getItem('credit_note_drafts'));
-  expect(drafts[337]).toBeDefined();
-}, { timeout: 4000 }); // Wait up to 4 seconds
+await waitFor(
+  () => {
+    const drafts = JSON.parse(localStorage.getItem("credit_note_drafts"));
+    expect(drafts[337]).toBeDefined();
+  },
+  { timeout: 4000 },
+); // Wait up to 4 seconds
 ```
 
 ---
 
 ## Coverage Targets
 
-| Module | Target | Expected |
-|--------|--------|----------|
-| CreditNoteForm.jsx | >80% | ~85% |
-| useCreditNoteDrafts.js | >80% | ~90% |
-| invoiceUtils.js | >80% | ~75% |
-| Overall | >80% | ~82% |
+| Module                 | Target | Expected |
+| ---------------------- | ------ | -------- |
+| CreditNoteForm.jsx     | >80%   | ~85%     |
+| useCreditNoteDrafts.js | >80%   | ~90%     |
+| invoiceUtils.js        | >80%   | ~75%     |
+| Overall                | >80%   | ~82%     |
 
 Generate coverage report:
+
 ```bash
 npm run test:coverage
 ```
@@ -210,8 +231,9 @@ View report: `steelapp-fe/coverage/index.html`
 ## Adding New Tests
 
 1. **Use Mock Data**:
+
    ```javascript
-   import { mockCreditNote, mockInvoice } from '../test/mocks/creditNoteMocks';
+   import { mockCreditNote, mockInvoice } from "../test/mocks/creditNoteMocks";
    ```
 
 2. **Follow Naming Convention**:
@@ -224,6 +246,7 @@ View report: `steelapp-fe/coverage/index.html`
    - Edge cases (null, empty, invalid)
 
 4. **Clean Up**:
+
    ```javascript
    afterEach(() => {
      vi.clearAllMocks();
@@ -241,36 +264,46 @@ View report: `steelapp-fe/coverage/index.html`
 ## Troubleshooting
 
 ### Tests Timeout
+
 **Problem**: Tests hang or timeout
 **Solution**:
+
 - Check debounce timing (auto-save is 2500ms)
 - Increase `waitFor` timeout to 4000ms
 - Verify mocks are resolving
 
 ### localStorage Errors
+
 **Problem**: "localStorage is not defined"
 **Solution**:
+
 - Check test setup.js includes localStorage mock
 - Ensure beforeEach sets up localStorage
 
 ### Date Format Failures
+
 **Problem**: Expected yyyy-MM-dd, got ISO string
 **Solution**:
+
 - Verify `formatDateForInput` is called
 - Check timezone conversion (UTC → UTC+4)
 - Ensure date input receives formatted value
 
 ### Component Not Rendering
+
 **Problem**: "Unable to find element"
 **Solution**:
+
 - Check all mocks are set up correctly
 - Verify ThemeProvider wrapper exists
 - Use `screen.debug()` to see rendered output
 - Check if element is async (use `findBy` instead of `getBy`)
 
 ### Coverage Low
+
 **Problem**: Coverage below target
 **Solution**:
+
 - Run coverage report to see uncovered lines
 - Add tests for error paths
 - Test all branches (if/else)
@@ -281,6 +314,7 @@ View report: `steelapp-fe/coverage/index.html`
 ## Running Tests in CI/CD
 
 ### GitHub Actions Example
+
 ```yaml
 - name: Run Credit Note Tests
   run: |
@@ -295,6 +329,7 @@ View report: `steelapp-fe/coverage/index.html`
 ```
 
 ### Jenkins Example
+
 ```groovy
 stage('Test') {
   steps {
@@ -325,12 +360,14 @@ When modifying Credit Note functionality:
 ## Resources
 
 ### Documentation
+
 - **TEST_QUICK_START.md** - Quick reference for running tests
 - **TEST_RESULTS_CREDIT_NOTE.md** - Detailed test documentation
 - **TEST_SUITE_SUMMARY.md** - Complete test suite overview
 - **CLAUDE.md** - Project testing guidelines
 
 ### Test Files
+
 - Component tests: `src/pages/__tests__/`
 - Hook tests: `src/hooks/__tests__/`
 - Utility tests: `src/utils/__tests__/`
@@ -338,6 +375,7 @@ When modifying Credit Note functionality:
 - Mock data: `src/test/mocks/`
 
 ### Implementation Files
+
 - Form: `src/pages/CreditNoteForm.jsx`
 - Hook: `src/hooks/useCreditNoteDrafts.js`
 - Utils: `src/utils/invoiceUtils.js`

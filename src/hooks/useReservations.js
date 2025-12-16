@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { batchReservationService } from '../services/batchReservationService';
+import { useState, useCallback, useEffect, useRef } from "react";
+import { batchReservationService } from "../services/batchReservationService";
 
 /**
  * useReservations Hook
@@ -60,7 +60,7 @@ export function useReservations({
         batchReservationService
           .cancelReservation(activeReservationRef.current)
           .catch((err) => {
-            console.warn('Failed to cancel reservation on unmount:', err);
+            console.warn("Failed to cancel reservation on unmount:", err);
           });
       }
     };
@@ -87,11 +87,11 @@ export function useReservations({
       setError(null);
 
       // Check for partial allocation warning
-      if (response.message && response.message.includes('partial')) {
+      if (response.message && response.message.includes("partial")) {
         setError(response.message);
       }
     } else {
-      setError(response.message || 'Reservation failed');
+      setError(response.message || "Reservation failed");
     }
   }, []);
 
@@ -103,9 +103,9 @@ export function useReservations({
    * @param {string} unit - Unit of measure (default: 'KG')
    */
   const reserveFIFO = useCallback(
-    async (requiredQuantity, unit = 'KG') => {
+    async (requiredQuantity, unit = "KG") => {
       if (!productId || !warehouseId || !lineItemTempId) {
-        setError('Missing required parameters for reservation');
+        setError("Missing required parameters for reservation");
         return;
       }
 
@@ -121,10 +121,11 @@ export function useReservations({
         lineItemTempId,
       };
 
-      console.log('[FIFO Reserve] Request params:', requestParams);
+      console.log("[FIFO Reserve] Request params:", requestParams);
 
       try {
-        const response = await batchReservationService.reserveFIFO(requestParams);
+        const response =
+          await batchReservationService.reserveFIFO(requestParams);
 
         processReservationResponse(response);
       } catch (err) {
@@ -133,9 +134,9 @@ export function useReservations({
             err.response?.data?.message ||
             err.response?.data?.error ||
             err.message ||
-            'Failed to reserve batches';
+            "Failed to reserve batches";
           setError(errorMessage);
-          console.error('FIFO reservation error:', err);
+          console.error("FIFO reservation error:", err);
         }
       } finally {
         if (isMountedRef.current) {
@@ -160,12 +161,12 @@ export function useReservations({
   const reserveManual = useCallback(
     async (manualAllocations) => {
       if (!productId || !warehouseId || !lineItemTempId) {
-        setError('Missing required parameters for reservation');
+        setError("Missing required parameters for reservation");
         return;
       }
 
       if (!manualAllocations || manualAllocations.length === 0) {
-        setError('No allocations provided');
+        setError("No allocations provided");
         return;
       }
 
@@ -188,9 +189,9 @@ export function useReservations({
             err.response?.data?.message ||
             err.response?.data?.error ||
             err.message ||
-            'Failed to reserve batches';
+            "Failed to reserve batches";
           setError(errorMessage);
-          console.error('Manual reservation error:', err);
+          console.error("Manual reservation error:", err);
         }
       } finally {
         if (isMountedRef.current) {
@@ -229,7 +230,7 @@ export function useReservations({
       }
     } catch (err) {
       if (isMountedRef.current) {
-        console.error('Failed to cancel reservation:', err);
+        console.error("Failed to cancel reservation:", err);
         // Don't set error for cancel failures - just log it
       }
     } finally {
@@ -267,9 +268,9 @@ export function useReservations({
           err.response?.data?.message ||
           err.response?.data?.error ||
           err.message ||
-          'Failed to extend reservation';
+          "Failed to extend reservation";
         setError(errorMessage);
-        console.error('Extend reservation error:', err);
+        console.error("Extend reservation error:", err);
       }
     } finally {
       if (isMountedRef.current) {
@@ -284,7 +285,7 @@ export function useReservations({
    */
   const loadExistingReservations = useCallback(async () => {
     // Only load if we have a valid numeric draft invoice ID
-    if (!draftInvoiceId || typeof draftInvoiceId !== 'number') return;
+    if (!draftInvoiceId || typeof draftInvoiceId !== "number") return;
 
     setLoading(true);
 
@@ -317,7 +318,7 @@ export function useReservations({
       }
     } catch (err) {
       if (isMountedRef.current) {
-        console.error('Failed to load existing reservations:', err);
+        console.error("Failed to load existing reservations:", err);
         // Don't set error - not critical if we can't load existing
       }
     } finally {

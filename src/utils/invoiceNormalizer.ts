@@ -10,7 +10,7 @@ import type {
   InvoiceItem,
   PaymentRecord,
   DeliveryStatus,
-} from '../types/invoice';
+} from "../types/invoice";
 
 /**
  * Normalize invoice status from gRPC enum to frontend string
@@ -21,13 +21,13 @@ import type {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeInvoiceStatus(rawStatus: any): string {
   // Handle null/undefined/empty
-  if (!rawStatus || rawStatus === '') {
-    if (process.env.NODE_ENV !== 'production') {
+  if (!rawStatus || rawStatus === "") {
+    if (process.env.NODE_ENV !== "production") {
       console.warn(
         'INVOICE_NORMALIZER: Received null/empty status, defaulting to "draft"',
       );
     }
-    return 'draft';
+    return "draft";
   }
 
   // If already normalized (lowercase), return as-is
@@ -37,30 +37,30 @@ function normalizeInvoiceStatus(rawStatus: any): string {
 
   // Map gRPC enum constants to frontend strings
   const statusMap: Record<string, string> = {
-    STATUS_DRAFT: 'draft',
-    STATUS_UNSPECIFIED: 'draft', // Treat unspecified as draft
-    STATUS_PROFORMA: 'proforma',
-    STATUS_ISSUED: 'issued',
-    STATUS_SENT: 'sent',
-    STATUS_CANCELLED: 'cancelled',
+    STATUS_DRAFT: "draft",
+    STATUS_UNSPECIFIED: "draft", // Treat unspecified as draft
+    STATUS_PROFORMA: "proforma",
+    STATUS_ISSUED: "issued",
+    STATUS_SENT: "sent",
+    STATUS_CANCELLED: "cancelled",
   };
 
   const normalized = statusMap[rawStatus];
 
   if (!normalized) {
     // Unknown enum - log SCHEMA_MISMATCH and return safe default
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       console.error(
-        'SCHEMA_MISMATCH[INVOICE_STATUS_NORMALIZER]: Unknown raw invoice status',
+        "SCHEMA_MISMATCH[INVOICE_STATUS_NORMALIZER]: Unknown raw invoice status",
         {
           receivedStatus: rawStatus,
           knownGrpcEnums: Object.keys(statusMap),
-          defaultingTo: 'draft',
+          defaultingTo: "draft",
           timestamp: new Date().toISOString(),
         },
       );
     }
-    return 'draft'; // Safe default
+    return "draft"; // Safe default
   }
 
   return normalized;
@@ -75,13 +75,13 @@ function normalizeInvoiceStatus(rawStatus: any): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizePaymentStatus(rawStatus: any): string {
   // Handle null/undefined/empty
-  if (!rawStatus || rawStatus === '') {
-    if (process.env.NODE_ENV !== 'production') {
+  if (!rawStatus || rawStatus === "") {
+    if (process.env.NODE_ENV !== "production") {
       console.warn(
         'INVOICE_NORMALIZER: Received null/empty payment status, defaulting to "unpaid"',
       );
     }
-    return 'unpaid';
+    return "unpaid";
   }
 
   // If already normalized (lowercase with underscores), return as-is
@@ -91,29 +91,29 @@ function normalizePaymentStatus(rawStatus: any): string {
 
   // Map gRPC enum constants to frontend strings
   const paymentStatusMap: Record<string, string> = {
-    PAYMENT_STATUS_UNPAID: 'unpaid',
-    PAYMENT_STATUS_UNSPECIFIED: 'unpaid', // Treat unspecified as unpaid
-    PAYMENT_STATUS_PARTIALLY_PAID: 'partially_paid',
-    PAYMENT_STATUS_PAID: 'paid',
-    PAYMENT_STATUS_FULLY_PAID: 'fully_paid',
+    PAYMENT_STATUS_UNPAID: "unpaid",
+    PAYMENT_STATUS_UNSPECIFIED: "unpaid", // Treat unspecified as unpaid
+    PAYMENT_STATUS_PARTIALLY_PAID: "partially_paid",
+    PAYMENT_STATUS_PAID: "paid",
+    PAYMENT_STATUS_FULLY_PAID: "fully_paid",
   };
 
   const normalized = paymentStatusMap[rawStatus];
 
   if (!normalized) {
     // Unknown enum - log SCHEMA_MISMATCH and return safe default
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       console.error(
-        'SCHEMA_MISMATCH[PAYMENT_STATUS_NORMALIZER]: Unknown raw payment status',
+        "SCHEMA_MISMATCH[PAYMENT_STATUS_NORMALIZER]: Unknown raw payment status",
         {
           receivedStatus: rawStatus,
           knownGrpcEnums: Object.keys(paymentStatusMap),
-          defaultingTo: 'unpaid',
+          defaultingTo: "unpaid",
           timestamp: new Date().toISOString(),
         },
       );
     }
-    return 'unpaid'; // Safe default
+    return "unpaid"; // Safe default
   }
 
   return normalized;
@@ -127,9 +127,9 @@ function normalizePaymentStatus(rawStatus: any): string {
  */
 export function normalizeInvoice(
   rawInvoice: any, // eslint-disable-line @typescript-eslint/no-explicit-any -- raw API data
-  source = 'unknown',
+  source = "unknown",
 ): Invoice | null {
-  if (!rawInvoice || typeof rawInvoice !== 'object') {
+  if (!rawInvoice || typeof rawInvoice !== "object") {
     console.error(
       `❌ [Invoice Normalizer] Invalid invoice data from ${source}:`,
       rawInvoice,
@@ -141,7 +141,8 @@ export function normalizeInvoice(
 
   try {
     // Helper to safely parse dates
-    const parseDate = (value: any, fieldName: string): string => { // eslint-disable-line @typescript-eslint/no-explicit-any -- raw date value
+    const parseDate = (value: any, fieldName: string): string => {
+      // eslint-disable-line @typescript-eslint/no-explicit-any -- raw date value
       if (!value) return new Date().toISOString();
 
       // Handle Timestamp objects from Firestore/backend
@@ -150,7 +151,7 @@ export function normalizeInvoice(
       }
 
       // Handle string dates
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
           return parsed.toISOString();
@@ -177,13 +178,13 @@ export function normalizeInvoice(
       if (!raw) {
         return {
           id: 0,
-          name: 'Unknown Customer',
+          name: "Unknown Customer",
         };
       }
 
       return {
         id: raw.id || raw.customerId || 0,
-        name: raw.name || raw.customerName || 'Unknown',
+        name: raw.name || raw.customerName || "Unknown",
         email: raw.email || undefined,
         phone: raw.phone || undefined,
         address: raw.address || undefined,
@@ -199,7 +200,7 @@ export function normalizeInvoice(
       return items.map((item) => ({
         id: item.id,
         productId: item.productId || item.productId || 0,
-        productName: item.productName || item.productName || '',
+        productName: item.productName || item.productName || "",
         description: item.description || undefined,
         quantity: parseNumber(item.quantity, 0),
         rate: parseNumber(item.rate, 0),
@@ -221,7 +222,7 @@ export function normalizeInvoice(
         amount: parseNumber(payment.amount, 0),
         paymentDate: parseDate(
           payment.paymentDate || payment.paymentDate,
-          'paymentDate',
+          "paymentDate",
         ),
         paymentMethod:
           payment.paymentMethod || payment.paymentMethod || undefined,
@@ -252,17 +253,17 @@ export function normalizeInvoice(
     );
     const invoiceDateParsed = parseDate(
       rawInvoice.invoiceDate || rawInvoice.invoiceDate,
-      'invoiceDate',
+      "invoiceDate",
     );
 
     const normalized: Invoice = {
       // Core identifiers
       id: rawInvoice.id || 0,
-      invoiceNumber: rawInvoice.invoiceNumber || rawInvoice.invoiceNumber || '',
+      invoiceNumber: rawInvoice.invoiceNumber || rawInvoice.invoiceNumber || "",
 
       // Dates
       invoiceDate: invoiceDateParsed,
-      dueDate: parseDate(rawInvoice.dueDate || rawInvoice.dueDate, 'dueDate'),
+      dueDate: parseDate(rawInvoice.dueDate || rawInvoice.dueDate, "dueDate"),
       date: invoiceDateParsed, // Legacy alias for invoiceDate
       promiseDate: rawInvoice.promiseDate || rawInvoice.promiseDate || null, // Promise/delivery date
       createdAt:
@@ -286,15 +287,15 @@ export function normalizeInvoice(
 
       // Invoice Revision Tracking (24-hour edit grace period)
       issuedAt: rawInvoice.issuedAt
-        ? parseDate(rawInvoice.issuedAt, 'issuedAt')
+        ? parseDate(rawInvoice.issuedAt, "issuedAt")
         : null,
       revisionNumber: parseNumber(rawInvoice.revisionNumber, 1),
       revisedAt: rawInvoice.revisedAt
-        ? parseDate(rawInvoice.revisedAt, 'revisedAt')
+        ? parseDate(rawInvoice.revisedAt, "revisedAt")
         : null,
       originalInvoiceId: rawInvoice.originalInvoiceId || null,
       supersededAt: rawInvoice.supersededAt
-        ? parseDate(rawInvoice.supersededAt, 'supersededAt')
+        ? parseDate(rawInvoice.supersededAt, "supersededAt")
         : null,
       supersededBy: rawInvoice.supersededBy || null,
       supersededReason: rawInvoice.supersededReason || null,
@@ -350,7 +351,7 @@ export function normalizeInvoice(
       ),
       discountType:
         rawInvoice.discountType || rawInvoice.discount_type || undefined,
-      currency: rawInvoice.currency || 'INR',
+      currency: rawInvoice.currency || "INR",
       exchangeRate: parseNumber(
         rawInvoice.exchangeRate || rawInvoice.exchange_rate,
         1,
@@ -525,7 +526,7 @@ export function normalizeInvoice(
       `❌ [Invoice Normalizer] Failed to normalize invoice from ${source}:`,
       error,
     );
-    console.error('   Raw data:', rawInvoice);
+    console.error("   Raw data:", rawInvoice);
     return null;
   }
 }
@@ -538,7 +539,7 @@ export function normalizeInvoice(
  */
 export function normalizeInvoices(
   rawInvoices: any[], // eslint-disable-line @typescript-eslint/no-explicit-any -- raw API data
-  source = 'list',
+  source = "list",
 ): Invoice[] {
   if (!Array.isArray(rawInvoices)) {
     console.error(

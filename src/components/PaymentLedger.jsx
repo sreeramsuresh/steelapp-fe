@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Trash2,
   Edit2,
@@ -6,19 +6,19 @@ import {
   Download,
   CheckCircle,
   Printer,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { formatCurrency } from '../utils/invoiceUtils';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { formatCurrency } from "../utils/invoiceUtils";
 import {
   getPaymentModeConfig,
   formatPaymentDisplay,
   calculateTotalPaid,
   calculateBalanceDue,
-} from '../utils/paymentUtils';
+} from "../utils/paymentUtils";
 import {
   generatePaymentReceipt,
   printPaymentReceipt,
-} from '../utils/paymentReceiptGenerator';
+} from "../utils/paymentReceiptGenerator";
 
 const PaymentLedger = ({
   payments = [],
@@ -69,7 +69,7 @@ const PaymentLedger = ({
   const handleDownloadReceipt = async (payment, paymentIndex) => {
     if (!invoice || !company) {
       alert(
-        'Unable to generate receipt. Missing invoice or company information.',
+        "Unable to generate receipt. Missing invoice or company information.",
       );
       return;
     }
@@ -88,8 +88,8 @@ const PaymentLedger = ({
         alert(`Error generating receipt: ${result.error}`);
       }
     } catch (error) {
-      console.error('Error downloading receipt:', error);
-      alert('Failed to generate receipt. Please try again.');
+      console.error("Error downloading receipt:", error);
+      alert("Failed to generate receipt. Please try again.");
     } finally {
       setDownloadingReceiptId(null);
     }
@@ -97,7 +97,7 @@ const PaymentLedger = ({
 
   const handlePrintReceipt = async (payment, paymentIndex) => {
     if (!invoice || !company) {
-      alert('Unable to print receipt. Missing invoice or company information.');
+      alert("Unable to print receipt. Missing invoice or company information.");
       return;
     }
 
@@ -115,8 +115,8 @@ const PaymentLedger = ({
         alert(`Error printing receipt: ${result.error}`);
       }
     } catch (error) {
-      console.error('Error printing receipt:', error);
-      alert('Failed to print receipt. Please try again.');
+      console.error("Error printing receipt:", error);
+      alert("Failed to print receipt. Please try again.");
     } finally {
       setPrintingReceiptId(null);
     }
@@ -132,19 +132,19 @@ const PaymentLedger = ({
   return (
     <div
       className={`rounded-lg border ${
-        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
       }`}
     >
       {/* Header */}
       <div
         className={`p-4 border-b ${
-          isDarkMode ? 'border-gray-700' : 'border-gray-200'
+          isDarkMode ? "border-gray-700" : "border-gray-200"
         }`}
       >
         <div className="flex justify-between items-center mb-3">
           <h3
             className={`text-lg font-semibold ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
+              isDarkMode ? "text-white" : "text-gray-900"
             }`}
           >
             📝 Payment History
@@ -179,11 +179,11 @@ const PaymentLedger = ({
           <div
             className={`text-sm px-4 py-2 rounded-lg ${
               isDarkMode
-                ? 'bg-orange-900/30 text-orange-400'
-                : 'bg-orange-50 text-orange-700'
+                ? "bg-orange-900/30 text-orange-400"
+                : "bg-orange-50 text-orange-700"
             }`}
           >
-            <span className="font-medium">Remaining Balance:</span>{' '}
+            <span className="font-medium">Remaining Balance:</span>{" "}
             <span className="font-bold">{formatCurrency(balanceDue)}</span>
           </div>
         )}
@@ -194,7 +194,7 @@ const PaymentLedger = ({
         <div className="p-8 text-center">
           <p
             className={`text-sm ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              isDarkMode ? "text-gray-400" : "text-gray-500"
             }`}
           >
             No payments recorded yet. Click &quot;Add Payment&quot; to record a
@@ -207,14 +207,14 @@ const PaymentLedger = ({
             <thead
               className={`border-b ${
                 isDarkMode
-                  ? 'bg-gray-900/50 border-gray-700'
-                  : 'bg-gray-50 border-gray-200'
+                  ? "bg-gray-900/50 border-gray-700"
+                  : "bg-gray-50 border-gray-200"
               }`}
             >
               <tr>
                 <th
                   className={`px-4 py-3 text-center text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   <input
@@ -239,49 +239,49 @@ const PaymentLedger = ({
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   #
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   Date
                 </th>
                 <th
                   className={`px-4 py-3 text-right text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   Amount
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   Mode
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   Reference
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   Notes
                 </th>
                 <th
                   className={`px-4 py-3 text-center text-xs font-semibold uppercase ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
                   Actions
@@ -301,9 +301,9 @@ const PaymentLedger = ({
                     key={payment.id}
                     className={`border-b ${
                       isDarkMode
-                        ? 'border-gray-700 hover:bg-gray-700/50'
-                        : 'border-gray-200 hover:bg-gray-50'
-                    } ${isSelected ? 'bg-red-50 dark:bg-red-900/20' : ''}`}
+                        ? "border-gray-700 hover:bg-gray-700/50"
+                        : "border-gray-200 hover:bg-gray-50"
+                    } ${isSelected ? "bg-red-50 dark:bg-red-900/20" : ""}`}
                   >
                     {/* Checkbox */}
                     <td className="px-4 py-3 text-center">
@@ -318,7 +318,7 @@ const PaymentLedger = ({
                     {/* Serial Number */}
                     <td
                       className={`px-4 py-3 text-sm ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
                       {index + 1}
@@ -327,7 +327,7 @@ const PaymentLedger = ({
                     {/* Date */}
                     <td
                       className={`px-4 py-3 text-sm ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-900'
+                        isDarkMode ? "text-gray-300" : "text-gray-900"
                       }`}
                     >
                       {formatted.formattedDate}
@@ -336,7 +336,7 @@ const PaymentLedger = ({
                     {/* Amount */}
                     <td
                       className={`px-4 py-3 text-sm font-semibold text-right ${
-                        isDarkMode ? 'text-green-400' : 'text-green-600'
+                        isDarkMode ? "text-green-400" : "text-green-600"
                       }`}
                     >
                       {formatted.formattedAmount}
@@ -347,8 +347,8 @@ const PaymentLedger = ({
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${
                           isDarkMode
-                            ? 'bg-gray-700 text-gray-300'
-                            : 'bg-gray-100 text-gray-800'
+                            ? "bg-gray-700 text-gray-300"
+                            : "bg-gray-100 text-gray-800"
                         }`}
                       >
                         <span>{modeConfig.icon}</span>
@@ -359,16 +359,16 @@ const PaymentLedger = ({
                     {/* Reference Number */}
                     <td
                       className={`px-4 py-3 text-sm ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
-                      {payment.referenceNumber || '-'}
+                      {payment.referenceNumber || "-"}
                     </td>
 
                     {/* Notes */}
                     <td
                       className={`px-4 py-3 text-sm ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                       title={payment.notes}
                     >
@@ -376,7 +376,7 @@ const PaymentLedger = ({
                         ? payment.notes.length > 30
                           ? `${payment.notes.substring(0, 30)}...`
                           : payment.notes
-                        : '-'}
+                        : "-"}
                     </td>
 
                     {/* Actions */}
@@ -387,10 +387,10 @@ const PaymentLedger = ({
                           disabled={printingReceiptId === payment.id}
                           className={`p-1.5 rounded transition-colors ${
                             printingReceiptId === payment.id
-                              ? 'opacity-50 cursor-not-allowed'
+                              ? "opacity-50 cursor-not-allowed"
                               : isDarkMode
-                                ? 'hover:bg-purple-900/50 text-purple-400 hover:text-purple-300'
-                                : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
+                                ? "hover:bg-purple-900/50 text-purple-400 hover:text-purple-300"
+                                : "hover:bg-purple-50 text-purple-600 hover:text-purple-700"
                           }`}
                           title="Print payment receipt"
                         >
@@ -401,10 +401,10 @@ const PaymentLedger = ({
                           disabled={downloadingReceiptId === payment.id}
                           className={`p-1.5 rounded transition-colors ${
                             downloadingReceiptId === payment.id
-                              ? 'opacity-50 cursor-not-allowed'
+                              ? "opacity-50 cursor-not-allowed"
                               : isDarkMode
-                                ? 'hover:bg-teal-900/50 text-teal-400 hover:text-teal-300'
-                                : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
+                                ? "hover:bg-teal-900/50 text-teal-400 hover:text-teal-300"
+                                : "hover:bg-teal-50 text-teal-600 hover:text-teal-700"
                           }`}
                           title="Download payment receipt"
                         >
@@ -415,15 +415,15 @@ const PaymentLedger = ({
                           disabled={isFullyPaid}
                           className={`p-1.5 rounded transition-colors ${
                             isFullyPaid
-                              ? 'opacity-50 cursor-not-allowed text-gray-400'
+                              ? "opacity-50 cursor-not-allowed text-gray-400"
                               : isDarkMode
-                                ? 'hover:bg-gray-600 text-gray-400 hover:text-white'
-                                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                                ? "hover:bg-gray-600 text-gray-400 hover:text-white"
+                                : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
                           }`}
                           title={
                             isFullyPaid
-                              ? 'Cannot edit - invoice fully paid'
-                              : 'Edit payment'
+                              ? "Cannot edit - invoice fully paid"
+                              : "Edit payment"
                           }
                         >
                           <Edit2 size={16} />

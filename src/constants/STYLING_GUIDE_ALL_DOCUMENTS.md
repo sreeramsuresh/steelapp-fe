@@ -333,7 +333,7 @@ File: /mnt/d/Ultimate Steel/steelapp-fe/src/components/quotations/QuotationPrevi
 ### Frontend Quotation Styling
 
 ```javascript
-const templateColor = getDocumentTemplateColor('quotation', company);
+const templateColor = getDocumentTemplateColor("quotation", company);
 
 // Color applied to:
 // - Document header background
@@ -386,8 +386,8 @@ File: /mnt/d/Ultimate Steel/steelapp-fe/src/components/credit-notes/CreditNotePr
 ### Frontend Credit Note Styling
 
 ```javascript
-const dangerColor = '#dc2626';
-const templateColor = dangerColor;  // Always red for credit notes
+const dangerColor = "#dc2626";
+const templateColor = dangerColor; // Always red for credit notes
 
 // Applied to:
 // - Header background: dangerColor
@@ -700,16 +700,16 @@ const primaryColor = DEFAULT_PRIMARY_COLOR;  // '#008080' (teal)
 
 ### All Documents Use Same Base Fonts
 
-| Element | Font | Size (PDF) | Size (Preview) | Weight | Color |
-|---------|------|-----------|----------------|--------|-------|
-| Company Name | Arial/Helvetica | 16pt | 24px | Bold | Dynamic (primary) |
-| Document Title | Arial/Helvetica | 14pt | 14px | Bold | White on color |
-| Section Headers | Arial/Helvetica | 13pt | 16px | Bold | Dynamic (primary) |
-| Body Text | Arial/Helvetica | 10pt | 12px | Normal | #333 |
-| Table Headers | Arial/Helvetica | 10.5pt | 10pt | Bold | White on color |
-| Table Content | Arial/Helvetica | 10pt | 10pt | Normal | #333 |
-| Small Text (footer) | Arial/Helvetica | 9pt | 9px | Normal | #666 |
-| Labels | Arial/Helvetica | 10pt | 12px | 600 | #404040 |
+| Element             | Font            | Size (PDF) | Size (Preview) | Weight | Color             |
+| ------------------- | --------------- | ---------- | -------------- | ------ | ----------------- |
+| Company Name        | Arial/Helvetica | 16pt       | 24px           | Bold   | Dynamic (primary) |
+| Document Title      | Arial/Helvetica | 14pt       | 14px           | Bold   | White on color    |
+| Section Headers     | Arial/Helvetica | 13pt       | 16px           | Bold   | Dynamic (primary) |
+| Body Text           | Arial/Helvetica | 10pt       | 12px           | Normal | #333              |
+| Table Headers       | Arial/Helvetica | 10.5pt     | 10pt           | Bold   | White on color    |
+| Table Content       | Arial/Helvetica | 10pt       | 10pt           | Normal | #333              |
+| Small Text (footer) | Arial/Helvetica | 9pt        | 9px            | Normal | #666              |
+| Labels              | Arial/Helvetica | 10pt       | 12px           | 600    | #404040           |
 
 ---
 
@@ -867,11 +867,11 @@ Users can customize:
 company.settings = {
   invoiceTemplate: {
     colors: {
-      primary: '#008080',    // Any hex color
+      primary: "#008080", // Any hex color
       // + all other colors
     },
     typography: {
-      fontFamily: 'helvetica',
+      fontFamily: "helvetica",
       fontSize: {
         // Customizable sizes
       },
@@ -880,9 +880,9 @@ company.settings = {
       // All margins, spacing
     },
     branding: {
-      showLogo: true/false,
+      showLogo: true / false,
       logoMaxWidth: 50,
-      logoPosition: 'left'|'right'|'center',
+      logoPosition: "left" | "right" | "center",
       // ...
     },
     visibility: {
@@ -899,35 +899,34 @@ company.settings = {
     quotation: { showLogo: true, showSeal: false },
     // ... per document type
   },
-}
+};
 ```
 
 ---
 
 ## 16. Performance Metrics
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| PDF File Size (Invoice) | 100-300KB | Depends on image size |
-| PDF File Size (Statement) | 50-150KB | No images typically |
-| PDF Generation Time | 200-300ms | Per document |
-| Browser Render Time | 100-200ms | Preview update |
-| CSS File Size | ~5KB | Dynamically generated |
+| Metric                    | Value     | Notes                 |
+| ------------------------- | --------- | --------------------- |
+| PDF File Size (Invoice)   | 100-300KB | Depends on image size |
+| PDF File Size (Statement) | 50-150KB  | No images typically   |
+| PDF Generation Time       | 200-300ms | Per document          |
+| Browser Render Time       | 100-200ms | Preview update        |
+| CSS File Size             | ~5KB      | Dynamically generated |
 
 ---
 
 ## Summary Table
 
-| Aspect | Invoice | Quotation | Credit Note | Delivery Note | PO | Receipt | Statement |
-|--------|---------|-----------|-------------|---------------|-----|---------|-----------|
-| Default Color | #008080 | #009999 | #dc2626 | #0d9488 | #0d9488 | #1e40af | #4f46e5 |
-| Page Size | A4 | A4 | A5 | A4 | A4 | A5 | A4 |
-| Font Family | Arial | Arial | Arial | Arial | Arial | Arial | Arial |
-| Base Font Size | 10pt | 10pt | 10pt | 10pt | 10pt | 9pt | 10pt |
-| Logo Support | Yes | Yes | Yes | Yes | Yes | Yes | No |
-| Seal Support | Yes | Yes | Yes | Yes | Yes | Yes | No |
-| Table Present | Yes | Yes | Yes | Yes | Yes | No | Yes |
-| Signature Section | Yes | No | No | No | Yes | No | No |
-| Status Badge | Yes | Yes | Yes | Yes | No | No | No |
-| Multi-page | Yes | Yes | No | Yes | Yes | No | Yes |
-
+| Aspect            | Invoice | Quotation | Credit Note | Delivery Note | PO      | Receipt | Statement |
+| ----------------- | ------- | --------- | ----------- | ------------- | ------- | ------- | --------- |
+| Default Color     | #008080 | #009999   | #dc2626     | #0d9488       | #0d9488 | #1e40af | #4f46e5   |
+| Page Size         | A4      | A4        | A5          | A4            | A4      | A5      | A4        |
+| Font Family       | Arial   | Arial     | Arial       | Arial         | Arial   | Arial   | Arial     |
+| Base Font Size    | 10pt    | 10pt      | 10pt        | 10pt          | 10pt    | 9pt     | 10pt      |
+| Logo Support      | Yes     | Yes       | Yes         | Yes           | Yes     | Yes     | No        |
+| Seal Support      | Yes     | Yes       | Yes         | Yes           | Yes     | Yes     | No        |
+| Table Present     | Yes     | Yes       | Yes         | Yes           | Yes     | No      | Yes       |
+| Signature Section | Yes     | No        | No          | No            | Yes     | No      | No        |
+| Status Badge      | Yes     | Yes       | Yes         | Yes           | No      | No      | No        |
+| Multi-page        | Yes     | Yes       | No          | Yes           | Yes     | No      | Yes       |

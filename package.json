@@ -7,6 +7,8 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
+    "build:ci": "npm run build && npm run ci:guard-bundle",
+    "ci:guard-bundle": "bash scripts/ci-guard-contract-bundle.sh",
     "preview": "vite preview",
     "generate-types": "echo 'Types are generated from proto files - see src/types/generated/'",
     "typecheck": "tsc --noEmit",

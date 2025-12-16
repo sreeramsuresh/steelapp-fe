@@ -13,9 +13,9 @@
  */
 export function normalizeCustomer(
   rawCustomer: any,
-  source = 'unknown',
+  source = "unknown",
 ): any | null {
-  if (!rawCustomer || typeof rawCustomer !== 'object') {
+  if (!rawCustomer || typeof rawCustomer !== "object") {
     console.error(
       `❌ [Customer Normalizer] Invalid customer data from ${source}:`,
       rawCustomer,
@@ -38,7 +38,7 @@ export function normalizeCustomer(
     const normalized: any = {
       // Core identifiers
       id: rawCustomer.id || 0,
-      name: rawCustomer.name || rawCustomer.customer_name || '',
+      name: rawCustomer.name || rawCustomer.customer_name || "",
       company: rawCustomer.company || rawCustomer.company_name || undefined,
 
       // Contact information
@@ -82,7 +82,7 @@ export function normalizeCustomer(
       `❌ [Customer Normalizer] Failed to normalize customer from ${source}:`,
       error,
     );
-    console.error('   Raw data:', rawCustomer);
+    console.error("   Raw data:", rawCustomer);
     return null;
   }
 }
@@ -95,7 +95,7 @@ export function normalizeCustomer(
  */
 export function normalizeCustomers(
   rawCustomers: any[],
-  source = 'list',
+  source = "list",
 ): any[] {
   if (!Array.isArray(rawCustomers)) {
     console.error(

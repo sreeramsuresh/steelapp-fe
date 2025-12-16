@@ -8,24 +8,24 @@
  * - NO action buttons inside preview modal (only X close button)
  * - Shows validation warnings at bottom if incomplete
  */
-import { useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { X, AlertTriangle } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useMemo } from "react";
+import PropTypes from "prop-types";
+import { X, AlertTriangle } from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 import {
   formatCurrency,
   toUAEDateProfessional,
   TIMEZONE_DISCLAIMER,
-} from '../../utils/invoiceUtils';
-import { validatePurchaseOrderForDownload } from '../../utils/recordUtils';
-import { getDocumentTemplateColor } from '../../constants/defaultTemplateSettings';
+} from "../../utils/invoiceUtils";
+import { validatePurchaseOrderForDownload } from "../../utils/recordUtils";
+import { getDocumentTemplateColor } from "../../constants/defaultTemplateSettings";
 
 const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
   const { isDarkMode } = useTheme();
 
   // Get the template color for purchase orders
   const templateColor = useMemo(() => {
-    return getDocumentTemplateColor('purchaseOrder', company);
+    return getDocumentTemplateColor("purchaseOrder", company);
   }, [company]);
 
   // Validate purchase order and get warnings
@@ -36,22 +36,22 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
   // Get status display
   const getStatusLabel = (status) => {
     const labels = {
-      draft: 'Draft',
-      pending: 'Pending',
-      confirmed: 'Confirmed',
-      received: 'Received',
-      cancelled: 'Cancelled',
+      draft: "Draft",
+      pending: "Pending",
+      confirmed: "Confirmed",
+      received: "Received",
+      cancelled: "Cancelled",
     };
-    return labels[status] || status || 'Draft';
+    return labels[status] || status || "Draft";
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      draft: 'bg-gray-100 text-gray-800',
-      pending: 'bg-orange-100 text-orange-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      received: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
+      draft: "bg-gray-100 text-gray-800",
+      pending: "bg-orange-100 text-orange-800",
+      confirmed: "bg-blue-100 text-blue-800",
+      received: "bg-green-100 text-green-800",
+      cancelled: "bg-red-100 text-red-800",
     };
     return colors[status] || colors.draft;
   };
@@ -59,7 +59,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
   // Extract data
   const items = purchaseOrder.items || [];
   const supplierName =
-    purchaseOrder.supplierName || purchaseOrder.supplier_name || '';
+    purchaseOrder.supplierName || purchaseOrder.supplier_name || "";
   const supplierDetails =
     purchaseOrder.supplierDetails || purchaseOrder.supplier_details || {};
   const supplierAddress = supplierDetails.address || {};
@@ -83,14 +83,14 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div
-        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col`}
+        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col`}
       >
         {/* Header - Only X button (view-only) */}
         <div
-          className={`flex items-center justify-between p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+          className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
         >
           <h2
-            className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}
+            className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-800"}`}
           >
             Purchase Order Preview
           </h2>
@@ -98,8 +98,8 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
-                ? 'hover:bg-gray-700 text-gray-300'
-                : 'hover:bg-gray-100 text-gray-600'
+                ? "hover:bg-gray-700 text-gray-300"
+                : "hover:bg-gray-100 text-gray-600"
             }`}
             title="Close preview"
           >
@@ -110,11 +110,11 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
         {/* Purchase Order Preview Content - Scrollable */}
         <div
           className="flex-1 overflow-y-auto p-6"
-          style={{ background: isDarkMode ? '#1a1a2e' : '#f5f5f5' }}
+          style={{ background: isDarkMode ? "#1a1a2e" : "#f5f5f5" }}
         >
           {/* Document Container */}
           <div
-            className={`max-w-3xl mx-auto ${isDarkMode ? 'bg-gray-900' : 'bg-white'} shadow-lg rounded-lg overflow-hidden`}
+            className={`max-w-3xl mx-auto ${isDarkMode ? "bg-gray-900" : "bg-white"} shadow-lg rounded-lg overflow-hidden`}
           >
             {/* Document Header */}
             <div
@@ -127,18 +127,18 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                   <p className="text-white/80 mt-1">
                     {purchaseOrder.poNumber ||
                       purchaseOrder.po_number ||
-                      'PO-DRAFT'}
+                      "PO-DRAFT"}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">
-                    {company?.name || 'Company Name'}
+                    {company?.name || "Company Name"}
                   </p>
                   <p className="text-sm text-white/80">
-                    {company?.address?.street || ''}
+                    {company?.address?.street || ""}
                   </p>
                   <p className="text-sm text-white/80">
-                    {company?.phone || ''}
+                    {company?.phone || ""}
                   </p>
                 </div>
               </div>
@@ -146,18 +146,18 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
 
             {/* Document Body */}
             <div
-              className={`p-6 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
+              className={`p-6 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
             >
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
                   <h3
-                    className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}
+                    className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-2`}
                   >
                     Supplier Details
                   </h3>
                   <p className="font-medium">
-                    {supplierName || 'Supplier Name'}
+                    {supplierName || "Supplier Name"}
                   </p>
                   {supplierDetails.company && (
                     <p className="text-sm">{supplierDetails.company}</p>
@@ -169,7 +169,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                     <p className="text-sm">
                       {[supplierAddress.city, supplierAddress.emirate]
                         .filter(Boolean)
-                        .join(', ')}
+                        .join(", ")}
                     </p>
                   )}
                   {supplierDetails.vatNumber && (
@@ -181,9 +181,9 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                 <div className="text-right">
                   <div className="mb-2">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                     >
-                      Date:{' '}
+                      Date:{" "}
                     </span>
                     <span className="font-medium">
                       {toUAEDateProfessional(
@@ -195,9 +195,9 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                     purchaseOrder.delivery_date) && (
                     <div className="mb-2">
                       <span
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                        className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                       >
-                        Delivery:{' '}
+                        Delivery:{" "}
                       </span>
                       <span className="font-medium">
                         {toUAEDateProfessional(
@@ -218,9 +218,9 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                     purchaseOrder.warehouse_name) && (
                     <div>
                       <span
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                        className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                       >
-                        Warehouse:{' '}
+                        Warehouse:{" "}
                       </span>
                       <span className="font-medium">
                         {purchaseOrder.warehouseName ||
@@ -234,16 +234,16 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
               {/* Items Table */}
               <div className="mb-6">
                 <h3
-                  className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-3`}
+                  className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-3`}
                 >
                   Items ({items.length})
                 </h3>
                 <div
-                  className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                  className={`border rounded-lg overflow-hidden ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                 >
                   <table className="w-full text-sm">
                     <thead
-                      className={isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}
+                      className={isDarkMode ? "bg-gray-800" : "bg-gray-50"}
                     >
                       <tr>
                         <th className="px-4 py-2 text-left font-medium">
@@ -268,19 +268,19 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                         items.map((item, index) => (
                           <tr
                             key={index}
-                            className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                            className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                           >
                             <td className="px-4 py-3">
                               <div className="font-medium">
                                 {item.name ||
                                   item.productName ||
-                                  'Unnamed Item'}
+                                  "Unnamed Item"}
                               </div>
                               {(item.specification ||
                                 item.grade ||
                                 item.size) && (
                                 <div
-                                  className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                                  className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                                 >
                                   {[
                                     item.grade,
@@ -289,12 +289,12 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                                     item.thickness,
                                   ]
                                     .filter(Boolean)
-                                    .join(' | ')}
+                                    .join(" | ")}
                                 </div>
                               )}
                             </td>
                             <td className="px-4 py-3 text-right">
-                              {item.quantity || 0} {item.unit || 'pcs'}
+                              {item.quantity || 0} {item.unit || "pcs"}
                             </td>
                             <td className="px-4 py-3 text-right">
                               {formatCurrency(item.rate || item.unitPrice || 0)}
@@ -324,7 +324,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
 
               {/* Totals */}
               <div
-                className={`border rounded-lg p-4 ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}
+                className={`border rounded-lg p-4 ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
               >
                 <div className="flex justify-between py-1">
                   <span>Subtotal:</span>
@@ -349,7 +349,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                   </div>
                 )}
                 <div
-                  className={`flex justify-between py-2 mt-2 border-t font-bold text-lg ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+                  className={`flex justify-between py-2 mt-2 border-t font-bold text-lg ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
                 >
                   <span>Total:</span>
                   <span style={{ color: templateColor }}>
@@ -363,12 +363,12 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                 purchaseOrder.termsAndConditions ||
                 purchaseOrder.terms_and_conditions) && (
                 <div
-                  className={`mt-6 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                  className={`mt-6 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                 >
                   {purchaseOrder.notes && (
                     <div className="mb-4">
                       <h4
-                        className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-1`}
+                        className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-1`}
                       >
                         Notes:
                       </h4>
@@ -381,7 +381,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                     purchaseOrder.terms_and_conditions) && (
                     <div>
                       <h4
-                        className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-1`}
+                        className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-1`}
                       >
                         Terms & Conditions:
                       </h4>
@@ -396,10 +396,10 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
 
               {/* Timezone Disclaimer Footer */}
               <div
-                className={`mt-6 pt-3 border-t text-center ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                className={`mt-6 pt-3 border-t text-center ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
               >
                 <p
-                  className={`text-xs italic ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                  className={`text-xs italic ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                 >
                   {TIMEZONE_DISCLAIMER}
                 </p>
@@ -411,7 +411,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
         {/* Validation Warnings Footer */}
         {!validation.isValid && validation.warnings.length > 0 && (
           <div
-            className={`p-4 border-t ${isDarkMode ? 'border-gray-700 bg-yellow-900/20' : 'border-gray-200 bg-yellow-50'}`}
+            className={`p-4 border-t ${isDarkMode ? "border-gray-700 bg-yellow-900/20" : "border-gray-200 bg-yellow-50"}`}
           >
             <div className="flex items-start gap-2">
               <AlertTriangle
@@ -420,12 +420,12 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
               />
               <div className="flex-1">
                 <p
-                  className={`text-sm font-medium ${isDarkMode ? 'text-yellow-300' : 'text-yellow-800'}`}
+                  className={`text-sm font-medium ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}
                 >
                   Incomplete record - Cannot download until resolved:
                 </p>
                 <ul
-                  className={`text-sm mt-1 list-disc list-inside ${isDarkMode ? 'text-yellow-200' : 'text-yellow-700'}`}
+                  className={`text-sm mt-1 list-disc list-inside ${isDarkMode ? "text-yellow-200" : "text-yellow-700"}`}
                 >
                   {validation.warnings.map((warning, index) => (
                     <li key={index}>{warning}</li>

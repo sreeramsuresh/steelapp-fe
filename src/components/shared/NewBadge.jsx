@@ -3,7 +3,7 @@
  * Displays a "NEW" badge for records created within a specified time threshold.
  * Part of the unified Preview/Download system.
  */
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 /**
  * Utility function to check if a record is "new" based on creation timestamp.
@@ -19,7 +19,7 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
   let timeMs;
 
   // Handle Firestore-style timestamp objects { seconds: number, nanos: number }
-  if (typeof createdAt === 'object' && createdAt.seconds) {
+  if (typeof createdAt === "object" && createdAt.seconds) {
     timeMs = createdAt.seconds * 1000;
   } else if (createdAt instanceof Date) {
     timeMs = createdAt.getTime();
@@ -47,7 +47,7 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
  * @param {number} props.hoursThreshold - Hours to consider "new" (default: 2)
  * @param {string} props.className - Additional CSS classes
  */
-const NewBadge = ({ createdAt, hoursThreshold = 2, className = '' }) => {
+const NewBadge = ({ createdAt, hoursThreshold = 2, className = "" }) => {
   if (!isNewRecord(createdAt, hoursThreshold)) {
     return null;
   }
@@ -82,7 +82,7 @@ NewBadge.propTypes = {
 
 NewBadge.defaultProps = {
   hoursThreshold: 2,
-  className: '',
+  className: "",
 };
 
 export default NewBadge;

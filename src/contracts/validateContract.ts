@@ -1,5 +1,5 @@
-import { ZodError, ZodIssue } from 'zod';
-import { matchContract } from './matchContract';
+import { ZodError, ZodIssue } from "zod";
+import { matchContract } from "./matchContract";
 
 /**
  * Contract Validation - DEV-only request/response validation
@@ -19,27 +19,29 @@ import { matchContract } from './matchContract';
  * Contains detailed Zod validation issues for debugging.
  */
 export class ContractViolationError extends Error {
-  name = 'ContractViolationError';
+  name = "ContractViolationError";
   method: string;
   url: string;
   issues: ZodIssue[];
-  phase: 'request' | 'response';
+  phase: "request" | "response";
 
   constructor(params: {
     method: string;
     url: string;
     issues: ZodIssue[];
-    phase: 'request' | 'response';
+    phase: "request" | "response";
   }) {
     const { method, url, issues, phase } = params;
 
     // Build concise error message
     const issueCount = issues.length;
     const firstIssue = issues[0];
-    const path = firstIssue.path.join('.');
-    const message = `${phase.toUpperCase()} contract violation: ${method} ${url}\n` +
-      `  └─ ${path ? `${path}: ` : ''}${firstIssue.message}` +
-      (issueCount > 1 ? `\n  └─ ...and ${issueCount - 1} more issue(s)` : '');
+    const path = firstIssue.path.join(".");
+    const message =
+      `${phase.toUpperCase()} contract violation: ${method} ${url}\n` +
+      `  └─ ${path ? `${path}: ` : ""}${firstIssue.message}${
+        issueCount > 1 ? `\n  └─ ...and ${issueCount - 1} more issue(s)` : ""
+      }`;
 
     super(message);
 
@@ -58,18 +60,20 @@ export class ContractViolationError extends Error {
   formatIssues(): string {
     return this.issues
       .map((issue, idx) => {
-        const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
+        const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
         return `${idx + 1}. ${path}: ${issue.message}`;
       })
-      .join('\n');
+      .join("\n");
   }
 
   /**
    * Get summary for console logging.
    */
   toLogString(): string {
-    return `[ContractViolationError] ${this.method} ${this.url} (${this.phase})\n` +
-      `Issues (${this.issues.length}):\n${this.formatIssues()}`;
+    return (
+      `[ContractViolationError] ${this.method} ${this.url} (${this.phase})\n` +
+      `Issues (${this.issues.length}):\n${this.formatIssues()}`
+    );
   }
 }
 
@@ -103,7 +107,7 @@ function shouldValidateData(data: unknown): boolean {
   }
 
   // Only validate plain objects and arrays
-  return typeof data === 'object';
+  return typeof data === "object";
 }
 
 /**
@@ -115,10 +119,10 @@ function shouldValidateData(data: unknown): boolean {
  */
 function shouldValidateResponse(
   responseType: string | undefined,
-  data: unknown
+  data: unknown,
 ): boolean {
   // Skip blob/arraybuffer responses (file downloads)
-  if (responseType === 'blob' || responseType === 'arraybuffer') {
+  if (responseType === "blob" || responseType === "arraybuffer") {
     return false;
   }
 
@@ -127,7 +131,7 @@ function shouldValidateResponse(
   }
 
   // Only validate JSON responses (plain objects/arrays)
-  return typeof data === 'object';
+  return typeof data === "object";
 }
 
 // ============================================================================
@@ -157,13 +161,14 @@ export function validateRequestContract(config: {
   headers?: Record<string, string>;
   responseType?: string;
 }): void {
-  const { method = 'GET', url = '', data, responseType } = config;
+  const { method = "GET", url = "", data, responseType } = config;
 
   // Find matching contract
   const contract = matchContract({ method, url });
 
   if (!contract) {
-    // No contract registered - allow through
+    // No contract registered - warn once and allow through
+    warnMissingContract(method, url);
     return;
   }
 
@@ -186,7 +191,7 @@ export function validateRequestContract(config: {
         method,
         url,
         issues: error.issues,
-        phase: 'request',
+        phase: "request",
       });
     }
     // Re-throw non-Zod errors
@@ -245,7 +250,7 @@ export function validateResponseContract(params: {
         method,
         url,
         issues: error.issues,
-        phase: 'response',
+        phase: "response",
       });
     }
     // Re-throw non-Zod errors
@@ -270,7 +275,7 @@ export function warnMissingContract(method: string, url: string): void {
     warnedEndpoints.add(key);
     console.warn(
       `[Contract Guard] No contract registered for: ${key}\n` +
-      `  └─ Consider adding to contractRegistry.ts for validation.`
+        `  └─ Consider adding to contractRegistry.ts for validation.`,
     );
   }
 }

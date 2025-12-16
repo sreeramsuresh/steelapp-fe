@@ -1,14 +1,14 @@
-import { formatDate, getCompanyImages } from './invoiceUtils';
-import { escapeHtml } from './htmlEscape';
-import { getDocumentTemplateColor } from '../constants/defaultTemplateSettings';
+import { formatDate, getCompanyImages } from "./invoiceUtils";
+import { escapeHtml } from "./htmlEscape";
+import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings";
 
 export const generateDeliveryNotePDF = async (deliveryNote, company) => {
   try {
-    const { jsPDF } = await import('jspdf');
+    const { jsPDF } = await import("jspdf");
     // Get company images from company profile
     const { logoUrl, sealUrl } = getCompanyImages(company);
     // Get the template color for delivery notes
-    const templateColor = getDocumentTemplateColor('deliveryNote', company);
+    const templateColor = getDocumentTemplateColor("deliveryNote", company);
     const el = createDNElement(
       deliveryNote,
       company,
@@ -19,26 +19,26 @@ export const generateDeliveryNotePDF = async (deliveryNote, company) => {
     document.body.appendChild(el);
 
     await waitForImages(el);
-    const html2canvas = (await import('html2canvas')).default;
+    const html2canvas = (await import("html2canvas")).default;
     const canvas = await html2canvas(el, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: "#ffffff",
       logging: false,
       removeContainer: true,
     });
     document.body.removeChild(el);
 
-    const img = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const img = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
     const pdfW = pdf.internal.pageSize.getWidth();
     const pdfH = (canvas.height * pdfW) / canvas.width;
-    pdf.addImage(img, 'PNG', 0, 0, pdfW, pdfH);
+    pdf.addImage(img, "PNG", 0, 0, pdfW, pdfH);
     const fname = `DeliveryNote-${deliveryNote.deliveryNoteNumber || deliveryNote.id}.pdf`;
     pdf.save(fname);
     return true;
   } catch (e) {
-    console.error('Delivery Note PDF generation failed:', e);
+    console.error("Delivery Note PDF generation failed:", e);
     throw e;
   }
 };
@@ -48,9 +48,9 @@ const createDNElement = (
   company,
   logoCompany,
   sealImage,
-  templateColor = '#0d9488',
+  templateColor = "#0d9488",
 ) => {
-  const el = document.createElement('div');
+  const el = document.createElement("div");
   el.style.cssText = `
     width: 210mm;
     min-height: 297mm;
@@ -65,7 +65,7 @@ const createDNElement = (
     left: -9999px;
   `;
 
-  const safe = (v) => (v === null || v === undefined ? '' : v);
+  const safe = (v) => (v === null || v === undefined ? "" : v);
   const comp = company || {};
   const compAddr = comp.address || {};
   const cust = dn.customerDetails || {};
@@ -79,9 +79,9 @@ const createDNElement = (
           <img src="${logoCompany}" alt="Company Logo" crossorigin="anonymous" style="max-height:48px; width:auto; object-fit:contain;" />
         </div>
         <div style="margin-top:8px; line-height:1.3;">
-          <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || 'Company'}</strong></p>
+          <p style="margin:0; font-size:11px; color:#334155;"><strong>${safe(comp.name) || "Company"}</strong></p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.street)}</p>
-          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${compAddr.emirate}` : ''} ${compAddr.poBox || ''}</p>
+          <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.city)}${compAddr.emirate ? `, ${compAddr.emirate}` : ""} ${compAddr.poBox || ""}</p>
           <p style="margin:0; font-size:11px; color:#334155;">${safe(compAddr.country)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin:0; font-size:11px; color:#334155;">Email: ${safe(comp.email)}</p>
@@ -91,15 +91,15 @@ const createDNElement = (
 
       <div style="text-align:left;">
         <div style="margin-bottom:6px;">
-          <p style="margin:2px 0;">${safe(cust.name) || 'Customer'}</p>
+          <p style="margin:2px 0;">${safe(cust.name) || "Customer"}</p>
         </div>
         <div style="margin-bottom:10px;">
-          <p style="margin:2px 0;">${safe(custAddr.street || dn.deliveryAddress?.street || '')}</p>
-          <p style="margin:2px 0;">${safe(custAddr.city || dn.deliveryAddress?.city || '')} ${safe(custAddr.poBox || dn.deliveryAddress?.poBox || '')}</p>
+          <p style="margin:2px 0;">${safe(custAddr.street || dn.deliveryAddress?.street || "")}</p>
+          <p style="margin:2px 0;">${safe(custAddr.city || dn.deliveryAddress?.city || "")} ${safe(custAddr.poBox || dn.deliveryAddress?.poBox || "")}</p>
           <p style="margin:2px 0;"><strong>Delivery Note #:</strong> ${safe(dn.deliveryNoteNumber || dn.id)}</p>
-          <p style="margin:2px 0;"><strong>Invoice #:</strong> ${safe(dn.invoiceNumber || '')}</p>
+          <p style="margin:2px 0;"><strong>Invoice #:</strong> ${safe(dn.invoiceNumber || "")}</p>
           <p style="margin:2px 0;"><strong>Date:</strong> ${formatDate(dn.deliveryDate || dn.createdAt || new Date())}</p>
-          ${dn.status ? `<p style="margin:2px 0; line-height:1.5;"><strong>Status:</strong> <span style="color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;">${safe(dn.status)}</span></p>` : ''}
+          ${dn.status ? `<p style="margin:2px 0; line-height:1.5;"><strong>Status:</strong> <span style="color:#2563eb; text-transform:uppercase; font-weight:600; display:inline-block; padding:2px 8px; background-color:#eff6ff; border:1px solid #2563eb; border-radius:4px; white-space:nowrap;">${safe(dn.status)}</span></p>` : ""}
         </div>
       </div>
     </div>
@@ -123,36 +123,36 @@ const createDNElement = (
         </thead>
         <tbody>
           ${items
-    .map(
-      (item) => `
+            .map(
+              (item) => `
             <tr>
               <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">
                 <div style="font-weight:600;color:#0f172a;">${safe(item.name)}</div>
               </td>
-              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.specification) || '-'}</td>
-              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.unit) || ''}</td>
+              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.specification) || "-"}</td>
+              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.unit) || ""}</td>
               <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.orderedQuantity)}</td>
               <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.deliveredQuantity)}</td>
               <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight:600;">${safe(item.remainingQuantity)}</td>
-              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.isFullyDelivered ? 'Complete' : 'Partial'}</td>
+              <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.isFullyDelivered ? "Complete" : "Partial"}</td>
             </tr>
           `,
-    )
-    .join('')}
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
 
     ${
-  dn.notes
-    ? `
+      dn.notes
+        ? `
       <div style="margin-bottom: 30px;">
         <h4 style="margin: 0 0 5px 0; color: #1e293b;">Notes:</h4>
         <p style="margin: 0; color: #64748b;">${escapeHtml(dn.notes)}</p>
       </div>
     `
-    : ''
-}
+        : ""
+    }
 
     <div style="display:flex; justify-content:flex-end; margin-top:50px;">
       <div style="display:flex; align-items:flex-end; gap:20px;">
@@ -160,7 +160,7 @@ const createDNElement = (
         <div style="text-align:center; min-width:200px;">
           <p style="margin:0;">Authorized Signatory</p>
           <div style="border-bottom:1px solid #000; margin:40px 0 10px 0;"></div>
-          <p style="margin:0; font-weight:600;">${safe(comp.name) || 'Company'}</p>
+          <p style="margin:0; font-weight:600;">${safe(comp.name) || "Company"}</p>
         </div>
       </div>
     </div>
@@ -169,7 +169,7 @@ const createDNElement = (
 };
 
 const waitForImages = (container) => {
-  const images = Array.from(container.querySelectorAll('img'));
+  const images = Array.from(container.querySelectorAll("img"));
   if (images.length === 0) return Promise.resolve();
   return Promise.all(
     images.map(
@@ -177,12 +177,12 @@ const waitForImages = (container) => {
         new Promise((resolve) => {
           if (img.complete && img.naturalWidth !== 0) return resolve();
           try {
-            img.crossOrigin = img.crossOrigin || 'anonymous';
+            img.crossOrigin = img.crossOrigin || "anonymous";
           } catch {
             // Ignore - crossOrigin may be read-only on some browsers
           }
-          img.addEventListener('load', resolve, { once: true });
-          img.addEventListener('error', resolve, { once: true });
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
         }),
     ),
   );

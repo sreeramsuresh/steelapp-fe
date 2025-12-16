@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { batchReservationService } from '../../services/batchReservationService';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import PropTypes from "prop-types";
+import { batchReservationService } from "../../services/batchReservationService";
 
 /**
  * BatchAllocationPanel Component
@@ -21,7 +21,7 @@ const BatchAllocationPanel = ({
   draftInvoiceId,
   _lineItemTempId,
   requiredQuantity,
-  unit = 'KG',
+  unit = "KG",
   _companyId,
   _onAllocationsChange,
   reserveFIFO,
@@ -52,8 +52,8 @@ const BatchAllocationPanel = ({
 
       setBatches(response.batches || []);
     } catch (err) {
-      console.error('Failed to fetch available batches:', err);
-      setFetchError('Failed to load available batches');
+      console.error("Failed to fetch available batches:", err);
+      setFetchError("Failed to load available batches");
       setBatches([]);
     } finally {
       setFetchingBatches(false);
@@ -72,31 +72,46 @@ const BatchAllocationPanel = ({
 
   // Handle Auto-Fill FIFO
   const handleAutoFIFO = useCallback(async () => {
-    // Validate all required fields before attempting FIFO allocation
-    const missingFields = [];
+    // Clear previous errors
+    setFetchError(null);
+
+    // Validate all required fields with precise error messages
+    const errors = [];
 
     if (!productId) {
-      missingFields.push('Product');
+      errors.push("• Product: Please select a product first.");
     }
     if (!warehouseId) {
-      missingFields.push('Warehouse');
+      errors.push(
+        "• Warehouse: Please select a warehouse from the list above.",
+      );
     }
     if (!requiredQuantity || requiredQuantity <= 0) {
-      missingFields.push('Quantity');
+      errors.push("• Quantity: Please enter a quantity greater than 0.");
     }
     if (!unit) {
-      missingFields.push('Unit (KG/PCS)');
+      errors.push("• Unit: Please select a unit (KG/PCS/MT/M).");
     }
 
-    if (missingFields.length > 0) {
+    if (errors.length > 0) {
       setFetchError(
-        `Please fill the following required fields first: ${missingFields.join(', ')}`
+        `Cannot allocate - Missing required fields:\n\n${errors.join("\n")}`,
       );
       return;
     }
 
-    // Clear any previous errors
-    setFetchError(null);
+    // Check if selected warehouse has stock
+    const totalAvailable = batches.reduce(
+      (sum, batch) => sum + parseFloat(batch.quantityAllocatable || 0),
+      0,
+    );
+
+    if (totalAvailable === 0) {
+      setFetchError(
+        "Cannot allocate - Selected warehouse has 0 stock available.\n\nPlease select a different warehouse or use drop-ship source type.",
+      );
+      return;
+    }
 
     setIsAllocating(true);
     try {
@@ -104,18 +119,30 @@ const BatchAllocationPanel = ({
       // Refresh batches to get updated availability
       await fetchBatches();
     } catch (err) {
-      console.error('FIFO allocation failed:', err);
+      console.error("FIFO allocation failed:", err);
+      // Format backend error nicely
+      const backendError =
+        err.response?.data?.message || err.message || "Unknown error";
+      setFetchError(`Allocation failed:\n\n${backendError}`);
     } finally {
       setIsAllocating(false);
     }
-  }, [productId, warehouseId, requiredQuantity, unit, reserveFIFO, fetchBatches]);
+  }, [
+    productId,
+    warehouseId,
+    requiredQuantity,
+    unit,
+    batches,
+    reserveFIFO,
+    fetchBatches,
+  ]);
 
   // Handle manual allocation change for a batch
   const handleManualAllocationChange = useCallback(
     (batchId, value) => {
       // Parse and validate value
       let qty = 0;
-      if (value !== '') {
+      if (value !== "") {
         qty = parseFloat(value);
         if (isNaN(qty) || qty < 0) return;
       }
@@ -156,7 +183,7 @@ const BatchAllocationPanel = ({
       setManualAllocations({});
       await fetchBatches();
     } catch (err) {
-      console.error('Manual allocation failed:', err);
+      console.error("Manual allocation failed:", err);
     } finally {
       setIsAllocating(false);
     }
@@ -186,11 +213,11 @@ const BatchAllocationPanel = ({
 
   // Format date for display
   const _formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
+    if (!dateStr) return "N/A";
     try {
       return new Date(dateStr).toLocaleDateString();
     } catch (_e) {
-      return 'N/A';
+      return "N/A";
     }
   };
 
@@ -217,7 +244,7 @@ const BatchAllocationPanel = ({
           onClick={handleAutoFIFO}
           disabled={loading || isAllocating}
         >
-          {isAllocating ? 'Allocating...' : 'Auto-Fill FIFO'}
+          {isAllocating ? "Allocating..." : "Auto-Fill FIFO"}
         </button>
       </div>
 
@@ -225,7 +252,9 @@ const BatchAllocationPanel = ({
       {error && <div className="panel-error">{error}</div>}
 
       {batches.length === 0 && !fetchingBatches ? (
-        <div className="panel-empty">No available batches for this product in this warehouse.</div>
+        <div className="panel-empty">
+          No available batches for this product in this warehouse.
+        </div>
       ) : (
         <>
           <div className="batch-table-container">
@@ -245,40 +274,55 @@ const BatchAllocationPanel = ({
                   const allocatedQty = currentAlloc
                     ? parseFloat(currentAlloc.quantity)
                     : 0;
-                  const manualQty = manualAllocations[batch.id] || '';
+                  const manualQty = manualAllocations[batch.id] || "";
 
                   return (
-                    <tr key={batch.id} className={allocatedQty > 0 ? 'allocated-row' : ''}>
+                    <tr
+                      key={batch.id}
+                      className={allocatedQty > 0 ? "allocated-row" : ""}
+                    >
                       <td>
                         <div className="batch-info">
-                          <span className="batch-number">{batch.batchNumber || 'N/A'}</span>
+                          <span className="batch-number">
+                            {batch.batchNumber || "N/A"}
+                          </span>
                           <span className="batch-channel">
-                            {batch.procurementChannel || 'LOCAL'}
+                            {batch.procurementChannel || "LOCAL"}
                           </span>
                           {batch.daysInStock !== undefined && (
-                            <span className="batch-age">{batch.daysInStock}d</span>
+                            <span className="batch-age">
+                              {batch.daysInStock}d
+                            </span>
                           )}
                         </div>
                       </td>
                       <td className="qty-cell">
                         <span className="qty-available">
-                          {parseFloat(batch.quantityAllocatable || 0).toFixed(3)}
+                          {parseFloat(batch.quantityAllocatable || 0).toFixed(
+                            3,
+                          )}
                         </span>
                         <span className="qty-unit">{batch.unit || unit}</span>
                       </td>
                       <td className="qty-cell">
                         {parseFloat(batch.quantityReservedOthers || 0) > 0 && (
                           <span className="reserved-indicator">
-                            {parseFloat(batch.quantityReservedOthers).toFixed(3)}
+                            {parseFloat(batch.quantityReservedOthers).toFixed(
+                              3,
+                            )}
                           </span>
                         )}
                         {allocatedQty > 0 && (
-                          <span className="my-allocation">{allocatedQty.toFixed(3)}</span>
+                          <span className="my-allocation">
+                            {allocatedQty.toFixed(3)}
+                          </span>
                         )}
                       </td>
                       <td className="input-cell">
                         {allocatedQty > 0 ? (
-                          <span className="allocated-qty">{allocatedQty.toFixed(3)}</span>
+                          <span className="allocated-qty">
+                            {allocatedQty.toFixed(3)}
+                          </span>
                         ) : (
                           <input
                             type="number"
@@ -287,7 +331,10 @@ const BatchAllocationPanel = ({
                             max={parseFloat(batch.quantityAllocatable)}
                             value={manualQty}
                             onChange={(e) =>
-                              handleManualAllocationChange(batch.id, e.target.value)
+                              handleManualAllocationChange(
+                                batch.id,
+                                e.target.value,
+                              )
                             }
                             placeholder="0"
                             disabled={loading || isAllocating}
@@ -298,7 +345,9 @@ const BatchAllocationPanel = ({
                         <span className="unit-cost">
                           {parseFloat(batch.unitCost || 0).toFixed(2)}
                         </span>
-                        <span className="cost-unit">AED/{batch.unit || unit}</span>
+                        <span className="cost-unit">
+                          AED/{batch.unit || unit}
+                        </span>
                       </td>
                     </tr>
                   );
@@ -326,7 +375,8 @@ const BatchAllocationPanel = ({
             <div className="total-row">
               <span>Allocated:</span>
               <strong>
-                {totalAllocated.toFixed(3)} / {requiredQuantity.toFixed(3)} {unit}
+                {totalAllocated.toFixed(3)} / {requiredQuantity.toFixed(3)}{" "}
+                {unit}
               </strong>
             </div>
             {totalCost > 0 && (
@@ -342,7 +392,8 @@ const BatchAllocationPanel = ({
             <div className="shortfall-warning">
               <span className="warning-icon">Warning:</span>
               <span>
-                Shortfall of {shortfall.toFixed(3)} {unit} - Insufficient stock available
+                Shortfall of {shortfall.toFixed(3)} {unit} - Insufficient stock
+                available
               </span>
             </div>
           )}

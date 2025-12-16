@@ -1,5 +1,5 @@
-import { AlertTriangle, CheckCircle, Info, X } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { AlertTriangle, CheckCircle, Info, X } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 
 /**
  * Professional Confirmation Dialog Component
@@ -22,9 +22,9 @@ const ConfirmDialog = ({
   open,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  variant = 'warning', // 'danger', 'warning', 'info', 'success'
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  variant = "warning", // 'danger', 'warning', 'info', 'success'
   onConfirm,
   onCancel,
   showIcon = true,
@@ -36,31 +36,31 @@ const ConfirmDialog = ({
   const variants = {
     danger: {
       icon: AlertTriangle,
-      iconColor: isDarkMode ? 'text-red-400' : 'text-red-600',
-      iconBg: isDarkMode ? 'bg-red-900/20' : 'bg-red-100',
-      confirmBg: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
-      confirmText: 'text-white',
+      iconColor: isDarkMode ? "text-red-400" : "text-red-600",
+      iconBg: isDarkMode ? "bg-red-900/20" : "bg-red-100",
+      confirmBg: "bg-red-600 hover:bg-red-700 focus:ring-red-500",
+      confirmText: "text-white",
     },
     warning: {
       icon: AlertTriangle,
-      iconColor: isDarkMode ? 'text-yellow-400' : 'text-yellow-600',
-      iconBg: isDarkMode ? 'bg-yellow-900/20' : 'bg-yellow-100',
-      confirmBg: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
-      confirmText: 'text-white',
+      iconColor: isDarkMode ? "text-yellow-400" : "text-yellow-600",
+      iconBg: isDarkMode ? "bg-yellow-900/20" : "bg-yellow-100",
+      confirmBg: "bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500",
+      confirmText: "text-white",
     },
     info: {
       icon: Info,
-      iconColor: isDarkMode ? 'text-blue-400' : 'text-blue-600',
-      iconBg: isDarkMode ? 'bg-blue-900/20' : 'bg-blue-100',
-      confirmBg: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-      confirmText: 'text-white',
+      iconColor: isDarkMode ? "text-blue-400" : "text-blue-600",
+      iconBg: isDarkMode ? "bg-blue-900/20" : "bg-blue-100",
+      confirmBg: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500",
+      confirmText: "text-white",
     },
     success: {
       icon: CheckCircle,
-      iconColor: isDarkMode ? 'text-green-400' : 'text-green-600',
-      iconBg: isDarkMode ? 'bg-green-900/20' : 'bg-green-100',
-      confirmBg: 'bg-green-600 hover:bg-green-700 focus:ring-green-500',
-      confirmText: 'text-white',
+      iconColor: isDarkMode ? "text-green-400" : "text-green-600",
+      iconBg: isDarkMode ? "bg-green-900/20" : "bg-green-100",
+      confirmBg: "bg-green-600 hover:bg-green-700 focus:ring-green-500",
+      confirmText: "text-white",
     },
   };
 
@@ -76,14 +76,14 @@ const ConfirmDialog = ({
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onCancel}
         onKeyDown={(e) => {
-          if (e.key === 'Escape') onCancel();
+          if (e.key === "Escape") onCancel();
         }}
       />
 
       {/* Dialog */}
       <div
         className={`relative z-10 w-full max-w-md mx-4 rounded-xl shadow-2xl ${
-          isDarkMode ? 'bg-gray-800' : 'bg-white'
+          isDarkMode ? "bg-gray-800" : "bg-white"
         }`}
       >
         {/* Close button */}
@@ -91,8 +91,8 @@ const ConfirmDialog = ({
           onClick={onCancel}
           className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
             isDarkMode
-              ? 'hover:bg-gray-700 text-gray-400 hover:text-gray-300'
-              : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+              ? "hover:bg-gray-700 text-gray-400 hover:text-gray-300"
+              : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
           }`}
         >
           <X size={20} />
@@ -111,14 +111,14 @@ const ConfirmDialog = ({
             <div className="flex-1">
               <h3
                 className={`text-lg font-semibold mb-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
+                  isDarkMode ? "text-white" : "text-gray-900"
                 }`}
               >
                 {title}
               </h3>
               <p
                 className={`text-sm ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
                 }`}
               >
                 {message}
@@ -132,8 +132,8 @@ const ConfirmDialog = ({
               onClick={onCancel}
               className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${
                 isDarkMode
-                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               {cancelText}
@@ -145,8 +145,8 @@ const ConfirmDialog = ({
               }}
               className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${config.confirmBg} ${config.confirmText} focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 isDarkMode
-                  ? 'focus:ring-offset-gray-800'
-                  : 'focus:ring-offset-white'
+                  ? "focus:ring-offset-gray-800"
+                  : "focus:ring-offset-white"
               }`}
             >
               {confirmText}

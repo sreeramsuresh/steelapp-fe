@@ -13,9 +13,9 @@
  */
 export function normalizePayment(
   rawPayment: any,
-  source = 'unknown',
+  source = "unknown",
 ): any | null {
-  if (!rawPayment || typeof rawPayment !== 'object') {
+  if (!rawPayment || typeof rawPayment !== "object") {
     console.error(
       `❌ [Payment Normalizer] Invalid payment data from ${source}:`,
       rawPayment,
@@ -44,7 +44,7 @@ export function normalizePayment(
       }
 
       // Handle string dates
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
           return parsed.toISOString();
@@ -113,7 +113,7 @@ export function normalizePayment(
       `❌ [Payment Normalizer] Failed to normalize payment from ${source}:`,
       error,
     );
-    console.error('   Raw data:', rawPayment);
+    console.error("   Raw data:", rawPayment);
     return null;
   }
 }
@@ -124,7 +124,7 @@ export function normalizePayment(
  * @param source - Source identifier for debugging
  * @returns Array of normalized Payment objects
  */
-export function normalizePayments(rawPayments: any[], source = 'list'): any[] {
+export function normalizePayments(rawPayments: any[], source = "list"): any[] {
   if (!Array.isArray(rawPayments)) {
     console.error(
       `❌ [Payment Normalizer] Expected array, got ${typeof rawPayments}`,

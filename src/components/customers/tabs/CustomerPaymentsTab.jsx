@@ -22,10 +22,10 @@
  * @returns {JSX.Element} Payment list with allocation details
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useTheme } from '../../../contexts/ThemeContext';
-import { apiClient } from '../../../services/api';
-import { formatCurrency, formatDate } from '../../../utils/invoiceUtils';
+import React, { useState, useEffect, useCallback } from "react";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { apiClient } from "../../../services/api";
+import { formatCurrency, formatDate } from "../../../utils/invoiceUtils";
 import {
   DollarSign,
   RefreshCw,
@@ -36,7 +36,7 @@ import {
   Calendar,
   TrendingUp,
   Banknote,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function CustomerPaymentsTab({ customerId }) {
   const { isDarkMode } = useTheme();
@@ -54,8 +54,8 @@ export default function CustomerPaymentsTab({ customerId }) {
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Filters
-  const [dateRangeFilter, setDateRangeFilter] = useState('all');
-  const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
+  const [dateRangeFilter, setDateRangeFilter] = useState("all");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState("all");
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,8 +83,8 @@ export default function CustomerPaymentsTab({ customerId }) {
       setCachedData(paymentData);
       setCacheTimestamp(Date.now());
     } catch (err) {
-      console.error('Failed to fetch payments:', err);
-      setError(err.message || 'Failed to load payments');
+      console.error("Failed to fetch payments:", err);
+      setError(err.message || "Failed to load payments");
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function CustomerPaymentsTab({ customerId }) {
 
     // Date range filter
     const now = new Date();
-    if (dateRangeFilter !== 'all') {
+    if (dateRangeFilter !== "all") {
       const daysBack = parseInt(dateRangeFilter);
       const cutoffDate = new Date(
         now.getTime() - daysBack * 24 * 60 * 60 * 1000,
@@ -129,7 +129,7 @@ export default function CustomerPaymentsTab({ customerId }) {
     }
 
     // Payment method filter
-    if (paymentMethodFilter !== 'all') {
+    if (paymentMethodFilter !== "all") {
       filtered = filtered.filter(
         (payment) =>
           payment.paymentMethod?.toLowerCase() ===
@@ -158,9 +158,9 @@ export default function CustomerPaymentsTab({ customerId }) {
     lastPaymentDate:
       filteredPayments.length > 0
         ? filteredPayments.reduce((latest, p) => {
-          const pDate = new Date(p.paymentDate);
-          return pDate > latest ? pDate : latest;
-        }, new Date(filteredPayments[0].paymentDate))
+            const pDate = new Date(p.paymentDate);
+            return pDate > latest ? pDate : latest;
+          }, new Date(filteredPayments[0].paymentDate))
         : null,
   };
 
@@ -184,19 +184,19 @@ export default function CustomerPaymentsTab({ customerId }) {
 
   // Payment method icon
   const getPaymentMethodIcon = (method) => {
-    const methodLower = method?.toLowerCase() || '';
-    if (methodLower.includes('cash')) return <Banknote size={16} />;
-    if (methodLower.includes('bank') || methodLower.includes('transfer'))
+    const methodLower = method?.toLowerCase() || "";
+    if (methodLower.includes("cash")) return <Banknote size={16} />;
+    if (methodLower.includes("bank") || methodLower.includes("transfer"))
       return <TrendingUp size={16} />;
     return <CreditCard size={16} />;
   };
 
   // Styling
-  const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
-  const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
-  const primaryText = isDarkMode ? 'text-gray-100' : 'text-gray-900';
-  const secondaryText = isDarkMode ? 'text-gray-400' : 'text-gray-600';
-  const hoverBg = isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50';
+  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
+  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-200";
+  const primaryText = isDarkMode ? "text-gray-100" : "text-gray-900";
+  const secondaryText = isDarkMode ? "text-gray-400" : "text-gray-600";
+  const hoverBg = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
 
   // Loading state
   if (loading) {
@@ -211,18 +211,18 @@ export default function CustomerPaymentsTab({ customerId }) {
   if (error) {
     return (
       <div
-        className={`p-6 rounded-lg ${isDarkMode ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-200'} border`}
+        className={`p-6 rounded-lg ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"} border`}
       >
         <div className="flex items-center gap-3 mb-2">
           <AlertTriangle size={20} className="text-red-500" />
           <p
-            className={`font-medium ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}
+            className={`font-medium ${isDarkMode ? "text-red-400" : "text-red-700"}`}
           >
             Error Loading Payments
           </p>
         </div>
         <p
-          className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}
+          className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}
         >
           {error}
         </p>
@@ -248,12 +248,12 @@ export default function CustomerPaymentsTab({ customerId }) {
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode
-              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400'
+              ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400"
           }`}
           title="Refresh payments data"
         >
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           Refresh
         </button>
       </div>
@@ -298,7 +298,7 @@ export default function CustomerPaymentsTab({ customerId }) {
           <p className={`text-2xl font-bold ${primaryText}`}>
             {summaryStats.lastPaymentDate
               ? formatDate(summaryStats.lastPaymentDate)
-              : 'N/A'}
+              : "N/A"}
           </p>
         </div>
       </div>
@@ -357,7 +357,7 @@ export default function CustomerPaymentsTab({ customerId }) {
       >
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+            <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
               <tr>
                 <th
                   className={`px-4 py-3 text-left text-xs font-medium ${secondaryText} uppercase tracking-wider w-10`}
@@ -397,7 +397,7 @@ export default function CustomerPaymentsTab({ customerId }) {
               </tr>
             </thead>
             <tbody
-              className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
+              className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
             >
               {paginatedPayments.length === 0 ? (
                 <tr>
@@ -446,14 +446,14 @@ export default function CustomerPaymentsTab({ customerId }) {
                         <td
                           className={`px-4 py-3 whitespace-nowrap ${primaryText} font-medium`}
                         >
-                          {payment.referenceNumber || 'N/A'}
+                          {payment.referenceNumber || "N/A"}
                         </td>
                         <td
                           className={`px-4 py-3 whitespace-nowrap ${secondaryText}`}
                         >
                           <div className="flex items-center gap-2">
                             {getPaymentMethodIcon(payment.paymentMethod)}
-                            <span>{payment.paymentMethod || 'N/A'}</span>
+                            <span>{payment.paymentMethod || "N/A"}</span>
                           </div>
                         </td>
                         <td
@@ -478,7 +478,7 @@ export default function CustomerPaymentsTab({ customerId }) {
                         <tr>
                           <td
                             colSpan="7"
-                            className={`px-4 py-3 ${isDarkMode ? 'bg-gray-750' : 'bg-gray-50'}`}
+                            className={`px-4 py-3 ${isDarkMode ? "bg-gray-750" : "bg-gray-50"}`}
                           >
                             <div className="pl-8">
                               <p
@@ -539,8 +539,8 @@ export default function CustomerPaymentsTab({ customerId }) {
             className={`px-4 py-3 border-t ${borderColor} flex items-center justify-between`}
           >
             <div className={`text-sm ${secondaryText}`}>
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-              {Math.min(currentPage * itemsPerPage, filteredPayments.length)} of{' '}
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, filteredPayments.length)} of{" "}
               {filteredPayments.length} payments
             </div>
             <div className="flex gap-2">
@@ -570,7 +570,7 @@ export default function CustomerPaymentsTab({ customerId }) {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-3 py-1 rounded-md border ${borderColor} ${
                         currentPage === pageNum
-                          ? 'bg-blue-600 text-white border-blue-600'
+                          ? "bg-blue-600 text-white border-blue-600"
                           : `${primaryText} ${hoverBg}`
                       }`}
                     >

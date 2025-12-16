@@ -11,8 +11,8 @@
  * - Accordion for optional sections
  */
 
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Save,
@@ -26,28 +26,28 @@ import {
   Search,
   ChevronDown,
   Copy,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import debitNoteService from '../../services/debitNoteService';
-import vendorBillService from '../../services/vendorBillService';
-import { notificationService } from '../../services/notificationService';
-import { formatCurrency, formatDateForInput } from '../../utils/invoiceUtils';
+} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
+import debitNoteService from "../../services/debitNoteService";
+import vendorBillService from "../../services/vendorBillService";
+import { notificationService } from "../../services/notificationService";
+import { formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
 
 // Reason categories
 const REASON_CATEGORIES = [
-  { value: 'PRICE_ADJUSTMENT', label: 'Price Adjustment' },
-  { value: 'QUANTITY_ADJUSTMENT', label: 'Quantity Adjustment' },
-  { value: 'ADDITIONAL_CHARGES', label: 'Additional Charges' },
-  { value: 'SERVICE_CHARGE', label: 'Service Charge' },
-  { value: 'OTHER', label: 'Other' },
+  { value: "PRICE_ADJUSTMENT", label: "Price Adjustment" },
+  { value: "QUANTITY_ADJUSTMENT", label: "Quantity Adjustment" },
+  { value: "ADDITIONAL_CHARGES", label: "Additional Charges" },
+  { value: "SERVICE_CHARGE", label: "Service Charge" },
+  { value: "OTHER", label: "Other" },
 ];
 
 // VAT categories
 const VAT_CATEGORIES = [
-  { value: 'STANDARD', label: 'Standard Rate (5%)', rate: 5 },
-  { value: 'ZERO_RATED', label: 'Zero Rated (0%)', rate: 0 },
-  { value: 'EXEMPT', label: 'Exempt', rate: 0 },
-  { value: 'REVERSE_CHARGE', label: 'Reverse Charge', rate: 5 },
+  { value: "STANDARD", label: "Standard Rate (5%)", rate: 5 },
+  { value: "ZERO_RATED", label: "Zero Rated (0%)", rate: 0 },
+  { value: "EXEMPT", label: "Exempt", rate: 0 },
+  { value: "REVERSE_CHARGE", label: "Reverse Charge", rate: 5 },
 ];
 
 // Empty line item template
@@ -55,7 +55,7 @@ const createEmptyItem = () => ({
   id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   vendorBillItemId: null,
   productId: null,
-  description: '',
+  description: "",
   quantity: 1,
   unitPrice: 0,
   amount: 0,
@@ -77,7 +77,7 @@ const DebitNoteForm = () => {
   const [validationErrors, setValidationErrors] = useState([]);
 
   // Vendor bill search
-  const [vendorBillSearch, setVendorBillSearch] = useState('');
+  const [vendorBillSearch, setVendorBillSearch] = useState("");
   const [vendorBillResults, setVendorBillResults] = useState([]);
   const [showVendorBillDropdown, setShowVendorBillDropdown] = useState(false);
   const [selectedVendorBill, setSelectedVendorBill] = useState(null);
@@ -85,20 +85,20 @@ const DebitNoteForm = () => {
   // Debit note data state
   const [debitNote, setDebitNote] = useState({
     vendorBillId: null,
-    vendorBillNumber: '',
+    vendorBillNumber: "",
     vendorId: null,
     vendor: null,
-    debitNoteNumber: '',
+    debitNoteNumber: "",
     debitNoteDate: formatDateForInput(new Date()),
-    reason: '',
-    reasonCategory: 'PRICE_ADJUSTMENT',
-    vatCategory: 'STANDARD',
+    reason: "",
+    reasonCategory: "PRICE_ADJUSTMENT",
+    vatCategory: "STANDARD",
     isReverseCharge: false,
     subtotal: 0,
     vatAmount: 0,
     totalDebit: 0,
-    status: 'draft',
-    notes: '',
+    status: "draft",
+    notes: "",
     items: [createEmptyItem()],
   });
 
@@ -108,7 +108,7 @@ const DebitNoteForm = () => {
       loadDebitNote();
     } else {
       loadNextDebitNoteNumber();
-      const vendorBillIdParam = searchParams.get('vendorBillId');
+      const vendorBillIdParam = searchParams.get("vendorBillId");
       if (vendorBillIdParam) {
         loadVendorBill(vendorBillIdParam);
       }
@@ -141,9 +141,9 @@ const DebitNoteForm = () => {
         setSelectedVendorBill(bill);
       }
     } catch (error) {
-      console.error('Error loading debit note:', error);
-      notificationService.error('Failed to load debit note');
-      navigate('/purchases/debit-notes');
+      console.error("Error loading debit note:", error);
+      notificationService.error("Failed to load debit note");
+      navigate("/purchases/debit-notes");
     } finally {
       setLoading(false);
     }
@@ -154,10 +154,10 @@ const DebitNoteForm = () => {
       const response = await debitNoteService.getNextNumber();
       setDebitNote((prev) => ({
         ...prev,
-        debitNoteNumber: response.debitNoteNumber || 'DN-0001',
+        debitNoteNumber: response.debitNoteNumber || "DN-0001",
       }));
     } catch (error) {
-      console.error('Error loading next debit note number:', error);
+      console.error("Error loading next debit note number:", error);
     }
   };
 
@@ -168,7 +168,7 @@ const DebitNoteForm = () => {
       setVendorBillResults(results);
       setShowVendorBillDropdown(results.length > 0);
     } catch (error) {
-      console.error('Error searching vendor bills:', error);
+      console.error("Error searching vendor bills:", error);
       setVendorBillResults([]);
     } finally {
       setVendorBillSearching(false);
@@ -184,15 +184,18 @@ const DebitNoteForm = () => {
         vendorBillId: bill.id,
         vendorBillNumber: bill.billNumber,
         vendorId: bill.vendorId,
-        vendor: bill.vendorDetails || { name: bill.vendorName, trn: bill.vendorTrn },
-        vatCategory: bill.vatCategory || 'STANDARD',
+        vendor: bill.vendorDetails || {
+          name: bill.vendorName,
+          trn: bill.vendorTrn,
+        },
+        vatCategory: bill.vatCategory || "STANDARD",
         isReverseCharge: bill.isReverseCharge || false,
       }));
-      setVendorBillSearch('');
+      setVendorBillSearch("");
       setShowVendorBillDropdown(false);
     } catch (error) {
-      console.error('Error loading vendor bill:', error);
-      notificationService.error('Failed to load vendor bill');
+      console.error("Error loading vendor bill:", error);
+      notificationService.error("Failed to load vendor bill");
     }
   };
 
@@ -202,7 +205,7 @@ const DebitNoteForm = () => {
 
   const handleCopyItemsFromBill = () => {
     if (!selectedVendorBill || !selectedVendorBill.items) {
-      notificationService.warning('No items to copy from vendor bill');
+      notificationService.warning("No items to copy from vendor bill");
       return;
     }
 
@@ -220,7 +223,7 @@ const DebitNoteForm = () => {
 
     setDebitNote((prev) => ({ ...prev, items: copiedItems }));
     recalculateTotals(copiedItems);
-    notificationService.success('Items copied from vendor bill');
+    notificationService.success("Items copied from vendor bill");
   };
 
   const handleAddItem = () => {
@@ -232,7 +235,7 @@ const DebitNoteForm = () => {
 
   const handleRemoveItem = (index) => {
     if (debitNote.items.length <= 1) {
-      notificationService.warning('At least one item is required');
+      notificationService.warning("At least one item is required");
       return;
     }
     const updatedItems = debitNote.items.filter((_, i) => i !== index);
@@ -245,7 +248,7 @@ const DebitNoteForm = () => {
     const item = { ...updatedItems[index] };
     item[field] = value;
 
-    if (['quantity', 'unitPrice', 'vatRate'].includes(field)) {
+    if (["quantity", "unitPrice", "vatRate"].includes(field)) {
       const qty = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.unitPrice) || 0;
       const vatRate = parseFloat(item.vatRate) || 0;
@@ -259,73 +262,84 @@ const DebitNoteForm = () => {
   };
 
   const recalculateTotals = (items) => {
-    const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-    const vatAmount = items.reduce((sum, item) => sum + (parseFloat(item.vatAmount) || 0), 0);
+    const subtotal = items.reduce(
+      (sum, item) => sum + (parseFloat(item.amount) || 0),
+      0,
+    );
+    const vatAmount = items.reduce(
+      (sum, item) => sum + (parseFloat(item.vatAmount) || 0),
+      0,
+    );
     const totalDebit = subtotal + vatAmount;
     setDebitNote((prev) => ({ ...prev, subtotal, vatAmount, totalDebit }));
   };
 
   const validateForm = () => {
     const errors = [];
-    if (!debitNote.vendorBillId) errors.push('Please select a vendor bill');
-    if (!debitNote.debitNoteNumber) errors.push('Debit note number is required');
-    if (!debitNote.debitNoteDate) errors.push('Debit note date is required');
-    if (!debitNote.reason) errors.push('Reason is required');
+    if (!debitNote.vendorBillId) errors.push("Please select a vendor bill");
+    if (!debitNote.debitNoteNumber)
+      errors.push("Debit note number is required");
+    if (!debitNote.debitNoteDate) errors.push("Debit note date is required");
+    if (!debitNote.reason) errors.push("Reason is required");
 
     const validItems = debitNote.items.filter(
-      (item) => item.description && item.quantity > 0 && item.unitPrice > 0
+      (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
     );
-    if (validItems.length === 0) errors.push('At least one valid line item is required');
+    if (validItems.length === 0)
+      errors.push("At least one valid line item is required");
 
     setValidationErrors(errors);
     return errors.length === 0;
   };
 
-  const handleSave = async (status = 'draft') => {
+  const handleSave = async (status = "draft") => {
     if (!validateForm()) {
-      notificationService.error('Please fix the validation errors');
+      notificationService.error("Please fix the validation errors");
       return;
     }
 
     try {
       setSaving(true);
       const validItems = debitNote.items.filter(
-        (item) => item.description && item.quantity > 0 && item.unitPrice > 0
+        (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
       );
 
       const debitNoteData = { ...debitNote, status, items: validItems };
 
       if (isEditMode) {
         await debitNoteService.update(id, debitNoteData);
-        notificationService.success('Debit note updated successfully');
+        notificationService.success("Debit note updated successfully");
       } else {
         await debitNoteService.create(debitNoteData);
-        notificationService.success('Debit note created successfully');
+        notificationService.success("Debit note created successfully");
       }
 
-      navigate('/purchases/debit-notes');
+      navigate("/purchases/debit-notes");
     } catch (error) {
-      console.error('Error saving debit note:', error);
-      notificationService.error(error.message || 'Failed to save debit note');
+      console.error("Error saving debit note:", error);
+      notificationService.error(error.message || "Failed to save debit note");
     } finally {
       setSaving(false);
     }
   };
 
   // ===================== THEME CLASSES =====================
-  const cardBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
-  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
-  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
-  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
-  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
-  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
-  const accordionBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
-  const inputFocus = 'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
+  const cardBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
+  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
+  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
+  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
+  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
+  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
+  const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
+  const inputFocus =
+    "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
 
   // Loading state
   if (loading) {
     return (
-      <div className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}>
+      <div
+        className={`h-full flex items-center justify-center ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
           <p className={textMuted}>Loading debit note...</p>
@@ -335,59 +349,82 @@ const DebitNoteForm = () => {
   }
 
   return (
-    <div className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}>
+    <div
+      className={`h-full overflow-auto ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+    >
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
-        <div className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}>
-
+        <div
+          className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}
+        >
           {/* Sticky Header */}
-          <div className={`sticky top-0 z-10 backdrop-blur-md ${
-            isDarkMode ? 'bg-[#0f151b]/94 border-b border-[#2a3640]' : 'bg-white/94 border-b border-gray-200'
-          } px-4 py-3`}>
+          <div
+            className={`sticky top-0 z-10 backdrop-blur-md ${
+              isDarkMode
+                ? "bg-[#0f151b]/94 border-b border-[#2a3640]"
+                : "bg-white/94 border-b border-gray-200"
+            } px-4 py-3`}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate('/purchases/debit-notes')}
+                  onClick={() => navigate("/purchases/debit-notes")}
                   className={`p-2 rounded-xl transition-colors ${
-                    isDarkMode ? 'hover:bg-[#141a20] text-[#93a4b4]' : 'hover:bg-gray-100 text-gray-600'
+                    isDarkMode
+                      ? "hover:bg-[#141a20] text-[#93a4b4]"
+                      : "hover:bg-gray-100 text-gray-600"
                   }`}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
                   <h1 className={`text-lg font-extrabold ${textPrimary}`}>
-                    {isEditMode ? 'Edit Debit Note' : 'New Debit Note'}
+                    {isEditMode ? "Edit Debit Note" : "New Debit Note"}
                   </h1>
                   <p className={`text-xs ${textMuted}`}>
-                    {isEditMode ? `Editing ${debitNote.debitNoteNumber}` : 'Vendor bill adjustment'}
+                    {isEditMode
+                      ? `Editing ${debitNote.debitNoteNumber}`
+                      : "Vendor bill adjustment"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-1 rounded-xl text-xs border ${
-                  isDarkMode ? 'border-amber-500/30 bg-amber-500/12 text-amber-400' : 'border-amber-200 bg-amber-50 text-amber-700'
-                }`}>
-                  {debitNote.status === 'approved' ? 'Approved' : 'Draft'}
+                <span
+                  className={`px-2.5 py-1 rounded-xl text-xs border ${
+                    isDarkMode
+                      ? "border-amber-500/30 bg-amber-500/12 text-amber-400"
+                      : "border-amber-200 bg-amber-50 text-amber-700"
+                  }`}
+                >
+                  {debitNote.status === "approved" ? "Approved" : "Draft"}
                 </span>
                 <button
-                  onClick={() => handleSave('draft')}
+                  onClick={() => handleSave("draft")}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors ${
-                    isDarkMode ? 'border-[#2a3640] hover:border-[#4aa3ff] text-[#93a4b4]' : 'border-gray-300 hover:border-teal-500 text-gray-600'
-                  } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    isDarkMode
+                      ? "border-[#2a3640] hover:border-[#4aa3ff] text-[#93a4b4]"
+                      : "border-gray-300 hover:border-teal-500 text-gray-600"
+                  } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
                   <Save className="h-4 w-4" />
                   Save Draft
                 </button>
                 <button
-                  onClick={() => handleSave('approved')}
+                  onClick={() => handleSave("approved")}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
-                    isDarkMode ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]' : 'bg-teal-600 text-white hover:bg-teal-700'
-                  } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    isDarkMode
+                      ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
+                      : "bg-teal-600 text-white hover:bg-teal-700"
+                  } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  {saving ? 'Saving...' : 'Save & Approve'}
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {saving ? "Saving..." : "Save & Approve"}
                 </button>
               </div>
             </div>
@@ -395,16 +432,24 @@ const DebitNoteForm = () => {
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-12 gap-3 p-4">
-
             {/* Validation Errors */}
             {validationErrors.length > 0 && (
-              <div className={`col-span-12 p-4 rounded-[14px] border ${
-                isDarkMode ? 'bg-red-900/20 border-red-600/50 text-red-200' : 'bg-red-50 border-red-300 text-red-800'
-              }`}>
+              <div
+                className={`col-span-12 p-4 rounded-[14px] border ${
+                  isDarkMode
+                    ? "bg-red-900/20 border-red-600/50 text-red-200"
+                    : "bg-red-50 border-red-300 text-red-800"
+                }`}
+              >
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className={isDarkMode ? 'text-red-400' : 'text-red-600'} size={20} />
+                  <AlertTriangle
+                    className={isDarkMode ? "text-red-400" : "text-red-600"}
+                    size={20}
+                  />
                   <div>
-                    <h4 className="font-bold text-sm mb-1.5">Please fix the following errors:</h4>
+                    <h4 className="font-bold text-sm mb-1.5">
+                      Please fix the following errors:
+                    </h4>
                     <ul className="list-disc list-inside space-y-0.5 text-xs">
                       {validationErrors.map((error, index) => (
                         <li key={index}>{error}</li>
@@ -417,21 +462,26 @@ const DebitNoteForm = () => {
 
             {/* LEFT COLUMN: Main Form */}
             <div className="col-span-12 lg:col-span-8 space-y-3">
-
               {/* Section 1: Linked Vendor Bill */}
               <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
                 <div className="mb-3">
-                  <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
+                  <div
+                    className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}
+                  >
                     <Link2 className="h-4 w-4" />
                     Linked Vendor Bill <span className="text-red-500">*</span>
                   </div>
-                  <div className={`text-xs ${textMuted}`}>Select the vendor bill this debit note adjusts</div>
+                  <div className={`text-xs ${textMuted}`}>
+                    Select the vendor bill this debit note adjusts
+                  </div>
                 </div>
 
                 {!selectedVendorBill ? (
                   <div className="relative">
                     <div className="relative">
-                      <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${textMuted}`} />
+                      <Search
+                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${textMuted}`}
+                      />
                       <input
                         type="text"
                         placeholder="Search vendor bill by number or vendor name..."
@@ -440,28 +490,42 @@ const DebitNoteForm = () => {
                         className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
                       />
                       {vendorBillSearching && (
-                        <Loader2 className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin ${textMuted}`} />
+                        <Loader2
+                          className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin ${textMuted}`}
+                        />
                       )}
                     </div>
 
                     {/* Vendor Bill Dropdown */}
                     {showVendorBillDropdown && vendorBillResults.length > 0 && (
-                      <div className={`absolute z-10 w-full mt-1 rounded-xl shadow-lg border max-h-60 overflow-y-auto ${cardBg} ${cardBorder}`}>
+                      <div
+                        className={`absolute z-10 w-full mt-1 rounded-xl shadow-lg border max-h-60 overflow-y-auto ${cardBg} ${cardBorder}`}
+                      >
                         {vendorBillResults.map((bill) => (
                           <button
                             key={bill.id}
                             type="button"
                             onClick={() => handleVendorBillSelect(bill)}
                             className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
-                              isDarkMode ? 'hover:bg-[#1a2027]' : 'hover:bg-gray-50'
+                              isDarkMode
+                                ? "hover:bg-[#1a2027]"
+                                : "hover:bg-gray-50"
                             }`}
                           >
                             <div className="flex justify-between items-start">
                               <div>
-                                <div className={`text-sm font-medium ${textPrimary}`}>{bill.billNumber}</div>
-                                <div className={`text-xs ${textMuted}`}>{bill.vendorName}</div>
+                                <div
+                                  className={`text-sm font-medium ${textPrimary}`}
+                                >
+                                  {bill.billNumber}
+                                </div>
+                                <div className={`text-xs ${textMuted}`}>
+                                  {bill.vendorName}
+                                </div>
                               </div>
-                              <div className={`text-sm font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}>
+                              <div
+                                className={`text-sm font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}
+                              >
                                 {formatCurrency(bill.total)}
                               </div>
                             </div>
@@ -471,14 +535,24 @@ const DebitNoteForm = () => {
                     )}
                   </div>
                 ) : (
-                  <div className={`p-3 rounded-[14px] border ${
-                    isDarkMode ? 'border-[#4aa3ff]/35 bg-[#4aa3ff]/10' : 'border-teal-300 bg-teal-50'
-                  }`}>
+                  <div
+                    className={`p-3 rounded-[14px] border ${
+                      isDarkMode
+                        ? "border-[#4aa3ff]/35 bg-[#4aa3ff]/10"
+                        : "border-teal-300 bg-teal-50"
+                    }`}
+                  >
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className={`text-sm font-medium ${textPrimary}`}>{selectedVendorBill.billNumber}</div>
-                        <div className={`text-xs ${textMuted}`}>Vendor: {selectedVendorBill.vendorName}</div>
-                        <div className={`text-xs font-mono ${textMuted} mt-0.5`}>
+                        <div className={`text-sm font-medium ${textPrimary}`}>
+                          {selectedVendorBill.billNumber}
+                        </div>
+                        <div className={`text-xs ${textMuted}`}>
+                          Vendor: {selectedVendorBill.vendorName}
+                        </div>
+                        <div
+                          className={`text-xs font-mono ${textMuted} mt-0.5`}
+                        >
                           Total: {formatCurrency(selectedVendorBill.total)}
                         </div>
                       </div>
@@ -486,7 +560,9 @@ const DebitNoteForm = () => {
                         <button
                           onClick={handleCopyItemsFromBill}
                           className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl border transition-colors ${
-                            isDarkMode ? 'border-[#4aa3ff]/50 bg-[#4aa3ff]/20 text-[#4aa3ff] hover:bg-[#4aa3ff]/30' : 'border-teal-400 bg-teal-100 text-teal-700 hover:bg-teal-200'
+                            isDarkMode
+                              ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/20 text-[#4aa3ff] hover:bg-[#4aa3ff]/30"
+                              : "border-teal-400 bg-teal-100 text-teal-700 hover:bg-teal-200"
                           }`}
                         >
                           <Copy className="h-3 w-3" />
@@ -499,13 +575,15 @@ const DebitNoteForm = () => {
                               setDebitNote((prev) => ({
                                 ...prev,
                                 vendorBillId: null,
-                                vendorBillNumber: '',
+                                vendorBillNumber: "",
                                 vendorId: null,
                                 vendor: null,
                               }));
                             }}
                             className={`px-2.5 py-1 text-xs rounded-xl border transition-colors ${
-                              isDarkMode ? 'border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]' : 'border-gray-300 bg-white hover:border-teal-500'
+                              isDarkMode
+                                ? "border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]"
+                                : "border-gray-300 bg-white hover:border-teal-500"
                             }`}
                           >
                             Change
@@ -520,11 +598,15 @@ const DebitNoteForm = () => {
               {/* Section 2: Debit Note Details */}
               <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
                 <div className="mb-3">
-                  <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
+                  <div
+                    className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}
+                  >
                     <FileText className="h-4 w-4" />
                     Debit Note Details
                   </div>
-                  <div className={`text-xs ${textMuted}`}>Enter debit note information</div>
+                  <div className={`text-xs ${textMuted}`}>
+                    Enter debit note information
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-12 gap-3">
@@ -536,7 +618,12 @@ const DebitNoteForm = () => {
                     <input
                       type="text"
                       value={debitNote.debitNoteNumber}
-                      onChange={(e) => setDebitNote((prev) => ({ ...prev, debitNoteNumber: e.target.value }))}
+                      onChange={(e) =>
+                        setDebitNote((prev) => ({
+                          ...prev,
+                          debitNoteNumber: e.target.value,
+                        }))
+                      }
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
                     />
                   </div>
@@ -549,35 +636,58 @@ const DebitNoteForm = () => {
                     <input
                       type="date"
                       value={debitNote.debitNoteDate}
-                      onChange={(e) => setDebitNote((prev) => ({ ...prev, debitNoteDate: e.target.value }))}
+                      onChange={(e) =>
+                        setDebitNote((prev) => ({
+                          ...prev,
+                          debitNoteDate: e.target.value,
+                        }))
+                      }
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
                     />
                   </div>
 
                   {/* Reason Category */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>Reason Category</label>
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      Reason Category
+                    </label>
                     <select
                       value={debitNote.reasonCategory}
-                      onChange={(e) => setDebitNote((prev) => ({ ...prev, reasonCategory: e.target.value }))}
+                      onChange={(e) =>
+                        setDebitNote((prev) => ({
+                          ...prev,
+                          reasonCategory: e.target.value,
+                        }))
+                      }
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
                     >
                       {REASON_CATEGORIES.map((cat) => (
-                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   {/* VAT Category */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>VAT Category</label>
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      VAT Category
+                    </label>
                     <select
                       value={debitNote.vatCategory}
-                      onChange={(e) => setDebitNote((prev) => ({ ...prev, vatCategory: e.target.value }))}
+                      onChange={(e) =>
+                        setDebitNote((prev) => ({
+                          ...prev,
+                          vatCategory: e.target.value,
+                        }))
+                      }
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
                     >
                       {VAT_CATEGORIES.map((cat) => (
-                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -590,7 +700,12 @@ const DebitNoteForm = () => {
                     <input
                       type="text"
                       value={debitNote.reason}
-                      onChange={(e) => setDebitNote((prev) => ({ ...prev, reason: e.target.value }))}
+                      onChange={(e) =>
+                        setDebitNote((prev) => ({
+                          ...prev,
+                          reason: e.target.value,
+                        }))
+                      }
                       placeholder="Describe the reason for this debit note..."
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
                     />
@@ -602,16 +717,22 @@ const DebitNoteForm = () => {
               <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
+                    <div
+                      className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}
+                    >
                       <Package className="h-4 w-4" />
                       Line Items
                     </div>
-                    <div className={`text-xs ${textMuted}`}>Add items to adjust</div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Add items to adjust
+                    </div>
                   </div>
                   <button
                     onClick={handleAddItem}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-xl font-bold transition-colors ${
-                      isDarkMode ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]' : 'bg-teal-600 text-white hover:bg-teal-700'
+                      isDarkMode
+                        ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
+                        : "bg-teal-600 text-white hover:bg-teal-700"
                     }`}
                   >
                     <Plus className="h-3.5 w-3.5" />
@@ -628,11 +749,19 @@ const DebitNoteForm = () => {
                       <div className="grid grid-cols-12 gap-2">
                         {/* Description */}
                         <div className="col-span-12 md:col-span-5">
-                          <label className={`block text-xs ${textMuted} mb-1`}>Description</label>
+                          <label className={`block text-xs ${textMuted} mb-1`}>
+                            Description
+                          </label>
                           <input
                             type="text"
                             value={item.description}
-                            onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "description",
+                                e.target.value,
+                              )
+                            }
                             placeholder="Item description"
                             className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
                           />
@@ -640,39 +769,59 @@ const DebitNoteForm = () => {
 
                         {/* Quantity */}
                         <div className="col-span-4 md:col-span-2">
-                          <label className={`block text-xs ${textMuted} mb-1`}>Qty</label>
+                          <label className={`block text-xs ${textMuted} mb-1`}>
+                            Qty
+                          </label>
                           <input
                             type="number"
                             min="0"
                             step="0.01"
                             value={item.quantity}
-                            onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "quantity",
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
                             className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
                           />
                         </div>
 
                         {/* Unit Price */}
                         <div className="col-span-4 md:col-span-2">
-                          <label className={`block text-xs ${textMuted} mb-1`}>Unit Price</label>
+                          <label className={`block text-xs ${textMuted} mb-1`}>
+                            Unit Price
+                          </label>
                           <input
                             type="number"
                             min="0"
                             step="0.01"
                             value={item.unitPrice}
-                            onChange={(e) => handleItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "unitPrice",
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
                             className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
                           />
                         </div>
 
                         {/* Amount */}
                         <div className="col-span-3 md:col-span-2">
-                          <label className={`block text-xs ${textMuted} mb-1`}>Amount</label>
+                          <label className={`block text-xs ${textMuted} mb-1`}>
+                            Amount
+                          </label>
                           <input
                             type="text"
                             value={formatCurrency(item.amount)}
                             disabled
                             className={`w-full py-2 px-2.5 rounded-xl border text-sm font-mono ${
-                              isDarkMode ? 'bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]' : 'bg-gray-100 border-gray-300 text-gray-500'
+                              isDarkMode
+                                ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                                : "bg-gray-100 border-gray-300 text-gray-500"
                             }`}
                           />
                         </div>
@@ -682,7 +831,9 @@ const DebitNoteForm = () => {
                           <button
                             onClick={() => handleRemoveItem(index)}
                             className={`p-2 rounded-xl transition-colors ${
-                              isDarkMode ? 'hover:bg-red-900/30 text-red-400' : 'hover:bg-red-100 text-red-600'
+                              isDarkMode
+                                ? "hover:bg-red-900/30 text-red-400"
+                                : "hover:bg-red-100 text-red-600"
                             }`}
                             title="Remove item"
                           >
@@ -696,18 +847,31 @@ const DebitNoteForm = () => {
               </div>
 
               {/* Section 4: Notes Accordion */}
-              <details className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
                 <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
                   <div>
-                    <div className={`text-sm font-bold ${textPrimary}`}>Notes</div>
-                    <div className={`text-xs ${textMuted}`}>Internal notes for this debit note</div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Notes
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Internal notes for this debit note
+                    </div>
                   </div>
-                  <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
                 </summary>
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <textarea
                     value={debitNote.notes}
-                    onChange={(e) => setDebitNote((prev) => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setDebitNote((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
                     rows={3}
                     placeholder="Internal notes about this debit note..."
                     className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
@@ -719,24 +883,35 @@ const DebitNoteForm = () => {
             {/* RIGHT COLUMN: Sticky Sidebar */}
             <div className="col-span-12 lg:col-span-4">
               <div className="lg:sticky lg:top-24 space-y-3">
-
                 {/* Summary */}
-                <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
-                  <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>Summary</div>
+                <div
+                  className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}
+                >
+                  <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>
+                    Summary
+                  </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Subtotal:</span>
-                      <span className={`font-mono ${textPrimary}`}>{formatCurrency(debitNote.subtotal)}</span>
+                      <span className={`font-mono ${textPrimary}`}>
+                        {formatCurrency(debitNote.subtotal)}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>VAT:</span>
-                      <span className={`font-mono ${textPrimary}`}>{formatCurrency(debitNote.vatAmount)}</span>
+                      <span className={`font-mono ${textPrimary}`}>
+                        {formatCurrency(debitNote.vatAmount)}
+                      </span>
                     </div>
                     <div className={`h-px ${cardBorder} my-2`}></div>
                     <div className="flex justify-between">
-                      <span className={`font-bold ${textPrimary}`}>Total Debit:</span>
-                      <span className={`font-bold font-mono ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}>
+                      <span className={`font-bold ${textPrimary}`}>
+                        Total Debit:
+                      </span>
+                      <span
+                        className={`font-bold font-mono ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                      >
                         +{formatCurrency(debitNote.totalDebit)}
                       </span>
                     </div>
@@ -745,29 +920,47 @@ const DebitNoteForm = () => {
 
                 {/* Vendor Details */}
                 {debitNote.vendor && (
-                  <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
-                    <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>Vendor</div>
+                  <div
+                    className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}
+                  >
+                    <div
+                      className={`text-sm font-extrabold ${textPrimary} mb-3`}
+                    >
+                      Vendor
+                    </div>
                     <div className="space-y-1">
-                      <div className={`text-sm ${textPrimary}`}>{debitNote.vendor.name}</div>
+                      <div className={`text-sm ${textPrimary}`}>
+                        {debitNote.vendor.name}
+                      </div>
                       {debitNote.vendor.trn && (
-                        <div className={`text-xs font-mono ${textMuted}`}>TRN: {debitNote.vendor.trn}</div>
+                        <div className={`text-xs font-mono ${textMuted}`}>
+                          TRN: {debitNote.vendor.trn}
+                        </div>
                       )}
                     </div>
                   </div>
                 )}
 
                 {/* Debit Note Info */}
-                <div className={`p-3 rounded-[14px] border ${
-                  isDarkMode ? 'bg-amber-900/20 border-amber-700/50' : 'bg-amber-50 border-amber-200'
-                }`}>
-                  <div className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-amber-400' : 'text-amber-700'}`}>
+                <div
+                  className={`p-3 rounded-[14px] border ${
+                    isDarkMode
+                      ? "bg-amber-900/20 border-amber-700/50"
+                      : "bg-amber-50 border-amber-200"
+                  }`}
+                >
+                  <div
+                    className={`text-xs font-bold mb-1 ${isDarkMode ? "text-amber-400" : "text-amber-700"}`}
+                  >
                     Debit Note Effect
                   </div>
-                  <p className={`text-xs ${isDarkMode ? 'text-amber-300/80' : 'text-amber-600'}`}>
-                    This debit note will increase the amount owed to the vendor. The adjustment will be reflected in your accounts payable.
+                  <p
+                    className={`text-xs ${isDarkMode ? "text-amber-300/80" : "text-amber-600"}`}
+                  >
+                    This debit note will increase the amount owed to the vendor.
+                    The adjustment will be reflected in your accounts payable.
                   </p>
                 </div>
-
               </div>
             </div>
           </div>

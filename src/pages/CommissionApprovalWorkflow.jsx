@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from "react";
 import {
   CheckCircle,
   Clock,
@@ -6,8 +6,8 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-} from 'lucide-react';
-import { commissionService } from '../services/commissionService';
+} from "lucide-react";
+import { commissionService } from "../services/commissionService";
 
 export default function CommissionApprovalWorkflow() {
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -15,7 +15,7 @@ export default function CommissionApprovalWorkflow() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState("");
   const [salesPersonStats, setSalesPersonStats] = useState({});
 
   // Pagination state
@@ -64,9 +64,9 @@ export default function CommissionApprovalWorkflow() {
       }
     } catch (err) {
       const errorMsg =
-        err?.message || err?.toString?.() || String(err) || 'Unknown error';
+        err?.message || err?.toString?.() || String(err) || "Unknown error";
       setError(errorMsg);
-      console.error('[CommissionApprovalWorkflow] Error loading approvals:', {
+      console.error("[CommissionApprovalWorkflow] Error loading approvals:", {
         error: err,
         message: err?.message,
         stack: err?.stack,
@@ -80,7 +80,7 @@ export default function CommissionApprovalWorkflow() {
   const handleApproveCommission = async (commission) => {
     try {
       setUpdating(true);
-      const approvedByUserId = parseInt(localStorage.getItem('userId')) || 1;
+      const approvedByUserId = parseInt(localStorage.getItem("userId")) || 1;
 
       await commissionService.approveCommission(
         commission.invoiceId,
@@ -95,7 +95,7 @@ export default function CommissionApprovalWorkflow() {
       // Reload approvals
       setTimeout(() => {
         loadPendingApprovals();
-        setSuccessMessage('');
+        setSuccessMessage("");
       }, 2000);
     } catch (err) {
       setError(`Error approving commission: ${err.message}`);
@@ -140,7 +140,7 @@ export default function CommissionApprovalWorkflow() {
             disabled={loading}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center space-x-2 disabled:opacity-50"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -243,8 +243,8 @@ export default function CommissionApprovalWorkflow() {
                     ? daysUntilDeadline
                     : gracePeriodEndDate
                       ? Math.ceil(
-                        (gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24),
-                      )
+                          (gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24),
+                        )
                       : 0;
 
                 return (
@@ -269,14 +269,14 @@ export default function CommissionApprovalWorkflow() {
                             {commissionAmount?.toFixed(2)}
                           </div>
                           <div>
-                            <span className="font-semibold">Accrued:</span>{' '}
+                            <span className="font-semibold">Accrued:</span>{" "}
                             {new Date().toLocaleDateString()}
                           </div>
                           <div
                             className={
                               daysRemaining < 3
-                                ? 'text-red-600 font-semibold'
-                                : ''
+                                ? "text-red-600 font-semibold"
+                                : ""
                             }
                           >
                             <Clock className="inline w-4 h-4 mr-1" />
@@ -294,7 +294,7 @@ export default function CommissionApprovalWorkflow() {
                           disabled={updating}
                           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 transition"
                         >
-                          {updating ? 'Approving...' : 'Approve'}
+                          {updating ? "Approving..." : "Approve"}
                         </button>
                       </div>
                     </div>
@@ -309,7 +309,7 @@ export default function CommissionApprovalWorkflow() {
             <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600">
-                  Showing {(currentPage - 1) * pageSize + 1} to{' '}
+                  Showing {(currentPage - 1) * pageSize + 1} to{" "}
                   {Math.min(currentPage * pageSize, totalCount)} of {totalCount}
                 </span>
                 <select
@@ -411,7 +411,7 @@ export default function CommissionApprovalWorkflow() {
                         <p>
                           {gracePeriodEndDate
                             ? new Date(gracePeriodEndDate).toLocaleDateString()
-                            : 'N/A'}
+                            : "N/A"}
                         </p>
                       </div>
                     </div>
@@ -465,7 +465,7 @@ export default function CommissionApprovalWorkflow() {
                       disabled={updating}
                       className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                     >
-                      {updating ? 'Approving...' : 'Approve Commission'}
+                      {updating ? "Approving..." : "Approve Commission"}
                     </button>
                   </div>
                 </div>

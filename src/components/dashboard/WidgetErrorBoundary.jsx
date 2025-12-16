@@ -1,5 +1,5 @@
-import { Component } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Component } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 /**
  * WidgetErrorBoundary - Catches errors in dashboard widgets to prevent full dashboard crashes
@@ -30,7 +30,7 @@ class WidgetErrorBoundary extends Component {
   componentDidCatch(error, errorInfo) {
     // Log error details for debugging (visible in browser console)
     console.error(
-      `[Widget Error] ${this.props.widgetName || 'Unknown Widget'} crashed:`,
+      `[Widget Error] ${this.props.widgetName || "Unknown Widget"} crashed:`,
       error,
       errorInfo,
     );
@@ -57,32 +57,32 @@ class WidgetErrorBoundary extends Component {
         <div
           className={`rounded-xl border p-4 min-h-64 flex flex-col items-center justify-center ${
             isDarkMode
-              ? 'bg-[#1E2328] border-[#37474F]'
-              : 'bg-white border-[#E0E0E0]'
+              ? "bg-[#1E2328] border-[#37474F]"
+              : "bg-white border-[#E0E0E0]"
           }`}
         >
           <div
             className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
-              isDarkMode ? 'bg-red-900/30' : 'bg-red-100'
+              isDarkMode ? "bg-red-900/30" : "bg-red-100"
             }`}
           >
             <AlertTriangle
               size={24}
-              className={isDarkMode ? 'text-red-400' : 'text-red-500'}
+              className={isDarkMode ? "text-red-400" : "text-red-500"}
             />
           </div>
 
           <h4
             className={`text-base font-semibold mb-2 text-center ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
+              isDarkMode ? "text-white" : "text-gray-900"
             }`}
           >
-            {widgetName || 'Widget'} could not load
+            {widgetName || "Widget"} could not load
           </h4>
 
           <p
             className={`text-sm text-center mb-4 max-w-xs ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              isDarkMode ? "text-gray-400" : "text-gray-600"
             }`}
           >
             Something went wrong while displaying this widget. The rest of your
@@ -93,8 +93,8 @@ class WidgetErrorBoundary extends Component {
             onClick={this.handleRetry}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               isDarkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                ? "bg-gray-700 hover:bg-gray-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             }`}
           >
             <RefreshCw size={16} />
@@ -103,7 +103,7 @@ class WidgetErrorBoundary extends Component {
 
           <p
             className={`text-xs mt-4 text-center ${
-              isDarkMode ? 'text-gray-500' : 'text-gray-400'
+              isDarkMode ? "text-gray-500" : "text-gray-400"
             }`}
           >
             If this keeps happening, please refresh the page or contact support.
@@ -123,7 +123,7 @@ class WidgetErrorBoundary extends Component {
  * This is needed because class components cannot use hooks directly (like useTheme).
  * The wrapper reads the theme and passes it as a prop.
  */
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from "../../contexts/ThemeContext";
 
 export const WidgetErrorBoundaryWithTheme = ({ children, widgetName }) => {
   const { isDarkMode } = useTheme();

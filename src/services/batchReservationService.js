@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Batch Reservation Service
@@ -28,12 +28,12 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Reservation response with allocations
    */
   async reserveFIFO(params) {
-    const response = await apiClient.post('/batch-reservations/fifo', {
+    const response = await apiClient.post("/batch-reservations/fifo", {
       draftInvoiceId: params.draftInvoiceId || 0,
       productId: params.productId,
       warehouseId: params.warehouseId,
       requiredQuantity: params.requiredQuantity,
-      unit: params.unit || 'KG',
+      unit: params.unit || "KG",
       lineItemTempId: params.lineItemTempId,
     });
     return response;
@@ -51,7 +51,7 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Reservation response with allocations
    */
   async reserveManual(params) {
-    const response = await apiClient.post('/batch-reservations/manual', {
+    const response = await apiClient.post("/batch-reservations/manual", {
       draftInvoiceId: params.draftInvoiceId || 0,
       productId: params.productId,
       warehouseId: params.warehouseId,
@@ -81,7 +81,10 @@ export const batchReservationService = {
       queryParams.draft_invoice_id = params.draftInvoiceId;
     }
 
-    const response = await apiClient.get('/batch-reservations/available', queryParams);
+    const response = await apiClient.get(
+      "/batch-reservations/available",
+      queryParams,
+    );
     return response;
   },
 
@@ -108,7 +111,9 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Cancellation result
    */
   async cancelReservation(reservationId) {
-    const response = await apiClient.delete(`/batch-reservations/${reservationId}`);
+    const response = await apiClient.delete(
+      `/batch-reservations/${reservationId}`,
+    );
     return response;
   },
 
@@ -121,7 +126,7 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Cancellation result
    */
   async cancelLineItemReservations(params) {
-    const response = await apiClient.delete('/batch-reservations/line-item', {
+    const response = await apiClient.delete("/batch-reservations/line-item", {
       data: {
         draftInvoiceId: params.draftInvoiceId || 0,
         lineItemTempId: params.lineItemTempId,
@@ -137,7 +142,9 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Cancellation result
    */
   async cancelDraftReservations(draftInvoiceId) {
-    const response = await apiClient.delete(`/batch-reservations/draft/${draftInvoiceId}`);
+    const response = await apiClient.delete(
+      `/batch-reservations/draft/${draftInvoiceId}`,
+    );
     return response;
   },
 
@@ -151,9 +158,9 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Updated reservation response
    */
   async extendReservation(params) {
-    const response = await apiClient.post('/batch-reservations/extend', {
+    const response = await apiClient.post("/batch-reservations/extend", {
       draftInvoiceId: params.draftInvoiceId || 0,
-      lineItemTempId: params.lineItemTempId || '',
+      lineItemTempId: params.lineItemTempId || "",
       extendMinutes: params.extendMinutes || 30,
     });
     return response;
@@ -169,7 +176,7 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Conversion result
    */
   async convertReservations(params) {
-    const response = await apiClient.post('/batch-reservations/convert', {
+    const response = await apiClient.post("/batch-reservations/convert", {
       invoiceId: params.invoiceId,
       lineItemMappings: params.lineItemMappings,
     });
@@ -196,10 +203,10 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Finalization result with invoice number and deduction details
    */
   async finalizeInvoice(params) {
-    const response = await apiClient.post('/batch-reservations/finalize', {
+    const response = await apiClient.post("/batch-reservations/finalize", {
       draftInvoiceId: params.draftInvoiceId,
       lineItemMappings: params.lineItemMappings,
-      targetStatus: params.targetStatus || 'issued',
+      targetStatus: params.targetStatus || "issued",
       skipStockDeduction: params.skipStockDeduction || false,
     });
     return response;

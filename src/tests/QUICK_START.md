@@ -43,16 +43,17 @@ Summary:
 
 ## Test Breakdown
 
-| Type | File | Tests | Coverage |
-|------|------|-------|----------|
-| Unit | roleValidation.test.js | 33 | 95%+ |
-| Integration | roleEndpoints.test.js | 30 | 85%+ |
-| E2E | role-management.cy.js | 47 | 70%+ |
-| **Total** | | **110** | **88%** |
+| Type        | File                   | Tests   | Coverage |
+| ----------- | ---------------------- | ------- | -------- |
+| Unit        | roleValidation.test.js | 33      | 95%+     |
+| Integration | roleEndpoints.test.js  | 30      | 85%+     |
+| E2E         | role-management.cy.js  | 47      | 70%+     |
+| **Total**   |                        | **110** | **88%**  |
 
 ## What's Tested
 
 ### Validation (33 tests)
+
 - Display name length (3-50 chars)
 - Reserved names (admin, superuser, root)
 - Duplicate detection
@@ -62,6 +63,7 @@ Summary:
 - Edge cases
 
 ### API Endpoints (30 tests)
+
 - GET /api/roles
 - POST /api/roles (create)
 - PUT /api/roles/:id (update)
@@ -70,6 +72,7 @@ Summary:
 - Multi-tenancy
 
 ### UI Flows (47 tests)
+
 - Open/close modal
 - View 12 system roles
 - Create custom role
@@ -143,21 +146,21 @@ All mock data is available in `src/tests/fixtures/roleMocks.js`:
 
 ```javascript
 import {
-  mockSystemRoles,      // 12 system roles
-  mockCustomRoles,      // 3 custom roles
-  createMockRole,       // Helper function
-  validateRoleName,     // Validation helper
-} from '../fixtures/roleMocks';
+  mockSystemRoles, // 12 system roles
+  mockCustomRoles, // 3 custom roles
+  createMockRole, // Helper function
+  validateRoleName, // Validation helper
+} from "../fixtures/roleMocks";
 ```
 
 ## Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| Network Error | Ensure backend running on :3000 |
-| E2E Timeout | Increase timeout in cypress.config.js |
-| Mock not working | Clear cache: `npx vitest run --clearCache` |
-| Element not found | Check data-testid in component |
+| Issue             | Solution                                   |
+| ----------------- | ------------------------------------------ |
+| Network Error     | Ensure backend running on :3000            |
+| E2E Timeout       | Increase timeout in cypress.config.js      |
+| Mock not working  | Clear cache: `npx vitest run --clearCache` |
+| Element not found | Check data-testid in component             |
 
 ## Next Steps
 
@@ -183,6 +186,7 @@ cat ROLE_TESTS_SUMMARY.md
 ## Contact
 
 For issues or questions:
+
 - Check test files for examples
 - Review README.md for details
 - Run with --reporter=verbose for debugging

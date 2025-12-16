@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Role and Permission Service
@@ -10,7 +10,7 @@ export const roleService = {
    * Get all roles
    */
   async getRoles() {
-    const response = await apiClient.get('/roles');
+    const response = await apiClient.get("/roles");
     return response;
   },
 
@@ -18,7 +18,7 @@ export const roleService = {
    * Get available roles (for dropdowns)
    */
   async getAvailableRoles() {
-    const response = await apiClient.get('/roles/list/available');
+    const response = await apiClient.get("/roles/list/available");
     return response;
   },
 
@@ -34,7 +34,7 @@ export const roleService = {
    * Create new role (Director only)
    */
   async createRole(roleData) {
-    const response = await apiClient.post('/roles', roleData);
+    const response = await apiClient.post("/roles", roleData);
     return response;
   },
 
@@ -58,7 +58,7 @@ export const roleService = {
    * Get all permissions grouped by module
    */
   async getAllPermissions() {
-    const response = await apiClient.get('/roles/permissions/all');
+    const response = await apiClient.get("/roles/permissions/all");
     return response;
   },
 

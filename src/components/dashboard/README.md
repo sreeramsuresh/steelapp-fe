@@ -85,6 +85,7 @@ The dashboard uses a **two-phase rollout strategy** to deliver value early while
 **Approach:** Widgets contain their own mock data generators
 
 **Characteristics:**
+
 - Each widget has internal `generateMockData()` functions
 - No dependency on backend APIs
 - Immediate visual feedback and UX testing
@@ -92,12 +93,13 @@ The dashboard uses a **two-phase rollout strategy** to deliver value early while
 - Perfect for UI/UX iteration and design validation
 
 **Example - Revenue KPI Widget:**
+
 ```javascript
 // Phase 1: Widget contains its own mock data
 const RevenueKPIWidget = ({ onRefresh }) => {
   const [data, setData] = useState({
     totalRevenue: 2847531,
-    revenueChange: 12.5
+    revenueChange: 12.5,
   });
 
   return (
@@ -112,6 +114,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ```
 
 **Benefits:**
+
 - Unblocked frontend development
 - Early stakeholder feedback
 - UI polish before data integration
@@ -124,6 +127,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 **Approach:** Replace widget mock data with centralized service calls
 
 **Characteristics:**
+
 - Centralized data fetching via `dashboardService.js`
 - Real-time data from backend APIs
 - Comprehensive caching strategy
@@ -131,6 +135,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 - Background refresh without UI blocking
 
 **Example - Revenue KPI Widget (Phase 2):**
+
 ```javascript
 // Phase 2: Widget uses centralized dashboard service
 const RevenueKPIWidget = ({ onRefresh }) => {
@@ -143,7 +148,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
       const metrics = await dashboardService.getDashboardMetrics();
       setData({
         totalRevenue: metrics.summary.totalRevenue,
-        revenueChange: metrics.summary.revenueChange
+        revenueChange: metrics.summary.revenueChange,
       });
       setLoading(false);
     };
@@ -169,6 +174,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ```
 
 **Migration Checklist (Per Widget):**
+
 - [ ] Identify which `dashboardService` method to call
 - [ ] Add `loading`, `error`, `isStale` state management
 - [ ] Replace mock data with service call
@@ -178,6 +184,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 - [ ] Verify cache behavior
 
 **dashboardService.js Methods Available:**
+
 - `getDashboardMetrics()` - Summary stats, KPIs, revenue trends
 - `getProductAnalytics()` - Top products, margins, grade analysis
 - `getAgentPerformance()` - Sales agent leaderboard, commissions
@@ -195,6 +202,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 The `BaseWidget` is the foundation for all dashboard widgets, providing:
 
 **Features:**
+
 - Consistent card styling with hover effects
 - Icon with gradient background
 - Title with optional tooltip
@@ -206,6 +214,7 @@ The `BaseWidget` is the foundation for all dashboard widgets, providing:
 - Mock data badge
 
 **Props:**
+
 ```typescript
 interface BaseWidgetProps {
   title: string;
@@ -219,7 +228,7 @@ interface BaseWidgetProps {
   error?: boolean;
   errorMessage?: string;
   onRefresh?: () => void;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
   noPadding?: boolean;
   isStale?: boolean;
@@ -228,9 +237,10 @@ interface BaseWidgetProps {
 ```
 
 **Usage Example:**
+
 ```javascript
-import BaseWidget, { MetricValue } from '../BaseWidget';
-import { DollarSign } from 'lucide-react';
+import BaseWidget, { MetricValue } from "../BaseWidget";
+import { DollarSign } from "lucide-react";
 
 <BaseWidget
   title="Total Revenue"
@@ -247,7 +257,7 @@ import { DollarSign } from 'lucide-react';
     change={12.5}
     changeLabel="vs last month"
   />
-</BaseWidget>
+</BaseWidget>;
 ```
 
 ### WidgetSkeleton Component
@@ -255,6 +265,7 @@ import { DollarSign } from 'lucide-react';
 Animated loading placeholders for better perceived performance.
 
 **Variants:**
+
 - `card` - KPI cards with metrics
 - `chart` - Chart widgets with bars
 - `list` - List-based widgets
@@ -263,19 +274,23 @@ Animated loading placeholders for better perceived performance.
 **Sizes:** `sm`, `md`, `lg`, `xl`
 
 **Usage:**
-```javascript
-import WidgetSkeleton from '../WidgetSkeleton';
 
-{loading ? (
-  <WidgetSkeleton variant="chart" size="lg" />
-) : (
-  <ActualWidget data={data} />
-)}
+```javascript
+import WidgetSkeleton from "../WidgetSkeleton";
+
+{
+  loading ? (
+    <WidgetSkeleton variant="chart" size="lg" />
+  ) : (
+    <ActualWidget data={data} />
+  );
+}
 ```
 
 ### Helper Components
 
 **MetricValue** - Display KPI values with change indicators:
+
 ```javascript
 <MetricValue
   value="AED 2,847,531"
@@ -287,6 +302,7 @@ import WidgetSkeleton from '../WidgetSkeleton';
 ```
 
 **WidgetListItem** - Consistent list item styling:
+
 ```javascript
 <WidgetListItem
   icon={Package}
@@ -300,6 +316,7 @@ import WidgetSkeleton from '../WidgetSkeleton';
 ```
 
 **WidgetEmptyState** - No data state:
+
 ```javascript
 <WidgetEmptyState
   icon={PackageX}
@@ -319,44 +336,52 @@ import WidgetSkeleton from '../WidgetSkeleton';
 Centralized configuration for widget visibility and organization.
 
 **Supported Roles:**
+
 ```javascript
 export const DASHBOARD_ROLES = {
-  CEO: 'ceo',
-  CFO: 'cfo',
-  SALES_MANAGER: 'sales_manager',
-  OPERATIONS_MANAGER: 'operations_manager',
-  WAREHOUSE_MANAGER: 'warehouse_manager',
-  SALES_AGENT: 'sales_agent',
-  ACCOUNTANT: 'accountant',
-  ADMIN: 'admin',
+  CEO: "ceo",
+  CFO: "cfo",
+  SALES_MANAGER: "sales_manager",
+  OPERATIONS_MANAGER: "operations_manager",
+  WAREHOUSE_MANAGER: "warehouse_manager",
+  SALES_AGENT: "sales_agent",
+  ACCOUNTANT: "accountant",
+  ADMIN: "admin",
 };
 ```
 
 **Widget Visibility Matrix:**
+
 ```javascript
 export const WIDGET_VISIBILITY = {
-  'revenue-kpi': ['ceo', 'cfo', 'sales_manager', 'admin'],
-  'profit-kpi': ['ceo', 'cfo', 'admin'],
-  'inventory-health': ['ceo', 'operations_manager', 'warehouse_manager', 'admin'],
-  'leaderboard': ['ceo', 'sales_manager', 'sales_agent', 'admin'],
-  'vat-collection': ['ceo', 'cfo', 'accountant', 'admin'],
+  "revenue-kpi": ["ceo", "cfo", "sales_manager", "admin"],
+  "profit-kpi": ["ceo", "cfo", "admin"],
+  "inventory-health": [
+    "ceo",
+    "operations_manager",
+    "warehouse_manager",
+    "admin",
+  ],
+  leaderboard: ["ceo", "sales_manager", "sales_agent", "admin"],
+  "vat-collection": ["ceo", "cfo", "accountant", "admin"],
   // ... 50+ widgets configured
 };
 ```
 
 **Helper Functions:**
+
 ```javascript
 // Check if user can view specific widget
-canViewWidget('revenue-kpi', 'sales_manager') // → true
+canViewWidget("revenue-kpi", "sales_manager"); // → true
 
 // Get all visible widgets for a role
-getVisibleWidgets('cfo') // → ['revenue-kpi', 'profit-kpi', 'cash-flow', ...]
+getVisibleWidgets("cfo"); // → ['revenue-kpi', 'profit-kpi', 'cash-flow', ...]
 
 // Get widgets in a category for a role
-getWidgetsByCategory('FINANCIAL', 'accountant') // → ['ar-aging', 'vat-collection', ...]
+getWidgetsByCategory("FINANCIAL", "accountant"); // → ['ar-aging', 'vat-collection', ...]
 
 // Get default layout for a role
-getDefaultLayout('ceo') // → ['revenue-kpi', 'profit-kpi', 'gross-margin', ...]
+getDefaultLayout("ceo"); // → ['revenue-kpi', 'profit-kpi', 'gross-margin', ...]
 ```
 
 ### useDashboardPermissions Hook
@@ -364,14 +389,16 @@ getDefaultLayout('ceo') // → ['revenue-kpi', 'profit-kpi', 'gross-margin', ...
 React hook that integrates auth system with dashboard permissions.
 
 **Features:**
+
 - Auto-maps auth service roles to dashboard roles
 - Reactive to auth state changes
 - Provides convenience methods
 - Handles authentication edge cases
 
 **Usage:**
+
 ```javascript
-import { useDashboardPermissions } from '../../hooks/useDashboardPermissions';
+import { useDashboardPermissions } from "../../hooks/useDashboardPermissions";
 
 const Dashboard = () => {
   const {
@@ -389,11 +416,10 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {defaultLayout.map(widgetId => (
-        canViewWidget(widgetId) && (
-          <Widget key={widgetId} id={widgetId} />
-        )
-      ))}
+      {defaultLayout.map(
+        (widgetId) =>
+          canViewWidget(widgetId) && <Widget key={widgetId} id={widgetId} />,
+      )}
     </div>
   );
 };
@@ -401,6 +427,7 @@ const Dashboard = () => {
 
 **Role Mapping Logic:**
 The hook intelligently maps various auth role formats to dashboard roles:
+
 ```javascript
 // Exact matches
 'admin' → ROLES.ADMIN
@@ -432,20 +459,22 @@ The hook intelligently maps various auth role formats to dashboard roles:
 **Pattern:** Return cached data immediately, fetch fresh data in background
 
 **Configuration:**
+
 ```javascript
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 const CACHE_KEYS = {
-  DASHBOARD_METRICS: 'dashboard_metrics_cache',
-  PRODUCT_ANALYTICS: 'dashboard_product_analytics_cache',
-  AGENT_PERFORMANCE: 'dashboard_agent_performance_cache',
-  INVENTORY_HEALTH: 'dashboard_inventory_health_cache',
-  VAT_METRICS: 'dashboard_vat_metrics_cache',
-  CUSTOMER_INSIGHTS: 'dashboard_customer_insights_cache',
+  DASHBOARD_METRICS: "dashboard_metrics_cache",
+  PRODUCT_ANALYTICS: "dashboard_product_analytics_cache",
+  AGENT_PERFORMANCE: "dashboard_agent_performance_cache",
+  INVENTORY_HEALTH: "dashboard_inventory_health_cache",
+  VAT_METRICS: "dashboard_vat_metrics_cache",
+  CUSTOMER_INSIGHTS: "dashboard_customer_insights_cache",
 };
 ```
 
 **Cache Flow:**
+
 ```javascript
 async getDashboardMetrics(options = {}) {
   const { forceRefresh = false } = options;
@@ -477,6 +506,7 @@ async getDashboardMetrics(options = {}) {
 ```
 
 **Benefits:**
+
 - Sub-50ms first render (cached)
 - Resilient to API failures
 - Graceful degradation
@@ -519,6 +549,7 @@ const metrics = await dashboardService.getDashboardMetrics({
 ```
 
 **Data Sources:**
+
 - `analyticsService.getDashboardData()`
 - `analyticsService.getARAgingBuckets()`
 - `analyticsService.getRevenueTrend(12)`
@@ -579,6 +610,7 @@ const analytics = await dashboardService.getProductAnalytics();
 ```
 
 **Data Sources:**
+
 - `analyticsService.getProductPerformance()`
 - `productService.getProducts({ limit: 100 })`
 - `inventoryService.getInventorySummary()`
@@ -657,6 +689,7 @@ const health = await dashboardService.getInventoryHealth();
 ```
 
 **Data Sources:**
+
 - `inventoryService.getInventorySummary()`
 - `inventoryService.getLowStockItems()`
 - `analyticsService.getInventoryInsights()`
@@ -708,6 +741,7 @@ const vat = await dashboardService.getVATMetrics();
 ```
 
 **Calculation Logic:**
+
 - Fetches invoices for current quarter
 - Sums `vatAmount` from all invoices = Output VAT
 - Estimates Input VAT (60% of output as rough estimate)
@@ -716,6 +750,7 @@ const vat = await dashboardService.getVATMetrics();
 - Generates compliance alerts
 
 **Data Sources:**
+
 - `invoiceService.getInvoices({ start_date, end_date })`
 
 **6. getCustomerInsights(options)**
@@ -771,6 +806,7 @@ const insights = await dashboardService.getCustomerInsights();
 ```
 
 **Risk Scoring Logic:**
+
 ```javascript
 // Risk factors:
 +40 points: No orders > 60 days
@@ -785,6 +821,7 @@ Standard: Everyone else
 ```
 
 **Data Sources:**
+
 - `analyticsService.getCustomerAnalysis()`
 - `customerService.getCustomers({ limit: 100 })`
 - `invoiceService.getInvoices({ limit: 200 })`
@@ -809,6 +846,7 @@ For development and fallback scenarios, the service includes comprehensive mock 
 - `generateMockDashboardMetrics()` - Summary KPIs
 
 **Mock Data Quality:**
+
 - Realistic value ranges (based on steel trading industry)
 - UAE-specific data (AED currency, 5% VAT rate)
 - Consistent relationships (e.g., agent rank correlates with sales)
@@ -824,21 +862,23 @@ For development and fallback scenarios, the service includes comprehensive mock 
 All widgets are code-split for optimal bundle size.
 
 **Category-Based Code Splitting:**
+
 ```javascript
 // Financial widgets in separate chunk
-export const LazyRevenueKPIWidget = lazy(() =>
-  import('./widgets/financial/RevenueKPIWidget')
+export const LazyRevenueKPIWidget = lazy(
+  () => import("./widgets/financial/RevenueKPIWidget"),
 );
 
 // Inventory widgets in separate chunk
-export const LazyInventoryHealthWidget = lazy(() =>
-  import('./widgets/inventory/InventoryHealthWidget')
+export const LazyInventoryHealthWidget = lazy(
+  () => import("./widgets/inventory/InventoryHealthWidget"),
 );
 
 // 50+ widgets, each lazy-loaded
 ```
 
 **Bundle Impact:**
+
 - Main bundle: ~45 KB (core dashboard logic)
 - Per widget: ~2-8 KB (loaded on demand)
 - Total savings: ~300 KB avoided in initial load
@@ -848,8 +888,9 @@ export const LazyInventoryHealthWidget = lazy(() =>
 Intelligent preloading strategies to balance performance and UX.
 
 **1. Role-Based Preloading**
+
 ```javascript
-import { preloadByRole } from './preloadWidgets';
+import { preloadByRole } from "./preloadWidgets";
 
 // Preload widgets user is likely to view
 useEffect(() => {
@@ -862,11 +903,12 @@ useEffect(() => {
 ```
 
 **2. Network-Aware Preloading**
+
 ```javascript
-import { smartPreload } from './preloadWidgets';
+import { smartPreload } from "./preloadWidgets";
 
 // Only preload on fast connections
-smartPreload('financial');
+smartPreload("financial");
 
 // Checks:
 // - navigator.connection.effectiveType
@@ -875,39 +917,38 @@ smartPreload('financial');
 ```
 
 **3. Idle-Time Preloading**
+
 ```javascript
-import { preloadOnIdle } from './preloadWidgets';
+import { preloadOnIdle } from "./preloadWidgets";
 
 // Preload during browser idle time
-preloadOnIdle(['financial', 'inventory', 'product']);
+preloadOnIdle(["financial", "inventory", "product"]);
 
 // Uses requestIdleCallback with 5s timeout
 // Falls back to setTimeout on unsupported browsers
 ```
 
 **4. Hover/Focus Preloading**
+
 ```javascript
-import { createHoverPreload } from './preloadWidgets';
+import { createHoverPreload } from "./preloadWidgets";
 
-const hoverProps = createHoverPreload('inventory');
+const hoverProps = createHoverPreload("inventory");
 
-<button {...hoverProps}>
-  View Inventory Dashboard
-</button>
+<button {...hoverProps}>View Inventory Dashboard</button>;
 
 // Preloads inventory widgets on hover/focus
 // Only triggers once per category
 ```
 
 **5. Viewport-Based Preloading**
+
 ```javascript
-import { createViewportPreload } from './preloadWidgets';
+import { createViewportPreload } from "./preloadWidgets";
 
-const widgetRef = createViewportPreload('vat');
+const widgetRef = createViewportPreload("vat");
 
-<div ref={widgetRef}>
-  VAT widgets load here...
-</div>
+<div ref={widgetRef}>VAT widgets load here...</div>;
 
 // Uses IntersectionObserver
 // Preloads when element enters viewport
@@ -917,16 +958,19 @@ const widgetRef = createViewportPreload('vat');
 ### Performance Metrics
 
 **Initial Load:**
+
 - Time to Interactive: ~1.2s (without widgets)
 - First Widget Render: ~50ms (from cache)
 - Full Dashboard Hydration: ~300ms (6-8 widgets)
 
 **Lazy Loading:**
+
 - Widget chunk load: ~15-30ms
 - Widget render: ~8-15ms
 - Total time to widget: ~23-45ms
 
 **Caching:**
+
 - Cache hit: <1ms
 - Cache miss: ~150-300ms (API roundtrip)
 - Stale data: <1ms (instant with background refresh)
@@ -1035,6 +1079,7 @@ src/components/dashboard/
 **Purpose:** Revenue, profit, cash flow, AR/AP, credit management
 
 **Widgets:**
+
 - `revenue-kpi` - Total revenue with trend
 - `profit-kpi` - Net profit summary
 - `revenue-trend` - Monthly revenue chart
@@ -1054,6 +1099,7 @@ src/components/dashboard/
 **Purpose:** Stock levels, turnover, warehouse management
 
 **Widgets:**
+
 - `inventory-health` - Overall stock status
 - `fast-moving` - High turnover products
 - `slow-moving` - Low turnover products
@@ -1068,6 +1114,7 @@ src/components/dashboard/
 **Purpose:** Product performance, margins, pricing trends
 
 **Widgets:**
+
 - `top-products` - Best sellers by revenue
 - `category-performance` - Performance by category
 - `grade-analysis` - Analysis by steel grade (SS 304, SS 316, SS 430)
@@ -1081,6 +1128,7 @@ src/components/dashboard/
 **Purpose:** Customer value, segmentation, retention
 
 **Widgets:**
+
 - `customer-clv` - Customer Lifetime Value rankings
 - `at-risk-customers` - Customers needing attention
 - `customer-segments` - Premium/Standard/New breakdown
@@ -1093,6 +1141,7 @@ src/components/dashboard/
 **Purpose:** Sales performance, commissions, targets
 
 **Widgets:**
+
 - `agent-scorecard` - Individual agent metrics
 - `leaderboard` - Top performing agents
 - `commission-tracker` - Earned and pending commissions
@@ -1107,6 +1156,7 @@ src/components/dashboard/
 **Purpose:** UAE VAT compliance, FTA returns, TRN validation
 
 **Widgets:**
+
 - `vat-collection` - VAT collected vs paid
 - `vat-return-status` - Filing status and deadlines
 - `compliance-alerts` - Compliance issues and warnings
@@ -1127,15 +1177,11 @@ src/components/dashboard/
 **File:** `src/components/dashboard/widgets/[category]/[WidgetName]Widget.jsx`
 
 ```javascript
-import React from 'react';
-import BaseWidget from '../../BaseWidget';
-import { Icon } from 'lucide-react';
+import React from "react";
+import BaseWidget from "../../BaseWidget";
+import { Icon } from "lucide-react";
 
-export const WidgetNameWidget = ({
-  data,
-  loading = false,
-  onRefresh
-}) => {
+export const WidgetNameWidget = ({ data, loading = false, onRefresh }) => {
   return (
     <BaseWidget
       title="Widget Title"
@@ -1148,9 +1194,7 @@ export const WidgetNameWidget = ({
       size="md"
     >
       {/* Widget content here */}
-      <div>
-        {data?.value && <p>{data.value}</p>}
-      </div>
+      <div>{data?.value && <p>{data.value}</p>}</div>
     </BaseWidget>
   );
 };
@@ -1163,7 +1207,7 @@ export default WidgetNameWidget;
 **File:** `src/components/dashboard/widgets/[category]/index.js`
 
 ```javascript
-export { WidgetNameWidget } from './WidgetNameWidget';
+export { WidgetNameWidget } from "./WidgetNameWidget";
 ```
 
 ### Step 3: Create Lazy-Loaded Version
@@ -1172,15 +1216,15 @@ export { WidgetNameWidget } from './WidgetNameWidget';
 
 ```javascript
 // Add to appropriate category section
-export const LazyWidgetNameWidget = lazy(() =>
-  import('./widgets/[category]/WidgetNameWidget')
+export const LazyWidgetNameWidget = lazy(
+  () => import("./widgets/[category]/WidgetNameWidget"),
 );
 
 // Add to LAZY_WIDGET_CATEGORIES
 export const LAZY_WIDGET_CATEGORIES = {
   [category]: [
     // ... existing
-    () => import('./widgets/[category]/WidgetNameWidget'),
+    () => import("./widgets/[category]/WidgetNameWidget"),
   ],
 };
 ```
@@ -1192,7 +1236,7 @@ export const LAZY_WIDGET_CATEGORIES = {
 ```javascript
 // 1. Add to WIDGET_VISIBILITY
 export const WIDGET_VISIBILITY = {
-  'widget-name': ['ceo', 'admin', 'appropriate_role'],
+  "widget-name": ["ceo", "admin", "appropriate_role"],
   // ...
 };
 
@@ -1200,17 +1244,17 @@ export const WIDGET_VISIBILITY = {
 export const WIDGET_CATEGORIES = {
   [CATEGORY]: [
     // ... existing
-    'widget-name',
+    "widget-name",
   ],
 };
 
 // 3. Add to WIDGET_METADATA
 export const WIDGET_METADATA = {
-  'widget-name': {
-    title: 'Widget Title',
-    description: 'Short description',
-    category: 'CATEGORY',
-    size: 'md',
+  "widget-name": {
+    title: "Widget Title",
+    description: "Short description",
+    category: "CATEGORY",
+    size: "md",
   },
 };
 
@@ -1219,7 +1263,7 @@ export const getDefaultLayout = (userRole) => {
   const roleLayouts = {
     ceo: [
       // ... existing
-      'widget-name',
+      "widget-name",
     ],
   };
   // ...
@@ -1242,7 +1286,7 @@ export const dashboardService = {
   async getWidgetNameData(options = {}) {
     const { forceRefresh = false } = options;
 
-    const CACHE_KEY = 'dashboard_widget_name_cache';
+    const CACHE_KEY = "dashboard_widget_name_cache";
 
     if (!forceRefresh) {
       const cached = getCachedData(CACHE_KEY);
@@ -1258,7 +1302,7 @@ export const dashboardService = {
       setCachedData(CACHE_KEY, data);
       return data;
     } catch (error) {
-      console.error('[dashboardService] Error fetching widget data:', error);
+      console.error("[dashboardService] Error fetching widget data:", error);
 
       // Return cached if available
       const cached = getCachedData(CACHE_KEY);
@@ -1278,23 +1322,23 @@ export const dashboardService = {
 **File:** `src/components/dashboard/__tests__/WidgetName.test.jsx`
 
 ```javascript
-import { render, screen } from '@testing-library/react';
-import { WidgetNameWidget } from '../widgets/[category]/WidgetNameWidget';
+import { render, screen } from "@testing-library/react";
+import { WidgetNameWidget } from "../widgets/[category]/WidgetNameWidget";
 
-describe('WidgetNameWidget', () => {
-  it('renders widget title', () => {
+describe("WidgetNameWidget", () => {
+  it("renders widget title", () => {
     render(<WidgetNameWidget data={{ value: 100 }} />);
-    expect(screen.getByText('Widget Title')).toBeInTheDocument();
+    expect(screen.getByText("Widget Title")).toBeInTheDocument();
   });
 
-  it('shows loading state', () => {
+  it("shows loading state", () => {
     render(<WidgetNameWidget loading={true} />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
-  it('displays data correctly', () => {
+  it("displays data correctly", () => {
     render(<WidgetNameWidget data={{ value: 100 }} />);
-    expect(screen.getByText('100')).toBeInTheDocument();
+    expect(screen.getByText("100")).toBeInTheDocument();
   });
 });
 ```
@@ -1306,12 +1350,14 @@ describe('WidgetNameWidget', () => {
 ### Unit Tests
 
 **Run tests:**
+
 ```bash
 cd /mnt/d/Ultimate Steel/steelapp-fe
 npm test
 ```
 
 **Test coverage:**
+
 - `BaseWidget.test.jsx` - Widget foundation component
 - `charts.test.jsx` - Chart integrations
 - `widgets.test.jsx` - Individual widget components
@@ -1321,21 +1367,23 @@ npm test
 ### Integration Tests
 
 **Test role-based visibility:**
+
 ```javascript
 // Test that CEO sees all widgets
-const { visibleWidgets } = useDashboardPermissions('ceo');
-expect(visibleWidgets).toContain('revenue-kpi');
-expect(visibleWidgets).toContain('profit-kpi');
+const { visibleWidgets } = useDashboardPermissions("ceo");
+expect(visibleWidgets).toContain("revenue-kpi");
+expect(visibleWidgets).toContain("profit-kpi");
 
 // Test that Sales Agent has limited access
-const { visibleWidgets } = useDashboardPermissions('sales_agent');
-expect(visibleWidgets).toContain('leaderboard');
-expect(visibleWidgets).not.toContain('profit-kpi');
+const { visibleWidgets } = useDashboardPermissions("sales_agent");
+expect(visibleWidgets).toContain("leaderboard");
+expect(visibleWidgets).not.toContain("profit-kpi");
 ```
 
 ### Manual Testing Checklist
 
 **For each new widget:**
+
 - [ ] Widget renders without errors
 - [ ] Loading state displays correctly
 - [ ] Error state displays with retry button
@@ -1352,17 +1400,22 @@ expect(visibleWidgets).not.toContain('profit-kpi');
 ### Performance Testing
 
 **Measure metrics:**
+
 ```javascript
 // Time widget load
-console.time('WidgetLoad');
-const Widget = await import('./WidgetNameWidget');
-console.timeEnd('WidgetLoad'); // Should be <30ms
+console.time("WidgetLoad");
+const Widget = await import("./WidgetNameWidget");
+console.timeEnd("WidgetLoad"); // Should be <30ms
 
 // Measure render time
-performance.mark('widget-render-start');
+performance.mark("widget-render-start");
 render(<WidgetNameWidget data={data} />);
-performance.mark('widget-render-end');
-performance.measure('widget-render', 'widget-render-start', 'widget-render-end');
+performance.mark("widget-render-end");
+performance.measure(
+  "widget-render",
+  "widget-render-start",
+  "widget-render-end",
+);
 // Should be <15ms
 ```
 
@@ -1373,6 +1426,7 @@ performance.measure('widget-render', 'widget-render-start', 'widget-render-end')
 When backend APIs are ready, follow this checklist per widget:
 
 ### Backend Readiness Checklist
+
 - [ ] Backend API endpoint deployed
 - [ ] API returns data in expected format
 - [ ] Authentication working via JWT
@@ -1382,6 +1436,7 @@ When backend APIs are ready, follow this checklist per widget:
 ### Frontend Migration Steps
 
 **1. Update Widget to Use dashboardService**
+
 ```javascript
 // BEFORE (Phase 1 - Mock Data)
 const RevenueKPIWidget = () => {
@@ -1431,13 +1486,16 @@ const RevenueKPIWidget = ({ onRefresh }) => {
       isMockData={data?.isMockData}
       isStale={data?.isStale}
     >
-      {data && <MetricValue value={data.totalRevenue} change={data.revenueChange} />}
+      {data && (
+        <MetricValue value={data.totalRevenue} change={data.revenueChange} />
+      )}
     </BaseWidget>
   );
 };
 ```
 
 **2. Test with Real Backend**
+
 - [ ] Widget loads data from API
 - [ ] Loading state shows during fetch
 - [ ] Error state shows on API failure
@@ -1447,11 +1505,13 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 - [ ] Falls back to mock data on total API failure
 
 **3. Update Documentation**
+
 - [ ] Mark widget as "Phase 2 Complete" in README
 - [ ] Document any data format changes
 - [ ] Update API requirements section
 
 **4. Monitor in Production**
+
 - [ ] Check API response times
 - [ ] Monitor error rates
 - [ ] Verify cache hit rates
@@ -1464,44 +1524,52 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ### Analytics Service Endpoints
 
 **Required for financial widgets:**
+
 - `GET /api/analytics/dashboard` - Summary metrics
 - `GET /api/analytics/revenue-trend?months=12` - Revenue over time
 - `GET /api/analytics/ar-aging` - AR aging buckets
 - `GET /api/analytics/kpis` - Financial KPIs (DSO, gross margin, etc.)
 
 **Required for product widgets:**
+
 - `GET /api/analytics/product-performance` - Top products
 - `GET /api/analytics/product-margins` - Margin analysis
 - `GET /api/analytics/grade-analysis` - Performance by grade
 
 **Required for customer widgets:**
+
 - `GET /api/analytics/customer-analysis` - CLV and segments
 - `GET /api/analytics/customer-risk` - At-risk customers
 
 **Required for inventory widgets:**
+
 - `GET /api/analytics/inventory-insights` - Turnover, days to sell
 
 ### Invoice Service Endpoints
 
 **Required:**
+
 - `GET /api/invoices?start_date=X&end_date=Y` - Invoice data for VAT
 - `GET /api/invoices/stats` - Total count for metrics
 
 ### Customer Service Endpoints
 
 **Required:**
+
 - `GET /api/customers?limit=100` - Customer list
 - `GET /api/customers/stats` - Total count
 
 ### Product Service Endpoints
 
 **Required:**
+
 - `GET /api/products?limit=100` - Product list
 - `GET /api/products/stats` - Total count
 
 ### Inventory Service Endpoints
 
 **Required:**
+
 - `GET /api/inventory/summary` - Overall inventory health
 - `GET /api/inventory/low-stock` - Items below min stock
 - `GET /api/inventory/turnover` - Turnover metrics
@@ -1509,6 +1577,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ### Commission Service Endpoints (Future)
 
 **Required for agent widgets:**
+
 - `GET /api/commissions/agent-performance` - Sales agent metrics
 - `GET /api/commissions/leaderboard` - Top performers
 - `GET /api/commissions/summary` - Team totals
@@ -1518,6 +1587,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ## Best Practices
 
 ### Widget Design
+
 1. **Always use BaseWidget** - Ensures consistency
 2. **Provide tooltips** - Explain complex metrics
 3. **Show loading states** - Use WidgetSkeleton
@@ -1527,6 +1597,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 7. **Optimize renders** - Use React.memo for heavy widgets
 
 ### Data Handling
+
 1. **Use dashboardService** - Centralized data fetching
 2. **Implement caching** - Reduce API load
 3. **Fall back to mock data** - Resilience
@@ -1535,6 +1606,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 6. **Format consistently** - Currency, dates, percentages
 
 ### Performance
+
 1. **Lazy load all widgets** - Code splitting
 2. **Preload intelligently** - Role-based, network-aware
 3. **Debounce refreshes** - Prevent API spam
@@ -1542,6 +1614,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 5. **Memoize expensive calculations** - useMemo, useCallback
 
 ### Accessibility
+
 1. **Use semantic HTML** - Proper heading hierarchy
 2. **Add ARIA labels** - Screen reader support
 3. **Keyboard navigation** - Tab, Enter, Escape
@@ -1555,6 +1628,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ### Widget Not Visible
 
 **Check:**
+
 1. User role has permission in `WIDGET_VISIBILITY`
 2. Widget ID matches exactly (case-sensitive)
 3. Widget added to category in `WIDGET_CATEGORIES`
@@ -1564,6 +1638,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ### Data Not Loading
 
 **Check:**
+
 1. dashboardService method called correctly
 2. Backend API endpoint exists and responds
 3. JWT token valid and included in request
@@ -1574,6 +1649,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ### Performance Issues
 
 **Check:**
+
 1. Widget is lazy-loaded, not in main bundle
 2. Data is cached, not fetching on every render
 3. Expensive calculations memoized
@@ -1583,6 +1659,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ### Styling Issues
 
 **Check:**
+
 1. Tailwind classes correct and complete
 2. Dark mode classes applied conditionally
 3. Theme context provider wraps dashboard
@@ -1594,6 +1671,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ## Future Enhancements
 
 ### Planned Features
+
 - [ ] Drag-and-drop widget rearrangement
 - [ ] Widget resize handles
 - [ ] Custom dashboard layouts per user
@@ -1606,6 +1684,7 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 - [ ] Mobile app with widget push notifications
 
 ### Technical Debt
+
 - [ ] Migrate from localStorage to IndexedDB for caching
 - [ ] Add service worker for offline support
 - [ ] Implement delta updates for large datasets
@@ -1620,15 +1699,18 @@ const RevenueKPIWidget = ({ onRefresh }) => {
 ## Support & Resources
 
 ### Documentation
+
 - [System Architecture](/SYSTEM_ARCHITECTURE.md)
 - [CLAUDE.md](/CLAUDE.md)
 - [Component API Reference](./API_REFERENCE.md) (TODO)
 
 ### Code Examples
+
 - See `src/components/dashboard/widgets/` for reference implementations
 - Check `__tests__/` for testing patterns
 
 ### Getting Help
+
 - Check console for error messages
 - Review network tab for API failures
 - Inspect React DevTools for component state

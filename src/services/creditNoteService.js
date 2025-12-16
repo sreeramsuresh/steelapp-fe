@@ -1,4 +1,4 @@
-import { apiClient } from './api.js';
+import { apiClient } from "./api.js";
 
 // Backend expects and returns pure snake_case - no transformation needed
 // Field validators enforce snake_case consistency
@@ -47,9 +47,9 @@ const transformCreditNoteFromServer = (serverData) => {
     id: item.id,
     productId: item.productId || item.product_id,
     productName:
-      item.productName || item.product_name || item.description || '',
+      item.productName || item.product_name || item.description || "",
     description:
-      item.description || item.productName || item.product_name || '',
+      item.description || item.productName || item.product_name || "",
     quantity: parseFloat(item.quantity || 0),
     quantityReturned: parseFloat(
       item.quantityReturned || item.quantity_returned || 0,
@@ -62,30 +62,30 @@ const transformCreditNoteFromServer = (serverData) => {
   return {
     id: serverData.id,
     creditNoteNumber:
-      serverData.creditNoteNumber || serverData.credit_note_number || '',
+      serverData.creditNoteNumber || serverData.credit_note_number || "",
     invoiceId: serverData.invoiceId || serverData.invoice_id,
-    invoiceNumber: serverData.invoiceNumber || serverData.invoice_number || '',
+    invoiceNumber: serverData.invoiceNumber || serverData.invoice_number || "",
     customerId: serverData.customerId || serverData.customer_id,
-    customerName: serverData.customerName || serverData.customer_name || '',
+    customerName: serverData.customerName || serverData.customer_name || "",
     customer: {
       id: serverData.customerId || serverData.customer_id,
-      name: serverData.customerName || serverData.customer_name || '',
+      name: serverData.customerName || serverData.customer_name || "",
       address: serverData.customerAddress || serverData.customer_address || {},
-      phone: serverData.customerPhone || serverData.customer_phone || '',
-      email: serverData.customerEmail || serverData.customer_email || '',
-      trn: serverData.customerTrn || serverData.customer_trn || '',
+      phone: serverData.customerPhone || serverData.customer_phone || "",
+      email: serverData.customerEmail || serverData.customer_email || "",
+      trn: serverData.customerTrn || serverData.customer_trn || "",
     },
     creditNoteDate:
       serverData.creditNoteDate ||
       serverData.credit_note_date ||
-      new Date().toISOString().split('T')[0],
-    status: serverData.status || 'draft',
+      new Date().toISOString().split("T")[0],
+    status: serverData.status || "draft",
     creditNoteType:
       serverData.creditNoteType ||
       serverData.credit_note_type ||
-      'RETURN_WITH_QC',
+      "RETURN_WITH_QC",
     reasonForReturn:
-      serverData.reasonForReturn || serverData.reason_for_return || '',
+      serverData.reasonForReturn || serverData.reason_for_return || "",
     items,
     subtotal: parseFloat(serverData.subtotal || serverData.sub_total || 0),
     vatAmount: parseFloat(serverData.vatAmount || serverData.vat_amount || 0),
@@ -95,7 +95,7 @@ const transformCreditNoteFromServer = (serverData) => {
     manualCreditAmount: parseFloat(
       serverData.manualCreditAmount || serverData.manual_credit_amount || 0,
     ),
-    notes: serverData.notes || '',
+    notes: serverData.notes || "",
     createdAt: serverData.createdAt || serverData.created_at,
     updatedAt: serverData.updatedAt || serverData.updated_at,
   };
@@ -103,7 +103,7 @@ const transformCreditNoteFromServer = (serverData) => {
 
 class CreditNoteService {
   constructor() {
-    this.endpoint = '/credit-notes';
+    this.endpoint = "/credit-notes";
   }
 
   // Get all credit notes with optional filters
@@ -201,7 +201,7 @@ class CreditNoteService {
   }
 
   // Apply credit to customer account (issued/items_inspected -> applied)
-  async applyCreditNote(id, notes = '') {
+  async applyCreditNote(id, notes = "") {
     const response = await apiClient.post(`${this.endpoint}/${id}/apply`, {
       notes,
     });
@@ -209,7 +209,7 @@ class CreditNoteService {
   }
 
   // Complete the credit note (applied/refunded -> completed)
-  async completeCreditNote(id, notes = '') {
+  async completeCreditNote(id, notes = "") {
     const response = await apiClient.post(`${this.endpoint}/${id}/complete`, {
       notes,
     });
@@ -217,7 +217,7 @@ class CreditNoteService {
   }
 
   // Cancel the credit note (any except completed -> cancelled)
-  async cancelCreditNote(id, cancellationReason = '') {
+  async cancelCreditNote(id, cancellationReason = "") {
     const response = await apiClient.post(`${this.endpoint}/${id}/cancel`, {
       cancellation_reason: cancellationReason,
     });
@@ -260,7 +260,7 @@ class CreditNoteService {
     const response = await apiClient.post(
       `${this.endpoint}/${creditNoteId}/receive-items`,
       {
-        notes: receivedData.notes || '',
+        notes: receivedData.notes || "",
         items: (receivedData.items || []).map((item) => ({
           credit_note_item_id: item.creditNoteItemId || item.id,
           quantity_received: item.quantityReceived,
@@ -278,16 +278,16 @@ class CreditNoteService {
       `${this.endpoint}/${creditNoteId}/inspect-items`,
       {
         qc_result: inspectionData.qcResult, // 'GOOD', 'BAD', or 'PARTIAL'
-        qc_notes: inspectionData.qcNotes || '',
+        qc_notes: inspectionData.qcNotes || "",
         item_results: (inspectionData.itemResults || []).map((item) => ({
           credit_note_item_id: item.creditNoteItemId || item.id,
           restocked_quantity: item.restockedQuantity || 0,
           damaged_quantity: item.damagedQuantity || 0,
           defective_quantity: item.defectiveQuantity || 0,
-          inspection_notes: item.inspectionNotes || '',
+          inspection_notes: item.inspectionNotes || "",
           warehouse_id: item.warehouseId || 0,
-          scrap_reason_category: item.scrapReasonCategory || 'OTHER',
-          scrap_reason: item.scrapReason || '',
+          scrap_reason_category: item.scrapReasonCategory || "OTHER",
+          scrap_reason: item.scrapReason || "",
         })),
       },
     );
@@ -299,9 +299,9 @@ class CreditNoteService {
     const response = await apiClient.post(
       `${this.endpoint}/${creditNoteId}/refund`,
       {
-        refund_method: refundData.refundMethod || '',
-        refund_reference: refundData.refundReference || '',
-        notes: refundData.notes || '',
+        refund_method: refundData.refundMethod || "",
+        refund_reference: refundData.refundReference || "",
+        notes: refundData.notes || "",
       },
     );
     return transformCreditNoteFromServer(response);
@@ -356,13 +356,13 @@ class CreditNoteService {
   async downloadPDF(id, creditNoteNumber = null) {
     try {
       const response = await apiClient.get(`${this.endpoint}/${id}/pdf`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
       // Create download link
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `credit-note-${creditNoteNumber || id}.pdf`;
       document.body.appendChild(link);
@@ -372,7 +372,7 @@ class CreditNoteService {
 
       return true;
     } catch (error) {
-      console.error('[CreditNoteService] PDF download failed:', error);
+      console.error("[CreditNoteService] PDF download failed:", error);
       throw error;
     }
   }
@@ -383,20 +383,20 @@ class CreditNoteService {
   async previewPDF(id) {
     try {
       const response = await apiClient.get(`${this.endpoint}/${id}/pdf`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
       // Open in new tab
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
+      window.open(url, "_blank");
 
       // Clean up after delay
       setTimeout(() => window.URL.revokeObjectURL(url), 30000);
 
       return true;
     } catch (error) {
-      console.error('[CreditNoteService] PDF preview failed:', error);
+      console.error("[CreditNoteService] PDF preview failed:", error);
       throw error;
     }
   }

@@ -298,7 +298,9 @@
   padding: 12px 16px;
   background: #ffffff;
   border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.15s;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
 }
 
 .warehouse-item:last-child {
@@ -306,7 +308,46 @@
 }
 
 .warehouse-item:hover {
-  background: #f9f9f9;
+  @apply bg-teal-50/50 dark:bg-teal-900/10;
+  transform: translateX(-2px);
+}
+
+/* Warehouse selection states - theme-based */
+.warehouse-item.selected {
+  @apply bg-emerald-50 border-2 border-teal-600 dark:bg-emerald-900/20 dark:border-teal-500;
+  box-shadow: 0 0 0 3px var(--tw-ring-color, rgba(13, 148, 136, 0.1));
+  padding: 11px 16px; /* Compensate for 2px border */
+}
+
+.warehouse-item.selected::before {
+  content: "✓";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  @apply text-teal-600 dark:text-teal-400 font-bold;
+}
+
+.warehouse-item.selected .warehouse-info {
+  padding-left: 20px; /* Make room for checkmark */
+}
+
+.warehouse-item.has-stock {
+  @apply border-l-4 border-green-500;
+  padding-left: 12px; /* Compensate for 4px border */
+}
+
+.warehouse-item.has-stock.selected {
+  padding-left: 12px; /* Maintain border spacing when selected */
+}
+
+.warehouse-item.no-stock {
+  @apply opacity-50 bg-gray-50 dark:bg-gray-800/50;
+  /* Still clickable - no cursor: not-allowed */
+}
+
+.selection-hint {
+  @apply text-xs text-gray-500 dark:text-gray-400 italic font-normal ml-2;
 }
 
 .warehouse-info {
@@ -416,6 +457,37 @@
   outline: none;
   border-color: #0d9488;
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+}
+
+/* Price field enhancements - theme-based */
+.price-label-group {
+  @apply flex justify-between items-center mb-1.5;
+}
+
+.price-loading-indicator {
+  @apply text-xs text-teal-600 dark:text-teal-400 font-normal italic;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.btn-reset-price {
+  @apply px-2.5 py-0.5 bg-transparent border border-teal-600 dark:border-teal-500;
+  @apply text-teal-600 dark:text-teal-400 rounded text-xs font-medium cursor-pointer;
+  @apply transition-all duration-200 hover:bg-teal-600 hover:text-white dark:hover:bg-teal-500;
+  @apply hover:scale-105;
+}
+
+.form-input.loading {
+  @apply bg-gray-100 dark:bg-gray-800 cursor-not-allowed;
 }
 
 /* ===========================
@@ -552,6 +624,7 @@
 .panel-error {
   color: #dc3545;
   background: #fff5f5;
+  white-space: pre-line; /* Preserve \n line breaks */
 }
 
 /* Batch Table */

@@ -24,51 +24,51 @@ const payloadSchemas: Record<string, PayloadSchema> = {
   // INVOICE PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   createInvoice: {
-    required: ['customerId', 'items'],
-    positiveNumbers: ['customerId', 'subtotal', 'total'],
-    arrays: ['items'],
+    required: ["customerId", "items"],
+    positiveNumbers: ["customerId", "subtotal", "total"],
+    arrays: ["items"],
   },
 
   updateInvoice: {
-    positiveNumbers: ['customerId', 'subtotal', 'total'],
+    positiveNumbers: ["customerId", "subtotal", "total"],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PAYMENT PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   recordPayment: {
-    required: ['amount', 'paymentDate', 'method'],
-    positiveNumbers: ['amount'],
+    required: ["amount", "paymentDate", "method"],
+    positiveNumbers: ["amount"],
   },
 
   createPayment: {
-    required: ['invoiceId', 'amount', 'paymentDate', 'method'],
-    positiveNumbers: ['invoiceId', 'amount'],
+    required: ["invoiceId", "amount", "paymentDate", "method"],
+    positiveNumbers: ["invoiceId", "amount"],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PRODUCT PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   createProduct: {
-    required: ['name'],
+    required: ["name"],
     positiveNumbers: [
-      'price',
-      'sellingPrice',
-      'costPrice',
-      'currentStock',
-      'minStock',
-      'gstRate',
+      "price",
+      "sellingPrice",
+      "costPrice",
+      "currentStock",
+      "minStock",
+      "gstRate",
     ],
   },
 
   updateProduct: {
     positiveNumbers: [
-      'price',
-      'sellingPrice',
-      'costPrice',
-      'currentStock',
-      'minStock',
-      'gstRate',
+      "price",
+      "sellingPrice",
+      "costPrice",
+      "currentStock",
+      "minStock",
+      "gstRate",
     ],
   },
 
@@ -76,14 +76,14 @@ const payloadSchemas: Record<string, PayloadSchema> = {
   // CUSTOMER PAYLOADS
   // ═══════════════════════════════════════════════════════════════════════════
   createCustomer: {
-    required: ['name'],
-    positiveNumbers: ['creditLimit'],
-    emails: ['email'],
+    required: ["name"],
+    positiveNumbers: ["creditLimit"],
+    emails: ["email"],
   },
 
   updateCustomer: {
-    positiveNumbers: ['creditLimit'],
-    emails: ['email'],
+    positiveNumbers: ["creditLimit"],
+    emails: ["email"],
   },
 };
 
@@ -117,7 +117,7 @@ export function validatePayload(
   if (schema.required) {
     for (const field of schema.required) {
       const value = payload[field];
-      if (value === undefined || value === null || value === '') {
+      if (value === undefined || value === null || value === "") {
         errors.push(`${field} is required`);
       }
     }
@@ -127,7 +127,7 @@ export function validatePayload(
   if (schema.positiveNumbers) {
     for (const field of schema.positiveNumbers) {
       const value = payload[field];
-      if (value !== undefined && value !== null && value !== '') {
+      if (value !== undefined && value !== null && value !== "") {
         const num = Number(value);
         if (isNaN(num)) {
           errors.push(`${field} must be a number`);
@@ -156,7 +156,7 @@ export function validatePayload(
   if (schema.emails) {
     for (const field of schema.emails) {
       const value = payload[field];
-      if (value && typeof value === 'string' && !EMAIL_REGEX.test(value)) {
+      if (value && typeof value === "string" && !EMAIL_REGEX.test(value)) {
         errors.push(`${field} must be a valid email address`);
       }
     }
@@ -177,7 +177,7 @@ export function assertValidPayload(
 ): void {
   const errors = validatePayload(name, payload);
   if (errors.length > 0) {
-    throw new Error(`Validation failed: ${errors.join(', ')}`);
+    throw new Error(`Validation failed: ${errors.join(", ")}`);
   }
 }
 

@@ -5,7 +5,7 @@
  * Design aligned with ImportExportOverview pattern
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   Package,
   Truck,
@@ -16,11 +16,9 @@ import {
   BarChart3,
   ArrowRight,
   RefreshCw,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import {
-  stockMovementService,
-} from '../../services/stockMovementService';
+} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { stockMovementService } from "../../services/stockMovementService";
 
 const StockMovementOverview = ({ onNavigateToTab }) => {
   const { isDarkMode } = useTheme();
@@ -53,20 +51,20 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
       // Calculate stats
       const pendingTransfers = transfers.filter(
-        (t) => t.status === 'DRAFT' || t.status === 'PENDING',
+        (t) => t.status === "DRAFT" || t.status === "PENDING",
       ).length;
 
       const inTransit = transfers.filter(
-        (t) => t.status === 'SHIPPED' || t.status === 'IN_TRANSIT',
+        (t) => t.status === "SHIPPED" || t.status === "IN_TRANSIT",
       ).length;
 
       // Completed today - check if receivedDate is today
       const today = new Date().toDateString();
       const completedToday = transfers.filter((t) => {
-        if (t.status !== 'RECEIVED') return false;
+        if (t.status !== "RECEIVED") return false;
         if (!t.receivedDate) return false;
         const receivedDate =
-          typeof t.receivedDate === 'object' && t.receivedDate.seconds
+          typeof t.receivedDate === "object" && t.receivedDate.seconds
             ? new Date(t.receivedDate.seconds * 1000)
             : new Date(t.receivedDate);
         return receivedDate.toDateString() === today;
@@ -74,7 +72,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
       // Awaiting reconciliation - active reservations that need attention
       const awaitingReconciliation = reservations.filter(
-        (r) => r.status === 'ACTIVE' || r.status === 'PARTIALLY_FULFILLED',
+        (r) => r.status === "ACTIVE" || r.status === "PARTIALLY_FULFILLED",
       ).length;
 
       const newStats = {
@@ -91,20 +89,20 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
       // Add recent transfers
       transfers.slice(0, 5).forEach((t) => {
-        let color = 'blue';
-        let description = '';
+        let color = "blue";
+        let description = "";
 
-        if (t.status === 'RECEIVED') {
-          color = 'green';
+        if (t.status === "RECEIVED") {
+          color = "green";
           description = `Transfer ${t.transferNumber} received at ${t.destinationWarehouseName}`;
-        } else if (t.status === 'SHIPPED' || t.status === 'IN_TRANSIT') {
-          color = 'orange';
+        } else if (t.status === "SHIPPED" || t.status === "IN_TRANSIT") {
+          color = "orange";
           description = `Transfer ${t.transferNumber} shipped from ${t.sourceWarehouseName}`;
-        } else if (t.status === 'DRAFT' || t.status === 'PENDING') {
-          color = 'blue';
+        } else if (t.status === "DRAFT" || t.status === "PENDING") {
+          color = "blue";
           description = `Transfer ${t.transferNumber} created`;
-        } else if (t.status === 'CANCELLED') {
-          color = 'red';
+        } else if (t.status === "CANCELLED") {
+          color = "red";
           description = `Transfer ${t.transferNumber} cancelled`;
         }
 
@@ -118,17 +116,17 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
       // Add recent reservations
       reservations.slice(0, 3).forEach((r) => {
-        let color = 'purple';
-        let description = '';
+        let color = "purple";
+        let description = "";
 
-        if (r.status === 'FULFILLED') {
-          color = 'green';
+        if (r.status === "FULFILLED") {
+          color = "green";
           description = `Reservation ${r.reservationNumber} fulfilled`;
-        } else if (r.status === 'ACTIVE') {
-          color = 'purple';
+        } else if (r.status === "ACTIVE") {
+          color = "purple";
           description = `Stock reserved for ${r.productName}`;
-        } else if (r.status === 'PARTIALLY_FULFILLED') {
-          color = 'yellow';
+        } else if (r.status === "PARTIALLY_FULFILLED") {
+          color = "yellow";
           description = `Reservation ${r.reservationNumber} partially fulfilled`;
         }
 
@@ -150,7 +148,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       const newRecentActivity = activities.slice(0, 5);
       setRecentActivity(newRecentActivity);
     } catch (err) {
-      console.error('Error loading dashboard data:', err);
+      console.error("Error loading dashboard data:", err);
       setStats({
         pendingTransfers: 0,
         inTransit: 0,
@@ -164,10 +162,10 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
   }, []);
 
   const formatTimeAgo = (timestamp) => {
-    if (!timestamp) return '';
+    if (!timestamp) return "";
 
     const date =
-      typeof timestamp === 'object' && timestamp.seconds
+      typeof timestamp === "object" && timestamp.seconds
         ? new Date(timestamp.seconds * 1000)
         : new Date(timestamp);
 
@@ -179,7 +177,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
     if (diffMins < 60) return `${diffMins} minutes ago`;
     if (diffHours < 24) return `${diffHours} hours ago`;
-    if (diffDays === 1) return 'Yesterday';
+    if (diffDays === 1) return "Yesterday";
     return `${diffDays} days ago`;
   };
 
@@ -188,27 +186,27 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       onClick={onClick}
       className={`w-full text-left ${
         isDarkMode
-          ? 'bg-gray-800 hover:bg-gray-750'
-          : 'bg-white hover:bg-gray-50'
+          ? "bg-gray-800 hover:bg-gray-750"
+          : "bg-white hover:bg-gray-50"
       } p-4 rounded-lg shadow-sm transition-colors border ${
-        isDarkMode ? 'border-gray-700' : 'border-gray-200'
+        isDarkMode ? "border-gray-700" : "border-gray-200"
       } hover:shadow-md`}
     >
       <div className="flex items-center justify-between">
         <div>
           <p
-            className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+            className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
           >
             {title}
           </p>
           <p
-            className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
-            {loading ? '...' : value}
+            {loading ? "..." : value}
           </p>
           {sublabel && (
             <p
-              className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+              className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
             >
               {sublabel}
             </p>
@@ -232,10 +230,10 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       onClick={onClick}
       className={`w-full text-left ${
         isDarkMode
-          ? 'bg-gray-800 hover:bg-gray-750'
-          : 'bg-white hover:bg-gray-50'
+          ? "bg-gray-800 hover:bg-gray-750"
+          : "bg-white hover:bg-gray-50"
       } p-4 rounded-lg shadow-sm transition-colors border ${
-        isDarkMode ? 'border-gray-700' : 'border-gray-200'
+        isDarkMode ? "border-gray-700" : "border-gray-200"
       } hover:shadow-md`}
     >
       <div className="flex items-start space-x-3">
@@ -244,12 +242,12 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         </div>
         <div className="flex-1">
           <h4
-            className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             {title}
           </h4>
           <p
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}
+            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"} mt-1`}
           >
             {description}
           </p>
@@ -260,14 +258,14 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
   const getActivityColorClass = (color) => {
     const colorMap = {
-      green: 'bg-green-500',
-      blue: 'bg-blue-500',
-      orange: 'bg-orange-500',
-      red: 'bg-red-500',
-      purple: 'bg-purple-500',
-      yellow: 'bg-yellow-500',
+      green: "bg-green-500",
+      blue: "bg-blue-500",
+      orange: "bg-orange-500",
+      red: "bg-red-500",
+      purple: "bg-purple-500",
+      yellow: "bg-yellow-500",
     };
-    return colorMap[color] || 'bg-gray-500';
+    return colorMap[color] || "bg-gray-500";
   };
 
   return (
@@ -276,12 +274,12 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       <div className="flex items-center justify-between">
         <div>
           <h2
-            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             Stock Movement Overview
           </h2>
           <p
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+            className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
           >
             Track transfers, reservations, and stock reconciliation
           </p>
@@ -292,15 +290,15 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
             disabled={loading}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
-                ? 'hover:bg-gray-700 text-gray-400 hover:text-gray-200'
-                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-            } ${loading ? 'animate-spin' : ''}`}
+                ? "hover:bg-gray-700 text-gray-400 hover:text-gray-200"
+                : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
+            } ${loading ? "animate-spin" : ""}`}
             title="Refresh"
           >
             <RefreshCw size={18} />
           </button>
           <button
-            onClick={() => onNavigateToTab?.('transfers')}
+            onClick={() => onNavigateToTab?.("transfers")}
             className="text-teal-600 hover:text-teal-700 text-sm font-medium flex items-center"
           >
             View All <ArrowRight size={16} className="ml-1" />
@@ -315,7 +313,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           value={stats.pendingTransfers}
           icon={Package}
           color="bg-orange-500"
-          onClick={() => onNavigateToTab?.('transfers')}
+          onClick={() => onNavigateToTab?.("transfers")}
           sublabel="awaiting shipment"
         />
         <StatCard
@@ -323,7 +321,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           value={stats.inTransit}
           icon={Truck}
           color="bg-blue-500"
-          onClick={() => onNavigateToTab?.('transfers')}
+          onClick={() => onNavigateToTab?.("transfers")}
           sublabel="being shipped"
         />
         <StatCard
@@ -331,7 +329,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           value={stats.completedToday}
           icon={CheckCircle}
           color="bg-green-500"
-          onClick={() => onNavigateToTab?.('transfers')}
+          onClick={() => onNavigateToTab?.("transfers")}
           sublabel="transfers received"
         />
         <StatCard
@@ -339,7 +337,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           value={stats.awaitingReconciliation}
           icon={AlertTriangle}
           color="bg-red-500"
-          onClick={() => onNavigateToTab?.('reconciliation')}
+          onClick={() => onNavigateToTab?.("reconciliation")}
           sublabel="active reservations"
         />
       </div>
@@ -348,12 +346,12 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activity */}
         <div
-          className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 shadow-sm border ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
+          className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 shadow-sm border ${
+            isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >
           <h3
-            className={`text-md font-medium mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-md font-medium mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             Recent Activity
           </h3>
@@ -364,7 +362,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
               </div>
             ) : recentActivity.length === 0 ? (
               <p
-                className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-500'} text-center py-4`}
+                className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-500"} text-center py-4`}
               >
                 No recent activity
               </p>
@@ -376,12 +374,12 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
                   ></div>
                   <div className="flex-1">
                     <p
-                      className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       {activity.description}
                     </p>
                     <p
-                      className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                      className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
                     >
                       {formatTimeAgo(activity.timestamp)}
                     </p>
@@ -394,12 +392,12 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
 
         {/* Quick Actions */}
         <div
-          className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 shadow-sm border ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
+          className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 shadow-sm border ${
+            isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >
           <h3
-            className={`text-md font-medium mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-md font-medium mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             Quick Actions
           </h3>
@@ -408,21 +406,21 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
               title="New Transfer"
               description="Create inter-warehouse transfer"
               icon={Plus}
-              onClick={() => onNavigateToTab?.('transfers', 'create')}
+              onClick={() => onNavigateToTab?.("transfers", "create")}
               color="bg-teal-600"
             />
             <QuickActionCard
               title="Reconcile Stock"
               description="Review and reconcile inventory"
               icon={ClipboardList}
-              onClick={() => onNavigateToTab?.('reconciliation')}
+              onClick={() => onNavigateToTab?.("reconciliation")}
               color="bg-purple-500"
             />
             <QuickActionCard
               title="View Reports"
               description="Access stock movement reports"
               icon={BarChart3}
-              onClick={() => onNavigateToTab?.('reconciliation', 'audit')}
+              onClick={() => onNavigateToTab?.("reconciliation", "audit")}
               color="bg-blue-500"
             />
           </div>

@@ -242,6 +242,7 @@ npx vitest run src/tests/integration/ --coverage
 ### E2E Tests (Cypress)
 
 Before running E2E tests, ensure:
+
 1. Backend server is running on `http://localhost:3000`
 2. Frontend dev server is running on `http://localhost:5173`
 3. Database has seed data with system roles
@@ -287,17 +288,13 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.js',
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.js",
     css: true,
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.config.js',
-      ],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: ["node_modules/", "src/test/", "**/*.config.js"],
     },
   },
 });
@@ -310,13 +307,13 @@ Located in `/mnt/d/Ultimate Steel/steelapp-fe/cypress.config.js`:
 ```javascript
 export default defineConfig({
   e2e: {
-    baseUrl: 'http://localhost:5173',
-    supportFile: 'cypress/support/e2e.js',
-    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+    baseUrl: "http://localhost:5173",
+    supportFile: "cypress/support/e2e.js",
+    specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
     env: {
-      apiUrl: 'http://localhost:3000',
-      testUserEmail: 'test@steelapp.com',
-      testUserPassword: 'testpassword123',
+      apiUrl: "http://localhost:3000",
+      testUserEmail: "test@steelapp.com",
+      testUserPassword: "testpassword123",
     },
   },
 });
@@ -356,25 +353,25 @@ Role Management Module Coverage:
 
 ```javascript
 const systemRoles = [
-  { id: 1, name: 'Managing Director', isSystemRole: true, isDirector: true },
-  { id: 2, name: 'Operations Manager', isSystemRole: true, isDirector: true },
-  { id: 3, name: 'Finance Manager', isSystemRole: true, isDirector: true },
-  { id: 4, name: 'Sales Manager', isSystemRole: true },
-  { id: 5, name: 'Purchase Manager', isSystemRole: true },
-  { id: 6, name: 'Warehouse Manager', isSystemRole: true },
-  { id: 7, name: 'Accounts Manager', isSystemRole: true },
-  { id: 8, name: 'Sales Executive', isSystemRole: true },
-  { id: 9, name: 'Purchase Executive', isSystemRole: true },
-  { id: 10, name: 'Stock Keeper', isSystemRole: true },
-  { id: 11, name: 'Accounts Executive', isSystemRole: true },
-  { id: 12, name: 'Logistics Coordinator', isSystemRole: true },
+  { id: 1, name: "Managing Director", isSystemRole: true, isDirector: true },
+  { id: 2, name: "Operations Manager", isSystemRole: true, isDirector: true },
+  { id: 3, name: "Finance Manager", isSystemRole: true, isDirector: true },
+  { id: 4, name: "Sales Manager", isSystemRole: true },
+  { id: 5, name: "Purchase Manager", isSystemRole: true },
+  { id: 6, name: "Warehouse Manager", isSystemRole: true },
+  { id: 7, name: "Accounts Manager", isSystemRole: true },
+  { id: 8, name: "Sales Executive", isSystemRole: true },
+  { id: 9, name: "Purchase Executive", isSystemRole: true },
+  { id: 10, name: "Stock Keeper", isSystemRole: true },
+  { id: 11, name: "Accounts Executive", isSystemRole: true },
+  { id: 12, name: "Logistics Coordinator", isSystemRole: true },
 ];
 ```
 
 ### Reserved Names
 
 ```javascript
-const reservedNames = ['admin', 'superuser', 'root'];
+const reservedNames = ["admin", "superuser", "root"];
 ```
 
 ### Validation Rules
@@ -442,7 +439,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Install dependencies
         run: npm ci
@@ -473,6 +470,7 @@ jobs:
 ### Updating Tests
 
 When role logic changes:
+
 1. Update validation functions in unit tests
 2. Update API mocks in integration tests
 3. Update UI selectors/flows in E2E tests
@@ -489,24 +487,28 @@ When role logic changes:
 ### Common Issues
 
 **Issue:** Tests fail with "Network Error"
+
 ```bash
 # Solution: Ensure backend is running
 cd ../steelapp-be && npm run dev
 ```
 
 **Issue:** E2E tests timeout
+
 ```bash
 # Solution: Increase timeout in cypress.config.js
 defaultCommandTimeout: 15000
 ```
 
 **Issue:** Mock data not working
+
 ```bash
 # Solution: Clear Vitest cache
 npx vitest run --clearCache
 ```
 
 **Issue:** Cypress can't find elements
+
 ```bash
 # Solution: Add data-testid attributes to components
 <button data-testid="create-role-btn">Create Role</button>
@@ -543,6 +545,7 @@ npx vitest run --clearCache
 ## Contact
 
 For questions or issues with the test suite:
+
 - Check existing test files for examples
 - Review this README for configuration
 - Consult team members for role logic clarification

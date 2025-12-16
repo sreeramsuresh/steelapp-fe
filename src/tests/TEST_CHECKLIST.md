@@ -327,14 +327,14 @@ npm run test:coverage
 
 ## Sign-Off
 
-| Item | Status | Date | Notes |
-|------|--------|------|-------|
-| Unit Tests | [ ] Pass | ____ | 33/33 tests |
-| Integration Tests | [ ] Pass | ____ | 30/30 tests |
-| E2E Tests | [ ] Pass | ____ | 47/47 scenarios |
-| Coverage | [ ] ≥80% | ____ | Target met |
-| Documentation | [ ] Complete | ____ | All files |
-| **Final Approval** | [ ] **APPROVED** | ____ | Ready for use |
+| Item               | Status           | Date     | Notes           |
+| ------------------ | ---------------- | -------- | --------------- |
+| Unit Tests         | [ ] Pass         | \_\_\_\_ | 33/33 tests     |
+| Integration Tests  | [ ] Pass         | \_\_\_\_ | 30/30 tests     |
+| E2E Tests          | [ ] Pass         | \_\_\_\_ | 47/47 scenarios |
+| Coverage           | [ ] ≥80%         | \_\_\_\_ | Target met      |
+| Documentation      | [ ] Complete     | \_\_\_\_ | All files       |
+| **Final Approval** | [ ] **APPROVED** | \_\_\_\_ | Ready for use   |
 
 ## Notes
 

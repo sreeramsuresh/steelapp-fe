@@ -5,16 +5,16 @@
  * Prevents bugs like NaN in pagination when API returns unexpected shapes.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import {
   PageInfoSchema,
   InvoiceListResponseSchema,
   validatePagination,
   safePagination,
-} from '../schemas';
+} from "../schemas";
 
-describe('PageInfoSchema', () => {
-  it('should pass with valid pagination data', () => {
+describe("PageInfoSchema", () => {
+  it("should pass with valid pagination data", () => {
     const validPagination = {
       currentPage: 1,
       perPage: 10,
@@ -33,7 +33,7 @@ describe('PageInfoSchema', () => {
     }
   });
 
-  it('should fail when totalItems is missing', () => {
+  it("should fail when totalItems is missing", () => {
     const invalidPagination = {
       currentPage: 1,
       perPage: 10,
@@ -46,7 +46,7 @@ describe('PageInfoSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(
-        result.error.issues.some((i) => i.path.includes('totalItems')),
+        result.error.issues.some((i) => i.path.includes("totalItems")),
       ).toBe(true);
     }
   });
@@ -65,12 +65,12 @@ describe('PageInfoSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(
-        result.error.issues.some((i) => i.path.includes('totalItems')),
+        result.error.issues.some((i) => i.path.includes("totalItems")),
       ).toBe(true);
     }
   });
 
-  it('should fail when perPage is missing', () => {
+  it("should fail when perPage is missing", () => {
     const missingPerPage = {
       currentPage: 1,
       // perPage missing!
@@ -82,19 +82,19 @@ describe('PageInfoSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((i) => i.path.includes('perPage'))).toBe(
+      expect(result.error.issues.some((i) => i.path.includes("perPage"))).toBe(
         true,
       );
     }
   });
 
-  it('should tolerate extra fields (passthrough)', () => {
+  it("should tolerate extra fields (passthrough)", () => {
     const withExtraFields = {
       currentPage: 1,
       perPage: 10,
       totalItems: 100,
       totalPages: 10,
-      extraField: 'should be ignored',
+      extraField: "should be ignored",
       anotherExtra: 123,
     };
 
@@ -104,9 +104,9 @@ describe('PageInfoSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should fail when value is not a number', () => {
+  it("should fail when value is not a number", () => {
     const stringValues = {
-      currentPage: '1', // string instead of number
+      currentPage: "1", // string instead of number
       perPage: 10,
       totalItems: 100,
       totalPages: 10,
@@ -117,7 +117,7 @@ describe('PageInfoSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('should pass with optional hasNext/hasPrev missing', () => {
+  it("should pass with optional hasNext/hasPrev missing", () => {
     const minimalValid = {
       currentPage: 1,
       perPage: 10,
@@ -131,12 +131,12 @@ describe('PageInfoSchema', () => {
   });
 });
 
-describe('InvoiceListResponseSchema', () => {
-  it('should pass with valid invoice list response', () => {
+describe("InvoiceListResponseSchema", () => {
+  it("should pass with valid invoice list response", () => {
     const validResponse = {
       invoices: [
-        { id: 1, invoiceNumber: 'INV-001' },
-        { id: 2, invoiceNumber: 'INV-002' },
+        { id: 1, invoiceNumber: "INV-001" },
+        { id: 2, invoiceNumber: "INV-002" },
       ],
       pagination: {
         currentPage: 1,
@@ -151,7 +151,7 @@ describe('InvoiceListResponseSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should pass with null pagination', () => {
+  it("should pass with null pagination", () => {
     const noPagination = {
       invoices: [],
       pagination: null,
@@ -162,7 +162,7 @@ describe('InvoiceListResponseSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should fail with invalid pagination structure', () => {
+  it("should fail with invalid pagination structure", () => {
     const invalidPagination = {
       invoices: [],
       pagination: {
@@ -177,8 +177,8 @@ describe('InvoiceListResponseSchema', () => {
   });
 });
 
-describe('validatePagination helper', () => {
-  it('should return success with valid data', () => {
+describe("validatePagination helper", () => {
+  it("should return success with valid data", () => {
     const valid = {
       currentPage: 1,
       perPage: 10,
@@ -186,24 +186,24 @@ describe('validatePagination helper', () => {
       totalPages: 10,
     };
 
-    const result = validatePagination(valid, 'InvoiceList');
+    const result = validatePagination(valid, "InvoiceList");
 
     expect(result.success).toBe(true);
     expect(result.data).not.toBeNull();
   });
 
-  it('should return error with invalid data', () => {
+  it("should return error with invalid data", () => {
     const invalid = { currentPage: 1 };
 
-    const result = validatePagination(invalid, 'InvoiceList');
+    const result = validatePagination(invalid, "InvoiceList");
 
     expect(result.success).toBe(false);
     expect(result.data).toBeNull();
   });
 });
 
-describe('safePagination helper', () => {
-  it('should return valid pagination as-is', () => {
+describe("safePagination helper", () => {
+  it("should return valid pagination as-is", () => {
     const valid = {
       currentPage: 2,
       perPage: 20,
@@ -221,7 +221,7 @@ describe('safePagination helper', () => {
     expect(result.totalPages).toBe(5);
   });
 
-  it('should return safe defaults for invalid pagination', () => {
+  it("should return safe defaults for invalid pagination", () => {
     const invalid = null;
 
     const result = safePagination(invalid);
@@ -230,18 +230,18 @@ describe('safePagination helper', () => {
     expect(result.totalPages).toBe(1);
     expect(result.currentPage).toBe(1);
     expect(result.perPage).toBe(10);
-    expect(typeof result.totalItems).toBe('number');
+    expect(typeof result.totalItems).toBe("number");
     expect(Number.isNaN(result.totalItems)).toBe(false);
   });
 
-  it('should return safe defaults for undefined', () => {
+  it("should return safe defaults for undefined", () => {
     const result = safePagination(undefined);
 
     expect(result.totalItems).toBe(0);
     expect(Number.isNaN(result.totalItems)).toBe(false);
   });
 
-  it('should return safe defaults for wrong field names', () => {
+  it("should return safe defaults for wrong field names", () => {
     // The bug that caused NaN - using "total" instead of "totalItems"
     const wrongFields = {
       currentPage: 1,

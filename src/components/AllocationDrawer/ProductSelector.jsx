@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { productsAPI } from '../../services/api';
+import { useState, useCallback, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+import { productsAPI } from "../../services/api";
 
 /**
  * ProductSelector Component
@@ -8,8 +8,12 @@ import { productsAPI } from '../../services/api';
  * Autocomplete search for products with debounced API calls.
  * Displays product name in standard format with grade, form, and dimensions.
  */
-const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProduct }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const ProductSelector = ({
+  companyId: _companyId,
+  selectedProduct,
+  onSelectProduct,
+}) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,13 +35,10 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
       const response = await productsAPI.search(query);
       // API Gateway returns { products: [...], pageInfo: {...} }
       // Axios wraps in data: response.data = { products: [...], pageInfo: {...} }
-      const productList =
-        response?.data?.products ||
-        response?.products ||
-        [];
+      const productList = response?.data?.products || response?.products || [];
       setProducts(productList.slice(0, 20)); // Limit to 20 results
     } catch (error) {
-      console.error('Failed to search products:', error);
+      console.error("Failed to search products:", error);
       setProducts([]);
     } finally {
       setLoading(false);
@@ -70,13 +71,13 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
     (product) => {
       // Guard: Ensure product has required fields before passing to parent
       if (!product || !product.id) {
-        console.error('[ProductSelector] Invalid product selected:', product);
+        console.error("[ProductSelector] Invalid product selected:", product);
         return;
       }
 
       onSelectProduct(product);
       setSearchTerm(
-        product.displayName || product.uniqueName || product.name || '',
+        product.displayName || product.uniqueName || product.name || "",
       );
       setShowDropdown(false);
       setProducts([]);
@@ -90,25 +91,25 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
       if (!showDropdown || products.length === 0) return;
 
       switch (e.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           setHighlightedIndex((prev) =>
             prev < products.length - 1 ? prev + 1 : 0,
           );
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           setHighlightedIndex((prev) =>
             prev > 0 ? prev - 1 : products.length - 1,
           );
           break;
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           if (highlightedIndex >= 0 && products[highlightedIndex]) {
             handleSelect(products[highlightedIndex]);
           }
           break;
-        case 'Escape':
+        case "Escape":
           setShowDropdown(false);
           break;
         default:
@@ -131,8 +132,8 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Sync search term with selected product
@@ -142,10 +143,10 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
         selectedProduct.displayName ||
           selectedProduct.uniqueName ||
           selectedProduct.name ||
-          '',
+          "",
       );
     } else {
-      setSearchTerm('');
+      setSearchTerm("");
     }
   }, [selectedProduct]);
 
@@ -167,7 +168,7 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
     if (product.uniqueName || product.unique_name) {
       return product.uniqueName || product.unique_name;
     }
-    return product.name || 'Unknown Product';
+    return product.name || "Unknown Product";
   };
 
   // Format product details for dropdown
@@ -178,7 +179,7 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
     if (product.width && product.thickness) {
       details.push(`${product.width}x${product.thickness}mm`);
     }
-    return details.join(' | ');
+    return details.join(" | ");
   };
 
   return (
@@ -208,10 +209,10 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
               key={product.id || `product-${index}`}
               role="button"
               tabIndex={0}
-              className={`product-option ${index === highlightedIndex ? 'highlighted' : ''}`}
+              className={`product-option ${index === highlightedIndex ? "highlighted" : ""}`}
               onClick={() => handleSelect(product)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   handleSelect(product);
                 }
@@ -233,10 +234,10 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
         searchTerm.length >= 2 &&
         products.length === 0 &&
         !loading && (
-        <div ref={dropdownRef} className="product-dropdown empty">
-          <div className="product-option disabled">No products found</div>
-        </div>
-      )}
+          <div ref={dropdownRef} className="product-dropdown empty">
+            <div className="product-option disabled">No products found</div>
+          </div>
+        )}
     </div>
   );
 };

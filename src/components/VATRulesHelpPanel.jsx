@@ -5,7 +5,7 @@
  * Based on UAE VAT Law (Federal Decree-Law No. 8 of 2017)
  */
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   BookOpen,
   Calculator,
@@ -24,8 +24,8 @@ import {
   Info,
   ChevronsDown,
   ChevronsUp,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Collapsible section component
 const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
@@ -33,40 +33,40 @@ const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
 
   return (
     <div
-      className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}
+      className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}
     >
       <button
         type="button"
         onClick={onToggle}
         className={`w-full flex items-center justify-between py-4 px-1 text-left hover:bg-opacity-50 transition-colors ${
-          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
         }`}
       >
         <div className="flex items-center gap-3">
           {Icon && (
             <Icon
-              className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
+              className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
             />
           )}
           <span
-            className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             {title}
           </span>
         </div>
         {isOpen ? (
           <ChevronDown
-            className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
           />
         ) : (
           <ChevronRight
-            className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
           />
         )}
       </button>
       {isOpen && (
         <div
-          className={`pb-4 px-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+          className={`pb-4 px-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
         >
           {children}
         </div>
@@ -89,29 +89,29 @@ const ExtLink = ({ href, children }) => (
 );
 
 // Info box component
-const InfoBox = ({ type = 'info', title, children, icon: Icon }) => {
+const InfoBox = ({ type = "info", title, children, icon: Icon }) => {
   const { isDarkMode } = useTheme();
 
   const styles = {
     info: isDarkMode
-      ? 'bg-blue-900/30 border-blue-700'
-      : 'bg-blue-50 border-blue-200',
+      ? "bg-blue-900/30 border-blue-700"
+      : "bg-blue-50 border-blue-200",
     warning: isDarkMode
-      ? 'bg-yellow-900/30 border-yellow-700'
-      : 'bg-yellow-50 border-yellow-200',
+      ? "bg-yellow-900/30 border-yellow-700"
+      : "bg-yellow-50 border-yellow-200",
     success: isDarkMode
-      ? 'bg-green-900/30 border-green-700'
-      : 'bg-green-50 border-green-200',
+      ? "bg-green-900/30 border-green-700"
+      : "bg-green-50 border-green-200",
     danger: isDarkMode
-      ? 'bg-red-900/30 border-red-700'
-      : 'bg-red-50 border-red-200',
+      ? "bg-red-900/30 border-red-700"
+      : "bg-red-50 border-red-200",
   };
 
   const iconColors = {
-    info: isDarkMode ? 'text-blue-400' : 'text-blue-600',
-    warning: isDarkMode ? 'text-yellow-400' : 'text-yellow-600',
-    success: isDarkMode ? 'text-green-400' : 'text-green-600',
-    danger: isDarkMode ? 'text-red-400' : 'text-red-600',
+    info: isDarkMode ? "text-blue-400" : "text-blue-600",
+    warning: isDarkMode ? "text-yellow-400" : "text-yellow-600",
+    success: isDarkMode ? "text-green-400" : "text-green-600",
+    danger: isDarkMode ? "text-red-400" : "text-red-600",
   };
 
   return (
@@ -187,19 +187,19 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
   return (
     <div
-      className={`h-full flex flex-col ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+      className={`h-full flex flex-col ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
     >
       {/* Header */}
       <div
-        className={`px-5 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+        className={`px-5 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen
-              className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
+              className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
             />
             <h2
-              className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               UAE VAT Rules Guide
             </h2>
@@ -209,8 +209,8 @@ const VATRulesHelpPanel = ({ onClose }) => {
               onClick={expandAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
-                  ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400'
-                  : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
+                  ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
+                  : "hover:bg-gray-100 text-gray-600 hover:text-teal-600"
               }`}
               title="Expand All Sections"
             >
@@ -220,8 +220,8 @@ const VATRulesHelpPanel = ({ onClose }) => {
               onClick={collapseAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
-                  ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400'
-                  : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
+                  ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
+                  : "hover:bg-gray-100 text-gray-600 hover:text-teal-600"
               }`}
               title="Collapse All Sections"
             >
@@ -246,7 +246,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Overview of UAE VAT"
           icon={BookOpen}
           isOpen={openSections.overview}
-          onToggle={() => toggleSection('overview')}
+          onToggle={() => toggleSection("overview")}
         >
           <div className="space-y-4">
             <div>
@@ -309,17 +309,17 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Standard VAT Rates"
           icon={Calculator}
           isOpen={openSections.rates}
-          onToggle={() => toggleSection('rates')}
+          onToggle={() => toggleSection("rates")}
         >
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">UAE VAT Rate Structure</h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
+                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
                       <th className="px-3 py-2 text-left">Rate</th>
                       <th className="px-3 py-2 text-left">Description</th>
                       <th className="px-3 py-2 text-left">Application</th>
@@ -327,14 +327,14 @@ const VATRulesHelpPanel = ({ onClose }) => {
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">5%</td>
                       <td className="px-3 py-2">Standard Rate</td>
                       <td className="px-3 py-2">Most goods and services</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">0%</td>
                       <td className="px-3 py-2">Zero-Rated</td>
@@ -343,7 +343,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">N/A</td>
                       <td className="px-3 py-2">Exempt</td>
@@ -401,7 +401,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Designated Zones & Zero-Rating"
           icon={MapPin}
           isOpen={openSections.zones}
-          onToggle={() => toggleSection('zones')}
+          onToggle={() => toggleSection("zones")}
         >
           <div className="space-y-4">
             <div>
@@ -503,7 +503,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Reverse Charge Mechanism"
           icon={RefreshCw}
           isOpen={openSections.reverse}
-          onToggle={() => toggleSection('reverse')}
+          onToggle={() => toggleSection("reverse")}
         >
           <div className="space-y-4">
             <div>
@@ -540,7 +540,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
             <div>
               <h4 className="font-medium mb-2">How It Works - Example</h4>
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <p className="text-sm font-medium mb-2">
                   Scenario: You import stainless steel coils from China worth
@@ -609,7 +609,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Tax Invoice Requirements"
           icon={FileText}
           isOpen={openSections.invoice}
-          onToggle={() => toggleSection('invoice')}
+          onToggle={() => toggleSection("invoice")}
         >
           <div className="space-y-4">
             <div>
@@ -627,18 +627,18 @@ const VATRulesHelpPanel = ({ onClose }) => {
                 Mandatory Information on Tax Invoices
               </h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
+                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
                       <th className="px-3 py-2 text-left">Field</th>
                       <th className="px-3 py-2 text-left">Requirement</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">Invoice Number</td>
                       <td className="px-3 py-2">
@@ -646,13 +646,13 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">Date of Issue</td>
                       <td className="px-3 py-2">Date invoice was created</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Supplier Name & Address
@@ -660,7 +660,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       <td className="px-3 py-2">Full legal name and address</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">Supplier TRN</td>
                       <td className="px-3 py-2">
@@ -668,7 +668,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Customer Name & Address
@@ -676,7 +676,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       <td className="px-3 py-2">Full legal name and address</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">Customer TRN</td>
                       <td className="px-3 py-2">
@@ -684,7 +684,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Item Description
@@ -694,7 +694,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Quantity & Unit Price
@@ -702,13 +702,13 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       <td className="px-3 py-2">For each item supplied</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">Taxable Amount</td>
                       <td className="px-3 py-2">Total amount before VAT</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">VAT Rate</td>
                       <td className="px-3 py-2">
@@ -716,13 +716,13 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">VAT Amount</td>
                       <td className="px-3 py-2">VAT charged (in AED)</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Total Amount Due
@@ -793,7 +793,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Credit Notes & Adjustments"
           icon={FileMinus}
           isOpen={openSections.credit}
-          onToggle={() => toggleSection('credit')}
+          onToggle={() => toggleSection("credit")}
         >
           <div className="space-y-4">
             <div>
@@ -853,7 +853,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                 VAT Treatment of Credit Notes
               </h4>
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <p className="text-sm font-medium mb-2">
                   Example: Original invoice for AED 10,000 + AED 500 VAT
@@ -939,7 +939,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Input Tax Recovery"
           icon={ArrowDownCircle}
           isOpen={openSections.input}
-          onToggle={() => toggleSection('input')}
+          onToggle={() => toggleSection("input")}
         >
           <div className="space-y-4">
             <div>
@@ -1032,7 +1032,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                 standard method:
               </p>
               <div
-                className={`p-3 rounded-lg mt-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg mt-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <p className="text-sm font-medium mb-1">
                   Recovery Percentage Formula:
@@ -1090,7 +1090,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Import VAT & Export Zero-Rating"
           icon={Package}
           isOpen={openSections.import}
-          onToggle={() => toggleSection('import')}
+          onToggle={() => toggleSection("import")}
         >
           <div className="space-y-4">
             <div>
@@ -1106,7 +1106,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
             <div>
               <h4 className="font-medium mb-2">Import VAT Calculation</h4>
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <p className="text-sm font-medium mb-2">
                   Example: Importing steel coils from China
@@ -1236,18 +1236,18 @@ const VATRulesHelpPanel = ({ onClose }) => {
                 Export Documentation Requirements
               </h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
+                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
                       <th className="px-3 py-2 text-left">Document</th>
                       <th className="px-3 py-2 text-left">Purpose</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">Tax Invoice</td>
                       <td className="px-3 py-2">
@@ -1255,7 +1255,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Customs Declaration
@@ -1265,7 +1265,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Bill of Lading / Airway Bill
@@ -1275,7 +1275,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2 font-medium">
                         Commercial Invoice
@@ -1325,7 +1325,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Common Steel Trading Scenarios"
           icon={Lightbulb}
           isOpen={openSections.scenarios}
-          onToggle={() => toggleSection('scenarios')}
+          onToggle={() => toggleSection("scenarios")}
         >
           <div className="space-y-4">
             <div>
@@ -1339,7 +1339,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
             {/* Scenario 1 */}
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}
             >
               <h5 className="font-medium mb-2 text-sm">
                 Scenario 1: Domestic Sale to UAE Customer
@@ -1368,7 +1368,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
             {/* Scenario 2 */}
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}
             >
               <h5 className="font-medium mb-2 text-sm">
                 Scenario 2: Sale to JAFZA Qualified Customer
@@ -1403,7 +1403,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
             {/* Scenario 3 */}
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}
             >
               <h5 className="font-medium mb-2 text-sm">
                 Scenario 3: Export to Saudi Arabia (GCC)
@@ -1433,7 +1433,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
             {/* Scenario 4 */}
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}
             >
               <h5 className="font-medium mb-2 text-sm">
                 Scenario 4: Export to India (Non-GCC)
@@ -1467,7 +1467,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
             {/* Scenario 5 */}
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}
             >
               <h5 className="font-medium mb-2 text-sm">
                 Scenario 5: Importing from China
@@ -1500,7 +1500,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
             {/* Scenario 6 */}
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}
             >
               <h5 className="font-medium mb-2 text-sm">
                 Scenario 6: Customer Returns Defective Goods
@@ -1535,7 +1535,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
             {/* Scenario 7 */}
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}
             >
               <h5 className="font-medium mb-2 text-sm">
                 Scenario 7: Cutting/Fabrication Service
@@ -1577,31 +1577,31 @@ const VATRulesHelpPanel = ({ onClose }) => {
           title="Quick Reference & Checklists"
           icon={CheckSquare}
           isOpen={openSections.reference}
-          onToggle={() => toggleSection('reference')}
+          onToggle={() => toggleSection("reference")}
         >
           <div className="space-y-4">
             {/* Quick Rate Reference */}
             <div>
               <h4 className="font-medium mb-2">Quick VAT Rate Reference</h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
+                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
                       <th className="px-3 py-2 text-left">Supply Type</th>
                       <th className="px-3 py-2 text-left">VAT Rate</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Local sale (UAE mainland)</td>
                       <td className="px-3 py-2 font-medium">5%</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">
                         Sale to designated zone (qualified)
@@ -1609,25 +1609,25 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       <td className="px-3 py-2 font-medium">0%</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Export to non-GCC</td>
                       <td className="px-3 py-2 font-medium">0%</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Export to GCC</td>
                       <td className="px-3 py-2 font-medium">5%</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Import from non-GCC</td>
                       <td className="px-3 py-2 font-medium">5% (at customs)</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Cutting/fabrication service</td>
                       <td className="px-3 py-2 font-medium">5%</td>
@@ -1644,7 +1644,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                 Before issuing any invoice, verify:
               </p>
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <ul className="text-sm space-y-1">
                   <li className="flex items-start gap-2">
@@ -1694,7 +1694,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                 To apply 0% VAT on exports, ensure:
               </p>
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <ul className="text-sm space-y-1">
                   <li className="flex items-start gap-2">
@@ -1741,7 +1741,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
               </h4>
               <p className="text-sm mb-2">To apply 0% VAT to zone supplies:</p>
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <ul className="text-sm space-y-1">
                   <li className="flex items-start gap-2">
@@ -1782,30 +1782,30 @@ const VATRulesHelpPanel = ({ onClose }) => {
             <div>
               <h4 className="font-medium mb-2">VAT Return Deadlines</h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
+                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
                       <th className="px-3 py-2 text-left">Filing Frequency</th>
                       <th className="px-3 py-2 text-left">Deadline</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Quarterly Returns</td>
                       <td className="px-3 py-2">28 days after quarter end</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Monthly Returns</td>
                       <td className="px-3 py-2">28 days after month end</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Payment of VAT Due</td>
                       <td className="px-3 py-2">Same deadline as filing</td>
@@ -1819,18 +1819,18 @@ const VATRulesHelpPanel = ({ onClose }) => {
             <div>
               <h4 className="font-medium mb-2">Common Penalties</h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
+                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
                       <th className="px-3 py-2 text-left">Violation</th>
                       <th className="px-3 py-2 text-left">Penalty</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Late VAT return filing</td>
                       <td className="px-3 py-2">
@@ -1838,7 +1838,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Late VAT payment</td>
                       <td className="px-3 py-2">
@@ -1847,7 +1847,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">
                         Tax invoice missing required info
@@ -1857,7 +1857,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">
                         Failure to keep records (5 years)
@@ -1865,7 +1865,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
                       <td className="px-3 py-2">AED 10,000</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                     >
                       <td className="px-3 py-2">Tax evasion (intentional)</td>
                       <td className="px-3 py-2">
@@ -1958,7 +1958,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
 
       {/* Footer */}
       <div
-        className={`px-5 py-2 border-t text-xs ${isDarkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400'}`}
+        className={`px-5 py-2 border-t text-xs ${isDarkMode ? "border-gray-700 text-gray-500" : "border-gray-200 text-gray-400"}`}
       >
         Last Updated: December 2024
       </div>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 import {
   FaUpload,
   FaDownload,
@@ -6,10 +6,10 @@ import {
   FaFile,
   FaCheck,
   FaExclamationTriangle,
-} from 'react-icons/fa';
-import { useTheme } from '../contexts/ThemeContext';
-import { useNotifications } from '../contexts/NotificationCenterContext';
-import api from '../services/axiosApi';
+} from "react-icons/fa";
+import { useTheme } from "../contexts/ThemeContext";
+import { useNotifications } from "../contexts/NotificationCenterContext";
+import api from "../services/axiosApi";
 
 const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const { isDarkMode } = useTheme();
@@ -22,40 +22,40 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const [dragOver, setDragOver] = useState(false);
 
   const cardClasses = `rounded-xl border transition-all duration-300 ${
-    isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
+    isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
   }`;
 
-  const textPrimary = isDarkMode ? 'text-white' : 'text-[#212121]';
-  const textSecondary = isDarkMode ? 'text-[#B0BEC5]' : 'text-[#666666]';
-  const textMuted = isDarkMode ? 'text-[#78909C]' : 'text-[#BDBDBD]';
+  const textPrimary = isDarkMode ? "text-white" : "text-[#212121]";
+  const textSecondary = isDarkMode ? "text-[#B0BEC5]" : "text-[#666666]";
+  const textMuted = isDarkMode ? "text-[#78909C]" : "text-[#BDBDBD]";
 
   const _inputClasses = `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 ${
     isDarkMode
-      ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]'
-      : 'border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]'
+      ? "border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]"
+      : "border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]"
   }`;
 
   const handleFileSelect = (file) => {
     const allowedTypes = [
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-excel',
-      'text/csv',
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+      "text/csv",
     ];
 
     if (!allowedTypes.includes(file.type)) {
       addNotification({
-        title: 'Invalid File Type',
-        message: 'Please upload Excel (.xlsx, .xls) or CSV files only.',
-        type: 'error',
+        title: "Invalid File Type",
+        message: "Please upload Excel (.xlsx, .xls) or CSV files only.",
+        type: "error",
       });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
       addNotification({
-        title: 'File Too Large',
-        message: 'Maximum allowed size is 5MB.',
-        type: 'error',
+        title: "File Too Large",
+        message: "Maximum allowed size is 5MB.",
+        type: "error",
       });
       return;
     }
@@ -92,29 +92,29 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
   const downloadTemplate = async () => {
     try {
-      const response = await api.get('/customers/upload/template', {
-        responseType: 'blob',
+      const response = await api.get("/customers/upload/template", {
+        responseType: "blob",
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'customer_upload_template.csv');
+      link.setAttribute("download", "customer_upload_template.csv");
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
 
       addNotification({
-        title: 'Template Downloaded',
-        message: 'Template downloaded successfully',
-        type: 'success',
+        title: "Template Downloaded",
+        message: "Template downloaded successfully",
+        type: "success",
       });
     } catch (error) {
       addNotification({
-        title: 'Download Failed',
-        message: 'Failed to download template',
-        type: 'error',
+        title: "Download Failed",
+        message: "Failed to download template",
+        type: "error",
       });
     }
   };
@@ -122,21 +122,21 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const uploadFile = async () => {
     if (!selectedFile) {
       addNotification({
-        title: 'No File Selected',
-        message: 'Please select a file to upload',
-        type: 'error',
+        title: "No File Selected",
+        message: "Please select a file to upload",
+        type: "error",
       });
       return;
     }
 
     setUploading(true);
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append("file", selectedFile);
 
     try {
-      const response = await api.post('/customers/upload', formData, {
+      const response = await api.post("/customers/upload", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -144,25 +144,25 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
       if (response.data.results.successful.length > 0) {
         addNotification({
-          title: 'Upload Successful',
+          title: "Upload Successful",
           message: response.data.message,
-          type: 'success',
+          type: "success",
         });
         if (onUploadComplete) {
           onUploadComplete();
         }
       } else {
         addNotification({
-          title: 'Upload Warning',
-          message: 'No customers were imported successfully',
-          type: 'warning',
+          title: "Upload Warning",
+          message: "No customers were imported successfully",
+          type: "warning",
         });
       }
     } catch (error) {
       addNotification({
-        title: 'Upload Failed',
-        message: error.response?.data?.error || 'Upload failed',
-        type: 'error',
+        title: "Upload Failed",
+        message: error.response?.data?.error || "Upload failed",
+        type: "error",
       });
     } finally {
       setUploading(false);
@@ -173,7 +173,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
     setSelectedFile(null);
     setUploadResults(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -191,7 +191,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
+          className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
         >
           <h2 className={`text-xl font-semibold ${textPrimary}`}>
             Upload Customers
@@ -208,7 +208,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
         <div className="p-6 space-y-6">
           {/* Download Template Section */}
           <div
-            className={`p-4 rounded-lg ${isDarkMode ? 'bg-[#2C3E50]' : 'bg-[#F5F5F5]'}`}
+            className={`p-4 rounded-lg ${isDarkMode ? "bg-[#2C3E50]" : "bg-[#F5F5F5]"}`}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -239,10 +239,10 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
               <div
                 className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                   dragOver
-                    ? 'border-[#008B8B] bg-[#008B8B]/10'
+                    ? "border-[#008B8B] bg-[#008B8B]/10"
                     : isDarkMode
-                      ? 'border-[#37474F] hover:border-[#008B8B]'
-                      : 'border-[#E0E0E0] hover:border-[#008B8B]'
+                      ? "border-[#37474F] hover:border-[#008B8B]"
+                      : "border-[#E0E0E0] hover:border-[#008B8B]"
                 }`}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -250,7 +250,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
               >
                 <FaUpload className={`w-12 h-12 mx-auto mb-4 ${textMuted}`} />
                 <p className={`text-lg ${textPrimary} mb-2`}>
-                  Drag and drop your file here, or{' '}
+                  Drag and drop your file here, or{" "}
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     className="text-[#008B8B] hover:text-[#4DB6AC] underline"
@@ -271,7 +271,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
               </div>
             ) : (
               <div
-                className={`border rounded-lg p-4 ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
+                className={`border rounded-lg p-4 ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -304,7 +304,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
               {/* Summary */}
               <div className={`grid grid-cols-1 md:grid-cols-3 gap-4`}>
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-[#1B5E20]' : 'bg-[#E8F5E8]'}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-[#1B5E20]" : "bg-[#E8F5E8]"}`}
                 >
                   <div className="flex items-center gap-2">
                     <FaCheck className="w-5 h-5 text-green-500" />
@@ -318,7 +318,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
                 </div>
 
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-[#BF360C]' : 'bg-[#FFEBEE]'}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-[#BF360C]" : "bg-[#FFEBEE]"}`}
                 >
                   <div className="flex items-center gap-2">
                     <FaExclamationTriangle className="w-5 h-5 text-red-500" />
@@ -330,7 +330,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
                 </div>
 
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-[#263238]' : 'bg-[#F5F5F5]'}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-[#263238]" : "bg-[#F5F5F5]"}`}
                 >
                   <div className="flex items-center gap-2">
                     <FaFile className="w-5 h-5 text-blue-500" />
@@ -349,17 +349,17 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
                     Failed Records
                   </h4>
                   <div
-                    className={`max-h-60 overflow-y-auto border rounded-lg ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
+                    className={`max-h-60 overflow-y-auto border rounded-lg ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
                   >
                     {uploadResults.failed.map((failed, index) => (
                       <div
                         key={index}
-                        className={`p-3 border-b last:border-b-0 ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
+                        className={`p-3 border-b last:border-b-0 ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
                       >
                         <div className="flex justify-between items-start">
                           <div>
                             <p className={`font-medium ${textPrimary}`}>
-                              Row {failed.row}: {failed.data.name || 'Unnamed'}
+                              Row {failed.row}: {failed.data.name || "Unnamed"}
                             </p>
                             <p className={`text-sm text-red-500 mt-1`}>
                               {failed.error}
@@ -377,14 +377,14 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
         {/* Footer */}
         <div
-          className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
+          className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
         >
           <button
             onClick={closeModal}
             className={`px-6 py-2 border rounded-lg transition-colors ${
               isDarkMode
-                ? 'border-[#37474F] text-[#B0BEC5] hover:bg-[#37474F]'
-                : 'border-[#E0E0E0] text-[#666666] hover:bg-[#F5F5F5]'
+                ? "border-[#37474F] text-[#B0BEC5] hover:bg-[#37474F]"
+                : "border-[#E0E0E0] text-[#666666] hover:bg-[#F5F5F5]"
             }`}
           >
             Close
@@ -397,7 +397,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
               className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
             >
               <FaUpload className="w-4 h-4" />
-              {uploading ? 'Uploading...' : 'Upload Customers'}
+              {uploading ? "Uploading..." : "Upload Customers"}
             </button>
           )}
         </div>

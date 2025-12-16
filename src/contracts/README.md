@@ -50,12 +50,12 @@ The validation is integrated into `src/services/axiosApi.js` at lines 224-299 in
 Edit `contractRegistry.ts` and add your endpoint:
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 // 1. Define request schema
 const CreateCustomerRequestSchema = z.object({
-  name: z.string().min(1, 'name is required'),
-  email: z.string().email('invalid email format'),
+  name: z.string().min(1, "name is required"),
+  email: z.string().email("invalid email format"),
   phone: z.string().optional(),
   creditLimit: z.number().nonnegative(),
 });
@@ -70,7 +70,7 @@ const CreateCustomerResponseSchema = z.object({
 
 // 3. Register in contractRegistry
 export const contractRegistry: Record<string, ContractDefinition> = {
-  'POST /customers': {
+  "POST /customers": {
     request: CreateCustomerRequestSchema,
     response: CreateCustomerResponseSchema,
   },
@@ -99,10 +99,12 @@ The system supports parameter segments using `:param` syntax:
 Use `.strict()` for schemas that should reject unknown keys:
 
 ```typescript
-const StrictSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-}).strict(); // ❌ Rejects: { id: 1, name: "foo", extra: "bar" }
+const StrictSchema = z
+  .object({
+    id: z.number(),
+    name: z.string(),
+  })
+  .strict(); // ❌ Rejects: { id: 1, name: "foo", extra: "bar" }
 
 const PermissiveSchema = z.object({
   id: z.number(),
@@ -159,12 +161,12 @@ When validation fails in DEV, you'll see:
 
 Currently registered endpoints (see `contractRegistry.ts` for full details):
 
-| Endpoint | Request | Response |
-|----------|---------|----------|
-| `POST /invoices` | ✅ Strict | ✅ Basic |
-| `PUT /invoices/:id` | ✅ Strict | ✅ Basic |
-| `DELETE /batch-reservations/line-item` | ✅ Strict | ✅ Full |
-| `POST /batch-reservations/fifo` | ✅ Strict | ✅ Full |
+| Endpoint                               | Request   | Response |
+| -------------------------------------- | --------- | -------- |
+| `POST /invoices`                       | ✅ Strict | ✅ Basic |
+| `PUT /invoices/:id`                    | ✅ Strict | ✅ Basic |
+| `DELETE /batch-reservations/line-item` | ✅ Strict | ✅ Full  |
+| `POST /batch-reservations/fifo`        | ✅ Strict | ✅ Full  |
 
 **Goal**: Expand coverage to all critical endpoints over time.
 
@@ -175,16 +177,19 @@ Currently registered endpoints (see `contractRegistry.ts` for full details):
 ### What Gets Validated
 
 ✅ **Request validation**:
+
 - Methods: POST, PUT, PATCH, DELETE with JSON body
 - Skips: GET (no body), FormData uploads, Blob/File
 
 ✅ **Response validation**:
+
 - All JSON responses (default `responseType`)
 - Skips: `responseType: 'blob'` (file downloads), `responseType: 'arraybuffer'`
 
 ### What Gets Skipped
 
 ❌ **Never validated**:
+
 - `FormData` uploads (e.g., file uploads)
 - `Blob` / `ArrayBuffer` responses (file downloads)
 - Endpoints not in `contractRegistry` (allows through with optional warning)
@@ -196,6 +201,7 @@ Currently registered endpoints (see `contractRegistry.ts` for full details):
 ### 1. Start with Critical Endpoints
 
 Prioritize contracts for:
+
 - Invoice creation/updating (financial integrity)
 - Payment allocation (batch reservations)
 - Stock movements (inventory accuracy)
@@ -217,52 +223,57 @@ const InvoiceItemSchema = z.object({
 ```typescript
 const InvoiceRequestSchema = z.object({
   customerId: z.number(),
-  items: z.array(
-    z.object({
-      productId: z.number(),
-      allocations: z.array(
-        z.object({
-          batch_id: z.number(),
-          quantity: z.number(),
-        }).strict() // ← Strict nested object
-      ),
-    }).strict()
-  ).min(1, 'items cannot be empty'),
+  items: z
+    .array(
+      z
+        .object({
+          productId: z.number(),
+          allocations: z.array(
+            z
+              .object({
+                batch_id: z.number(),
+                quantity: z.number(),
+              })
+              .strict(), // ← Strict nested object
+          ),
+        })
+        .strict(),
+    )
+    .min(1, "items cannot be empty"),
 });
 ```
 
 ### 4. Use Custom Refinements
 
 ```typescript
-const InvoiceItemSchema = z.object({
-  sourceType: z.enum(['WAREHOUSE', 'DROP_SHIP']),
-  allocation_mode: z.string().optional(),
-}).refine(
-  (item) => {
-    if (item.sourceType === 'WAREHOUSE') {
-      return item.allocation_mode !== undefined;
-    }
-    return true;
-  },
-  {
-    message: 'WAREHOUSE items must have allocation_mode',
-    path: ['allocation_mode'],
-  }
-);
+const InvoiceItemSchema = z
+  .object({
+    sourceType: z.enum(["WAREHOUSE", "DROP_SHIP"]),
+    allocation_mode: z.string().optional(),
+  })
+  .refine(
+    (item) => {
+      if (item.sourceType === "WAREHOUSE") {
+        return item.allocation_mode !== undefined;
+      }
+      return true;
+    },
+    {
+      message: "WAREHOUSE items must have allocation_mode",
+      path: ["allocation_mode"],
+    },
+  );
 ```
 
 ### 5. Union Types for Flexible Fields
 
 ```typescript
-const quantitySchema = z.union([
-  z.number(),
-  z.string(),
-]).refine(
+const quantitySchema = z.union([z.number(), z.string()]).refine(
   (val) => {
-    const num = typeof val === 'number' ? val : parseFloat(val);
+    const num = typeof val === "number" ? val : parseFloat(val);
     return !isNaN(num) && num > 0;
   },
-  { message: 'quantity must be positive' }
+  { message: "quantity must be positive" },
 );
 ```
 
@@ -299,12 +310,12 @@ Create a simple test in your service:
 
 ```typescript
 // In invoiceService.test.ts
-import { matchContract } from '../contracts/matchContract';
+import { matchContract } from "../contracts/matchContract";
 
-test('invoice contract exists', () => {
+test("invoice contract exists", () => {
   const contract = matchContract({
-    method: 'POST',
-    url: '/invoices',
+    method: "POST",
+    url: "/invoices",
   });
 
   expect(contract).toBeDefined();
@@ -351,10 +362,10 @@ You can create reusable validators in `contractRegistry.ts`:
 ```typescript
 const PositiveNumberOrString = z.union([z.number(), z.string()]).refine(
   (val) => {
-    const num = typeof val === 'number' ? val : parseFloat(val);
+    const num = typeof val === "number" ? val : parseFloat(val);
     return !isNaN(num) && num > 0;
   },
-  { message: 'must be positive number or numeric string' }
+  { message: "must be positive number or numeric string" },
 );
 
 // Use across multiple schemas
@@ -369,9 +380,9 @@ const ItemSchema = z.object({
 Use `extractParams()` from `matchContract.ts` to get URL parameters:
 
 ```typescript
-import { extractParams } from './matchContract';
+import { extractParams } from "./matchContract";
 
-const params = extractParams('/invoices/123', '/invoices/:id');
+const params = extractParams("/invoices/123", "/invoices/:id");
 // Returns: { id: '123' }
 ```
 
@@ -388,6 +399,7 @@ npm install zod
 ### "Contract violation but data looks correct"
 
 Check for:
+
 1. **Type mismatches**: `"123"` (string) vs `123` (number)
 2. **Unknown keys**: Using `.strict()` but sending extra fields
 3. **Null vs undefined**: Zod differentiates between these
@@ -395,12 +407,14 @@ Check for:
 ### "Too many warnings in console"
 
 The system warns once per endpoint. If you see many warnings, it means you're hitting many unregistered endpoints. Either:
+
 1. Add contracts for those endpoints
 2. Comment out the warning in `validateContract.ts` (line 172-178)
 
 ### "FormData upload fails validation"
 
 This shouldn't happen - FormData is automatically skipped. If it does:
+
 1. Check that `config.data instanceof FormData` is true
 2. Verify `shouldValidateData()` logic in `validateContract.ts`
 
@@ -411,21 +425,25 @@ This shouldn't happen - FormData is automatically skipped. If it does:
 To gradually adopt this system:
 
 ### Phase 1: Critical Endpoints (Week 1)
+
 - ✅ Invoice creation/update
 - ✅ Batch reservations
 - ✅ Payment allocation
 
 ### Phase 2: Common CRUD (Week 2)
+
 - Customer CRUD
 - Product CRUD
 - Supplier CRUD
 
 ### Phase 3: Domain-Specific (Week 3)
+
 - Import containers
 - Stock movements
 - VAT adjustments
 
 ### Phase 4: Complete Coverage (Ongoing)
+
 - All remaining endpoints
 - Add response validation where missing
 
@@ -436,6 +454,7 @@ To gradually adopt this system:
 ### Q: Does this slow down development?
 
 **A**: Initial setup takes time, but it pays off by:
+
 - Catching bugs before they reach the backend
 - Providing instant feedback on data shape
 - Serving as living documentation
@@ -444,6 +463,7 @@ To gradually adopt this system:
 ### Q: Can I disable validation for specific requests?
 
 **A**: Not directly, but you can:
+
 1. Skip by not registering the contract
 2. Wrap the call in try-catch and ignore ContractViolationError
 3. Set `import.meta.env.DEV = false` temporarily (not recommended)
@@ -457,7 +477,7 @@ To gradually adopt this system:
 **A**: Yes! Zod schemas are fully TypeScript-compatible. You can even infer types:
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 const CustomerSchema = z.object({
   id: z.number(),
@@ -484,6 +504,7 @@ When adding new endpoints to the application:
 ## Support
 
 For issues or questions:
+
 - Check console for `[Contract Violation]` messages
 - Review Zod documentation: https://zod.dev
 - Inspect `axiosApi.js` lines 224-299 for integration details

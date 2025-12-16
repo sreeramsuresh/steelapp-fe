@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { useTheme } from '../../contexts/ThemeContext';
-import { Package, Loader2, AlertCircle } from 'lucide-react';
-import api from '../../services/api';
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Package, Loader2, AlertCircle } from "lucide-react";
+import api from "../../services/api";
 
 /**
  * WarehouseStockSelector Component
@@ -47,7 +47,7 @@ const WarehouseStockSelector = ({
       try {
         const stockPromises = warehouses.map(async (warehouse) => {
           try {
-            const response = await api.get('/stock-batches/available', {
+            const response = await api.get("/stock-batches/available", {
               params: {
                 productId,
                 warehouseId: warehouse.id,
@@ -95,8 +95,8 @@ const WarehouseStockSelector = ({
           onWarehouseSelect(null, false);
         }
       } catch (err) {
-        console.error('Error fetching warehouse stock:', err);
-        setError('Failed to load stock availability');
+        console.error("Error fetching warehouse stock:", err);
+        setError("Failed to load stock availability");
       } finally {
         setLoading(false);
       }
@@ -117,7 +117,7 @@ const WarehouseStockSelector = ({
    * Format quantity display
    */
   const formatQty = (qty) => {
-    return new Intl.NumberFormat('en-AE', {
+    return new Intl.NumberFormat("en-AE", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(qty || 0);
@@ -128,7 +128,7 @@ const WarehouseStockSelector = ({
       <div className="flex items-center gap-2 py-2">
         <Loader2 size={16} className="animate-spin text-gray-400" />
         <span
-          className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+          className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
         >
           Loading stock availability...
         </span>
@@ -148,7 +148,7 @@ const WarehouseStockSelector = ({
   if (!warehouses.length) {
     return (
       <div
-        className={`text-sm py-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}
+        className={`text-sm py-2 ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}
       >
         No warehouses available
       </div>
@@ -158,7 +158,7 @@ const WarehouseStockSelector = ({
   return (
     <div className="space-y-2">
       <div
-        className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+        className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
       >
         Stock availability:
       </div>
@@ -178,14 +178,14 @@ const WarehouseStockSelector = ({
               className={`
                 flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all
                 ${
-            isSelected
-              ? isDarkMode
-                ? 'border-teal-500 bg-teal-900/30 text-teal-300'
-                : 'border-teal-600 bg-teal-50 text-teal-700'
-              : isDarkMode
-                ? 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500'
-                : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-            }
+                  isSelected
+                    ? isDarkMode
+                      ? "border-teal-500 bg-teal-900/30 text-teal-300"
+                      : "border-teal-600 bg-teal-50 text-teal-700"
+                    : isDarkMode
+                      ? "border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500"
+                      : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }
               `}
               title={`${warehouse.name} - ${formatQty(available)} available`}
             >
@@ -193,10 +193,10 @@ const WarehouseStockSelector = ({
                 size={16}
                 className={
                   hasStock
-                    ? 'text-green-500'
+                    ? "text-green-500"
                     : isDarkMode
-                      ? 'text-red-400'
-                      : 'text-red-500'
+                      ? "text-red-400"
+                      : "text-red-500"
                 }
               />
               <div className="flex items-center gap-2">
@@ -206,8 +206,8 @@ const WarehouseStockSelector = ({
                 <span
                   className={`text-sm font-bold ${
                     hasStock
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-red-600 dark:text-red-400'
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
                   }`}
                 >
                   {formatQty(available)}

@@ -5,8 +5,8 @@
  * Shows customer concentration, diversification score, and segment breakdown
  */
 
-import { useState, useEffect } from 'react';
-import { useTheme } from '../../../../contexts/ThemeContext';
+import { useState, useEffect } from "react";
+import { useTheme } from "../../../../contexts/ThemeContext";
 import {
   Users,
   AlertTriangle,
@@ -14,47 +14,47 @@ import {
   Info,
   RefreshCw,
   TrendingUp,
-} from 'lucide-react';
+} from "lucide-react";
 
 // Mock portfolio data
 const MOCK_PORTFOLIO_DATA = {
   agentId: 1,
-  agentName: 'Rajesh Kumar',
+  agentName: "Rajesh Kumar",
   summary: {
     totalCustomers: 48,
     activeCustomers: 35,
     inactiveCustomers: 13,
     top3Concentration: 42,
     diversificationScore: 68,
-    riskLevel: 'Medium',
+    riskLevel: "Medium",
   },
   topCustomers: [
-    { id: 1, name: 'Al Rashid Steel Works', revenue: 1250000, percent: 18 },
-    { id: 2, name: 'Emirates Fabrication LLC', revenue: 950000, percent: 14 },
-    { id: 3, name: 'Gulf Trading Co', revenue: 680000, percent: 10 },
+    { id: 1, name: "Al Rashid Steel Works", revenue: 1250000, percent: 18 },
+    { id: 2, name: "Emirates Fabrication LLC", revenue: 950000, percent: 14 },
+    { id: 3, name: "Gulf Trading Co", revenue: 680000, percent: 10 },
   ],
   segments: [
     {
-      name: 'Fabricators',
+      name: "Fabricators",
       count: 18,
       revenue: 2800000,
       percent: 40,
-      color: '#14B8A6',
+      color: "#14B8A6",
     },
     {
-      name: 'Traders',
+      name: "Traders",
       count: 12,
       revenue: 1750000,
       percent: 25,
-      color: '#3B82F6',
+      color: "#3B82F6",
     },
-    { name: 'OEMs', count: 8, revenue: 1400000, percent: 20, color: '#F59E0B' },
+    { name: "OEMs", count: 8, revenue: 1400000, percent: 20, color: "#F59E0B" },
     {
-      name: 'Projects',
+      name: "Projects",
       count: 10,
       revenue: 1050000,
       percent: 15,
-      color: '#8B5CF6',
+      color: "#8B5CF6",
     },
   ],
   trendData: {
@@ -65,11 +65,11 @@ const MOCK_PORTFOLIO_DATA = {
 };
 
 const AGENTS_LIST = [
-  { id: 1, name: 'Rajesh Kumar' },
-  { id: 2, name: 'Priya Sharma' },
-  { id: 3, name: 'Amit Patel' },
-  { id: 4, name: 'Deepak Singh' },
-  { id: 5, name: 'Neha Gupta' },
+  { id: 1, name: "Rajesh Kumar" },
+  { id: 2, name: "Priya Sharma" },
+  { id: 3, name: "Amit Patel" },
+  { id: 4, name: "Deepak Singh" },
+  { id: 5, name: "Neha Gupta" },
 ];
 
 const CustomerPortfolioWidget = ({
@@ -111,9 +111,9 @@ const CustomerPortfolioWidget = ({
     } else if (safeAmount >= 1000) {
       return `AED ${(safeAmount / 1000).toFixed(0)}K`;
     }
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: 'AED',
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(safeAmount);
@@ -121,37 +121,37 @@ const CustomerPortfolioWidget = ({
 
   const getRiskColor = (level) => {
     switch (level.toLowerCase()) {
-      case 'low':
+      case "low":
         return {
-          bg: 'bg-green-100',
-          text: 'text-green-700',
-          border: 'border-green-200',
+          bg: "bg-green-100",
+          text: "text-green-700",
+          border: "border-green-200",
         };
-      case 'medium':
+      case "medium":
         return {
-          bg: 'bg-yellow-100',
-          text: 'text-yellow-700',
-          border: 'border-yellow-200',
+          bg: "bg-yellow-100",
+          text: "text-yellow-700",
+          border: "border-yellow-200",
         };
-      case 'high':
+      case "high":
         return {
-          bg: 'bg-red-100',
-          text: 'text-red-700',
-          border: 'border-red-200',
+          bg: "bg-red-100",
+          text: "text-red-700",
+          border: "border-red-200",
         };
       default:
         return {
-          bg: 'bg-gray-100',
-          text: 'text-gray-700',
-          border: 'border-gray-200',
+          bg: "bg-gray-100",
+          text: "text-gray-700",
+          border: "border-gray-200",
         };
     }
   };
 
   const getDiversificationColor = (score) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 60) return 'text-yellow-500';
-    return 'text-red-500';
+    if (score >= 80) return "text-green-500";
+    if (score >= 60) return "text-yellow-500";
+    return "text-red-500";
   };
 
   if (!portfolioData) {
@@ -159,14 +159,14 @@ const CustomerPortfolioWidget = ({
       <div
         className={`rounded-xl border p-6 ${
           isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+            ? "bg-[#1E2328] border-[#37474F]"
+            : "bg-white border-[#E0E0E0]"
         }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <Users size={20} className="text-blue-500" />
           <h3
-            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             Customer Portfolio
           </h3>
@@ -174,10 +174,10 @@ const CustomerPortfolioWidget = ({
         <div className="text-center py-8">
           <Users
             size={48}
-            className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`mx-auto mb-4 opacity-50 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
           />
           <p
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+            className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
           >
             No portfolio data available
           </p>
@@ -193,8 +193,8 @@ const CustomerPortfolioWidget = ({
     <div
       className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
         isDarkMode
-          ? 'bg-[#1E2328] border-[#37474F] hover:border-blue-600'
-          : 'bg-white border-[#E0E0E0] hover:border-blue-500'
+          ? "bg-[#1E2328] border-[#37474F] hover:border-blue-600"
+          : "bg-white border-[#E0E0E0] hover:border-blue-500"
       }`}
     >
       {/* Header */}
@@ -206,7 +206,7 @@ const CustomerPortfolioWidget = ({
           <div>
             <h3
               className={`text-base font-semibold flex items-center gap-1.5 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               Customer Portfolio
@@ -218,8 +218,8 @@ const CustomerPortfolioWidget = ({
                 <span
                   className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs rounded shadow-md whitespace-nowrap ${
                     isDarkMode
-                      ? 'bg-gray-700 text-white'
-                      : 'bg-yellow-100 text-gray-800 border border-yellow-300'
+                      ? "bg-gray-700 text-white"
+                      : "bg-yellow-100 text-gray-800 border border-yellow-300"
                   }`}
                 >
                   Customer distribution and risk analysis
@@ -227,7 +227,7 @@ const CustomerPortfolioWidget = ({
               </span>
             </h3>
             <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Portfolio Overview
             </p>
@@ -240,8 +240,8 @@ const CustomerPortfolioWidget = ({
             onChange={(e) => setSelectedAgentId(parseInt(e.target.value))}
             className={`text-xs px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               isDarkMode
-                ? 'bg-[#2E3B4E] border-[#37474F] text-white'
-                : 'bg-gray-50 border-gray-200 text-gray-700'
+                ? "bg-[#2E3B4E] border-[#37474F] text-white"
+                : "bg-gray-50 border-gray-200 text-gray-700"
             }`}
           >
             {AGENTS_LIST.map((agent) => (
@@ -255,9 +255,9 @@ const CustomerPortfolioWidget = ({
             disabled={loading || isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
-                ? 'hover:bg-[#2E3B4E] text-gray-400 hover:text-white'
-                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-            } ${loading || isLoading ? 'animate-spin' : ''}`}
+                ? "hover:bg-[#2E3B4E] text-gray-400 hover:text-white"
+                : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+            } ${loading || isLoading ? "animate-spin" : ""}`}
           >
             <RefreshCw size={16} />
           </button>
@@ -267,43 +267,43 @@ const CustomerPortfolioWidget = ({
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
+          className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
         >
           <p
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
           >
             Total
           </p>
           <p
-            className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             {summary.totalCustomers}
           </p>
         </div>
         <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-green-900/20' : 'bg-green-50'}`}
+          className={`p-3 rounded-lg ${isDarkMode ? "bg-green-900/20" : "bg-green-50"}`}
         >
           <p
-            className={`text-xs ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+            className={`text-xs ${isDarkMode ? "text-green-400" : "text-green-600"}`}
           >
             Active
           </p>
           <p
-            className={`text-xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+            className={`text-xl font-bold ${isDarkMode ? "text-green-400" : "text-green-600"}`}
           >
             {summary.activeCustomers}
           </p>
         </div>
         <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}
+          className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}
         >
           <p
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
           >
             Inactive
           </p>
           <p
-            className={`text-xl font-bold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            className={`text-xl font-bold ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
           >
             {summary.inactiveCustomers}
           </p>
@@ -312,22 +312,22 @@ const CustomerPortfolioWidget = ({
 
       {/* Risk & Diversification */}
       <div
-        className={`p-3 rounded-lg mb-4 ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
+        className={`p-3 rounded-lg mb-4 ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
       >
         <div className="flex items-center justify-between">
           <div>
             <p
-              className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Top 3 Concentration
             </p>
             <p
               className={`text-lg font-bold ${
                 summary.top3Concentration > 50
-                  ? 'text-red-500'
+                  ? "text-red-500"
                   : summary.top3Concentration > 30
-                    ? 'text-yellow-500'
-                    : 'text-green-500'
+                    ? "text-yellow-500"
+                    : "text-green-500"
               }`}
             >
               {summary.top3Concentration}%
@@ -335,7 +335,7 @@ const CustomerPortfolioWidget = ({
           </div>
           <div className="text-center">
             <p
-              className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Diversification
             </p>
@@ -347,7 +347,7 @@ const CustomerPortfolioWidget = ({
           </div>
           <div className="text-right">
             <p
-              className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Risk Level
             </p>
@@ -363,7 +363,7 @@ const CustomerPortfolioWidget = ({
       {/* Top Customers */}
       <div className="mb-4">
         <p
-          className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+          className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
           Top Customers
         </p>
@@ -373,29 +373,29 @@ const CustomerPortfolioWidget = ({
               <span
                 className={`w-5 h-5 rounded flex items-center justify-center text-xs font-bold ${
                   idx === 0
-                    ? 'bg-yellow-500 text-white'
+                    ? "bg-yellow-500 text-white"
                     : idx === 1
-                      ? 'bg-gray-400 text-white'
-                      : 'bg-amber-600 text-white'
+                      ? "bg-gray-400 text-white"
+                      : "bg-amber-600 text-white"
                 }`}
               >
                 {idx + 1}
               </span>
               <div className="flex-1 min-w-0">
                 <p
-                  className={`text-sm truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-sm truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {customer.name}
                 </p>
               </div>
               <div className="text-right">
                 <p
-                  className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatCurrency(customer.revenue)}
                 </p>
                 <p
-                  className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   {customer.percent}%
                 </p>
@@ -408,7 +408,7 @@ const CustomerPortfolioWidget = ({
       {/* Segment Breakdown */}
       <div className="mb-4">
         <p
-          className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+          className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
           Customer Segments
         </p>
@@ -455,7 +455,7 @@ const CustomerPortfolioWidget = ({
                   style={{ backgroundColor: segment.color }}
                 />
                 <span
-                  className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                  className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                 >
                   {segment.name} ({segment.count})
                 </span>
@@ -467,12 +467,12 @@ const CustomerPortfolioWidget = ({
 
       {/* Trend Indicators */}
       <div
-        className={`pt-3 border-t flex justify-between ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
+        className={`pt-3 border-t flex justify-between ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
       >
         <div className="flex items-center gap-1">
           <TrendingUp size={14} className="text-green-500" />
           <span
-            className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
           >
             +{trendData.newThisMonth} new
           </span>
@@ -480,7 +480,7 @@ const CustomerPortfolioWidget = ({
         <div className="flex items-center gap-1">
           <CheckCircle size={14} className="text-blue-500" />
           <span
-            className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
           >
             {trendData.reactivated} reactivated
           </span>
@@ -488,7 +488,7 @@ const CustomerPortfolioWidget = ({
         <div className="flex items-center gap-1">
           <AlertTriangle size={14} className="text-red-500" />
           <span
-            className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
           >
             {trendData.churnedThisMonth} churned
           </span>
@@ -501,8 +501,8 @@ const CustomerPortfolioWidget = ({
           onClick={() => onViewDetails(portfolioData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode
-              ? 'bg-blue-600 hover:bg-blue-500 text-white'
-              : 'bg-blue-500 hover:bg-blue-600 text-white'
+              ? "bg-blue-600 hover:bg-blue-500 text-white"
+              : "bg-blue-500 hover:bg-blue-600 text-white"
           }`}
         >
           View All Customers

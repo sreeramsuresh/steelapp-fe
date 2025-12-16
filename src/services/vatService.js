@@ -3,7 +3,7 @@
  * Connects to backend VAT Management gRPC service via API Gateway
  */
 
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 export const vatService = {
   // ============================================
@@ -19,7 +19,7 @@ export const vatService = {
    * @param {number} params.year - Filter by year
    */
   async getVATReturns(params = {}) {
-    return apiClient.get('/vat-return', params);
+    return apiClient.get("/vat-return", params);
   },
 
   /**
@@ -37,7 +37,7 @@ export const vatService = {
    * @param {string} data.period_end - End date (ISO format)
    */
   async generateVATReturn(data) {
-    return apiClient.post('/vat-return/generate', data);
+    return apiClient.post("/vat-return/generate", data);
   },
 
   /**
@@ -47,7 +47,7 @@ export const vatService = {
    * @param {string} params.period_end - End date
    */
   async getVATReturnPreview(params = {}) {
-    return apiClient.get('/vat-return/preview', params);
+    return apiClient.get("/vat-return/preview", params);
   },
 
   /**
@@ -91,7 +91,7 @@ export const vatService = {
    * Get list of UAE Emirates (static data)
    */
   async getEmirates() {
-    return apiClient.get('/vat-return/emirates');
+    return apiClient.get("/vat-return/emirates");
   },
 
   // ============================================
@@ -103,7 +103,7 @@ export const vatService = {
    * @param {Object} params - Query parameters
    */
   async getVATAdjustments(params = {}) {
-    return apiClient.get('/vat-return/adjustments', params);
+    return apiClient.get("/vat-return/adjustments", params);
   },
 
   /**
@@ -119,7 +119,7 @@ export const vatService = {
    * @param {Object} data - Adjustment data
    */
   async createVATAdjustment(data) {
-    return apiClient.post('/vat-return/adjustments', data);
+    return apiClient.post("/vat-return/adjustments", data);
   },
 
   /**
@@ -158,7 +158,7 @@ export const vatService = {
    * @param {Object} params - Query parameters
    */
   async getVATAmendments(params = {}) {
-    return apiClient.get('/vat-return/amendments', params);
+    return apiClient.get("/vat-return/amendments", params);
   },
 
   /**
@@ -174,7 +174,7 @@ export const vatService = {
    * @param {Object} data - Amendment data
    */
   async createVATAmendment(data) {
-    return apiClient.post('/vat-return/amendments', data);
+    return apiClient.post("/vat-return/amendments", data);
   },
 
   /**
@@ -202,7 +202,7 @@ export const vatService = {
    * List blocked VAT categories with summaries
    */
   async getBlockedVATCategories() {
-    return apiClient.get('/vat-return/blocked-vat/categories');
+    return apiClient.get("/vat-return/blocked-vat/categories");
   },
 
   /**
@@ -210,7 +210,7 @@ export const vatService = {
    * @param {Object} params - Query parameters
    */
   async getBlockedVATLog(params = {}) {
-    return apiClient.get('/vat-return/blocked-vat/log', params);
+    return apiClient.get("/vat-return/blocked-vat/log", params);
   },
 
   /**
@@ -218,7 +218,7 @@ export const vatService = {
    * @param {Object} data - Blocked VAT data
    */
   async recordBlockedVAT(data) {
-    return apiClient.post('/vat-return/blocked-vat/record', data);
+    return apiClient.post("/vat-return/blocked-vat/record", data);
   },
 
   // ============================================
@@ -270,7 +270,7 @@ export const vatService = {
           adjustments: 0,
         },
         returnStatus: {
-          status: currentReturn?.status || 'pending',
+          status: currentReturn?.status || "pending",
           dueDate: new Date(
             currentYear,
             currentQuarter * 3 + 1,
@@ -316,7 +316,7 @@ export const vatService = {
             parseFloat(
               r.form201?.box15NetVatDue || r.form_201?.box_15_net_vat_due,
             ) || 0,
-          status: r.status || 'unknown',
+          status: r.status || "unknown",
         })),
         isMockData: false,
         fetchedAt: new Date().toISOString(),
@@ -351,27 +351,27 @@ export const vatService = {
       if (
         daysUntilDue <= 15 &&
         daysUntilDue > 0 &&
-        metrics.returnStatus.status !== 'filed'
+        metrics.returnStatus.status !== "filed"
       ) {
         metrics.alerts.push({
-          type: 'warning',
+          type: "warning",
           message: `VAT return due in ${daysUntilDue} days`,
-          severity: daysUntilDue <= 7 ? 'high' : 'medium',
+          severity: daysUntilDue <= 7 ? "high" : "medium",
         });
       }
 
       if (metrics.blockedVAT.total > 0) {
         metrics.alerts.push({
-          type: 'info',
+          type: "info",
           message: `AED ${metrics.blockedVAT.total.toLocaleString()} in blocked VAT this quarter`,
-          severity: 'low',
+          severity: "low",
         });
       }
 
       return metrics;
     } catch (error) {
       console.error(
-        '[vatService] Error fetching VAT dashboard metrics:',
+        "[vatService] Error fetching VAT dashboard metrics:",
         error,
       );
       throw error;

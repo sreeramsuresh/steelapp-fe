@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, useLocation } from 'react-router-dom';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import Sidebar from './components/Sidebar';
-import TopNavbar from './components/TopNavbar';
-import AppRouter from './components/AppRouter';
-import NotificationProvider from './components/NotificationProvider';
-import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
-import { ApiHealthProvider } from './contexts/ApiHealthContext';
-import { authService } from './services/axiosAuthService';
-import ApiStatusBanner from './components/common/ApiStatusBanner';
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import Sidebar from "./components/Sidebar";
+import TopNavbar from "./components/TopNavbar";
+import AppRouter from "./components/AppRouter";
+import NotificationProvider from "./components/NotificationProvider";
+import { NotificationCenterProvider } from "./contexts/NotificationCenterContext";
+import { ApiHealthProvider } from "./contexts/ApiHealthContext";
+import { authService } from "./services/axiosAuthService";
+import ApiStatusBanner from "./components/common/ApiStatusBanner";
 
 // Initialize auth service on app load
 authService.initialize();
@@ -28,39 +28,39 @@ const AppContent = ({
   const getPageTitle = () => {
     const path = location.pathname;
     switch (path) {
-      case '/':
-      case '/dashboard':
-        return 'Dashboard';
-      case '/login':
-        return 'Login';
-      case '/create-invoice':
-        return 'Create Invoice';
-      case '/invoices':
-        return 'All Invoices';
-      case '/drafts':
-        return 'Draft Invoices';
-      case '/customers':
-        return 'Customer Management';
-      case '/products':
-        return 'Steel Products';
-      case '/calculator':
-        return 'Price Calculator';
-      case '/analytics':
-        return 'Sales Analytics';
-      case '/trends':
-        return 'Revenue Trends';
-      case '/settings':
-        return 'Company Settings';
-      case '/batch-analytics':
-        return 'Batch Analytics';
+      case "/":
+      case "/dashboard":
+        return "Dashboard";
+      case "/login":
+        return "Login";
+      case "/create-invoice":
+        return "Create Invoice";
+      case "/invoices":
+        return "All Invoices";
+      case "/drafts":
+        return "Draft Invoices";
+      case "/customers":
+        return "Customer Management";
+      case "/products":
+        return "Steel Products";
+      case "/calculator":
+        return "Price Calculator";
+      case "/analytics":
+        return "Sales Analytics";
+      case "/trends":
+        return "Revenue Trends";
+      case "/settings":
+        return "Company Settings";
+      case "/batch-analytics":
+        return "Batch Analytics";
       default:
-        if (path.includes('/edit/')) {
-          return 'Edit Invoice';
+        if (path.includes("/edit/")) {
+          return "Edit Invoice";
         }
-        if (path.includes('/confirm-allocation')) {
-          return 'Confirm Batch Allocation';
+        if (path.includes("/confirm-allocation")) {
+          return "Confirm Batch Allocation";
         }
-        return 'Dashboard';
+        return "Dashboard";
     }
   };
 
@@ -70,35 +70,35 @@ const AppContent = ({
 
   // If on login or public marketing pages (including root), show only the router content
   const isPublicMarketing =
-    location.pathname === '/' || location.pathname.startsWith('/marketing');
+    location.pathname === "/" || location.pathname.startsWith("/marketing");
 
   // Toggle global scrolling depending on public vs. app pages
   useEffect(() => {
     const htmlEl = document.documentElement;
     const bodyEl = document.body;
-    if (isPublicMarketing || location.pathname === '/login') {
+    if (isPublicMarketing || location.pathname === "/login") {
       // Allow normal page scroll for public pages
-      htmlEl.style.overflow = 'auto';
-      htmlEl.style.height = 'auto';
-      bodyEl.style.overflow = 'auto';
-      bodyEl.style.height = 'auto';
+      htmlEl.style.overflow = "auto";
+      htmlEl.style.height = "auto";
+      bodyEl.style.overflow = "auto";
+      bodyEl.style.height = "auto";
     } else {
       // Preserve app behavior: single scroll container inside app layout
-      htmlEl.style.overflow = 'hidden';
-      htmlEl.style.height = '100vh';
-      bodyEl.style.overflow = 'hidden';
-      bodyEl.style.height = '100vh';
+      htmlEl.style.overflow = "hidden";
+      htmlEl.style.height = "100vh";
+      bodyEl.style.overflow = "hidden";
+      bodyEl.style.height = "100vh";
     }
 
     // Cleanup on unmount
     return () => {
-      htmlEl.style.overflow = '';
-      htmlEl.style.height = '';
-      bodyEl.style.overflow = '';
-      bodyEl.style.height = '';
+      htmlEl.style.overflow = "";
+      htmlEl.style.height = "";
+      bodyEl.style.overflow = "";
+      bodyEl.style.height = "";
     };
   }, [isPublicMarketing, location.pathname]);
-  if (location.pathname === '/login' || isPublicMarketing) {
+  if (location.pathname === "/login" || isPublicMarketing) {
     return (
       <AppRouter
         user={user}
@@ -111,13 +111,13 @@ const AppContent = ({
   // For authenticated routes, show full layout
   return (
     <div
-      className={`relative min-h-screen max-h-screen overflow-hidden w-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+      className={`relative min-h-screen max-h-screen overflow-hidden w-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
     >
       {/* Sidebar Overlay for mobile */}
       <div
-        className={`md:hidden ${sidebarOpen ? 'block' : 'hidden'} fixed inset-0 bg-black bg-opacity-50 z-[999]`}
+        className={`md:hidden ${sidebarOpen ? "block" : "hidden"} fixed inset-0 bg-black bg-opacity-50 z-[999]`}
         onClick={toggleSidebar}
-        onKeyDown={(e) => e.key === 'Escape' && toggleSidebar()}
+        onKeyDown={(e) => e.key === "Escape" && toggleSidebar()}
         role="button"
         tabIndex={0}
         aria-label="Close sidebar"
@@ -126,8 +126,8 @@ const AppContent = ({
       <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
 
       <div
-        className={`${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} h-screen transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
-          sidebarOpen ? 'md:ml-[260px] xl:ml-[280px]' : 'md:ml-0'
+        className={`${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} h-screen transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
+          sidebarOpen ? "md:ml-[260px] xl:ml-[280px]" : "md:ml-0"
         }`}
       >
         <TopNavbar
@@ -157,10 +157,10 @@ const ThemedApp = ({ isLoading, ...props }) => {
     // console.log('🌍 GLOBAL SPINNER SHOWING - "Loading ULTIMATE STEELS..."');
     return (
       <div
-        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-        <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+        <span className={isDarkMode ? "text-white" : "text-gray-900"}>
           Loading ULTIMATE STEELS...
         </span>
       </div>
@@ -196,7 +196,7 @@ function App() {
           setUser(null);
         }
       } catch (error) {
-        if (mounted) console.error('Failed to initialize app:', error);
+        if (mounted) console.error("Failed to initialize app:", error);
       } finally {
         if (mounted) {
           // console.log('🚀 App.jsx - setting loading to false');
@@ -221,8 +221,8 @@ function App() {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleSaveInvoice = () => {
@@ -243,7 +243,7 @@ function App() {
       await authService.logout();
       // console.log('🚨 authService.logout() completed successfully');
     } catch (error) {
-      console.warn('🚨 Logout failed:', error);
+      console.warn("🚨 Logout failed:", error);
     } finally {
       // console.log('🚨 Setting user to null...');
       setUser(null);

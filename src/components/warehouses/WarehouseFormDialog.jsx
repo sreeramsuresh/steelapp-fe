@@ -3,31 +3,28 @@
  * Modal dialog for creating/editing warehouse details
  */
 
-import { useState, useEffect } from 'react';
-import {
-  X,
-  MapPin,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useState, useEffect } from "react";
+import { X, MapPin } from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   const { isDarkMode } = useTheme();
   const isEditing = !!warehouse;
 
   const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    description: '',
-    address: '',
-    city: '',
-    state: '',
-    country: 'UAE',
-    postalCode: '',
-    contactPerson: '',
-    phone: '',
-    email: '',
-    capacity: '',
-    capacityUnit: 'MT',
+    name: "",
+    code: "",
+    description: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "UAE",
+    postalCode: "",
+    contactPerson: "",
+    phone: "",
+    email: "",
+    capacity: "",
+    capacityUnit: "MT",
     isActive: true,
   });
 
@@ -38,37 +35,37 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   useEffect(() => {
     if (warehouse) {
       setFormData({
-        name: warehouse.name || '',
-        code: warehouse.code || '',
-        description: warehouse.description || '',
-        address: warehouse.address || '',
-        city: warehouse.city || '',
-        state: warehouse.state || '',
-        country: warehouse.country || 'UAE',
-        postalCode: warehouse.postalCode || '',
-        contactPerson: warehouse.contactPerson || '',
-        phone: warehouse.phone || '',
-        email: warehouse.email || '',
-        capacity: warehouse.capacity || '',
-        capacityUnit: warehouse.capacityUnit || 'MT',
+        name: warehouse.name || "",
+        code: warehouse.code || "",
+        description: warehouse.description || "",
+        address: warehouse.address || "",
+        city: warehouse.city || "",
+        state: warehouse.state || "",
+        country: warehouse.country || "UAE",
+        postalCode: warehouse.postalCode || "",
+        contactPerson: warehouse.contactPerson || "",
+        phone: warehouse.phone || "",
+        email: warehouse.email || "",
+        capacity: warehouse.capacity || "",
+        capacityUnit: warehouse.capacityUnit || "MT",
         isActive: warehouse.isActive !== false,
       });
     } else {
       // Reset form for new warehouse
       setFormData({
-        name: '',
-        code: '',
-        description: '',
-        address: '',
-        city: '',
-        state: '',
-        country: 'UAE',
-        postalCode: '',
-        contactPerson: '',
-        phone: '',
-        email: '',
-        capacity: '',
-        capacityUnit: 'MT',
+        name: "",
+        code: "",
+        description: "",
+        address: "",
+        city: "",
+        state: "",
+        country: "UAE",
+        postalCode: "",
+        contactPerson: "",
+        phone: "",
+        email: "",
+        capacity: "",
+        capacityUnit: "MT",
         isActive: true,
       });
     }
@@ -79,7 +76,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     // Clear error when field is edited
@@ -92,25 +89,25 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = "Name is required";
     }
 
     if (!formData.code.trim()) {
-      newErrors.code = 'Code is required';
+      newErrors.code = "Code is required";
     } else if (!/^[A-Z0-9-_]+$/i.test(formData.code)) {
-      newErrors.code = 'Code must be alphanumeric (letters, numbers, - and _)';
+      newErrors.code = "Code must be alphanumeric (letters, numbers, - and _)";
     }
 
     if (!formData.city.trim()) {
-      newErrors.city = 'City is required';
+      newErrors.city = "City is required";
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = "Invalid email format";
     }
 
     if (formData.capacity && isNaN(parseFloat(formData.capacity))) {
-      newErrors.capacity = 'Capacity must be a number';
+      newErrors.capacity = "Capacity must be a number";
     }
 
     setErrors(newErrors);
@@ -138,14 +135,14 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   const inputClass = (hasError) => `
     w-full px-3 py-2 rounded-lg border
     ${
-  isDarkMode
-    ? `bg-[#121418] border-${hasError ? 'red-500' : 'gray-600'} text-white placeholder-gray-500`
-    : `bg-white border-${hasError ? 'red-500' : 'gray-300'} text-gray-900 placeholder-gray-400`
-}
+      isDarkMode
+        ? `bg-[#121418] border-${hasError ? "red-500" : "gray-600"} text-white placeholder-gray-500`
+        : `bg-white border-${hasError ? "red-500" : "gray-300"} text-gray-900 placeholder-gray-400`
+    }
     focus:outline-none focus:ring-2 focus:ring-teal-500
   `;
 
-  const labelClass = `block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`;
+  const labelClass = `block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -155,35 +152,35 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
       {/* Dialog */}
       <div
         className={`relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-xl shadow-xl ${
-          isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+          isDarkMode ? "bg-[#1E2328]" : "bg-white"
         }`}
       >
         {/* Header */}
         <div
           className={`flex items-center justify-between px-6 py-4 border-b ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
+            isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-lg ${isDarkMode ? 'bg-teal-900/30' : 'bg-teal-100'}`}
+              className={`p-2 rounded-lg ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}
             >
               <MapPin
-                className={`w-5 h-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
+                className={`w-5 h-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
               />
             </div>
             <h2
-              className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
-              {isEditing ? 'Edit Warehouse' : 'Add New Warehouse'}
+              {isEditing ? "Edit Warehouse" : "Add New Warehouse"}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+            className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
           >
             <X
-              className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`w-5 h-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             />
           </button>
         </div>
@@ -198,7 +195,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
             <div>
               <h3
                 className={`text-sm font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
                 Basic Information
@@ -256,7 +253,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
             <div>
               <h3
                 className={`text-sm font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
                 Location
@@ -332,7 +329,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
             <div>
               <h3
                 className={`text-sm font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
                 Contact Information
@@ -383,7 +380,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
             <div>
               <h3
                 className={`text-sm font-semibold uppercase tracking-wide mb-3 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
                 Capacity & Status
@@ -423,7 +420,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 <div className="flex items-end">
                   <label
                     className={`flex items-center gap-2 cursor-pointer ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                      isDarkMode ? "text-gray-300" : "text-gray-700"
                     }`}
                   >
                     <input
@@ -444,8 +441,8 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
           <div
             className={`flex items-center justify-end gap-3 px-6 py-4 border-t ${
               isDarkMode
-                ? 'border-gray-700 bg-gray-800/50'
-                : 'border-gray-200 bg-gray-50'
+                ? "border-gray-700 bg-gray-800/50"
+                : "border-gray-200 bg-gray-50"
             }`}
           >
             <button
@@ -453,8 +450,8 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               onClick={onClose}
               className={`px-4 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-100"
               }`}
             >
               Cancel
@@ -465,10 +462,10 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving
-                ? 'Saving...'
+                ? "Saving..."
                 : isEditing
-                  ? 'Update Warehouse'
-                  : 'Create Warehouse'}
+                  ? "Update Warehouse"
+                  : "Create Warehouse"}
             </button>
           </div>
         </form>
