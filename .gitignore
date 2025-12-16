@@ -10,5 +10,19 @@ dist
 .env.*.local
 .env.development
 .env.production
+
 # Claude Code configuration
 .claude/
+
+# Puppeteer/Chromium binaries (large, should be installed per-environment)
+chromium/
+.cache/puppeteer/
+
+# Test artifacts
+test-result.png
+test-error.png
+puppeteer-demo.png
+*.test.png
+
+# Puppeteer test scripts (keep these in version control but ignore artifacts)
+# test-*.js files are kept tracked
