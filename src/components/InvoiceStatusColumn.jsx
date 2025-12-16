@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
-import StatusBadge from "./StatusBadge";
-import { getInvoiceStatusBadges } from "../utils/invoiceStatus";
+import React from 'react';
+import PropTypes from 'prop-types';
+import StatusBadge from './StatusBadge';
+import { getInvoiceStatusBadges } from '../utils/invoiceStatus';
 
 /**
  * Invoice Status Column Component
@@ -25,10 +25,10 @@ const InvoiceStatusColumn = React.memo(
 
     // Separate status badges (invoice + payment) from other badges (reminder, promise)
     const statusBadges = badges.filter(
-      (b) => b.type === "invoice_status" || b.type === "payment_status",
+      (b) => b.type === 'invoice_status' || b.type === 'payment_status',
     );
     const otherBadges = badges.filter(
-      (b) => b.type !== "invoice_status" && b.type !== "payment_status",
+      (b) => b.type !== 'invoice_status' && b.type !== 'payment_status',
     );
 
     return (
@@ -58,7 +58,7 @@ const InvoiceStatusColumn = React.memo(
             config={badge.config}
             isDarkMode={isDarkMode}
             onClick={
-              badge.type === "promise" && onPromiseClick
+              badge.type === 'promise' && onPromiseClick
                 ? () => onPromiseClick(invoice)
                 : undefined
             }
@@ -71,7 +71,7 @@ const InvoiceStatusColumn = React.memo(
   },
 );
 
-InvoiceStatusColumn.displayName = "InvoiceStatusColumn";
+InvoiceStatusColumn.displayName = 'InvoiceStatusColumn';
 
 InvoiceStatusColumn.propTypes = {
   invoice: PropTypes.shape({

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { invoiceService } from "../services/invoiceService";
-import { warehouseService } from "../services/warehouseService";
-import notificationService from "../services/notificationService";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { invoiceService } from '../services/invoiceService';
+import { warehouseService } from '../services/warehouseService';
+import notificationService from '../services/notificationService';
 
 /**
  * Invoice Allocation Confirmation Screen
@@ -49,8 +49,8 @@ const InvoiceAllocationConfirmation = () => {
           setTimeRemaining(Math.max(0, Math.floor(remainingMs / 1000)));
         }
       } catch (err) {
-        console.error("Failed to load invoice:", err);
-        setError("Failed to load invoice details. Please try again.");
+        console.error('Failed to load invoice:', err);
+        setError('Failed to load invoice details. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -68,9 +68,9 @@ const InvoiceAllocationConfirmation = () => {
         if (prev <= 1) {
           // Time expired - auto-confirm will happen on backend
           notificationService.info(
-            "Time expired. Allocation has been automatically confirmed.",
+            'Time expired. Allocation has been automatically confirmed.',
           );
-          navigate("/invoices");
+          navigate('/invoices');
           return 0;
         }
         return prev - 1;
@@ -86,12 +86,12 @@ const InvoiceAllocationConfirmation = () => {
     try {
       setIsConfirming(true);
       await invoiceService.confirmInvoiceAllocation(invoiceId);
-      notificationService.success("Batch allocation confirmed successfully!");
-      navigate("/invoices");
+      notificationService.success('Batch allocation confirmed successfully!');
+      navigate('/invoices');
     } catch (err) {
-      console.error("Failed to confirm allocation:", err);
+      console.error('Failed to confirm allocation:', err);
       notificationService.error(
-        "Failed to confirm allocation. Please try again.",
+        'Failed to confirm allocation. Please try again.',
       );
     } finally {
       setIsConfirming(false);
@@ -102,7 +102,7 @@ const InvoiceAllocationConfirmation = () => {
     if (isReleasing) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to edit this invoice? The current batch allocation will be released.",
+      'Are you sure you want to edit this invoice? The current batch allocation will be released.',
     );
     if (!confirmed) return;
 
@@ -110,13 +110,13 @@ const InvoiceAllocationConfirmation = () => {
       setIsReleasing(true);
       await invoiceService.releaseInvoiceReservation(invoiceId);
       notificationService.info(
-        "Reservation released. You can now edit the invoice.",
+        'Reservation released. You can now edit the invoice.',
       );
       navigate(`/edit/${invoiceId}`);
     } catch (err) {
-      console.error("Failed to release reservation:", err);
+      console.error('Failed to release reservation:', err);
       notificationService.error(
-        "Failed to release reservation. Please try again.",
+        'Failed to release reservation. Please try again.',
       );
     } finally {
       setIsReleasing(false);
@@ -125,10 +125,10 @@ const InvoiceAllocationConfirmation = () => {
 
   // Format time remaining as MM:SS
   const formatTime = (seconds) => {
-    if (seconds === null) return "--:--";
+    if (seconds === null) return '--:--';
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
   if (isLoading) {
@@ -146,9 +146,9 @@ const InvoiceAllocationConfirmation = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="text-red-600 text-lg">{error || "Invoice not found"}</p>
+          <p className="text-red-600 text-lg">{error || 'Invoice not found'}</p>
           <button
-            onClick={() => navigate("/invoices")}
+            onClick={() => navigate('/invoices')}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Back to Invoices
@@ -167,7 +167,7 @@ const InvoiceAllocationConfirmation = () => {
             This invoice does not require confirmation.
           </p>
           <button
-            onClick={() => navigate("/invoices")}
+            onClick={() => navigate('/invoices')}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Back to Invoices
@@ -198,10 +198,10 @@ const InvoiceAllocationConfirmation = () => {
             <div
               className={`text-4xl font-bold ${
                 timeRemaining > 60
-                  ? "text-green-600"
+                  ? 'text-green-600'
                   : timeRemaining > 30
-                    ? "text-yellow-600"
-                    : "text-red-600"
+                    ? 'text-yellow-600'
+                    : 'text-red-600'
               }`}
             >
               {formatTime(timeRemaining)}
@@ -228,7 +228,7 @@ const InvoiceAllocationConfirmation = () => {
               <div className="ml-3">
                 <p className="text-sm text-yellow-800">
                   <strong>Action Required:</strong> Please review the batch
-                  allocation below and confirm within{" "}
+                  allocation below and confirm within{' '}
                   {formatTime(timeRemaining)}. If no action is taken, the
                   allocation will be automatically confirmed.
                 </p>
@@ -280,15 +280,15 @@ const InvoiceAllocationConfirmation = () => {
                           <span
                             key={wh.id}
                             className={`text-xs font-medium ${
-                              hasStock ? "text-gray-700" : "text-red-500"
+                              hasStock ? 'text-gray-700' : 'text-red-500'
                             }`}
                           >
-                            {wh.name || wh.code}{" "}
+                            {wh.name || wh.code}{' '}
                             <span
                               className={
                                 hasStock
-                                  ? "text-green-600 font-bold"
-                                  : "text-red-500 font-bold"
+                                  ? 'text-green-600 font-bold'
+                                  : 'text-red-500 font-bold'
                               }
                             >
                               {totalQty}
@@ -330,29 +330,29 @@ const InvoiceAllocationConfirmation = () => {
                         return (
                           <tr key={allocationIndex}>
                             <td className="px-4 py-2 text-sm text-gray-900">
-                              {allocation.batchNumber || "N/A"}
+                              {allocation.batchNumber || 'N/A'}
                             </td>
                             <td className="px-4 py-2 text-sm text-gray-600">
-                              {warehouse?.name || warehouse?.code || "N/A"}
+                              {warehouse?.name || warehouse?.code || 'N/A'}
                             </td>
                             <td className="px-4 py-2 text-sm">
                               <span
                                 className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                  allocation.procurementChannel === "IMPORT"
-                                    ? "bg-blue-100 text-blue-800"
-                                    : allocation.procurementChannel === "LOCAL"
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-100 text-gray-800"
+                                  allocation.procurementChannel === 'IMPORT'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : allocation.procurementChannel === 'LOCAL'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-gray-100 text-gray-800'
                                 }`}
                               >
-                                {allocation.procurementChannel || "N/A"}
+                                {allocation.procurementChannel || 'N/A'}
                               </span>
                             </td>
                             <td className="px-4 py-2 text-sm text-right font-medium text-gray-900">
                               {allocation.quantity}
                             </td>
                             <td className="px-4 py-2 text-sm text-gray-600">
-                              {allocation.origin || "N/A"}
+                              {allocation.origin || 'N/A'}
                             </td>
                           </tr>
                         );
@@ -373,7 +373,7 @@ const InvoiceAllocationConfirmation = () => {
           disabled={isReleasing || isExpired}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isReleasing ? "Releasing..." : "Edit Invoice"}
+          {isReleasing ? 'Releasing...' : 'Edit Invoice'}
         </button>
 
         <button
@@ -381,7 +381,7 @@ const InvoiceAllocationConfirmation = () => {
           disabled={isConfirming || isExpired}
           className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isConfirming ? "Confirming..." : "Confirm Allocation"}
+          {isConfirming ? 'Confirming...' : 'Confirm Allocation'}
         </button>
       </div>
     </div>

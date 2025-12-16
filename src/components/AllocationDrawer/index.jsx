@@ -1,14 +1,14 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import PropTypes from "prop-types";
-import { v4 as uuidv4 } from "uuid";
-import ProductSelector from "./ProductSelector";
-import BatchAllocationPanel from "./BatchAllocationPanel";
-import ReservationTimer from "./ReservationTimer";
-import SourceTypeSelector from "./SourceTypeSelector";
-import WarehouseAvailability from "./WarehouseAvailability";
-import { useReservations } from "../../hooks/useReservations";
-import pricelistService from "../../services/pricelistService";
-import "./AllocationDrawer.css";
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
+import ProductSelector from './ProductSelector';
+import BatchAllocationPanel from './BatchAllocationPanel';
+import ReservationTimer from './ReservationTimer';
+import SourceTypeSelector from './SourceTypeSelector';
+import WarehouseAvailability from './WarehouseAvailability';
+import { useReservations } from '../../hooks/useReservations';
+import pricelistService from '../../services/pricelistService';
+import './AllocationDrawer.css';
 
 /**
  * AllocationDrawer Component
@@ -43,11 +43,11 @@ const AllocationDrawer = ({
   const [drawerState, setDrawerState] = useState({
     product: null,
     productId: null,
-    productName: "",
-    quantity: "",
-    unit: "PCS",
-    unitPrice: "",
-    sourceType: "WAREHOUSE", // WAREHOUSE | LOCAL_DROP_SHIP | IMPORT_DROP_SHIP
+    productName: '',
+    quantity: '',
+    unit: 'PCS',
+    unitPrice: '',
+    sourceType: 'WAREHOUSE', // WAREHOUSE | LOCAL_DROP_SHIP | IMPORT_DROP_SHIP
     selectedAllocations: [],
     allocationMethod: null, // 'FIFO' | 'MANUAL' | null - tracks how allocation was made
     loading: false,
@@ -123,7 +123,7 @@ const AllocationDrawer = ({
           });
         }
       } catch (err) {
-        console.error("Failed to fetch product price:", err);
+        console.error('Failed to fetch product price:', err);
 
         // Only update error if this is the latest request
         if (requestId === priceRequestIdRef.current) {
@@ -131,7 +131,7 @@ const AllocationDrawer = ({
             ...prev,
             priceLoading: false,
             error: !prev.unitPrice
-              ? "Could not fetch price from price list. Please enter manually."
+              ? 'Could not fetch price from price list. Please enter manually.'
               : null,
           }));
         }
@@ -171,24 +171,32 @@ const AllocationDrawer = ({
   ]);
 
   // Handle product selection
-  const handleProductSelect = useCallback((product) => {
-    setDrawerState((prev) => ({
-      ...prev,
-      product,
-      productId: product?.id || null,
-      productName: product?.displayName || product?.name || "",
-      // Reset allocations when product changes
-      selectedAllocations: [],
-      // Clear error when product changes
-      error: null,
-    }));
-  }, []);
+  const handleProductSelect = useCallback(
+    (product) => {
+      setDrawerState((prev) => ({
+        ...prev,
+        product,
+        productId: product?.id || null,
+        productName: product?.displayName || product?.name || '',
+        // Reset allocations when product changes
+        selectedAllocations: [],
+        // Clear error when product changes
+        error: null,
+      }));
+
+      // Clear any existing reservation and its error state when product changes
+      if (reservationId) {
+        cancelReservation();
+      }
+    },
+    [reservationId, cancelReservation],
+  );
 
   // Handle quantity change
   const handleQuantityChange = useCallback((e) => {
     const value = e.target.value;
     // Allow empty or valid decimal numbers
-    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setDrawerState((prev) => ({
         ...prev,
         quantity: value,
@@ -209,7 +217,7 @@ const AllocationDrawer = ({
   // Handle unit price change
   const handleUnitPriceChange = useCallback((e) => {
     const value = e.target.value;
-    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setDrawerState((prev) => ({
         ...prev,
         unitPrice: value,
@@ -224,7 +232,7 @@ const AllocationDrawer = ({
     setDrawerState((prev) => ({
       ...prev,
       unitPriceOverridden: false,
-      unitPrice: "",
+      unitPrice: '',
     }));
     const qty = parseFloat(drawerState.quantity) || 1;
     fetchProductPrice(drawerState.productId, qty);
@@ -237,7 +245,7 @@ const AllocationDrawer = ({
       sourceType,
       // Clear allocations when switching away from warehouse
       selectedAllocations:
-        sourceType === "WAREHOUSE" ? prev.selectedAllocations : [],
+        sourceType === 'WAREHOUSE' ? prev.selectedAllocations : [],
     }));
   }, []);
 
@@ -258,7 +266,7 @@ const AllocationDrawer = ({
         allocations?.length > 0
       ) {
         const confirmed = window.confirm(
-          "Changing warehouse will clear current batch allocations. Continue?",
+          'Changing warehouse will clear current batch allocations. Continue?',
         );
         if (!confirmed) return;
       }
@@ -266,14 +274,14 @@ const AllocationDrawer = ({
       // Cancel existing reservations
       if (reservationId) {
         console.log(
-          "[WAREHOUSE CHANGE] Cancelling reservation:",
+          '[WAREHOUSE CHANGE] Cancelling reservation:',
           reservationId,
         );
         try {
           await cancelReservation();
         } catch (err) {
           console.warn(
-            "Failed to cancel reservation on warehouse change:",
+            'Failed to cancel reservation on warehouse change:',
             err,
           );
         }
@@ -301,7 +309,7 @@ const AllocationDrawer = ({
     setDrawerState((prev) => ({
       ...prev,
       selectedAllocations: [],
-      error: "Reservation expired. Please re-allocate batches.",
+      error: 'Reservation expired. Please re-allocate batches.',
     }));
   }, []);
 
@@ -313,7 +321,7 @@ const AllocationDrawer = ({
     if (!drawerState.unitPrice || parseFloat(drawerState.unitPrice) <= 0)
       return false;
 
-    if (drawerState.sourceType === "WAREHOUSE") {
+    if (drawerState.sourceType === 'WAREHOUSE') {
       // Must have allocations matching quantity
       const allocatedQty = (allocations || []).reduce(
         (sum, a) => sum + parseFloat(a.quantity || 0),
@@ -335,7 +343,7 @@ const AllocationDrawer = ({
 
   // Calculate total cost
   const totalCost = useMemo(() => {
-    if (drawerState.sourceType === "WAREHOUSE" && allocations?.length > 0) {
+    if (drawerState.sourceType === 'WAREHOUSE' && allocations?.length > 0) {
       return allocations.reduce(
         (sum, a) => sum + parseFloat(a.totalCost || 0),
         0,
@@ -365,11 +373,11 @@ const AllocationDrawer = ({
     setDrawerState({
       product: null,
       productId: null,
-      productName: "",
-      quantity: "",
-      unit: "PCS",
-      unitPrice: "",
-      sourceType: "WAREHOUSE",
+      productName: '',
+      quantity: '',
+      unit: 'PCS',
+      unitPrice: '',
+      sourceType: 'WAREHOUSE',
       selectedAllocations: [],
       allocationMethod: null,
       loading: false,
@@ -391,18 +399,18 @@ const AllocationDrawer = ({
       rate: parseFloat(drawerState.unitPrice),
       amount: totalCost,
       sourceType: drawerState.sourceType,
-      warehouseId: drawerState.sourceType === "WAREHOUSE" ? warehouseId : null,
-      allocations: drawerState.sourceType === "WAREHOUSE" ? allocations : [],
+      warehouseId: drawerState.sourceType === 'WAREHOUSE' ? warehouseId : null,
+      allocations: drawerState.sourceType === 'WAREHOUSE' ? allocations : [],
       allocationMode:
-        drawerState.sourceType === "WAREHOUSE"
-          ? drawerState.allocationMethod || "AUTO_FIFO"
+        drawerState.sourceType === 'WAREHOUSE'
+          ? drawerState.allocationMethod || 'AUTO_FIFO'
           : null,
       reservationId,
       expiresAt,
     };
 
     // VERIFICATION LOG: Line item added to invoice
-    console.log("[ADD LINE ITEM] Sending to parent:", {
+    console.log('[ADD LINE ITEM] Sending to parent:', {
       lineItemTempId,
       name: lineItem.name,
       quantity: lineItem.quantity,
@@ -434,18 +442,18 @@ const AllocationDrawer = ({
   // Wrap onCancel to cancel reservation on drawer close
   const handleCancel = useCallback(async () => {
     if (reservationId) {
-      console.log("[DRAWER CLOSE] Cancelling active reservation:", {
+      console.log('[DRAWER CLOSE] Cancelling active reservation:', {
         reservationId,
         lineItemTempId,
       });
       try {
         await cancelReservation();
-        console.log("[DRAWER CLOSE] Reservation cancelled successfully");
+        console.log('[DRAWER CLOSE] Reservation cancelled successfully');
       } catch (err) {
-        console.warn("[DRAWER CLOSE] Failed to cancel reservation:", err);
+        console.warn('[DRAWER CLOSE] Failed to cancel reservation:', err);
       }
     } else {
-      console.log("[DRAWER CLOSE] No active reservation to cancel");
+      console.log('[DRAWER CLOSE] No active reservation to cancel');
     }
     if (onCancel) onCancel();
   }, [reservationId, lineItemTempId, cancelReservation, onCancel]);
@@ -521,7 +529,7 @@ const AllocationDrawer = ({
                     Unit Price (AED) *
                     {drawerState.priceLoading && (
                       <span className="price-loading-indicator">
-                        {" "}
+                        {' '}
                         (Fetching...)
                       </span>
                     )}
@@ -540,11 +548,11 @@ const AllocationDrawer = ({
                 <input
                   type="text"
                   id="unitPrice"
-                  className={`form-input ${drawerState.priceLoading ? "loading" : ""}`}
+                  className={`form-input ${drawerState.priceLoading ? 'loading' : ''}`}
                   value={drawerState.unitPrice}
                   onChange={handleUnitPriceChange}
                   placeholder={
-                    drawerState.priceLoading ? "Loading price..." : "0.00"
+                    drawerState.priceLoading ? 'Loading price...' : '0.00'
                   }
                   disabled={drawerState.priceLoading}
                 />
@@ -560,7 +568,7 @@ const AllocationDrawer = ({
         />
 
         {/* Batch Allocation Panel (only for Warehouse source) */}
-        {drawerState.sourceType === "WAREHOUSE" && drawerState.productId && (
+        {drawerState.sourceType === 'WAREHOUSE' && drawerState.productId && (
           <BatchAllocationPanel
             productId={drawerState.productId}
             warehouseId={drawerState.selectedWarehouseId}
@@ -579,7 +587,7 @@ const AllocationDrawer = ({
         )}
 
         {/* Reservation Timer */}
-        {expiresAt && drawerState.sourceType === "WAREHOUSE" && (
+        {expiresAt && drawerState.sourceType === 'WAREHOUSE' && (
           <ReservationTimer
             expiresAt={expiresAt}
             onExpired={handleReservationExpired}
@@ -588,12 +596,12 @@ const AllocationDrawer = ({
         )}
 
         {/* Allocation Summary */}
-        {drawerState.sourceType === "WAREHOUSE" && allocations?.length > 0 && (
+        {drawerState.sourceType === 'WAREHOUSE' && allocations?.length > 0 && (
           <div className="allocation-summary">
             <div className="summary-row">
               <span>Allocated:</span>
               <strong>
-                {allocatedQuantity.toFixed(3)} / {requiredQty.toFixed(3)}{" "}
+                {allocatedQuantity.toFixed(3)} / {requiredQty.toFixed(3)}{' '}
                 {drawerState.unit}
               </strong>
             </div>
@@ -630,7 +638,7 @@ const AllocationDrawer = ({
           onClick={handleAddToInvoice}
           disabled={!isValid || reservationLoading}
         >
-          {reservationLoading ? "Loading..." : "Add to Invoice"}
+          {reservationLoading ? 'Loading...' : 'Add to Invoice'}
         </button>
       </div>
     </div>

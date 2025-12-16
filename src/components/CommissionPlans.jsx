@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useTheme } from "../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   Settings,
   Plus,
@@ -13,9 +13,9 @@ import {
   UserPlus,
   Check,
   Calendar,
-} from "lucide-react";
-import { commissionService } from "../services/commissionService";
-import { notificationService } from "../services/notificationService";
+} from 'lucide-react';
+import { commissionService } from '../services/commissionService';
+import { notificationService } from '../services/notificationService';
 
 const CommissionPlans = () => {
   const { isDarkMode } = useTheme();
@@ -25,8 +25,8 @@ const CommissionPlans = () => {
   const [editingPlan, setEditingPlan] = useState(null);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    name: '',
+    description: '',
     is_active: true,
     tiers: [{ min_amount: 0, max_amount: null, rate: 0 }],
   });
@@ -36,7 +36,7 @@ const CommissionPlans = () => {
   const [assigningPlan, setAssigningPlan] = useState(null);
   const [availableUsers, setAvailableUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState(new Set());
-  const [effectiveDate, setEffectiveDate] = useState("");
+  const [effectiveDate, setEffectiveDate] = useState('');
   const [assigning, setAssigning] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
@@ -50,8 +50,8 @@ const CommissionPlans = () => {
       const response = await commissionService.getPlans();
       setPlans(response?.plans || []);
     } catch (error) {
-      console.error("Error loading plans:", error);
-      notificationService.error("Failed to load commission plans");
+      console.error('Error loading plans:', error);
+      notificationService.error('Failed to load commission plans');
     } finally {
       setLoading(false);
     }
@@ -60,8 +60,8 @@ const CommissionPlans = () => {
   const handleCreate = () => {
     setEditingPlan(null);
     setFormData({
-      name: "",
-      description: "",
+      name: '',
+      description: '',
       is_active: true,
       tiers: [{ min_amount: 0, max_amount: null, rate: 0 }],
     });
@@ -72,7 +72,7 @@ const CommissionPlans = () => {
     setEditingPlan(plan);
     setFormData({
       name: plan.name,
-      description: plan.description || "",
+      description: plan.description || '',
       is_active: plan.isActive,
       tiers: plan.tiers || [{ min_amount: 0, max_amount: null, rate: 0 }],
     });
@@ -80,23 +80,23 @@ const CommissionPlans = () => {
   };
 
   const handleDelete = async (planId) => {
-    if (!confirm("Are you sure you want to delete this plan?")) {
+    if (!confirm('Are you sure you want to delete this plan?')) {
       return;
     }
 
     try {
       await commissionService.deletePlan(planId);
-      notificationService.success("Plan deleted successfully");
+      notificationService.success('Plan deleted successfully');
       loadPlans();
     } catch (error) {
-      console.error("Error deleting plan:", error);
-      notificationService.error("Failed to delete plan");
+      console.error('Error deleting plan:', error);
+      notificationService.error('Failed to delete plan');
     }
   };
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      notificationService.error("Please enter a plan name");
+      notificationService.error('Please enter a plan name');
       return;
     }
 
@@ -104,16 +104,16 @@ const CommissionPlans = () => {
       setSaving(true);
       if (editingPlan) {
         await commissionService.updatePlan(editingPlan.id, formData);
-        notificationService.success("Plan updated successfully");
+        notificationService.success('Plan updated successfully');
       } else {
         await commissionService.createPlan(formData);
-        notificationService.success("Plan created successfully");
+        notificationService.success('Plan created successfully');
       }
       setShowModal(false);
       loadPlans();
     } catch (error) {
-      console.error("Error saving plan:", error);
-      notificationService.error("Failed to save plan");
+      console.error('Error saving plan:', error);
+      notificationService.error('Failed to save plan');
     } finally {
       setSaving(false);
     }
@@ -139,7 +139,7 @@ const CommissionPlans = () => {
 
   const removeTier = (index) => {
     if (formData.tiers.length === 1) {
-      notificationService.warning("Plan must have at least one tier");
+      notificationService.warning('Plan must have at least one tier');
       return;
     }
     const newTiers = formData.tiers.filter((_, i) => i !== index);
@@ -149,7 +149,7 @@ const CommissionPlans = () => {
   const openAssignModal = async (plan) => {
     setAssigningPlan(plan);
     setSelectedUsers(new Set());
-    setEffectiveDate(new Date().toISOString().split("T")[0]);
+    setEffectiveDate(new Date().toISOString().split('T')[0]);
     setShowAssignModal(true);
 
     try {
@@ -157,8 +157,8 @@ const CommissionPlans = () => {
       const response = await commissionService.getAgents(1, 100, false);
       setAvailableUsers(response?.agents || []);
     } catch (error) {
-      console.error("Error loading users:", error);
-      notificationService.error("Failed to load users");
+      console.error('Error loading users:', error);
+      notificationService.error('Failed to load users');
     } finally {
       setLoadingUsers(false);
     }
@@ -176,11 +176,11 @@ const CommissionPlans = () => {
 
   const handleAssignPlan = async () => {
     if (selectedUsers.size === 0) {
-      notificationService.warning("Please select at least one user");
+      notificationService.warning('Please select at least one user');
       return;
     }
     if (!effectiveDate) {
-      notificationService.warning("Please select an effective date");
+      notificationService.warning('Please select an effective date');
       return;
     }
 
@@ -202,8 +202,8 @@ const CommissionPlans = () => {
       setAssigningPlan(null);
       loadPlans(); // Refresh to update agent counts
     } catch (error) {
-      console.error("Error assigning plan:", error);
-      notificationService.error(error.message || "Failed to assign plan");
+      console.error('Error assigning plan:', error);
+      notificationService.error(error.message || 'Failed to assign plan');
     } finally {
       setAssigning(false);
     }
@@ -215,7 +215,7 @@ const CommissionPlans = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p
-            className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
           >
             Loading commission plans...
           </p>
@@ -230,12 +230,12 @@ const CommissionPlans = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2
-            className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             Commission Plans
           </h2>
           <p
-            className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
           >
             Manage commission rate structures and tiered plans
           </p>
@@ -254,20 +254,20 @@ const CommissionPlans = () => {
         <div
           className={`text-center py-12 rounded-lg border ${
             isDarkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
+              ? 'bg-gray-800 border-gray-700'
+              : 'bg-white border-gray-200'
           }`}
         >
           <Settings
-            className={`h-16 w-16 mx-auto ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+            className={`h-16 w-16 mx-auto ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
           />
           <h3
-            className={`mt-4 text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`mt-4 text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             No commission plans yet
           </h3>
           <p
-            className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
           >
             Create your first commission plan to get started
           </p>
@@ -286,8 +286,8 @@ const CommissionPlans = () => {
               key={plan.id}
               className={`rounded-lg p-6 border ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-white border-gray-200'
               } hover:shadow-lg transition-shadow`}
             >
               {/* Plan Header */}
@@ -295,7 +295,7 @@ const CommissionPlans = () => {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
                     <h3
-                      className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {plan.name}
                     </h3>
@@ -307,7 +307,7 @@ const CommissionPlans = () => {
                   </div>
                   {plan.description && (
                     <p
-                      className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       {plan.description}
                     </p>
@@ -318,8 +318,8 @@ const CommissionPlans = () => {
                     onClick={() => openAssignModal(plan)}
                     className={`p-2 rounded-lg ${
                       isDarkMode
-                        ? "hover:bg-blue-900/20 text-gray-400 hover:text-blue-400"
-                        : "hover:bg-blue-50 text-gray-600 hover:text-blue-600"
+                        ? 'hover:bg-blue-900/20 text-gray-400 hover:text-blue-400'
+                        : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600'
                     }`}
                     title="Assign to Users"
                   >
@@ -329,8 +329,8 @@ const CommissionPlans = () => {
                     onClick={() => handleEdit(plan)}
                     className={`p-2 rounded-lg ${
                       isDarkMode
-                        ? "hover:bg-gray-700 text-gray-400 hover:text-white"
-                        : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
+                        ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                        : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
                     }`}
                   >
                     <Edit2 className="h-4 w-4" />
@@ -339,8 +339,8 @@ const CommissionPlans = () => {
                     onClick={() => handleDelete(plan.id)}
                     className={`p-2 rounded-lg ${
                       isDarkMode
-                        ? "hover:bg-red-900/20 text-gray-400 hover:text-red-400"
-                        : "hover:bg-red-50 text-gray-600 hover:text-red-600"
+                        ? 'hover:bg-red-900/20 text-gray-400 hover:text-red-400'
+                        : 'hover:bg-red-50 text-gray-600 hover:text-red-600'
                     }`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -352,7 +352,7 @@ const CommissionPlans = () => {
               <div className="space-y-2">
                 <p
                   className={`text-xs font-medium uppercase tracking-wide ${
-                    isDarkMode ? "text-gray-400" : "text-gray-600"
+                    isDarkMode ? 'text-gray-400' : 'text-gray-600'
                   }`}
                 >
                   Commission Tiers
@@ -361,31 +361,31 @@ const CommissionPlans = () => {
                   <div
                     key={index}
                     className={`p-3 rounded-lg ${
-                      isDarkMode ? "bg-gray-700" : "bg-gray-50"
+                      isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <p
-                          className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                          className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                         >
                           {tier.minAmount !== null &&
                           tier.minAmount !== undefined ? (
-                            <>
+                              <>
                               ₹{tier.minAmount.toLocaleString()}
-                              {tier.maxAmount !== null &&
+                                {tier.maxAmount !== null &&
                               tier.maxAmount !== undefined
-                                ? ` - ₹${tier.maxAmount.toLocaleString()}`
-                                : "+"}
-                            </>
-                          ) : (
-                            "All amounts"
-                          )}
+                                  ? ` - ₹${tier.maxAmount.toLocaleString()}`
+                                  : '+'}
+                              </>
+                            ) : (
+                              'All amounts'
+                            )}
                         </p>
                       </div>
                       <div
                         className={`flex items-center space-x-1 font-semibold ${
-                          isDarkMode ? "text-white" : "text-gray-900"
+                          isDarkMode ? 'text-white' : 'text-gray-900'
                         }`}
                       >
                         <span>{tier.rate}%</span>
@@ -399,14 +399,14 @@ const CommissionPlans = () => {
               {/* Stats */}
               {plan.agentCount > 0 && (
                 <div
-                  className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                  className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                 >
                   <div className="flex items-center space-x-2">
                     <Users
-                      className={`h-4 w-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`h-4 w-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     />
                     <span
-                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       {plan.agentCount} agent(s) assigned
                     </span>
@@ -423,21 +423,21 @@ const CommissionPlans = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
             className={`rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto ${
-              isDarkMode ? "bg-gray-800" : "bg-white"
+              isDarkMode ? 'bg-gray-800' : 'bg-white'
             }`}
           >
             {/* Modal Header */}
             <div
-              className={`p-6 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} sticky top-0 ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
+              className={`p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} sticky top-0 ${
+                isDarkMode ? 'bg-gray-800' : 'bg-white'
               }`}
             >
               <h3
-                className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 {editingPlan
-                  ? "Edit Commission Plan"
-                  : "Create Commission Plan"}
+                  ? 'Edit Commission Plan'
+                  : 'Create Commission Plan'}
               </h3>
             </div>
 
@@ -449,7 +449,7 @@ const CommissionPlans = () => {
                   <label
                     htmlFor="plan-name"
                     className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
                   >
                     Plan Name <span className="text-red-500">*</span>
@@ -463,8 +463,8 @@ const CommissionPlans = () => {
                     }
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode
-                        ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Standard Sales Plan"
                   />
@@ -474,7 +474,7 @@ const CommissionPlans = () => {
                   <label
                     htmlFor="plan-description"
                     className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
                   >
                     Description
@@ -488,8 +488,8 @@ const CommissionPlans = () => {
                     rows={2}
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode
-                        ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Optional description for this plan"
                   />
@@ -508,7 +508,7 @@ const CommissionPlans = () => {
                   <label
                     htmlFor="is_active"
                     className={`text-sm ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
                   >
                     Active (can be assigned to agents)
@@ -521,7 +521,7 @@ const CommissionPlans = () => {
                 <div className="flex items-center justify-between mb-3">
                   <span
                     className={`text-sm font-medium ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
                   >
                     Commission Tiers
@@ -537,18 +537,18 @@ const CommissionPlans = () => {
 
                 <div
                   className={`p-3 rounded-lg mb-3 ${
-                    isDarkMode ? "bg-gray-700" : "bg-blue-50"
+                    isDarkMode ? 'bg-gray-700' : 'bg-blue-50'
                   }`}
                 >
                   <div className="flex items-start space-x-2">
                     <Info
                       className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                        isDarkMode ? "text-blue-400" : "text-blue-600"
+                        isDarkMode ? 'text-blue-400' : 'text-blue-600'
                       }`}
                     />
                     <p
                       className={`text-xs ${
-                        isDarkMode ? "text-gray-300" : "text-blue-900"
+                        isDarkMode ? 'text-gray-300' : 'text-blue-900'
                       }`}
                     >
                       Define tiered commission rates based on sale amounts.
@@ -563,14 +563,14 @@ const CommissionPlans = () => {
                       key={index}
                       className={`p-4 rounded-lg border ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600"
-                          : "bg-gray-50 border-gray-200"
+                          ? 'bg-gray-700 border-gray-600'
+                          : 'bg-gray-50 border-gray-200'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <span
                           className={`text-sm font-medium ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
                           }`}
                         >
                           Tier {index + 1}
@@ -580,8 +580,8 @@ const CommissionPlans = () => {
                             onClick={() => removeTier(index)}
                             className={`p-1 rounded ${
                               isDarkMode
-                                ? "hover:bg-red-900/20 text-gray-400 hover:text-red-400"
-                                : "hover:bg-red-50 text-gray-600 hover:text-red-600"
+                                ? 'hover:bg-red-900/20 text-gray-400 hover:text-red-400'
+                                : 'hover:bg-red-50 text-gray-600 hover:text-red-600'
                             }`}
                           >
                             <X className="h-4 w-4" />
@@ -593,7 +593,7 @@ const CommissionPlans = () => {
                           <label
                             htmlFor={`tier-${index}-min`}
                             className={`block text-xs mb-1 ${
-                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                              isDarkMode ? 'text-gray-400' : 'text-gray-600'
                             }`}
                           >
                             Min Amount (₹)
@@ -603,18 +603,18 @@ const CommissionPlans = () => {
                             type="number"
                             step="0.01"
                             min="0"
-                            value={tier.minAmount || ""}
+                            value={tier.minAmount || ''}
                             onChange={(e) =>
                               updateTier(
                                 index,
-                                "min_amount",
+                                'min_amount',
                                 parseFloat(e.target.value) || 0,
                               )
                             }
                             className={`w-full px-3 py-2 rounded-lg border ${
                               isDarkMode
-                                ? "bg-gray-600 border-gray-500 text-white"
-                                : "bg-white border-gray-300 text-gray-900"
+                                ? 'bg-gray-600 border-gray-500 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
                             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                           />
                         </div>
@@ -622,7 +622,7 @@ const CommissionPlans = () => {
                           <label
                             htmlFor={`tier-${index}-max`}
                             className={`block text-xs mb-1 ${
-                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                              isDarkMode ? 'text-gray-400' : 'text-gray-600'
                             }`}
                           >
                             Max Amount (₹)
@@ -632,11 +632,11 @@ const CommissionPlans = () => {
                             type="number"
                             step="0.01"
                             min="0"
-                            value={tier.maxAmount || ""}
+                            value={tier.maxAmount || ''}
                             onChange={(e) =>
                               updateTier(
                                 index,
-                                "max_amount",
+                                'max_amount',
                                 e.target.value
                                   ? parseFloat(e.target.value)
                                   : null,
@@ -644,8 +644,8 @@ const CommissionPlans = () => {
                             }
                             className={`w-full px-3 py-2 rounded-lg border ${
                               isDarkMode
-                                ? "bg-gray-600 border-gray-500 text-white"
-                                : "bg-white border-gray-300 text-gray-900"
+                                ? 'bg-gray-600 border-gray-500 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
                             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             placeholder="Unlimited"
                           />
@@ -654,7 +654,7 @@ const CommissionPlans = () => {
                           <label
                             htmlFor={`tier-${index}-rate`}
                             className={`block text-xs mb-1 ${
-                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                              isDarkMode ? 'text-gray-400' : 'text-gray-600'
                             }`}
                           >
                             Rate (%)
@@ -665,18 +665,18 @@ const CommissionPlans = () => {
                             step="0.01"
                             min="0"
                             max="100"
-                            value={tier.rate || ""}
+                            value={tier.rate || ''}
                             onChange={(e) =>
                               updateTier(
                                 index,
-                                "rate",
+                                'rate',
                                 parseFloat(e.target.value) || 0,
                               )
                             }
                             className={`w-full px-3 py-2 rounded-lg border ${
                               isDarkMode
-                                ? "bg-gray-600 border-gray-500 text-white"
-                                : "bg-white border-gray-300 text-gray-900"
+                                ? 'bg-gray-600 border-gray-500 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
                             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                           />
                         </div>
@@ -689,8 +689,8 @@ const CommissionPlans = () => {
 
             {/* Modal Footer */}
             <div
-              className={`p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3 sticky bottom-0 ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
+              className={`p-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-end space-x-3 sticky bottom-0 ${
+                isDarkMode ? 'bg-gray-800' : 'bg-white'
               }`}
             >
               <button
@@ -698,8 +698,8 @@ const CommissionPlans = () => {
                 disabled={saving}
                 className={`px-4 py-2 rounded-lg ${
                   isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 } transition-colors`}
               >
                 Cancel
@@ -710,7 +710,7 @@ const CommissionPlans = () => {
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
               >
                 <Save className="h-4 w-4" />
-                <span>{saving ? "Saving..." : "Save Plan"}</span>
+                <span>{saving ? 'Saving...' : 'Save Plan'}</span>
               </button>
             </div>
           </div>
@@ -722,19 +722,19 @@ const CommissionPlans = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
             className={`rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden ${
-              isDarkMode ? "bg-gray-800" : "bg-white"
+              isDarkMode ? 'bg-gray-800' : 'bg-white'
             }`}
           >
             {/* Modal Header */}
             <div
-              className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+              className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
             >
               <div className="flex items-center space-x-2">
                 <UserPlus
-                  className={`w-5 h-5 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
+                  className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
                 />
                 <h3
-                  className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Assign Plan: {assigningPlan.name}
                 </h3>
@@ -747,7 +747,7 @@ const CommissionPlans = () => {
               <div>
                 <label
                   htmlFor="effective-date"
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   <Calendar className="w-4 h-4 inline mr-1" />
                   Effective Date
@@ -759,8 +759,8 @@ const CommissionPlans = () => {
                   onChange={(e) => setEffectiveDate(e.target.value)}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300 text-gray-900"
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
@@ -768,7 +768,7 @@ const CommissionPlans = () => {
               {/* User Selection */}
               <div>
                 <label
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Select Users ({selectedUsers.size} selected)
                 </label>
@@ -777,14 +777,14 @@ const CommissionPlans = () => {
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                     <span
-                      className={`ml-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       Loading users...
                     </span>
                   </div>
                 ) : availableUsers.length === 0 ? (
                   <div
-                    className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
                     <p>No sales agents available</p>
@@ -796,7 +796,7 @@ const CommissionPlans = () => {
                         key={user.id}
                         onClick={() => toggleUserSelection(user.id)}
                         onKeyDown={(e) =>
-                          (e.key === "Enter" || e.key === " ") &&
+                          (e.key === 'Enter' || e.key === ' ') &&
                           toggleUserSelection(user.id)
                         }
                         role="button"
@@ -805,30 +805,30 @@ const CommissionPlans = () => {
                         className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                           selectedUsers.has(user.id)
                             ? isDarkMode
-                              ? "bg-blue-900/30 border-blue-700"
-                              : "bg-blue-50 border-blue-300"
+                              ? 'bg-blue-900/30 border-blue-700'
+                              : 'bg-blue-50 border-blue-300'
                             : isDarkMode
-                              ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                              : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                              ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
+                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <div
                               className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                isDarkMode ? "bg-gray-600" : "bg-gray-200"
+                                isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
                               }`}
                             >
                               <Users className="w-4 h-4" />
                             </div>
                             <div>
                               <p
-                                className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                                className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                               >
                                 {user.fullName || user.username}
                               </p>
                               <p
-                                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                               >
                                 {user.email || `ID: ${user.id}`}
                               </p>
@@ -847,7 +847,7 @@ const CommissionPlans = () => {
 
             {/* Modal Footer */}
             <div
-              className={`p-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3`}
+              className={`p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-end space-x-3`}
             >
               <button
                 onClick={() => {
@@ -857,8 +857,8 @@ const CommissionPlans = () => {
                 disabled={assigning}
                 className={`px-4 py-2 rounded-lg ${
                   isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 } disabled:opacity-50`}
               >
                 Cancel

@@ -5,7 +5,7 @@
  * Based on UAE VAT Law and FTA requirements
  */
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
   HelpCircle,
   ChevronDown,
@@ -24,8 +24,8 @@ import {
   BookOpen,
   ChevronsDown,
   ChevronsUp,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Collapsible section component
 const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
@@ -33,40 +33,40 @@ const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
 
   return (
     <div
-      className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}
+      className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}
     >
       <button
         type="button"
         onClick={onToggle}
         className={`w-full flex items-center justify-between py-4 px-1 text-left hover:bg-opacity-50 transition-colors ${
-          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center gap-3">
           {Icon && (
             <Icon
-              className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+              className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
             />
           )}
           <span
-            className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {title}
           </span>
         </div>
         {isOpen ? (
           <ChevronDown
-            className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           />
         ) : (
           <ChevronRight
-            className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           />
         )}
       </button>
       {isOpen && (
         <div
-          className={`pb-4 px-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+          className={`pb-4 px-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
         >
           {children}
         </div>
@@ -92,11 +92,11 @@ const ExtLink = ({ href, children }) => (
 const StatusBadge = ({ status, label }) => {
   const colors = {
     verified:
-      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     unverified:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-    notfound: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    invalid: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    notfound: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+    invalid: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
   };
 
   return (
@@ -158,19 +158,19 @@ const FTAHelpPanel = ({ onClose }) => {
 
   return (
     <div
-      className={`h-full flex flex-col ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+      className={`h-full flex flex-col ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
     >
       {/* Header */}
       <div
-        className={`px-5 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        className={`px-5 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <HelpCircle
-              className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+              className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
             />
             <h2
-              className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Help & Documentation
             </h2>
@@ -180,8 +180,8 @@ const FTAHelpPanel = ({ onClose }) => {
               onClick={expandAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
-                  ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
-                  : "hover:bg-gray-100 text-gray-600 hover:text-teal-600"
+                  ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400'
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
               }`}
               title="Expand All Sections"
             >
@@ -191,8 +191,8 @@ const FTAHelpPanel = ({ onClose }) => {
               onClick={collapseAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
-                  ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
-                  : "hover:bg-gray-100 text-gray-600 hover:text-teal-600"
+                  ? 'hover:bg-gray-700 text-gray-400 hover:text-teal-400'
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-teal-600'
               }`}
               title="Collapse All Sections"
             >
@@ -217,7 +217,7 @@ const FTAHelpPanel = ({ onClose }) => {
           title="Overview"
           icon={BookOpen}
           isOpen={openSections.overview}
-          onToggle={() => toggleSection("overview")}
+          onToggle={() => toggleSection('overview')}
         >
           <div className="space-y-4">
             <div>
@@ -263,18 +263,18 @@ const FTAHelpPanel = ({ onClose }) => {
                 Benefits of Automatic Verification
               </h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
+                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
                       <th className="px-3 py-2 text-left">Manual</th>
                       <th className="px-3 py-2 text-left">Automatic</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                     >
                       <td className="px-3 py-2">
                         Visit FTA portal for each check
@@ -282,13 +282,13 @@ const FTAHelpPanel = ({ onClose }) => {
                       <td className="px-3 py-2">Instant verification in app</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                     >
                       <td className="px-3 py-2">Time-consuming for bulk</td>
                       <td className="px-3 py-2">Verify hundreds in seconds</td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                     >
                       <td className="px-3 py-2">No audit trail</td>
                       <td className="px-3 py-2">Full history logged</td>
@@ -305,7 +305,7 @@ const FTAHelpPanel = ({ onClose }) => {
           title="How to Get FTA API Access"
           icon={Key}
           isOpen={openSections.access}
-          onToggle={() => toggleSection("access")}
+          onToggle={() => toggleSection('access')}
         >
           <div className="space-y-4">
             <div>
@@ -326,7 +326,7 @@ const FTAHelpPanel = ({ onClose }) => {
                   <strong>Log in to FTA e-Services Portal</strong>
                   <br />
                   <span className="ml-5">
-                    Visit:{" "}
+                    Visit:{' '}
                     <ExtLink href="https://eservices.tax.gov.ae">
                       eservices.tax.gov.ae
                     </ExtLink>
@@ -364,11 +364,11 @@ const FTAHelpPanel = ({ onClose }) => {
             </div>
 
             <div
-              className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-blue-50"}`}
+              className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-blue-50'}`}
             >
               <div className="flex items-start gap-2">
                 <Clock
-                  className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
+                  className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
                 />
                 <div className="text-sm">
                   <strong>Timeline & Fees</strong>
@@ -388,24 +388,24 @@ const FTAHelpPanel = ({ onClose }) => {
           title="Setting Up the Integration"
           icon={Settings}
           isOpen={openSections.setup}
-          onToggle={() => toggleSection("setup")}
+          onToggle={() => toggleSection('setup')}
         >
           <div className="space-y-4">
             <div>
               <h4 className="font-medium mb-2">Required Information</h4>
               <div
-                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+                className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
               >
                 <table className="w-full">
                   <thead>
-                    <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
+                    <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
                       <th className="px-3 py-2 text-left">Field</th>
                       <th className="px-3 py-2 text-left">Description</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                     >
                       <td className="px-3 py-2 font-medium">API URL</td>
                       <td className="px-3 py-2">
@@ -413,7 +413,7 @@ const FTAHelpPanel = ({ onClose }) => {
                       </td>
                     </tr>
                     <tr
-                      className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                      className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                     >
                       <td className="px-3 py-2 font-medium">API Key</td>
                       <td className="px-3 py-2">
@@ -442,11 +442,11 @@ const FTAHelpPanel = ({ onClose }) => {
             </div>
 
             <div
-              className={`p-3 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50"}`}
+              className={`p-3 rounded-lg ${isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-50'}`}
             >
               <div className="flex items-start gap-2">
                 <Lock
-                  className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
+                  className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
                 />
                 <div className="text-sm">
                   <strong>Understanding Soft-Lock</strong>
@@ -467,7 +467,7 @@ const FTAHelpPanel = ({ onClose }) => {
           title="How It Works"
           icon={CheckCircle}
           isOpen={openSections.howItWorks}
-          onToggle={() => toggleSection("howItWorks")}
+          onToggle={() => toggleSection('howItWorks')}
         >
           <div className="space-y-4">
             <div>
@@ -525,15 +525,15 @@ const FTAHelpPanel = ({ onClose }) => {
           title="Before You Have API Access"
           icon={AlertCircle}
           isOpen={openSections.beforeAccess}
-          onToggle={() => toggleSection("beforeAccess")}
+          onToggle={() => toggleSection('beforeAccess')}
         >
           <div className="space-y-4">
             <div
-              className={`p-3 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-50"}`}
+              className={`p-3 rounded-lg ${isDarkMode ? 'bg-green-900/30' : 'bg-green-50'}`}
             >
               <div className="flex items-start gap-2">
                 <CheckCircle
-                  className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                  className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                 />
                 <div className="text-sm">
                   <strong>The System Still Works</strong>
@@ -552,7 +552,7 @@ const FTAHelpPanel = ({ onClose }) => {
                   Click &quot;Verify Manually&quot; link next to any TRN field
                 </li>
                 <li>
-                  FTA page opens:{" "}
+                  FTA page opens:{' '}
                   <ExtLink href="https://tax.gov.ae/en/trn.verification.aspx">
                     tax.gov.ae/trn.verification
                   </ExtLink>
@@ -570,22 +570,22 @@ const FTAHelpPanel = ({ onClose }) => {
           title="Troubleshooting"
           icon={AlertCircle}
           isOpen={openSections.troubleshooting}
-          onToggle={() => toggleSection("troubleshooting")}
+          onToggle={() => toggleSection('troubleshooting')}
         >
           <div className="space-y-4">
             <div
-              className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+              className={`text-sm rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
             >
               <table className="w-full">
                 <thead>
-                  <tr className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}>
+                  <tr className={isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}>
                     <th className="px-3 py-2 text-left">Error</th>
                     <th className="px-3 py-2 text-left">Solution</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   <tr
-                    className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                    className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                   >
                     <td className="px-3 py-2 font-medium">Invalid API Key</td>
                     <td className="px-3 py-2">
@@ -593,7 +593,7 @@ const FTAHelpPanel = ({ onClose }) => {
                     </td>
                   </tr>
                   <tr
-                    className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                    className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                   >
                     <td className="px-3 py-2 font-medium">
                       Connection Timeout
@@ -603,7 +603,7 @@ const FTAHelpPanel = ({ onClose }) => {
                     </td>
                   </tr>
                   <tr
-                    className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                    className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                   >
                     <td className="px-3 py-2 font-medium">403 Forbidden</td>
                     <td className="px-3 py-2">
@@ -611,7 +611,7 @@ const FTAHelpPanel = ({ onClose }) => {
                     </td>
                   </tr>
                   <tr
-                    className={`border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                    className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                   >
                     <td className="px-3 py-2 font-medium">TRN Not Found</td>
                     <td className="px-3 py-2">
@@ -623,7 +623,7 @@ const FTAHelpPanel = ({ onClose }) => {
             </div>
 
             <div
-              className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+              className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
             >
               <h4 className="font-medium mb-2 flex items-center gap-2">
                 <Phone className="h-4 w-4" />
@@ -652,7 +652,7 @@ const FTAHelpPanel = ({ onClose }) => {
           title="Security & Compliance"
           icon={Shield}
           isOpen={openSections.security}
-          onToggle={() => toggleSection("security")}
+          onToggle={() => toggleSection('security')}
         >
           <div className="space-y-4">
             <div>
@@ -695,11 +695,11 @@ const FTAHelpPanel = ({ onClose }) => {
           title="Quick Reference"
           icon={FileText}
           isOpen={openSections.reference}
-          onToggle={() => toggleSection("reference")}
+          onToggle={() => toggleSection('reference')}
         >
           <div className="space-y-4">
             <div
-              className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+              className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
             >
               <h4 className="font-medium mb-2">Key Links</h4>
               <ul className="text-sm space-y-1">
@@ -719,7 +719,7 @@ const FTAHelpPanel = ({ onClose }) => {
             <div>
               <h4 className="font-medium mb-2">TRN Format</h4>
               <p className="text-sm">
-                15 digits, numeric only (e.g.,{" "}
+                15 digits, numeric only (e.g.,{' '}
                 <code className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">
                   100123456789012
                 </code>
@@ -744,7 +744,7 @@ const FTAHelpPanel = ({ onClose }) => {
 
       {/* Footer */}
       <div
-        className={`px-5 py-2 border-t text-xs ${isDarkMode ? "border-gray-700 text-gray-500" : "border-gray-200 text-gray-400"}`}
+        className={`px-5 py-2 border-t text-xs ${isDarkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400'}`}
       >
         Last Updated: November 2024
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Settings,
   Building,
@@ -45,61 +45,61 @@ import {
   Pencil,
   ThumbsUp,
   Tag,
-} from "lucide-react";
-import { companyService } from "../services/companyService";
-import { authService } from "../services/axiosAuthService";
-import { useApiData, useApi } from "../hooks/useApi";
-import { useTheme } from "../contexts/ThemeContext";
-import { notificationService } from "../services/notificationService";
-import { userAdminAPI } from "../services/userAdminApi";
-import vatRateService from "../services/vatRateService";
-import { apiClient as apiService } from "../services/api";
-import InvoiceTemplateSettings from "./InvoiceTemplateSettings";
-import FTAIntegrationSettings from "../pages/FTAIntegrationSettings";
-import ProductNamingHelpPanel from "./ProductNamingHelpPanel";
-import VATRulesHelpPanel from "./VATRulesHelpPanel";
-import { roleService } from "../services/roleService";
-import RolesHelpPanel from "./RolesHelpPanel";
+} from 'lucide-react';
+import { companyService } from '../services/companyService';
+import { authService } from '../services/axiosAuthService';
+import { useApiData, useApi } from '../hooks/useApi';
+import { useTheme } from '../contexts/ThemeContext';
+import { notificationService } from '../services/notificationService';
+import { userAdminAPI } from '../services/userAdminApi';
+import vatRateService from '../services/vatRateService';
+import { apiClient as apiService } from '../services/api';
+import InvoiceTemplateSettings from './InvoiceTemplateSettings';
+import FTAIntegrationSettings from '../pages/FTAIntegrationSettings';
+import ProductNamingHelpPanel from './ProductNamingHelpPanel';
+import VATRulesHelpPanel from './VATRulesHelpPanel';
+import { roleService } from '../services/roleService';
+import RolesHelpPanel from './RolesHelpPanel';
 
 // Custom Tailwind Components
 const Button = ({
   children,
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   disabled = false,
   onClick,
-  className = "",
+  className = '',
   startIcon,
-  as = "button",
+  as = 'button',
   ...props
 }) => {
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer";
+    'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer';
 
   const getVariantClasses = () => {
-    if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? "bg-gray-600" : "bg-gray-400"} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+    if (variant === 'primary') {
+      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-600' : 'bg-gray-400'} disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
     } else {
       // outline
-      return `border ${isDarkMode ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700" : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"} focus:ring-teal-500 disabled:${isDarkMode ? "bg-gray-800" : "bg-gray-50"} focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+      return `border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500 disabled:${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
     }
   };
 
   const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-3 text-base",
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-3 text-base',
   };
 
   const Component = as;
   const componentProps =
-    as === "button" ? { disabled, onClick, ...props } : { ...props };
+    as === 'button' ? { disabled, onClick, ...props } : { ...props };
 
   return (
     <Component
-      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed" : ""} ${className}`}
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : ''} ${className}`}
       {...componentProps}
     >
       {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
@@ -111,8 +111,8 @@ const Button = ({
 const Input = ({
   label,
   error,
-  className = "",
-  type = "text",
+  className = '',
+  type = 'text',
   startIcon,
   endIcon,
   ...props
@@ -123,7 +123,7 @@ const Input = ({
     <div className="space-y-1">
       {label && (
         <label
-          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+          className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
         >
           {label}
         </label>
@@ -131,18 +131,18 @@ const Input = ({
       <div className="relative">
         {startIcon && (
           <div
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             {startIcon}
           </div>
         )}
         <input
           type={type}
-          className={`w-full ${startIcon ? "pl-10" : "pl-3"} ${endIcon ? "pr-10" : "pr-3"} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+          className={`w-full ${startIcon ? 'pl-10' : 'pl-3'} ${endIcon ? 'pr-10' : 'pr-3'} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
             isDarkMode
-              ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-              : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-          } ${error ? "border-red-500" : ""} ${className}`}
+              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+          } ${error ? 'border-red-500' : ''} ${className}`}
           {...props}
         />
         {endIcon && (
@@ -161,8 +161,8 @@ const Select = ({
   options,
   value,
   onChange,
-  placeholder = "Select...",
-  className = "",
+  placeholder = 'Select...',
+  className = '',
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -170,7 +170,7 @@ const Select = ({
     <div className="space-y-1">
       {label && (
         <label
-          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+          className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
         >
           {label}
         </label>
@@ -180,8 +180,8 @@ const Select = ({
         onChange={onChange}
         className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
           isDarkMode
-            ? "bg-gray-800 border-gray-600 text-white"
-            : "bg-white border-gray-300 text-gray-900"
+            ? 'bg-gray-800 border-gray-600 text-white'
+            : 'bg-white border-gray-300 text-gray-900'
         } ${className}`}
       >
         <option value="">{placeholder}</option>
@@ -195,15 +195,15 @@ const Select = ({
   );
 };
 
-const SettingsPaper = ({ children, className = "" }) => {
+const SettingsPaper = ({ children, className = '' }) => {
   const { isDarkMode } = useTheme();
 
   return (
     <div
       className={`rounded-lg shadow-md overflow-hidden transition-all duration-300 ${
         isDarkMode
-          ? "bg-gray-800 border border-gray-700"
-          : "bg-white border border-gray-200"
+          ? 'bg-gray-800 border border-gray-700'
+          : 'bg-white border border-gray-200'
       } ${className}`}
     >
       {children}
@@ -211,13 +211,13 @@ const SettingsPaper = ({ children, className = "" }) => {
   );
 };
 
-const SettingsCard = ({ children, className = "" }) => {
+const SettingsCard = ({ children, className = '' }) => {
   const { isDarkMode } = useTheme();
 
   return (
     <div
       className={`rounded-lg border transition-all duration-300 ${
-        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
       } ${className}`}
     >
       {children}
@@ -230,17 +230,17 @@ const SectionHeader = ({ icon: Icon, title }) => {
 
   return (
     <div
-      className={`p-6 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+      className={`p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
     >
       <div className="flex items-center gap-3">
         {Icon && (
           <Icon
             size={24}
-            className={isDarkMode ? "text-teal-400" : "text-teal-600"}
+            className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
           />
         )}
         <h3
-          className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
         >
           {title}
         </h3>
@@ -254,11 +254,11 @@ const SectionCard = ({ title, children }) => {
 
   return (
     <div
-      className={`p-6 border-b last:border-b-0 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+      className={`p-6 border-b last:border-b-0 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
     >
       {title && (
         <h4
-          className={`text-lg font-medium mb-4 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+          className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
         >
           {title}
         </h4>
@@ -268,15 +268,15 @@ const SectionCard = ({ title, children }) => {
   );
 };
 
-const LogoContainer = ({ children, className = "" }) => {
+const LogoContainer = ({ children, className = '' }) => {
   const { isDarkMode } = useTheme();
 
   return (
     <div
       className={`w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden ${
         isDarkMode
-          ? "border-gray-600 bg-gray-800"
-          : "border-gray-300 bg-gray-50"
+          ? 'border-gray-600 bg-gray-800'
+          : 'border-gray-300 bg-gray-50'
       } ${className}`}
     >
       {children}
@@ -284,7 +284,7 @@ const LogoContainer = ({ children, className = "" }) => {
   );
 };
 
-const CircularProgress = ({ size = 20, className = "" }) => {
+const CircularProgress = ({ size = 20, className = '' }) => {
   return (
     <svg
       className={`animate-spin ${className}`}
@@ -323,8 +323,8 @@ const TextField = ({
   helperText,
   disabled = false,
   readOnly = false,
-  type = "text",
-  className = "",
+  type = 'text',
+  className = '',
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -332,7 +332,7 @@ const TextField = ({
     <div className="space-y-1">
       {label && (
         <label
-          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+          className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
         >
           {label}
         </label>
@@ -351,17 +351,17 @@ const TextField = ({
             rows={rows || 3}
             disabled={disabled}
             readOnly={readOnly}
-            className={`w-full px-3 ${startAdornment ? "pl-10" : ""} ${endAdornment ? "pr-10" : ""} py-2 border rounded-lg resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+            className={`w-full px-3 ${startAdornment ? 'pl-10' : ''} ${endAdornment ? 'pr-10' : ''} py-2 border rounded-lg resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
               error
-                ? "border-red-500"
+                ? 'border-red-500'
                 : isDarkMode
-                  ? "border-gray-600"
-                  : "border-gray-300"
+                  ? 'border-gray-600'
+                  : 'border-gray-300'
             } ${
               isDarkMode
-                ? "bg-gray-800 text-white placeholder-gray-400"
-                : "bg-white text-gray-900 placeholder-gray-500"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "opacity-50 cursor-default" : ""} ${className}`}
+                ? 'bg-gray-800 text-white placeholder-gray-400'
+                : 'bg-white text-gray-900 placeholder-gray-500'
+            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${readOnly ? 'opacity-50 cursor-default' : ''} ${className}`}
           />
         ) : (
           <input
@@ -371,17 +371,17 @@ const TextField = ({
             placeholder={placeholder}
             disabled={disabled}
             readOnly={readOnly}
-            className={`w-full px-3 ${startAdornment ? "pl-10" : ""} ${endAdornment ? "pr-10" : ""} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+            className={`w-full px-3 ${startAdornment ? 'pl-10' : ''} ${endAdornment ? 'pr-10' : ''} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
               error
-                ? "border-red-500"
+                ? 'border-red-500'
                 : isDarkMode
-                  ? "border-gray-600"
-                  : "border-gray-300"
+                  ? 'border-gray-600'
+                  : 'border-gray-300'
             } ${
               isDarkMode
-                ? "bg-gray-800 text-white placeholder-gray-400"
-                : "bg-white text-gray-900 placeholder-gray-500"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "opacity-50 cursor-default" : ""} ${className}`}
+                ? 'bg-gray-800 text-white placeholder-gray-400'
+                : 'bg-white text-gray-900 placeholder-gray-500'
+            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${readOnly ? 'opacity-50 cursor-default' : ''} ${className}`}
           />
         )}
         {endAdornment && (
@@ -392,7 +392,7 @@ const TextField = ({
       </div>
       {helperText && (
         <p
-          className={`text-sm ${error ? "text-red-500" : isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-sm ${error ? 'text-red-500' : isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           {helperText}
         </p>
@@ -418,19 +418,19 @@ const Switch = ({ checked, onChange, label, disabled = false }) => {
         />
         <div
           className={`w-10 h-6 rounded-full transition-colors duration-200 ${
-            checked ? "bg-teal-600" : isDarkMode ? "bg-gray-700" : "bg-gray-300"
-          } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            checked ? 'bg-teal-600' : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <div
             className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-200 ${
-              checked ? "transform translate-x-4" : ""
+              checked ? 'transform translate-x-4' : ''
             }`}
           />
         </div>
       </div>
       {label && (
         <span
-          className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+          className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
         >
           {label}
         </span>
@@ -441,11 +441,11 @@ const Switch = ({ checked, onChange, label, disabled = false }) => {
 
 const CompanySettings = () => {
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState('profile');
 
   // Role icon mapping
   const getRoleIcon = (roleName) => {
-    const name = (roleName || "").toLowerCase().replace(/\s+/g, "_");
+    const name = (roleName || '').toLowerCase().replace(/\s+/g, '_');
     const iconMap = {
       managing_director: Crown,
       operations_manager: Activity,
@@ -465,15 +465,15 @@ const CompanySettings = () => {
 
   // Permission action icon mapping
   const getPermissionIcon = (permissionKey) => {
-    const key = (permissionKey || "").toLowerCase();
-    if (key.includes("create") || key.includes("add")) return FilePlus;
-    if (key.includes("edit") || key.includes("update")) return Pencil;
-    if (key.includes("delete") || key.includes("remove")) return Trash2;
-    if (key.includes("view") || key.includes("read")) return Eye;
-    if (key.includes("approve")) return ThumbsUp;
-    if (key.includes("export")) return Download;
-    if (key.includes("print")) return Printer;
-    if (key.includes("manage") || key.includes("access")) return Key;
+    const key = (permissionKey || '').toLowerCase();
+    if (key.includes('create') || key.includes('add')) return FilePlus;
+    if (key.includes('edit') || key.includes('update')) return Pencil;
+    if (key.includes('delete') || key.includes('remove')) return Trash2;
+    if (key.includes('view') || key.includes('read')) return Eye;
+    if (key.includes('approve')) return ThumbsUp;
+    if (key.includes('export')) return Download;
+    if (key.includes('print')) return Printer;
+    if (key.includes('manage') || key.includes('access')) return Key;
     return Shield;
   };
 
@@ -498,19 +498,19 @@ const CompanySettings = () => {
   const [uploadingSeal, setUploadingSeal] = useState(false);
 
   const [companyProfile, setCompanyProfile] = useState({
-    name: "",
-    address: "",
-    city: "",
-    country: "India",
-    phone: "",
-    email: "",
-    website: "",
-    vatNumber: "",
+    name: '',
+    address: '',
+    city: '',
+    country: 'India',
+    phone: '',
+    email: '',
+    website: '',
+    vatNumber: '',
     logo: null,
     bankDetails: {
-      bankName: "",
-      accountNumber: "",
-      iban: "",
+      bankName: '',
+      accountNumber: '',
+      iban: '',
     },
     documentImageSettings: {
       invoice: { showLogo: true, showSeal: true },
@@ -529,15 +529,15 @@ const CompanySettings = () => {
 
       // Extract address fields from JSONB or keep as string for backwards compatibility
       const addressData = companyData.address;
-      let addressStr = "";
-      let city = "";
-      let country = "";
+      let addressStr = '';
+      let city = '';
+      let country = '';
 
-      if (typeof addressData === "object" && addressData !== null) {
-        addressStr = addressData.street || "";
-        city = addressData.city || "";
-        country = addressData.country || "";
-      } else if (typeof addressData === "string") {
+      if (typeof addressData === 'object' && addressData !== null) {
+        addressStr = addressData.street || '';
+        city = addressData.city || '';
+        country = addressData.country || '';
+      } else if (typeof addressData === 'string') {
         addressStr = addressData;
       }
 
@@ -547,16 +547,16 @@ const CompanySettings = () => {
         address: addressStr,
         city,
         country,
-        website: companyData.website || "",
+        website: companyData.website || '',
         // Logos - API returns camelCase, treat empty strings as null
         logoUrl: companyData.logoUrl || null,
         brandmarkUrl: companyData.brandmarkUrl || null,
         pdfLogoUrl: companyData.pdfLogoUrl || null,
         pdfSealUrl: companyData.pdfSealUrl || null,
         bankDetails: {
-          bankName: companyData.bankDetails?.bankName || "",
-          accountNumber: companyData.bankDetails?.accountNumber || "",
-          iban: companyData.bankDetails?.iban || "",
+          bankName: companyData.bankDetails?.bankName || '',
+          accountNumber: companyData.bankDetails?.accountNumber || '',
+          iban: companyData.bankDetails?.iban || '',
         },
         // Load document image settings from API (nested in settings object)
         documentImageSettings: companyData.settings?.documentImages || {
@@ -585,10 +585,10 @@ const CompanySettings = () => {
   });
   const [showAddVatModal, setShowAddVatModal] = useState(false);
   const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
-    role: "user",
-    password: "",
+    name: '',
+    email: '',
+    role: 'user',
+    password: '',
     permissions: {
       invoices: { create: false, read: false, update: false, delete: false },
       customers: { create: false, read: false, update: false, delete: false },
@@ -626,9 +626,9 @@ const CompanySettings = () => {
   const [editingRole, setEditingRole] = useState(null);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const [roleFormData, setRoleFormData] = useState({
-    name: "",
-    displayName: "",
-    description: "",
+    name: '',
+    displayName: '',
+    description: '',
     isDirector: false,
   });
   const [customPermissionModal, setCustomPermissionModal] = useState({
@@ -643,7 +643,7 @@ const CompanySettings = () => {
   const [viewPermissionsModal, setViewPermissionsModal] = useState({
     open: false,
     userId: null,
-    userName: "",
+    userName: '',
     rolePermissions: [],
     customGrants: [],
     loading: false,
@@ -652,24 +652,24 @@ const CompanySettings = () => {
   const [allPermissions, setAllPermissions] = useState({});
   const [customPermission, setCustomPermission] = useState({
     permission_keys: [], // Changed to array for multiple selections
-    reason: "",
+    reason: '',
     expires_at: null,
   });
-  const [permissionSearch, setPermissionSearch] = useState("");
+  const [permissionSearch, setPermissionSearch] = useState('');
   const [expandedModules, setExpandedModules] = useState({});
 
   const [newVatRate, setNewVatRate] = useState({
-    name: "",
-    rate: "",
-    type: "percentage",
-    description: "",
+    name: '',
+    rate: '',
+    type: 'percentage',
+    description: '',
     active: true,
   });
 
   const [showPassword, setShowPassword] = useState(false);
 
   // User management filters and validation
-  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
 
@@ -677,10 +677,10 @@ const CompanySettings = () => {
 
   // Printing settings state
   const [printingSettings, setPrintingSettings] = useState({
-    receipt_size: "A5",
-    print_on_paper_size: "A4",
-    receipt_printer: "default",
-    invoice_printer: "default",
+    receipt_size: 'A5',
+    print_on_paper_size: 'A4',
+    receipt_printer: 'default',
+    invoice_printer: 'default',
     receipt_copies: 1,
     invoice_copies: 1,
     auto_print_receipts: false,
@@ -694,20 +694,20 @@ const CompanySettings = () => {
 
   // Product Naming Templates State (must be at top level for hooks)
   const [displayTemplates, setDisplayTemplates] = useState({
-    product_dropdown_template: "{unique_name}",
-    document_line_template: "{unique_name}",
-    report_template: "{unique_name}",
+    product_dropdown_template: '{unique_name}',
+    document_line_template: '{unique_name}',
+    report_template: '{unique_name}',
   });
   const [savingTemplates, setSavingTemplates] = useState(false);
   const [sampleProduct, _setSampleProduct] = useState({
-    grade: "316",
-    form: "Sheet",
-    finish: "2B",
-    width: "1220",
-    thickness: "1.5",
-    length: "2440",
-    origin: "UAE",
-    mill: "Emirates Steel",
+    grade: '316',
+    form: 'Sheet',
+    finish: '2B',
+    width: '1220',
+    thickness: '1.5',
+    length: '2440',
+    origin: 'UAE',
+    mill: 'Emirates Steel',
   });
   const [productVerificationStatus, _setProductVerificationStatus] = useState(
     {},
@@ -715,30 +715,30 @@ const CompanySettings = () => {
 
   // Formatters
   const formatDateTime = (value) => {
-    if (!value) return "Never";
+    if (!value) return 'Never';
     try {
       const d = new Date(value);
       if (isNaN(d.getTime())) return String(value);
-      return d.toLocaleString("en-AE", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
+      return d.toLocaleString('en-AE', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
       });
     } catch {
       return String(value);
     }
   };
   const formatDateOnly = (value) => {
-    if (!value) return "";
+    if (!value) return '';
     try {
       const d = new Date(value);
       if (isNaN(d.getTime())) return String(value);
-      return d.toLocaleDateString("en-AE", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
+      return d.toLocaleDateString('en-AE', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
       });
     } catch {
       return String(value);
@@ -772,25 +772,25 @@ const CompanySettings = () => {
     const errors = {};
 
     if (!user.name || user.name.trim().length === 0) {
-      errors.name = "Name is required";
+      errors.name = 'Name is required';
     }
 
     if (!user.email || user.email.trim().length === 0) {
-      errors.email = "Email is required";
+      errors.email = 'Email is required';
     } else if (!validateEmail(user.email)) {
-      errors.email = "Please enter a valid email address";
+      errors.email = 'Please enter a valid email address';
     }
 
     if (!isEdit) {
       if (!user.password || user.password.length === 0) {
-        errors.password = "Password is required";
+        errors.password = 'Password is required';
       } else if (!validatePassword(user.password)) {
-        errors.password = "Password must be at least 8 characters";
+        errors.password = 'Password must be at least 8 characters';
       }
     }
 
     if (selectedUserRoles.length === 0) {
-      errors.roles = "Please assign at least one role";
+      errors.roles = 'Please assign at least one role';
     }
 
     return errors;
@@ -847,12 +847,12 @@ const CompanySettings = () => {
           }));
           setVatRates(transformedRates);
         } else {
-          console.warn("VAT rates response is not an array:", rates);
+          console.warn('VAT rates response is not an array:', rates);
           setVatRates([]);
         }
       } catch (error) {
-        console.error("Error loading VAT rates:", error);
-        notificationService.error("Failed to load VAT rates");
+        console.error('Error loading VAT rates:', error);
+        notificationService.error('Failed to load VAT rates');
         setVatRates([]);
       }
     })();
@@ -869,20 +869,20 @@ const CompanySettings = () => {
           name: u.name,
           email: u.email,
           role: u.role,
-          status: u.status || "active",
-          createdAt: (u.createdAt || u.createdAt || "")
+          status: u.status || 'active',
+          createdAt: (u.createdAt || u.createdAt || '')
             .toString()
             .substring(0, 10),
           lastLogin: u.lastLogin || u.lastLogin || null,
           permissions:
-            typeof u.permissions === "string"
+            typeof u.permissions === 'string'
               ? JSON.parse(u.permissions)
               : u.permissions || {},
         }));
         setUsers(mapped);
       } catch (e) {
         console.warn(
-          "Failed to load users from backend:",
+          'Failed to load users from backend:',
           e?.response?.data || e?.message,
         );
         setUsers([]);
@@ -895,12 +895,12 @@ const CompanySettings = () => {
   useEffect(() => {
     (async () => {
       try {
-        const settings = await apiService.get("/company/printing-settings");
+        const settings = await apiService.get('/company/printing-settings');
         if (settings) {
           setPrintingSettings(settings);
         }
       } catch (error) {
-        console.error("Error loading printing settings:", error);
+        console.error('Error loading printing settings:', error);
         // Use defaults if error
       }
     })();
@@ -908,16 +908,16 @@ const CompanySettings = () => {
 
   // Fetch printing settings when printing tab is active
   useEffect(() => {
-    if (activeTab === "printing") {
+    if (activeTab === 'printing') {
       (async () => {
         try {
-          const settings = await apiService.get("/company/printing-settings");
+          const settings = await apiService.get('/company/printing-settings');
           if (settings) {
             setPrintingSettings(settings);
           }
         } catch (error) {
-          console.error("Error loading printing settings:", error);
-          notificationService.error("Failed to load printing settings");
+          console.error('Error loading printing settings:', error);
+          notificationService.error('Failed to load printing settings');
         }
       })();
     }
@@ -925,7 +925,7 @@ const CompanySettings = () => {
 
   // Load RBAC data (roles, permissions, check if director)
   useEffect(() => {
-    if (activeTab === "users") {
+    if (activeTab === 'users') {
       (async () => {
         try {
           // Fetch available roles
@@ -945,8 +945,8 @@ const CompanySettings = () => {
             setIsDirector(userPermissions.isDirector || false);
           }
         } catch (error) {
-          console.error("Error loading RBAC data:", error);
-          notificationService.error("Failed to load role configuration");
+          console.error('Error loading RBAC data:', error);
+          notificationService.error('Failed to load role configuration');
         }
       })();
     }
@@ -964,10 +964,10 @@ const CompanySettings = () => {
     if (companyData) {
       setDisplayTemplates({
         product_dropdown_template:
-          companyData.product_dropdown_template || "{unique_name}",
+          companyData.product_dropdown_template || '{unique_name}',
         document_line_template:
-          companyData.document_line_template || "{unique_name}",
-        report_template: companyData.report_template || "{unique_name}",
+          companyData.document_line_template || '{unique_name}',
+        report_template: companyData.report_template || '{unique_name}',
       });
     }
   }, [companyData]);
@@ -975,30 +975,30 @@ const CompanySettings = () => {
   const saveCompanyProfile = async () => {
     try {
       // Validate required fields
-      if (!companyProfile.name || companyProfile.name.trim() === "") {
-        notificationService.warning("Company name is required");
+      if (!companyProfile.name || companyProfile.name.trim() === '') {
+        notificationService.warning('Company name is required');
         return;
       }
 
       const updateData = {
         name: companyProfile.name.trim(),
         address: {
-          street: companyProfile.address || "",
-          city: companyProfile.city || "",
-          country: companyProfile.country || "UAE",
+          street: companyProfile.address || '',
+          city: companyProfile.city || '',
+          country: companyProfile.country || 'UAE',
         },
-        phone: companyProfile.phone || "",
-        email: companyProfile.email || "",
-        website: companyProfile.website || "",
-        vat_number: "104858252000003",
+        phone: companyProfile.phone || '',
+        email: companyProfile.email || '',
+        website: companyProfile.website || '',
+        vat_number: '104858252000003',
         logo_url: companyProfile.logoUrl || null,
         brandmark_url: companyProfile.brandmarkUrl || null,
         pdf_logo_url: companyProfile.pdfLogoUrl || null,
         pdf_seal_url: companyProfile.pdfSealUrl || null,
         bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
+          bankName: '',
+          accountNumber: '',
+          iban: '',
         },
         settings: {
           documentImages: companyProfile.documentImageSettings || {
@@ -1016,12 +1016,12 @@ const CompanySettings = () => {
       // console.log('Sending company data:', updateData);
 
       await updateCompany(updateData);
-      notificationService.success("Company profile saved successfully!");
+      notificationService.success('Company profile saved successfully!');
       refetchCompany();
     } catch (error) {
-      console.error("Error saving company profile:", error);
+      console.error('Error saving company profile:', error);
       notificationService.error(
-        "Failed to save company profile. Please try again.",
+        'Failed to save company profile. Please try again.',
       );
     }
   };
@@ -1068,12 +1068,12 @@ const CompanySettings = () => {
     try {
       setSavingPrintingSettings(true);
 
-      await apiService.put("/company/printing-settings", printingSettings);
+      await apiService.put('/company/printing-settings', printingSettings);
 
-      notificationService.success("Printing settings saved successfully");
+      notificationService.success('Printing settings saved successfully');
     } catch (error) {
-      console.error("Error saving printing settings:", error);
-      notificationService.error("Failed to save printing settings");
+      console.error('Error saving printing settings:', error);
+      notificationService.error('Failed to save printing settings');
     } finally {
       setSavingPrintingSettings(false);
     }
@@ -1081,16 +1081,16 @@ const CompanySettings = () => {
 
   const resetPrintingSettings = () => {
     setPrintingSettings({
-      receipt_size: "A5",
-      print_on_paper_size: "A4",
-      receipt_printer: "default",
-      invoice_printer: "default",
+      receipt_size: 'A5',
+      print_on_paper_size: 'A4',
+      receipt_printer: 'default',
+      invoice_printer: 'default',
       receipt_copies: 1,
       invoice_copies: 1,
       auto_print_receipts: false,
       auto_print_invoices: false,
     });
-    notificationService.info("Settings reset to defaults");
+    notificationService.info('Settings reset to defaults');
   };
 
   const handleLogoUpload = async (event) => {
@@ -1102,15 +1102,15 @@ const CompanySettings = () => {
 
     // Validate file type
     const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
     ];
     if (!allowedTypes.includes(file.type)) {
       notificationService.warning(
-        "Please select a valid image file (JPEG, PNG, GIF, or WebP)",
+        'Please select a valid image file (JPEG, PNG, GIF, or WebP)',
       );
       return;
     }
@@ -1135,17 +1135,17 @@ const CompanySettings = () => {
 
       if (!logoUrl) {
         console.error(
-          "No logo URL found in response. Response structure:",
+          'No logo URL found in response. Response structure:',
           response,
         );
-        throw new Error("Invalid response from server - no logo URL received");
+        throw new Error('Invalid response from server - no logo URL received');
       }
 
       // Update company profile with new logo URL
       let newLogoUrl = logoUrl;
-      if (logoUrl.includes("localhost:5000")) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace("/api", "");
-        newLogoUrl = logoUrl.replace("http://localhost:5000", baseUrl);
+      if (logoUrl.includes('localhost:5000')) {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace('/api', '');
+        newLogoUrl = logoUrl.replace('http://localhost:5000', baseUrl);
       }
       setCompanyProfile((prev) => ({ ...prev, logo_url: newLogoUrl }));
 
@@ -1167,33 +1167,33 @@ const CompanySettings = () => {
         brandmark_url: companyProfile.brandmarkUrl,
         pdf_seal_url: companyProfile.pdfSealUrl,
         bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
+          bankName: '',
+          accountNumber: '',
+          iban: '',
         },
       };
       await updateCompany(logoUpdateData);
 
-      notificationService.success("Logo uploaded successfully!");
+      notificationService.success('Logo uploaded successfully!');
       refetchCompany();
     } catch (error) {
-      console.error("Error uploading logo:", error);
-      notificationService.error("Failed to upload logo. Please try again.");
+      console.error('Error uploading logo:', error);
+      notificationService.error('Failed to upload logo. Please try again.');
     }
   };
 
   const handleLogoDelete = async () => {
     if (!companyProfile.logoUrl) return;
 
-    if (!window.confirm("Are you sure you want to delete the company logo?")) {
+    if (!window.confirm('Are you sure you want to delete the company logo?')) {
       return;
     }
 
     try {
       // Extract filename from URL
-      const filename = companyProfile.logoUrl.split("/").pop();
+      const filename = companyProfile.logoUrl.split('/').pop();
 
-      if (filename && filename.startsWith("company-logo-")) {
+      if (filename && filename.startsWith('company-logo-')) {
         await deleteLogo(filename);
       }
 
@@ -1213,18 +1213,18 @@ const CompanySettings = () => {
         vat_number: companyProfile.vatNumber,
         logo_url: null,
         bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
+          bankName: '',
+          accountNumber: '',
+          iban: '',
         },
       };
       await updateCompany(logoDeleteData);
 
-      notificationService.success("Logo deleted successfully!");
+      notificationService.success('Logo deleted successfully!');
       refetchCompany();
     } catch (error) {
-      console.error("Error deleting logo:", error);
-      notificationService.error("Failed to delete logo. Please try again.");
+      console.error('Error deleting logo:', error);
+      notificationService.error('Failed to delete logo. Please try again.');
     }
   };
 
@@ -1237,15 +1237,15 @@ const CompanySettings = () => {
 
     // Validate file type
     const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
     ];
     if (!allowedTypes.includes(file.type)) {
       notificationService.warning(
-        "Please select a valid image file (JPEG, PNG, GIF, or WebP)",
+        'Please select a valid image file (JPEG, PNG, GIF, or WebP)',
       );
       return;
     }
@@ -1271,20 +1271,20 @@ const CompanySettings = () => {
 
       if (!brandmarkUrl) {
         console.error(
-          "No brandmark URL found in response. Response structure:",
+          'No brandmark URL found in response. Response structure:',
           response,
         );
         throw new Error(
-          "Invalid response from server - no brandmark URL received",
+          'Invalid response from server - no brandmark URL received',
         );
       }
 
       // console.log('[Brandmark Upload] Brandmark URL from server:', brandmarkUrl);
 
       // Save only the relative path to database (not the full URL)
-      const relativeBrandmarkUrl = brandmarkUrl.startsWith("/uploads/")
+      const relativeBrandmarkUrl = brandmarkUrl.startsWith('/uploads/')
         ? brandmarkUrl
-        : brandmarkUrl.replace(/^https?:\/\/[^/]+/, "");
+        : brandmarkUrl.replace(/^https?:\/\/[^/]+/, '');
 
       // console.log('[Brandmark Upload] Relative path for database:', relativeBrandmarkUrl);
 
@@ -1308,17 +1308,17 @@ const CompanySettings = () => {
         logo_url: companyProfile.logoUrl,
         brandmark_url: relativeBrandmarkUrl,
         bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
+          bankName: '',
+          accountNumber: '',
+          iban: '',
         },
       };
       await updateCompany(brandmarkUpdateData);
 
-      notificationService.success("Brandmark uploaded successfully!");
+      notificationService.success('Brandmark uploaded successfully!');
       refetchCompany();
     } catch (error) {
-      console.error("Error uploading brandmark:", error);
+      console.error('Error uploading brandmark:', error);
       notificationService.error(`Failed to upload brandmark: ${error.message}`);
     } finally {
       setUploadingBrandmark(false);
@@ -1329,16 +1329,16 @@ const CompanySettings = () => {
     if (!companyProfile.brandmarkUrl) return;
 
     if (
-      !window.confirm("Are you sure you want to delete the company brandmark?")
+      !window.confirm('Are you sure you want to delete the company brandmark?')
     ) {
       return;
     }
 
     try {
       // Extract filename from URL
-      const filename = companyProfile.brandmarkUrl.split("/").pop();
+      const filename = companyProfile.brandmarkUrl.split('/').pop();
 
-      if (filename && filename.startsWith("company-logo-")) {
+      if (filename && filename.startsWith('company-logo-')) {
         await deleteBrandmark(filename);
       }
 
@@ -1361,19 +1361,19 @@ const CompanySettings = () => {
         pdf_logo_url: companyProfile.pdfLogoUrl,
         pdf_seal_url: companyProfile.pdfSealUrl,
         bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
+          bankName: '',
+          accountNumber: '',
+          iban: '',
         },
       };
       await updateCompany(brandmarkDeleteData);
 
-      notificationService.success("Brandmark deleted successfully!");
+      notificationService.success('Brandmark deleted successfully!');
       refetchCompany();
     } catch (error) {
-      console.error("Error deleting brandmark:", error);
+      console.error('Error deleting brandmark:', error);
       notificationService.error(
-        "Failed to delete brandmark. Please try again.",
+        'Failed to delete brandmark. Please try again.',
       );
     }
   };
@@ -1387,15 +1387,15 @@ const CompanySettings = () => {
 
     // Validate file type
     const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
     ];
     if (!allowedTypes.includes(file.type)) {
       notificationService.warning(
-        "Please select a valid image file (JPEG, PNG, GIF, or WebP)",
+        'Please select a valid image file (JPEG, PNG, GIF, or WebP)',
       );
       return;
     }
@@ -1423,19 +1423,19 @@ const CompanySettings = () => {
 
       if (!sealUrl) {
         console.error(
-          "No seal URL found in response. Response structure:",
+          'No seal URL found in response. Response structure:',
           response,
         );
-        throw new Error("Invalid response from server - no seal URL received");
+        throw new Error('Invalid response from server - no seal URL received');
       }
 
       // console.log('[Seal Upload] Seal URL from server:', sealUrl);
 
       // Save only the relative path to database (not the full URL)
       // This ensures consistency when fetching from database later
-      const relativeSealUrl = sealUrl.startsWith("/uploads/")
+      const relativeSealUrl = sealUrl.startsWith('/uploads/')
         ? sealUrl
-        : sealUrl.replace(/^https?:\/\/[^/]+/, "");
+        : sealUrl.replace(/^https?:\/\/[^/]+/, '');
 
       // console.log('[Seal Upload] Relative path for database:', relativeSealUrl);
 
@@ -1458,24 +1458,24 @@ const CompanySettings = () => {
         pdf_logo_url: companyProfile.pdfLogoUrl,
         pdf_seal_url: relativeSealUrl,
         bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
+          bankName: '',
+          accountNumber: '',
+          iban: '',
         },
       };
       await updateCompany(sealUpdateData);
 
-      notificationService.success("Company seal uploaded successfully!");
+      notificationService.success('Company seal uploaded successfully!');
       refetchCompany();
     } catch (error) {
-      console.error("=== SEAL UPLOAD ERROR ===");
-      console.error("Error object:", error);
-      console.error("Error message:", error.message);
-      console.error("Error response status:", error.response?.status);
-      console.error("Error response data:", error.response?.data);
-      console.error("Error response headers:", error.response?.headers);
-      console.error("Request config:", error.config);
-      console.error("========================");
+      console.error('=== SEAL UPLOAD ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response status:', error.response?.status);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error response headers:', error.response?.headers);
+      console.error('Request config:', error.config);
+      console.error('========================');
       notificationService.error(`Failed to upload seal: ${error.message}`);
     } finally {
       setUploadingSeal(false);
@@ -1485,15 +1485,15 @@ const CompanySettings = () => {
   const handleSealDelete = async () => {
     if (!companyProfile.pdfSealUrl) return;
 
-    if (!window.confirm("Are you sure you want to delete the company seal?")) {
+    if (!window.confirm('Are you sure you want to delete the company seal?')) {
       return;
     }
 
     try {
       // Extract filename from URL
-      const filename = companyProfile.pdfSealUrl.split("/").pop();
+      const filename = companyProfile.pdfSealUrl.split('/').pop();
 
-      if (filename && filename.startsWith("company-logo-")) {
+      if (filename && filename.startsWith('company-logo-')) {
         await deleteSeal(filename);
       }
 
@@ -1516,18 +1516,18 @@ const CompanySettings = () => {
         pdf_logo_url: companyProfile.pdfLogoUrl,
         pdf_seal_url: null,
         bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
+          bankName: '',
+          accountNumber: '',
+          iban: '',
         },
       };
       await updateCompany(sealDeleteData);
 
-      notificationService.success("Company seal deleted successfully!");
+      notificationService.success('Company seal deleted successfully!');
       refetchCompany();
     } catch (error) {
-      console.error("Error deleting seal:", error);
-      notificationService.error("Failed to delete seal. Please try again.");
+      console.error('Error deleting seal:', error);
+      notificationService.error('Failed to delete seal. Please try again.');
     }
   };
 
@@ -1535,7 +1535,7 @@ const CompanySettings = () => {
     try {
       const vatRateData = {
         name: newVatRate.name,
-        rate: newVatRate.rate === "" ? 0 : Number(newVatRate.rate),
+        rate: newVatRate.rate === '' ? 0 : Number(newVatRate.rate),
         type: newVatRate.type,
         description: newVatRate.description,
         is_active: newVatRate.active,
@@ -1555,17 +1555,17 @@ const CompanySettings = () => {
 
       setVatRates([...vatRates, transformedRate]);
       setNewVatRate({
-        name: "",
-        rate: "",
-        type: "percentage",
-        description: "",
+        name: '',
+        rate: '',
+        type: 'percentage',
+        description: '',
         active: true,
       });
       setShowAddVatModal(false);
-      notificationService.success("VAT rate added successfully!");
+      notificationService.success('VAT rate added successfully!');
     } catch (error) {
-      console.error("Error adding VAT rate:", error);
-      notificationService.error("Failed to add VAT rate");
+      console.error('Error adding VAT rate:', error);
+      notificationService.error('Failed to add VAT rate');
     }
   };
 
@@ -1581,16 +1581,16 @@ const CompanySettings = () => {
       );
       setVatRates(updatedVatRates);
       notificationService.success(
-        `VAT rate ${updatedRate.isActive ? "activated" : "deactivated"}!`,
+        `VAT rate ${updatedRate.isActive ? 'activated' : 'deactivated'}!`,
       );
     } catch (error) {
-      console.error("Error toggling VAT rate:", error);
-      notificationService.error("Failed to toggle VAT rate");
+      console.error('Error toggling VAT rate:', error);
+      notificationService.error('Failed to toggle VAT rate');
     }
   };
 
   const deleteVatRate = async (vatRateId) => {
-    if (window.confirm("Are you sure you want to delete this VAT rate?")) {
+    if (window.confirm('Are you sure you want to delete this VAT rate?')) {
       try {
         await vatRateService.delete(vatRateId);
 
@@ -1599,10 +1599,10 @@ const CompanySettings = () => {
           (vatRate) => vatRate.id !== vatRateId,
         );
         setVatRates(updatedVatRates);
-        notificationService.success("VAT rate deleted successfully!");
+        notificationService.success('VAT rate deleted successfully!');
       } catch (error) {
-        console.error("Error deleting VAT rate:", error);
-        notificationService.error("Failed to delete VAT rate");
+        console.error('Error deleting VAT rate:', error);
+        notificationService.error('Failed to delete VAT rate');
       }
     }
   };
@@ -1611,7 +1611,7 @@ const CompanySettings = () => {
     try {
       const u = users.find((x) => x.id === userId);
       if (!u) return;
-      const newStatus = u.status === "active" ? "inactive" : "active";
+      const newStatus = u.status === 'active' ? 'inactive' : 'active';
       await userAdminAPI.update(userId, { status: newStatus });
       const remoteUsers = await userAdminAPI.list();
       const mapped = remoteUsers.map((user) => ({
@@ -1619,27 +1619,27 @@ const CompanySettings = () => {
         name: user.name,
         email: user.email,
         role: user.role,
-        status: user.status || "active",
-        createdAt: (user.createdAt || user.createdAt || "")
+        status: user.status || 'active',
+        createdAt: (user.createdAt || user.createdAt || '')
           .toString()
           .substring(0, 10),
         lastLogin: user.lastLogin || user.lastLogin || null,
         permissions:
-          typeof user.permissions === "string"
+          typeof user.permissions === 'string'
             ? JSON.parse(user.permissions)
             : user.permissions || {},
       }));
       setUsers(mapped);
-      notificationService.success("User status updated");
+      notificationService.success('User status updated');
     } catch (e) {
       notificationService.error(
-        e?.response?.data?.error || e?.message || "Failed to update user",
+        e?.response?.data?.error || e?.message || 'Failed to update user',
       );
     }
   };
 
   const deleteUser = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
       await userAdminAPI.remove(userId);
       const remoteUsers = await userAdminAPI.list();
@@ -1648,21 +1648,21 @@ const CompanySettings = () => {
         name: u.name,
         email: u.email,
         role: u.role,
-        status: u.status || "active",
-        createdAt: (u.createdAt || u.createdAt || "")
+        status: u.status || 'active',
+        createdAt: (u.createdAt || u.createdAt || '')
           .toString()
           .substring(0, 10),
         lastLogin: u.lastLogin || u.lastLogin || null,
         permissions:
-          typeof u.permissions === "string"
+          typeof u.permissions === 'string'
             ? JSON.parse(u.permissions)
             : u.permissions || {},
       }));
       setUsers(mapped);
-      notificationService.success("User deleted successfully!");
+      notificationService.success('User deleted successfully!');
     } catch (e) {
       notificationService.error(
-        e?.response?.data?.error || e?.message || "Failed to delete user",
+        e?.response?.data?.error || e?.message || 'Failed to delete user',
       );
     }
   };
@@ -1674,8 +1674,8 @@ const CompanySettings = () => {
       const roles = await roleService.getRoles();
       setAvailableRoles(roles);
     } catch (error) {
-      console.error("Error loading roles:", error);
-      notificationService.error("Failed to load roles");
+      console.error('Error loading roles:', error);
+      notificationService.error('Failed to load roles');
     } finally {
       setRolesLoading(false);
     }
@@ -1684,7 +1684,7 @@ const CompanySettings = () => {
   const handleSaveRole = async () => {
     try {
       if (!roleFormData.name || !roleFormData.displayName) {
-        notificationService.warning("Please fill in all required fields");
+        notificationService.warning('Please fill in all required fields');
         return;
       }
 
@@ -1697,24 +1697,24 @@ const CompanySettings = () => {
 
       if (editingRole) {
         await roleService.updateRole(editingRole.id, payload);
-        notificationService.success("Role updated successfully");
+        notificationService.success('Role updated successfully');
       } else {
         await roleService.createRole(payload);
-        notificationService.success("Role created successfully");
+        notificationService.success('Role created successfully');
       }
 
       setShowRoleDialog(false);
       await loadRoles();
     } catch (error) {
-      console.error("Error saving role:", error);
-      notificationService.error("Failed to save role");
+      console.error('Error saving role:', error);
+      notificationService.error('Failed to save role');
     }
   };
 
   const handleDeleteRole = async (roleId) => {
     if (
       !window.confirm(
-        "Are you sure you want to delete this role? Users with this role will lose their assigned permissions.",
+        'Are you sure you want to delete this role? Users with this role will lose their assigned permissions.',
       )
     ) {
       return;
@@ -1722,11 +1722,11 @@ const CompanySettings = () => {
 
     try {
       await roleService.deleteRole(roleId);
-      notificationService.success("Role deleted successfully");
+      notificationService.success('Role deleted successfully');
       await loadRoles();
     } catch (error) {
-      console.error("Error deleting role:", error);
-      notificationService.error("Failed to delete role");
+      console.error('Error deleting role:', error);
+      notificationService.error('Failed to delete role');
     }
   };
 
@@ -1735,7 +1735,7 @@ const CompanySettings = () => {
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
           <h3
-            className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             Company Profile
           </h3>
@@ -1751,7 +1751,7 @@ const CompanySettings = () => {
             onClick={saveCompanyProfile}
             disabled={updatingCompany}
           >
-            {updatingCompany ? "Saving..." : "Save Profile"}
+            {updatingCompany ? 'Saving...' : 'Save Profile'}
           </Button>
         </div>
 
@@ -1760,7 +1760,7 @@ const CompanySettings = () => {
           <SettingsCard>
             <div className="p-4">
               <h4
-                className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Basic Information
               </h4>
@@ -1768,7 +1768,7 @@ const CompanySettings = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   label="Company Name"
-                  value={companyProfile.name || ""}
+                  value={companyProfile.name || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1780,7 +1780,7 @@ const CompanySettings = () => {
                 <TextField
                   label="Email"
                   type="email"
-                  value={companyProfile.email || ""}
+                  value={companyProfile.email || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1791,14 +1791,14 @@ const CompanySettings = () => {
                   startAdornment={
                     <Mail
                       size={20}
-                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                     />
                   }
                 />
                 <TextField
                   label="Phone Numbers"
                   type="tel"
-                  value={companyProfile.phone || ""}
+                  value={companyProfile.phone || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1809,14 +1809,14 @@ const CompanySettings = () => {
                   startAdornment={
                     <Phone
                       size={20}
-                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                     />
                   }
                 />
                 <TextField
                   label="Website"
                   type="url"
-                  value={companyProfile.website || ""}
+                  value={companyProfile.website || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1827,7 +1827,7 @@ const CompanySettings = () => {
                   startAdornment={
                     <Globe
                       size={20}
-                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                     />
                   }
                 />
@@ -1839,7 +1839,7 @@ const CompanySettings = () => {
           <SettingsCard>
             <div className="p-4">
               <h4
-                className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Address Information
               </h4>
@@ -1849,9 +1849,9 @@ const CompanySettings = () => {
                   <TextField
                     label="Street Address"
                     value={
-                      typeof companyProfile.address === "string"
+                      typeof companyProfile.address === 'string'
                         ? companyProfile.address
-                        : companyProfile.address?.street || ""
+                        : companyProfile.address?.street || ''
                     }
                     onChange={(e) =>
                       setCompanyProfile({
@@ -1864,7 +1864,7 @@ const CompanySettings = () => {
                       <MapPin
                         size={20}
                         className={
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
                         }
                       />
                     }
@@ -1872,7 +1872,7 @@ const CompanySettings = () => {
                 </div>
                 <TextField
                   label="City"
-                  value={companyProfile.city || ""}
+                  value={companyProfile.city || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1883,7 +1883,7 @@ const CompanySettings = () => {
                 />
                 <Select
                   label="Country"
-                  value={companyProfile.country || ""}
+                  value={companyProfile.country || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1891,12 +1891,12 @@ const CompanySettings = () => {
                     })
                   }
                   options={[
-                    { value: "UAE", label: "UAE" },
-                    { value: "India", label: "India" },
-                    { value: "United States", label: "United States" },
-                    { value: "United Kingdom", label: "United Kingdom" },
-                    { value: "Canada", label: "Canada" },
-                    { value: "Australia", label: "Australia" },
+                    { value: 'UAE', label: 'UAE' },
+                    { value: 'India', label: 'India' },
+                    { value: 'United States', label: 'United States' },
+                    { value: 'United Kingdom', label: 'United Kingdom' },
+                    { value: 'Canada', label: 'Canada' },
+                    { value: 'Australia', label: 'Australia' },
                   ]}
                 />
               </div>
@@ -1907,7 +1907,7 @@ const CompanySettings = () => {
           <SettingsCard>
             <div className="p-4">
               <h4
-                className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 VAT Registration
               </h4>
@@ -1927,7 +1927,7 @@ const CompanySettings = () => {
           <SettingsCard>
             <div className="p-4">
               <h4
-                className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Bank Details
               </h4>
@@ -1935,7 +1935,7 @@ const CompanySettings = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   label="Bank Name"
-                  value={companyProfile.bankDetails?.bankName || ""}
+                  value={companyProfile.bankDetails?.bankName || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1949,7 +1949,7 @@ const CompanySettings = () => {
                 />
                 <TextField
                   label="Account Number"
-                  value={companyProfile.bankDetails?.accountNumber || ""}
+                  value={companyProfile.bankDetails?.accountNumber || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1963,7 +1963,7 @@ const CompanySettings = () => {
                 />
                 <TextField
                   label="IBAN"
-                  value={companyProfile.bankDetails?.iban || ""}
+                  value={companyProfile.bankDetails?.iban || ''}
                   onChange={(e) =>
                     setCompanyProfile({
                       ...companyProfile,
@@ -1987,19 +1987,19 @@ const CompanySettings = () => {
                 className="flex items-center justify-between w-full text-left"
               >
                 <h4
-                  className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Company Images (Logo, Brandmark, Seal)
                 </h4>
                 {imagesExpanded ? (
                   <ChevronUp
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                   />
                 ) : (
                   <ChevronDown
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                   />
                 )}
               </button>
@@ -2009,7 +2009,7 @@ const CompanySettings = () => {
                   {/* Logo Section */}
                   <div className="flex flex-col">
                     <h5
-                      className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Company Logo
                     </h5>
@@ -2020,11 +2020,11 @@ const CompanySettings = () => {
                             <CircularProgress
                               size={32}
                               className={
-                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
                               }
                             />
                             <span
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Uploading...
                             </span>
@@ -2042,17 +2042,17 @@ const CompanySettings = () => {
                               }}
                               onError={(e) => {
                                 console.error(
-                                  "Logo failed to load:",
+                                  'Logo failed to load:',
                                   companyProfile.logoUrl,
                                   e,
                                 );
                                 console.error(
-                                  "Image load error details:",
+                                  'Image load error details:',
                                   e.type,
                                   e.target?.src,
                                 );
                                 // Try to reload without cache-busting query first
-                                if (e.target.src.includes("?t=")) {
+                                if (e.target.src.includes('?t=')) {
                                   // console.log('Retrying without cache-busting query...');
                                   e.target.src = companyProfile.logoUrl;
                                 } else {
@@ -2063,7 +2063,7 @@ const CompanySettings = () => {
                                   }));
                                 }
                               }}
-                              style={{ maxWidth: "100%", maxHeight: "100%" }}
+                              style={{ maxWidth: '100%', maxHeight: '100%' }}
                             />
                             <button
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
@@ -2078,11 +2078,11 @@ const CompanySettings = () => {
                             <Camera
                               size={32}
                               className={
-                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
                               }
                             />
                             <span
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Upload Logo
                             </span>
@@ -2112,11 +2112,11 @@ const CompanySettings = () => {
                             }
                             disabled={uploadingLogo}
                           >
-                            {uploadingLogo ? "Uploading..." : "Upload"}
+                            {uploadingLogo ? 'Uploading...' : 'Upload'}
                           </Button>
                         </label>
                         <p
-                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Max: 50KB
                         </p>
@@ -2135,7 +2135,7 @@ const CompanySettings = () => {
                             className="mr-2"
                           />
                           <span
-                            className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                            className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                           >
                             Use in PDFs
                           </span>
@@ -2147,7 +2147,7 @@ const CompanySettings = () => {
                   {/* Brandmark Section */}
                   <div className="flex flex-col">
                     <h5
-                      className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Company Brandmark
                     </h5>
@@ -2158,11 +2158,11 @@ const CompanySettings = () => {
                             <CircularProgress
                               size={32}
                               className={
-                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
                               }
                             />
                             <span
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Uploading...
                             </span>
@@ -2170,19 +2170,19 @@ const CompanySettings = () => {
                         ) : companyProfile.brandmarkUrl ? (
                           <div className="relative w-full h-full">
                             <img
-                              src={`${companyProfile.brandmarkUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000") + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
+                              src={`${companyProfile.brandmarkUrl.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
                               alt="Company Brandmark"
                               className="w-full h-full object-contain rounded-lg"
                               crossOrigin="anonymous"
                               onError={(e) => {
-                                if (e.target.src.includes("?t=")) {
+                                if (e.target.src.includes('?t=')) {
                                   const baseUrl =
                                     import.meta.env.VITE_API_BASE_URL?.replace(
-                                      "/api",
-                                      "",
-                                    ) || "http://localhost:5000";
+                                      '/api',
+                                      '',
+                                    ) || 'http://localhost:5000';
                                   e.target.src =
-                                    companyProfile.brandmarkUrl.startsWith("/")
+                                    companyProfile.brandmarkUrl.startsWith('/')
                                       ? baseUrl + companyProfile.brandmarkUrl
                                       : companyProfile.brandmarkUrl;
                                 } else {
@@ -2192,7 +2192,7 @@ const CompanySettings = () => {
                                   }));
                                 }
                               }}
-                              style={{ maxWidth: "100%", maxHeight: "100%" }}
+                              style={{ maxWidth: '100%', maxHeight: '100%' }}
                             />
                             <button
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
@@ -2207,11 +2207,11 @@ const CompanySettings = () => {
                             <Camera
                               size={32}
                               className={
-                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
                               }
                             />
                             <span
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Upload Brandmark
                             </span>
@@ -2244,11 +2244,11 @@ const CompanySettings = () => {
                             }
                             disabled={uploadingBrandmark}
                           >
-                            {uploadingBrandmark ? "Uploading..." : "Upload"}
+                            {uploadingBrandmark ? 'Uploading...' : 'Upload'}
                           </Button>
                         </label>
                         <p
-                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Max: 50KB
                         </p>
@@ -2259,7 +2259,7 @@ const CompanySettings = () => {
                   {/* Seal Section */}
                   <div className="flex flex-col">
                     <h5
-                      className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-md font-medium mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Company Seal
                     </h5>
@@ -2270,11 +2270,11 @@ const CompanySettings = () => {
                             <CircularProgress
                               size={32}
                               className={
-                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
                               }
                             />
                             <span
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Uploading...
                             </span>
@@ -2282,19 +2282,19 @@ const CompanySettings = () => {
                         ) : companyProfile.pdfSealUrl ? (
                           <div className="relative w-full h-full">
                             <img
-                              src={`${companyProfile.pdfSealUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000") + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
+                              src={`${companyProfile.pdfSealUrl.startsWith('/') ? (import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000') + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
                               alt="Company Seal"
                               className="w-full h-full object-contain rounded-lg"
                               crossOrigin="anonymous"
                               onError={(e) => {
-                                if (e.target.src.includes("?t=")) {
+                                if (e.target.src.includes('?t=')) {
                                   const baseUrl =
                                     import.meta.env.VITE_API_BASE_URL?.replace(
-                                      "/api",
-                                      "",
-                                    ) || "http://localhost:5000";
+                                      '/api',
+                                      '',
+                                    ) || 'http://localhost:5000';
                                   e.target.src =
-                                    companyProfile.pdfSealUrl.startsWith("/")
+                                    companyProfile.pdfSealUrl.startsWith('/')
                                       ? baseUrl + companyProfile.pdfSealUrl
                                       : companyProfile.pdfSealUrl;
                                 } else {
@@ -2304,7 +2304,7 @@ const CompanySettings = () => {
                                   }));
                                 }
                               }}
-                              style={{ maxWidth: "100%", maxHeight: "100%" }}
+                              style={{ maxWidth: '100%', maxHeight: '100%' }}
                             />
                             <button
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
@@ -2319,11 +2319,11 @@ const CompanySettings = () => {
                             <Camera
                               size={32}
                               className={
-                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
                               }
                             />
                             <span
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Upload Seal
                             </span>
@@ -2353,16 +2353,16 @@ const CompanySettings = () => {
                             }
                             disabled={uploadingSeal}
                           >
-                            {uploadingSeal ? "Uploading..." : "Upload"}
+                            {uploadingSeal ? 'Uploading...' : 'Upload'}
                           </Button>
                         </label>
                         <p
-                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Max: 50KB
                         </p>
                         <p
-                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           For PDFs
                         </p>
@@ -2373,31 +2373,31 @@ const CompanySettings = () => {
                   {/* Document Types - Logo & Seal Settings */}
                   <div className="mt-8 pt-8 border-t border-gray-300">
                     <h4
-                      className={`text-sm font-semibold mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`text-sm font-semibold mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Enable Logos in Document Types
                     </h4>
 
                     <div className="overflow-x-auto">
                       <table
-                        className={`w-full text-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+                        className={`w-full text-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                       >
                         <thead>
                           <tr
-                            className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
+                            className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}
                           >
                             <th
-                              className={`text-left py-2 px-4 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                              className={`text-left py-2 px-4 font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                             >
                               Document Type
                             </th>
                             <th
-                              className={`text-center py-2 px-4 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                              className={`text-center py-2 px-4 font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                             >
                               Logo
                             </th>
                             <th
-                              className={`text-center py-2 px-4 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                              className={`text-center py-2 px-4 font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                             >
                               Seal
                             </th>
@@ -2405,23 +2405,23 @@ const CompanySettings = () => {
                         </thead>
                         <tbody>
                           {[
-                            { key: "invoice", label: "Invoice" },
-                            { key: "quotation", label: "Quotation" },
-                            { key: "purchaseOrder", label: "Purchase Order" },
-                            { key: "creditNote", label: "Credit Note" },
-                            { key: "deliveryNote", label: "Delivery Note" },
-                            { key: "paymentReceipt", label: "Payment Receipt" },
+                            { key: 'invoice', label: 'Invoice' },
+                            { key: 'quotation', label: 'Quotation' },
+                            { key: 'purchaseOrder', label: 'Purchase Order' },
+                            { key: 'creditNote', label: 'Credit Note' },
+                            { key: 'deliveryNote', label: 'Delivery Note' },
+                            { key: 'paymentReceipt', label: 'Payment Receipt' },
                             {
-                              key: "accountStatement",
-                              label: "Account Statement",
+                              key: 'accountStatement',
+                              label: 'Account Statement',
                             },
                           ].map((doc) => (
                             <tr
                               key={doc.key}
-                              className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                              className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                             >
                               <td
-                                className={`py-3 px-4 ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+                                className={`py-3 px-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
                               >
                                 {doc.label}
                               </td>
@@ -2511,11 +2511,11 @@ const CompanySettings = () => {
           await companyService.updateCompany(updatedProfile);
           setCompanyProfile(updatedProfile);
           notificationService.success(
-            "Invoice template settings saved successfully!",
+            'Invoice template settings saved successfully!',
           );
         } catch (error) {
-          console.error("Error saving template settings:", error);
-          notificationService.error("Failed to save template settings");
+          console.error('Error saving template settings:', error);
+          notificationService.error('Failed to save template settings');
           throw error;
         }
       }}
@@ -2529,12 +2529,12 @@ const CompanySettings = () => {
         {/* Left Column - VAT Configuration (60%) */}
         <div className="lg:w-3/5 flex-shrink-0">
           <div
-            className={`rounded-2xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-sm`}
+            className={`rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}
           >
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3
-                  className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   VAT Rates Configuration
                 </h3>
@@ -2550,8 +2550,8 @@ const CompanySettings = () => {
               <div
                 className={`mb-6 p-4 rounded-lg border-l-4 ${
                   isDarkMode
-                    ? "bg-blue-900/20 border-blue-500 text-blue-300"
-                    : "bg-blue-50 border-blue-500 text-blue-800"
+                    ? 'bg-blue-900/20 border-blue-500 text-blue-300'
+                    : 'bg-blue-50 border-blue-500 text-blue-800'
                 }`}
               >
                 <div className="flex items-start">
@@ -2595,21 +2595,21 @@ const CompanySettings = () => {
                   <div
                     className={`text-center py-12 rounded-lg border-2 border-dashed ${
                       isDarkMode
-                        ? "border-gray-700 bg-gray-800/50"
-                        : "border-gray-300 bg-gray-50"
+                        ? 'border-gray-700 bg-gray-800/50'
+                        : 'border-gray-300 bg-gray-50'
                     }`}
                   >
                     <Calculator
                       size={48}
-                      className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                      className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                     />
                     <h4
-                      className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       No VAT Rates Configured
                     </h4>
                     <p
-                      className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       Get started by adding your first VAT rate. Common rates in
                       UAE are 5% (Standard) and 0% (Zero Rated).
@@ -2627,23 +2627,23 @@ const CompanySettings = () => {
                       key={vatRate.id}
                       className={`rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
                         isDarkMode
-                          ? "bg-[#1E2328] border-[#37474F]"
-                          : "bg-white border-gray-200"
-                      } ${vatRate.active ? "opacity-100" : "opacity-60"}`}
+                          ? 'bg-[#1E2328] border-[#37474F]'
+                          : 'bg-white border-gray-200'
+                      } ${vatRate.active ? 'opacity-100' : 'opacity-60'}`}
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <h4
-                              className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                              className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                             >
                               {vatRate.name}
                             </h4>
                             <span
                               className={`px-2 py-1 text-xs font-medium rounded border ${
                                 isDarkMode
-                                  ? "text-teal-400 border-teal-600 bg-teal-900/20"
-                                  : "text-teal-600 border-teal-300 bg-teal-50"
+                                  ? 'text-teal-400 border-teal-600 bg-teal-900/20'
+                                  : 'text-teal-600 border-teal-300 bg-teal-50'
                               }`}
                             >
                               {vatRate.rate}%
@@ -2651,15 +2651,15 @@ const CompanySettings = () => {
                             <span
                               className={`px-2 py-1 text-xs font-medium rounded border ${
                                 isDarkMode
-                                  ? "text-gray-400 border-gray-600 bg-gray-800"
-                                  : "text-gray-600 border-gray-300 bg-gray-50"
+                                  ? 'text-gray-400 border-gray-600 bg-gray-800'
+                                  : 'text-gray-600 border-gray-300 bg-gray-50'
                               }`}
                             >
                               {vatRate.type}
                             </span>
                           </div>
                           <p
-                            className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                           >
                             {vatRate.description}
                           </p>
@@ -2681,13 +2681,13 @@ const CompanySettings = () => {
                           <span
                             className={`text-sm font-medium ${
                               vatRate.active
-                                ? "text-green-500"
+                                ? 'text-green-500'
                                 : isDarkMode
-                                  ? "text-gray-500"
-                                  : "text-gray-400"
+                                  ? 'text-gray-500'
+                                  : 'text-gray-400'
                             }`}
                           >
-                            {vatRate.active ? "Active" : "Inactive"}
+                            {vatRate.active ? 'Active' : 'Inactive'}
                           </span>
                           <button
                             onClick={() => deleteVatRate(vatRate.id)}
@@ -2707,27 +2707,27 @@ const CompanySettings = () => {
             {showAddVatModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                 <div
-                  className={`w-full max-w-md rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}
+                  className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}
                 >
                   <div
-                    className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+                    className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
                   >
                     <div className="flex justify-between items-center">
                       <h3
-                        className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                       >
                         Add VAT Rate
                       </h3>
                       <button
                         onClick={() => setShowAddVatModal(false)}
                         className={`p-2 rounded-lg transition-colors duration-200 ${
-                          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                         }`}
                       >
                         <X
                           size={20}
                           className={
-                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
                           }
                         />
                       </button>
@@ -2747,14 +2747,14 @@ const CompanySettings = () => {
                       <Input
                         label="VAT Percentage (%)"
                         type="number"
-                        value={newVatRate.rate || ""}
+                        value={newVatRate.rate || ''}
                         onChange={(e) =>
                           setNewVatRate({
                             ...newVatRate,
                             rate:
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value) || "",
+                              e.target.value === ''
+                                ? ''
+                                : Number(e.target.value) || '',
                           })
                         }
                         placeholder="Enter VAT rate (0, 5, etc.)"
@@ -2766,8 +2766,8 @@ const CompanySettings = () => {
                           setNewVatRate({ ...newVatRate, type: e.target.value })
                         }
                         options={[
-                          { value: "percentage", label: "Percentage" },
-                          { value: "fixed", label: "Fixed Amount" },
+                          { value: 'percentage', label: 'Percentage' },
+                          { value: 'fixed', label: 'Fixed Amount' },
                         ]}
                       />
                       <div className="md:col-span-2">
@@ -2787,7 +2787,7 @@ const CompanySettings = () => {
                   </div>
 
                   <div
-                    className={`p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
+                    className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}
                   >
                     <Button
                       variant="outline"
@@ -2813,8 +2813,8 @@ const CompanySettings = () => {
           <div
             className={`h-full rounded-xl shadow-sm border overflow-hidden ${
               isDarkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-white border-gray-200'
             }`}
           >
             <div className="h-full max-h-[calc(100vh-120px)] overflow-y-auto lg:sticky lg:top-6">
@@ -2834,7 +2834,7 @@ const CompanySettings = () => {
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h3
-                className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 User Management
               </h3>
@@ -2851,9 +2851,9 @@ const CompanySettings = () => {
                   startIcon={<UserPlus size={16} />}
                   onClick={() => {
                     setNewUser({
-                      name: "",
-                      email: "",
-                      password: "",
+                      name: '',
+                      email: '',
+                      password: '',
                       role_ids: [],
                     });
                     setSelectedUserRoles([]);
@@ -2882,21 +2882,21 @@ const CompanySettings = () => {
                 <div className="text-center py-12">
                   <Users
                     size={48}
-                    className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                    className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                   />
                   <p
-                    className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     {userSearchTerm
-                      ? "No users found matching your search"
-                      : "No users yet. Add your first user to get started."}
+                      ? 'No users found matching your search'
+                      : 'No users yet. Add your first user to get started.'}
                   </p>
                 </div>
               ) : null}
               {filteredUsers.map((user) => (
                 <SettingsCard
                   key={user.id}
-                  className={user.status === "active" ? "" : "opacity-60"}
+                  className={user.status === 'active' ? '' : 'opacity-60'}
                 >
                   <div className="p-6">
                     {/* User Header */}
@@ -2904,21 +2904,21 @@ const CompanySettings = () => {
                       <div className="flex items-center space-x-3">
                         <div
                           className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${
-                            isDarkMode ? "bg-teal-600" : "bg-teal-500"
+                            isDarkMode ? 'bg-teal-600' : 'bg-teal-500'
                           }`}
                         >
-                          {user.name?.charAt(0)?.toUpperCase() || "U"}
+                          {user.name?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
                         <div>
                           <h4
-                            className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
-                            {user.name || "Unnamed User"}
+                            {user.name || 'Unnamed User'}
                           </h4>
                           <p
-                            className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                           >
-                            {user.email || "No email"}
+                            {user.email || 'No email'}
                           </p>
                           {/* Display Roles */}
                           <div className="flex flex-wrap gap-2 mt-2">
@@ -2929,11 +2929,11 @@ const CompanySettings = () => {
                                   className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
                                     role.isDirector
                                       ? isDarkMode
-                                        ? "text-purple-400 border-purple-600 bg-purple-900/20"
-                                        : "text-purple-600 border-purple-300 bg-purple-50"
+                                        ? 'text-purple-400 border-purple-600 bg-purple-900/20'
+                                        : 'text-purple-600 border-purple-300 bg-purple-50'
                                       : isDarkMode
-                                        ? "text-teal-400 border-teal-600 bg-teal-900/20"
-                                        : "text-teal-600 border-teal-300 bg-teal-50"
+                                        ? 'text-teal-400 border-teal-600 bg-teal-900/20'
+                                        : 'text-teal-600 border-teal-300 bg-teal-50'
                                   }`}
                                 >
                                   {role.displayName}
@@ -2943,8 +2943,8 @@ const CompanySettings = () => {
                               <span
                                 className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
                                   isDarkMode
-                                    ? "text-gray-400 border-gray-600 bg-gray-800"
-                                    : "text-gray-600 border-gray-300 bg-gray-50"
+                                    ? 'text-gray-400 border-gray-600 bg-gray-800'
+                                    : 'text-gray-600 border-gray-300 bg-gray-50'
                                 }`}
                               >
                                 No roles assigned
@@ -2956,10 +2956,10 @@ const CompanySettings = () => {
 
                       <div className="flex items-center space-x-3">
                         <Switch
-                          checked={user.status === "active"}
+                          checked={user.status === 'active'}
                           onChange={() => toggleUserStatus(user.id)}
                           label={
-                            user.status === "active" ? "Active" : "Inactive"
+                            user.status === 'active' ? 'Active' : 'Inactive'
                           }
                         />
                         <button
@@ -2986,11 +2986,11 @@ const CompanySettings = () => {
                               }));
                             } catch (error) {
                               console.error(
-                                "Error loading permissions:",
+                                'Error loading permissions:',
                                 error,
                               );
                               notificationService.error(
-                                "Failed to load permissions",
+                                'Failed to load permissions',
                               );
                               setViewPermissionsModal((prev) => ({
                                 ...prev,
@@ -3000,8 +3000,8 @@ const CompanySettings = () => {
                           }}
                           className={`p-2 rounded-lg transition-colors duration-200 ${
                             isDarkMode
-                              ? "hover:bg-gray-700 text-green-400"
-                              : "hover:bg-gray-100 text-green-600"
+                              ? 'hover:bg-gray-700 text-green-400'
+                              : 'hover:bg-gray-100 text-green-600'
                           }`}
                           title="View All Permissions"
                         >
@@ -3026,16 +3026,16 @@ const CompanySettings = () => {
                                 userPermissions.roles.map((r) => r.id),
                               );
                             } catch (error) {
-                              console.error("Error loading user data:", error);
+                              console.error('Error loading user data:', error);
                               notificationService.error(
-                                "Failed to load user data",
+                                'Failed to load user data',
                               );
                             }
                           }}
                           className={`p-2 rounded-lg transition-colors duration-200 ${
                             isDarkMode
-                              ? "hover:bg-gray-700 text-gray-200"
-                              : "hover:bg-gray-100 text-gray-700"
+                              ? 'hover:bg-gray-700 text-gray-200'
+                              : 'hover:bg-gray-100 text-gray-700'
                           }`}
                         >
                           <Edit size={16} />
@@ -3056,18 +3056,18 @@ const CompanySettings = () => {
                                   });
                                 } catch (error) {
                                   console.error(
-                                    "Error loading audit log:",
+                                    'Error loading audit log:',
                                     error,
                                   );
                                   notificationService.error(
-                                    "Failed to load audit log",
+                                    'Failed to load audit log',
                                   );
                                 }
                               }}
                               className={`p-2 rounded-lg transition-colors duration-200 ${
                                 isDarkMode
-                                  ? "hover:bg-gray-700 text-blue-400"
-                                  : "hover:bg-gray-100 text-blue-600"
+                                  ? 'hover:bg-gray-700 text-blue-400'
+                                  : 'hover:bg-gray-100 text-blue-600'
                               }`}
                               title="View Audit Log"
                             >
@@ -3081,16 +3081,16 @@ const CompanySettings = () => {
                                 });
                                 setCustomPermission({
                                   permission_keys: [],
-                                  reason: "",
+                                  reason: '',
                                   expires_at: null,
                                 });
-                                setPermissionSearch("");
+                                setPermissionSearch('');
                                 setExpandedModules({});
                               }}
                               className={`p-2 rounded-lg transition-colors duration-200 ${
                                 isDarkMode
-                                  ? "hover:bg-gray-700 text-yellow-400"
-                                  : "hover:bg-gray-100 text-yellow-600"
+                                  ? 'hover:bg-gray-700 text-yellow-400'
+                                  : 'hover:bg-gray-100 text-yellow-600'
                               }`}
                               title="Grant Custom Permissions"
                             >
@@ -3108,31 +3108,31 @@ const CompanySettings = () => {
                     </div>
 
                     <hr
-                      className={`my-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                      className={`my-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                     />
 
                     {/* User Stats */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p
-                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Created
                         </p>
                         <p
-                          className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                          className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                         >
                           {formatDateOnly(user.createdAt)}
                         </p>
                       </div>
                       <div>
                         <p
-                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           Last Login
                         </p>
                         <p
-                          className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                          className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                         >
                           {formatDateTime(user.lastLogin)}
                         </p>
@@ -3161,20 +3161,20 @@ const CompanySettings = () => {
       {showManageRolesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
-            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl max-h-[90vh] flex flex-col`}
+            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}
           >
             {/* Modal Header */}
             <div
-              className={`p-6 border-b flex-shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+              className={`p-6 border-b flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <Shield
-                    className={isDarkMode ? "text-teal-400" : "text-teal-600"}
+                    className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
                     size={24}
                   />
                   <h3
-                    className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     Manage Roles
                   </h3>
@@ -3186,9 +3186,9 @@ const CompanySettings = () => {
                     onClick={() => {
                       setEditingRole(null);
                       setRoleFormData({
-                        name: "",
-                        displayName: "",
-                        description: "",
+                        name: '',
+                        displayName: '',
+                        description: '',
                         isDirector: false,
                       });
                       setShowRoleDialog(true);
@@ -3199,12 +3199,12 @@ const CompanySettings = () => {
                   <button
                     onClick={() => setShowManageRolesModal(false)}
                     className={`p-2 rounded-lg transition-colors duration-200 ${
-                      isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                      isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                     }`}
                   >
                     <X
                       size={20}
-                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                     />
                   </button>
                 </div>
@@ -3221,10 +3221,10 @@ const CompanySettings = () => {
                 <div className="text-center py-12">
                   <Shield
                     size={48}
-                    className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                    className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                   />
                   <p
-                    className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     No roles found. Create your first role to get started.
                   </p>
@@ -3238,7 +3238,7 @@ const CompanySettings = () => {
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                               <h4
-                                className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                                className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                               >
                                 {role.displayName || role.display_name}
                               </h4>
@@ -3246,8 +3246,8 @@ const CompanySettings = () => {
                                 <span
                                   className={`px-2 py-1 text-xs font-medium rounded ${
                                     isDarkMode
-                                      ? "bg-purple-900/30 text-purple-400 border border-purple-600"
-                                      : "bg-purple-100 text-purple-700 border border-purple-300"
+                                      ? 'bg-purple-900/30 text-purple-400 border border-purple-600'
+                                      : 'bg-purple-100 text-purple-700 border border-purple-300'
                                   }`}
                                 >
                                   Director
@@ -3257,8 +3257,8 @@ const CompanySettings = () => {
                                 <span
                                   className={`px-2 py-1 text-xs font-medium rounded ${
                                     isDarkMode
-                                      ? "bg-blue-900/30 text-blue-400 border border-blue-600"
-                                      : "bg-blue-100 text-blue-700 border border-blue-300"
+                                      ? 'bg-blue-900/30 text-blue-400 border border-blue-600'
+                                      : 'bg-blue-100 text-blue-700 border border-blue-300'
                                   }`}
                                 >
                                   System
@@ -3266,14 +3266,14 @@ const CompanySettings = () => {
                               ) : null}
                             </div>
                             <p
-                              className={`text-sm mb-2 ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}
+                              className={`text-sm mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}
                             >
                               {role.name}
                             </p>
                             <p
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                             >
-                              {role.description || "No description"}
+                              {role.description || 'No description'}
                             </p>
                             <div className="flex gap-4 mt-3">
                               <div className="flex items-center gap-2">
@@ -3281,12 +3281,12 @@ const CompanySettings = () => {
                                   size={14}
                                   className={
                                     isDarkMode
-                                      ? "text-gray-500"
-                                      : "text-gray-400"
+                                      ? 'text-gray-500'
+                                      : 'text-gray-400'
                                   }
                                 />
                                 <span
-                                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                                 >
                                   {role.userCount || role.user_count || 0} users
                                 </span>
@@ -3296,16 +3296,16 @@ const CompanySettings = () => {
                                   size={14}
                                   className={
                                     isDarkMode
-                                      ? "text-gray-500"
-                                      : "text-gray-400"
+                                      ? 'text-gray-500'
+                                      : 'text-gray-400'
                                   }
                                 />
                                 <span
-                                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                                 >
                                   {role.permissionCount ||
                                     role.permission_count ||
-                                    0}{" "}
+                                    0}{' '}
                                   permissions
                                 </span>
                               </div>
@@ -3319,7 +3319,7 @@ const CompanySettings = () => {
                                   name: role.name,
                                   displayName:
                                     role.displayName || role.display_name,
-                                  description: role.description || "",
+                                  description: role.description || '',
                                   isDirector:
                                     role.isDirector ||
                                     role.is_director ||
@@ -3329,8 +3329,8 @@ const CompanySettings = () => {
                               }}
                               className={`p-2 rounded-lg transition-colors duration-200 ${
                                 isDarkMode
-                                  ? "hover:bg-gray-700 text-gray-200"
-                                  : "hover:bg-gray-100 text-gray-700"
+                                  ? 'hover:bg-gray-700 text-gray-200'
+                                  : 'hover:bg-gray-100 text-gray-700'
                               }`}
                               title="Edit Role"
                             >
@@ -3361,26 +3361,26 @@ const CompanySettings = () => {
       {showRoleDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
           <div
-            className={`w-full max-w-md rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}
+            className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}
           >
             <div
-              className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+              className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <h3
-                  className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
-                  {editingRole ? "Edit Role" : "Create New Role"}
+                  {editingRole ? 'Edit Role' : 'Create New Role'}
                 </h3>
                 <button
                   onClick={() => setShowRoleDialog(false)}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                   />
                 </button>
               </div>
@@ -3434,12 +3434,12 @@ const CompanySettings = () => {
                 />
                 <div>
                   <span
-                    className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     Director Role
                   </span>
                   <p
-                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     Grants elevated privileges and access to sensitive
                     operations
@@ -3449,7 +3449,7 @@ const CompanySettings = () => {
             </div>
 
             <div
-              className={`p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
+              className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}
             >
               <Button
                 variant="outline"
@@ -3458,7 +3458,7 @@ const CompanySettings = () => {
                 Cancel
               </Button>
               <Button onClick={handleSaveRole}>
-                {editingRole ? "Update" : "Create"}
+                {editingRole ? 'Update' : 'Create'}
               </Button>
             </div>
           </div>
@@ -3469,26 +3469,26 @@ const CompanySettings = () => {
       {showAddUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
-            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl max-h-[90vh] overflow-y-auto`}
+            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}
           >
             <div
-              className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+              className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <h3
-                  className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Add New User
                 </h3>
                 <button
                   onClick={() => setShowAddUserModal(false)}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                   />
                 </button>
               </div>
@@ -3531,7 +3531,7 @@ const CompanySettings = () => {
                 />
                 <TextField
                   label="Password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={newUser.password}
                   onChange={(e) => {
                     setNewUser({ ...newUser, password: e.target.value });
@@ -3546,13 +3546,13 @@ const CompanySettings = () => {
                   error={userValidationErrors.password}
                   helperText={
                     userValidationErrors.password ||
-                    "Must be at least 8 characters"
+                    'Must be at least 8 characters'
                   }
                   endAdornment={
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className={`p-1 ${isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"}`}
+                      className={`p-1 ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -3563,9 +3563,9 @@ const CompanySettings = () => {
               {/* Multi-Role Selection */}
               <div className="mt-6">
                 <div
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                 >
-                  Assign Roles (select multiple){" "}
+                  Assign Roles (select multiple){' '}
                   <span className="text-red-500">*</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -3592,7 +3592,7 @@ const CompanySettings = () => {
                         }
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
+                        if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
                           const isSelected = selectedUserRoles.includes(
                             role.id,
@@ -3618,23 +3618,23 @@ const CompanySettings = () => {
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                         selectedUserRoles.includes(role.id)
                           ? isDarkMode
-                            ? "border-teal-500 bg-teal-900/20"
-                            : "border-teal-500 bg-teal-50"
+                            ? 'border-teal-500 bg-teal-900/20'
+                            : 'border-teal-500 bg-teal-50'
                           : isDarkMode
-                            ? "border-gray-600 bg-gray-800 hover:border-gray-500"
-                            : "border-gray-300 bg-white hover:border-gray-400"
+                            ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                            : 'border-gray-300 bg-white hover:border-gray-400'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h5
-                            className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
                             {role.displayName}
                           </h5>
                           {role.description && (
                             <p
-                              className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                              className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                             >
                               {role.description}
                             </p>
@@ -3651,7 +3651,7 @@ const CompanySettings = () => {
                   ))}
                 </div>
                 <p
-                  className={`text-xs mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
                   Click on roles to select/deselect. Users can have multiple
                   roles.
@@ -3665,7 +3665,7 @@ const CompanySettings = () => {
             </form>
 
             <div
-              className={`p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
+              className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}
             >
               <Button
                 variant="outline"
@@ -3684,7 +3684,7 @@ const CompanySettings = () => {
                   if (Object.keys(errors).length > 0) {
                     setUserValidationErrors(errors);
                     notificationService.warning(
-                      "Please fix the validation errors",
+                      'Please fix the validation errors',
                     );
                     return;
                   }
@@ -3708,13 +3708,13 @@ const CompanySettings = () => {
                       );
                     }
 
-                    notificationService.success("User created successfully!");
+                    notificationService.success('User created successfully!');
                     setShowAddUserModal(false);
                     setUserValidationErrors({});
                     setNewUser({
-                      name: "",
-                      email: "",
-                      password: "",
+                      name: '',
+                      email: '',
+                      password: '',
                       role_ids: [],
                     });
                     setSelectedUserRoles([]);
@@ -3731,8 +3731,8 @@ const CompanySettings = () => {
                           name: u.name,
                           email: u.email,
                           role: u.role,
-                          status: u.status || "active",
-                          createdAt: (u.createdAt || u.createdAt || "")
+                          status: u.status || 'active',
+                          createdAt: (u.createdAt || u.createdAt || '')
                             .toString()
                             .substring(0, 10),
                           lastLogin: u.lastLogin || u.lastLogin || null,
@@ -3742,9 +3742,9 @@ const CompanySettings = () => {
                     );
                     setUsers(mapped);
                   } catch (error) {
-                    console.error("Error creating user:", error);
+                    console.error('Error creating user:', error);
                     notificationService.error(
-                      error.response?.data?.error || "Failed to create user",
+                      error.response?.data?.error || 'Failed to create user',
                     );
                   } finally {
                     setIsSubmittingUser(false);
@@ -3770,26 +3770,26 @@ const CompanySettings = () => {
       {editUserModal.open && editUserModal.user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
-            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl max-h-[90vh] overflow-y-auto`}
+            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}
           >
             <div
-              className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+              className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <h3
-                  className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Edit User
                 </h3>
                 <button
                   onClick={() => setEditUserModal({ open: false, user: null })}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                   />
                 </button>
               </div>
@@ -3841,9 +3841,9 @@ const CompanySettings = () => {
               {/* Multi-Role Selection */}
               <div className="mt-6">
                 <div
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                 >
-                  Assigned Roles (select multiple){" "}
+                  Assigned Roles (select multiple){' '}
                   <span className="text-red-500">*</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -3861,7 +3861,7 @@ const CompanySettings = () => {
                         }
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
+                        if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
                           const isSelected = selectedUserRoles.includes(
                             role.id,
@@ -3884,23 +3884,23 @@ const CompanySettings = () => {
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                         selectedUserRoles.includes(role.id)
                           ? isDarkMode
-                            ? "border-teal-500 bg-teal-900/20"
-                            : "border-teal-500 bg-teal-50"
+                            ? 'border-teal-500 bg-teal-900/20'
+                            : 'border-teal-500 bg-teal-50'
                           : isDarkMode
-                            ? "border-gray-600 bg-gray-800 hover:border-gray-500"
-                            : "border-gray-300 bg-white hover:border-gray-400"
+                            ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                            : 'border-gray-300 bg-white hover:border-gray-400'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h5
-                            className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
                             {role.displayName}
                           </h5>
                           {role.description && (
                             <p
-                              className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                              className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                             >
                               {role.description}
                             </p>
@@ -3925,7 +3925,7 @@ const CompanySettings = () => {
             </div>
 
             <div
-              className={`p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
+              className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}
             >
               <Button
                 variant="outline"
@@ -3944,7 +3944,7 @@ const CompanySettings = () => {
                   if (Object.keys(errors).length > 0) {
                     setUserValidationErrors(errors);
                     notificationService.warning(
-                      "Please fix the validation errors",
+                      'Please fix the validation errors',
                     );
                     return;
                   }
@@ -3965,7 +3965,7 @@ const CompanySettings = () => {
                       selectedUserRoles,
                     );
 
-                    notificationService.success("User updated successfully!");
+                    notificationService.success('User updated successfully!');
                     setEditUserModal({ open: false, user: null });
                     setUserValidationErrors({});
 
@@ -3981,8 +3981,8 @@ const CompanySettings = () => {
                           name: u.name,
                           email: u.email,
                           role: u.role,
-                          status: u.status || "active",
-                          createdAt: (u.createdAt || u.createdAt || "")
+                          status: u.status || 'active',
+                          createdAt: (u.createdAt || u.createdAt || '')
                             .toString()
                             .substring(0, 10),
                           lastLogin: u.lastLogin || u.lastLogin || null,
@@ -3992,9 +3992,9 @@ const CompanySettings = () => {
                     );
                     setUsers(mapped);
                   } catch (error) {
-                    console.error("Error updating user:", error);
+                    console.error('Error updating user:', error);
                     notificationService.error(
-                      error.response?.data?.error || "Failed to update user",
+                      error.response?.data?.error || 'Failed to update user',
                     );
                   } finally {
                     setIsSubmittingUser(false);
@@ -4020,20 +4020,20 @@ const CompanySettings = () => {
       {customPermissionModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
-            className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}
+            className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}
           >
             <div
-              className={`p-6 border-b flex-shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+              className={`p-6 border-b flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <div>
                   <h3
-                    className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     Grant Custom Permissions
                   </h3>
                   <p
-                    className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     Select multiple permissions to grant temporary access
                   </p>
@@ -4043,12 +4043,12 @@ const CompanySettings = () => {
                     setCustomPermissionModal({ open: false, userId: null })
                   }
                   className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                   />
                 </button>
               </div>
@@ -4058,8 +4058,8 @@ const CompanySettings = () => {
               <div
                 className={`mb-4 p-4 rounded-lg border-l-4 ${
                   isDarkMode
-                    ? "bg-yellow-900/20 border-yellow-500 text-yellow-300"
-                    : "bg-yellow-50 border-yellow-500 text-yellow-800"
+                    ? 'bg-yellow-900/20 border-yellow-500 text-yellow-300'
+                    : 'bg-yellow-50 border-yellow-500 text-yellow-800'
                 }`}
               >
                 <div className="flex items-start">
@@ -4081,17 +4081,17 @@ const CompanySettings = () => {
                   <div
                     className={`p-3 rounded-lg ${
                       isDarkMode
-                        ? "bg-teal-900/20 border border-teal-700/30"
-                        : "bg-teal-50 border border-teal-200"
+                        ? 'bg-teal-900/20 border border-teal-700/30'
+                        : 'bg-teal-50 border border-teal-200'
                     }`}
                   >
                     <p
-                      className={`text-sm font-medium ${isDarkMode ? "text-teal-400" : "text-teal-700"}`}
+                      className={`text-sm font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-700'}`}
                     >
                       {customPermission.permissionKeys.length} permission
                       {customPermission.permissionKeys.length !== 1
-                        ? "s"
-                        : ""}{" "}
+                        ? 's'
+                        : ''}{' '}
                       selected
                     </p>
                   </div>
@@ -4101,7 +4101,7 @@ const CompanySettings = () => {
                 <div>
                   <label
                     htmlFor="permission-search"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                   >
                     Search Permissions
                   </label>
@@ -4113,8 +4113,8 @@ const CompanySettings = () => {
                     placeholder="Search by permission name or description..."
                     className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
-                        ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500"
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-500'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
                     }`}
                   />
                 </div>
@@ -4122,21 +4122,21 @@ const CompanySettings = () => {
                 {/* Permission Checklist */}
                 <div>
                   <div
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                   >
                     Select Permissions
                   </div>
                   <div
                     className={`border rounded-lg max-h-64 overflow-y-auto ${
                       isDarkMode
-                        ? "border-gray-600 bg-gray-800"
-                        : "border-gray-300 bg-white"
+                        ? 'border-gray-600 bg-gray-800'
+                        : 'border-gray-300 bg-white'
                     }`}
                   >
                     {Object.keys(allPermissions).length === 0 ? (
                       <div className="p-4 text-center">
                         <p
-                          className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Loading permissions...
                         </p>
@@ -4179,14 +4179,14 @@ const CompanySettings = () => {
                           return (
                             <div
                               key={module}
-                              className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}
+                              className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}
                             >
                               {/* Module Header */}
                               <div
                                 className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
                                   isDarkMode
-                                    ? "hover:bg-gray-700"
-                                    : "hover:bg-gray-50"
+                                    ? 'hover:bg-gray-700'
+                                    : 'hover:bg-gray-50'
                                 }`}
                                 onClick={() =>
                                   setExpandedModules((prev) => ({
@@ -4195,7 +4195,7 @@ const CompanySettings = () => {
                                   }))
                                 }
                                 onKeyDown={(e) => {
-                                  if (e.key === "Enter" || e.key === " ") {
+                                  if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault();
                                     setExpandedModules((prev) => ({
                                       ...prev,
@@ -4221,14 +4221,14 @@ const CompanySettings = () => {
                                       e.stopPropagation();
                                       const newKeys = e.target.checked
                                         ? [
-                                            ...new Set([
-                                              ...customPermission.permissionKeys,
-                                              ...modulePerms,
-                                            ]),
-                                          ]
+                                          ...new Set([
+                                            ...customPermission.permissionKeys,
+                                            ...modulePerms,
+                                          ]),
+                                        ]
                                         : customPermission.permissionKeys.filter(
-                                            (k) => !modulePerms.includes(k),
-                                          );
+                                          (k) => !modulePerms.includes(k),
+                                        );
                                       setCustomPermission({
                                         ...customPermission,
                                         permission_keys: newKeys,
@@ -4238,12 +4238,12 @@ const CompanySettings = () => {
                                     className="mr-3 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                                   />
                                   <span
-                                    className={`font-medium uppercase text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                                    className={`font-medium uppercase text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                                   >
                                     {module}
                                   </span>
                                   <span
-                                    className={`ml-2 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                    className={`ml-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                                   >
                                     ({filteredPerms.length})
                                   </span>
@@ -4258,15 +4258,15 @@ const CompanySettings = () => {
                               {/* Module Permissions */}
                               {isExpanded && (
                                 <div
-                                  className={`${isDarkMode ? "bg-gray-900/50" : "bg-gray-50"}`}
+                                  className={`${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}
                                 >
                                   {filteredPerms.map((perm) => (
                                     <label
                                       key={perm.key}
                                       className={`flex items-start p-3 pl-10 cursor-pointer transition-colors ${
                                         isDarkMode
-                                          ? "hover:bg-gray-800"
-                                          : "hover:bg-gray-100"
+                                          ? 'hover:bg-gray-800'
+                                          : 'hover:bg-gray-100'
                                       }`}
                                       aria-label={perm.description}
                                     >
@@ -4278,12 +4278,12 @@ const CompanySettings = () => {
                                         onChange={(e) => {
                                           const newKeys = e.target.checked
                                             ? [
-                                                ...customPermission.permissionKeys,
-                                                perm.key,
-                                              ]
+                                              ...customPermission.permissionKeys,
+                                              perm.key,
+                                            ]
                                             : customPermission.permissionKeys.filter(
-                                                (k) => k !== perm.key,
-                                              );
+                                              (k) => k !== perm.key,
+                                            );
                                           setCustomPermission({
                                             ...customPermission,
                                             permission_keys: newKeys,
@@ -4293,12 +4293,12 @@ const CompanySettings = () => {
                                       />
                                       <div className="flex-1">
                                         <div
-                                          className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                                          className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                                         >
                                           {perm.description}
                                         </div>
                                         <div
-                                          className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
+                                          className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                                         >
                                           {perm.key}
                                         </div>
@@ -4331,14 +4331,14 @@ const CompanySettings = () => {
                 <div>
                   <label
                     htmlFor="permission-expires-at"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                   >
                     Expires At (optional)
                   </label>
                   <input
                     id="permission-expires-at"
                     type="datetime-local"
-                    value={customPermission.expiresAt || ""}
+                    value={customPermission.expiresAt || ''}
                     onChange={(e) =>
                       setCustomPermission({
                         ...customPermission,
@@ -4347,12 +4347,12 @@ const CompanySettings = () => {
                     }
                     className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
-                        ? "bg-gray-800 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   />
                   <p
-                    className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     Leave blank for permanent access
                   </p>
@@ -4361,7 +4361,7 @@ const CompanySettings = () => {
             </div>
 
             <div
-              className={`p-6 border-t flex-shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
+              className={`p-6 border-t flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex gap-3 justify-end`}
             >
               <Button
                 variant="outline"
@@ -4379,7 +4379,7 @@ const CompanySettings = () => {
                       !customPermission.reason
                     ) {
                       notificationService.warning(
-                        "Please select at least one permission and provide a reason",
+                        'Please select at least one permission and provide a reason',
                       );
                       return;
                     }
@@ -4397,42 +4397,42 @@ const CompanySettings = () => {
                     );
 
                     const succeeded = results.filter(
-                      (r) => r.status === "fulfilled",
+                      (r) => r.status === 'fulfilled',
                     ).length;
                     const failed = results.filter(
-                      (r) => r.status === "rejected",
+                      (r) => r.status === 'rejected',
                     ).length;
 
                     if (failed === 0) {
                       notificationService.success(
-                        `Successfully granted ${succeeded} permission${succeeded !== 1 ? "s" : ""}!`,
+                        `Successfully granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}!`,
                       );
                     } else if (succeeded > 0) {
                       notificationService.warning(
-                        `Granted ${succeeded} permission${succeeded !== 1 ? "s" : ""}, but ${failed} failed`,
+                        `Granted ${succeeded} permission${succeeded !== 1 ? 's' : ''}, but ${failed} failed`,
                       );
                     } else {
-                      notificationService.error("Failed to grant permissions");
+                      notificationService.error('Failed to grant permissions');
                     }
 
                     setCustomPermissionModal({ open: false, userId: null });
                   } catch (error) {
-                    console.error("Error granting permissions:", error);
+                    console.error('Error granting permissions:', error);
                     notificationService.error(
                       error.response?.data?.error ||
-                        "Failed to grant permissions",
+                        'Failed to grant permissions',
                     );
                   }
                 }}
                 startIcon={<Shield size={20} />}
                 disabled={customPermission.permissionKeys.length === 0}
               >
-                Grant{" "}
+                Grant{' '}
                 {customPermission.permissionKeys.length > 0
                   ? `${customPermission.permissionKeys.length} `
-                  : ""}
+                  : ''}
                 Permission
-                {customPermission.permissionKeys.length !== 1 ? "s" : ""}
+                {customPermission.permissionKeys.length !== 1 ? 's' : ''}
               </Button>
             </div>
           </div>
@@ -4443,14 +4443,14 @@ const CompanySettings = () => {
       {auditLogModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
-            className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl max-h-[90vh] overflow-y-auto`}
+            className={`w-full max-w-4xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] overflow-y-auto`}
           >
             <div
-              className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+              className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <h3
-                  className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Permission Audit Log
                 </h3>
@@ -4459,12 +4459,12 @@ const CompanySettings = () => {
                     setAuditLogModal({ open: false, userId: null, logs: [] })
                   }
                   className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                   />
                 </button>
               </div>
@@ -4475,9 +4475,9 @@ const CompanySettings = () => {
                 <div className="text-center py-12">
                   <History
                     size={48}
-                    className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                    className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                   />
-                  <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                  <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
                     No audit log entries found
                   </p>
                 </div>
@@ -4488,8 +4488,8 @@ const CompanySettings = () => {
                       key={index}
                       className={`p-4 rounded-lg border ${
                         isDarkMode
-                          ? "bg-gray-800 border-gray-700"
-                          : "bg-white border-gray-200"
+                          ? 'bg-gray-800 border-gray-700'
+                          : 'bg-white border-gray-200'
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -4497,35 +4497,35 @@ const CompanySettings = () => {
                           <Clock
                             size={16}
                             className={
-                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                              isDarkMode ? 'text-gray-400' : 'text-gray-500'
                             }
                           />
                           <span
-                            className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
                             {formatDateTime(log.createdAt)}
                           </span>
                         </div>
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded ${
-                            log.action === "grant"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                              : log.action === "revoke"
-                                ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                            log.action === 'grant'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                              : log.action === 'revoke'
+                                ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
                           }`}
                         >
                           {log.action.toUpperCase()}
                         </span>
                       </div>
                       <p
-                        className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         <strong>Changed by:</strong> {log.changedByName}
                       </p>
                       {log.details && (
                         <div
-                          className={`mt-2 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           <pre className="whitespace-pre-wrap">
                             {JSON.stringify(log.details, null, 2)}
@@ -4539,7 +4539,7 @@ const CompanySettings = () => {
             </div>
 
             <div
-              className={`p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex justify-end`}
+              className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex justify-end`}
             >
               <Button
                 variant="outline"
@@ -4558,23 +4558,23 @@ const CompanySettings = () => {
       {viewPermissionsModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
-            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl max-h-[90vh] flex flex-col`}
+            className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl max-h-[90vh] flex flex-col`}
           >
             {/* Header */}
             <div
-              className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+              className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <div>
                   <h3
-                    className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     User Permissions
                   </h3>
                   <p
-                    className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
-                    {viewPermissionsModal.userName || "User"} - Complete
+                    {viewPermissionsModal.userName || 'User'} - Complete
                     Permission Breakdown
                   </p>
                 </div>
@@ -4583,19 +4583,19 @@ const CompanySettings = () => {
                     setViewPermissionsModal({
                       open: false,
                       userId: null,
-                      userName: "",
+                      userName: '',
                       rolePermissions: [],
                       customGrants: [],
                       loading: false,
                     })
                   }
                   className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
                   <X
                     size={20}
-                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                   />
                 </button>
               </div>
@@ -4614,11 +4614,11 @@ const CompanySettings = () => {
                     <div>
                       <div className="flex items-center mb-4">
                         <Shield
-                          className={`mr-2 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                          className={`mr-2 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                           size={20}
                         />
                         <h4
-                          className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                         >
                           From Assigned Roles
                         </h4>
@@ -4630,8 +4630,8 @@ const CompanySettings = () => {
                               key={idx}
                               className={`rounded-lg border ${
                                 isDarkMode
-                                  ? "bg-gray-800 border-gray-700"
-                                  : "bg-gray-50 border-gray-200"
+                                  ? 'bg-gray-800 border-gray-700'
+                                  : 'bg-gray-50 border-gray-200'
                               } p-3`}
                             >
                               <div className="flex items-center justify-between mb-2">
@@ -4643,14 +4643,14 @@ const CompanySettings = () => {
                                         size={18}
                                         className={
                                           isDarkMode
-                                            ? "text-teal-400"
-                                            : "text-teal-600"
+                                            ? 'text-teal-400'
+                                            : 'text-teal-600'
                                         }
                                       />
                                     );
                                   })()}
                                   <h5
-                                    className={`font-medium text-base ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                                    className={`font-medium text-base ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                                   >
                                     {role.displayName}
                                   </h5>
@@ -4659,8 +4659,8 @@ const CompanySettings = () => {
                                   <span
                                     className={`px-2 py-0.5 text-xs font-medium rounded ${
                                       isDarkMode
-                                        ? "bg-purple-900/30 text-purple-400"
-                                        : "bg-purple-100 text-purple-700"
+                                        ? 'bg-purple-900/30 text-purple-400'
+                                        : 'bg-purple-100 text-purple-700'
                                     }`}
                                   >
                                     Director
@@ -4669,50 +4669,50 @@ const CompanySettings = () => {
                               </div>
                               {role.description && (
                                 <p
-                                  className={`text-sm leading-snug mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                  className={`text-sm leading-snug mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                                 >
                                   {role.description}
                                 </p>
                               )}
                               {role.permissions &&
                               role.permissions.length > 0 ? (
-                                <div className="grid grid-cols-1 gap-1.5">
-                                  {role.permissions.map((perm, permIdx) => {
-                                    const PermIcon = getPermissionIcon(
-                                      perm.permissionKey || perm.description,
-                                    );
-                                    return (
-                                      <div
-                                        key={permIdx}
-                                        className={`flex items-center text-sm leading-tight ${
-                                          isDarkMode
-                                            ? "text-gray-300"
-                                            : "text-gray-700"
-                                        }`}
-                                      >
-                                        <PermIcon
-                                          size={13}
-                                          className="mr-1.5 text-green-500 flex-shrink-0"
-                                        />
-                                        <span
-                                          className="truncate"
-                                          title={perm.description}
+                                  <div className="grid grid-cols-1 gap-1.5">
+                                    {role.permissions.map((perm, permIdx) => {
+                                      const PermIcon = getPermissionIcon(
+                                        perm.permissionKey || perm.description,
+                                      );
+                                      return (
+                                        <div
+                                          key={permIdx}
+                                          className={`flex items-center text-sm leading-tight ${
+                                            isDarkMode
+                                              ? 'text-gray-300'
+                                              : 'text-gray-700'
+                                          }`}
                                         >
-                                          {perm.description ||
+                                          <PermIcon
+                                            size={13}
+                                            className="mr-1.5 text-green-500 flex-shrink-0"
+                                          />
+                                          <span
+                                            className="truncate"
+                                            title={perm.description}
+                                          >
+                                            {perm.description ||
                                             perm.permissionKey}
-                                        </span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              ) : (
-                                <p
-                                  className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-                                >
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <p
+                                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                                  >
                                   No specific permissions defined (may have full
                                   access)
-                                </p>
-                              )}
+                                  </p>
+                                )}
                             </div>
                           ),
                         )}
@@ -4723,115 +4723,115 @@ const CompanySettings = () => {
                   {/* Custom Permission Grants */}
                   {viewPermissionsModal.customGrants &&
                     viewPermissionsModal.customGrants.length > 0 && (
-                      <div>
-                        <div className="flex items-center mb-4">
-                          <UserCheck
-                            className={`mr-2 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
-                            size={20}
-                          />
-                          <h4
-                            className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                          >
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <UserCheck
+                          className={`mr-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
+                          size={20}
+                        />
+                        <h4
+                          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        >
                             Custom Permission Grants
-                          </h4>
-                        </div>
-                        <div className="space-y-3">
-                          {viewPermissionsModal.customGrants.map(
-                            (grant, idx) => (
-                              <div
-                                key={idx}
-                                className={`rounded-lg border ${
-                                  isDarkMode
-                                    ? "bg-yellow-900/10 border-yellow-700/30"
-                                    : "bg-yellow-50 border-yellow-200"
-                                } p-4`}
-                              >
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center">
-                                      <CheckCircle
-                                        size={14}
-                                        className="mr-2 text-yellow-500"
-                                      />
-                                      <span
-                                        className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                                      >
-                                        {grant.permissionKey}
-                                      </span>
-                                    </div>
-                                    {grant.reason && (
-                                      <p
-                                        className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                                      >
-                                        <strong>Reason:</strong> {grant.reason}
-                                      </p>
-                                    )}
-                                    {grant.grantedByName && (
-                                      <p
-                                        className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                                      >
-                                        <strong>Granted by:</strong>{" "}
-                                        {grant.grantedByName}
-                                      </p>
-                                    )}
+                        </h4>
+                      </div>
+                      <div className="space-y-3">
+                        {viewPermissionsModal.customGrants.map(
+                          (grant, idx) => (
+                            <div
+                              key={idx}
+                              className={`rounded-lg border ${
+                                isDarkMode
+                                  ? 'bg-yellow-900/10 border-yellow-700/30'
+                                  : 'bg-yellow-50 border-yellow-200'
+                              } p-4`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center">
+                                    <CheckCircle
+                                      size={14}
+                                      className="mr-2 text-yellow-500"
+                                    />
+                                    <span
+                                      className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                    >
+                                      {grant.permissionKey}
+                                    </span>
                                   </div>
-                                  {grant.expiresAt && (
-                                    <div className="ml-4">
-                                      <span
-                                        className={`inline-flex items-center px-2 py-1 text-xs rounded ${
-                                          new Date(grant.expiresAt) < new Date()
-                                            ? isDarkMode
-                                              ? "bg-red-900/30 text-red-400"
-                                              : "bg-red-100 text-red-700"
-                                            : isDarkMode
-                                              ? "bg-blue-900/30 text-blue-400"
-                                              : "bg-blue-100 text-blue-700"
-                                        }`}
-                                      >
-                                        <Clock size={12} className="mr-1" />
-                                        Expires:{" "}
-                                        {new Date(
-                                          grant.expiresAt,
-                                        ).toLocaleDateString()}
-                                      </span>
-                                    </div>
+                                  {grant.reason && (
+                                    <p
+                                      className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                                    >
+                                      <strong>Reason:</strong> {grant.reason}
+                                    </p>
+                                  )}
+                                  {grant.grantedByName && (
+                                    <p
+                                      className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                                    >
+                                      <strong>Granted by:</strong>{' '}
+                                      {grant.grantedByName}
+                                    </p>
                                   )}
                                 </div>
+                                {grant.expiresAt && (
+                                  <div className="ml-4">
+                                    <span
+                                      className={`inline-flex items-center px-2 py-1 text-xs rounded ${
+                                        new Date(grant.expiresAt) < new Date()
+                                          ? isDarkMode
+                                            ? 'bg-red-900/30 text-red-400'
+                                            : 'bg-red-100 text-red-700'
+                                          : isDarkMode
+                                            ? 'bg-blue-900/30 text-blue-400'
+                                            : 'bg-blue-100 text-blue-700'
+                                      }`}
+                                    >
+                                      <Clock size={12} className="mr-1" />
+                                        Expires:{' '}
+                                      {new Date(
+                                        grant.expiresAt,
+                                      ).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
-                            ),
-                          )}
-                        </div>
+                            </div>
+                          ),
+                        )}
                       </div>
-                    )}
+                    </div>
+                  )}
 
                   {/* No Permissions */}
                   {viewPermissionsModal.rolePermissions.length === 0 &&
                     (!viewPermissionsModal.customGrants ||
                       viewPermissionsModal.customGrants.length === 0) && (
-                      <div className="text-center py-12">
-                        <Shield
-                          size={48}
-                          className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
-                        />
-                        <h4
-                          className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                        >
+                    <div className="text-center py-12">
+                      <Shield
+                        size={48}
+                        className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
+                      />
+                      <h4
+                        className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      >
                           No Permissions Assigned
-                        </h4>
-                        <p
-                          className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
+                      </h4>
+                      <p
+                        className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      >
                           This user has no roles or custom permissions assigned.
-                        </p>
-                      </div>
-                    )}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Footer */}
             <div
-              className={`p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex justify-end`}
+              className={`p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'} flex justify-end`}
             >
               <Button
                 variant="outline"
@@ -4839,7 +4839,7 @@ const CompanySettings = () => {
                   setViewPermissionsModal({
                     open: false,
                     userId: null,
-                    userName: "",
+                    userName: '',
                     rolePermissions: [],
                     customGrants: [],
                     loading: false,
@@ -4862,7 +4862,7 @@ const CompanySettings = () => {
       return (
         <SettingsPaper>
           <div className="p-6 text-center">
-            <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
               Loading printing settings...
             </p>
           </div>
@@ -4881,13 +4881,13 @@ const CompanySettings = () => {
             <div>
               <label
                 htmlFor="receipt-size"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Receipt Size
               </label>
               <select
                 id="receipt-size"
-                value={printingSettings.receipt_size || "A5"}
+                value={printingSettings.receipt_size || 'A5'}
                 onChange={(e) =>
                   setPrintingSettings({
                     ...printingSettings,
@@ -4896,8 +4896,8 @@ const CompanySettings = () => {
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
                 <option value="A5">A5 (148mm x 210mm) - Recommended</option>
@@ -4905,7 +4905,7 @@ const CompanySettings = () => {
                 <option value="A4">A4 (210mm x 297mm) - Full Page</option>
               </select>
               <p
-                className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Select the size for payment receipt PDFs
               </p>
@@ -4915,13 +4915,13 @@ const CompanySettings = () => {
             <div>
               <label
                 htmlFor="print-on-paper-size"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Print On Paper Size
               </label>
               <select
                 id="print-on-paper-size"
-                value={printingSettings.print_on_paper_size || "A4"}
+                value={printingSettings.print_on_paper_size || 'A4'}
                 onChange={(e) =>
                   setPrintingSettings({
                     ...printingSettings,
@@ -4930,8 +4930,8 @@ const CompanySettings = () => {
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
                 <option value="A4">A4 (210mm x 297mm)</option>
@@ -4939,7 +4939,7 @@ const CompanySettings = () => {
                 <option value="A6">A6 (105mm x 148mm)</option>
               </select>
               <p
-                className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Physical paper size loaded in printer
               </p>
@@ -4947,21 +4947,21 @@ const CompanySettings = () => {
           </div>
 
           <div
-            className={`mt-6 p-4 rounded-lg ${isDarkMode ? "bg-teal-900/20 border-teal-700" : "bg-teal-50 border-teal-200"} border`}
+            className={`mt-6 p-4 rounded-lg ${isDarkMode ? 'bg-teal-900/20 border-teal-700' : 'bg-teal-50 border-teal-200'} border`}
           >
             <div className="flex items-start gap-3">
               <AlertCircle
                 size={20}
-                className={`${isDarkMode ? "text-teal-400" : "text-teal-600"} flex-shrink-0 mt-0.5`}
+                className={`${isDarkMode ? 'text-teal-400' : 'text-teal-600'} flex-shrink-0 mt-0.5`}
               />
               <div
-                className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}
+                className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
               >
                 <strong
-                  className={isDarkMode ? "text-teal-300" : "text-teal-700"}
+                  className={isDarkMode ? 'text-teal-300' : 'text-teal-700'}
                 >
                   Example:
-                </strong>{" "}
+                </strong>{' '}
                 If Receipt Size = A5 and Print On = A4, the receipt will be A5
                 size centered on A4 paper. This is the most economical setting
                 for standard printers.
@@ -4977,13 +4977,13 @@ const CompanySettings = () => {
             <div>
               <label
                 htmlFor="receipt-printer"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Receipt Printer
               </label>
               <select
                 id="receipt-printer"
-                value={printingSettings.receipt_printer || "default"}
+                value={printingSettings.receipt_printer || 'default'}
                 onChange={(e) =>
                   setPrintingSettings({
                     ...printingSettings,
@@ -4992,8 +4992,8 @@ const CompanySettings = () => {
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
                 <option value="default">Default Printer</option>
@@ -5003,7 +5003,7 @@ const CompanySettings = () => {
                 <option value="pdf_only">Save as PDF Only (No Print)</option>
               </select>
               <p
-                className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Printer for payment receipts
               </p>
@@ -5013,13 +5013,13 @@ const CompanySettings = () => {
             <div>
               <label
                 htmlFor="invoice-printer"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Invoice Printer
               </label>
               <select
                 id="invoice-printer"
-                value={printingSettings.invoice_printer || "default"}
+                value={printingSettings.invoice_printer || 'default'}
                 onChange={(e) =>
                   setPrintingSettings({
                     ...printingSettings,
@@ -5028,8 +5028,8 @@ const CompanySettings = () => {
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
                 <option value="default">Default Printer</option>
@@ -5037,7 +5037,7 @@ const CompanySettings = () => {
                 <option value="pdf_only">Save as PDF Only (No Print)</option>
               </select>
               <p
-                className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Printer for invoices and documents
               </p>
@@ -5045,21 +5045,21 @@ const CompanySettings = () => {
           </div>
 
           <div
-            className={`mt-6 p-4 rounded-lg ${isDarkMode ? "bg-teal-900/20 border-teal-700" : "bg-teal-50 border-teal-200"} border`}
+            className={`mt-6 p-4 rounded-lg ${isDarkMode ? 'bg-teal-900/20 border-teal-700' : 'bg-teal-50 border-teal-200'} border`}
           >
             <div className="flex items-start gap-3">
               <AlertCircle
                 size={20}
-                className={`${isDarkMode ? "text-teal-400" : "text-teal-600"} flex-shrink-0 mt-0.5`}
+                className={`${isDarkMode ? 'text-teal-400' : 'text-teal-600'} flex-shrink-0 mt-0.5`}
               />
               <div
-                className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}
+                className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
               >
                 <strong
-                  className={isDarkMode ? "text-teal-300" : "text-teal-700"}
+                  className={isDarkMode ? 'text-teal-300' : 'text-teal-700'}
                 >
                   Note:
-                </strong>{" "}
+                </strong>{' '}
                 Printer selection works when using the browser&apos;s print
                 dialog. For automatic printing, configure your browser&apos;s
                 default printer settings.
@@ -5075,7 +5075,7 @@ const CompanySettings = () => {
             <div>
               <label
                 htmlFor="receipt-copies"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Receipt Copies
               </label>
@@ -5093,12 +5093,12 @@ const CompanySettings = () => {
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               />
               <p
-                className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Number of copies to print
               </p>
@@ -5108,7 +5108,7 @@ const CompanySettings = () => {
             <div>
               <label
                 htmlFor="invoice-copies"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Invoice Copies
               </label>
@@ -5126,12 +5126,12 @@ const CompanySettings = () => {
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               />
               <p
-                className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Number of copies to print
               </p>
@@ -5140,7 +5140,7 @@ const CompanySettings = () => {
             {/* Auto Print */}
             <div>
               <div
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Auto Print
               </div>
@@ -5158,7 +5158,7 @@ const CompanySettings = () => {
                     className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
                   <span
-                    className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Auto print receipts
                   </span>
@@ -5176,7 +5176,7 @@ const CompanySettings = () => {
                     className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
                   <span
-                    className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Auto print invoices
                   </span>
@@ -5196,7 +5196,7 @@ const CompanySettings = () => {
             onClick={savePrintingSettings}
             disabled={savingPrintingSettings}
           >
-            {savingPrintingSettings ? "Saving..." : "Save Printing Settings"}
+            {savingPrintingSettings ? 'Saving...' : 'Save Printing Settings'}
           </Button>
         </div>
       </SettingsPaper>
@@ -5232,11 +5232,11 @@ const CompanySettings = () => {
           document_line_template: displayTemplates.document_line_template,
           report_template: displayTemplates.report_template,
         });
-        notificationService.success("Display templates saved successfully");
+        notificationService.success('Display templates saved successfully');
         refetchCompany();
       } catch (error) {
-        console.error("Failed to save templates:", error);
-        notificationService.error("Failed to save templates");
+        console.error('Failed to save templates:', error);
+        notificationService.error('Failed to save templates');
       } finally {
         setSavingTemplates(false);
       }
@@ -5249,20 +5249,20 @@ const CompanySettings = () => {
           <div
             className={`rounded-xl shadow-sm border ${
               isDarkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-white border-gray-200'
             }`}
           >
             <div className="p-6">
               {/* Header */}
               <div className="mb-6">
                 <h3
-                  className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   📘 Product Naming System
                 </h3>
                 <p
-                  className={`text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  className={`text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                 >
                   Configure how products are identified (fixed SSOT pattern) and
                   displayed (customizable templates). The identity pattern
@@ -5275,27 +5275,27 @@ const CompanySettings = () => {
               <div
                 className={`mb-6 p-6 rounded-lg border-2 ${
                   isDarkMode
-                    ? "bg-teal-900/10 border-teal-700"
-                    : "bg-teal-50 border-teal-300"
+                    ? 'bg-teal-900/10 border-teal-700'
+                    : 'bg-teal-50 border-teal-300'
                 }`}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div
-                    className={`p-2 rounded-lg ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}
+                    className={`p-2 rounded-lg ${isDarkMode ? 'bg-teal-900/30' : 'bg-teal-100'}`}
                   >
                     <Shield
                       size={24}
-                      className={isDarkMode ? "text-teal-400" : "text-teal-600"}
+                      className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
                     />
                   </div>
                   <div>
                     <h4
-                      className={`text-lg font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Product Identity (SSOT - Fixed Pattern)
                     </h4>
                     <p
-                      className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       This is the canonical product identifier used across the
                       system. <strong>It cannot be changed</strong> as it
@@ -5305,35 +5305,35 @@ const CompanySettings = () => {
                 </div>
 
                 <div
-                  className={`p-4 rounded-lg border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+                  className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
                 >
                   <div className="space-y-3">
                     <div>
                       <p
-                        className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                       >
                         PATTERN:
                       </p>
                       <code
                         className={`block p-3 rounded font-mono text-sm ${
                           isDarkMode
-                            ? "bg-gray-900 text-teal-300"
-                            : "bg-gray-50 text-teal-700"
+                            ? 'bg-gray-900 text-teal-300'
+                            : 'bg-gray-50 text-teal-700'
                         }`}
                       >
-                        SS-{"{Grade}"}-{"{Form}"}-{"{Finish}"}-{"{Width}"}mm-
-                        {"{Thickness}"}mm-{"{Length}"}mm
+                        SS-{'{Grade}'}-{'{Form}'}-{'{Finish}'}-{'{Width}'}mm-
+                        {'{Thickness}'}mm-{'{Length}'}mm
                       </code>
                     </div>
 
                     <div>
                       <p
-                        className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                       >
                         EXAMPLES:
                       </p>
                       <ul
-                        className={`space-y-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         <li className="font-mono">
                           • SS-316-Sheet-2B-1220mm-1.5mm-2440mm
@@ -5348,10 +5348,10 @@ const CompanySettings = () => {
                     </div>
 
                     <div
-                      className={`p-3 rounded-lg ${isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-300"} border`}
+                      className={`p-3 rounded-lg ${isDarkMode ? 'bg-yellow-900/20 border-yellow-700' : 'bg-yellow-50 border-yellow-300'} border`}
                     >
                       <p
-                        className={`text-xs font-medium ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}
+                        className={`text-xs font-medium ${isDarkMode ? 'text-yellow-300' : 'text-yellow-800'}`}
                       >
                         ⚠️ <strong>Important:</strong> Origin, mill, and
                         supplier info are stored separately and NOT part of
@@ -5367,29 +5367,29 @@ const CompanySettings = () => {
               <div
                 className={`mb-4 p-6 rounded-lg border ${
                   isDarkMode
-                    ? "bg-gray-900/50 border-gray-700"
-                    : "bg-gray-50 border-gray-200"
+                    ? 'bg-gray-900/50 border-gray-700'
+                    : 'bg-gray-50 border-gray-200'
                 }`}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div
-                    className={`p-2 rounded-lg ${isDarkMode ? "bg-purple-900/30" : "bg-purple-100"}`}
+                    className={`p-2 rounded-lg ${isDarkMode ? 'bg-purple-900/30' : 'bg-purple-100'}`}
                   >
                     <Edit
                       size={24}
                       className={
-                        isDarkMode ? "text-purple-400" : "text-purple-600"
+                        isDarkMode ? 'text-purple-400' : 'text-purple-600'
                       }
                     />
                   </div>
                   <div>
                     <h4
-                      className={`text-lg font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Display Templates (Editable)
                     </h4>
                     <p
-                      className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Control how products appear in different contexts.
                       Templates can include both product AND batch-level info.
@@ -5402,7 +5402,7 @@ const CompanySettings = () => {
                   <div>
                     <label
                       htmlFor="productDropdownTemplate"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Product Dropdown Template
                     </label>
@@ -5418,27 +5418,27 @@ const CompanySettings = () => {
                       }
                       className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
                         isDarkMode
-                          ? "bg-gray-800 border-gray-600 text-white"
-                          : "bg-white border-gray-300 text-gray-900"
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
                       }`}
                       placeholder="{unique_name}"
                     />
                     <p
-                      className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       How products appear in selection lists (product-level
                       only)
                     </p>
                     <div
-                      className={`mt-2 p-2 rounded ${isDarkMode ? "bg-gray-800" : "bg-gray-100"}`}
+                      className={`mt-2 p-2 rounded ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}
                     >
                       <p
-                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                       >
                         Preview:
                       </p>
                       <code
-                        className={`text-sm ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}
+                        className={`text-sm ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
                       >
                         {renderTemplate(
                           displayTemplates.product_dropdown_template,
@@ -5452,7 +5452,7 @@ const CompanySettings = () => {
                   <div>
                     <label
                       htmlFor="documentLineTemplate"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Document Line Template
                     </label>
@@ -5468,27 +5468,27 @@ const CompanySettings = () => {
                       }
                       className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
                         isDarkMode
-                          ? "bg-gray-800 border-gray-600 text-white"
-                          : "bg-white border-gray-300 text-gray-900"
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
                       }`}
                       placeholder="{unique_name} | {Origin} | {Mill}"
                     />
                     <p
-                      className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       How products appear on invoices/delivery notes (can
                       include batch info)
                     </p>
                     <div
-                      className={`mt-2 p-2 rounded ${isDarkMode ? "bg-gray-800" : "bg-gray-100"}`}
+                      className={`mt-2 p-2 rounded ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}
                     >
                       <p
-                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                       >
                         Preview:
                       </p>
                       <code
-                        className={`text-sm ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}
+                        className={`text-sm ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
                       >
                         {renderTemplate(
                           displayTemplates.document_line_template,
@@ -5502,7 +5502,7 @@ const CompanySettings = () => {
                   <div>
                     <label
                       htmlFor="reportTemplate"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Report Template
                     </label>
@@ -5518,26 +5518,26 @@ const CompanySettings = () => {
                       }
                       className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
                         isDarkMode
-                          ? "bg-gray-800 border-gray-600 text-white"
-                          : "bg-white border-gray-300 text-gray-900"
+                          ? 'bg-gray-800 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
                       }`}
                       placeholder="SS {Grade} {Form} {Finish} - {Origin} ({Mill})"
                     />
                     <p
-                      className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       How products appear in reports and analytics
                     </p>
                     <div
-                      className={`mt-2 p-2 rounded ${isDarkMode ? "bg-gray-800" : "bg-gray-100"}`}
+                      className={`mt-2 p-2 rounded ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}
                     >
                       <p
-                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                       >
                         Preview:
                       </p>
                       <code
-                        className={`text-sm ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}
+                        className={`text-sm ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
                       >
                         {renderTemplate(
                           displayTemplates.report_template,
@@ -5549,36 +5549,36 @@ const CompanySettings = () => {
 
                   {/* Available Placeholders Help */}
                   <div
-                    className={`p-4 rounded-lg border ${isDarkMode ? "bg-blue-900/10 border-blue-700" : "bg-blue-50 border-blue-200"}`}
+                    className={`p-4 rounded-lg border ${isDarkMode ? 'bg-blue-900/10 border-blue-700' : 'bg-blue-50 border-blue-200'}`}
                   >
                     <p
-                      className={`text-sm font-medium mb-2 ${isDarkMode ? "text-blue-300" : "text-blue-800"}`}
+                      className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}
                     >
                       Available Placeholders:
                     </p>
                     <div
-                      className={`grid grid-cols-2 gap-2 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      className={`grid grid-cols-2 gap-2 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       <div>
                         <p className="font-semibold mb-1">Product-Level:</p>
                         <ul className="space-y-0.5 font-mono">
-                          <li>{"{unique_name}"}</li>
-                          <li>{"{Grade}"}</li>
-                          <li>{"{Form}"}</li>
-                          <li>{"{Finish}"}</li>
+                          <li>{'{unique_name}'}</li>
+                          <li>{'{Grade}'}</li>
+                          <li>{'{Form}'}</li>
+                          <li>{'{Finish}'}</li>
                           <li>
-                            {"{Width}"}, {"{Thickness}"}, {"{Length}"}
+                            {'{Width}'}, {'{Thickness}'}, {'{Length}'}
                           </li>
                         </ul>
                       </div>
                       <div>
                         <p className="font-semibold mb-1">Batch-Level:</p>
                         <ul className="space-y-0.5 font-mono">
-                          <li>{"{Origin}"}</li>
-                          <li>{"{Mill}"}</li>
-                          <li>{"{MillCountry}"}</li>
-                          <li>{"{BatchNumber}"}</li>
-                          <li>{"{Container}"}</li>
+                          <li>{'{Origin}'}</li>
+                          <li>{'{Mill}'}</li>
+                          <li>{'{MillCountry}'}</li>
+                          <li>{'{BatchNumber}'}</li>
+                          <li>{'{Container}'}</li>
                         </ul>
                       </div>
                     </div>
@@ -5591,7 +5591,7 @@ const CompanySettings = () => {
                       onClick={saveTemplates}
                       disabled={savingTemplates}
                     >
-                      {savingTemplates ? "Saving..." : "Save Templates"}
+                      {savingTemplates ? 'Saving...' : 'Save Templates'}
                     </Button>
                   </div>
                 </div>
@@ -5605,13 +5605,13 @@ const CompanySettings = () => {
           <div
             className={`h-full rounded-xl shadow-sm border overflow-hidden ${
               isDarkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-white border-gray-200'
             }`}
           >
             <ProductNamingHelpPanel
               hasMismatch={Object.values(productVerificationStatus).some(
-                (status) => status.status === "error",
+                (status) => status.status === 'error',
               )}
             />
           </div>
@@ -5620,16 +5620,16 @@ const CompanySettings = () => {
     );
   };
 
-  const isAdmin = authService.hasRole("admin");
+  const isAdmin = authService.hasRole('admin');
   const tabs = [
-    { id: "profile", label: "Company Profile", icon: Building },
-    { id: "templates", label: "Document Templates", icon: FileText },
-    { id: "printing", label: "Printing & Documents", icon: Printer },
-    { id: "tax", label: "VAT Rates", icon: Calculator },
-    { id: "fta", label: "FTA Integration", icon: Key },
-    { id: "product-naming", label: "Product Naming System", icon: Tag },
+    { id: 'profile', label: 'Company Profile', icon: Building },
+    { id: 'templates', label: 'Document Templates', icon: FileText },
+    { id: 'printing', label: 'Printing & Documents', icon: Printer },
+    { id: 'tax', label: 'VAT Rates', icon: Calculator },
+    { id: 'fta', label: 'FTA Integration', icon: Key },
+    { id: 'product-naming', label: 'Product Naming System', icon: Tag },
     ...(isAdmin
-      ? [{ id: "users", label: "User Management", icon: Users }]
+      ? [{ id: 'users', label: 'User Management', icon: Users }]
       : []),
   ];
 
@@ -5638,26 +5638,26 @@ const CompanySettings = () => {
 
   return (
     <div
-      className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
     >
       {/* Header Section */}
       <div
-        className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-sm`}
+        className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}
       >
         <div className="p-6">
           <div className="flex items-center gap-4 mb-4">
             <Settings
               size={28}
-              className={isDarkMode ? "text-gray-300" : "text-gray-700"}
+              className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}
             />
             <div>
               <h1
-                className={`text-3xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Company Settings
               </h1>
               <p
-                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
                 Manage your company profile, invoice templates, taxes, and users
               </p>
@@ -5667,10 +5667,10 @@ const CompanySettings = () => {
 
         {/* Tabs - Pill style for clarity, wraps on small screens */}
         <div
-          className={`${isDarkMode ? "bg-gray-800 border-y border-[#37474F]" : "bg-white border-y border-gray-200"}`}
+          className={`${isDarkMode ? 'bg-gray-800 border-y border-[#37474F]' : 'bg-white border-y border-gray-200'}`}
         >
           <div
-            className={`flex flex-wrap gap-2 p-2 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            className={`flex flex-wrap gap-2 p-2 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
           >
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -5685,11 +5685,11 @@ const CompanySettings = () => {
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-colors duration-200 ${
                     isDarkMode
                       ? isActive
-                        ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
-                        : "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
+                        ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                        : 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
                       : isActive
-                        ? "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
-                        : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                        ? 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                        : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
                   <Icon size={18} />
@@ -5703,13 +5703,13 @@ const CompanySettings = () => {
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === "profile" && renderProfile()}
-        {activeTab === "templates" && renderInvoiceTemplates()}
-        {activeTab === "printing" && renderPrintingSettings()}
-        {activeTab === "tax" && renderVatSettings()}
-        {activeTab === "fta" && <FTAIntegrationSettings embedded />}
-        {activeTab === "product-naming" && renderProductNamingSystem()}
-        {isAdmin && activeTab === "users" && (
+        {activeTab === 'profile' && renderProfile()}
+        {activeTab === 'templates' && renderInvoiceTemplates()}
+        {activeTab === 'printing' && renderPrintingSettings()}
+        {activeTab === 'tax' && renderVatSettings()}
+        {activeTab === 'fta' && <FTAIntegrationSettings embedded />}
+        {activeTab === 'product-naming' && renderProductNamingSystem()}
+        {isAdmin && activeTab === 'users' && (
           <>
             {renderUserManagement()}
             {renderUserManagementModals()}

@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import PropTypes from "prop-types";
+import { useCallback } from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * SourceTypeSelector Component
@@ -14,22 +14,22 @@ import PropTypes from "prop-types";
 const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
   const sourceTypes = [
     {
-      value: "WAREHOUSE",
-      label: "Warehouse",
-      description: "From existing stock",
-      icon: "🏭",
+      value: 'WAREHOUSE',
+      label: 'Warehouse',
+      description: 'From existing stock',
+      icon: '🏭',
     },
     {
-      value: "LOCAL_DROP_SHIP",
-      label: "Local Drop-Ship",
-      description: "Direct from local supplier",
-      icon: "🚚",
+      value: 'LOCAL_DROP_SHIP',
+      label: 'Local Drop-Ship',
+      description: 'Direct from local supplier',
+      icon: '🚚',
     },
     {
-      value: "IMPORT_DROP_SHIP",
-      label: "Import Drop-Ship",
-      description: "Direct from import",
-      icon: "🚢",
+      value: 'IMPORT_DROP_SHIP',
+      label: 'Import Drop-Ship',
+      description: 'Direct from import',
+      icon: '🚢',
     },
   ];
 
@@ -51,7 +51,7 @@ const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
         {sourceTypes.map((sourceType) => (
           <label
             key={sourceType.value}
-            className={`source-type-option ${value === sourceType.value ? "selected" : ""} ${disabled ? "disabled" : ""}`}
+            className={`source-type-option ${value === sourceType.value ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
           >
             <input
               type="radio"
@@ -74,7 +74,7 @@ const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
 };
 
 SourceTypeSelector.propTypes = {
-  value: PropTypes.oneOf(["WAREHOUSE", "LOCAL_DROP_SHIP", "IMPORT_DROP_SHIP"]),
+  value: PropTypes.oneOf(['WAREHOUSE', 'LOCAL_DROP_SHIP', 'IMPORT_DROP_SHIP']),
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
