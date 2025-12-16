@@ -1,5 +1,23 @@
 import axios from 'axios';
 
+const IS_DEV = import.meta.env.DEV;
+
+// ============================================================================
+// DEV-ONLY: Dynamic Contract Guard Import (Zero Production Bundle Impact)
+// ============================================================================
+// Using dynamic import ensures Zod + contract schemas are NOT included in
+// production bundle (tree-shaken). Static imports would pull the entire
+// module graph even if code paths don't execute.
+// ============================================================================
+let contractGuard = null;
+
+async function getContractGuard() {
+  if (!contractGuard && IS_DEV) {
+    contractGuard = await import('../contracts/validateContract.js');
+  }
+  return contractGuard;
+}
+
 // Resolve API base URL with a LAN-safe fallback.
 // If the env points to localhost but the app is accessed via a LAN IP/hostname,
 // use relative "/api" so the Vite proxy handles requests correctly.
@@ -213,11 +231,89 @@ export const apiService = {
   },
 
   request: async (config = {}) => {
+    // ========================================================================
+    // DEV-ONLY: Request Contract Validation (Dynamic Import)
+    // ========================================================================
+    if (IS_DEV) {
+      try {
+        const guard = await getContractGuard();
+        if (guard) {
+          guard.validateRequestContract(config);
+        }
+      } catch (validationError) {
+        // Enhanced logging for contract violations
+        const guard = await getContractGuard();
+        if (guard && validationError instanceof guard.ContractViolationError) {
+          console.groupCollapsed(
+            `%c[Contract Violation] REQUEST %c${config.method || 'GET'} ${config.url}`,
+            'color: red; font-weight: bold',
+            'color: orange; font-weight: normal'
+          );
+          console.error('Validation Issues:', validationError.formatIssues());
+          console.error('Request Data:', config.data);
+          console.groupEnd();
+        }
+        // Re-throw to prevent invalid request from being sent
+        throw validationError;
+      }
+    }
+
+    // ========================================================================
+    // Execute Request (Original Behavior)
+    // ========================================================================
     try {
       const response = await api.request(config);
+
+      // ======================================================================
+      // DEV-ONLY: Response Contract Validation (Dynamic Import)
+      // ======================================================================
+      if (IS_DEV) {
+        try {
+          const guard = await getContractGuard();
+          if (guard) {
+            guard.validateResponseContract({
+              method: config.method || 'GET',
+              url: config.url || '',
+              data: response.data,
+              responseType: config.responseType,
+            });
+          }
+        } catch (validationError) {
+          // Enhanced logging for contract violations
+          const guard = await getContractGuard();
+          if (guard && validationError instanceof guard.ContractViolationError) {
+            console.groupCollapsed(
+              `%c[Contract Violation] RESPONSE %c${config.method || 'GET'} ${config.url}`,
+              'color: red; font-weight: bold',
+              'color: orange; font-weight: normal'
+            );
+            console.error('Validation Issues:', validationError.formatIssues());
+            console.error('Response Data:', response.data);
+            console.groupEnd();
+          }
+          // Re-throw to alert developer of contract mismatch
+          throw validationError;
+        }
+      }
+
+      // Return unwrapped data (original behavior)
       return response.data;
     } catch (error) {
+      // ======================================================================
+      // Enhanced Error Logging
+      // ======================================================================
       const label = `${config.method || 'GET'} ${config.url}`;
+
+      // Check if error is ContractViolationError (DEV only)
+      if (IS_DEV) {
+        const guard = await getContractGuard();
+        if (guard && error instanceof guard.ContractViolationError) {
+          // Contract violation already logged above - just re-throw
+          throw error;
+        }
+      }
+
+      // Original error logging for network/server errors
       console.error(`${label} error:`, error.response?.data || error.message); // eslint-disable-line no-console
       throw error;
     }

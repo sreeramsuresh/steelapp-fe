@@ -146,75 +146,11 @@ const FormSettingsPanel = ({
   );
 };
 
-// ==================== DESIGN TOKENS ====================
-const COLORS = {
-  bg: '#0b0f14',
-  card: '#141a20',
-  border: '#2a3640',
-  text: '#e6edf3',
-  muted: '#93a4b4',
-  accent: '#4aa3ff',
-  accentHover: '#5bb2ff',
-  inputBg: '#0f151b',
-};
-
-// Drawer Component for secondary content
-const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width = 'w-[min(620px,92vw)]' }) => {
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) onClose();
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
-
-  return (
-    <>
-      <div
-        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={onClose}
-      />
-      <div
-        className={`fixed top-0 right-0 h-full ${width} z-[31]
-          ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
-          overflow-auto transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="p-4">
-          <div className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
-            ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'}
-            z-[1]`}
-          >
-            <div>
-              <div className="text-sm font-extrabold">{title}</div>
-              {subtitle && <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>{subtitle}</div>}
-            </div>
-            <button
-              onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#2a3640]' : 'hover:bg-gray-100'}`}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          {children}
-        </div>
-      </div>
-    </>
-  );
-};
-
 const QuotationForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isDarkMode } = useTheme();
   const isEdit = Boolean(id);
-
-  // Drawer states
-  const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
-  const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
 
   // Form preferences (with localStorage persistence)
   const [formPreferences, setFormPreferences] = useState(() => {
@@ -1720,9 +1656,7 @@ const QuotationForm = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-        {/* Main Content - 8 columns */}
-        <div className="col-span-12 lg:col-span-8 space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         {/* Basic Information - Compact */}
         <div
           className={`p-3 md:p-6 rounded-xl border ${
@@ -2528,378 +2462,300 @@ const QuotationForm = () => {
           )}
         </div>
 
-        </div>{/* End Main Content 8 columns */}
-
-        {/* Sidebar - 4 columns, sticky */}
-        <div className="col-span-12 lg:col-span-4">
-          <div className="lg:sticky lg:top-24 space-y-4">
-            {/* Summary */}
-            <div
-              className={`p-4 rounded-2xl border ${
-                isDarkMode
-                  ? 'bg-[#141a20] border-[#2a3640]'
-                  : 'bg-white border-gray-200'
-              }`}
+        {/* Charges & Totals - Side by side on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          {/* Charges */}
+          <div
+            className={`p-3 md:p-6 rounded-xl border ${
+              isDarkMode
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
+            }`}
+          >
+            <h3
+              className={`text-base md:text-lg font-semibold mb-3 md:mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
-              <div className="flex items-center gap-2 mb-3">
-                <Calculator size={18} className="text-teal-600" />
-                <h3
-                  className={`text-sm font-extrabold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              Additional Charges
+            </h3>
+
+            <div className="space-y-2 md:space-y-3">
+              <Input
+                label="Packing Charges"
+                type="number"
+                value={formData.packingCharges}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    packingCharges: e.target.value,
+                  }))
+                }
+                min="0"
+                step="0.01"
+              />
+
+              <Input
+                label="Freight Charges"
+                type="number"
+                value={formData.freightCharges}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    freightCharges: e.target.value,
+                  }))
+                }
+                min="0"
+                step="0.01"
+              />
+
+              <Input
+                label="Insurance Charges"
+                type="number"
+                value={formData.insuranceCharges}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    insuranceCharges: e.target.value,
+                  }))
+                }
+                min="0"
+                step="0.01"
+              />
+
+              <Input
+                label="Loading Charges"
+                type="number"
+                value={formData.loadingCharges}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    loadingCharges: e.target.value,
+                  }))
+                }
+                min="0"
+                step="0.01"
+              />
+
+              <Input
+                label="Other Charges"
+                type="number"
+                value={formData.otherCharges}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    otherCharges: e.target.value,
+                  }))
+                }
+                min="0"
+                step="0.01"
+              />
+            </div>
+          </div>
+
+          {/* Totals */}
+          <div
+            className={`p-3 md:p-6 rounded-xl border ${
+              isDarkMode
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-3 md:mb-4">
+              <Calculator size={18} className="text-teal-600 md:hidden" />
+              <Calculator size={20} className="text-teal-600 hidden md:block" />
+              <h3
+                className={`text-base md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              >
+                Summary
+              </h3>
+            </div>
+
+            <div className="space-y-2 md:space-y-3">
+              <div className="flex justify-between text-sm">
+                <span
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                 >
-                  Summary
-                </h3>
+                  Subtotal:
+                </span>
+                <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                  {formatCurrency(formData.subtotal)}
+                </span>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-[13px]">
-                  <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>
-                    Subtotal
+              {formData.vatAmount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                  >
+                    VAT:
                   </span>
-                  <span className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {formatCurrency(formData.subtotal)}
+                  <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                    {formatCurrency(formData.vatAmount)}
                   </span>
                 </div>
+              )}
 
-                {formData.vatAmount > 0 && (
-                  <div className="flex justify-between text-[13px]">
-                    <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>
-                      VAT
-                    </span>
-                    <span className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(formData.vatAmount)}
-                    </span>
-                  </div>
-                )}
-
-                {(parseFloat(formData.packingCharges) || 0) + (parseFloat(formData.freightCharges) || 0) + (parseFloat(formData.insuranceCharges) || 0) + (parseFloat(formData.loadingCharges) || 0) + (parseFloat(formData.otherCharges) || 0) > 0 && (
-                  <div className="flex justify-between text-[13px]">
-                    <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>
-                      Charges
-                    </span>
-                    <span className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {formatCurrency(
-                        (parseFloat(formData.packingCharges) || 0) +
-                        (parseFloat(formData.freightCharges) || 0) +
-                        (parseFloat(formData.insuranceCharges) || 0) +
-                        (parseFloat(formData.loadingCharges) || 0) +
-                        (parseFloat(formData.otherCharges) || 0)
-                      )}
-                    </span>
-                  </div>
-                )}
-
-                <div className={`h-px my-2 ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'}`} />
-
+              <div
+                className={`pt-2 md:pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
+              >
                 <div className="flex justify-between items-center">
-                  <span className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Total
+                  <span
+                    className={`text-base md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  >
+                    Total:
                   </span>
-                  <span className="text-lg font-extrabold text-teal-600 font-mono">
+                  <span
+                    className={`text-lg md:text-xl font-bold text-teal-600`}
+                  >
                     {formatCurrency(formData.total)}
                   </span>
                 </div>
+              </div>
 
-                <div className="flex justify-between text-xs pt-1">
-                  <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>
-                    {formData.items.length} items
+              <div className="text-xs md:text-sm space-y-1 pt-2">
+                <div className="flex justify-between">
+                  <span
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                  >
+                    Total Items:
                   </span>
-                  <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>
-                    Qty: {formData.totalQuantity}
+                  <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                    {formData.items.length}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                  >
+                    Total Quantity:
+                  </span>
+                  <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                    {formData.totalQuantity}
                   </span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Quick Actions */}
-            <div
-              className={`p-4 rounded-2xl border ${
-                isDarkMode
-                  ? 'bg-[#141a20] border-[#2a3640]'
-                  : 'bg-white border-gray-200'
-              }`}
-            >
-              <div className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Quick Actions
-              </div>
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => setChargesDrawerOpen(true)}
-                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
-                    isDarkMode
-                      ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
-                      : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
-                  }`}
-                >
-                  <Package className="h-4 w-4 opacity-60" />
-                  Edit Charges
-                  {(parseFloat(formData.packingCharges) || 0) + (parseFloat(formData.freightCharges) || 0) + (parseFloat(formData.insuranceCharges) || 0) + (parseFloat(formData.loadingCharges) || 0) + (parseFloat(formData.otherCharges) || 0) > 0 && (
-                    <span className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'}`}>
-                      {formatCurrency((parseFloat(formData.packingCharges) || 0) + (parseFloat(formData.freightCharges) || 0) + (parseFloat(formData.insuranceCharges) || 0) + (parseFloat(formData.loadingCharges) || 0) + (parseFloat(formData.otherCharges) || 0))}
-                    </span>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setNotesDrawerOpen(true)}
-                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
-                    isDarkMode
-                      ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
-                      : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
-                  }`}
-                >
-                  <FileText className="h-4 w-4 opacity-60" />
-                  Notes & Terms
-                  {(formData.notes || formData.termsAndConditions) && (
-                    <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? 'bg-teal-400' : 'bg-teal-500'}`} />
-                  )}
-                </button>
-              </div>
+        {/* Notes & Terms - Collapsible on mobile */}
+        <details
+          className={`p-3 md:p-6 rounded-xl border ${
+            isDarkMode
+              ? 'bg-[#1E2328] border-[#37474F]'
+              : 'bg-white border-gray-200'
+          }`}
+          open
+        >
+          <summary
+            className={`text-base md:text-lg font-semibold cursor-pointer ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+          >
+            Notes & Terms
+          </summary>
+          <div className="space-y-3 md:space-y-4 mt-3 md:mt-4">
+            <div>
+              <label
+                htmlFor="quotation-notes"
+                className={`block text-xs font-medium mb-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}
+              >
+                Notes
+              </label>
+              <textarea
+                id="quotation-notes"
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                }
+                rows={2}
+                className={`w-full px-2 py-1.5 text-sm border rounded-md focus:ring-1 focus:ring-teal-500 focus:border-teal-500 ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              />
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => setShowPreview(true)}
-                className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] rounded-xl border transition-colors ${
+            <div>
+              <label
+                htmlFor="quotation-terms"
+                className={`block text-xs font-medium mb-1 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                }`}
+              >
+                Terms & Conditions
+              </label>
+              <textarea
+                id="quotation-terms"
+                value={formData.termsAndConditions}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    termsAndConditions: e.target.value,
+                  }))
+                }
+                rows={3}
+                className={`w-full px-2 py-1.5 text-sm border rounded-md focus:ring-1 focus:ring-teal-500 focus:border-teal-500 ${
                   isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]'
-                    : 'bg-white border-gray-300 text-gray-700 hover:border-blue-500'
+                    ? 'bg-gray-800 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
-              >
-                <Eye size={16} />
-                Preview
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl text-[13px] cursor-pointer ${
-                  isSaving ? 'opacity-60 cursor-not-allowed' : ''
-                }`}
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save size={16} />
-                    {isEdit ? 'Update Quotation' : 'Create Quotation'}
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/quotations')}
-                className={`w-full py-2 text-[13px] text-center ${
-                  isDarkMode ? 'text-[#93a4b4] hover:text-white' : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Cancel
-              </button>
+              />
             </div>
           </div>
+        </details>
+
+        {/* Submit Buttons - Sticky on mobile */}
+        <div className="sticky bottom-0 left-0 right-0 bg-opacity-95 backdrop-blur-sm p-2 md:p-0 md:relative flex justify-end gap-2 md:gap-4 z-10">
+          <button
+            type="button"
+            onClick={() => navigate('/quotations')}
+            className={`px-4 md:px-6 py-2 border rounded-lg transition-colors text-sm md:text-base ${
+              isDarkMode
+                ? 'border-gray-600 text-gray-300 hover:bg-gray-700 bg-[#1E2328]'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50 bg-white'
+            }`}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 border rounded-lg transition-colors text-sm md:text-base ${
+              isDarkMode
+                ? 'border-gray-600 text-gray-300 hover:bg-gray-700 bg-[#1E2328]'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50 bg-white'
+            }`}
+            title="Preview quotation"
+          >
+            <Eye size={14} className="md:hidden" />
+            <Eye size={16} className="hidden md:block" />
+            Preview
+          </button>
+          <button
+            type="submit"
+            disabled={isSaving}
+            className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 text-sm md:text-base ${
+              isSaving
+                ? 'opacity-60 cursor-not-allowed pointer-events-none'
+                : ''
+            }`}
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={14} className="md:hidden" />
+                <Save size={16} className="hidden md:block" />
+                {isEdit ? 'Update' : 'Create'}
+              </>
+            )}
+          </button>
         </div>
       </form>
-
-      {/* Charges Drawer */}
-      <Drawer
-        isOpen={chargesDrawerOpen}
-        onClose={() => setChargesDrawerOpen(false)}
-        title="Additional Charges"
-        subtitle="Packing, freight, insurance, and other charges"
-        isDarkMode={isDarkMode}
-      >
-        <div className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Packing Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.packingCharges}
-                onChange={(e) => setFormData((prev) => ({ ...prev, packingCharges: e.target.value }))}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Freight Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.freightCharges}
-                onChange={(e) => setFormData((prev) => ({ ...prev, freightCharges: e.target.value }))}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Insurance Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.insuranceCharges}
-                onChange={(e) => setFormData((prev) => ({ ...prev, insuranceCharges: e.target.value }))}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Loading Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.loadingCharges}
-                onChange={(e) => setFormData((prev) => ({ ...prev, loadingCharges: e.target.value }))}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div className="col-span-2">
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Other Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.otherCharges}
-                onChange={(e) => setFormData((prev) => ({ ...prev, otherCharges: e.target.value }))}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-          </div>
-
-          <div className={`p-3 rounded-[14px] ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}>
-            <div className="flex justify-between items-center">
-              <span className={`text-sm ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Total Charges</span>
-              <span className="text-sm font-bold font-mono">
-                {formatCurrency(
-                  (parseFloat(formData.packingCharges) || 0) +
-                  (parseFloat(formData.freightCharges) || 0) +
-                  (parseFloat(formData.insuranceCharges) || 0) +
-                  (parseFloat(formData.loadingCharges) || 0) +
-                  (parseFloat(formData.otherCharges) || 0)
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="sticky bottom-0 pt-4 mt-6"
-          style={{
-            background: isDarkMode
-              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setChargesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
-          >
-            Done
-          </button>
-        </div>
-      </Drawer>
-
-      {/* Notes & Terms Drawer */}
-      <Drawer
-        isOpen={notesDrawerOpen}
-        onClose={() => setNotesDrawerOpen(false)}
-        title="Notes & Terms"
-        subtitle="Internal notes and terms for this quotation"
-        isDarkMode={isDarkMode}
-      >
-        <div className="space-y-4 mt-4">
-          <div>
-            <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-              Notes
-            </label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-              placeholder="Add any notes about this quotation..."
-              rows={4}
-              className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
-                isDarkMode
-                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-              Terms & Conditions
-            </label>
-            <textarea
-              value={formData.termsAndConditions}
-              onChange={(e) => setFormData((prev) => ({ ...prev, termsAndConditions: e.target.value }))}
-              placeholder="Enter terms and conditions..."
-              rows={5}
-              className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
-                isDarkMode
-                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-            />
-          </div>
-        </div>
-
-        <div
-          className="sticky bottom-0 pt-4 mt-6"
-          style={{
-            background: isDarkMode
-              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setNotesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
-          >
-            Done
-          </button>
-        </div>
-      </Drawer>
 
       {/* Preview Modal */}
       {showPreview && (

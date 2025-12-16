@@ -470,74 +470,6 @@ const FormSettingsPanel = ({
   );
 };
 
-// ==================== DESIGN TOKENS ====================
-const COLORS = {
-  bg: '#0b0f14',
-  card: '#141a20',
-  border: '#2a3640',
-  text: '#e6edf3',
-  muted: '#93a4b4',
-  good: '#2ecc71',
-  warn: '#f39c12',
-  bad: '#e74c3c',
-  accent: '#4aa3ff',
-  accentHover: '#5bb2ff',
-  inputBg: '#0f151b',
-};
-
-// Drawer Component for secondary content
-const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width = 'w-[min(620px,92vw)]' }) => {
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) onClose();
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
-
-  return (
-    <>
-      {/* Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={onClose}
-      />
-      {/* Drawer Panel */}
-      <div
-        className={`fixed top-0 right-0 h-full ${width} z-[31]
-          ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
-          overflow-auto transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="p-4">
-          {/* Header */}
-          <div className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
-            ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'}
-            z-[1]`}
-          >
-            <div>
-              <div className="text-sm font-extrabold">{title}</div>
-              {subtitle && <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>{subtitle}</div>}
-            </div>
-            <button
-              onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#2a3640]' : 'hover:bg-gray-100'}`}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          {/* Content */}
-          {children}
-        </div>
-      </div>
-    </>
-  );
-};
-
 const VendorBillForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -555,10 +487,6 @@ const VendorBillForm = () => {
     const saved = localStorage.getItem('vendorBillPinnedProducts');
     return saved ? JSON.parse(saved) : [];
   });
-
-  // Drawer states
-  const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
-  const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
 
   // Form preferences
   const [formPreferences, setFormPreferences] = useState(() => {
@@ -1435,9 +1363,9 @@ const VendorBillForm = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-12 gap-4">
-          {/* Main Content - 8 columns */}
-          <div className="col-span-12 lg:col-span-8 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
             {/* Vendor & Bill Info */}
             <div
               className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
@@ -2423,11 +2351,139 @@ const VendorBillForm = () => {
               </div>
             </div>
 
+            {/* Additional Charges */}
+            <Card className="p-3 md:p-4 mt-6">
+              <h3
+                className={`text-base md:text-lg font-semibold mb-3 md:mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              >
+                Freight and Duty Charges
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input
+                  label="Freight Charges"
+                  type="number"
+                  value={bill.freightCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    setBill((prev) => ({ ...prev, freightCharges: amount }));
+                    recalculateTotals(bill.items);
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+
+                <Input
+                  label="Customs Duty"
+                  type="number"
+                  value={bill.customsDuty || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    setBill((prev) => ({ ...prev, customsDuty: amount }));
+                    recalculateTotals(bill.items);
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+
+                <Input
+                  label="Insurance Charges"
+                  type="number"
+                  value={bill.insuranceCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    setBill((prev) => ({ ...prev, insuranceCharges: amount }));
+                    recalculateTotals(bill.items);
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+
+                <Input
+                  label="Handling Charges"
+                  type="number"
+                  value={bill.handlingCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    setBill((prev) => ({ ...prev, handlingCharges: amount }));
+                    recalculateTotals(bill.items);
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+
+                <Input
+                  label="Other Charges"
+                  type="number"
+                  value={bill.otherCharges || ''}
+                  onChange={(e) => {
+                    const amount = parseFloat(e.target.value) || 0;
+                    setBill((prev) => ({ ...prev, otherCharges: amount }));
+                    recalculateTotals(bill.items);
+                  }}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </div>
+            </Card>
+
+            {/* Notes and Terms - 2 Column Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <Card className="p-3 md:p-4">
+                <label
+                  htmlFor="bill-notes"
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                >
+                  Bill Notes
+                </label>
+                <textarea
+                  id="bill-notes"
+                  value={bill.notes || ''}
+                  onChange={(e) =>
+                    setBill((prev) => ({ ...prev, notes: e.target.value }))
+                  }
+                  placeholder="Add any notes about this vendor bill..."
+                  rows="4"
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-500'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                  } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                />
+              </Card>
+
+              <Card className="p-3 md:p-4">
+                <label
+                  htmlFor="payment-terms-textarea"
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                >
+                  Payment Terms
+                </label>
+                <textarea
+                  id="payment-terms-textarea"
+                  value={bill.terms || ''}
+                  onChange={(e) =>
+                    setBill((prev) => ({ ...prev, terms: e.target.value }))
+                  }
+                  placeholder="Enter payment terms..."
+                  rows="4"
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-500'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                  } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                />
+              </Card>
+            </div>
           </div>
 
-          {/* Sidebar - 4 columns, sticky */}
-          <div className="col-span-12 lg:col-span-4">
-            <div className="lg:sticky lg:top-24 space-y-4">
+          {/* Sidebar - Totals & Notes */}
+          <div className="space-y-6">
             {/* Totals */}
             <div
               className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
@@ -2537,48 +2593,68 @@ const VendorBillForm = () => {
               </div>
             </div>
 
-            {/* Quick Actions */}
+            {/* Notes */}
             <div
-              className={`p-4 rounded-2xl ${isDarkMode ? 'bg-[#141a20] border border-[#2a3640]' : 'bg-white border border-gray-200'}`}
+              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
             >
-              <div className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Quick Actions
-              </div>
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => setChargesDrawerOpen(true)}
-                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
-                    isDarkMode
-                      ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
-                      : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
-                  }`}
-                >
-                  <Scale className="h-4 w-4 opacity-60" />
-                  Edit Charges & Duty
-                  {(bill.freightCharges > 0 || bill.customsDuty > 0 || bill.insuranceCharges > 0 || bill.handlingCharges > 0 || bill.otherCharges > 0) && (
-                    <span className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'}`}>
-                      {formatCurrency((parseFloat(bill.freightCharges) || 0) + (parseFloat(bill.customsDuty) || 0) + (parseFloat(bill.insuranceCharges) || 0) + (parseFloat(bill.handlingCharges) || 0) + (parseFloat(bill.otherCharges) || 0))}
-                    </span>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setNotesDrawerOpen(true)}
-                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
-                    isDarkMode
-                      ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
-                      : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
-                  }`}
-                >
-                  <FileText className="h-4 w-4 opacity-60" />
-                  Notes & Terms
-                  {(bill.notes || bill.terms) && (
-                    <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? 'bg-teal-400' : 'bg-teal-500'}`} />
-                  )}
-                </button>
-              </div>
+              <h2
+                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              >
+                Notes
+              </h2>
+              <textarea
+                value={bill.notes}
+                onChange={(e) =>
+                  setBill((prev) => ({ ...prev, notes: e.target.value }))
+                }
+                rows={4}
+                placeholder="Internal notes about this bill..."
+                className={`w-full px-4 py-2 rounded-lg border ${
+                  isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
+                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              />
             </div>
+
+            {/* Vendor Details (if selected) */}
+            {bill.vendor && (
+              <div
+                className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
+              >
+                <h2
+                  className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                >
+                  Vendor Details
+                </h2>
+                <div
+                  className={`space-y-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                >
+                  <div>
+                    <span className="font-medium">Name:</span>{' '}
+                    {bill.vendor.name}
+                  </div>
+                  {bill.vendor.trn && (
+                    <div>
+                      <span className="font-medium">TRN:</span>{' '}
+                      {bill.vendor.trn}
+                    </div>
+                  )}
+                  {bill.vendor.email && (
+                    <div>
+                      <span className="font-medium">Email:</span>{' '}
+                      {bill.vendor.email}
+                    </div>
+                  )}
+                  {bill.vendor.phone && (
+                    <div>
+                      <span className="font-medium">Phone:</span>{' '}
+                      {bill.vendor.phone}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Stock-In Information */}
             <div
@@ -2689,230 +2765,9 @@ const VendorBillForm = () => {
                 </p>
               </div>
             </div>
-            </div>{/* End sticky wrapper */}
-          </div>{/* End sidebar column */}
-        </div>{/* End 12-col grid */}
+          </div>
+        </div>
       </div>
-
-      {/* Charges & Duty Drawer */}
-      <Drawer
-        isOpen={chargesDrawerOpen}
-        onClose={() => setChargesDrawerOpen(false)}
-        title="Freight & Duty Charges"
-        subtitle="Additional landed cost components for this bill"
-        isDarkMode={isDarkMode}
-      >
-        <div className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Freight Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={bill.freightCharges || ''}
-                onChange={(e) => {
-                  const amount = parseFloat(e.target.value) || 0;
-                  setBill((prev) => ({ ...prev, freightCharges: amount }));
-                  recalculateTotals(bill.items);
-                }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Customs Duty
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={bill.customsDuty || ''}
-                onChange={(e) => {
-                  const amount = parseFloat(e.target.value) || 0;
-                  setBill((prev) => ({ ...prev, customsDuty: amount }));
-                  recalculateTotals(bill.items);
-                }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Insurance Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={bill.insuranceCharges || ''}
-                onChange={(e) => {
-                  const amount = parseFloat(e.target.value) || 0;
-                  setBill((prev) => ({ ...prev, insuranceCharges: amount }));
-                  recalculateTotals(bill.items);
-                }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div>
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Handling Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={bill.handlingCharges || ''}
-                onChange={(e) => {
-                  const amount = parseFloat(e.target.value) || 0;
-                  setBill((prev) => ({ ...prev, handlingCharges: amount }));
-                  recalculateTotals(bill.items);
-                }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-            <div className="col-span-2">
-              <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                Other Charges
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={bill.otherCharges || ''}
-                onChange={(e) => {
-                  const amount = parseFloat(e.target.value) || 0;
-                  setBill((prev) => ({ ...prev, otherCharges: amount }));
-                  recalculateTotals(bill.items);
-                }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                  isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-              />
-            </div>
-          </div>
-
-          {/* Summary */}
-          <div className={`p-3 rounded-[14px] ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}>
-            <div className="flex justify-between items-center">
-              <span className={`text-sm ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Total Charges</span>
-              <span className="text-sm font-bold font-mono">
-                {formatCurrency(
-                  (parseFloat(bill.freightCharges) || 0) +
-                  (parseFloat(bill.customsDuty) || 0) +
-                  (parseFloat(bill.insuranceCharges) || 0) +
-                  (parseFloat(bill.handlingCharges) || 0) +
-                  (parseFloat(bill.otherCharges) || 0)
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Sticky Footer */}
-        <div
-          className="sticky bottom-0 pt-4 mt-6"
-          style={{
-            background: isDarkMode
-              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setChargesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
-          >
-            Done
-          </button>
-        </div>
-      </Drawer>
-
-      {/* Notes & Terms Drawer */}
-      <Drawer
-        isOpen={notesDrawerOpen}
-        onClose={() => setNotesDrawerOpen(false)}
-        title="Notes & Terms"
-        subtitle="Internal notes and payment terms for this bill"
-        isDarkMode={isDarkMode}
-      >
-        <div className="space-y-4 mt-4">
-          <div>
-            <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-              Bill Notes
-            </label>
-            <textarea
-              value={bill.notes || ''}
-              onChange={(e) => setBill((prev) => ({ ...prev, notes: e.target.value }))}
-              placeholder="Add any notes about this vendor bill..."
-              rows={4}
-              className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
-                isDarkMode
-                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-              Payment Terms
-            </label>
-            <textarea
-              value={bill.terms || ''}
-              onChange={(e) => setBill((prev) => ({ ...prev, terms: e.target.value }))}
-              placeholder="Enter payment terms..."
-              rows={4}
-              className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
-                isDarkMode
-                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
-            />
-          </div>
-        </div>
-
-        {/* Sticky Footer */}
-        <div
-          className="sticky bottom-0 pt-4 mt-6"
-          style={{
-            background: isDarkMode
-              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setNotesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
-          >
-            Done
-          </button>
-        </div>
-      </Drawer>
 
       {/* GRN Match Modal */}
       {showGRNMatchModal && (

@@ -65,11 +65,38 @@ const BatchAllocationPanel = ({
     fetchBatches();
   }, [fetchBatches]);
 
+  // Clear errors when user changes product or quantity (fixes stale error messages)
+  useEffect(() => {
+    setFetchError(null);
+  }, [productId, requiredQuantity]);
+
   // Handle Auto-Fill FIFO
   const handleAutoFIFO = useCallback(async () => {
+    // Validate all required fields before attempting FIFO allocation
+    const missingFields = [];
+
+    if (!productId) {
+      missingFields.push('Product');
+    }
+    if (!warehouseId) {
+      missingFields.push('Warehouse');
+    }
     if (!requiredQuantity || requiredQuantity <= 0) {
+      missingFields.push('Quantity');
+    }
+    if (!unit) {
+      missingFields.push('Unit (KG/PCS)');
+    }
+
+    if (missingFields.length > 0) {
+      setFetchError(
+        `Please fill the following required fields first: ${missingFields.join(', ')}`
+      );
       return;
     }
+
+    // Clear any previous errors
+    setFetchError(null);
 
     setIsAllocating(true);
     try {
@@ -81,7 +108,7 @@ const BatchAllocationPanel = ({
     } finally {
       setIsAllocating(false);
     }
-  }, [requiredQuantity, unit, reserveFIFO, fetchBatches]);
+  }, [productId, warehouseId, requiredQuantity, unit, reserveFIFO, fetchBatches]);
 
   // Handle manual allocation change for a batch
   const handleManualAllocationChange = useCallback(
@@ -188,7 +215,7 @@ const BatchAllocationPanel = ({
           type="button"
           className="btn-auto-fifo"
           onClick={handleAutoFIFO}
-          disabled={loading || isAllocating || !requiredQuantity || requiredQuantity <= 0}
+          disabled={loading || isAllocating}
         >
           {isAllocating ? 'Allocating...' : 'Auto-Fill FIFO'}
         </button>

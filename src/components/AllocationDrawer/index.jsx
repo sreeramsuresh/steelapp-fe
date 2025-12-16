@@ -39,10 +39,11 @@ const AllocationDrawer = ({
     productId: null,
     productName: '',
     quantity: '',
-    unit: 'KG',
+    unit: 'PCS',
     unitPrice: '',
     sourceType: 'WAREHOUSE', // WAREHOUSE | LOCAL_DROP_SHIP | IMPORT_DROP_SHIP
     selectedAllocations: [],
+    allocationMethod: null, // 'FIFO' | 'MANUAL' | null - tracks how allocation was made
     loading: false,
     error: null,
   });
@@ -75,6 +76,8 @@ const AllocationDrawer = ({
       productName: product?.displayName || product?.name || '',
       // Reset allocations when product changes
       selectedAllocations: [],
+      // Clear error when product changes
+      error: null,
     }));
   }, []);
 
@@ -86,6 +89,8 @@ const AllocationDrawer = ({
       setDrawerState((prev) => ({
         ...prev,
         quantity: value,
+        // Clear error when quantity changes
+        error: null,
       }));
     }
   }, []);
@@ -185,10 +190,11 @@ const AllocationDrawer = ({
       productId: null,
       productName: '',
       quantity: '',
-      unit: 'KG',
+      unit: 'PCS',
       unitPrice: '',
       sourceType: 'WAREHOUSE',
       selectedAllocations: [],
+      allocationMethod: null,
       loading: false,
       error: null,
     });
@@ -210,9 +216,25 @@ const AllocationDrawer = ({
       sourceType: drawerState.sourceType,
       warehouseId: drawerState.sourceType === 'WAREHOUSE' ? warehouseId : null,
       allocations: drawerState.sourceType === 'WAREHOUSE' ? allocations : [],
+      allocationMode: drawerState.sourceType === 'WAREHOUSE'
+        ? (drawerState.allocationMethod || 'AUTO_FIFO')
+        : null,
       reservationId,
       expiresAt,
     };
+
+    // VERIFICATION LOG: Line item added to invoice
+    console.log('[ADD LINE ITEM] Sending to parent:', {
+      lineItemTempId,
+      name: lineItem.name,
+      quantity: lineItem.quantity,
+      unit: lineItem.unit,
+      sourceType: lineItem.sourceType,
+      allocationMode: lineItem.allocationMode,
+      allocationsCount: lineItem.allocations?.length || 0,
+      allocations: lineItem.allocations,
+      reservationId: lineItem.reservationId,
+    });
 
     onAddLineItem(lineItem);
 
@@ -231,6 +253,25 @@ const AllocationDrawer = ({
     handleClear,
   ]);
 
+  // Wrap onCancel to cancel reservation on drawer close
+  const handleCancel = useCallback(async () => {
+    if (reservationId) {
+      console.log('[DRAWER CLOSE] Cancelling active reservation:', {
+        reservationId,
+        lineItemTempId,
+      });
+      try {
+        await cancelReservation();
+        console.log('[DRAWER CLOSE] Reservation cancelled successfully');
+      } catch (err) {
+        console.warn('[DRAWER CLOSE] Failed to cancel reservation:', err);
+      }
+    } else {
+      console.log('[DRAWER CLOSE] No active reservation to cancel');
+    }
+    if (onCancel) onCancel();
+  }, [reservationId, lineItemTempId, cancelReservation, onCancel]);
+
   if (!visible) return null;
 
   const requiredQty = parseFloat(drawerState.quantity) || 0;
@@ -241,7 +282,7 @@ const AllocationDrawer = ({
       <div className="drawer-header">
         <h3>Add Product Line</h3>
         {onCancel && (
-          <button type="button" className="drawer-close-btn" onClick={onCancel}>
+          <button type="button" className="drawer-close-btn" onClick={handleCancel}>
             x
           </button>
         )}

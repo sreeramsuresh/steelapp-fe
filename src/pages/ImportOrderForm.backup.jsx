@@ -17,61 +17,12 @@ import {
   Building2,
   Globe,
   Info,
-  DollarSign,
-  StickyNote,
-  Settings2,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { importOrderService } from '../services/importOrderService';
 import { supplierService } from '../services/supplierService';
 import { productService } from '../services/productService';
 import { notificationService } from '../services/notificationService';
-
-// ==================== DESIGN TOKENS ====================
-// eslint-disable-next-line no-unused-vars
-const COLORS = {
-  bg: '#0b0f14',
-  card: '#141a20',
-  border: '#2a3640',
-  text: '#e6edf3',
-  muted: '#93a4b4',
-  good: '#2ecc71',
-  warn: '#f39c12',
-  bad: '#e74c3c',
-  accent: '#4aa3ff',
-  accentHover: '#5bb2ff',
-  inputBg: '#0f151b',
-};
-
-// Layout helper classes - eslint-disable-next-line for unused (referenced in JSX via template)
-// eslint-disable-next-line no-unused-vars
-const CARD_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl p-4`;
-
-// eslint-disable-next-line no-unused-vars
-const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20 transition-all`;
-
-// eslint-disable-next-line no-unused-vars
-const LABEL_CLASSES = (isDarkMode) =>
-  `block text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'} mb-1.5`;
-
-// eslint-disable-next-line no-unused-vars
-const BTN_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]' : 'bg-white border-gray-300 text-gray-900 hover:border-blue-500'} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
-
-// eslint-disable-next-line no-unused-vars
-const BTN_PRIMARY = 'bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer';
-
-// eslint-disable-next-line no-unused-vars
-const BTN_SMALL = (isDarkMode) =>
-  `${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]' : 'bg-white border-gray-300 text-gray-900 hover:border-blue-500'} border rounded-[10px] py-2 px-2.5 text-xs cursor-pointer transition-colors`;
-
-const QUICK_LINK_CLASSES = (isDarkMode) =>
-  `flex items-center gap-2 w-full py-2 px-2.5 ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-[#4aa3ff] hover:text-[#4aa3ff]`;
-
-const DIVIDER_CLASSES = (isDarkMode) =>
-  `h-px ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'} my-3`;
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -648,24 +599,6 @@ const ImportOrderForm = () => {
   const [_loadingSuppliers, setLoadingSuppliers] = useState(false);
   const [_loadingProducts, setLoadingProducts] = useState(false);
 
-  // Drawer States
-  const [shippingDrawerOpen, setShippingDrawerOpen] = useState(false);
-  const [costDrawerOpen, setCostDrawerOpen] = useState(false);
-  const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
-
-  // Close drawers on Escape key
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        setShippingDrawerOpen(false);
-        setCostDrawerOpen(false);
-        setNotesDrawerOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, []);
-
   // ============================================================
   // DATA FETCHING
   // ============================================================
@@ -1186,24 +1119,20 @@ const ImportOrderForm = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
-      {/* Sticky Header with Blur */}
+      {/* Header */}
       <div
-        className={`sticky top-0 z-10 backdrop-blur-md ${
-          isDarkMode
-            ? 'bg-[#0f151b]/94 border-b border-[#2a3640]'
-            : 'bg-white/94 border-b border-gray-200'
-        }`}
+        className={`sticky top-0 z-10 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}
       >
-        <div className="max-w-[1400px] mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/import-export')}
-                className={`p-2 rounded-xl transition-colors ${
+                className={`p-2 rounded-lg transition-colors ${
                   isDarkMode
-                    ? 'hover:bg-[#141a20] text-[#93a4b4]'
+                    ? 'hover:bg-gray-700 text-gray-400'
                     : 'hover:bg-gray-100 text-gray-600'
                 }`}
               >
@@ -1211,34 +1140,37 @@ const ImportOrderForm = () => {
               </button>
               <div>
                 <h1
-                  className={`text-lg font-extrabold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
+                  className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   {isEditMode ? 'Edit Import Order' : 'Create Import Order'}
                 </h1>
-                <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                  {order.order_number ? `#${order.order_number}` : 'New import order'}
-                  {order.supplier_name && ` - ${order.supplier_name}`}
+                <div className="flex items-center gap-3 mt-1">
+                  {order.order_number && (
+                    <span
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                    >
+                      #{order.order_number}
+                    </span>
+                  )}
+                  <StatusBadge status={order.status} />
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <StatusBadge status={order.status} />
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => navigate('/import-export')}
               >
                 Cancel
               </Button>
               <Button
                 variant="secondary"
-                size="sm"
                 onClick={handleSaveDraft}
                 disabled={isSubmitting}
               >
-                Save Draft
+                Save as Draft
               </Button>
-              <Button size="sm" onClick={handleSubmit} disabled={isSubmitting}>
+              <Button onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1247,7 +1179,7 @@ const ImportOrderForm = () => {
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    {isEditMode ? 'Update' : 'Create'}
+                    {isEditMode ? 'Update Order' : 'Create Order'}
                   </>
                 )}
               </Button>
@@ -1256,241 +1188,367 @@ const ImportOrderForm = () => {
         </div>
       </div>
 
-      {/* Main Content - 8+4 Grid Layout */}
-      <div className="max-w-[1400px] mx-auto px-4 py-4">
-        <div className="grid grid-cols-12 gap-3">
-          {/* Left Column - Main Form (8 cols) */}
-          <div className="col-span-12 lg:col-span-8 space-y-3">
-            {/* Order Header Section */}
-            <Card title="Order Information" icon={FileText}>
-              <div className="grid grid-cols-12 gap-3">
-                <div className="col-span-6 sm:col-span-3">
-                  <Input
-                    label="Order Number"
-                    value={order.order_number || '(Auto-generated)'}
-                    disabled
-                    placeholder="Auto-generated"
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Input
-                    label="Order Date"
-                    type="date"
-                    value={order.order_date}
-                    onChange={(e) => handleFieldChange('order_date', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Select
-                    label="Status"
-                    value={order.status}
-                    onChange={(e) => handleFieldChange('status', e.target.value)}
-                    required
-                  >
-                    {STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Input
-                    label="PI Number"
-                    value={order.pi_number}
-                    onChange={(e) => handleFieldChange('pi_number', e.target.value)}
-                    placeholder="Proforma Invoice #"
-                  />
-                </div>
-                <div className="col-span-12 sm:col-span-6">
-                  <Input
-                    label="Importer TRN"
-                    value={order.importer_trn}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 15);
-                      handleFieldChange('importer_trn', value);
-                    }}
-                    placeholder="100XXXXXXXXX5 (15 digits)"
-                    error={errors.importer_trn}
-                  />
-                  {order.importer_trn && order.importer_trn.length > 0 && (
-                    <div
-                      className={`text-xs mt-1 ${validateTRN(order.importer_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
-                    >
-                      {validateTRN(order.importer_trn).message}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-
-            {/* Supplier & Trade Terms Section */}
-            <Card title="Supplier & Trade Terms" icon={Building2}>
-              <div className="grid grid-cols-12 gap-3">
-                <div className="col-span-12 sm:col-span-6">
-                  <Select
-                    label="Supplier"
-                    value={order.supplier_id}
-                    onChange={(e) => handleSupplierChange(e.target.value)}
-                    error={errors.supplier_id}
-                    required
-                  >
-                    <option value="">Select Supplier</option>
-                    {suppliers.map((supplier) => (
-                      <option key={supplier.id} value={supplier.id}>
-                        {supplier.name || supplier.company_name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Select
-                    label="Supplier VAT Status"
-                    value={order.supplier_vat_status}
-                    onChange={(e) =>
-                      handleFieldChange('supplier_vat_status', e.target.value)
-                    }
-                  >
-                    {SUPPLIER_VAT_STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                {(order.supplier_vat_status === 'uae_registered' ||
-                  order.supplier_vat_status === 'gcc_registered') && (
-                  <div className="col-span-6 sm:col-span-3">
-                    <Input
-                      label="Supplier TRN"
-                      value={order.supplier_trn}
-                      onChange={(e) => {
-                        const value = e.target.value
-                          .replace(/\D/g, '')
-                          .slice(0, 15);
-                        handleFieldChange('supplier_trn', value);
-                      }}
-                      placeholder={
-                        order.supplier_vat_status === 'uae_registered'
-                          ? '100XXXXXXXXXX (15 digits)'
-                          : 'GCC Tax Registration Number'
-                      }
-                      error={errors.supplier_trn}
-                      required={order.status !== 'draft'}
-                    />
-                    {order.supplier_trn &&
-                      order.supplier_vat_status === 'uae_registered' && (
-                      <div
-                        className={`text-xs mt-1 ${validateTRN(order.supplier_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
-                      >
-                        {validateTRN(order.supplier_trn).message}
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="col-span-6 sm:col-span-3">
-                  <Input
-                    label="PO Number"
-                    value={order.po_number}
-                    onChange={(e) => handleFieldChange('po_number', e.target.value)}
-                    placeholder="Purchase Order #"
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Select
-                    label="Incoterm"
-                    value={order.incoterm}
-                    onChange={(e) => handleFieldChange('incoterm', e.target.value)}
-                    error={errors.incoterm}
-                    required
-                  >
-                    {INCOTERMS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Select
-                    label="Payment Terms"
-                    value={order.payment_terms}
-                    onChange={(e) =>
-                      handleFieldChange('payment_terms', e.target.value)
-                    }
-                    error={errors.payment_terms}
-                    required
-                  >
-                    {PAYMENT_TERMS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Input
-                    label="LC Number"
-                    value={order.lc_number}
-                    onChange={(e) => handleFieldChange('lc_number', e.target.value)}
-                    placeholder="Letter of Credit #"
-                  />
-                </div>
-              </div>
-            </Card>
-
-            {/* Shipping Summary Card - Click to open drawer */}
-            <div
-              className={`${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl p-4 cursor-pointer hover:border-[#4aa3ff] transition-colors`}
-              onClick={() => setShippingDrawerOpen(true)}
+      {/* Form Content */}
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* Order Header Section */}
+        <Card title="Order Information" icon={FileText}>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Input
+              label="Order Number"
+              value={order.order_number || '(Auto-assigned on save)'}
+              disabled
+              placeholder="Auto-generated"
+            />
+            <Input
+              label="Order Date"
+              type="date"
+              value={order.order_date}
+              onChange={(e) => handleFieldChange('order_date', e.target.value)}
+              required
+            />
+            <Select
+              label="Status"
+              value={order.status}
+              onChange={(e) => handleFieldChange('status', e.target.value)}
+              required
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Ship className={`h-4 w-4 ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`} />
-                  <span className={`text-sm font-semibold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
-                    Shipping & VAT Treatment
-                  </span>
-                </div>
-                <ChevronDown className={`h-4 w-4 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`} />
-              </div>
-              {/* Quick summary of shipping info */}
-              <div className="mt-2 grid grid-cols-4 gap-3">
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Origin</div>
-                  <div className={`text-xs font-medium ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
-                    {COMMON_PORTS.find(p => p.value === order.origin_port)?.label || 'Not set'}
-                  </div>
-                </div>
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Destination</div>
-                  <div className={`text-xs font-medium ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
-                    {COMMON_PORTS.find(p => p.value === order.destination_port)?.label || 'Not set'}
-                  </div>
-                </div>
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Method</div>
-                  <div className={`text-xs font-medium ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
-                    {SHIPPING_METHOD_OPTIONS.find(o => o.value === order.shipping_method)?.label || 'Sea Freight'}
-                  </div>
-                </div>
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>VAT Treatment</div>
-                  <div className={`text-xs font-medium ${calculations.isDesignatedZone ? 'text-green-400' : isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
-                    {calculations.isDesignatedZone ? '0% (DZ)' : '5% Standard'}
-                  </div>
-                </div>
-              </div>
-              {errors.destination_port && (
-                <div className="mt-2 text-xs text-red-400 flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" /> {errors.destination_port}
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </Select>
+            <Input
+              label="PI Number"
+              value={order.pi_number}
+              onChange={(e) => handleFieldChange('pi_number', e.target.value)}
+              placeholder="Proforma Invoice #"
+            />
+            <div>
+              <Input
+                label="Importer TRN"
+                value={order.importer_trn}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                  handleFieldChange('importer_trn', value);
+                }}
+                placeholder="100XXXXXXXXX5 (15 digits)"
+                error={errors.importer_trn}
+                helperText={
+                  order.status !== 'draft'
+                    ? 'Required for confirmed orders'
+                    : 'Tax Registration Number for VAT-registered importers'
+                }
+              />
+              {order.importer_trn && order.importer_trn.length > 0 && (
+                <div
+                  className={`text-xs mt-1 ${validateTRN(order.importer_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
+                >
+                  {validateTRN(order.importer_trn).message}
                 </div>
               )}
             </div>
+          </div>
+        </Card>
 
-            {/* Line Items Section */}
-            <Card title="Line Items" icon={Package}>
-              {errors.items && (
+        {/* Supplier & Trade Terms Section */}
+        <Card title="Supplier & Trade Terms" icon={Building2}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Select
+              label="Supplier"
+              value={order.supplier_id}
+              onChange={(e) => handleSupplierChange(e.target.value)}
+              error={errors.supplier_id}
+              required
+            >
+              <option value="">Select Supplier</option>
+              {suppliers.map((supplier) => (
+                <option key={supplier.id} value={supplier.id}>
+                  {supplier.name || supplier.company_name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Supplier VAT Status"
+              value={order.supplier_vat_status}
+              onChange={(e) =>
+                handleFieldChange('supplier_vat_status', e.target.value)
+              }
+            >
+              {SUPPLIER_VAT_STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </Select>
+            {(order.supplier_vat_status === 'uae_registered' ||
+              order.supplier_vat_status === 'gcc_registered') && (
+              <div>
+                <Input
+                  label="Supplier TRN"
+                  value={order.supplier_trn}
+                  onChange={(e) => {
+                    const value = e.target.value
+                      .replace(/\D/g, '')
+                      .slice(0, 15);
+                    handleFieldChange('supplier_trn', value);
+                  }}
+                  placeholder={
+                    order.supplier_vat_status === 'uae_registered'
+                      ? '100XXXXXXXXXX (15 digits)'
+                      : 'GCC Tax Registration Number'
+                  }
+                  error={errors.supplier_trn}
+                  required={order.status !== 'draft'}
+                />
+                {order.supplier_trn &&
+                  order.supplier_vat_status === 'uae_registered' && (
+                  <div
+                    className={`text-xs mt-1 ${validateTRN(order.supplier_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
+                  >
+                    {validateTRN(order.supplier_trn).message}
+                  </div>
+                )}
+              </div>
+            )}
+            <Input
+              label="PO Number"
+              value={order.po_number}
+              onChange={(e) => handleFieldChange('po_number', e.target.value)}
+              placeholder="Purchase Order #"
+            />
+            <Select
+              label="Incoterm"
+              value={order.incoterm}
+              onChange={(e) => handleFieldChange('incoterm', e.target.value)}
+              error={errors.incoterm}
+              required
+            >
+              {INCOTERMS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Payment Terms"
+              value={order.payment_terms}
+              onChange={(e) =>
+                handleFieldChange('payment_terms', e.target.value)
+              }
+              error={errors.payment_terms}
+              required
+            >
+              {PAYMENT_TERMS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </Select>
+            <Input
+              label="LC Number"
+              value={order.lc_number}
+              onChange={(e) => handleFieldChange('lc_number', e.target.value)}
+              placeholder="Letter of Credit #"
+            />
+          </div>
+        </Card>
+
+        {/* Shipping Details Section */}
+        <Card title="Shipping Details" icon={Ship}>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Select
+              label="Origin Port"
+              value={order.origin_port}
+              onChange={(e) => handleFieldChange('origin_port', e.target.value)}
+            >
+              <option value="">Select Origin Port</option>
+              {COMMON_PORTS.map((port) => (
+                <option key={port.value} value={port.value}>
+                  {port.label}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Destination Port"
+              value={order.destination_port}
+              onChange={(e) =>
+                handleFieldChange('destination_port', e.target.value)
+              }
+              error={errors.destination_port}
+              required
+            >
+              <option value="">Select Destination Port</option>
+              {COMMON_PORTS.filter((p) => p.country === 'UAE').map((port) => (
+                <option key={port.value} value={port.value}>
+                  {port.label}
+                </option>
+              ))}
+            </Select>
+            <div>
+              <Input
+                label="Emirate (Form 201)"
+                value={
+                  order.emirate ||
+                  getEmirateFromPort(order.destination_port).name
+                }
+                disabled
+              />
+              <span
+                className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+              >
+                Auto-derived for VAT return Box 1-7
+              </span>
+            </div>
+            <Select
+              label="Shipping Method"
+              value={order.shipping_method}
+              onChange={(e) =>
+                handleFieldChange('shipping_method', e.target.value)
+              }
+            >
+              {SHIPPING_METHOD_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </Select>
+            <Input
+              label="Vessel Name"
+              value={order.vessel_name}
+              onChange={(e) => handleFieldChange('vessel_name', e.target.value)}
+              placeholder="Ship/Aircraft name"
+            />
+            <Input
+              label="B/L Number"
+              value={order.bl_number}
+              onChange={(e) => handleFieldChange('bl_number', e.target.value)}
+              placeholder="Bill of Lading #"
+            />
+            <Input
+              label="Container Numbers"
+              value={order.container_numbers}
+              onChange={(e) =>
+                handleFieldChange('container_numbers', e.target.value)
+              }
+              placeholder="CONT123, CONT456"
+            />
+            <Input
+              label="ETD (Estimated Departure)"
+              type="date"
+              value={order.etd}
+              onChange={(e) => handleFieldChange('etd', e.target.value)}
+            />
+            <Input
+              label="ETA (Estimated Arrival)"
+              type="date"
+              value={order.eta}
+              onChange={(e) => handleFieldChange('eta', e.target.value)}
+            />
+          </div>
+
+          {/* UAE Designated Zone & VAT Treatment Section */}
+          <div
+            className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+          >
+            <h4
+              className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            >
+              <Globe className="h-4 w-4" />
+              UAE VAT Treatment (Article 51)
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Select
+                label="Movement Type"
+                value={order.movement_type}
+                onChange={(e) =>
+                  handleFieldChange('movement_type', e.target.value)
+                }
+                error={errors.movement_type}
+                required={order.status !== 'draft'}
+              >
+                {MOVEMENT_TYPES.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </Select>
+              {(order.movement_type === 'dz_entry' ||
+                order.movement_type === 'dz_to_dz' ||
+                order.movement_type === 'dz_to_mainland') && (
+                <Select
+                  label="Designated Zone"
+                  value={order.designated_zone_name}
+                  onChange={(e) =>
+                    handleFieldChange('designated_zone_name', e.target.value)
+                  }
+                  error={errors.designated_zone_name}
+                  required={order.movement_type !== 'mainland'}
+                >
+                  <option value="">Select Zone</option>
+                  {UAE_DESIGNATED_ZONES.map((zone) => (
+                    <option key={zone.code} value={zone.code}>
+                      {zone.name} ({zone.emirate})
+                    </option>
+                  ))}
+                </Select>
+              )}
+              <Input
+                label="Customs Assessment Date"
+                type="date"
+                value={order.customs_assessment_date}
+                onChange={(e) =>
+                  handleFieldChange('customs_assessment_date', e.target.value)
+                }
+                error={errors.customs_assessment_date}
+                required={
+                  order.status === 'customs' || order.status === 'completed'
+                }
+              />
+              <Input
+                label="BOE Number"
+                value={order.import_declaration_number}
+                onChange={(e) =>
+                  handleFieldChange('import_declaration_number', e.target.value)
+                }
+                placeholder="Bill of Entry #"
+              />
+            </div>
+            {/* VAT Treatment Alert */}
+            {calculations.isDesignatedZone && (
+              <div
+                className={`mt-3 p-3 rounded-lg text-xs ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}
+              >
+                <div className="flex items-start gap-2">
+                  <Info
+                    className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                  />
+                  <div>
+                    <p
+                      className={`font-semibold mb-1 ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}
+                    >
+                      Zero-Rated VAT Treatment Applied
+                    </p>
+                    <p
+                      className={
+                        isDarkMode ? 'text-green-200' : 'text-green-700'
+                      }
+                    >
+                      Goods entering{' '}
+                      {order.designated_zone_name || 'Designated Zone'} qualify
+                      for 0% VAT under UAE VAT Law Article 51. VAT will apply
+                      when goods move from the designated zone to mainland UAE.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Line Items Section */}
+        <Card title="Line Items" icon={Package}>
+          {errors.items && (
             <div
               className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
                 isDarkMode
@@ -1782,433 +1840,97 @@ const ImportOrderForm = () => {
             </table>
           </div>
 
-              <div className="mt-4 flex justify-between items-center">
-                <Button variant="outline" size="sm" onClick={addLineItem}>
-                  <Plus className="h-4 w-4" />
-                  Add Line Item
-                </Button>
-                <div
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  {order.items.length} item{order.items.length !== 1 ? 's' : ''} |
-                  Subtotal:{' '}
-                  <span className="font-medium">
-                    {formatCurrency(calculations.subtotal)}
-                  </span>
-                </div>
-              </div>
-            </Card>
-          </div>
-          {/* End Left Column */}
-
-          {/* Right Column - Sticky Sidebar (4 cols) */}
-          <div className="col-span-12 lg:col-span-4">
-            <div className="lg:sticky lg:top-[88px] space-y-3">
-              {/* Order Summary Card */}
-              <div className={CARD_CLASSES(isDarkMode)}>
-                <div className="text-sm font-extrabold mb-3">Order Summary</div>
-
-                {/* Summary rows */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center py-1">
-                    <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>Subtotal ({order.currency})</span>
-                    <span className="font-mono text-sm">{formatCurrency(calculations.subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-1">
-                    <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>+ Freight</span>
-                    <span className="font-mono text-sm">{formatCurrency(parseFloat(order.freight_cost) || 0)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-1">
-                    <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>+ Insurance</span>
-                    <span className="font-mono text-sm">{formatCurrency(parseFloat(order.insurance_cost) || 0)}</span>
-                  </div>
-
-                  <div className={DIVIDER_CLASSES(isDarkMode)} />
-
-                  <div className="flex justify-between items-center py-1">
-                    <span className={`font-medium ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>CIF Value (AED)</span>
-                    <span className="font-mono text-sm font-semibold">{formatAED(calculations.cifValue)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-1">
-                    <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>Customs Duty ({order.customs_duty_rate}%)</span>
-                    <span className="font-mono text-sm">{formatAED(calculations.customsDuty)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-1">
-                    <span className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}>
-                      VAT ({calculations.effectiveVatRate}%)
-                      {calculations.isDesignatedZone && <span className="text-green-400 ml-1">(DZ)</span>}
-                    </span>
-                    <span className={`font-mono text-sm ${calculations.isDesignatedZone ? 'text-green-400' : ''}`}>
-                      {calculations.isDesignatedZone ? formatAED(0) : `(${formatAED(calculations.vatAmount)})`}
-                    </span>
-                  </div>
-
-                  <div className={DIVIDER_CLASSES(isDarkMode)} />
-
-                  <div className="flex justify-between items-center py-2">
-                    <span className={`font-bold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>Grand Total</span>
-                    <span className="font-mono text-lg font-extrabold text-[#4aa3ff]">{formatAED(calculations.grandTotal)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className={CARD_CLASSES(isDarkMode)}>
-                <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'} mb-2`}>Quick Actions</div>
-                <div className="space-y-1.5">
-                  <button className={QUICK_LINK_CLASSES(isDarkMode)} onClick={() => setCostDrawerOpen(true)}>
-                    <DollarSign className="h-4 w-4 opacity-60" />
-                    <span>Edit Costs & Currency</span>
-                  </button>
-                  <button className={QUICK_LINK_CLASSES(isDarkMode)} onClick={() => setShippingDrawerOpen(true)}>
-                    <Ship className="h-4 w-4 opacity-60" />
-                    <span>Shipping & VAT Details</span>
-                  </button>
-                  <button className={QUICK_LINK_CLASSES(isDarkMode)} onClick={() => setNotesDrawerOpen(true)}>
-                    <StickyNote className="h-4 w-4 opacity-60" />
-                    <span>Notes & Documents</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* VAT Info Card */}
-              {!calculations.isDesignatedZone && (
-                <div className={`${isDarkMode ? 'bg-indigo-900/20 border-indigo-700/50' : 'bg-indigo-50 border-indigo-200'} border rounded-[14px] p-3`}>
-                  <div className={`text-xs font-semibold mb-2 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-800'}`}>
-                    FTA Form 201 Mapping
-                  </div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
-                      <span className={isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}>Box 12: Goods Imported</span>
-                      <span className="font-mono">{formatAED(calculations.goodsImportedValue)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className={isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}>Box 9: RC Output</span>
-                      <span className="font-mono">{formatAED(calculations.reverseChargeOutput)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className={isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}>Box 15: RC Input</span>
-                      <span className="font-mono">{formatAED(calculations.reverseChargeInput)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {calculations.isDesignatedZone && (
-                <div className={`${isDarkMode ? 'bg-green-900/20 border-green-700/50' : 'bg-green-50 border-green-200'} border rounded-[14px] p-3`}>
-                  <div className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}>
-                    Zero-Rated VAT (Designated Zone)
-                  </div>
-                  <div className={`text-xs ${isDarkMode ? 'text-green-200' : 'text-green-700'}`}>
-                    Goods entering {order.designated_zone_name || 'DZ'} - 0% VAT applies under Article 51.
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ============================================================ */}
-      {/* DRAWERS */}
-      {/* ============================================================ */}
-
-      {/* Shipping & VAT Details Drawer */}
-      <>
-        <div
-          className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
-            shippingDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-          onClick={() => setShippingDrawerOpen(false)}
-        />
-        <div
-          className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
-            ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
-            overflow-auto transition-transform ${
-            shippingDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          <div className="p-4">
-            {/* Drawer Header */}
-            <div className={`sticky top-0 flex justify-between items-start gap-2.5 mb-4 p-4 -m-4 mb-4
-              ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'}
-              z-[1]`}
+          <div className="mt-4 flex justify-between items-center">
+            <Button variant="outline" size="sm" onClick={addLineItem}>
+              <Plus className="h-4 w-4" />
+              Add Line Item
+            </Button>
+            <div
+              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
-              <div>
-                <div className="text-sm font-extrabold flex items-center gap-2">
-                  <Ship className="h-4 w-4" /> Shipping & VAT Details
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                  Ports, vessel, containers, UAE VAT treatment
-                </div>
-              </div>
-              <button
-                onClick={() => setShippingDrawerOpen(false)}
-                className={`p-1.5 rounded-lg ${isDarkMode ? 'hover:bg-[#2a3640]' : 'hover:bg-gray-100'}`}
-              >
-                <X className="h-4 w-4" />
-              </button>
+              {order.items.length} item{order.items.length !== 1 ? 's' : ''} |
+              Subtotal:{' '}
+              <span className="font-medium">
+                {formatCurrency(calculations.subtotal)}
+              </span>
             </div>
+          </div>
+        </Card>
 
-            {/* Shipping Fields */}
+        {/* Cost Breakdown Section */}
+        <Card title="Cost Breakdown" icon={Calculator}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Input Fields */}
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <Select
-                  label="Origin Port"
-                  value={order.origin_port}
-                  onChange={(e) => handleFieldChange('origin_port', e.target.value)}
-                >
-                  <option value="">Select Origin Port</option>
-                  {COMMON_PORTS.map((port) => (
-                    <option key={port.value} value={port.value}>{port.label}</option>
-                  ))}
-                </Select>
-                <Select
-                  label="Destination Port"
-                  value={order.destination_port}
-                  onChange={(e) => handleFieldChange('destination_port', e.target.value)}
-                  error={errors.destination_port}
-                  required
-                >
-                  <option value="">Select Destination Port</option>
-                  {COMMON_PORTS.filter((p) => p.country === 'UAE').map((port) => (
-                    <option key={port.value} value={port.value}>{port.label}</option>
-                  ))}
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Input
-                    label="Emirate (Form 201)"
-                    value={order.emirate || getEmirateFromPort(order.destination_port).name}
-                    disabled
-                  />
-                  <span className={`text-[10px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}>
-                    Auto-derived for VAT return
-                  </span>
-                </div>
-                <Select
-                  label="Shipping Method"
-                  value={order.shipping_method}
-                  onChange={(e) => handleFieldChange('shipping_method', e.target.value)}
-                >
-                  {SHIPPING_METHOD_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="Vessel Name"
-                  value={order.vessel_name}
-                  onChange={(e) => handleFieldChange('vessel_name', e.target.value)}
-                  placeholder="Ship/Aircraft name"
-                />
-                <Input
-                  label="B/L Number"
-                  value={order.bl_number}
-                  onChange={(e) => handleFieldChange('bl_number', e.target.value)}
-                  placeholder="Bill of Lading #"
-                />
-              </div>
-
-              <Input
-                label="Container Numbers"
-                value={order.container_numbers}
-                onChange={(e) => handleFieldChange('container_numbers', e.target.value)}
-                placeholder="CONT123, CONT456"
-              />
-
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="ETD (Estimated Departure)"
-                  type="date"
-                  value={order.etd}
-                  onChange={(e) => handleFieldChange('etd', e.target.value)}
-                />
-                <Input
-                  label="ETA (Estimated Arrival)"
-                  type="date"
-                  value={order.eta}
-                  onChange={(e) => handleFieldChange('eta', e.target.value)}
-                />
-              </div>
-
-              {/* UAE VAT Treatment Section */}
-              <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-200'}`}>
-                <h4 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
-                  <Globe className="h-4 w-4" /> UAE VAT Treatment (Article 51)
-                </h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <Select
-                    label="Movement Type"
-                    value={order.movement_type}
-                    onChange={(e) => handleFieldChange('movement_type', e.target.value)}
-                    error={errors.movement_type}
-                  >
-                    {MOVEMENT_TYPES.map((opt) => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </Select>
-                  {(order.movement_type === 'dz_entry' || order.movement_type === 'dz_to_dz' || order.movement_type === 'dz_to_mainland') && (
-                    <Select
-                      label="Designated Zone"
-                      value={order.designated_zone_name}
-                      onChange={(e) => handleFieldChange('designated_zone_name', e.target.value)}
-                      error={errors.designated_zone_name}
-                    >
-                      <option value="">Select Zone</option>
-                      {UAE_DESIGNATED_ZONES.map((zone) => (
-                        <option key={zone.code} value={zone.code}>{zone.name} ({zone.emirate})</option>
-                      ))}
-                    </Select>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-3 mt-3">
-                  <Input
-                    label="Customs Assessment Date"
-                    type="date"
-                    value={order.customs_assessment_date}
-                    onChange={(e) => handleFieldChange('customs_assessment_date', e.target.value)}
-                    error={errors.customs_assessment_date}
-                  />
-                  <Input
-                    label="BOE Number"
-                    value={order.import_declaration_number}
-                    onChange={(e) => handleFieldChange('import_declaration_number', e.target.value)}
-                    placeholder="Bill of Entry #"
-                  />
-                </div>
-
-                {calculations.isDesignatedZone && (
-                  <div className={`mt-3 p-3 rounded-[14px] text-xs ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
-                    <div className="flex items-start gap-2">
-                      <Info className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
-                      <div>
-                        <p className={`font-semibold mb-1 ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}>Zero-Rated VAT Treatment</p>
-                        <p className={isDarkMode ? 'text-green-200' : 'text-green-700'}>
-                          Goods entering {order.designated_zone_name || 'Designated Zone'} qualify for 0% VAT under UAE VAT Law Article 51.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Drawer Footer */}
-            <div className="sticky bottom-0 pt-4 mt-6"
-              style={{background: isDarkMode
-                ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-                : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
-              }}
-            >
-              <div className="flex justify-end">
-                <button className={BTN_PRIMARY} onClick={() => setShippingDrawerOpen(false)}>
-                  Done
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
-
-      {/* Cost & Currency Drawer */}
-      <>
-        <div
-          className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
-            costDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-          onClick={() => setCostDrawerOpen(false)}
-        />
-        <div
-          className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
-            ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
-            overflow-auto transition-transform ${
-            costDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          <div className="p-4">
-            {/* Drawer Header */}
-            <div className={`sticky top-0 flex justify-between items-start gap-2.5 mb-4 p-4 -m-4 mb-4
-              ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'}
-              z-[1]`}
-            >
-              <div>
-                <div className="text-sm font-extrabold flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" /> Costs & Currency
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                  Exchange rates, freight, insurance, customs duty
-                </div>
-              </div>
-              <button
-                onClick={() => setCostDrawerOpen(false)}
-                className={`p-1.5 rounded-lg ${isDarkMode ? 'hover:bg-[#2a3640]' : 'hover:bg-gray-100'}`}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Cost Fields */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <Select
                   label="Currency"
                   value={order.currency}
-                  onChange={(e) => handleFieldChange('currency', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('currency', e.target.value)
+                  }
                 >
                   {CURRENCY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </Select>
                 <Input
                   label="Exchange Rate to AED"
                   type="number"
                   value={order.exchange_rate}
-                  onChange={(e) => handleFieldChange('exchange_rate', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('exchange_rate', e.target.value)
+                  }
                   min="0"
                   step="0.0001"
                   error={errors.exchange_rate}
                   required
                 />
               </div>
-
-              <div className="grid grid-cols-3 gap-3">
+              {/* Exchange Rate Source (FTA Audit Trail) */}
+              <div className="grid grid-cols-3 gap-4">
                 <Select
                   label="Rate Source"
                   value={order.exchange_rate_source}
-                  onChange={(e) => handleFieldChange('exchange_rate_source', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('exchange_rate_source', e.target.value)
+                  }
                   error={errors.exchange_rate_source}
+                  required
                 >
                   {EXCHANGE_RATE_SOURCE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </Select>
                 <Input
                   label="Rate Date"
                   type="date"
                   value={order.exchange_rate_date}
-                  onChange={(e) => handleFieldChange('exchange_rate_date', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('exchange_rate_date', e.target.value)
+                  }
                 />
                 <Input
                   label="Reference #"
                   value={order.exchange_rate_reference}
-                  onChange={(e) => handleFieldChange('exchange_rate_reference', e.target.value)}
-                  placeholder="CB bulletin #"
+                  onChange={(e) =>
+                    handleFieldChange('exchange_rate_reference', e.target.value)
+                  }
+                  placeholder="Central Bank bulletin #"
                 />
               </div>
-
-              <div className={DIVIDER_CLASSES(isDarkMode)} />
-
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <Input
                   label={`Freight Cost (${order.currency})`}
                   type="number"
                   value={order.freight_cost}
-                  onChange={(e) => handleFieldChange('freight_cost', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('freight_cost', e.target.value)
+                  }
                   min="0"
                   step="0.01"
                 />
@@ -2216,18 +1938,21 @@ const ImportOrderForm = () => {
                   label={`Insurance Cost (${order.currency})`}
                   type="number"
                   value={order.insurance_cost}
-                  onChange={(e) => handleFieldChange('insurance_cost', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('insurance_cost', e.target.value)
+                  }
                   min="0"
                   step="0.01"
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Customs Duty Rate (%)"
                   type="number"
                   value={order.customs_duty_rate}
-                  onChange={(e) => handleFieldChange('customs_duty_rate', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('customs_duty_rate', e.target.value)
+                  }
                   min="0"
                   max="100"
                   step="0.1"
@@ -2236,150 +1961,345 @@ const ImportOrderForm = () => {
                   label="VAT Rate (%)"
                   type="number"
                   value={order.vat_rate}
-                  onChange={(e) => handleFieldChange('vat_rate', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('vat_rate', e.target.value)
+                  }
                   min="0"
                   max="100"
                   step="0.1"
                 />
               </div>
-
               <Input
                 label="Other Charges (AED)"
                 type="number"
                 value={order.other_charges}
-                onChange={(e) => handleFieldChange('other_charges', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange('other_charges', e.target.value)
+                }
                 min="0"
                 step="0.01"
                 placeholder="Clearing, handling, etc."
               />
-
-              {/* UAE VAT Info */}
-              {!calculations.isDesignatedZone && (
-                <div className={`p-3 rounded-[14px] text-xs ${isDarkMode ? 'bg-blue-900/30 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
-                  <div className="flex items-start gap-2">
-                    <Info className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-                    <div>
-                      <p className={`font-semibold mb-1 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>UAE VAT (Reverse Charge)</p>
-                      <ul className={`space-y-1 ${isDarkMode ? 'text-blue-200' : 'text-blue-700'}`}>
-                        <li>VAT-Registered: No VAT at customs. Declare in Form 201.</li>
-                        <li>Non-Registered: Pay {formatAED(calculations.vatAmount)} at clearance.</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Drawer Footer */}
-            <div className="sticky bottom-0 pt-4 mt-6"
-              style={{background: isDarkMode
-                ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-                : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
-              }}
+            {/* Right Column - Calculation Summary */}
+            <div
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
             >
-              <div className="flex justify-end">
-                <button className={BTN_PRIMARY} onClick={() => setCostDrawerOpen(false)}>
-                  Done
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
-
-      {/* Notes & Documents Drawer */}
-      <>
-        <div
-          className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
-            notesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-          onClick={() => setNotesDrawerOpen(false)}
-        />
-        <div
-          className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31]
-            ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
-            overflow-auto transition-transform ${
-            notesDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          <div className="p-4">
-            {/* Drawer Header */}
-            <div className={`sticky top-0 flex justify-between items-start gap-2.5 mb-4 p-4 -m-4 mb-4
-              ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'}
-              z-[1]`}
-            >
-              <div>
-                <div className="text-sm font-extrabold flex items-center gap-2">
-                  <StickyNote className="h-4 w-4" /> Notes & Documents
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
-                  Order notes and attached files
-                </div>
-              </div>
-              <button
-                onClick={() => setNotesDrawerOpen(false)}
-                className={`p-1.5 rounded-lg ${isDarkMode ? 'hover:bg-[#2a3640]' : 'hover:bg-gray-100'}`}
+              <h4
+                className={`text-sm font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Notes Fields */}
-            <div className="space-y-4">
-              <Textarea
-                label="Notes (visible on documents)"
-                value={order.notes}
-                onChange={(e) => handleFieldChange('notes', e.target.value)}
-                rows={4}
-                placeholder="Enter any notes to appear on documents..."
-              />
-              <Textarea
-                label="Internal Notes (not visible on documents)"
-                value={order.internal_notes}
-                onChange={(e) => handleFieldChange('internal_notes', e.target.value)}
-                rows={4}
-                placeholder="Internal comments, reminders..."
-              />
-
-              {/* Document Upload */}
-              <div>
-                <div className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'} mb-2`}>
-                  Attached Documents
+                Cost Summary
+              </h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  >
+                    Subtotal ({order.currency})
+                  </span>
+                  <span
+                    className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  >
+                    {formatCurrency(calculations.subtotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  >
+                    + Freight
+                  </span>
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  >
+                    {formatCurrency(parseFloat(order.freight_cost) || 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  >
+                    + Insurance
+                  </span>
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  >
+                    {formatCurrency(parseFloat(order.insurance_cost) || 0)}
+                  </span>
                 </div>
                 <div
-                  className={`border-2 border-dashed rounded-xl p-6 text-center ${
-                    isDarkMode
-                      ? 'border-[#2a3640] hover:border-[#4aa3ff]'
-                      : 'border-gray-300 hover:border-blue-400'
-                  } transition-colors cursor-pointer`}
+                  className={`border-t pt-3 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                 >
-                  <Upload className={`h-8 w-8 mx-auto mb-2 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`} />
-                  <p className={`text-sm ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
-                    Drag and drop files here, or click to select
+                  <div className="flex justify-between items-center">
+                    <span
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                      CIF Value (AED)
+                    </span>
+                    <span
+                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {formatAED(calculations.cifValue)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  >
+                    Customs Duty ({order.customs_duty_rate}%)
+                  </span>
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  >
+                    {formatAED(calculations.customsDuty)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  >
+                    VAT ({calculations.effectiveVatRate}%){' '}
+                    {calculations.isDesignatedZone
+                      ? '(Zero-Rated)'
+                      : '- Reverse Charge'}
+                  </span>
+                  <span
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  >
+                    {calculations.isDesignatedZone
+                      ? formatAED(0)
+                      : `(${formatAED(calculations.vatAmount)})`}
+                  </span>
+                </div>
+                {/* Form 201 VAT Return Box Mapping */}
+                <div
+                  className={`mt-3 p-3 rounded-lg text-xs ${isDarkMode ? 'bg-indigo-900/30 border border-indigo-700' : 'bg-indigo-50 border border-indigo-200'}`}
+                >
+                  <p
+                    className={`font-semibold mb-2 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-800'}`}
+                  >
+                    FTA Form 201 VAT Return Mapping
                   </p>
-                  <p className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]/60' : 'text-gray-400'}`}>
-                    Supports: PDF, images, Excel files (max 10MB each)
-                  </p>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span
+                        className={
+                          isDarkMode ? 'text-indigo-200' : 'text-indigo-700'
+                        }
+                      >
+                        Box 12: Goods Imported
+                      </span>
+                      <span
+                        className={`font-medium ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}
+                      >
+                        {formatAED(calculations.goodsImportedValue)}
+                      </span>
+                    </div>
+                    {!calculations.isDesignatedZone && (
+                      <>
+                        <div className="flex justify-between">
+                          <span
+                            className={
+                              isDarkMode ? 'text-indigo-200' : 'text-indigo-700'
+                            }
+                          >
+                            Box 9: Reverse Charge (Output)
+                          </span>
+                          <span
+                            className={`font-medium ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}
+                          >
+                            {formatAED(calculations.reverseChargeOutput)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span
+                            className={
+                              isDarkMode ? 'text-indigo-200' : 'text-indigo-700'
+                            }
+                          >
+                            Box 15: Reverse Charge (Input)
+                          </span>
+                          <span
+                            className={`font-medium ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}
+                          >
+                            {formatAED(calculations.reverseChargeInput)}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {calculations.isDesignatedZone && (
+                      <div
+                        className={`text-xs ${isDarkMode ? 'text-indigo-300' : 'text-indigo-600'}`}
+                      >
+                        Zero-rated entry - No VAT boxes applicable until goods
+                        move to mainland
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* UAE VAT Reverse Charge Explanation */}
+                {!calculations.isDesignatedZone && (
+                  <div
+                    className={`mt-3 p-3 rounded-lg text-xs ${isDarkMode ? 'bg-blue-900/30 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <Info
+                        className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
+                      />
+                      <div>
+                        <p
+                          className={`font-semibold mb-1 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}
+                        >
+                          UAE VAT Treatment (Reverse Charge)
+                        </p>
+                        <ul
+                          className={`space-y-1 ${isDarkMode ? 'text-blue-200' : 'text-blue-700'}`}
+                        >
+                          <li>
+                            • <strong>VAT-Registered:</strong> No VAT payment at
+                            customs. Declare in Form 201 Box 9 (Output) & Box 15
+                            (Input).
+                          </li>
+                          <li>
+                            • <strong>Non-Registered:</strong> Pay{' '}
+                            {formatAED(calculations.vatAmount)} at customs
+                            clearance.
+                          </li>
+                          <li>
+                            • <strong>Net Effect:</strong> Zero VAT cash outflow
+                            for registered businesses.
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {parseFloat(order.other_charges) > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                    >
+                      + Other Charges
+                    </span>
+                    <span
+                      className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {formatAED(parseFloat(order.other_charges) || 0)}
+                    </span>
+                  </div>
+                )}
+                <div
+                  className={`border-t pt-3 mt-3 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span
+                      className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      Grand Total (AED)
+                    </span>
+                    <span
+                      className={`text-lg font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
+                    >
+                      {formatAED(calculations.grandTotal)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+        </Card>
 
-            {/* Drawer Footer */}
-            <div className="sticky bottom-0 pt-4 mt-6"
-              style={{background: isDarkMode
-                ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-                : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
-              }}
+        {/* Notes Section */}
+        <Card title="Notes & Documents" icon={FileText}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Textarea
+              label="Notes (visible on documents)"
+              value={order.notes}
+              onChange={(e) => handleFieldChange('notes', e.target.value)}
+              rows={4}
+              placeholder="Enter any notes to appear on documents..."
+            />
+            <Textarea
+              label="Internal Notes (not visible on documents)"
+              value={order.internal_notes}
+              onChange={(e) =>
+                handleFieldChange('internal_notes', e.target.value)
+              }
+              rows={4}
+              placeholder="Internal comments, reminders..."
+            />
+          </div>
+
+          {/* Document Upload Section */}
+          <div className="mt-6">
+            <h4
+              className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
-              <div className="flex justify-end">
-                <button className={BTN_PRIMARY} onClick={() => setNotesDrawerOpen(false)}>
-                  Done
-                </button>
-              </div>
+              Attached Documents
+            </h4>
+            <div
+              className={`border-2 border-dashed rounded-lg p-6 text-center ${
+                isDarkMode
+                  ? 'border-gray-600 hover:border-gray-500'
+                  : 'border-gray-300 hover:border-gray-400'
+              } transition-colors cursor-pointer`}
+            >
+              <Upload
+                className={`h-8 w-8 mx-auto mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+              />
+              <p
+                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              >
+                Drag and drop files here, or click to select
+              </p>
+              <p
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+              >
+                Supports: PDF, images, Excel files (max 10MB each)
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Bottom Action Bar */}
+        <div
+          className={`sticky bottom-0 py-4 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+        >
+          <div className="flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/import-export')}
+            >
+              <X className="h-4 w-4" />
+              Cancel
+            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="secondary"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting}
+              >
+                Save as Draft
+              </Button>
+              <Button onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    {isEditMode ? 'Update Order' : 'Create Order'}
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </div>
-      </>
+      </div>
     </div>
   );
 };

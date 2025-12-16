@@ -44,6 +44,9 @@ const parseShortcut = (shortcut) => {
  * @returns {boolean}
  */
 const matchesShortcut = (event, parsedShortcut) => {
+  // Guard against undefined or malformed events
+  if (!event || !event.key) return false;
+
   const eventKey = event.key.toLowerCase();
 
   // Handle special keys

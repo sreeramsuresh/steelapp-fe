@@ -2,51 +2,19 @@
  * StockReceiptForm Component
  * Phase 4.4: PO Stock Receiving with Partial Support
  *
- * A dialog/drawer component for receiving stock from a purchase order.
+ * A modal component for receiving stock from a purchase order.
  * Supports:
  * - Full receiving (all pending items)
  * - Partial receiving (selected items with custom quantities)
  * - Warehouse selection
  * - Notes and batch/coil/heat tracking
+ *
+ * Refactored: Tailwind CSS with dark mode support
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Checkbox,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Alert,
-  CircularProgress,
-  Chip,
-  InputAdornment,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import {
-  Inventory as InventoryIcon,
-  LocalShipping as ShippingIcon,
-  Warning as WarningIcon,
-  CheckCircle as CheckCircleIcon,
-  Close as CloseIcon,
-  Warehouse as WarehouseIcon,
-} from '@mui/icons-material';
+import { useTheme } from '../../contexts/ThemeContext';
+import { X, Package, Truck, AlertTriangle, CheckCircle, Warehouse, ChevronDown } from 'lucide-react';
 import { stockMovementService } from '../../services/stockMovementService';
 import { warehouseService } from '../../services/warehouseService';
 
@@ -66,11 +34,11 @@ const getReceivingStatus = (item) => {
   const received = parseFloat(item.receivedQuantity) || 0;
 
   if (received >= ordered) {
-    return { status: 'complete', label: 'Complete', color: 'success' };
+    return { status: 'complete', label: 'Complete', color: 'green' };
   } else if (received > 0) {
-    return { status: 'partial', label: 'Partial', color: 'warning' };
+    return { status: 'partial', label: 'Partial', color: 'yellow' };
   }
-  return { status: 'pending', label: 'Pending', color: 'default' };
+  return { status: 'pending', label: 'Pending', color: 'gray' };
 };
 
 const StockReceiptForm = ({
@@ -82,11 +50,26 @@ const StockReceiptForm = ({
   defaultWarehouseId = null,
   onSuccess,
 }) => {
+  const { isDarkMode } = useTheme();
+
+  // Theme classes
+  const overlayBg = 'bg-black/60';
+  const modalBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
+  const modalBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const cardBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
+  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
+  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
+  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
+  const tableBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const tableHeaderBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
+  const tableRowHover = isDarkMode ? 'hover:bg-[#1a2129]' : 'hover:bg-gray-50';
+  const inputFocus = 'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
+
   // State
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState(
-    defaultWarehouseId || '',
-  );
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState(defaultWarehouseId || '');
   const [selectedItems, setSelectedItems] = useState({});
   const [quantities, setQuantities] = useState({});
   const [notes, setNotes] = useState('');
@@ -105,8 +88,7 @@ const StockReceiptForm = ({
 
         // Set default warehouse
         if (!selectedWarehouseId && result.data?.length > 0) {
-          const defaultWh =
-            result.data.find((w) => w.isDefault) || result.data[0];
+          const defaultWh = result.data.find((w) => w.isDefault) || result.data[0];
           setSelectedWarehouseId(defaultWh.id);
         }
       } catch (err) {
@@ -120,7 +102,7 @@ const StockReceiptForm = ({
       fetchWarehouses();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]); // fetchWarehouses is stable
+  }, [open]);
 
   // Initialize selected items and quantities when poItems change
   useEffect(() => {
@@ -144,6 +126,17 @@ const StockReceiptForm = ({
       setQuantities(initialQuantities);
     }
   }, [poItems]);
+
+  // Handle escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && open && !loading) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [open, onClose, loading]);
 
   // Filter items to only those with products (can create stock movements)
   const receivableItems = useMemo(() => {
@@ -239,6 +232,7 @@ const StockReceiptForm = ({
       // Validate
       if (!selectedWarehouseId) {
         setError('Please select a warehouse');
+        setLoading(false);
         return;
       }
 
@@ -262,6 +256,7 @@ const StockReceiptForm = ({
 
       if (itemsToReceive.length === 0) {
         setError('No items selected for receiving');
+        setLoading(false);
         return;
       }
 
@@ -274,9 +269,7 @@ const StockReceiptForm = ({
       );
 
       if (result.success || result.totalCreated > 0) {
-        setSuccess(
-          `Successfully received ${result.totalCreated} item(s) into stock`,
-        );
+        setSuccess(`Successfully received ${result.totalCreated} item(s) into stock`);
 
         // Call success callback after short delay
         setTimeout(() => {
@@ -309,296 +302,319 @@ const StockReceiptForm = ({
       })
       .every((i) => selectedItems[i.id]);
 
+  if (!open) return null;
+
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="lg"
-      fullWidth
-      PaperProps={{
-        sx: { maxHeight: '90vh' },
-      }}
-    >
-      <DialogTitle>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
+    <>
+      {/* Overlay */}
+      <div
+        className={`fixed inset-0 ${overlayBg} z-40 transition-opacity`}
+        onClick={() => !loading && onClose()}
+      />
+
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          className={`${modalBg} border ${modalBorder} rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl`}
+          onClick={(e) => e.stopPropagation()}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ShippingIcon color="primary" />
-            <Typography variant="h6">Receive Stock - {poNumber}</Typography>
-          </Box>
-          <IconButton onClick={onClose} size="small">
-            <CloseIcon />
-          </IconButton>
-        </Box>
-      </DialogTitle>
-
-      <DialogContent dividers>
-        {/* Error/Success Alerts */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-            {error}
-          </Alert>
-        )}
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }} icon={<CheckCircleIcon />}>
-            {success}
-          </Alert>
-        )}
-
-        {/* Warehouse Selection */}
-        <Box sx={{ mb: 3 }}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="warehouse-select-label">
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <WarehouseIcon fontSize="small" />
-                Destination Warehouse
-              </Box>
-            </InputLabel>
-            <Select
-              labelId="warehouse-select-label"
-              value={selectedWarehouseId}
-              onChange={(e) => setSelectedWarehouseId(e.target.value)}
-              label="Destination Warehouse"
-              disabled={loadingWarehouses}
+          {/* Header */}
+          <div className={`flex items-center justify-between p-4 border-b ${modalBorder}`}>
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-xl ${cardBg}`}>
+                <Truck className="w-5 h-5 text-[#4aa3ff]" />
+              </div>
+              <div>
+                <h2 className={`text-lg font-bold ${textPrimary}`}>Receive Stock</h2>
+                <p className={`text-xs ${textMuted}`}>PO: {poNumber}</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className={`p-2 rounded-xl ${cardBg} ${textMuted} hover:${textPrimary} transition-colors disabled:opacity-50`}
             >
-              {warehouses.map((wh) => (
-                <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name} {wh.code ? `(${wh.code})` : ''}{' '}
-                  {wh.isDefault && '(Default)'}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-        {/* No receivable items warning */}
-        {receivableItems.length === 0 ? (
-          <Alert severity="warning" icon={<WarningIcon />}>
-            No items with linked products found. Stock movements can only be
-            created for items that are linked to products in inventory.
-          </Alert>
-        ) : (
-          <>
-            {/* Summary Cards */}
-            <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">
-                  Total Ordered
-                </Typography>
-                <Typography variant="h6">
-                  {formatQuantity(totals.totalOrdered)}
-                </Typography>
-              </Paper>
-              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">
-                  Already Received
-                </Typography>
-                <Typography variant="h6" color="success.main">
-                  {formatQuantity(totals.totalReceived)}
-                </Typography>
-              </Paper>
-              <Paper sx={{ p: 2, flex: '1 1 150px', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">
-                  Pending
-                </Typography>
-                <Typography variant="h6" color="warning.main">
-                  {formatQuantity(totals.totalPending)}
-                </Typography>
-              </Paper>
-              <Paper
-                sx={{
-                  p: 2,
-                  flex: '1 1 150px',
-                  textAlign: 'center',
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                }}
-              >
-                <Typography variant="caption">To Receive Now</Typography>
-                <Typography variant="h6">
-                  {formatQuantity(totals.totalToReceive)}
-                </Typography>
-              </Paper>
-            </Box>
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Error Alert */}
+            {error && (
+              <div className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
+                <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm text-red-400">{error}</p>
+                </div>
+                <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
-            {/* Items Table */}
-            <TableContainer component={Paper} variant="outlined">
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={allSelected}
-                        indeterminate={hasSelectedItems && !allSelected}
-                        onChange={(e) => handleSelectAll(e.target.checked)}
-                      />
-                    </TableCell>
-                    <TableCell>Product</TableCell>
-                    <TableCell align="right">Ordered</TableCell>
-                    <TableCell align="right">Received</TableCell>
-                    <TableCell align="right">Pending</TableCell>
-                    <TableCell align="center">Status</TableCell>
-                    <TableCell align="right" sx={{ minWidth: 150 }}>
-                      Qty to Receive
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {receivableItems.map((item) => {
-                    const ordered = parseFloat(item.quantity) || 0;
-                    const received = parseFloat(item.receivedQuantity) || 0;
-                    const pending =
-                      parseFloat(item.pendingQuantity) || ordered - received;
-                    const status = getReceivingStatus(item);
-                    const isComplete = pending <= 0;
+            {/* Success Alert */}
+            {success && (
+              <div className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-green-400">{success}</p>
+              </div>
+            )}
 
-                    return (
-                      <TableRow
-                        key={item.id}
-                        hover
-                        sx={{
-                          opacity: isComplete ? 0.5 : 1,
-                          bgcolor: selectedItems[item.id]
-                            ? 'action.selected'
-                            : 'inherit',
-                        }}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={!!selectedItems[item.id]}
-                            onChange={(e) =>
-                              handleSelectItem(item.id, e.target.checked)
-                            }
-                            disabled={isComplete}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" fontWeight="medium">
-                            {item.name ||
-                              item.productName ||
-                              `Product #${item.productId}`}
-                          </Typography>
-                          {item.productSku && (
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              SKU: {item.productSku}
-                            </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell align="right">
-                          {formatQuantity(ordered, item.unit)}
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography color="success.main">
-                            {formatQuantity(received, item.unit)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography
-                            color={
-                              pending > 0 ? 'warning.main' : 'text.secondary'
-                            }
-                          >
-                            {formatQuantity(pending, item.unit)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="center">
-                          <Chip
-                            label={status.label}
-                            size="small"
-                            color={status.color}
-                            variant="outlined"
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          {!isComplete ? (
-                            <TextField
-                              type="number"
-                              size="small"
-                              value={quantities[item.id] || ''}
-                              onChange={(e) =>
-                                handleQuantityChange(item.id, e.target.value)
-                              }
-                              disabled={!selectedItems[item.id]}
-                              sx={{ width: 120 }}
-                              inputProps={{
-                                min: 0,
-                                max: pending,
-                                step: 0.01,
+            {/* Warehouse Selection */}
+            <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+              <label className={`text-xs font-medium ${textMuted} mb-2 flex items-center gap-2`}>
+                <Warehouse className="w-4 h-4" />
+                Destination Warehouse
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedWarehouseId}
+                  onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                  disabled={loadingWarehouses}
+                  className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-2.5 px-3 pr-10 text-sm ${textPrimary} ${inputFocus} outline-none appearance-none disabled:opacity-50`}
+                >
+                  <option value="">Select warehouse...</option>
+                  {warehouses.map((wh) => (
+                    <option key={wh.id} value={wh.id}>
+                      {wh.name} {wh.code ? `(${wh.code})` : ''} {wh.isDefault && '(Default)'}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 ${textMuted} pointer-events-none`} />
+              </div>
+            </div>
+
+            {/* No receivable items warning */}
+            {receivableItems.length === 0 ? (
+              <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className={`text-sm font-medium ${textPrimary}`}>No Receivable Items</p>
+                  <p className={`text-xs ${textMuted} mt-1`}>
+                    No items with linked products found. Stock movements can only be created for items that are linked to products in inventory.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className={`${cardBg} border ${cardBorder} rounded-xl p-3 text-center`}>
+                    <p className={`text-xs ${textMuted}`}>Total Ordered</p>
+                    <p className={`text-base font-bold ${textPrimary} font-mono mt-1`}>
+                      {formatQuantity(totals.totalOrdered)}
+                    </p>
+                  </div>
+                  <div className={`${cardBg} border ${cardBorder} rounded-xl p-3 text-center`}>
+                    <p className={`text-xs ${textMuted}`}>Already Received</p>
+                    <p className="text-base font-bold text-green-400 font-mono mt-1">
+                      {formatQuantity(totals.totalReceived)}
+                    </p>
+                  </div>
+                  <div className={`${cardBg} border ${cardBorder} rounded-xl p-3 text-center`}>
+                    <p className={`text-xs ${textMuted}`}>Pending</p>
+                    <p className="text-base font-bold text-yellow-400 font-mono mt-1">
+                      {formatQuantity(totals.totalPending)}
+                    </p>
+                  </div>
+                  <div className="bg-[#4aa3ff]/20 border border-[#4aa3ff]/40 rounded-xl p-3 text-center">
+                    <p className="text-xs text-[#4aa3ff]">To Receive Now</p>
+                    <p className="text-base font-bold text-[#4aa3ff] font-mono mt-1">
+                      {formatQuantity(totals.totalToReceive)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Items Table */}
+                <div className={`border ${tableBorder} rounded-xl overflow-hidden`}>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className={tableHeaderBg}>
+                          <th className={`p-3 border-b ${tableBorder} w-10`}>
+                            <input
+                              type="checkbox"
+                              checked={allSelected}
+                              ref={(el) => {
+                                if (el) el.indeterminate = hasSelectedItems && !allSelected;
                               }}
-                              InputProps={{
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    <Tooltip title="Set max quantity">
-                                      <IconButton
-                                        size="small"
-                                        onClick={() =>
-                                          handleSetMaxQuantity(item.id)
-                                        }
-                                        disabled={!selectedItems[item.id]}
-                                      >
-                                        <InventoryIcon fontSize="small" />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </InputAdornment>
-                                ),
-                              }}
+                              onChange={(e) => handleSelectAll(e.target.checked)}
+                              className="w-4 h-4 rounded border-gray-400 text-[#4aa3ff] focus:ring-[#4aa3ff]/20"
                             />
-                          ) : (
-                            <Typography variant="body2" color="text.secondary">
-                              -
-                            </Typography>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                          </th>
+                          <th className={`p-3 border-b ${tableBorder} text-left ${textMuted} font-medium`}>
+                            Product
+                          </th>
+                          <th className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium`}>
+                            Ordered
+                          </th>
+                          <th className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium`}>
+                            Received
+                          </th>
+                          <th className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium`}>
+                            Pending
+                          </th>
+                          <th className={`p-3 border-b ${tableBorder} text-center ${textMuted} font-medium`}>
+                            Status
+                          </th>
+                          <th className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium min-w-[140px]`}>
+                            Qty to Receive
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {receivableItems.map((item) => {
+                          const ordered = parseFloat(item.quantity) || 0;
+                          const received = parseFloat(item.receivedQuantity) || 0;
+                          const pending = parseFloat(item.pendingQuantity) || ordered - received;
+                          const status = getReceivingStatus(item);
+                          const isComplete = pending <= 0;
+                          const isSelected = selectedItems[item.id];
 
-            {/* Notes Field */}
-            <Box sx={{ mt: 3 }}>
-              <TextField
-                label="Notes"
-                multiline
-                rows={2}
-                fullWidth
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add any notes about this stock receipt..."
-                size="small"
-              />
-            </Box>
-          </>
-        )}
-      </DialogContent>
+                          const statusColors = {
+                            green: 'bg-green-500/15 text-green-400 border-green-500/30',
+                            yellow: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
+                            gray: isDarkMode ? 'bg-[#2a3640] text-[#93a4b4] border-[#3a4650]' : 'bg-gray-100 text-gray-500 border-gray-300',
+                          };
 
-      <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} disabled={loading}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={loading || !hasSelectedItems || totals.totalToReceive <= 0}
-          startIcon={
-            loading ? <CircularProgress size={16} /> : <CheckCircleIcon />
-          }
-        >
-          {loading
-            ? 'Receiving...'
-            : `Receive ${formatQuantity(totals.totalToReceive)}`}
-        </Button>
-      </DialogActions>
-    </Dialog>
+                          return (
+                            <tr
+                              key={item.id}
+                              className={`${isComplete ? 'opacity-50' : ''} ${isSelected && !isComplete ? (isDarkMode ? 'bg-[#4aa3ff]/5' : 'bg-blue-50') : ''} ${tableRowHover} transition-colors`}
+                            >
+                              <td className={`p-3 border-b ${tableBorder}`}>
+                                <input
+                                  type="checkbox"
+                                  checked={!!isSelected}
+                                  onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                                  disabled={isComplete}
+                                  className="w-4 h-4 rounded border-gray-400 text-[#4aa3ff] focus:ring-[#4aa3ff]/20 disabled:opacity-50"
+                                />
+                              </td>
+                              <td className={`p-3 border-b ${tableBorder}`}>
+                                <p className={`font-medium ${textPrimary}`}>
+                                  {item.name || item.productName || `Product #${item.productId}`}
+                                </p>
+                                {item.productSku && (
+                                  <p className={`text-xs ${textMuted} font-mono`}>SKU: {item.productSku}</p>
+                                )}
+                              </td>
+                              <td className={`p-3 border-b ${tableBorder} text-right font-mono ${textPrimary}`}>
+                                {formatQuantity(ordered, item.unit)}
+                              </td>
+                              <td className={`p-3 border-b ${tableBorder} text-right font-mono text-green-400`}>
+                                {formatQuantity(received, item.unit)}
+                              </td>
+                              <td className={`p-3 border-b ${tableBorder} text-right font-mono ${pending > 0 ? 'text-yellow-400' : textMuted}`}>
+                                {formatQuantity(pending, item.unit)}
+                              </td>
+                              <td className={`p-3 border-b ${tableBorder} text-center`}>
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs border ${statusColors[status.color]}`}>
+                                  {status.label}
+                                </span>
+                              </td>
+                              <td className={`p-3 border-b ${tableBorder}`}>
+                                {!isComplete ? (
+                                  <div className="flex items-center gap-2 justify-end">
+                                    <input
+                                      type="number"
+                                      value={quantities[item.id] || ''}
+                                      onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                      disabled={!isSelected}
+                                      min={0}
+                                      max={pending}
+                                      step={0.01}
+                                      className={`w-24 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none disabled:opacity-50`}
+                                    />
+                                    <button
+                                      onClick={() => handleSetMaxQuantity(item.id)}
+                                      disabled={!isSelected}
+                                      title="Set max quantity"
+                                      className={`p-1.5 rounded-lg ${cardBg} ${textMuted} hover:text-[#4aa3ff] transition-colors disabled:opacity-50`}
+                                    >
+                                      <Package className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className={`text-center block ${textMuted}`}>-</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Notes Accordion */}
+                <details className={`${cardBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
+                  <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                    <div>
+                      <div className={`text-sm font-bold ${textPrimary}`}>Receipt Notes</div>
+                      <div className={`text-xs ${textMuted}`}>Optional notes about this stock receipt</div>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
+                  </summary>
+                  <div className={`p-3 border-t ${cardBorder}`}>
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Add any notes about this stock receipt..."
+                      rows={3}
+                      className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-2.5 px-3 text-sm ${textPrimary} ${inputFocus} outline-none resize-none`}
+                    />
+                  </div>
+                </details>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className={`flex items-center justify-between gap-3 p-4 border-t ${modalBorder}`}>
+            <div className={`text-xs ${textMuted}`}>
+              {hasSelectedItems ? (
+                <span>
+                  {Object.values(selectedItems).filter(Boolean).length} item(s) selected
+                </span>
+              ) : (
+                <span>Select items to receive</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onClose}
+                disabled={loading}
+                className={`px-4 py-2.5 rounded-xl border ${cardBorder} ${textPrimary} text-sm font-medium hover:${cardBg} transition-colors disabled:opacity-50`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={loading || !hasSelectedItems || totals.totalToReceive <= 0}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4aa3ff] text-white text-sm font-medium hover:bg-[#3d8ee6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Receiving...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Receive {formatQuantity(totals.totalToReceive)}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

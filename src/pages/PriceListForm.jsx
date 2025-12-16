@@ -28,6 +28,42 @@ import { productService } from '../services/dataService';
 import { notificationService } from '../services/notificationService';
 import PriceHistoryTab from '../components/pricelist/PriceHistoryTab';
 
+// ==================== DESIGN TOKENS ====================
+const COLORS = {
+  bg: '#0b0f14',
+  card: '#141a20',
+  border: '#2a3640',
+  text: '#e6edf3',
+  muted: '#93a4b4',
+  good: '#2ecc71',
+  warn: '#f39c12',
+  bad: '#e74c3c',
+  accent: '#4aa3ff',
+  accentHover: '#5bb2ff',
+  inputBg: '#0f151b',
+};
+
+// Reusable class generators
+const CARD_CLASSES = (isDarkMode) =>
+  `${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl p-4`;
+
+const INPUT_CLASSES = (isDarkMode) =>
+  `w-full ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20 transition-colors`;
+
+const LABEL_CLASSES = (isDarkMode) =>
+  `block text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'} mb-1.5`;
+
+const BTN_CLASSES = (isDarkMode) =>
+  `${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]' : 'bg-white border-gray-300 text-gray-900 hover:border-blue-500'} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
+
+const BTN_PRIMARY = 'bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors';
+
+const BTN_SMALL = (isDarkMode) =>
+  `${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]' : 'bg-white border-gray-300 text-gray-900 hover:border-blue-500'} border rounded-[10px] py-2 px-2.5 text-xs cursor-pointer transition-colors`;
+
+const DIVIDER_CLASSES = (isDarkMode) =>
+  `h-px ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'} my-3`;
+
 // Custom Button component
 const Button = ({
   children,
@@ -188,18 +224,14 @@ const ProductDetailDrawer = ({
     <div className="flex items-start gap-3 py-2">
       <Icon
         size={16}
-        className={`mt-0.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+        className={`mt-0.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
       />
       <div className="flex-1 min-w-0">
-        <p
-          className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-        >
+        <p className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
           {label}
         </p>
-        <p
-          className={`text-sm font-medium truncate ${valueClassName || (isDarkMode ? 'text-white' : 'text-gray-900')}`}
-        >
-          {value || '—'}
+        <p className={`text-[13px] font-medium truncate ${valueClassName || (isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900')}`}>
+          {value || '-'}
         </p>
       </div>
     </div>
@@ -207,273 +239,189 @@ const ProductDetailDrawer = ({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/30 z-40 transition-opacity"
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
         onClick={onClose}
       />
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-[400px] z-50 transform transition-transform duration-300 ease-out shadow-2xl ${
-          isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-        }`}
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] overflow-auto transition-transform duration-300 ease-out ${
+          isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'
+        } ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        {/* Header */}
-        <div
-          className={`flex items-center justify-between p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-        >
-          <div className="flex items-center gap-2">
-            <Package size={20} className="text-teal-500" />
-            <h3
-              className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              Product Details
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-          >
-            <X
-              size={20}
-              className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
-            />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-4 overflow-y-auto h-[calc(100%-130px)]">
-          {/* Product Name */}
-          <div className="mb-4">
-            <h4
-              className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              {product.displayName ||
-                product.display_name ||
-                product.name ||
-                'N/A'}
-            </h4>
-            <p
-              className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-            >
-              {product.sku || product.product_code || `ID: ${product.id}`}
-            </p>
-          </div>
-
-          {/* Category & Grade */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {product.category && (
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md ${
-                  isDarkMode
-                    ? 'bg-blue-900/30 text-blue-400'
-                    : 'bg-blue-100 text-blue-700'
-                }`}
-              >
-                <Layers size={12} />
-                {product.category}
-              </span>
-            )}
-            {product.grade && (
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md ${
-                  isDarkMode
-                    ? 'bg-purple-900/30 text-purple-400'
-                    : 'bg-purple-100 text-purple-700'
-                }`}
-              >
-                {product.grade}
-              </span>
-            )}
-          </div>
-
-          {/* Pricing Section */}
+        {/* Inner padding */}
+        <div className="p-4">
+          {/* Sticky Header */}
           <div
-            className={`rounded-lg p-4 mb-4 ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 p-4 -m-4 mb-3 z-[1] ${
+              isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'
+            }`}
           >
-            <h5
-              className={`text-xs font-semibold uppercase mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              Pricing
-            </h5>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p
-                  className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                >
-                  Selling Price
-                </p>
-                <p className={`text-lg font-bold text-teal-500`}>
-                  AED{' '}
-                  {product.sellingPrice?.toFixed(2) ||
-                    product.selling_price?.toFixed(2) ||
-                    '0.00'}
-                </p>
-              </div>
-              <div>
-                <p
-                  className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                >
-                  Cost Price
-                </p>
-                <p
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                >
-                  AED{' '}
-                  {product.costPrice?.toFixed(2) ||
-                    product.cost_price?.toFixed(2) ||
-                    '0.00'}
-                </p>
-              </div>
-            </div>
-            {product.sellingPrice && product.costPrice && (
-              <div className="mt-3 pt-3 border-t border-dashed ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}">
-                <p
-                  className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                >
-                  Margin
-                </p>
-                <p
-                  className={`text-sm font-medium ${
-                    ((product.sellingPrice - product.costPrice) /
-                      product.sellingPrice) *
-                      100 >
-                    20
-                      ? 'text-green-500'
-                      : 'text-yellow-500'
-                  }`}
-                >
-                  {(
-                    ((product.sellingPrice - product.costPrice) /
-                      product.sellingPrice) *
-                    100
-                  ).toFixed(1)}
-                  %
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Source Section */}
-          <div
-            className={`rounded-lg p-4 mb-4 ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}
-          >
-            <h5
-              className={`text-xs font-semibold uppercase mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              Source
-            </h5>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 mb-3">
-                <span
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md ${
-                    product.isImported || product.is_imported
-                      ? isDarkMode
-                        ? 'bg-blue-900/30 text-blue-400'
-                        : 'bg-blue-100 text-blue-700'
-                      : isDarkMode
-                        ? 'bg-green-900/30 text-green-400'
-                        : 'bg-green-100 text-green-700'
-                  }`}
-                >
-                  {product.isImported || product.is_imported ? (
-                    <>
-                      <Globe size={12} />
-                      Imported
-                    </>
-                  ) : (
-                    <>
-                      <MapPin size={12} />
-                      Local
-                    </>
-                  )}
+            <div>
+              <div className="flex items-center gap-2">
+                <Package size={18} className="text-[#4aa3ff]" />
+                <span className={`text-sm font-extrabold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                  Product Details
                 </span>
               </div>
-              {(product.isImported || product.is_imported) && (
-                <div className="space-y-1">
-                  <InfoRow
-                    icon={Globe}
-                    label="Country of Origin"
-                    value={
-                      product.countryOfOrigin ||
-                      product.country_of_origin ||
-                      product.origin_country
-                    }
-                  />
-                  <InfoRow
-                    icon={Factory}
-                    label="Mill / Manufacturer"
-                    value={
-                      product.millName ||
-                      product.mill_name ||
-                      product.manufacturer
-                    }
-                  />
+              <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                View product information
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'hover:bg-[#0f151b] text-[#93a4b4]' : 'hover:bg-gray-100 text-gray-600'}`}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="mt-3">
+            {/* Product Name */}
+            <div className="mb-3">
+              <h4 className={`text-base font-bold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                {product.displayName || product.display_name || product.name || 'N/A'}
+              </h4>
+              <p className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                {product.sku || product.product_code || `ID: ${product.id}`}
+              </p>
+            </div>
+
+            {/* Category & Grade */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {product.category && (
+                <span className={`inline-flex items-center gap-1 px-2 py-1 text-[11px] rounded-full border ${
+                  isDarkMode ? 'border-[#4aa3ff]/35 text-[#4aa3ff]' : 'border-blue-300 text-blue-700'
+                }`}>
+                  <Layers size={12} />
+                  {product.category}
+                </span>
+              )}
+              {product.grade && (
+                <span className={`inline-flex items-center gap-1 px-2 py-1 text-[11px] rounded-full border ${
+                  isDarkMode ? 'border-purple-500/35 text-purple-400' : 'border-purple-300 text-purple-700'
+                }`}>
+                  {product.grade}
+                </span>
+              )}
+            </div>
+
+            {/* Pricing Section */}
+            <div className={`rounded-[14px] p-3 mb-3 ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}>
+              <h5 className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
+                Pricing
+              </h5>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Selling Price</p>
+                  <p className="text-sm font-extrabold text-[#4aa3ff] font-mono">
+                    AED {product.sellingPrice?.toFixed(2) || product.selling_price?.toFixed(2) || '0.00'}
+                  </p>
+                </div>
+                <div>
+                  <p className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Cost Price</p>
+                  <p className={`text-sm font-bold font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-700'}`}>
+                    AED {product.costPrice?.toFixed(2) || product.cost_price?.toFixed(2) || '0.00'}
+                  </p>
+                </div>
+              </div>
+              {product.sellingPrice && product.costPrice && (
+                <div className={`mt-2.5 pt-2.5 border-t border-dashed ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-300'}`}>
+                  <p className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Margin</p>
+                  <p className={`text-sm font-bold font-mono ${
+                    ((product.sellingPrice - product.costPrice) / product.sellingPrice) * 100 > 20
+                      ? 'text-[#2ecc71]' : 'text-[#f39c12]'
+                  }`}>
+                    {(((product.sellingPrice - product.costPrice) / product.sellingPrice) * 100).toFixed(1)}%
+                  </p>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Stock Section */}
-          <div
-            className={`rounded-lg p-4 ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}
-          >
-            <h5
-              className={`text-xs font-semibold uppercase mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              Stock Information
-            </h5>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p
-                  className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                >
-                  Available Stock
-                </p>
-                <p
-                  className={`text-lg font-bold ${
-                    (product.stockQuantity || product.stock_quantity || 0) > 0
-                      ? 'text-green-500'
-                      : 'text-red-500'
-                  }`}
-                >
-                  {product.stockQuantity || product.stock_quantity || 0}
-                </p>
+            {/* Source Section */}
+            <div className={`rounded-[14px] p-3 mb-3 ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}>
+              <h5 className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
+                Source
+              </h5>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium rounded-full border ${
+                    product.isImported || product.is_imported
+                      ? isDarkMode ? 'border-[#4aa3ff]/35 text-[#4aa3ff]' : 'border-blue-300 text-blue-700'
+                      : isDarkMode ? 'border-green-500/35 text-green-400' : 'border-green-300 text-green-700'
+                  }`}>
+                    {product.isImported || product.is_imported ? (
+                      <><Globe size={12} /> Imported</>
+                    ) : (
+                      <><MapPin size={12} /> Local</>
+                    )}
+                  </span>
+                </div>
+                {(product.isImported || product.is_imported) && (
+                  <div className="space-y-1">
+                    <InfoRow
+                      icon={Globe}
+                      label="Country of Origin"
+                      value={product.countryOfOrigin || product.country_of_origin || product.origin_country}
+                    />
+                    <InfoRow
+                      icon={Factory}
+                      label="Mill / Manufacturer"
+                      value={product.millName || product.mill_name || product.manufacturer}
+                    />
+                  </div>
+                )}
               </div>
-              <div>
-                <p
-                  className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                >
-                  Reserved
-                </p>
-                <p
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                >
-                  {product.reservedQuantity || product.reserved_quantity || 0}
-                </p>
+            </div>
+
+            {/* Stock Section */}
+            <div className={`rounded-[14px] p-3 ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}>
+              <h5 className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
+                Stock Information
+              </h5>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Available Stock</p>
+                  <p className={`text-sm font-extrabold font-mono ${
+                    (product.stockQuantity || product.stock_quantity || 0) > 0 ? 'text-[#2ecc71]' : 'text-[#e74c3c]'
+                  }`}>
+                    {product.stockQuantity || product.stock_quantity || 0}
+                  </p>
+                </div>
+                <div>
+                  <p className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Reserved</p>
+                  <p className={`text-sm font-bold font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-700'}`}>
+                    {product.reservedQuantity || product.reserved_quantity || 0}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div
-          className={`absolute bottom-0 left-0 right-0 p-4 border-t ${isDarkMode ? 'border-gray-700 bg-[#1E2328]' : 'border-gray-200 bg-white'}`}
-        >
-          <button
-            onClick={() => {
-              onClose();
-              navigate(`/products/${product.id}`);
+          {/* Sticky Footer */}
+          <div
+            className="sticky bottom-0 pt-4 mt-4"
+            style={{
+              background: isDarkMode
+                ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
+                : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))'
             }}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${
-              isDarkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-            }`}
           >
-            <ExternalLink size={16} />
-            View Full Product Page
-          </button>
+            <button
+              onClick={() => {
+                onClose();
+                navigate(`/products/${product.id}`);
+              }}
+              className={BTN_CLASSES(isDarkMode) + ' w-full flex items-center justify-center gap-2'}
+            >
+              <ExternalLink size={16} />
+              View Full Product Page
+            </button>
+          </div>
         </div>
       </div>
     </>
@@ -828,121 +776,145 @@ export default function PriceListForm() {
 
   return (
     <div
-      className={`p-4 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-[#FAFAFA]'}`}
     >
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={() => navigate('/pricelists')}
-          className={`p-2 rounded-lg transition-colors ${
-            isDarkMode
-              ? 'hover:bg-gray-700 text-gray-400'
-              : 'hover:bg-gray-100 text-gray-600'
-          }`}
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <div>
-          <h1
-            className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
-            {isEdit ? '✏️ Edit Price List' : '➕ New Price List'}
-          </h1>
-          <p
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-          >
-            {isEdit
-              ? 'Update pricing for your products'
-              : 'Create a new price list to manage product pricing'}
-          </p>
+      {/* Sticky Header with Blur */}
+      <div
+        className={`sticky top-0 z-10 backdrop-blur-md ${
+          isDarkMode
+            ? 'bg-[#0f151b]/94 border-b border-[#2a3640]'
+            : 'bg-white/94 border-b border-gray-200'
+        } px-4 py-3`}
+      >
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/pricelists')}
+              className={`p-2 rounded-xl transition-colors ${
+                isDarkMode
+                  ? 'hover:bg-[#141a20] text-[#93a4b4]'
+                  : 'hover:bg-gray-100 text-gray-600'
+              }`}
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <h1
+                className={`text-lg font-extrabold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
+              >
+                {isEdit ? 'Edit Price List' : 'New Price List'}
+              </h1>
+              <p
+                className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+              >
+                {isEdit
+                  ? 'Update pricing for your products'
+                  : 'Create a new price list to manage product pricing'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Status Pills */}
+            {formData.isActive && (
+              <span
+                className={`px-2.5 py-1 text-xs rounded-full border ${
+                  isDarkMode
+                    ? 'border-green-500/35 text-green-400'
+                    : 'border-green-300 text-green-700 bg-green-50'
+                }`}
+              >
+                Active
+              </span>
+            )}
+            {formData.isDefault && (
+              <span
+                className={`px-2.5 py-1 text-xs rounded-full border ${
+                  isDarkMode
+                    ? 'border-[#4aa3ff]/35 text-[#4aa3ff]'
+                    : 'border-blue-300 text-blue-700 bg-blue-50'
+                }`}
+              >
+                Default
+              </span>
+            )}
+            {/* Header Action Buttons */}
+            <button
+              type="button"
+              onClick={() => navigate('/pricelists')}
+              className={BTN_CLASSES(isDarkMode)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={saving}
+              className={BTN_PRIMARY}
+            >
+              <Save size={16} className="inline mr-1.5" />
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Sidebar - 30% (Basic Info + Actions + Summary) */}
-          <div className="w-full lg:w-[30%] space-y-4 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
-            {/* Basic Information Card */}
-            <div
-              className={`rounded-xl border p-5 ${
-                isDarkMode
-                  ? 'bg-[#1E2328] border-[#37474F]'
-                  : 'bg-white border-[#E0E0E0]'
-              }`}
+      {/* Main Content */}
+      <form onSubmit={handleSubmit} className="p-4 max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-12 gap-3">
+          {/* Left Column - Main Form (8 cols) */}
+          <div className="col-span-12 lg:col-span-8 space-y-3">
+            {/* Basic Information Card - Collapsible Details */}
+            <details
+              open
+              className={`${CARD_CLASSES(isDarkMode)} group`}
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Tag size={18} className="text-teal-500" />
-                <h2
-                  className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
-                  Basic Information
-                </h2>
-              </div>
-
-              <div className="space-y-3">
-                <Input
-                  label="Price List Name"
-                  value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  placeholder="e.g., Wholesale Prices Q1 2024"
-                  required
-                  isDarkMode={isDarkMode}
-                />
-
-                <label
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-                >
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  placeholder="Optional description..."
-                  rows={2}
-                  className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none text-sm ${
-                    isDarkMode
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                  }`}
-                />
-
-                <Select
-                  label="Currency"
-                  value={formData.currency}
-                  onChange={(e) => handleChange('currency', e.target.value)}
-                  options={[
-                    { value: 'AED', label: 'AED' },
-                    { value: 'USD', label: 'USD' },
-                    { value: 'EUR', label: 'EUR' },
-                  ]}
-                  isDarkMode={isDarkMode}
-                />
-
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    label="Effective From"
-                    type="date"
-                    value={formData.effectiveFrom}
-                    onChange={(e) =>
-                      handleChange('effectiveFrom', e.target.value)
-                    }
-                    isDarkMode={isDarkMode}
-                  />
-                  <Input
-                    label="Effective To"
-                    type="date"
-                    value={formData.effectiveTo}
-                    onChange={(e) =>
-                      handleChange('effectiveTo', e.target.value)
-                    }
-                    isDarkMode={isDarkMode}
-                  />
+              <summary className="list-none cursor-pointer flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tag size={16} className="text-[#4aa3ff]" />
+                  <span className={`text-sm font-bold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                    Price List Details
+                  </span>
                 </div>
-
-                <div
-                  className={`pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                <svg
+                  className={`w-4 h-4 transition-transform group-open:rotate-180 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <div className="flex items-center justify-between">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-200'}`}>
+                <div className="grid grid-cols-12 gap-3">
+                  {/* Name - full width */}
+                  <div className="col-span-12 sm:col-span-6">
+                    <label className={LABEL_CLASSES(isDarkMode)}>Price List Name *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      placeholder="e.g., Wholesale Prices Q1 2024"
+                      required
+                      className={INPUT_CLASSES(isDarkMode)}
+                    />
+                  </div>
+
+                  {/* Currency */}
+                  <div className="col-span-6 sm:col-span-3">
+                    <label className={LABEL_CLASSES(isDarkMode)}>Currency</label>
+                    <select
+                      value={formData.currency}
+                      onChange={(e) => handleChange('currency', e.target.value)}
+                      className={INPUT_CLASSES(isDarkMode)}
+                    >
+                      <option value="AED">AED</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                    </select>
+                  </div>
+
+                  {/* Toggles */}
+                  <div className="col-span-6 sm:col-span-3 flex items-end gap-4 pb-1">
                     <Toggle
                       checked={formData.isActive}
                       onChange={(val) => handleChange('isActive', val)}
@@ -956,123 +928,62 @@ export default function PriceListForm() {
                       isDarkMode={isDarkMode}
                     />
                   </div>
+
+                  {/* Description */}
+                  <div className="col-span-12 sm:col-span-6">
+                    <label className={LABEL_CLASSES(isDarkMode)}>Description</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => handleChange('description', e.target.value)}
+                      placeholder="Optional description..."
+                      rows={2}
+                      className={`${INPUT_CLASSES(isDarkMode)} resize-none`}
+                    />
+                  </div>
+
+                  {/* Effective From */}
+                  <div className="col-span-6 sm:col-span-3">
+                    <label className={LABEL_CLASSES(isDarkMode)}>Effective From</label>
+                    <input
+                      type="date"
+                      value={formData.effectiveFrom}
+                      onChange={(e) => handleChange('effectiveFrom', e.target.value)}
+                      className={INPUT_CLASSES(isDarkMode)}
+                    />
+                  </div>
+
+                  {/* Effective To */}
+                  <div className="col-span-6 sm:col-span-3">
+                    <label className={LABEL_CLASSES(isDarkMode)}>Effective To</label>
+                    <input
+                      type="date"
+                      value={formData.effectiveTo}
+                      onChange={(e) => handleChange('effectiveTo', e.target.value)}
+                      className={INPUT_CLASSES(isDarkMode)}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </details>
 
-            {/* Summary Card */}
-            <div
-              className={`rounded-xl border p-4 ${
-                isDarkMode
-                  ? 'bg-[#1E2328] border-[#37474F]'
-                  : 'bg-white border-[#E0E0E0]'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Products with Prices
-                </span>
-                <span
-                  className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
-                  {stats.configuredProducts} / {stats.totalProducts}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 rounded-lg ${isDarkMode ? 'bg-green-900/20' : 'bg-green-50'}`}
-                >
-                  <TrendingUp size={14} className="text-green-500" />
-                  <span
-                    className={`text-sm font-semibold ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}
-                  >
-                    {stats.increasedPrices}
-                  </span>
-                  <span
-                    className={`text-xs ${isDarkMode ? 'text-green-400/70' : 'text-green-600'}`}
-                  >
-                    up
-                  </span>
-                </div>
-                <div
-                  className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 rounded-lg ${isDarkMode ? 'bg-red-900/20' : 'bg-red-50'}`}
-                >
-                  <TrendingDown size={14} className="text-red-500" />
-                  <span
-                    className={`text-sm font-semibold ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}
-                  >
-                    {stats.decreasedPrices}
-                  </span>
-                  <span
-                    className={`text-xs ${isDarkMode ? 'text-red-400/70' : 'text-red-600'}`}
-                  >
-                    down
-                  </span>
-                </div>
-              </div>
-
-              <div
-                className={`pt-3 mt-3 border-t space-y-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-              >
-                <Button type="submit" className="w-full" disabled={saving}>
-                  <Save size={16} />
-                  {saving ? 'Saving...' : 'Save Price List'}
-                </Button>
-                {isEdit && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="w-full"
-                    onClick={handleSaveAsNew}
-                    disabled={saving}
-                  >
-                    <Copy size={16} />
-                    Save As New
-                  </Button>
-                )}
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate('/pricelists')}
-                  disabled={saving}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content - 70% (Product Prices + History) */}
-          <div className="w-full lg:w-[70%]">
-            {/* Main Card with Tabs */}
-            <div
-              className={`rounded-xl border h-full ${
-                isDarkMode
-                  ? 'bg-[#1E2328] border-[#37474F]'
-                  : 'bg-white border-[#E0E0E0]'
-              }`}
-            >
+            {/* Product Prices Card with Tabs */}
+            <div className={CARD_CLASSES(isDarkMode)}>
               {/* Tab Navigation */}
-              <div
-                className={`flex border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-              >
+              <div className={`flex border-b -mx-4 px-4 ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-200'}`}>
                 <button
                   type="button"
                   onClick={() => setActiveTab('prices')}
-                  className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                  className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold transition-colors border-b-2 -mb-px ${
                     activeTab === 'prices'
-                      ? `border-teal-500 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`
-                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+                      ? `border-[#4aa3ff] ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-600'}`
+                      : `border-transparent ${isDarkMode ? 'text-[#93a4b4] hover:text-[#e6edf3]' : 'text-gray-500 hover:text-gray-700'}`
                   }`}
                 >
-                  <Package size={18} />
+                  <Package size={16} />
                   Product Prices
                   <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+                    className={`text-[11px] px-1.5 py-0.5 rounded-full ${
+                      isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-100'
                     }`}
                   >
                     {stats.configuredProducts}
@@ -1082,103 +993,79 @@ export default function PriceListForm() {
                   <button
                     type="button"
                     onClick={() => setActiveTab('history')}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                    className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold transition-colors border-b-2 -mb-px ${
                       activeTab === 'history'
-                        ? `border-teal-500 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`
-                        : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+                        ? `border-[#4aa3ff] ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-600'}`
+                        : `border-transparent ${isDarkMode ? 'text-[#93a4b4] hover:text-[#e6edf3]' : 'text-gray-500 hover:text-gray-700'}`
                     }`}
                   >
-                    <History size={18} />
+                    <History size={16} />
                     Price History
                   </button>
                 )}
               </div>
 
               {/* Tab Content */}
-              <div className="p-6">
+              <div className="pt-3">
                 {activeTab === 'prices' ? (
                   <>
                     {/* Product Prices Header */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <h2
-                          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                        >
-                          Configure Prices
-                        </h2>
-                        <span
-                          className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                        >
-                          ({stats.configuredProducts} of {stats.totalProducts}{' '}
-                          configured)
+                        <span className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                          {stats.configuredProducts} of {stats.totalProducts} configured
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
+                        <button
+                          type="button"
                           onClick={() => setShowBulkDialog(true)}
+                          className={BTN_SMALL(isDarkMode)}
                         >
-                          <Percent size={16} />
-                          Bulk Adjustment
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
+                          <Percent size={14} className="inline mr-1" />
+                          Bulk Adjust
+                        </button>
+                        <button
+                          type="button"
                           onClick={handleResetToDefaults}
                           disabled={formData.items.length === 0}
+                          className={BTN_SMALL(isDarkMode)}
                         >
-                          <RotateCcw size={16} />
-                          Reset to Defaults
-                        </Button>
+                          <RotateCcw size={14} className="inline mr-1" />
+                          Reset
+                        </button>
                       </div>
                     </div>
 
                     {/* Search */}
-                    <div className="relative mb-4">
+                    <div className="relative mb-3">
                       <Search
-                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                       />
                       <input
                         type="text"
                         placeholder="Search products..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className={`w-full pl-10 pr-3 py-2 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                          isDarkMode
-                            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
-                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                        }`}
+                        className={`${INPUT_CLASSES(isDarkMode)} pl-10`}
                       />
                     </div>
 
                     {/* Products Table */}
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto -mx-4">
                       <table className="w-full">
-                        <thead
-                          className={`sticky top-0 ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}
-                        >
-                          <tr
-                            className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                          >
-                            <th
-                              className={`text-left py-3 px-3 text-xs font-semibold uppercase ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                            >
+                        <thead>
+                          <tr className={`border-b ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-200'}`}>
+                            <th className={`text-left py-2.5 px-4 text-xs font-bold ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
                               Product
                             </th>
-                            <th
-                              className={`text-right py-3 px-3 text-xs font-semibold uppercase ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                            >
-                              Current Price
+                            <th className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
+                              Current
                             </th>
-                            <th
-                              className={`text-right py-3 px-3 text-xs font-semibold uppercase ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                            >
+                            <th className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
                               New Price
                             </th>
-                            <th
-                              className={`text-right py-3 px-3 text-xs font-semibold uppercase ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                            >
+                            <th className={`text-right py-2.5 px-4 text-xs font-bold ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
                               Change
                             </th>
                           </tr>
@@ -1190,121 +1077,85 @@ export default function PriceListForm() {
                             const costPrice = getProductCostPrice(product.id);
                             const margin =
                               newPrice && costPrice
-                                ? calculateMargin(
-                                  parseFloat(newPrice),
-                                  costPrice,
-                                )
+                                ? calculateMargin(parseFloat(newPrice), costPrice)
                                 : null;
-                            const isNegativeMargin =
-                              margin !== null && parseFloat(margin) < 0;
+                            const isNegativeMargin = margin !== null && parseFloat(margin) < 0;
 
                             return (
                               <tr
                                 key={product.id}
                                 className={`border-b transition-colors ${
                                   isDarkMode
-                                    ? 'border-gray-700 hover:bg-gray-800/50'
+                                    ? 'border-[#2a3640] hover:bg-[#0f151b]/50'
                                     : 'border-gray-100 hover:bg-gray-50'
                                 }`}
                               >
-                                <td className="py-3 px-3">
-                                  <div>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setSelectedProduct(product)
-                                      }
-                                      className={`font-medium text-sm text-left hover:text-teal-500 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                                    >
-                                      {product.uniqueName ||
-                                        product.unique_name ||
-                                        'N/A'}
-                                    </button>
-                                    <p
-                                      className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                                    >
-                                      {product.isImported || product.is_imported
-                                        ? `Imported - ${product.countryOfOrigin || product.country_of_origin || product.origin_country || 'Unknown'}, ${product.millName || product.mill_name || product.manufacturer || 'Unknown Mill'}`
-                                        : 'Local'}
-                                    </p>
-                                  </div>
-                                </td>
-                                <td
-                                  className={`py-3 px-3 text-right text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                                >
-                                  {formData.currency}{' '}
-                                  {product.sellingPrice?.toFixed(2) || '0.00'}
-                                  <div
-                                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                                <td className="py-2.5 px-4">
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedProduct(product)}
+                                    className={`font-medium text-[13px] text-left hover:text-[#4aa3ff] transition-colors ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                                   >
-                                    Cost: {formData.currency}{' '}
-                                    {costPrice?.toFixed(2) || '0.00'}
+                                    {product.uniqueName || product.unique_name || 'N/A'}
+                                  </button>
+                                  <p className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                                    {product.isImported || product.is_imported
+                                      ? `Imported - ${product.countryOfOrigin || product.country_of_origin || product.origin_country || 'Unknown'}`
+                                      : 'Local'}
+                                  </p>
+                                </td>
+                                <td className={`py-2.5 px-3 text-right`}>
+                                  <div className={`text-[13px] font-mono ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}>
+                                    {formData.currency} {product.sellingPrice?.toFixed(2) || '0.00'}
+                                  </div>
+                                  <div className={`text-[11px] font-mono ${isDarkMode ? 'text-[#93a4b4]/70' : 'text-gray-400'}`}>
+                                    Cost: {costPrice?.toFixed(2) || '0.00'}
                                   </div>
                                 </td>
-                                <td className="py-3 px-3">
-                                  <div className="flex items-center justify-end gap-1">
-                                    <span
-                                      className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                                    >
+                                <td className="py-2.5 px-3">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <span className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
                                       {formData.currency}
                                     </span>
                                     <input
                                       type="number"
                                       step="0.01"
                                       value={getProductPrice(product.id)}
-                                      onChange={(e) =>
-                                        handlePriceChange(
-                                          product.id,
-                                          e.target.value,
-                                        )
-                                      }
+                                      onChange={(e) => handlePriceChange(product.id, e.target.value)}
                                       placeholder="0.00"
-                                      className={`w-28 px-2 py-1.5 text-sm text-right border rounded-lg focus:outline-none focus:ring-2 ${
+                                      className={`w-24 py-1.5 px-2 text-[13px] text-right border rounded-xl focus:outline-none focus:ring-2 font-mono ${
                                         isNegativeMargin
-                                          ? 'border-red-500 focus:ring-red-500 bg-red-50 dark:bg-red-900/20'
-                                          : 'focus:ring-teal-500'
+                                          ? 'border-[#e74c3c] focus:ring-[#e74c3c]/20 bg-red-900/10'
+                                          : 'focus:ring-[#4aa3ff]/20 focus:border-[#5bb2ff]'
                                       } ${
                                         isDarkMode
-                                          ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-500'
+                                          ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4]/50'
                                           : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
                                       }`}
                                     />
                                   </div>
                                   {margin !== null && (
-                                    <div
-                                      className={`text-xs text-right mt-1 font-medium ${
-                                        isNegativeMargin
-                                          ? 'text-red-500'
-                                          : parseFloat(margin) < 10
-                                            ? 'text-yellow-500'
-                                            : 'text-green-500'
-                                      }`}
-                                    >
-                                      Margin: {margin}%
-                                      {isNegativeMargin && ' ⚠️'}
+                                    <div className={`text-[11px] text-right mt-1 font-bold font-mono ${
+                                      isNegativeMargin ? 'text-[#e74c3c]' :
+                                      parseFloat(margin) < 10 ? 'text-[#f39c12]' : 'text-[#2ecc71]'
+                                    }`}>
+                                      {margin}%{isNegativeMargin && ' !'}
                                     </div>
                                   )}
                                 </td>
-                                <td className="py-3 px-3 text-right">
+                                <td className="py-2.5 px-4 text-right">
                                   {priceDiff && (
-                                    <span
-                                      className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium ${
-                                        priceDiff.diff >= 0
-                                          ? isDarkMode
-                                            ? 'bg-green-900/30 text-green-400'
-                                            : 'bg-green-100 text-green-700'
-                                          : isDarkMode
-                                            ? 'bg-red-900/30 text-red-400'
-                                            : 'bg-red-100 text-red-700'
-                                      }`}
-                                    >
-                                      {priceDiff.diff >= 0 ? (
-                                        <TrendingUp size={12} />
-                                      ) : (
-                                        <TrendingDown size={12} />
-                                      )}
-                                      {priceDiff.diff >= 0 ? '+' : ''}
-                                      {priceDiff.diffPercent}%
+                                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-[11px] rounded-full font-bold border ${
+                                      priceDiff.diff >= 0
+                                        ? isDarkMode
+                                          ? 'border-green-500/35 text-green-400'
+                                          : 'border-green-300 text-green-700'
+                                        : isDarkMode
+                                          ? 'border-red-500/35 text-red-400'
+                                          : 'border-red-300 text-red-700'
+                                    }`}>
+                                      {priceDiff.diff >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                                      {priceDiff.diff >= 0 ? '+' : ''}{priceDiff.diffPercent}%
                                     </span>
                                   )}
                                 </td>
@@ -1337,10 +1188,124 @@ export default function PriceListForm() {
               </div>
             </div>
           </div>
+
+          {/* Right Column - Sticky Summary (4 cols) */}
+          <div className="col-span-12 lg:col-span-4">
+            <div className="lg:sticky lg:top-[72px]">
+              {/* Summary Card */}
+              <div className={CARD_CLASSES(isDarkMode)}>
+                <div className={`text-sm font-bold mb-3 ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                  Price List Summary
+                </div>
+
+                {/* KPI Cards */}
+                <div className="grid grid-cols-2 gap-2.5 mb-3">
+                  <div className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-2.5`}>
+                    <div className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                      Total Products
+                    </div>
+                    <div className={`text-sm font-extrabold mt-1 font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                      {stats.totalProducts}
+                    </div>
+                  </div>
+                  <div className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-2.5`}>
+                    <div className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                      Configured
+                    </div>
+                    <div className={`text-sm font-extrabold mt-1 font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-600'}`}>
+                      {stats.configuredProducts}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price Changes */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className={`flex-1 flex items-center gap-2 px-2.5 py-2 rounded-[10px] ${isDarkMode ? 'bg-green-900/20 border border-green-500/20' : 'bg-green-50 border border-green-200'}`}>
+                    <TrendingUp size={14} className="text-green-500" />
+                    <span className={`text-sm font-bold ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
+                      {stats.increasedPrices}
+                    </span>
+                    <span className={`text-[11px] ${isDarkMode ? 'text-green-400/70' : 'text-green-600'}`}>
+                      increased
+                    </span>
+                  </div>
+                  <div className={`flex-1 flex items-center gap-2 px-2.5 py-2 rounded-[10px] ${isDarkMode ? 'bg-red-900/20 border border-red-500/20' : 'bg-red-50 border border-red-200'}`}>
+                    <TrendingDown size={14} className="text-red-500" />
+                    <span className={`text-sm font-bold ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}>
+                      {stats.decreasedPrices}
+                    </span>
+                    <span className={`text-[11px] ${isDarkMode ? 'text-red-400/70' : 'text-red-600'}`}>
+                      decreased
+                    </span>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className={DIVIDER_CLASSES(isDarkMode)} />
+
+                {/* Actions */}
+                <div className="space-y-2">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className={`w-full flex items-center justify-center gap-2 ${BTN_PRIMARY}`}
+                  >
+                    <Save size={16} />
+                    {saving ? 'Saving...' : 'Save Price List'}
+                  </button>
+                  {isEdit && (
+                    <button
+                      type="button"
+                      onClick={handleSaveAsNew}
+                      disabled={saving}
+                      className={`w-full flex items-center justify-center gap-2 ${BTN_CLASSES(isDarkMode)}`}
+                    >
+                      <Copy size={16} />
+                      Save As New
+                    </button>
+                  )}
+                </div>
+
+                {/* Quick Info */}
+                {formData.name && (
+                  <>
+                    <div className={DIVIDER_CLASSES(isDarkMode)} />
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                          Name
+                        </span>
+                        <span className={`text-xs font-medium ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                          {formData.name}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                          Currency
+                        </span>
+                        <span className={`text-xs font-mono font-medium ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                          {formData.currency}
+                        </span>
+                      </div>
+                      {formData.effectiveFrom && (
+                        <div className="flex justify-between items-center">
+                          <span className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                            Effective From
+                          </span>
+                          <span className={`text-xs font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                            {formData.effectiveFrom}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </form>
 
-      {/* Bulk Adjustment Dialog */}
       {/* Product Detail Drawer */}
       <ProductDetailDrawer
         product={selectedProduct}
@@ -1350,73 +1315,95 @@ export default function PriceListForm() {
         navigate={navigate}
       />
 
+      {/* Bulk Adjustment Modal */}
       {showBulkDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Overlay */}
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/55"
             onClick={() => setShowBulkDialog(false)}
           />
+          {/* Modal */}
           <div
-            className={`relative z-10 w-full max-w-md rounded-xl p-6 ${
-              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+            className={`relative z-10 w-full max-w-md rounded-2xl p-4 ${
+              isDarkMode ? 'bg-[#141a20] border border-[#2a3640]' : 'bg-white border border-gray-200'
             }`}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3
-                className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
-                Bulk Price Adjustment
-              </h3>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Percent size={18} className="text-[#4aa3ff]" />
+                  <h3 className={`text-sm font-extrabold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}>
+                    Bulk Price Adjustment
+                  </h3>
+                </div>
+                <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>
+                  Apply percentage change to all prices
+                </p>
+              </div>
               <button
                 onClick={() => setShowBulkDialog(false)}
-                className={`p-1 rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'hover:bg-[#0f151b] text-[#93a4b4]' : 'hover:bg-gray-100 text-gray-600'}`}
               >
-                <X
-                  size={20}
-                  className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
-                />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="space-y-4">
-              <Select
-                label="Operation"
-                value={bulkOperation.type}
-                onChange={(e) =>
-                  setBulkOperation({ ...bulkOperation, type: e.target.value })
-                }
-                options={[
-                  { value: 'increase', label: 'Increase Prices' },
-                  { value: 'decrease', label: 'Decrease Prices' },
-                ]}
-                isDarkMode={isDarkMode}
-              />
+            {/* Content */}
+            <div className="space-y-3">
+              <div>
+                <label className={LABEL_CLASSES(isDarkMode)}>Operation</label>
+                <select
+                  value={bulkOperation.type}
+                  onChange={(e) => setBulkOperation({ ...bulkOperation, type: e.target.value })}
+                  className={INPUT_CLASSES(isDarkMode)}
+                >
+                  <option value="increase">Increase Prices</option>
+                  <option value="decrease">Decrease Prices</option>
+                </select>
+              </div>
 
-              <Input
-                label="Percentage"
-                type="number"
-                value={bulkOperation.percentage}
-                onChange={(e) =>
-                  setBulkOperation({
-                    ...bulkOperation,
-                    percentage: parseFloat(e.target.value),
-                  })
-                }
-                placeholder="e.g., 10"
-                isDarkMode={isDarkMode}
-              />
+              <div>
+                <label className={LABEL_CLASSES(isDarkMode)}>Percentage (%)</label>
+                <input
+                  type="number"
+                  value={bulkOperation.percentage}
+                  onChange={(e) => setBulkOperation({ ...bulkOperation, percentage: parseFloat(e.target.value) })}
+                  placeholder="e.g., 10"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
 
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="outline"
-                  className="flex-1"
+              {/* Preview */}
+              {bulkOperation.percentage > 0 && (
+                <div className={`rounded-[14px] p-3 ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}>
+                  <div className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}>Preview</div>
+                  <div className={`text-sm font-bold mt-1 ${bulkOperation.type === 'increase' ? 'text-[#2ecc71]' : 'text-[#e74c3c]'}`}>
+                    {bulkOperation.type === 'increase' ? '+' : '-'}{bulkOperation.percentage}% on {stats.configuredProducts} products
+                  </div>
+                </div>
+              )}
+
+              {/* Divider */}
+              <div className={DIVIDER_CLASSES(isDarkMode)} />
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
                   onClick={() => setShowBulkDialog(false)}
+                  className={`flex-1 ${BTN_CLASSES(isDarkMode)}`}
                 >
                   Cancel
-                </Button>
-                <Button className="flex-1" onClick={handleBulkApply}>
-                  Apply
-                </Button>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkApply}
+                  className={`flex-1 ${BTN_PRIMARY}`}
+                >
+                  Apply Changes
+                </button>
               </div>
             </div>
           </div>

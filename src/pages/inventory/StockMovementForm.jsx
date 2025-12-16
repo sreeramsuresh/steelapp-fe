@@ -1,4 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
+/**
+ * Stock Movement Form
+ * Phase 2: Create/View Stock Movement
+ *
+ * Form for creating manual stock movements
+ * View-only mode for existing movements (movements are immutable)
+ *
+ * UX Patterns (Tier 2 - Medium):
+ * - Sticky header with blur backdrop
+ * - Two-column layout (8+4 split)
+ * - Sticky sidebar summary
+ * - Accordion for optional sections
+ */
+
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Save,
@@ -7,6 +21,10 @@ import {
   Package,
   Warehouse,
   ChevronDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
@@ -19,18 +37,20 @@ import { productService } from '../../services/dataService';
 import { warehouseService } from '../../services/warehouseService';
 import { notificationService } from '../../services/notificationService';
 
-/**
- * Stock Movement Form
- * Phase 2: Create/View Stock Movement
- *
- * Form for creating manual stock movements
- * View-only mode for existing movements (movements are immutable)
- */
+// Available units
+const UNITS = ['KG', 'MT', 'PCS', 'SHEETS', 'COILS', 'BUNDLES', 'METERS'];
+
+// Allowed movement types for manual creation
+const MANUAL_MOVEMENT_TYPES = {
+  IN: MOVEMENT_TYPES.IN,
+  OUT: MOVEMENT_TYPES.OUT,
+  ADJUSTMENT: MOVEMENT_TYPES.ADJUSTMENT,
+};
+
 const StockMovementForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
-
   const isEditing = Boolean(id);
 
   // Form state
@@ -58,21 +78,21 @@ const StockMovementForm = () => {
   const [errors, setErrors] = useState({});
   const [existingMovement, setExistingMovement] = useState(null);
 
-  // Product autocomplete search state
+  // Product autocomplete
   const [productQuery, setProductQuery] = useState('');
   const [productOptions, setProductOptions] = useState([]);
   const [productSearching, setProductSearching] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Available units
-  const UNITS = ['KG', 'MT', 'PCS', 'SHEETS', 'COILS', 'BUNDLES', 'METERS'];
-
-  // Allowed movement types for manual creation
-  const MANUAL_MOVEMENT_TYPES = {
-    IN: MOVEMENT_TYPES.IN,
-    OUT: MOVEMENT_TYPES.OUT,
-    ADJUSTMENT: MOVEMENT_TYPES.ADJUSTMENT,
-  };
+  // ===================== THEME CLASSES =====================
+  const cardBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
+  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
+  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
+  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
+  const accordionBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
+  const inputFocus = 'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
 
   // Fetch products and warehouses
   useEffect(() => {
@@ -82,14 +102,12 @@ const StockMovementForm = () => {
           productService.getProducts({ limit: 500 }),
           warehouseService.getAll({ limit: 100 }),
         ]);
-
         setProducts(productsRes?.data || productsRes || []);
         setWarehouses(warehousesRes?.data || warehousesRes || []);
       } catch (err) {
         notificationService.error('Failed to load products or warehouses');
       }
     };
-
     fetchData();
   }, []);
 
@@ -123,20 +141,11 @@ const StockMovementForm = () => {
           setLoading(false);
         }
       };
-
       fetchMovement();
     }
   }, [id, navigate]);
 
-  // Handle input change
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: null }));
-    }
-  };
-
-  // Product catalog search with debounce
+  // Product search with debounce
   useEffect(() => {
     if (!productQuery || productQuery.trim().length < 2) {
       setProductOptions([]);
@@ -145,15 +154,11 @@ const StockMovementForm = () => {
     setProductSearching(true);
     const t = setTimeout(async () => {
       try {
-        const res = (await productService.searchProducts)
+        const res = productService.searchProducts
           ? await productService.searchProducts(productQuery, { limit: 10 })
-          : await productService.getProducts({
-            search: productQuery,
-            limit: 10,
-          });
-        const rows = res?.data || res?.products || res || [];
-        setProductOptions(rows);
-      } catch (e) {
+          : await productService.getProducts({ search: productQuery, limit: 10 });
+        setProductOptions(res?.data || res?.products || res || []);
+      } catch {
         setProductOptions([]);
       } finally {
         setProductSearching(false);
@@ -162,14 +167,17 @@ const StockMovementForm = () => {
     return () => clearTimeout(t);
   }, [productQuery]);
 
-  // Handle product selection from catalog - auto-populate fields
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: null }));
+    }
+  };
+
   const handleSelectProduct = (product) => {
     if (!product) return;
     setSelectedProduct(product);
-    setFormData((prev) => ({
-      ...prev,
-      productId: product.id,
-    }));
+    setFormData((prev) => ({ ...prev, productId: product.id }));
     setProductQuery('');
     setProductOptions([]);
     if (errors.productId) {
@@ -177,40 +185,26 @@ const StockMovementForm = () => {
     }
   };
 
-  // Clear linked product
   const clearLinkedProduct = () => {
     setSelectedProduct(null);
     setFormData((prev) => ({ ...prev, productId: '' }));
   };
 
-  // Validate form
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.productId) {
-      newErrors.productId = 'Product is required';
-    }
-    if (!formData.warehouseId) {
-      newErrors.warehouseId = 'Warehouse is required';
-    }
-    if (!formData.movementType) {
-      newErrors.movementType = 'Movement type is required';
-    }
+    if (!formData.productId) newErrors.productId = 'Product is required';
+    if (!formData.warehouseId) newErrors.warehouseId = 'Warehouse is required';
+    if (!formData.movementType) newErrors.movementType = 'Movement type is required';
     if (!formData.quantity || parseFloat(formData.quantity) <= 0) {
       newErrors.quantity = 'Quantity must be greater than 0';
     }
-    if (!formData.unit) {
-      newErrors.unit = 'Unit is required';
-    }
-
+    if (!formData.unit) newErrors.unit = 'Unit is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) {
       notificationService.error('Please fix the validation errors');
       return;
@@ -239,16 +233,10 @@ const StockMovementForm = () => {
       navigate('/inventory/stock-movements');
     } catch (err) {
       const parsedError = parseGrpcError(err);
-
-      // Provide specific feedback for known error types
       if (parsedError.code === 'FAILED_PRECONDITION') {
-        notificationService.error(
-          `${parsedError.message}. ${parsedError.originalMessage}`,
-        );
+        notificationService.error(`${parsedError.message}. ${parsedError.originalMessage}`);
       } else if (parsedError.code === 'INVALID_ARGUMENT') {
-        notificationService.error(
-          `Validation error: ${parsedError.originalMessage}`,
-        );
+        notificationService.error(`Validation error: ${parsedError.originalMessage}`);
       } else {
         notificationService.error(parsedError.message);
       }
@@ -257,607 +245,499 @@ const StockMovementForm = () => {
     }
   };
 
-  // Input class helper
-  const getInputClass = (fieldName) => {
-    const baseClass = `w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-      isDarkMode
-        ? 'bg-gray-800 text-white placeholder-gray-400'
-        : 'bg-white text-gray-900 placeholder-gray-500'
-    }`;
-
-    const borderClass = errors[fieldName]
-      ? 'border-red-500'
-      : isDarkMode
-        ? 'border-gray-600'
-        : 'border-gray-300';
-
-    return `${baseClass} ${borderClass}`;
+  // Movement type icon helper
+  const getMovementIcon = () => {
+    switch (formData.movementType) {
+      case 'IN': return <ArrowDownRight className="h-5 w-5 text-green-500" />;
+      case 'OUT': return <ArrowUpRight className="h-5 w-5 text-red-500" />;
+      default: return <RefreshCw className="h-5 w-5 text-amber-500" />;
+    }
   };
 
   // Loading state
   if (loading) {
     return (
-      <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
-      >
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
-          <span
-            className={`ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-          >
-            Loading...
-          </span>
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
+          <p className={textMuted}>Loading stock movement...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
-    >
-      <div
-        className={`p-4 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
-        }`}
-      >
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => navigate('/inventory/stock-movements')}
-            className={`p-2 rounded-lg transition-colors ${
-              isDarkMode
-                ? 'hover:bg-gray-700 text-gray-300'
-                : 'hover:bg-gray-100 text-gray-600'
-            }`}
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1
-              className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              {isEditing ? 'View Stock Movement' : 'New Stock Movement'}
-            </h1>
-            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              {isEditing
-                ? 'Stock movements are immutable for audit purposes'
-                : 'Create a manual stock movement'}
-            </p>
-          </div>
-        </div>
+    <div className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}>
+      {/* App Container */}
+      <div className="max-w-6xl mx-auto p-4">
+        <div className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}>
 
-        {/* Existing movement info */}
-        {isEditing && existingMovement && (
-          <div
-            className={`mb-6 p-4 rounded-lg border ${
-              isDarkMode
-                ? 'bg-gray-800/50 border-gray-700'
-                : 'bg-gray-50 border-gray-200'
-            }`}
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <span
-                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                >
-                  ID
-                </span>
-                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                  {existingMovement.id}
-                </p>
-              </div>
-              <div>
-                <span
-                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                >
-                  Created By
-                </span>
-                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                  {existingMovement.createdByName || 'System'}
-                </p>
-              </div>
-              <div>
-                <span
-                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                >
-                  Balance After
-                </span>
-                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                  {existingMovement.balanceAfter} {existingMovement.unit}
-                </p>
-              </div>
-              <div>
-                <span
-                  className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                >
-                  Total Cost
-                </span>
-                <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                  {existingMovement.totalCost?.toFixed(2) || '-'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Product and Warehouse */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Product with Autocomplete Search */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                <div className="flex items-center gap-2">
-                  <Package size={16} />
-                  Product *
-                </div>
-              </label>
-              {isEditing ? (
-                /* View mode - show selected product name */
-                <div className="relative">
-                  <select
-                    value={formData.productId}
-                    className={getInputClass('productId')}
-                    disabled={true}
-                  >
-                    <option value="">Select a product...</option>
-                    {products.map((product) => (
-                      <option key={product.id} value={product.id}>
-                        {product.displayName ||
-                          product.display_name ||
-                          product.uniqueName ||
-                          product.unique_name ||
-                          'N/A'}{' '}
-                        {product.sku ? `(${product.sku})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  />
-                </div>
-              ) : selectedProduct || formData.productId ? (
-                /* Product selected - show linked display */
-                <div
-                  className={`flex items-center justify-between px-4 py-3 rounded-lg border ${
-                    isDarkMode
-                      ? 'bg-gray-800 border-gray-600 text-white'
-                      : 'bg-gray-50 border-gray-300 text-gray-900'
+          {/* Sticky Header */}
+          <div className={`sticky top-0 z-10 backdrop-blur-md ${
+            isDarkMode ? 'bg-[#0f151b]/94 border-b border-[#2a3640]' : 'bg-white/94 border-b border-gray-200'
+          } px-4 py-3`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate('/inventory/stock-movements')}
+                  className={`p-2 rounded-xl transition-colors ${
+                    isDarkMode ? 'hover:bg-[#141a20] text-[#93a4b4]' : 'hover:bg-gray-100 text-gray-600'
                   }`}
                 >
-                  <div>
-                    <div className="font-medium text-teal-500">
-                      {selectedProduct
-                        ? selectedProduct.displayName ||
-                          selectedProduct.display_name ||
-                          selectedProduct.uniqueName ||
-                          selectedProduct.unique_name ||
-                          selectedProduct.name
-                        : products.find(
-                          (p) =>
-                            p.id.toString() === formData.productId.toString(),
-                        )?.name || 'Product Selected'}
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+                <div>
+                  <h1 className={`text-lg font-extrabold ${textPrimary}`}>
+                    {isEditing ? 'View Stock Movement' : 'New Stock Movement'}
+                  </h1>
+                  <p className={`text-xs ${textMuted}`}>
+                    {isEditing ? 'Movements are immutable for audit' : 'Manual stock adjustment'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {formData.movementType && (
+                  <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border ${
+                    formData.movementType === 'IN'
+                      ? isDarkMode ? 'border-green-500/30 bg-green-500/12 text-green-400' : 'border-green-200 bg-green-50 text-green-700'
+                      : formData.movementType === 'OUT'
+                      ? isDarkMode ? 'border-red-500/30 bg-red-500/12 text-red-400' : 'border-red-200 bg-red-50 text-red-700'
+                      : isDarkMode ? 'border-amber-500/30 bg-amber-500/12 text-amber-400' : 'border-amber-200 bg-amber-50 text-amber-700'
+                  }`}>
+                    {getMovementIcon()}
+                    {MOVEMENT_TYPES[formData.movementType]?.label || formData.movementType}
+                  </span>
+                )}
+                {!isEditing && (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={saving}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
+                      isDarkMode ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]' : 'bg-teal-600 text-white hover:bg-teal-700'
+                    } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {saving ? 'Saving...' : 'Create'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Grid */}
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-12 gap-3 p-4">
+
+              {/* LEFT COLUMN: Main Form */}
+              <div className="col-span-12 lg:col-span-8 space-y-3">
+
+                {/* Section 1: Product & Warehouse */}
+                <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                  <div className="mb-3">
+                    <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
+                      <Package className="h-4 w-4" />
+                      Product & Location
                     </div>
-                    <div
-                      className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
-                      {selectedProduct?.origin
-                        ? `${selectedProduct.origin} | `
-                        : ''}
-                      {selectedProduct?.category || ''}{' '}
-                      {selectedProduct?.grade
-                        ? `| ${selectedProduct.grade}`
-                        : ''}
+                    <div className={`text-xs ${textMuted}`}>Select product and warehouse</div>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Product */}
+                    <div className="col-span-12 md:col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Product <span className="text-red-500">*</span>
+                      </label>
+                      {isEditing ? (
+                        <select
+                          value={formData.productId}
+                          disabled
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} opacity-60`}
+                        >
+                          <option value="">Select product...</option>
+                          {products.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.displayName || p.display_name || p.uniqueName || p.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : selectedProduct || formData.productId ? (
+                        <div className={`flex items-center justify-between py-2.5 px-3 rounded-xl border ${
+                          isDarkMode ? 'bg-[#4aa3ff]/10 border-[#4aa3ff]/35' : 'bg-teal-50 border-teal-300'
+                        }`}>
+                          <div>
+                            <div className={`text-sm font-medium ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-700'}`}>
+                              {selectedProduct?.displayName || selectedProduct?.name ||
+                                products.find((p) => p.id.toString() === formData.productId.toString())?.name || 'Selected'}
+                            </div>
+                            {selectedProduct?.category && (
+                              <div className={`text-xs ${textMuted}`}>
+                                {selectedProduct.origin && `${selectedProduct.origin} | `}{selectedProduct.category}
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={clearLinkedProduct}
+                            className={`px-2.5 py-1 text-xs rounded-xl border ${
+                              isDarkMode ? 'border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]' : 'border-gray-300 bg-white hover:border-teal-500'
+                            }`}
+                          >
+                            Change
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={productQuery}
+                            onChange={(e) => setProductQuery(e.target.value)}
+                            placeholder="Search product..."
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${
+                              errors.productId ? 'border-red-500' : inputBorder
+                            } ${textPrimary} outline-none ${inputFocus}`}
+                          />
+                          {productSearching && (
+                            <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${textMuted}`}>
+                              Searching...
+                            </div>
+                          )}
+                          {productOptions.length > 0 && (
+                            <div className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-xl border shadow-lg ${cardBg} ${cardBorder}`}>
+                              {productOptions.map((p) => (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onClick={() => handleSelectProduct(p)}
+                                  className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 ${cardBorder} ${
+                                    isDarkMode ? 'hover:bg-[#1a2027]' : 'hover:bg-gray-50'
+                                  }`}
+                                >
+                                  <div className={`text-sm font-medium ${textPrimary}`}>
+                                    {p.displayName || p.display_name || p.uniqueName || p.name}
+                                  </div>
+                                  <div className={`text-xs ${textMuted}`}>
+                                    {p.origin && `${p.origin} | `}{p.category} {p.grade && `| ${p.grade}`}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {errors.productId && (
+                        <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircle size={12} />{errors.productId}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Warehouse */}
+                    <div className="col-span-12 md:col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Warehouse <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={formData.warehouseId}
+                        onChange={(e) => handleChange('warehouseId', e.target.value)}
+                        disabled={isEditing}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${
+                          errors.warehouseId ? 'border-red-500' : inputBorder
+                        } ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                      >
+                        <option value="">Select warehouse...</option>
+                        {warehouses.map((w) => (
+                          <option key={w.id} value={w.id}>
+                            {w.name} {w.code && `(${w.code})`}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.warehouseId && (
+                        <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircle size={12} />{errors.warehouseId}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={clearLinkedProduct}
-                    className={`px-3 py-1 rounded border text-sm ${isDarkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-100'}`}
-                  >
-                    Change
-                  </button>
                 </div>
-              ) : (
-                /* Autocomplete search input */
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={productQuery}
-                    onChange={(e) => setProductQuery(e.target.value)}
-                    placeholder="Search for a product..."
-                    className={getInputClass('productId')}
-                  />
-                  {productSearching && (
-                    <div
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
-                      Searching...
+
+                {/* Section 2: Movement Details */}
+                <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                  <div className="mb-3">
+                    <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
+                      <RefreshCw className="h-4 w-4" />
+                      Movement Details
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>Type, quantity, and reference</div>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Movement Type */}
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>Type <span className="text-red-500">*</span></label>
+                      <select
+                        value={formData.movementType}
+                        onChange={(e) => handleChange('movementType', e.target.value)}
+                        disabled={isEditing}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                      >
+                        {Object.entries(isEditing ? MOVEMENT_TYPES : MANUAL_MOVEMENT_TYPES).map(([key, { label }]) => (
+                          <option key={key} value={key}>{label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Quantity */}
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>Quantity <span className="text-red-500">*</span></label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.quantity}
+                        onChange={(e) => handleChange('quantity', e.target.value)}
+                        placeholder="0.00"
+                        disabled={isEditing}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${
+                          errors.quantity ? 'border-red-500' : inputBorder
+                        } ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                      />
+                      {errors.quantity && (
+                        <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircle size={12} />{errors.quantity}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Unit */}
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>Unit <span className="text-red-500">*</span></label>
+                      <select
+                        value={formData.unit}
+                        onChange={(e) => handleChange('unit', e.target.value)}
+                        disabled={isEditing}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                      >
+                        {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
+                      </select>
+                    </div>
+
+                    {/* Reference Type */}
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>Reference Type</label>
+                      <select
+                        value={formData.referenceType}
+                        onChange={(e) => handleChange('referenceType', e.target.value)}
+                        disabled={isEditing}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                      >
+                        {Object.entries(REFERENCE_TYPES).map(([key, { label }]) => (
+                          <option key={key} value={key}>{label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Reference Number */}
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>Reference #</label>
+                      <input
+                        type="text"
+                        value={formData.referenceNumber}
+                        onChange={(e) => handleChange('referenceNumber', e.target.value)}
+                        placeholder="INV-001, PO-001..."
+                        disabled={isEditing}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                      />
+                    </div>
+
+                    {/* Movement Date */}
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>Date</label>
+                      <input
+                        type="date"
+                        value={formData.movementDate}
+                        onChange={(e) => handleChange('movementDate', e.target.value)}
+                        disabled={isEditing}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Steel-Specific Fields Accordion */}
+                <details className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
+                  <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                    <div>
+                      <div className={`text-sm font-bold ${textPrimary}`}>Steel Traceability</div>
+                      <div className={`text-xs ${textMuted}`}>Batch, coil, heat numbers</div>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
+                  </summary>
+                  <div className={`p-3 border-t ${cardBorder}`}>
+                    <div className="grid grid-cols-12 gap-3">
+                      <div className="col-span-6 md:col-span-3">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>Unit Cost</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={formData.unitCost}
+                          onChange={(e) => handleChange('unitCost', e.target.value)}
+                          placeholder="0.00"
+                          disabled={isEditing}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        />
+                      </div>
+                      <div className="col-span-6 md:col-span-3">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>Batch #</label>
+                        <input
+                          type="text"
+                          value={formData.batchNumber}
+                          onChange={(e) => handleChange('batchNumber', e.target.value)}
+                          placeholder="Batch #"
+                          disabled={isEditing}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        />
+                      </div>
+                      <div className="col-span-6 md:col-span-3">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>Coil #</label>
+                        <input
+                          type="text"
+                          value={formData.coilNumber}
+                          onChange={(e) => handleChange('coilNumber', e.target.value)}
+                          placeholder="Coil #"
+                          disabled={isEditing}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        />
+                      </div>
+                      <div className="col-span-6 md:col-span-3">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>Heat #</label>
+                        <input
+                          type="text"
+                          value={formData.heatNumber}
+                          onChange={(e) => handleChange('heatNumber', e.target.value)}
+                          placeholder="Heat #"
+                          disabled={isEditing}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </details>
+
+                {/* Section 4: Notes Accordion */}
+                <details className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
+                  <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                    <div>
+                      <div className={`text-sm font-bold ${textPrimary}`}>Notes</div>
+                      <div className={`text-xs ${textMuted}`}>Additional movement notes</div>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
+                  </summary>
+                  <div className={`p-3 border-t ${cardBorder}`}>
+                    <textarea
+                      value={formData.notes}
+                      onChange={(e) => handleChange('notes', e.target.value)}
+                      rows={3}
+                      placeholder="Additional notes..."
+                      disabled={isEditing}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                    />
+                  </div>
+                </details>
+              </div>
+
+              {/* RIGHT COLUMN: Sticky Sidebar */}
+              <div className="col-span-12 lg:col-span-4">
+                <div className="lg:sticky lg:top-24 space-y-3">
+
+                  {/* Movement Summary */}
+                  <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                    <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>Movement Summary</div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className={textMuted}>Type:</span>
+                        <span className={`font-medium ${
+                          formData.movementType === 'IN' ? 'text-green-500' :
+                          formData.movementType === 'OUT' ? 'text-red-500' : 'text-amber-500'
+                        }`}>
+                          {MOVEMENT_TYPES[formData.movementType]?.label || formData.movementType}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className={textMuted}>Quantity:</span>
+                        <span className={`font-mono ${textPrimary}`}>
+                          {formData.quantity || '0'} {formData.unit}
+                        </span>
+                      </div>
+                      {formData.unitCost && (
+                        <>
+                          <div className={`h-px ${cardBorder} my-2`}></div>
+                          <div className="flex justify-between text-sm">
+                            <span className={textMuted}>Unit Cost:</span>
+                            <span className={`font-mono ${textPrimary}`}>
+                              AED {parseFloat(formData.unitCost || 0).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className={`font-bold ${textPrimary}`}>Total Cost:</span>
+                            <span className={`font-bold font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}>
+                              AED {(parseFloat(formData.quantity || 0) * parseFloat(formData.unitCost || 0)).toFixed(2)}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Existing Movement Info */}
+                  {isEditing && existingMovement && (
+                    <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                      <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>Audit Trail</div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className={textMuted}>ID:</span>
+                          <span className={`font-mono ${textPrimary}`}>{existingMovement.id}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className={textMuted}>Created By:</span>
+                          <span className={textPrimary}>{existingMovement.createdByName || 'System'}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className={textMuted}>Balance After:</span>
+                          <span className={`font-mono ${textPrimary}`}>
+                            {existingMovement.balanceAfter} {existingMovement.unit}
+                          </span>
+                        </div>
+                        {existingMovement.totalCost && (
+                          <div className="flex justify-between text-sm">
+                            <span className={textMuted}>Total Cost:</span>
+                            <span className={`font-mono ${textPrimary}`}>
+                              AED {existingMovement.totalCost.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
-                  {productOptions.length > 0 && (
-                    <div
-                      className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow-lg ${
-                        isDarkMode
-                          ? 'bg-[#1E2328] border-gray-700'
-                          : 'bg-white border-gray-200'
-                      }`}
-                    >
-                      {productOptions.map((p) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => handleSelectProduct(p)}
-                          className={`w-full text-left px-4 py-3 transition-colors ${
-                            isDarkMode
-                              ? 'hover:bg-gray-700'
-                              : 'hover:bg-gray-50'
-                          }`}
-                        >
-                          <div
-                            className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                          >
-                            {p.displayName ||
-                              p.display_name ||
-                              p.uniqueName ||
-                              p.unique_name ||
-                              p.name}
-                          </div>
-                          <div
-                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                          >
-                            {p.origin ? `${p.origin} | ` : ''}
-                            {p.category} {p.grade ? `| ${p.grade}` : ''}{' '}
-                            {p.size ? `| ${p.size}` : ''}
-                          </div>
-                        </button>
-                      ))}
+
+                  {/* Info Card */}
+                  <div className={`p-3 rounded-[14px] border ${
+                    isDarkMode ? 'bg-[#4aa3ff]/10 border-[#4aa3ff]/30' : 'bg-blue-50 border-blue-200'
+                  }`}>
+                    <div className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-700'}`}>
+                      Stock Movements
                     </div>
-                  )}
+                    <p className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-blue-600'}`}>
+                      Movements are immutable once created. They form an audit trail for inventory tracking.
+                    </p>
+                  </div>
+
                 </div>
-              )}
-              {errors.productId && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.productId}
-                </p>
-              )}
-            </div>
-
-            {/* Warehouse */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                <div className="flex items-center gap-2">
-                  <Warehouse size={16} />
-                  Warehouse *
-                </div>
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.warehouseId}
-                  onChange={(e) => handleChange('warehouseId', e.target.value)}
-                  className={getInputClass('warehouseId')}
-                  disabled={isEditing}
-                >
-                  <option value="">Select a warehouse...</option>
-                  {warehouses.map((warehouse) => (
-                    <option key={warehouse.id} value={warehouse.id}>
-                      {warehouse.name}{' '}
-                      {warehouse.code ? `(${warehouse.code})` : ''}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                />
-              </div>
-              {errors.warehouseId && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.warehouseId}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Movement Type and Quantity */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Movement Type */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Movement Type *
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.movementType}
-                  onChange={(e) => handleChange('movementType', e.target.value)}
-                  className={getInputClass('movementType')}
-                  disabled={isEditing}
-                >
-                  {Object.entries(
-                    isEditing ? MOVEMENT_TYPES : MANUAL_MOVEMENT_TYPES,
-                  ).map(([key, { label }]) => (
-                    <option key={key} value={key}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                />
-              </div>
-              {errors.movementType && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.movementType}
-                </p>
-              )}
-            </div>
-
-            {/* Quantity */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Quantity *
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.quantity}
-                onChange={(e) => handleChange('quantity', e.target.value)}
-                placeholder="0.00"
-                className={getInputClass('quantity')}
-                disabled={isEditing}
-              />
-              {errors.quantity && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.quantity}
-                </p>
-              )}
-            </div>
-
-            {/* Unit */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Unit *
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.unit}
-                  onChange={(e) => handleChange('unit', e.target.value)}
-                  className={getInputClass('unit')}
-                  disabled={isEditing}
-                >
-                  {UNITS.map((unit) => (
-                    <option key={unit} value={unit}>
-                      {unit}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                />
-              </div>
-              {errors.unit && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.unit}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Reference Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Reference Type */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Reference Type
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.referenceType}
-                  onChange={(e) =>
-                    handleChange('referenceType', e.target.value)
-                  }
-                  className={getInputClass('referenceType')}
-                  disabled={isEditing}
-                >
-                  {Object.entries(REFERENCE_TYPES).map(([key, { label }]) => (
-                    <option key={key} value={key}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={16}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                />
               </div>
             </div>
-
-            {/* Reference Number */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Reference Number
-              </label>
-              <input
-                type="text"
-                value={formData.referenceNumber}
-                onChange={(e) =>
-                  handleChange('referenceNumber', e.target.value)
-                }
-                placeholder="INV-001, PO-001, etc."
-                className={getInputClass('referenceNumber')}
-                disabled={isEditing}
-              />
-            </div>
-
-            {/* Movement Date */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Movement Date
-              </label>
-              <input
-                type="date"
-                value={formData.movementDate}
-                onChange={(e) => handleChange('movementDate', e.target.value)}
-                className={getInputClass('movementDate')}
-                disabled={isEditing}
-              />
-            </div>
-          </div>
-
-          {/* Steel-specific fields */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Unit Cost */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Unit Cost
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.unitCost}
-                onChange={(e) => handleChange('unitCost', e.target.value)}
-                placeholder="0.00"
-                className={getInputClass('unitCost')}
-                disabled={isEditing}
-              />
-            </div>
-
-            {/* Batch Number */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Batch Number
-              </label>
-              <input
-                type="text"
-                value={formData.batchNumber}
-                onChange={(e) => handleChange('batchNumber', e.target.value)}
-                placeholder="Batch #"
-                className={getInputClass('batchNumber')}
-                disabled={isEditing}
-              />
-            </div>
-
-            {/* Coil Number */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Coil Number
-              </label>
-              <input
-                type="text"
-                value={formData.coilNumber}
-                onChange={(e) => handleChange('coilNumber', e.target.value)}
-                placeholder="Coil #"
-                className={getInputClass('coilNumber')}
-                disabled={isEditing}
-              />
-            </div>
-
-            {/* Heat Number */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Heat Number
-              </label>
-              <input
-                type="text"
-                value={formData.heatNumber}
-                onChange={(e) => handleChange('heatNumber', e.target.value)}
-                placeholder="Heat #"
-                className={getInputClass('heatNumber')}
-                disabled={isEditing}
-              />
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-            >
-              Notes
-            </label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
-              rows={3}
-              placeholder="Additional notes about this movement..."
-              className={getInputClass('notes')}
-              disabled={isEditing}
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={() => navigate('/inventory/stock-movements')}
-              className={`px-6 py-3 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {isEditing ? 'Back to List' : 'Cancel'}
-            </button>
-
-            {!isEditing && (
-              <button
-                type="submit"
-                disabled={saving}
-                className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md ${
-                  saving ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save size={18} />
-                    Create Movement
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

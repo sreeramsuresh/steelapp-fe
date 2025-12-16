@@ -112,15 +112,19 @@ export function useReservations({
       setLoading(true);
       setError(null);
 
+      const requestParams = {
+        draftInvoiceId: draftInvoiceId || 0,
+        productId,
+        warehouseId,
+        requiredQuantity,
+        unit,
+        lineItemTempId,
+      };
+
+      console.log('[FIFO Reserve] Request params:', requestParams);
+
       try {
-        const response = await batchReservationService.reserveFIFO({
-          draftInvoiceId: draftInvoiceId || 0,
-          productId,
-          warehouseId,
-          requiredQuantity,
-          unit,
-          lineItemTempId,
-        });
+        const response = await batchReservationService.reserveFIFO(requestParams);
 
         processReservationResponse(response);
       } catch (err) {

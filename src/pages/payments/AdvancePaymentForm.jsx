@@ -4,6 +4,12 @@
  * Form for recording advance payments (customer deposits).
  * UAE VAT requires VAT to be accounted for when advance payment is received.
  * Standard rate of 5% applies to advance payments.
+ *
+ * UX Patterns (Tier 2 - Medium):
+ * - Sticky header with blur backdrop
+ * - Two-column layout (8+4 split)
+ * - Sticky sidebar summary
+ * - Accordion for optional sections
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -18,6 +24,7 @@ import {
   FileText,
   Building2,
   Search,
+  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import advancePaymentService from '../../services/advancePaymentService';
@@ -79,21 +86,17 @@ const AdvancePaymentForm = () => {
     customer: null,
     receiptNumber: '',
     paymentDate: formatDateForInput(new Date()),
-    // Amount fields - user enters total, we calculate VAT
-    amount: 0, // Amount before VAT
+    amount: 0,
     vatRate: VAT_RATE,
     vatAmount: 0,
-    totalAmount: 0, // What customer paid (VAT inclusive)
-    isVatInclusive: true, // UAE standard - advance payments are VAT inclusive
-    // Payment details
+    totalAmount: 0,
+    isVatInclusive: true,
     paymentMethod: 'bank_transfer',
     referenceNumber: '',
     bankAccount: '',
     placeOfSupply: 'AE-DU',
-    // Purpose
     purpose: '',
     notes: '',
-    // Optional: Apply to invoice
     applyToInvoiceId: null,
   });
 
@@ -104,7 +107,6 @@ const AdvancePaymentForm = () => {
       loadPayment();
     } else {
       loadNextReceiptNumber();
-      // Check for customerId in URL params
       const customerIdParam = searchParams.get('customerId');
       if (customerIdParam) {
         loadCustomerById(customerIdParam);
@@ -133,9 +135,6 @@ const AdvancePaymentForm = () => {
 
   // Calculate VAT when amount changes
   const calculateVatFromTotal = (totalAmount) => {
-    // UAE standard: VAT inclusive amount
-    // Total = Amount + VAT = Amount + (Amount * 5/100) = Amount * 1.05
-    // So Amount = Total / 1.05
     const total = parseFloat(totalAmount) || 0;
     const amount = total / (1 + VAT_RATE / 100);
     const vatAmount = total - amount;
@@ -148,10 +147,7 @@ const AdvancePaymentForm = () => {
 
   const handleTotalAmountChange = (value) => {
     const calculations = calculateVatFromTotal(value);
-    setPayment((prev) => ({
-      ...prev,
-      ...calculations,
-    }));
+    setPayment((prev) => ({ ...prev, ...calculations }));
   };
 
   const loadCustomers = async () => {
@@ -182,11 +178,7 @@ const AdvancePaymentForm = () => {
     try {
       const customer = await customerService.getCustomer(customerId);
       setSelectedCustomer(customer);
-      setPayment((prev) => ({
-        ...prev,
-        customerId: customer.id,
-        customer,
-      }));
+      setPayment((prev) => ({ ...prev, customerId: customer.id, customer }));
     } catch (error) {
       console.error('Error loading customer:', error);
     }
@@ -195,7 +187,6 @@ const AdvancePaymentForm = () => {
   const loadCustomerInvoices = async (customerId) => {
     try {
       setLoadingInvoices(true);
-      // Get unpaid/partially paid invoices for this customer
       const response = await invoiceService.getInvoices({
         customerId,
         paymentStatus: 'unpaid,partially_paid',
@@ -231,52 +222,30 @@ const AdvancePaymentForm = () => {
   const loadNextReceiptNumber = async () => {
     try {
       const response = await advancePaymentService.getNextNumber();
-      setPayment((prev) => ({
-        ...prev,
-        receiptNumber: response.receiptNumber || 'APR-0001',
-      }));
+      setPayment((prev) => ({ ...prev, receiptNumber: response.receiptNumber || 'APR-0001' }));
     } catch (error) {
       console.error('Error loading next receipt number:', error);
     }
   };
 
-  // Handle customer selection
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
-    setPayment((prev) => ({
-      ...prev,
-      customerId: customer.id,
-      customer,
-    }));
+    setPayment((prev) => ({ ...prev, customerId: customer.id, customer }));
     setCustomerSearch('');
     setShowCustomerDropdown(false);
   };
 
-  // Validate form
   const validateForm = () => {
     const errors = [];
-
-    if (!payment.customerId) {
-      errors.push('Please select a customer');
-    }
-    if (!payment.receiptNumber) {
-      errors.push('Receipt number is required');
-    }
-    if (!payment.paymentDate) {
-      errors.push('Payment date is required');
-    }
-    if (!payment.totalAmount || payment.totalAmount <= 0) {
-      errors.push('Amount must be greater than zero');
-    }
-    if (!payment.paymentMethod) {
-      errors.push('Payment method is required');
-    }
-
+    if (!payment.customerId) errors.push('Please select a customer');
+    if (!payment.receiptNumber) errors.push('Receipt number is required');
+    if (!payment.paymentDate) errors.push('Payment date is required');
+    if (!payment.totalAmount || payment.totalAmount <= 0) errors.push('Amount must be greater than zero');
+    if (!payment.paymentMethod) errors.push('Payment method is required');
     setValidationErrors(errors);
     return errors.length === 0;
   };
 
-  // Handle save
   const handleSave = async () => {
     if (!validateForm()) {
       notificationService.error('Please fix the validation errors');
@@ -285,11 +254,7 @@ const AdvancePaymentForm = () => {
 
     try {
       setSaving(true);
-
-      const paymentData = {
-        ...payment,
-        customerDetails: selectedCustomer,
-      };
+      const paymentData = { ...payment, customerDetails: selectedCustomer };
 
       if (isEditMode) {
         await advancePaymentService.update(id, paymentData);
@@ -298,19 +263,13 @@ const AdvancePaymentForm = () => {
         const result = await advancePaymentService.create(paymentData);
         notificationService.success('Advance payment recorded successfully');
 
-        // If apply to invoice was selected, apply it now
         if (payment.applyToInvoiceId && result.id) {
           try {
-            await advancePaymentService.applyToInvoice(
-              result.id,
-              payment.applyToInvoiceId,
-            );
+            await advancePaymentService.applyToInvoice(result.id, payment.applyToInvoiceId);
             notificationService.success('Payment applied to invoice');
           } catch (applyError) {
             console.error('Error applying to invoice:', applyError);
-            notificationService.warning(
-              'Payment recorded but could not apply to invoice',
-            );
+            notificationService.warning('Payment recorded but could not apply to invoice');
           }
         }
       }
@@ -318,607 +277,387 @@ const AdvancePaymentForm = () => {
       navigate('/payments/advance');
     } catch (error) {
       console.error('Error saving advance payment:', error);
-      notificationService.error(
-        error.message || 'Failed to save advance payment',
-      );
+      notificationService.error(error.message || 'Failed to save advance payment');
     } finally {
       setSaving(false);
     }
   };
 
-  // Filtered customers for dropdown
   const filteredCustomers = useMemo(() => {
     if (!customerSearch) return customers.slice(0, 10);
     const search = customerSearch.toLowerCase();
     return customers
-      .filter(
-        (c) =>
-          c.name?.toLowerCase().includes(search) ||
-          c.email?.toLowerCase().includes(search) ||
-          c.trn?.includes(search),
+      .filter((c) =>
+        c.name?.toLowerCase().includes(search) ||
+        c.email?.toLowerCase().includes(search) ||
+        c.trn?.includes(search)
       )
       .slice(0, 10);
   }, [customers, customerSearch]);
 
+  // ===================== THEME CLASSES =====================
+  const cardBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
+  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
+  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
+  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
+  const accordionBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
+  const inputFocus = 'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
+
   // Loading state
   if (loading) {
     return (
-      <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-      >
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-            Loading advance payment...
-          </p>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
+          <p className={textMuted}>Loading advance payment...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`h-full overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-    >
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/payments/advance')}
-              className={`p-2 rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'hover:bg-gray-800 text-gray-300'
-                  : 'hover:bg-gray-200 text-gray-700'
-              }`}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <div>
-              <h1
-                className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
-                {isEditMode
-                  ? 'Edit Advance Receipt'
-                  : 'Record Advance Receipt (Pre-Invoice)'}
-              </h1>
-              <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-              >
-                {isEditMode
-                  ? `Editing ${payment.receiptNumber}`
-                  : 'UAE VAT Article 26: Payment received before invoice creates immediate tax point'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className={`flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors ${
-              saving ? 'opacity-60 cursor-not-allowed' : ''
-            }`}
-          >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-        </div>
+    <div className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}>
+      {/* App Container */}
+      <div className="max-w-6xl mx-auto p-4">
+        <div className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}>
 
-        {/* Validation Errors */}
-        {validationErrors.length > 0 && (
-          <div
-            className={`mb-6 p-4 rounded-lg border-2 ${
-              isDarkMode
-                ? 'bg-red-900/20 border-red-600 text-red-200'
-                : 'bg-red-50 border-red-500 text-red-800'
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <AlertTriangle
-                className={isDarkMode ? 'text-red-400' : 'text-red-600'}
-                size={24}
-              />
-              <div>
-                <h4 className="font-bold mb-2">
-                  Please fix the following errors:
-                </h4>
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  {validationErrors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
+          {/* Sticky Header */}
+          <div className={`sticky top-0 z-10 backdrop-blur-md ${
+            isDarkMode ? 'bg-[#0f151b]/94 border-b border-[#2a3640]' : 'bg-white/94 border-b border-gray-200'
+          } px-4 py-3`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate('/payments/advance')}
+                  className={`p-2 rounded-xl transition-colors ${
+                    isDarkMode ? 'hover:bg-[#141a20] text-[#93a4b4]' : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+                <div>
+                  <h1 className={`text-lg font-extrabold ${textPrimary}`}>
+                    {isEditMode ? 'Edit Advance Receipt' : 'Advance Receipt'}
+                  </h1>
+                  <p className={`text-xs ${textMuted}`}>
+                    {isEditMode ? `Editing ${payment.receiptNumber}` : 'Pre-Invoice Payment - VAT Article 26'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`px-2.5 py-1 rounded-xl text-xs border ${
+                  isDarkMode ? 'border-[#4aa3ff]/30 bg-[#4aa3ff]/12 text-[#4aa3ff]' : 'border-teal-200 bg-teal-50 text-teal-700'
+                }`}>
+                  {isEditMode ? 'Edit' : 'Draft'}
+                </span>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
+                    isDarkMode ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]' : 'bg-teal-600 text-white hover:bg-teal-700'
+                  } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {saving ? 'Saving...' : 'Save Receipt'}
+                </button>
               </div>
             </div>
           </div>
-        )}
 
-        {/* VAT Notice */}
-        <div
-          className={`mb-6 p-4 rounded-lg ${isDarkMode ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}
-        >
-          <div className="flex items-start gap-3">
-            <Building2
-              className={`h-5 w-5 mt-0.5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
-            />
-            <div
-              className={`text-sm ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}
-            >
-              <p className="font-medium">
-                UAE VAT Article 26 - Pre-Invoice Payments
-              </p>
-              <p className="mt-1">
-                Under UAE VAT Law Article 26, advance payments create an{' '}
-                <strong>immediate tax point</strong> at the date of receipt. VAT
-                at 5% must be declared in the period received, regardless of
-                when the invoice is issued. A Tax Invoice must be issued within
-                14 days of receiving this advance.
-              </p>
-            </div>
-          </div>
-        </div>
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-12 gap-3 p-4">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Customer Selection */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
-                <User className="h-5 w-5" />
-                Customer <span className="text-red-500">*</span>
-              </h2>
-
-              {!selectedCustomer ? (
-                <div className="relative">
-                  <div className="relative">
-                    <Search
-                      className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Search customer by name, email, or TRN..."
-                      value={customerSearch}
-                      onChange={(e) => setCustomerSearch(e.target.value)}
-                      onFocus={() =>
-                        filteredCustomers.length > 0 &&
-                        setShowCustomerDropdown(true)
-                      }
-                      className={`w-full pl-10 pr-10 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
-                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                    />
-                    {customerSearching && (
-                      <Loader2
-                        className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 animate-spin ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                      />
-                    )}
-                  </div>
-
-                  {/* Customer Dropdown */}
-                  {showCustomerDropdown && filteredCustomers.length > 0 && (
-                    <div
-                      className={`absolute z-10 w-full mt-1 rounded-lg shadow-lg border max-h-60 overflow-y-auto ${
-                        isDarkMode
-                          ? 'bg-gray-800 border-gray-700'
-                          : 'bg-white border-gray-300'
-                      }`}
-                    >
-                      {filteredCustomers.map((customer) => (
-                        <button
-                          key={customer.id}
-                          type="button"
-                          onClick={() => handleCustomerSelect(customer)}
-                          className={`w-full px-4 py-3 text-left hover:bg-opacity-80 transition-colors border-b last:border-b-0 ${
-                            isDarkMode
-                              ? 'border-gray-700 hover:bg-gray-700'
-                              : 'border-gray-200 hover:bg-gray-50'
-                          }`}
-                        >
-                          <div
-                            className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                          >
-                            {customer.name}
-                          </div>
-                          <div
-                            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                          >
-                            {customer.email}
-                            {customer.trn && (
-                              <span className="ml-2">TRN: {customer.trn}</span>
-                            )}
-                          </div>
-                        </button>
+            {/* Validation Errors */}
+            {validationErrors.length > 0 && (
+              <div className={`col-span-12 p-4 rounded-[14px] border ${
+                isDarkMode ? 'bg-red-900/20 border-red-600/50 text-red-200' : 'bg-red-50 border-red-300 text-red-800'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className={isDarkMode ? 'text-red-400' : 'text-red-600'} size={20} />
+                  <div>
+                    <h4 className="font-bold text-sm mb-1.5">Please fix the following errors:</h4>
+                    <ul className="list-disc list-inside space-y-0.5 text-xs">
+                      {validationErrors.map((error, index) => (
+                        <li key={index}>{error}</li>
                       ))}
-                    </div>
-                  )}
+                    </ul>
+                  </div>
                 </div>
-              ) : (
-                <div
-                  className={`p-4 rounded-lg border ${isDarkMode ? 'border-teal-600 bg-teal-900/20' : 'border-teal-500 bg-teal-50'}`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div
-                        className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                      >
-                        {selectedCustomer.name}
-                      </div>
-                      <div
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                      >
-                        {selectedCustomer.email}
-                      </div>
-                      {selectedCustomer.trn && (
-                        <div
-                          className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          TRN: {selectedCustomer.trn}
-                        </div>
+              </div>
+            )}
+
+            {/* LEFT COLUMN: Main Form */}
+            <div className="col-span-12 lg:col-span-8 space-y-3">
+
+              {/* Section 1: Customer Selection */}
+              <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                <div className="mb-3">
+                  <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
+                    <User className="h-4 w-4" />
+                    Customer <span className="text-red-500">*</span>
+                  </div>
+                  <div className={`text-xs ${textMuted}`}>Select the customer making this payment</div>
+                </div>
+
+                {!selectedCustomer ? (
+                  <div className="relative">
+                    <div className="relative">
+                      <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${textMuted}`} />
+                      <input
+                        type="text"
+                        placeholder="Search customer by name, email, or TRN..."
+                        value={customerSearch}
+                        onChange={(e) => setCustomerSearch(e.target.value)}
+                        onFocus={() => filteredCustomers.length > 0 && setShowCustomerDropdown(true)}
+                        className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                      {customerSearching && (
+                        <Loader2 className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin ${textMuted}`} />
                       )}
                     </div>
-                    {!isEditMode && (
-                      <button
-                        onClick={() => {
-                          setSelectedCustomer(null);
-                          setPayment((prev) => ({
-                            ...prev,
-                            customerId: null,
-                            customer: null,
-                            applyToInvoiceId: null,
-                          }));
-                          setCustomerInvoices([]);
-                        }}
-                        className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                          isDarkMode
-                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
-                      >
-                        Change
-                      </button>
+
+                    {/* Customer Dropdown */}
+                    {showCustomerDropdown && filteredCustomers.length > 0 && (
+                      <div className={`absolute z-10 w-full mt-1 rounded-xl shadow-lg border max-h-60 overflow-y-auto ${cardBg} ${cardBorder}`}>
+                        {filteredCustomers.map((customer) => (
+                          <button
+                            key={customer.id}
+                            type="button"
+                            onClick={() => handleCustomerSelect(customer)}
+                            className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
+                              isDarkMode ? 'hover:bg-[#1a2027]' : 'hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className={`text-sm font-medium ${textPrimary}`}>{customer.name}</div>
+                            <div className={`text-xs ${textMuted}`}>
+                              {customer.email}
+                              {customer.trn && <span className="ml-2">TRN: {customer.trn}</span>}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     )}
                   </div>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <div className={`p-3 rounded-[14px] border ${
+                    isDarkMode ? 'border-[#4aa3ff]/35 bg-[#4aa3ff]/10' : 'border-teal-300 bg-teal-50'
+                  }`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className={`text-sm font-medium ${textPrimary}`}>{selectedCustomer.name}</div>
+                        <div className={`text-xs ${textMuted}`}>{selectedCustomer.email}</div>
+                        {selectedCustomer.trn && (
+                          <div className={`text-xs font-mono ${textMuted} mt-0.5`}>TRN: {selectedCustomer.trn}</div>
+                        )}
+                      </div>
+                      {!isEditMode && (
+                        <button
+                          onClick={() => {
+                            setSelectedCustomer(null);
+                            setPayment((prev) => ({ ...prev, customerId: null, customer: null, applyToInvoiceId: null }));
+                            setCustomerInvoices([]);
+                          }}
+                          className={`px-2.5 py-1 text-xs rounded-xl border transition-colors ${
+                            isDarkMode ? 'border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]' : 'border-gray-300 bg-white hover:border-teal-500'
+                          }`}
+                        >
+                          Change
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            {/* Payment Details */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
-                <CreditCard className="h-5 w-5" />
-                Payment Details
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Receipt Number */}
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Receipt Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={payment.receiptNumber}
-                    onChange={(e) =>
-                      setPayment((prev) => ({
-                        ...prev,
-                        receiptNumber: e.target.value,
-                      }))
-                    }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Payment Date */}
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Payment Date <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={payment.paymentDate}
-                    onChange={(e) =>
-                      setPayment((prev) => ({
-                        ...prev,
-                        paymentDate: e.target.value,
-                      }))
-                    }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
+              {/* Section 2: Payment Details */}
+              <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                <div className="mb-3">
+                  <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
+                    <CreditCard className="h-4 w-4" />
+                    Payment Details
+                  </div>
+                  <div className={`text-xs ${textMuted}`}>Enter payment information</div>
                 </div>
 
-                {/* Amount (VAT Inclusive) */}
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Amount Received (VAT Inclusive){' '}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span
-                      className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
-                      AED
-                    </span>
+                <div className="grid grid-cols-12 gap-3">
+                  {/* Receipt Number */}
+                  <div className="col-span-6 md:col-span-4">
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      Receipt Number <span className="text-red-500">*</span>
+                    </label>
                     <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={payment.totalAmount || ''}
-                      onChange={(e) => handleTotalAmountChange(e.target.value)}
-                      placeholder="0.00"
-                      className={`w-full pl-12 pr-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      type="text"
+                      value={payment.receiptNumber}
+                      onChange={(e) => setPayment((prev) => ({ ...prev, receiptNumber: e.target.value }))}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                    />
+                  </div>
+
+                  {/* Payment Date */}
+                  <div className="col-span-6 md:col-span-4">
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      Payment Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={payment.paymentDate}
+                      onChange={(e) => setPayment((prev) => ({ ...prev, paymentDate: e.target.value }))}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                    />
+                  </div>
+
+                  {/* Payment Method */}
+                  <div className="col-span-6 md:col-span-4">
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      Payment Method <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={payment.paymentMethod}
+                      onChange={(e) => setPayment((prev) => ({ ...prev, paymentMethod: e.target.value }))}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                    >
+                      {PAYMENT_METHODS.map((method) => (
+                        <option key={method.value} value={method.value}>{method.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Amount (VAT Inclusive) */}
+                  <div className="col-span-6 md:col-span-4">
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      Amount Received (VAT Incl.) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-xs ${textMuted}`}>AED</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={payment.totalAmount || ''}
+                        onChange={(e) => handleTotalAmountChange(e.target.value)}
+                        placeholder="0.00"
+                        className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reference Number */}
+                  <div className="col-span-6 md:col-span-4">
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>Reference Number</label>
+                    <input
+                      type="text"
+                      value={payment.referenceNumber}
+                      onChange={(e) => setPayment((prev) => ({ ...prev, referenceNumber: e.target.value }))}
+                      placeholder="Transaction or cheque #"
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                    />
+                  </div>
+
+                  {/* Place of Supply */}
+                  <div className="col-span-6 md:col-span-4">
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>Place of Supply</label>
+                    <select
+                      value={payment.placeOfSupply}
+                      onChange={(e) => setPayment((prev) => ({ ...prev, placeOfSupply: e.target.value }))}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                    >
+                      {EMIRATES.map((emirate) => (
+                        <option key={emirate.value} value={emirate.value}>{emirate.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Purpose */}
+                  <div className="col-span-12">
+                    <label className={`block text-xs ${textMuted} mb-1.5`}>Purpose</label>
+                    <input
+                      type="text"
+                      value={payment.purpose}
+                      onChange={(e) => setPayment((prev) => ({ ...prev, purpose: e.target.value }))}
+                      placeholder="e.g., Deposit for steel order, Project advance..."
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
                     />
                   </div>
                 </div>
+              </div>
 
-                {/* Payment Method */}
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Payment Method <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={payment.paymentMethod}
-                    onChange={(e) =>
-                      setPayment((prev) => ({
-                        ...prev,
-                        paymentMethod: e.target.value,
-                      }))
-                    }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  >
-                    {PAYMENT_METHODS.map((method) => (
-                      <option key={method.value} value={method.value}>
-                        {method.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Reference Number */}
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Reference Number
-                  </label>
-                  <input
-                    type="text"
-                    value={payment.referenceNumber}
-                    onChange={(e) =>
-                      setPayment((prev) => ({
-                        ...prev,
-                        referenceNumber: e.target.value,
-                      }))
-                    }
-                    placeholder="Transaction or cheque number"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Place of Supply */}
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Place of Supply
-                  </label>
-                  <select
-                    value={payment.placeOfSupply}
-                    onChange={(e) =>
-                      setPayment((prev) => ({
-                        ...prev,
-                        placeOfSupply: e.target.value,
-                      }))
-                    }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  >
-                    {EMIRATES.map((emirate) => (
-                      <option key={emirate.value} value={emirate.value}>
-                        {emirate.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Purpose */}
-                <div className="md:col-span-2">
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Purpose
-                  </label>
-                  <input
-                    type="text"
-                    value={payment.purpose}
-                    onChange={(e) =>
-                      setPayment((prev) => ({
-                        ...prev,
-                        purpose: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g., Deposit for steel order, Project advance..."
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Notes */}
-                <div className="md:col-span-2">
-                  <label
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Notes
-                  </label>
+              {/* Section 3: Notes Accordion */}
+              <details className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>Notes</div>
+                    <div className={`text-xs ${textMuted}`}>Additional notes for this payment</div>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
                   <textarea
                     value={payment.notes}
-                    onChange={(e) =>
-                      setPayment((prev) => ({ ...prev, notes: e.target.value }))
-                    }
+                    onChange={(e) => setPayment((prev) => ({ ...prev, notes: e.target.value }))}
                     rows={3}
                     placeholder="Additional notes..."
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
                   />
                 </div>
-              </div>
-            </div>
+              </details>
 
-            {/* Apply to Invoice Section */}
-            {selectedCustomer && !isEditMode && (
-              <div
-                className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h2
-                    className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    <FileText className="h-5 w-5" />
-                    Apply to Invoice (Optional)
-                  </h2>
-                  <button
-                    onClick={() => setShowApplySection(!showApplySection)}
-                    className={`text-sm ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
-                  >
-                    {showApplySection ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-
-                {showApplySection && (
-                  <div>
+              {/* Section 4: Apply to Invoice Accordion */}
+              {selectedCustomer && !isEditMode && (
+                <details className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
+                  <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <FileText className={`h-4 w-4 ${textMuted}`} />
+                      <div>
+                        <div className={`text-sm font-bold ${textPrimary}`}>Apply to Invoice</div>
+                        <div className={`text-xs ${textMuted}`}>Optional - link to outstanding invoice</div>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
+                  </summary>
+                  <div className={`p-3 border-t ${cardBorder}`}>
                     {loadingInvoices ? (
                       <div className="py-4 text-center">
-                        <Loader2
-                          className={`h-6 w-6 animate-spin mx-auto ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                        />
-                        <p
-                          className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          Loading invoices...
-                        </p>
+                        <Loader2 className={`h-5 w-5 animate-spin mx-auto ${textMuted}`} />
+                        <p className={`mt-2 text-xs ${textMuted}`}>Loading invoices...</p>
                       </div>
                     ) : customerInvoices.length === 0 ? (
-                      <p
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                      >
-                        No outstanding invoices for this customer
-                      </p>
+                      <p className={`text-xs ${textMuted}`}>No outstanding invoices for this customer</p>
                     ) : (
                       <div className="space-y-2">
-                        <p
-                          className={`text-sm mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          Select an invoice to apply this payment to:
-                        </p>
+                        <p className={`text-xs mb-2 ${textMuted}`}>Select an invoice to apply this payment:</p>
                         {customerInvoices.map((invoice) => (
                           <label
                             key={invoice.id}
-                            className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
+                            className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-colors ${
                               payment.applyToInvoiceId === invoice.id
-                                ? isDarkMode
-                                  ? 'border-teal-500 bg-teal-900/20'
-                                  : 'border-teal-500 bg-teal-50'
-                                : isDarkMode
-                                  ? 'border-gray-600 hover:border-gray-500'
-                                  : 'border-gray-300 hover:border-gray-400'
+                                ? isDarkMode ? 'border-[#4aa3ff]/50 bg-[#4aa3ff]/10' : 'border-teal-400 bg-teal-50'
+                                : `${cardBorder} hover:border-[#4aa3ff]/30`
                             }`}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2.5">
                               <input
                                 type="radio"
                                 name="applyToInvoice"
-                                checked={
-                                  payment.applyToInvoiceId === invoice.id
-                                }
-                                onChange={() =>
-                                  setPayment((prev) => ({
-                                    ...prev,
-                                    applyToInvoiceId: invoice.id,
-                                  }))
-                                }
-                                className="h-4 w-4 text-teal-600 focus:ring-teal-500"
+                                checked={payment.applyToInvoiceId === invoice.id}
+                                onChange={() => setPayment((prev) => ({ ...prev, applyToInvoiceId: invoice.id }))}
+                                className="h-3.5 w-3.5 text-[#4aa3ff] focus:ring-[#4aa3ff]"
                               />
                               <div>
-                                <div
-                                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                                >
-                                  {invoice.invoiceNumber}
-                                </div>
-                                <div
-                                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                                >
-                                  Due:{' '}
-                                  {formatCurrency(
-                                    invoice.balanceDue ||
-                                      invoice.outstanding ||
-                                      invoice.total,
-                                  )}
+                                <div className={`text-sm font-medium ${textPrimary}`}>{invoice.invoiceNumber}</div>
+                                <div className={`text-xs ${textMuted}`}>
+                                  Due: {formatCurrency(invoice.balanceDue || invoice.outstanding || invoice.total)}
                                 </div>
                               </div>
                             </div>
-                            <div
-                              className={`text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                            >
-                              {formatCurrency(invoice.total)}
-                            </div>
+                            <div className={`text-sm font-mono ${textPrimary}`}>{formatCurrency(invoice.total)}</div>
                           </label>
                         ))}
                         {payment.applyToInvoiceId && (
                           <button
-                            onClick={() =>
-                              setPayment((prev) => ({
-                                ...prev,
-                                applyToInvoiceId: null,
-                              }))
-                            }
-                            className={`text-sm ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-700'}`}
+                            onClick={() => setPayment((prev) => ({ ...prev, applyToInvoiceId: null }))}
+                            className={`text-xs ${textMuted} hover:text-[#4aa3ff] transition-colors`}
                           >
                             Clear selection
                           </button>
@@ -926,79 +665,67 @@ const AdvancePaymentForm = () => {
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar - Summary */}
-          <div className="space-y-6">
-            {/* VAT Summary */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
-              <h2
-                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
-                Payment Summary
-              </h2>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span
-                    className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}
-                  >
-                    Amount (excl. VAT):
-                  </span>
-                  <span
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    {formatCurrency(payment.amount)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span
-                    className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}
-                  >
-                    VAT ({VAT_RATE}%):
-                  </span>
-                  <span
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    {formatCurrency(payment.vatAmount)}
-                  </span>
-                </div>
-                <div
-                  className={`flex justify-between pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                >
-                  <span
-                    className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    Total Received:
-                  </span>
-                  <span className="text-lg font-bold text-teal-600">
-                    {formatCurrency(payment.totalAmount)}
-                  </span>
-                </div>
-              </div>
+                </details>
+              )}
             </div>
 
-            {/* VAT Accounting Note */}
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-900/20 border border-amber-700' : 'bg-amber-50 border border-amber-200'}`}
-            >
-              <h3
-                className={`font-medium mb-2 ${isDarkMode ? 'text-amber-400' : 'text-amber-700'}`}
-              >
-                VAT Accounting
-              </h3>
-              <p
-                className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}
-              >
-                VAT of {formatCurrency(payment.vatAmount)} will be recorded as
-                output VAT on your next VAT return. When this advance is applied
-                to an invoice, the VAT will be adjusted to prevent double
-                taxation.
-              </p>
+            {/* RIGHT COLUMN: Sticky Sidebar */}
+            <div className="col-span-12 lg:col-span-4">
+              <div className="lg:sticky lg:top-24 space-y-3">
+
+                {/* Payment Summary */}
+                <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                  <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>Payment Summary</div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className={textMuted}>Amount (excl. VAT):</span>
+                      <span className={`font-mono ${textPrimary}`}>{formatCurrency(payment.amount)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className={textMuted}>VAT ({VAT_RATE}%):</span>
+                      <span className={`font-mono ${textPrimary}`}>{formatCurrency(payment.vatAmount)}</span>
+                    </div>
+                    <div className={`h-px ${cardBorder} my-2`}></div>
+                    <div className="flex justify-between">
+                      <span className={`font-bold ${textPrimary}`}>Total Received:</span>
+                      <span className={`font-bold font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}>
+                        {formatCurrency(payment.totalAmount)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VAT Notice */}
+                <div className={`p-3 rounded-[14px] border ${
+                  isDarkMode ? 'bg-[#4aa3ff]/10 border-[#4aa3ff]/30' : 'bg-blue-50 border-blue-200'
+                }`}>
+                  <div className="flex items-start gap-2">
+                    <Building2 className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-600'}`} />
+                    <div>
+                      <div className={`text-xs font-bold ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-700'}`}>
+                        UAE VAT Article 26
+                      </div>
+                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-blue-600'}`}>
+                        Advance payments create an immediate tax point. VAT at 5% must be declared in the period received.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VAT Accounting Note */}
+                <div className={`p-3 rounded-[14px] border ${
+                  isDarkMode ? 'bg-amber-900/20 border-amber-700/50' : 'bg-amber-50 border-amber-200'
+                }`}>
+                  <div className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-amber-400' : 'text-amber-700'}`}>
+                    VAT Accounting
+                  </div>
+                  <p className={`text-xs ${isDarkMode ? 'text-amber-300/80' : 'text-amber-600'}`}>
+                    VAT of {formatCurrency(payment.vatAmount)} will be recorded as output VAT. When applied to an invoice, VAT will be adjusted to prevent double taxation.
+                  </p>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>

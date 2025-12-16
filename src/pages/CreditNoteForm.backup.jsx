@@ -12,75 +12,7 @@ import {
   Filter,
   X,
   Send,
-  Truck,
 } from 'lucide-react';
-
-// Design system colors
-const COLORS = {
-  bg: '#0b0f14',
-  card: '#141a20',
-  border: '#2a3640',
-  text: '#e6edf3',
-  muted: '#93a4b4',
-  good: '#2ecc71',
-  warn: '#f39c12',
-  bad: '#e74c3c',
-  accent: '#4aa3ff',
-};
-
-// Reusable Drawer component
-const Drawer = ({ isOpen, onClose, title, description, children, isDarkMode }) => {
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) onClose();
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
-
-  return (
-    <>
-      {/* Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/55 z-40 transition-opacity ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={onClose}
-      />
-      {/* Drawer panel */}
-      <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-50
-          ${isDarkMode ? `bg-[${COLORS.card}] border-l border-[${COLORS.border}]` : 'bg-white border-l border-gray-200'}
-          p-4 overflow-auto transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        style={{ backgroundColor: isDarkMode ? COLORS.card : undefined }}
-      >
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <div className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{title}</div>
-            {description && (
-              <div className={`text-xs mt-1 ${isDarkMode ? `text-[${COLORS.muted}]` : 'text-gray-500'}`} style={{ color: isDarkMode ? COLORS.muted : undefined }}>
-                {description}
-              </div>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-1.5 rounded-lg transition-colors ${
-              isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'
-            }`}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        {/* Content */}
-        {children}
-      </div>
-    </>
-  );
-};
 import { useTheme } from '../contexts/ThemeContext';
 import { creditNoteService } from '../services/creditNoteService';
 import { invoiceService } from '../services/invoiceService';
@@ -220,9 +152,6 @@ const CreditNoteForm = () => {
   const [_invoiceLoading, setInvoiceLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [company, setCompany] = useState(null);
-
-  // Drawer states
-  const [logisticsDrawerOpen, setLogisticsDrawerOpen] = useState(false);
 
   // Form state
   const [creditNote, setCreditNote] = useState({
@@ -1298,9 +1227,9 @@ const CreditNoteForm = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-12 gap-4">
-          {/* Main Content - 8 columns */}
-          <div className="col-span-12 lg:col-span-8 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
             {/* Invoice Selection */}
             {showInvoiceSelect && !id && (
               <div
@@ -1798,9 +1727,8 @@ const CreditNoteForm = () => {
             )}
           </div>
 
-          {/* Sidebar - 4 columns */}
-          <div className="col-span-12 lg:col-span-4">
-            <div className="lg:sticky lg:top-24 space-y-4">
+          {/* Sidebar */}
+          <div className="space-y-6">
             {/* Credit Note Details */}
             <div
               className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
@@ -2313,43 +2241,123 @@ const CreditNoteForm = () => {
               </div>
             )}
 
-            {/* Quick Actions - Only show for physical returns */}
+            {/* Return Logistics - Only show for physical returns */}
             {showLogisticsSection && (
               <div
-                className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
+                className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
               >
-                <h3
-                  className={`text-sm font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                <h2
+                  className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
-                  Quick Actions
-                </h3>
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setLogisticsDrawerOpen(true)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-colors ${
-                      isDarkMode
-                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                    } ${invalidFields.has('expectedReturnDate') ? 'ring-2 ring-red-500' : ''}`}
-                  >
-                    <Truck className="h-4 w-4" />
-                    <span className="flex-1">Return Logistics</span>
-                    {(creditNote.expectedReturnDate || creditNote.returnShippingCost > 0 || creditNote.restockingFee > 0) && (
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-teal-900/30 text-teal-400' : 'bg-teal-100 text-teal-700'}`}>
-                        Set
-                      </span>
+                  Return Logistics
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="expected-return-date"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                      Expected Return Date{' '}
+                      <span className="text-red-500 font-bold">*</span>
+                    </label>
+                    <input
+                      id="expected-return-date"
+                      type="date"
+                      value={creditNote.expectedReturnDate}
+                      onChange={(e) => {
+                        setCreditNote((prev) => ({
+                          ...prev,
+                          expectedReturnDate: e.target.value,
+                        }));
+                        // Clear error when date is selected
+                        if (e.target.value) {
+                          setInvalidFields((prev) => {
+                            const newSet = new Set(prev);
+                            newSet.delete('expectedReturnDate');
+                            return newSet;
+                          });
+                        }
+                      }}
+                      onBlur={() => handleFieldBlur('expectedReturnDate')}
+                      aria-required="true"
+                      aria-invalid={shouldShowError('expectedReturnDate')}
+                      className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                        shouldShowError('expectedReturnDate') ||
+                        invalidFields.has('expectedReturnDate')
+                          ? 'border-red-500 ring-1 ring-red-500 focus:ring-red-500 focus:border-red-500'
+                          : isDarkMode
+                            ? 'border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500'
+                            : 'border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500'
+                      } focus:outline-none focus:ring-2`}
+                    />
+                    {(shouldShowError('expectedReturnDate') ||
+                      invalidFields.has('expectedReturnDate')) && (
+                      <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                        <AlertTriangle size={14} />
+                        {fieldErrors.expectedReturnDate}
+                      </p>
                     )}
-                    {invalidFields.has('expectedReturnDate') && (
-                      <AlertTriangle className="h-4 w-4 text-red-500" />
-                    )}
-                  </button>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="return-shipping-cost"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                      Return Shipping Cost (AED)
+                    </label>
+                    <input
+                      id="return-shipping-cost"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={creditNote.returnShippingCost}
+                      onChange={(e) =>
+                        setCreditNote((prev) => ({
+                          ...prev,
+                          returnShippingCost: parseFloat(e.target.value) || 0,
+                        }))
+                      }
+                      placeholder="0.00"
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
+                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="restocking-fee"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                      Restocking Fee (AED)
+                    </label>
+                    <input
+                      id="restocking-fee"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={creditNote.restockingFee}
+                      onChange={(e) =>
+                        setCreditNote((prev) => ({
+                          ...prev,
+                          restockingFee: parseFloat(e.target.value) || 0,
+                        }))
+                      }
+                      placeholder="0.00"
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
+                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                    <p
+                      className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
+                      Fee charged for processing the return
+                    </p>
+                  </div>
                 </div>
-                {invalidFields.has('expectedReturnDate') && (
-                  <p className="mt-2 text-xs text-red-500">
-                    Expected return date is required
-                  </p>
-                )}
               </div>
             )}
 
@@ -2629,148 +2637,9 @@ const CreditNoteForm = () => {
                 </div>
               </div>
             )}
-            </div>
           </div>
         </div>
       </div>
-
-      {/* Return Logistics Drawer */}
-      <Drawer
-        isOpen={logisticsDrawerOpen}
-        onClose={() => setLogisticsDrawerOpen(false)}
-        title="Return Logistics"
-        description="Manage shipping and return details for physical returns"
-        isDarkMode={isDarkMode}
-      >
-        <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="drawer-expected-return-date"
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-            >
-              Expected Return Date{' '}
-              <span className="text-red-500 font-bold">*</span>
-            </label>
-            <input
-              id="drawer-expected-return-date"
-              type="date"
-              value={creditNote.expectedReturnDate}
-              onChange={(e) => {
-                setCreditNote((prev) => ({
-                  ...prev,
-                  expectedReturnDate: e.target.value,
-                }));
-                if (e.target.value) {
-                  setInvalidFields((prev) => {
-                    const newSet = new Set(prev);
-                    newSet.delete('expectedReturnDate');
-                    return newSet;
-                  });
-                }
-              }}
-              disabled={!isEditable}
-              className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                invalidFields.has('expectedReturnDate')
-                  ? 'border-red-500 ring-1 ring-red-500'
-                  : isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500'
-                    : 'border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500'
-              } focus:outline-none focus:ring-2`}
-            />
-            {invalidFields.has('expectedReturnDate') && (
-              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                <AlertTriangle size={14} />
-                Expected return date is required for physical returns
-              </p>
-            )}
-          </div>
-          <div>
-            <label
-              htmlFor="drawer-return-shipping-cost"
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-            >
-              Return Shipping Cost (AED)
-            </label>
-            <input
-              id="drawer-return-shipping-cost"
-              type="number"
-              min="0"
-              step="0.01"
-              value={creditNote.returnShippingCost}
-              onChange={(e) =>
-                setCreditNote((prev) => ({
-                  ...prev,
-                  returnShippingCost: parseFloat(e.target.value) || 0,
-                }))
-              }
-              disabled={!isEditable}
-              placeholder="0.00"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                isDarkMode
-                  ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                  : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="drawer-restocking-fee"
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-            >
-              Restocking Fee (AED)
-            </label>
-            <input
-              id="drawer-restocking-fee"
-              type="number"
-              min="0"
-              step="0.01"
-              value={creditNote.restockingFee}
-              onChange={(e) =>
-                setCreditNote((prev) => ({
-                  ...prev,
-                  restockingFee: parseFloat(e.target.value) || 0,
-                }))
-              }
-              disabled={!isEditable}
-              placeholder="0.00"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                isDarkMode
-                  ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                  : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-            />
-            <p
-              className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Fee charged for processing the return
-            </p>
-          </div>
-        </div>
-
-        {/* Drawer footer */}
-        <div className="sticky bottom-0 pt-4 mt-6 border-t"
-          style={{
-            borderColor: isDarkMode ? COLORS.border : '#e5e7eb',
-            background: isDarkMode
-              ? `linear-gradient(to top, ${COLORS.card}, ${COLORS.card}ee)`
-              : 'linear-gradient(to top, white, rgba(255,255,255,0.95))'
-          }}
-        >
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setLogisticsDrawerOpen(false)}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </Drawer>
 
       {/* Credit Note Preview Modal */}
       {showPreview && (
