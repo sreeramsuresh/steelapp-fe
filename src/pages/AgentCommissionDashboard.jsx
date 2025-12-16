@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useTheme } from "../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   DollarSign,
   TrendingUp,
@@ -8,18 +8,18 @@ import {
   Clock,
   Award,
   FileText,
-} from "lucide-react";
-import { commissionService } from "../services/commissionService";
-import { formatCurrency } from "../utils/invoiceUtils";
-import { notificationService } from "../services/notificationService";
-import { authService } from "../services/axiosAuthService";
+} from 'lucide-react';
+import { commissionService } from '../services/commissionService';
+import { formatCurrency } from '../utils/invoiceUtils';
+import { notificationService } from '../services/notificationService';
+import { authService } from '../services/axiosAuthService';
 
 const AgentCommissionDashboard = () => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
 
   const currentUser = authService.getUser();
 
@@ -37,8 +37,8 @@ const AgentCommissionDashboard = () => {
     try {
       // Double-check user ID exists before API calls
       if (!currentUser?.id) {
-        console.error("User ID not available");
-        notificationService.error("User authentication required");
+        console.error('User ID not available');
+        notificationService.error('User authentication required');
         setLoading(false);
         return;
       }
@@ -51,8 +51,8 @@ const AgentCommissionDashboard = () => {
       setSummary(summaryRes.data || {});
       setTransactions(transactionsRes.data || {});
     } catch (error) {
-      console.error("Error loading agent data:", error);
-      notificationService.error("Failed to load commission data");
+      console.error('Error loading agent data:', error);
+      notificationService.error('Failed to load commission data');
     } finally {
       setLoading(false);
     }
@@ -61,12 +61,12 @@ const AgentCommissionDashboard = () => {
   const getStatusBadge = (status) => {
     const statusConfig = {
       pending: {
-        bg: "bg-yellow-100",
-        text: "text-yellow-800",
-        label: "Pending",
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-800',
+        label: 'Pending',
       },
-      approved: { bg: "bg-blue-100", text: "text-blue-800", label: "Approved" },
-      paid: { bg: "bg-green-100", text: "text-green-800", label: "Paid" },
+      approved: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Approved' },
+      paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -82,12 +82,12 @@ const AgentCommissionDashboard = () => {
   if (loading) {
     return (
       <div
-        className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"} flex items-center justify-center`}
+        className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p
-            className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
           >
             Loading your commissions...
           </p>
@@ -98,12 +98,12 @@ const AgentCommissionDashboard = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
       {/* Header */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} border-b ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-b ${
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
         }`}
       >
         <div className="px-6 py-4">
@@ -114,12 +114,12 @@ const AgentCommissionDashboard = () => {
               </div>
               <div>
                 <h1
-                  className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   My Commissions
                 </h1>
                 <p
-                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                 >
                   Track your sales performance and earnings
                 </p>
@@ -129,8 +129,8 @@ const AgentCommissionDashboard = () => {
               onClick={loadAgentData}
               className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                 isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
             >
               <Calendar className="h-4 w-4" />
@@ -143,8 +143,8 @@ const AgentCommissionDashboard = () => {
         <div className="px-6">
           <div className="flex space-x-1">
             {[
-              { id: "overview", label: "Overview", icon: TrendingUp },
-              { id: "transactions", label: "My Transactions", icon: FileText },
+              { id: 'overview', label: 'Overview', icon: TrendingUp },
+              { id: 'transactions', label: 'My Transactions', icon: FileText },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -155,8 +155,8 @@ const AgentCommissionDashboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
                     isActive
-                      ? `border-blue-600 ${isDarkMode ? "bg-gray-700 text-blue-400" : "bg-gray-50 text-blue-600"}`
-                      : `border-transparent ${isDarkMode ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`
+                      ? `border-blue-600 ${isDarkMode ? 'bg-gray-700 text-blue-400' : 'bg-gray-50 text-blue-600'}`
+                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
                   }`}
                 >
                   <Icon size={18} />
@@ -170,25 +170,25 @@ const AgentCommissionDashboard = () => {
 
       {/* Content */}
       <div className="p-6">
-        {activeTab === "overview" && (
+        {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Total Sales */}
               <div
-                className={`rounded-lg p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} border ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                className={`rounded-lg p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+                  isDarkMode ? 'border-gray-700' : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <p
-                      className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       Total Sales
                     </p>
                     <p
-                      className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(parseFloat(summary.totalSales || 0))}
                     </p>
@@ -201,19 +201,19 @@ const AgentCommissionDashboard = () => {
 
               {/* Pending Commissions */}
               <div
-                className={`rounded-lg p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} border ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                className={`rounded-lg p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+                  isDarkMode ? 'border-gray-700' : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <p
-                      className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       Pending
                     </p>
                     <p
-                      className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(parseFloat(summary.pendingAmount || 0))}
                     </p>
@@ -226,19 +226,19 @@ const AgentCommissionDashboard = () => {
 
               {/* Approved Commissions */}
               <div
-                className={`rounded-lg p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} border ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                className={`rounded-lg p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+                  isDarkMode ? 'border-gray-700' : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <p
-                      className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       Approved
                     </p>
                     <p
-                      className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(parseFloat(summary.approvedAmount || 0))}
                     </p>
@@ -251,19 +251,19 @@ const AgentCommissionDashboard = () => {
 
               {/* Paid Commissions */}
               <div
-                className={`rounded-lg p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} border ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                className={`rounded-lg p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+                  isDarkMode ? 'border-gray-700' : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <p
-                      className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       Paid
                     </p>
                     <p
-                      className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(parseFloat(summary.paidAmount || 0))}
                     </p>
@@ -277,52 +277,52 @@ const AgentCommissionDashboard = () => {
 
             {/* Performance Metrics */}
             <div
-              className={`rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} border ${
-                isDarkMode ? "border-gray-700" : "border-gray-200"
+              className={`rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
               } p-6`}
             >
               <h2
-                className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Performance Metrics
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     Total Transactions
                   </p>
                   <p
-                    className={`text-3xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-3xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {summary.totalTransactions || 0}
                   </p>
                 </div>
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     Total Commission Earned
                   </p>
                   <p
-                    className={`text-3xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-3xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {formatCurrency(parseFloat(summary.totalCommission || 0))}
                   </p>
                 </div>
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     Average Commission Rate
                   </p>
                   <p
-                    className={`text-3xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-3xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {summary.averageRate
                       ? `${parseFloat(summary.averageRate).toFixed(2)}%`
-                      : "N/A"}
+                      : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -330,26 +330,26 @@ const AgentCommissionDashboard = () => {
           </div>
         )}
 
-        {activeTab === "transactions" && (
+        {activeTab === 'transactions' && (
           <div
             className={`rounded-lg border ${
               isDarkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-white border-gray-200'
             } overflow-hidden`}
           >
             {transactions.length === 0 ? (
               <div className="text-center py-12">
                 <FileText
-                  className={`h-16 w-16 mx-auto ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                  className={`h-16 w-16 mx-auto ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                 />
                 <h3
-                  className={`mt-4 text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`mt-4 text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   No transactions yet
                 </h3>
                 <p
-                  className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                 >
                   Your commission transactions will appear here
                 </p>
@@ -357,46 +357,46 @@ const AgentCommissionDashboard = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+                  <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                     <tr>
                       <th
                         className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Invoice
                       </th>
                       <th
                         className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Sale Amount
                       </th>
                       <th
                         className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Commission Rate
                       </th>
                       <th
                         className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Commission
                       </th>
                       <th
                         className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Date
                       </th>
                       <th
                         className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Status
@@ -404,41 +404,41 @@ const AgentCommissionDashboard = () => {
                     </tr>
                   </thead>
                   <tbody
-                    className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+                    className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
                   >
                     {transactions.map((transaction) => (
                       <tr
                         key={transaction.id}
                         className={
-                          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+                          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
                         }
                       >
                         <td
-                          className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
+                          className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
                         >
-                          {transaction.invoiceNumber || "-"}
+                          {transaction.invoiceNumber || '-'}
                         </td>
                         <td
-                          className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
+                          className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
                         >
                           {formatCurrency(
                             parseFloat(transaction.saleAmount || 0),
                           )}
                         </td>
                         <td
-                          className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
+                          className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
                         >
                           {transaction.commissionRate}%
                         </td>
                         <td
-                          className={`px-6 py-4 whitespace-nowrap font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                          className={`px-6 py-4 whitespace-nowrap font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                         >
                           {formatCurrency(
                             parseFloat(transaction.commissionAmount || 0),
                           )}
                         </td>
                         <td
-                          className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           {new Date(transaction.createdAt).toLocaleDateString()}
                         </td>

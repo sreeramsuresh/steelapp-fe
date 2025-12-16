@@ -11,8 +11,8 @@
  * - Accordion for optional sections
  */
 
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
@@ -26,28 +26,28 @@ import {
   Search,
   ChevronDown,
   Copy,
-} from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import debitNoteService from "../../services/debitNoteService";
-import vendorBillService from "../../services/vendorBillService";
-import { notificationService } from "../../services/notificationService";
-import { formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import debitNoteService from '../../services/debitNoteService';
+import vendorBillService from '../../services/vendorBillService';
+import { notificationService } from '../../services/notificationService';
+import { formatCurrency, formatDateForInput } from '../../utils/invoiceUtils';
 
 // Reason categories
 const REASON_CATEGORIES = [
-  { value: "PRICE_ADJUSTMENT", label: "Price Adjustment" },
-  { value: "QUANTITY_ADJUSTMENT", label: "Quantity Adjustment" },
-  { value: "ADDITIONAL_CHARGES", label: "Additional Charges" },
-  { value: "SERVICE_CHARGE", label: "Service Charge" },
-  { value: "OTHER", label: "Other" },
+  { value: 'PRICE_ADJUSTMENT', label: 'Price Adjustment' },
+  { value: 'QUANTITY_ADJUSTMENT', label: 'Quantity Adjustment' },
+  { value: 'ADDITIONAL_CHARGES', label: 'Additional Charges' },
+  { value: 'SERVICE_CHARGE', label: 'Service Charge' },
+  { value: 'OTHER', label: 'Other' },
 ];
 
 // VAT categories
 const VAT_CATEGORIES = [
-  { value: "STANDARD", label: "Standard Rate (5%)", rate: 5 },
-  { value: "ZERO_RATED", label: "Zero Rated (0%)", rate: 0 },
-  { value: "EXEMPT", label: "Exempt", rate: 0 },
-  { value: "REVERSE_CHARGE", label: "Reverse Charge", rate: 5 },
+  { value: 'STANDARD', label: 'Standard Rate (5%)', rate: 5 },
+  { value: 'ZERO_RATED', label: 'Zero Rated (0%)', rate: 0 },
+  { value: 'EXEMPT', label: 'Exempt', rate: 0 },
+  { value: 'REVERSE_CHARGE', label: 'Reverse Charge', rate: 5 },
 ];
 
 // Empty line item template
@@ -55,7 +55,7 @@ const createEmptyItem = () => ({
   id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   vendorBillItemId: null,
   productId: null,
-  description: "",
+  description: '',
   quantity: 1,
   unitPrice: 0,
   amount: 0,
@@ -77,7 +77,7 @@ const DebitNoteForm = () => {
   const [validationErrors, setValidationErrors] = useState([]);
 
   // Vendor bill search
-  const [vendorBillSearch, setVendorBillSearch] = useState("");
+  const [vendorBillSearch, setVendorBillSearch] = useState('');
   const [vendorBillResults, setVendorBillResults] = useState([]);
   const [showVendorBillDropdown, setShowVendorBillDropdown] = useState(false);
   const [selectedVendorBill, setSelectedVendorBill] = useState(null);
@@ -85,20 +85,20 @@ const DebitNoteForm = () => {
   // Debit note data state
   const [debitNote, setDebitNote] = useState({
     vendorBillId: null,
-    vendorBillNumber: "",
+    vendorBillNumber: '',
     vendorId: null,
     vendor: null,
-    debitNoteNumber: "",
+    debitNoteNumber: '',
     debitNoteDate: formatDateForInput(new Date()),
-    reason: "",
-    reasonCategory: "PRICE_ADJUSTMENT",
-    vatCategory: "STANDARD",
+    reason: '',
+    reasonCategory: 'PRICE_ADJUSTMENT',
+    vatCategory: 'STANDARD',
     isReverseCharge: false,
     subtotal: 0,
     vatAmount: 0,
     totalDebit: 0,
-    status: "draft",
-    notes: "",
+    status: 'draft',
+    notes: '',
     items: [createEmptyItem()],
   });
 
@@ -108,7 +108,7 @@ const DebitNoteForm = () => {
       loadDebitNote();
     } else {
       loadNextDebitNoteNumber();
-      const vendorBillIdParam = searchParams.get("vendorBillId");
+      const vendorBillIdParam = searchParams.get('vendorBillId');
       if (vendorBillIdParam) {
         loadVendorBill(vendorBillIdParam);
       }
@@ -141,9 +141,9 @@ const DebitNoteForm = () => {
         setSelectedVendorBill(bill);
       }
     } catch (error) {
-      console.error("Error loading debit note:", error);
-      notificationService.error("Failed to load debit note");
-      navigate("/purchases/debit-notes");
+      console.error('Error loading debit note:', error);
+      notificationService.error('Failed to load debit note');
+      navigate('/purchases/debit-notes');
     } finally {
       setLoading(false);
     }
@@ -154,10 +154,10 @@ const DebitNoteForm = () => {
       const response = await debitNoteService.getNextNumber();
       setDebitNote((prev) => ({
         ...prev,
-        debitNoteNumber: response.debitNoteNumber || "DN-0001",
+        debitNoteNumber: response.debitNoteNumber || 'DN-0001',
       }));
     } catch (error) {
-      console.error("Error loading next debit note number:", error);
+      console.error('Error loading next debit note number:', error);
     }
   };
 
@@ -168,7 +168,7 @@ const DebitNoteForm = () => {
       setVendorBillResults(results);
       setShowVendorBillDropdown(results.length > 0);
     } catch (error) {
-      console.error("Error searching vendor bills:", error);
+      console.error('Error searching vendor bills:', error);
       setVendorBillResults([]);
     } finally {
       setVendorBillSearching(false);
@@ -188,14 +188,14 @@ const DebitNoteForm = () => {
           name: bill.vendorName,
           trn: bill.vendorTrn,
         },
-        vatCategory: bill.vatCategory || "STANDARD",
+        vatCategory: bill.vatCategory || 'STANDARD',
         isReverseCharge: bill.isReverseCharge || false,
       }));
-      setVendorBillSearch("");
+      setVendorBillSearch('');
       setShowVendorBillDropdown(false);
     } catch (error) {
-      console.error("Error loading vendor bill:", error);
-      notificationService.error("Failed to load vendor bill");
+      console.error('Error loading vendor bill:', error);
+      notificationService.error('Failed to load vendor bill');
     }
   };
 
@@ -205,7 +205,7 @@ const DebitNoteForm = () => {
 
   const handleCopyItemsFromBill = () => {
     if (!selectedVendorBill || !selectedVendorBill.items) {
-      notificationService.warning("No items to copy from vendor bill");
+      notificationService.warning('No items to copy from vendor bill');
       return;
     }
 
@@ -223,7 +223,7 @@ const DebitNoteForm = () => {
 
     setDebitNote((prev) => ({ ...prev, items: copiedItems }));
     recalculateTotals(copiedItems);
-    notificationService.success("Items copied from vendor bill");
+    notificationService.success('Items copied from vendor bill');
   };
 
   const handleAddItem = () => {
@@ -235,7 +235,7 @@ const DebitNoteForm = () => {
 
   const handleRemoveItem = (index) => {
     if (debitNote.items.length <= 1) {
-      notificationService.warning("At least one item is required");
+      notificationService.warning('At least one item is required');
       return;
     }
     const updatedItems = debitNote.items.filter((_, i) => i !== index);
@@ -248,7 +248,7 @@ const DebitNoteForm = () => {
     const item = { ...updatedItems[index] };
     item[field] = value;
 
-    if (["quantity", "unitPrice", "vatRate"].includes(field)) {
+    if (['quantity', 'unitPrice', 'vatRate'].includes(field)) {
       const qty = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.unitPrice) || 0;
       const vatRate = parseFloat(item.vatRate) || 0;
@@ -276,25 +276,25 @@ const DebitNoteForm = () => {
 
   const validateForm = () => {
     const errors = [];
-    if (!debitNote.vendorBillId) errors.push("Please select a vendor bill");
+    if (!debitNote.vendorBillId) errors.push('Please select a vendor bill');
     if (!debitNote.debitNoteNumber)
-      errors.push("Debit note number is required");
-    if (!debitNote.debitNoteDate) errors.push("Debit note date is required");
-    if (!debitNote.reason) errors.push("Reason is required");
+      errors.push('Debit note number is required');
+    if (!debitNote.debitNoteDate) errors.push('Debit note date is required');
+    if (!debitNote.reason) errors.push('Reason is required');
 
     const validItems = debitNote.items.filter(
       (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
     );
     if (validItems.length === 0)
-      errors.push("At least one valid line item is required");
+      errors.push('At least one valid line item is required');
 
     setValidationErrors(errors);
     return errors.length === 0;
   };
 
-  const handleSave = async (status = "draft") => {
+  const handleSave = async (status = 'draft') => {
     if (!validateForm()) {
-      notificationService.error("Please fix the validation errors");
+      notificationService.error('Please fix the validation errors');
       return;
     }
 
@@ -308,37 +308,37 @@ const DebitNoteForm = () => {
 
       if (isEditMode) {
         await debitNoteService.update(id, debitNoteData);
-        notificationService.success("Debit note updated successfully");
+        notificationService.success('Debit note updated successfully');
       } else {
         await debitNoteService.create(debitNoteData);
-        notificationService.success("Debit note created successfully");
+        notificationService.success('Debit note created successfully');
       }
 
-      navigate("/purchases/debit-notes");
+      navigate('/purchases/debit-notes');
     } catch (error) {
-      console.error("Error saving debit note:", error);
-      notificationService.error(error.message || "Failed to save debit note");
+      console.error('Error saving debit note:', error);
+      notificationService.error(error.message || 'Failed to save debit note');
     } finally {
       setSaving(false);
     }
   };
 
   // ===================== THEME CLASSES =====================
-  const cardBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
-  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
-  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
-  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
-  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
-  const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
+  const cardBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
+  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
+  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
+  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
+  const accordionBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
   const inputFocus =
-    "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
+    'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
 
   // Loading state
   if (loading) {
     return (
       <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
@@ -350,7 +350,7 @@ const DebitNoteForm = () => {
 
   return (
     <div
-      className={`h-full overflow-auto ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+      className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
     >
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
@@ -361,30 +361,30 @@ const DebitNoteForm = () => {
           <div
             className={`sticky top-0 z-10 backdrop-blur-md ${
               isDarkMode
-                ? "bg-[#0f151b]/94 border-b border-[#2a3640]"
-                : "bg-white/94 border-b border-gray-200"
+                ? 'bg-[#0f151b]/94 border-b border-[#2a3640]'
+                : 'bg-white/94 border-b border-gray-200'
             } px-4 py-3`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate("/purchases/debit-notes")}
+                  onClick={() => navigate('/purchases/debit-notes')}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode
-                      ? "hover:bg-[#141a20] text-[#93a4b4]"
-                      : "hover:bg-gray-100 text-gray-600"
+                      ? 'hover:bg-[#141a20] text-[#93a4b4]'
+                      : 'hover:bg-gray-100 text-gray-600'
                   }`}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
                   <h1 className={`text-lg font-extrabold ${textPrimary}`}>
-                    {isEditMode ? "Edit Debit Note" : "New Debit Note"}
+                    {isEditMode ? 'Edit Debit Note' : 'New Debit Note'}
                   </h1>
                   <p className={`text-xs ${textMuted}`}>
                     {isEditMode
                       ? `Editing ${debitNote.debitNoteNumber}`
-                      : "Vendor bill adjustment"}
+                      : 'Vendor bill adjustment'}
                   </p>
                 </div>
               </div>
@@ -392,39 +392,39 @@ const DebitNoteForm = () => {
                 <span
                   className={`px-2.5 py-1 rounded-xl text-xs border ${
                     isDarkMode
-                      ? "border-amber-500/30 bg-amber-500/12 text-amber-400"
-                      : "border-amber-200 bg-amber-50 text-amber-700"
+                      ? 'border-amber-500/30 bg-amber-500/12 text-amber-400'
+                      : 'border-amber-200 bg-amber-50 text-amber-700'
                   }`}
                 >
-                  {debitNote.status === "approved" ? "Approved" : "Draft"}
+                  {debitNote.status === 'approved' ? 'Approved' : 'Draft'}
                 </span>
                 <button
-                  onClick={() => handleSave("draft")}
+                  onClick={() => handleSave('draft')}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors ${
                     isDarkMode
-                      ? "border-[#2a3640] hover:border-[#4aa3ff] text-[#93a4b4]"
-                      : "border-gray-300 hover:border-teal-500 text-gray-600"
-                  } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
+                      ? 'border-[#2a3640] hover:border-[#4aa3ff] text-[#93a4b4]'
+                      : 'border-gray-300 hover:border-teal-500 text-gray-600'
+                  } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
                   <Save className="h-4 w-4" />
                   Save Draft
                 </button>
                 <button
-                  onClick={() => handleSave("approved")}
+                  onClick={() => handleSave('approved')}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
                     isDarkMode
-                      ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
-                      : "bg-teal-600 text-white hover:bg-teal-700"
-                  } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
+                      ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]'
+                      : 'bg-teal-600 text-white hover:bg-teal-700'
+                  } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
                   {saving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
-                  {saving ? "Saving..." : "Save & Approve"}
+                  {saving ? 'Saving...' : 'Save & Approve'}
                 </button>
               </div>
             </div>
@@ -437,13 +437,13 @@ const DebitNoteForm = () => {
               <div
                 className={`col-span-12 p-4 rounded-[14px] border ${
                   isDarkMode
-                    ? "bg-red-900/20 border-red-600/50 text-red-200"
-                    : "bg-red-50 border-red-300 text-red-800"
+                    ? 'bg-red-900/20 border-red-600/50 text-red-200'
+                    : 'bg-red-50 border-red-300 text-red-800'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <AlertTriangle
-                    className={isDarkMode ? "text-red-400" : "text-red-600"}
+                    className={isDarkMode ? 'text-red-400' : 'text-red-600'}
                     size={20}
                   />
                   <div>
@@ -508,8 +508,8 @@ const DebitNoteForm = () => {
                             onClick={() => handleVendorBillSelect(bill)}
                             className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
                               isDarkMode
-                                ? "hover:bg-[#1a2027]"
-                                : "hover:bg-gray-50"
+                                ? 'hover:bg-[#1a2027]'
+                                : 'hover:bg-gray-50'
                             }`}
                           >
                             <div className="flex justify-between items-start">
@@ -524,7 +524,7 @@ const DebitNoteForm = () => {
                                 </div>
                               </div>
                               <div
-                                className={`text-sm font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}
+                                className={`text-sm font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}
                               >
                                 {formatCurrency(bill.total)}
                               </div>
@@ -538,8 +538,8 @@ const DebitNoteForm = () => {
                   <div
                     className={`p-3 rounded-[14px] border ${
                       isDarkMode
-                        ? "border-[#4aa3ff]/35 bg-[#4aa3ff]/10"
-                        : "border-teal-300 bg-teal-50"
+                        ? 'border-[#4aa3ff]/35 bg-[#4aa3ff]/10'
+                        : 'border-teal-300 bg-teal-50'
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -561,8 +561,8 @@ const DebitNoteForm = () => {
                           onClick={handleCopyItemsFromBill}
                           className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl border transition-colors ${
                             isDarkMode
-                              ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/20 text-[#4aa3ff] hover:bg-[#4aa3ff]/30"
-                              : "border-teal-400 bg-teal-100 text-teal-700 hover:bg-teal-200"
+                              ? 'border-[#4aa3ff]/50 bg-[#4aa3ff]/20 text-[#4aa3ff] hover:bg-[#4aa3ff]/30'
+                              : 'border-teal-400 bg-teal-100 text-teal-700 hover:bg-teal-200'
                           }`}
                         >
                           <Copy className="h-3 w-3" />
@@ -575,15 +575,15 @@ const DebitNoteForm = () => {
                               setDebitNote((prev) => ({
                                 ...prev,
                                 vendorBillId: null,
-                                vendorBillNumber: "",
+                                vendorBillNumber: '',
                                 vendorId: null,
                                 vendor: null,
                               }));
                             }}
                             className={`px-2.5 py-1 text-xs rounded-xl border transition-colors ${
                               isDarkMode
-                                ? "border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]"
-                                : "border-gray-300 bg-white hover:border-teal-500"
+                                ? 'border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]'
+                                : 'border-gray-300 bg-white hover:border-teal-500'
                             }`}
                           >
                             Change
@@ -731,8 +731,8 @@ const DebitNoteForm = () => {
                     onClick={handleAddItem}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-xl font-bold transition-colors ${
                       isDarkMode
-                        ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
-                        : "bg-teal-600 text-white hover:bg-teal-700"
+                        ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]'
+                        : 'bg-teal-600 text-white hover:bg-teal-700'
                     }`}
                   >
                     <Plus className="h-3.5 w-3.5" />
@@ -758,7 +758,7 @@ const DebitNoteForm = () => {
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "description",
+                                'description',
                                 e.target.value,
                               )
                             }
@@ -780,7 +780,7 @@ const DebitNoteForm = () => {
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "quantity",
+                                'quantity',
                                 parseFloat(e.target.value) || 0,
                               )
                             }
@@ -801,7 +801,7 @@ const DebitNoteForm = () => {
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "unitPrice",
+                                'unitPrice',
                                 parseFloat(e.target.value) || 0,
                               )
                             }
@@ -820,8 +820,8 @@ const DebitNoteForm = () => {
                             disabled
                             className={`w-full py-2 px-2.5 rounded-xl border text-sm font-mono ${
                               isDarkMode
-                                ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
-                                : "bg-gray-100 border-gray-300 text-gray-500"
+                                ? 'bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]'
+                                : 'bg-gray-100 border-gray-300 text-gray-500'
                             }`}
                           />
                         </div>
@@ -832,8 +832,8 @@ const DebitNoteForm = () => {
                             onClick={() => handleRemoveItem(index)}
                             className={`p-2 rounded-xl transition-colors ${
                               isDarkMode
-                                ? "hover:bg-red-900/30 text-red-400"
-                                : "hover:bg-red-100 text-red-600"
+                                ? 'hover:bg-red-900/30 text-red-400'
+                                : 'hover:bg-red-100 text-red-600'
                             }`}
                             title="Remove item"
                           >
@@ -910,7 +910,7 @@ const DebitNoteForm = () => {
                         Total Debit:
                       </span>
                       <span
-                        className={`font-bold font-mono ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                        className={`font-bold font-mono ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
                       >
                         +{formatCurrency(debitNote.totalDebit)}
                       </span>
@@ -945,17 +945,17 @@ const DebitNoteForm = () => {
                 <div
                   className={`p-3 rounded-[14px] border ${
                     isDarkMode
-                      ? "bg-amber-900/20 border-amber-700/50"
-                      : "bg-amber-50 border-amber-200"
+                      ? 'bg-amber-900/20 border-amber-700/50'
+                      : 'bg-amber-50 border-amber-200'
                   }`}
                 >
                   <div
-                    className={`text-xs font-bold mb-1 ${isDarkMode ? "text-amber-400" : "text-amber-700"}`}
+                    className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-amber-400' : 'text-amber-700'}`}
                   >
                     Debit Note Effect
                   </div>
                   <p
-                    className={`text-xs ${isDarkMode ? "text-amber-300/80" : "text-amber-600"}`}
+                    className={`text-xs ${isDarkMode ? 'text-amber-300/80' : 'text-amber-600'}`}
                   >
                     This debit note will increase the amount owed to the vendor.
                     The adjustment will be reflected in your accounts payable.

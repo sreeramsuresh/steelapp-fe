@@ -22,10 +22,10 @@
  * @returns {JSX.Element} Credit note list with status tracking
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { useTheme } from "../../../contexts/ThemeContext";
-import { apiClient } from "../../../services/api";
-import { formatCurrency, formatDate } from "../../../utils/invoiceUtils";
+import { useState, useEffect, useCallback } from 'react';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { apiClient } from '../../../services/api';
+import { formatCurrency, formatDate } from '../../../utils/invoiceUtils';
 import {
   FileText,
   RefreshCw,
@@ -33,7 +33,7 @@ import {
   DollarSign,
   CheckCircle,
   Clock,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function CustomerCreditNotesTab({ customerId }) {
   const { isDarkMode } = useTheme();
@@ -50,8 +50,8 @@ export default function CustomerCreditNotesTab({ customerId }) {
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Filters
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateRangeFilter, setDateRangeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateRangeFilter, setDateRangeFilter] = useState('all');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,8 +79,8 @@ export default function CustomerCreditNotesTab({ customerId }) {
       setCachedData(creditNoteData);
       setCacheTimestamp(Date.now());
     } catch (err) {
-      console.error("Failed to fetch credit notes:", err);
-      setError(err.message || "Failed to load credit notes");
+      console.error('Failed to fetch credit notes:', err);
+      setError(err.message || 'Failed to load credit notes');
     } finally {
       setLoading(false);
     }
@@ -113,9 +113,9 @@ export default function CustomerCreditNotesTab({ customerId }) {
     const amount = parseFloat(creditNote.amount) || 0;
     const remainingBalance = parseFloat(creditNote.remainingBalance) || 0;
 
-    if (remainingBalance === 0) return "fully-applied";
-    if (remainingBalance < amount) return "partially-applied";
-    return "open";
+    if (remainingBalance === 0) return 'fully-applied';
+    if (remainingBalance < amount) return 'partially-applied';
+    return 'open';
   };
 
   // Apply filters
@@ -123,7 +123,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
     let filtered = [...creditNotes];
 
     // Status filter
-    if (statusFilter !== "all") {
+    if (statusFilter !== 'all') {
       filtered = filtered.filter((cn) => {
         const status = getCreditNoteStatus(cn);
         return status === statusFilter;
@@ -132,7 +132,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
 
     // Date range filter
     const now = new Date();
-    if (dateRangeFilter !== "all") {
+    if (dateRangeFilter !== 'all') {
       const daysBack = parseInt(dateRangeFilter);
       const cutoffDate = new Date(
         now.getTime() - daysBack * 24 * 60 * 60 * 1000,
@@ -173,23 +173,23 @@ export default function CustomerCreditNotesTab({ customerId }) {
   const StatusBadge = ({ status }) => {
     const statusConfig = {
       open: {
-        bg: isDarkMode ? "bg-blue-900/30" : "bg-blue-100",
-        text: isDarkMode ? "text-blue-400" : "text-blue-700",
-        label: "Open",
+        bg: isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100',
+        text: isDarkMode ? 'text-blue-400' : 'text-blue-700',
+        label: 'Open',
       },
-      "partially-applied": {
-        bg: isDarkMode ? "bg-yellow-900/30" : "bg-yellow-100",
-        text: isDarkMode ? "text-yellow-400" : "text-yellow-700",
-        label: "Partially Applied",
+      'partially-applied': {
+        bg: isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-100',
+        text: isDarkMode ? 'text-yellow-400' : 'text-yellow-700',
+        label: 'Partially Applied',
       },
-      "fully-applied": {
-        bg: isDarkMode ? "bg-green-900/30" : "bg-green-100",
-        text: isDarkMode ? "text-green-400" : "text-green-700",
-        label: "Fully Applied",
+      'fully-applied': {
+        bg: isDarkMode ? 'bg-green-900/30' : 'bg-green-100',
+        text: isDarkMode ? 'text-green-400' : 'text-green-700',
+        label: 'Fully Applied',
       },
     };
 
-    const config = statusConfig[status] || statusConfig["open"];
+    const config = statusConfig[status] || statusConfig['open'];
 
     return (
       <span
@@ -201,11 +201,11 @@ export default function CustomerCreditNotesTab({ customerId }) {
   };
 
   // Styling
-  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
-  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-200";
-  const primaryText = isDarkMode ? "text-gray-100" : "text-gray-900";
-  const secondaryText = isDarkMode ? "text-gray-400" : "text-gray-600";
-  const hoverBg = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
+  const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const primaryText = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+  const secondaryText = isDarkMode ? 'text-gray-400' : 'text-gray-600';
+  const hoverBg = isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50';
 
   // Loading state
   if (loading) {
@@ -220,18 +220,18 @@ export default function CustomerCreditNotesTab({ customerId }) {
   if (error) {
     return (
       <div
-        className={`p-6 rounded-lg ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"} border`}
+        className={`p-6 rounded-lg ${isDarkMode ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-200'} border`}
       >
         <div className="flex items-center gap-3 mb-2">
           <AlertTriangle size={20} className="text-red-500" />
           <p
-            className={`font-medium ${isDarkMode ? "text-red-400" : "text-red-700"}`}
+            className={`font-medium ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}
           >
             Error Loading Credit Notes
           </p>
         </div>
         <p
-          className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}
+          className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}
         >
           {error}
         </p>
@@ -257,12 +257,12 @@ export default function CustomerCreditNotesTab({ customerId }) {
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode
-              ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400"
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400'
           }`}
           title="Refresh credit notes data"
         >
-          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           Refresh
         </button>
       </div>
@@ -363,7 +363,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
       >
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+            <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
               <tr>
                 <th
                   className={`px-4 py-3 text-left text-xs font-medium ${secondaryText} uppercase tracking-wider`}
@@ -398,7 +398,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
               </tr>
             </thead>
             <tbody
-              className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+              className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
             >
               {paginatedCreditNotes.length === 0 ? (
                 <tr>
@@ -438,25 +438,25 @@ export default function CustomerCreditNotesTab({ customerId }) {
                       <td className={`px-4 py-3 ${secondaryText}`}>
                         {creditNote.linkedInvoices &&
                         creditNote.linkedInvoices.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {creditNote.linkedInvoices.map((invoice, idx) => (
-                              <span
-                                key={idx}
-                                className={`px-2 py-0.5 rounded text-xs ${
-                                  isDarkMode
-                                    ? "bg-gray-700 text-gray-300"
-                                    : "bg-gray-200 text-gray-700"
-                                }`}
-                              >
-                                {invoice}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className={secondaryText}>
+                            <div className="flex flex-wrap gap-1">
+                              {creditNote.linkedInvoices.map((invoice, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`px-2 py-0.5 rounded text-xs ${
+                                    isDarkMode
+                                      ? 'bg-gray-700 text-gray-300'
+                                      : 'bg-gray-200 text-gray-700'
+                                  }`}
+                                >
+                                  {invoice}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className={secondaryText}>
                             No linked invoices
-                          </span>
-                        )}
+                            </span>
+                          )}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <StatusBadge status={status} />
@@ -475,8 +475,8 @@ export default function CustomerCreditNotesTab({ customerId }) {
             className={`px-4 py-3 border-t ${borderColor} flex items-center justify-between`}
           >
             <div className={`text-sm ${secondaryText}`}>
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredCreditNotes.length)}{" "}
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+              {Math.min(currentPage * itemsPerPage, filteredCreditNotes.length)}{' '}
               of {filteredCreditNotes.length} credit notes
             </div>
             <div className="flex gap-2">
@@ -506,7 +506,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-3 py-1 rounded-md border ${borderColor} ${
                         currentPage === pageNum
-                          ? "bg-blue-600 text-white border-blue-600"
+                          ? 'bg-blue-600 text-white border-blue-600'
                           : `${primaryText} ${hoverBg}`
                       }`}
                     >

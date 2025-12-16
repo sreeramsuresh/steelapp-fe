@@ -16,33 +16,33 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { apiClient } from "./api";
+import { apiClient } from './api';
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 export const ADJUSTMENT_TYPES = {
-  BAD_DEBT_RELIEF: "BAD_DEBT_RELIEF", // Recovery of VAT on bad debts
-  BAD_DEBT_RECOVERY: "BAD_DEBT_RECOVERY", // Customer paid after bad debt relief
-  ERROR_CORRECTION: "ERROR_CORRECTION", // Correction of previous error
-  FTA_DIRECTED: "FTA_DIRECTED", // Adjustment directed by FTA
-  ROUNDING: "ROUNDING", // Rounding adjustments
-  OTHER: "OTHER", // Other adjustments
+  BAD_DEBT_RELIEF: 'BAD_DEBT_RELIEF', // Recovery of VAT on bad debts
+  BAD_DEBT_RECOVERY: 'BAD_DEBT_RECOVERY', // Customer paid after bad debt relief
+  ERROR_CORRECTION: 'ERROR_CORRECTION', // Correction of previous error
+  FTA_DIRECTED: 'FTA_DIRECTED', // Adjustment directed by FTA
+  ROUNDING: 'ROUNDING', // Rounding adjustments
+  OTHER: 'OTHER', // Other adjustments
 };
 
 export const ADJUSTMENT_DIRECTIONS = {
-  INCREASE: "INCREASE", // Increases VAT liability
-  DECREASE: "DECREASE", // Decreases VAT liability
+  INCREASE: 'INCREASE', // Increases VAT liability
+  DECREASE: 'DECREASE', // Decreases VAT liability
 };
 
 export const ADJUSTMENT_STATUSES = {
-  DRAFT: "draft",
-  PENDING_APPROVAL: "pending_approval",
-  APPROVED: "approved",
-  REJECTED: "rejected",
-  APPLIED: "applied",
-  CANCELLED: "cancelled",
+  DRAFT: 'draft',
+  PENDING_APPROVAL: 'pending_approval',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  APPLIED: 'applied',
+  CANCELLED: 'cancelled',
 };
 
 // ============================================================================
@@ -54,8 +54,8 @@ export const ADJUSTMENT_STATUSES = {
  */
 const transformAdjustmentForServer = (adjustmentData) => {
   return {
-    adjustmentType: adjustmentData.adjustmentType || "OTHER",
-    direction: adjustmentData.direction || "DECREASE",
+    adjustmentType: adjustmentData.adjustmentType || 'OTHER',
+    direction: adjustmentData.direction || 'DECREASE',
     adjustmentDate: adjustmentData.adjustmentDate || null,
     effectivePeriodStart: adjustmentData.effectivePeriodStart || null,
     effectivePeriodEnd: adjustmentData.effectivePeriodEnd || null,
@@ -68,21 +68,21 @@ const transformAdjustmentForServer = (adjustmentData) => {
     vatRate: parseFloat(adjustmentData.vatRate || 5),
     vatAmount: parseFloat(adjustmentData.vatAmount || 0),
     // Categorization
-    vatCategory: adjustmentData.vatCategory || "STANDARD",
+    vatCategory: adjustmentData.vatCategory || 'STANDARD',
     form201Box: adjustmentData.form201Box || null, // e.g., 'BOX_7' for bad debt
     // Details
-    reason: adjustmentData.reason || "",
-    description: adjustmentData.description || "",
+    reason: adjustmentData.reason || '',
+    description: adjustmentData.description || '',
     supportingDocuments: adjustmentData.supportingDocuments || [],
     attachmentUrls: adjustmentData.attachmentUrls || [],
     // Bad debt specific
     originalInvoiceDate: adjustmentData.originalInvoiceDate || null,
     debtAgeDays: adjustmentData.debtAgeDays || null,
-    customerName: adjustmentData.customerName || "",
-    customerTrn: adjustmentData.customerTrn || "",
+    customerName: adjustmentData.customerName || '',
+    customerTrn: adjustmentData.customerTrn || '',
     // Status
-    status: adjustmentData.status || "draft",
-    notes: adjustmentData.notes || "",
+    status: adjustmentData.status || 'draft',
+    notes: adjustmentData.notes || '',
   };
 };
 
@@ -95,39 +95,39 @@ const transformAdjustmentFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId,
-    adjustmentNumber: serverData.adjustmentNumber || "",
-    adjustmentType: serverData.adjustmentType || "OTHER",
-    direction: serverData.direction || "DECREASE",
+    adjustmentNumber: serverData.adjustmentNumber || '',
+    adjustmentType: serverData.adjustmentType || 'OTHER',
+    direction: serverData.direction || 'DECREASE',
     adjustmentDate: serverData.adjustmentDate || null,
     effectivePeriodStart: serverData.effectivePeriodStart || null,
     effectivePeriodEnd: serverData.effectivePeriodEnd || null,
     // Related documents
     relatedInvoiceId: serverData.relatedInvoiceId || null,
-    relatedInvoiceNumber: serverData.relatedInvoiceNumber || "",
+    relatedInvoiceNumber: serverData.relatedInvoiceNumber || '',
     relatedCreditNoteId: serverData.relatedCreditNoteId || null,
-    relatedCreditNoteNumber: serverData.relatedCreditNoteNumber || "",
+    relatedCreditNoteNumber: serverData.relatedCreditNoteNumber || '',
     relatedVatReturnId: serverData.relatedVatReturnId || null,
-    relatedVatReturnPeriod: serverData.relatedVatReturnPeriod || "",
+    relatedVatReturnPeriod: serverData.relatedVatReturnPeriod || '',
     // Amounts
     taxableAmount: parseFloat(serverData.taxableAmount || 0),
     vatRate: parseFloat(serverData.vatRate || 5),
     vatAmount: parseFloat(serverData.vatAmount || 0),
     // Categorization
-    vatCategory: serverData.vatCategory || "STANDARD",
+    vatCategory: serverData.vatCategory || 'STANDARD',
     form201Box: serverData.form201Box || null,
     // Details
-    reason: serverData.reason || "",
-    description: serverData.description || "",
+    reason: serverData.reason || '',
+    description: serverData.description || '',
     supportingDocuments: serverData.supportingDocuments || [],
     attachmentUrls: serverData.attachmentUrls || [],
     // Bad debt specific
     originalInvoiceDate: serverData.originalInvoiceDate || null,
     debtAgeDays: serverData.debtAgeDays || null,
-    customerName: serverData.customerName || "",
-    customerTrn: serverData.customerTrn || "",
+    customerName: serverData.customerName || '',
+    customerTrn: serverData.customerTrn || '',
     // Status
-    status: serverData.status || "draft",
-    notes: serverData.notes || "",
+    status: serverData.status || 'draft',
+    notes: serverData.notes || '',
     // Audit trail
     createdAt: serverData.createdAt || null,
     createdBy: serverData.createdBy || null,
@@ -136,7 +136,7 @@ const transformAdjustmentFromServer = (serverData) => {
     approvedBy: serverData.approvedBy || null,
     rejectedAt: serverData.rejectedAt || null,
     rejectedBy: serverData.rejectedBy || null,
-    rejectionReason: serverData.rejectionReason || "",
+    rejectionReason: serverData.rejectionReason || '',
     appliedToVatReturnId: serverData.appliedToVatReturnId || null,
     appliedAt: serverData.appliedAt || null,
   };
@@ -184,7 +184,7 @@ const vatAdjustmentService = {
         axiosConfig.signal = signal;
       }
 
-      const response = await apiClient.get("/vat-adjustments", axiosConfig);
+      const response = await apiClient.get('/vat-adjustments', axiosConfig);
 
       // Handle paginated response
       if (response.data && Array.isArray(response.data)) {
@@ -212,7 +212,7 @@ const vatAdjustmentService = {
 
       return { data: [], pagination: null };
     } catch (error) {
-      console.error("[VATAdjustmentService] getAll failed:", error);
+      console.error('[VATAdjustmentService] getAll failed:', error);
       throw error;
     }
   },
@@ -227,7 +227,7 @@ const vatAdjustmentService = {
       const response = await apiClient.get(`/vat-adjustments/${id}`);
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] getById failed:", error);
+      console.error('[VATAdjustmentService] getById failed:', error);
       throw error;
     }
   },
@@ -240,7 +240,7 @@ const vatAdjustmentService = {
    */
   async getByPeriod(startDate, endDate) {
     try {
-      const response = await apiClient.get("/vat-adjustments/by-period", {
+      const response = await apiClient.get('/vat-adjustments/by-period', {
         startDate,
         endDate,
       });
@@ -249,7 +249,7 @@ const vatAdjustmentService = {
         : response.data || [];
       return adjustments.map(transformAdjustmentFromServer);
     } catch (error) {
-      console.error("[VATAdjustmentService] getByPeriod failed:", error);
+      console.error('[VATAdjustmentService] getByPeriod failed:', error);
       throw error;
     }
   },
@@ -260,13 +260,13 @@ const vatAdjustmentService = {
    */
   async getPendingApproval() {
     try {
-      const response = await apiClient.get("/vat-adjustments/pending-approval");
+      const response = await apiClient.get('/vat-adjustments/pending-approval');
       const adjustments = Array.isArray(response)
         ? response
         : response.data || [];
       return adjustments.map(transformAdjustmentFromServer);
     } catch (error) {
-      console.error("[VATAdjustmentService] getPendingApproval failed:", error);
+      console.error('[VATAdjustmentService] getPendingApproval failed:', error);
       throw error;
     }
   },
@@ -280,12 +280,12 @@ const vatAdjustmentService = {
     try {
       const transformedData = transformAdjustmentForServer(adjustmentData);
       const response = await apiClient.post(
-        "/vat-adjustments",
+        '/vat-adjustments',
         transformedData,
       );
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] create failed:", error);
+      console.error('[VATAdjustmentService] create failed:', error);
       throw error;
     }
   },
@@ -305,7 +305,7 @@ const vatAdjustmentService = {
       );
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] update failed:", error);
+      console.error('[VATAdjustmentService] update failed:', error);
       throw error;
     }
   },
@@ -320,7 +320,7 @@ const vatAdjustmentService = {
       const response = await apiClient.delete(`/vat-adjustments/${id}`);
       return response;
     } catch (error) {
-      console.error("[VATAdjustmentService] delete failed:", error);
+      console.error('[VATAdjustmentService] delete failed:', error);
       throw error;
     }
   },
@@ -335,7 +335,7 @@ const vatAdjustmentService = {
       const response = await apiClient.post(`/vat-adjustments/${id}/submit`);
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] submitForApproval failed:", error);
+      console.error('[VATAdjustmentService] submitForApproval failed:', error);
       throw error;
     }
   },
@@ -346,14 +346,14 @@ const vatAdjustmentService = {
    * @param {string} notes - Approval notes
    * @returns {Promise<Object>}
    */
-  async approve(id, notes = "") {
+  async approve(id, notes = '') {
     try {
       const response = await apiClient.post(`/vat-adjustments/${id}/approve`, {
         notes,
       });
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] approve failed:", error);
+      console.error('[VATAdjustmentService] approve failed:', error);
       throw error;
     }
   },
@@ -364,14 +364,14 @@ const vatAdjustmentService = {
    * @param {string} reason - Rejection reason
    * @returns {Promise<Object>}
    */
-  async reject(id, reason = "") {
+  async reject(id, reason = '') {
     try {
       const response = await apiClient.post(`/vat-adjustments/${id}/reject`, {
         rejectionReason: reason,
       });
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] reject failed:", error);
+      console.error('[VATAdjustmentService] reject failed:', error);
       throw error;
     }
   },
@@ -390,7 +390,7 @@ const vatAdjustmentService = {
       });
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] applyToVatReturn failed:", error);
+      console.error('[VATAdjustmentService] applyToVatReturn failed:', error);
       throw error;
     }
   },
@@ -401,14 +401,14 @@ const vatAdjustmentService = {
    * @param {string} reason - Cancellation reason
    * @returns {Promise<Object>}
    */
-  async cancel(id, reason = "") {
+  async cancel(id, reason = '') {
     try {
       const response = await apiClient.post(`/vat-adjustments/${id}/cancel`, {
         cancellationReason: reason,
       });
       return transformAdjustmentFromServer(response);
     } catch (error) {
-      console.error("[VATAdjustmentService] cancel failed:", error);
+      console.error('[VATAdjustmentService] cancel failed:', error);
       throw error;
     }
   },
@@ -419,10 +419,10 @@ const vatAdjustmentService = {
    */
   async getNextNumber() {
     try {
-      const response = await apiClient.get("/vat-adjustments/number/next");
+      const response = await apiClient.get('/vat-adjustments/number/next');
       return response;
     } catch (error) {
-      console.error("[VATAdjustmentService] getNextNumber failed:", error);
+      console.error('[VATAdjustmentService] getNextNumber failed:', error);
       throw error;
     }
   },
@@ -440,7 +440,7 @@ const vatAdjustmentService = {
       return response;
     } catch (error) {
       console.error(
-        "[VATAdjustmentService] checkBadDebtEligibility failed:",
+        '[VATAdjustmentService] checkBadDebtEligibility failed:',
         error,
       );
       throw error;
@@ -456,17 +456,17 @@ const vatAdjustmentService = {
   async createBadDebtRelief(invoiceId, details = {}) {
     try {
       const response = await apiClient.post(
-        "/vat-adjustments/bad-debt-relief",
+        '/vat-adjustments/bad-debt-relief',
         {
           invoiceId,
-          notes: details.notes || "",
+          notes: details.notes || '',
           supportingDocuments: details.supportingDocuments || [],
         },
       );
       return transformAdjustmentFromServer(response);
     } catch (error) {
       console.error(
-        "[VATAdjustmentService] createBadDebtRelief failed:",
+        '[VATAdjustmentService] createBadDebtRelief failed:',
         error,
       );
       throw error;
@@ -483,10 +483,10 @@ const vatAdjustmentService = {
    */
   async getSummary(params = {}) {
     try {
-      const response = await apiClient.get("/vat-adjustments/summary", params);
+      const response = await apiClient.get('/vat-adjustments/summary', params);
       return response;
     } catch (error) {
-      console.error("[VATAdjustmentService] getSummary failed:", error);
+      console.error('[VATAdjustmentService] getSummary failed:', error);
       throw error;
     }
   },
@@ -503,7 +503,7 @@ const vatAdjustmentService = {
       );
       return response.data || response || [];
     } catch (error) {
-      console.error("[VATAdjustmentService] getAuditTrail failed:", error);
+      console.error('[VATAdjustmentService] getAuditTrail failed:', error);
       throw error;
     }
   },
@@ -516,7 +516,7 @@ const vatAdjustmentService = {
    */
   async search(searchTerm, filters = {}) {
     try {
-      const response = await apiClient.get("/vat-adjustments", {
+      const response = await apiClient.get('/vat-adjustments', {
         search: searchTerm,
         ...filters,
       });
@@ -525,7 +525,7 @@ const vatAdjustmentService = {
         ? adjustments.map(transformAdjustmentFromServer)
         : [];
     } catch (error) {
-      console.error("[VATAdjustmentService] search failed:", error);
+      console.error('[VATAdjustmentService] search failed:', error);
       throw error;
     }
   },

@@ -13,9 +13,9 @@
  */
 export function normalizeSupplier(
   rawSupplier: any,
-  source = "unknown",
+  source = 'unknown',
 ): any | null {
-  if (!rawSupplier || typeof rawSupplier !== "object") {
+  if (!rawSupplier || typeof rawSupplier !== 'object') {
     console.error(
       `❌ [Supplier Normalizer] Invalid supplier data from ${source}:`,
       rawSupplier,
@@ -28,7 +28,7 @@ export function normalizeSupplier(
     if (!value) return undefined;
     if (value?.seconds)
       return new Date(parseInt(value.seconds) * 1000).toISOString();
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       const parsed = new Date(value);
       if (!isNaN(parsed.getTime())) return parsed.toISOString();
     }
@@ -41,7 +41,7 @@ export function normalizeSupplier(
       // Core identifiers
       id: rawSupplier.id || 0,
       companyId: rawSupplier.company_id || rawSupplier.companyId,
-      name: rawSupplier.name || rawSupplier.supplier_name || "",
+      name: rawSupplier.name || rawSupplier.supplier_name || '',
 
       // Contact information
       email: rawSupplier.email || rawSupplier.email_address || undefined,
@@ -73,7 +73,7 @@ export function normalizeSupplier(
       bankDetails:
         rawSupplier.bank_details || rawSupplier.bankDetails || undefined, // JSON string
       defaultCurrency:
-        rawSupplier.default_currency || rawSupplier.defaultCurrency || "AED",
+        rawSupplier.default_currency || rawSupplier.defaultCurrency || 'AED',
 
       // Categorization
       category: rawSupplier.category || undefined,
@@ -98,7 +98,7 @@ export function normalizeSupplier(
       `❌ [Supplier Normalizer] Failed to normalize supplier from ${source}:`,
       error,
     );
-    console.error("   Raw data:", rawSupplier);
+    console.error('   Raw data:', rawSupplier);
     return null;
   }
 }
@@ -111,7 +111,7 @@ export function normalizeSupplier(
  */
 export function normalizeSuppliers(
   rawSuppliers: any[],
-  source = "list",
+  source = 'list',
 ): any[] {
   if (!Array.isArray(rawSuppliers)) {
     console.error(

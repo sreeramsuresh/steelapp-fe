@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -17,16 +17,16 @@ import {
   Stack,
   Chip,
   CircularProgress,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Download as DownloadIcon,
   TrendingUp as ProfitIcon,
   AttachMoney as RevenueIcon,
   ShoppingCart as SalesIcon,
-} from "@mui/icons-material";
-import api from "../services/api";
-import { toast } from "react-toastify";
-import { toUAEDateForInput, nowUAE } from "../utils/timezone";
+} from '@mui/icons-material';
+import api from '../services/api';
+import { toast } from 'react-toastify';
+import { toUAEDateForInput, nowUAE } from '../utils/timezone';
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
@@ -78,7 +78,7 @@ export default function ProfitAnalysisReport() {
         ORDER BY total_profit DESC
       `;
 
-      const response = await api.post("/query", {
+      const response = await api.post('/query', {
         query,
         params: [dateRange.startDate, dateRange.endDate],
       });
@@ -107,8 +107,8 @@ export default function ProfitAnalysisReport() {
         averageMargin: parseFloat(averageMargin),
       });
     } catch (error) {
-      console.error("Error fetching report:", error);
-      toast.error("Failed to load profit analysis");
+      console.error('Error fetching report:', error);
+      toast.error('Failed to load profit analysis');
     } finally {
       setLoading(false);
     }
@@ -116,14 +116,14 @@ export default function ProfitAnalysisReport() {
 
   const exportToCSV = () => {
     const headers = [
-      "Product",
-      "Category",
-      "Grade",
-      "Quantity",
-      "Revenue",
-      "Cost",
-      "Profit",
-      "Margin %",
+      'Product',
+      'Category',
+      'Grade',
+      'Quantity',
+      'Revenue',
+      'Cost',
+      'Profit',
+      'Margin %',
     ];
     const rows = data.map((row) => [
       row.name,
@@ -136,13 +136,13 @@ export default function ProfitAnalysisReport() {
       row.avgMargin,
     ]);
 
-    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join(
-      "\n",
+    const csv = [headers.join(','), ...rows.map((row) => row.join(','))].join(
+      '\n',
     );
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `profit-analysis-${dateRange.startDate}-to-${dateRange.endDate}.csv`;
     a.click();
@@ -316,10 +316,10 @@ export default function ProfitAnalysisReport() {
                         size="small"
                         color={
                           parseFloat(row.avgMargin) > 30
-                            ? "success"
+                            ? 'success'
                             : parseFloat(row.avgMargin) > 20
-                              ? "warning"
-                              : "default"
+                              ? 'warning'
+                              : 'default'
                         }
                       />
                     </TableCell>

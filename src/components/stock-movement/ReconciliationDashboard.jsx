@@ -5,7 +5,7 @@
  * Dashboard for stock reconciliation and audit trail
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -31,42 +31,42 @@ import {
   Grid,
   Tabs,
   Tab,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Assessment as ReportIcon,
   History as AuditIcon,
   Warning as WarningIcon,
   CheckCircle as CheckIcon,
   Refresh as RefreshIcon,
-} from "@mui/icons-material";
-import { stockMovementService } from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
+} from '@mui/icons-material';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return "-";
+  if (!dateValue) return '-';
   const date =
-    typeof dateValue === "object" && dateValue.seconds
+    typeof dateValue === 'object' && dateValue.seconds
       ? new Date(dateValue.seconds * 1000)
       : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 };
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = "KG") => {
+const formatQuantity = (qty, unit = 'KG') => {
   const num = parseFloat(qty) || 0;
-  const sign = num >= 0 ? "" : "-";
-  return `${sign}${Math.abs(num).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  const sign = num >= 0 ? '' : '-';
+  return `${sign}${Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -81,7 +81,7 @@ const TabPanel = ({ children, value, index, ...other }) => (
 const ReconciliationDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
 
   // Reconciliation state
@@ -96,8 +96,8 @@ const ReconciliationDashboard = () => {
   const [auditPage, setAuditPage] = useState(0);
   const [auditRowsPerPage, setAuditRowsPerPage] = useState(50);
   const [auditTotalCount, setAuditTotalCount] = useState(0);
-  const [auditStartDate, setAuditStartDate] = useState("");
-  const [auditEndDate, setAuditEndDate] = useState("");
+  const [auditStartDate, setAuditStartDate] = useState('');
+  const [auditEndDate, setAuditEndDate] = useState('');
 
   // Load warehouses
   useEffect(() => {
@@ -112,7 +112,7 @@ const ReconciliationDashboard = () => {
           setSelectedWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error("Error loading warehouses:", err);
+        console.error('Error loading warehouses:', err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -132,9 +132,9 @@ const ReconciliationDashboard = () => {
         await stockMovementService.getReconciliationReport(selectedWarehouseId);
       setReconciliationData(result);
     } catch (err) {
-      console.error("Error loading reconciliation:", err);
+      console.error('Error loading reconciliation:', err);
       setReconciliationError(
-        err.message || "Failed to load reconciliation report",
+        err.message || 'Failed to load reconciliation report',
       );
     } finally {
       setLoadingReconciliation(false);
@@ -160,8 +160,8 @@ const ReconciliationDashboard = () => {
         result.pagination?.totalItems || result.entries?.length || 0,
       );
     } catch (err) {
-      console.error("Error loading audit trail:", err);
-      setAuditError(err.message || "Failed to load audit trail");
+      console.error('Error loading audit trail:', err);
+      setAuditError(err.message || 'Failed to load audit trail');
     } finally {
       setLoadingAudit(false);
     }
@@ -202,13 +202,13 @@ const ReconciliationDashboard = () => {
       {/* Header */}
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           mb: 3,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ReportIcon fontSize="large" color="primary" />
           <Typography variant="h5">Stock Reconciliation & Audit</Typography>
         </Box>
@@ -229,7 +229,7 @@ const ReconciliationDashboard = () => {
       {/* Reconciliation Tab */}
       <TabPanel value={activeTab} index={0}>
         {/* Warehouse Selection */}
-        <Box sx={{ display: "flex", gap: 2, mb: 3, alignItems: "center" }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
           <FormControl sx={{ minWidth: 250 }} disabled={loadingWarehouses}>
             <InputLabel>Select Warehouse</InputLabel>
             <Select
@@ -239,7 +239,7 @@ const ReconciliationDashboard = () => {
             >
               {warehouses.map((wh) => (
                 <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name} {wh.code ? `(${wh.code})` : ""}
+                  {wh.name} {wh.code ? `(${wh.code})` : ''}
                 </MenuItem>
               ))}
             </Select>
@@ -266,7 +266,7 @@ const ReconciliationDashboard = () => {
 
         {/* Loading */}
         {loadingReconciliation ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
           </Box>
         ) : reconciliationData ? (
@@ -314,15 +314,15 @@ const ReconciliationDashboard = () => {
                   sx={{
                     bgcolor:
                       reconciliationData.discrepancyCount > 0
-                        ? "warning.light"
-                        : "success.light",
+                        ? 'warning.light'
+                        : 'success.light',
                   }}
                 >
                   <CardContent>
                     <Typography variant="subtitle2" color="text.secondary">
                       Discrepancies
                     </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {reconciliationData.discrepancyCount > 0 ? (
                         <WarningIcon color="warning" />
                       ) : (
@@ -341,7 +341,7 @@ const ReconciliationDashboard = () => {
             <TableContainer component={Paper}>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: "grey.100" }}>
+                  <TableRow sx={{ backgroundColor: 'grey.100' }}>
                     <TableCell>Product</TableCell>
                     <TableCell>SKU</TableCell>
                     <TableCell align="right">System Qty</TableCell>
@@ -371,12 +371,12 @@ const ReconciliationDashboard = () => {
                           hover
                           sx={{
                             bgcolor: hasDiscrepancy
-                              ? "warning.light"
-                              : "inherit",
+                              ? 'warning.light'
+                              : 'inherit',
                           }}
                         >
                           <TableCell>{item.productName}</TableCell>
-                          <TableCell>{item.productSku || "-"}</TableCell>
+                          <TableCell>{item.productSku || '-'}</TableCell>
                           <TableCell align="right">
                             {formatQuantity(item.systemQuantity)}
                           </TableCell>
@@ -385,8 +385,8 @@ const ReconciliationDashboard = () => {
                           </TableCell>
                           <TableCell align="right">
                             <Typography
-                              color={hasDiscrepancy ? "error" : "success.main"}
-                              fontWeight={hasDiscrepancy ? "bold" : "normal"}
+                              color={hasDiscrepancy ? 'error' : 'success.main'}
+                              fontWeight={hasDiscrepancy ? 'bold' : 'normal'}
                             >
                               {formatQuantity(discrepancy)}
                             </Typography>
@@ -397,8 +397,8 @@ const ReconciliationDashboard = () => {
                           <TableCell>
                             <Chip
                               size="small"
-                              label={hasDiscrepancy ? "Discrepancy" : "OK"}
-                              color={hasDiscrepancy ? "warning" : "success"}
+                              label={hasDiscrepancy ? 'Discrepancy' : 'OK'}
+                              color={hasDiscrepancy ? 'warning' : 'success'}
                               variant="outlined"
                             />
                           </TableCell>
@@ -423,10 +423,10 @@ const ReconciliationDashboard = () => {
         <Paper sx={{ p: 2, mb: 2 }}>
           <Box
             sx={{
-              display: "flex",
+              display: 'flex',
               gap: 2,
-              flexWrap: "wrap",
-              alignItems: "center",
+              flexWrap: 'wrap',
+              alignItems: 'center',
             }}
           >
             <FormControl size="small" sx={{ minWidth: 200 }}>
@@ -497,7 +497,7 @@ const ReconciliationDashboard = () => {
         <TableContainer component={Paper}>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ backgroundColor: "grey.100" }}>
+              <TableRow sx={{ backgroundColor: 'grey.100' }}>
                 <TableCell>Timestamp</TableCell>
                 <TableCell>Action</TableCell>
                 <TableCell>Product</TableCell>
@@ -529,7 +529,7 @@ const ReconciliationDashboard = () => {
                   const change = parseFloat(entry.quantityChange) || 0;
                   const isIncrease =
                     change > 0 ||
-                    ["IN", "TRANSFER_IN", "RELEASE"].includes(entry.action);
+                    ['IN', 'TRANSFER_IN', 'RELEASE'].includes(entry.action);
 
                   return (
                     <TableRow key={entry.id} hover>
@@ -538,7 +538,7 @@ const ReconciliationDashboard = () => {
                         <Chip
                           size="small"
                           label={entry.action}
-                          color={isIncrease ? "success" : "error"}
+                          color={isIncrease ? 'success' : 'error'}
                           variant="outlined"
                         />
                       </TableCell>
@@ -547,13 +547,13 @@ const ReconciliationDashboard = () => {
                           {entry.productName}
                         </Typography>
                       </TableCell>
-                      <TableCell>{entry.warehouseName || "-"}</TableCell>
+                      <TableCell>{entry.warehouseName || '-'}</TableCell>
                       <TableCell align="right">
                         <Typography
-                          color={isIncrease ? "success.main" : "error.main"}
+                          color={isIncrease ? 'success.main' : 'error.main'}
                           fontWeight="medium"
                         >
-                          {isIncrease ? "+" : "-"}
+                          {isIncrease ? '+' : '-'}
                           {formatQuantity(Math.abs(change))}
                         </Typography>
                       </TableCell>
@@ -564,9 +564,9 @@ const ReconciliationDashboard = () => {
                         {formatQuantity(entry.balanceAfter)}
                       </TableCell>
                       <TableCell>
-                        {entry.referenceNumber || entry.referenceType || "-"}
+                        {entry.referenceNumber || entry.referenceType || '-'}
                       </TableCell>
-                      <TableCell>{entry.userName || "-"}</TableCell>
+                      <TableCell>{entry.userName || '-'}</TableCell>
                     </TableRow>
                   );
                 })

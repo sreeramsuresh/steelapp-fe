@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -23,134 +23,134 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
-} from "lucide-react";
-import { tradeFinanceService } from "../services/tradeFinanceService";
-import { importOrderService } from "../services/importOrderService";
-import { useTheme } from "../contexts/ThemeContext";
-import ConfirmDialog from "../components/ConfirmDialog";
-import { useConfirm } from "../hooks/useConfirm";
+} from 'lucide-react';
+import { tradeFinanceService } from '../services/tradeFinanceService';
+import { importOrderService } from '../services/importOrderService';
+import { useTheme } from '../contexts/ThemeContext';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
 // Document type options
 const DOCUMENT_TYPES = [
-  { value: "letter_of_credit", label: "Letter of Credit (LC)", icon: FileText },
-  { value: "bank_guarantee", label: "Bank Guarantee (BG)", icon: Building2 },
+  { value: 'letter_of_credit', label: 'Letter of Credit (LC)', icon: FileText },
+  { value: 'bank_guarantee', label: 'Bank Guarantee (BG)', icon: Building2 },
   {
-    value: "documentary_collection",
-    label: "Documentary Collection (DC)",
+    value: 'documentary_collection',
+    label: 'Documentary Collection (DC)',
     icon: FileText,
   },
-  { value: "standby_lc", label: "Standby LC (SBLC)", icon: FileText },
-  { value: "payment_receipt", label: "Payment Receipt", icon: DollarSign },
+  { value: 'standby_lc', label: 'Standby LC (SBLC)', icon: FileText },
+  { value: 'payment_receipt', label: 'Payment Receipt', icon: DollarSign },
 ];
 
 // Status options with colors
 const STATUS_OPTIONS = [
   {
-    value: "draft",
-    label: "Draft",
-    color: "gray",
-    bgColor: "bg-gray-100",
-    textColor: "text-gray-800",
+    value: 'draft',
+    label: 'Draft',
+    color: 'gray',
+    bgColor: 'bg-gray-100',
+    textColor: 'text-gray-800',
   },
   {
-    value: "issued",
-    label: "Issued",
-    color: "blue",
-    bgColor: "bg-blue-100",
-    textColor: "text-blue-800",
+    value: 'issued',
+    label: 'Issued',
+    color: 'blue',
+    bgColor: 'bg-blue-100',
+    textColor: 'text-blue-800',
   },
   {
-    value: "confirmed",
-    label: "Confirmed",
-    color: "purple",
-    bgColor: "bg-purple-100",
-    textColor: "text-purple-800",
+    value: 'confirmed',
+    label: 'Confirmed',
+    color: 'purple',
+    bgColor: 'bg-purple-100',
+    textColor: 'text-purple-800',
   },
   {
-    value: "amended",
-    label: "Amended",
-    color: "yellow",
-    bgColor: "bg-yellow-100",
-    textColor: "text-yellow-800",
+    value: 'amended',
+    label: 'Amended',
+    color: 'yellow',
+    bgColor: 'bg-yellow-100',
+    textColor: 'text-yellow-800',
   },
   {
-    value: "utilized",
-    label: "Utilized",
-    color: "green",
-    bgColor: "bg-green-100",
-    textColor: "text-green-800",
+    value: 'utilized',
+    label: 'Utilized',
+    color: 'green',
+    bgColor: 'bg-green-100',
+    textColor: 'text-green-800',
   },
   {
-    value: "expired",
-    label: "Expired",
-    color: "red",
-    bgColor: "bg-red-100",
-    textColor: "text-red-800",
+    value: 'expired',
+    label: 'Expired',
+    color: 'red',
+    bgColor: 'bg-red-100',
+    textColor: 'text-red-800',
   },
   {
-    value: "cancelled",
-    label: "Cancelled",
-    color: "gray",
-    bgColor: "bg-gray-100",
-    textColor: "text-gray-600",
+    value: 'cancelled',
+    label: 'Cancelled',
+    color: 'gray',
+    bgColor: 'bg-gray-100',
+    textColor: 'text-gray-600',
   },
 ];
 
 // Tenor options
 const TENOR_OPTIONS = [
-  { value: "at_sight", label: "At Sight" },
-  { value: "30_days", label: "30 Days" },
-  { value: "60_days", label: "60 Days" },
-  { value: "90_days", label: "90 Days" },
-  { value: "120_days", label: "120 Days" },
-  { value: "180_days", label: "180 Days" },
+  { value: 'at_sight', label: 'At Sight' },
+  { value: '30_days', label: '30 Days' },
+  { value: '60_days', label: '60 Days' },
+  { value: '90_days', label: '90 Days' },
+  { value: '120_days', label: '120 Days' },
+  { value: '180_days', label: '180 Days' },
 ];
 
 // Currency options
 const CURRENCY_OPTIONS = [
-  { value: "USD", label: "USD - US Dollar" },
-  { value: "AED", label: "AED - UAE Dirham" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
-  { value: "INR", label: "INR - Indian Rupee" },
-  { value: "CNY", label: "CNY - Chinese Yuan" },
+  { value: 'USD', label: 'USD - US Dollar' },
+  { value: 'AED', label: 'AED - UAE Dirham' },
+  { value: 'EUR', label: 'EUR - Euro' },
+  { value: 'GBP', label: 'GBP - British Pound' },
+  { value: 'INR', label: 'INR - Indian Rupee' },
+  { value: 'CNY', label: 'CNY - Chinese Yuan' },
 ];
 
 // Document requirements checklist
 const DOCUMENT_REQUIREMENTS = [
-  { id: "commercial_invoice", label: "Commercial Invoice", required: true },
-  { id: "packing_list", label: "Packing List", required: true },
-  { id: "bill_of_lading", label: "Bill of Lading", required: true },
+  { id: 'commercial_invoice', label: 'Commercial Invoice', required: true },
+  { id: 'packing_list', label: 'Packing List', required: true },
+  { id: 'bill_of_lading', label: 'Bill of Lading', required: true },
   {
-    id: "certificate_of_origin",
-    label: "Certificate of Origin",
+    id: 'certificate_of_origin',
+    label: 'Certificate of Origin',
     required: false,
   },
   {
-    id: "mill_test_certificate",
-    label: "Mill Test Certificate",
+    id: 'mill_test_certificate',
+    label: 'Mill Test Certificate',
     required: false,
   },
   {
-    id: "insurance_certificate",
-    label: "Insurance Certificate",
+    id: 'insurance_certificate',
+    label: 'Insurance Certificate',
     required: false,
   },
   {
-    id: "inspection_certificate",
-    label: "Inspection Certificate",
+    id: 'inspection_certificate',
+    label: 'Inspection Certificate',
     required: false,
   },
-  { id: "weight_certificate", label: "Weight Certificate", required: false },
+  { id: 'weight_certificate', label: 'Weight Certificate', required: false },
 ];
 
 // Expiry filter options
 const EXPIRY_FILTER_OPTIONS = [
-  { value: "", label: "All Documents" },
-  { value: "expiring_7", label: "Expiring in 7 Days" },
-  { value: "expiring_30", label: "Expiring in 30 Days" },
-  { value: "expired", label: "Expired" },
-  { value: "active", label: "Active (Not Expired)" },
+  { value: '', label: 'All Documents' },
+  { value: 'expiring_7', label: 'Expiring in 7 Days' },
+  { value: 'expiring_30', label: 'Expiring in 30 Days' },
+  { value: 'expired', label: 'Expired' },
+  { value: 'active', label: 'Active (Not Expired)' },
 ];
 
 // Helper function to calculate days until expiry
@@ -167,19 +167,19 @@ const getDaysUntilExpiry = (expiryDate) => {
 
 // Helper function to format date
 const formatDate = (dateString) => {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 };
 
 // Helper function to format currency
-const formatCurrency = (amount, currency = "USD") => {
-  if (amount == null) return "-";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
+const formatCurrency = (amount, currency = 'USD') => {
+  if (amount == null) return '-';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
     currency,
     minimumFractionDigits: 2,
   }).format(amount);
@@ -252,7 +252,7 @@ const DocumentTypeBadge = ({ type, isDarkMode }) => {
 
   return (
     <div
-      className={`flex items-center gap-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+      className={`flex items-center gap-1.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
     >
       <Icon size={14} />
       <span className="text-sm">{label}</span>
@@ -262,19 +262,19 @@ const DocumentTypeBadge = ({ type, isDarkMode }) => {
 
 // Initial form state
 const getInitialFormState = () => ({
-  document_type: "letter_of_credit",
-  reference_number: "",
-  import_order_id: "",
-  issuing_bank: "",
-  advising_bank: "",
-  applicant: "",
-  beneficiary: "",
-  amount: "",
-  currency: "USD",
-  issue_date: "",
-  expiry_date: "",
-  latest_shipment_date: "",
-  tenor: "at_sight",
+  document_type: 'letter_of_credit',
+  reference_number: '',
+  import_order_id: '',
+  issuing_bank: '',
+  advising_bank: '',
+  applicant: '',
+  beneficiary: '',
+  amount: '',
+  currency: 'USD',
+  issue_date: '',
+  expiry_date: '',
+  latest_shipment_date: '',
+  tenor: 'at_sight',
   document_requirements: {
     commercial_invoice: true,
     packing_list: true,
@@ -285,13 +285,13 @@ const getInitialFormState = () => ({
     inspection_certificate: false,
     weight_certificate: false,
   },
-  special_conditions: "",
-  notes: "",
+  special_conditions: '',
+  notes: '',
   file: null,
   // Amendment fields
   amendment_number: 0,
-  amendment_date: "",
-  amendment_details: "",
+  amendment_date: '',
+  amendment_details: '',
 });
 
 // Create/Edit Modal Component
@@ -323,11 +323,11 @@ const TradeFinanceModal = ({
           ? (editingRecord.amendment_number || 0) + 1
           : editingRecord.amendment_number || 0,
         amendment_date: isAmendment
-          ? new Date().toISOString().split("T")[0]
-          : editingRecord.amendment_date || "",
+          ? new Date().toISOString().split('T')[0]
+          : editingRecord.amendment_date || '',
         amendment_details: isAmendment
-          ? ""
-          : editingRecord.amendment_details || "",
+          ? ''
+          : editingRecord.amendment_details || '',
       });
     } else {
       setFormData(getInitialFormState());
@@ -366,32 +366,32 @@ const TradeFinanceModal = ({
     const newErrors = {};
 
     if (!formData.reference_number?.trim()) {
-      newErrors.reference_number = "Reference number is required";
+      newErrors.reference_number = 'Reference number is required';
     }
     if (!formData.issuing_bank?.trim()) {
-      newErrors.issuing_bank = "Issuing bank is required";
+      newErrors.issuing_bank = 'Issuing bank is required';
     }
     if (!formData.beneficiary?.trim()) {
-      newErrors.beneficiary = "Beneficiary is required";
+      newErrors.beneficiary = 'Beneficiary is required';
     }
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      newErrors.amount = "Valid amount is required";
+      newErrors.amount = 'Valid amount is required';
     }
     if (!formData.issue_date) {
-      newErrors.issue_date = "Issue date is required";
+      newErrors.issue_date = 'Issue date is required';
     }
     if (!formData.expiry_date) {
-      newErrors.expiry_date = "Expiry date is required";
+      newErrors.expiry_date = 'Expiry date is required';
     }
     if (
       formData.issue_date &&
       formData.expiry_date &&
       new Date(formData.expiry_date) <= new Date(formData.issue_date)
     ) {
-      newErrors.expiry_date = "Expiry date must be after issue date";
+      newErrors.expiry_date = 'Expiry date must be after issue date';
     }
     if (isAmendment && !formData.amendment_details?.trim()) {
-      newErrors.amendment_details = "Amendment details are required";
+      newErrors.amendment_details = 'Amendment details are required';
     }
 
     setErrors(newErrors);
@@ -409,7 +409,7 @@ const TradeFinanceModal = ({
       });
       onClose();
     } catch (error) {
-      setErrors({ submit: error.message || "Failed to save record" });
+      setErrors({ submit: error.message || 'Failed to save record' });
     } finally {
       setIsSaving(false);
     }
@@ -420,27 +420,27 @@ const TradeFinanceModal = ({
   const modalTitle = isAmendment
     ? `Amend Trade Finance Document (Amendment #${formData.amendment_number})`
     : editingRecord
-      ? "Edit Trade Finance Document"
-      : "Create Trade Finance Document";
+      ? 'Edit Trade Finance Document'
+      : 'Create Trade Finance Document';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
       <div
         className={`w-full max-w-4xl mx-4 my-8 rounded-lg shadow-xl ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
         }`}
       >
         {/* Header */}
         <div
-          className={`flex justify-between items-center px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+          className={`flex justify-between items-center px-6 py-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
         >
           <h2 className="text-xl font-bold">{modalTitle}</h2>
           <button
             onClick={onClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode
-                ? "hover:bg-gray-700 text-gray-400"
-                : "hover:bg-gray-100 text-gray-600"
+                ? 'hover:bg-gray-700 text-gray-400'
+                : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
             <X size={20} />
@@ -462,7 +462,7 @@ const TradeFinanceModal = ({
           {/* Amendment Banner */}
           {isAmendment && (
             <div
-              className={`mb-4 p-3 rounded-lg ${isDarkMode ? "bg-yellow-900/30 border-yellow-700" : "bg-yellow-50 border-yellow-300"} border`}
+              className={`mb-4 p-3 rounded-lg ${isDarkMode ? 'bg-yellow-900/30 border-yellow-700' : 'bg-yellow-50 border-yellow-300'} border`}
             >
               <div className="flex items-center gap-2">
                 <RefreshCw size={16} className="text-yellow-600" />
@@ -482,19 +482,19 @@ const TradeFinanceModal = ({
             {/* Document Type */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Document Type <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.document_type}
-                onChange={(e) => handleChange("document_type", e.target.value)}
+                onChange={(e) => handleChange('document_type', e.target.value)}
                 disabled={!!editingRecord}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } ${editingRecord ? "opacity-60" : ""}`}
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } ${editingRecord ? 'opacity-60' : ''}`}
               >
                 {DOCUMENT_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -507,7 +507,7 @@ const TradeFinanceModal = ({
             {/* Reference Number */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Reference Number <span className="text-red-500">*</span>
               </label>
@@ -515,14 +515,14 @@ const TradeFinanceModal = ({
                 type="text"
                 value={formData.reference_number}
                 onChange={(e) =>
-                  handleChange("reference_number", e.target.value)
+                  handleChange('reference_number', e.target.value)
                 }
                 placeholder="e.g., LC-2024-001"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } ${errors.reference_number ? "border-red-500" : ""}`}
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } ${errors.reference_number ? 'border-red-500' : ''}`}
               />
               {errors.reference_number && (
                 <p className="text-red-500 text-xs mt-1">
@@ -534,28 +534,28 @@ const TradeFinanceModal = ({
             {/* Link to Import Order */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Linked Import Order
               </label>
               <select
-                value={formData.import_order_id || ""}
+                value={formData.import_order_id || ''}
                 onChange={(e) =>
                   handleChange(
-                    "import_order_id",
+                    'import_order_id',
                     e.target.value ? parseInt(e.target.value) : null,
                   )
                 }
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
                 <option value="">-- No linked order --</option>
                 {importOrders.map((order) => (
                   <option key={order.id} value={order.id}>
-                    {order.import_order_number || order.importOrderNumber} -{" "}
+                    {order.import_order_number || order.importOrderNumber} -{' '}
                     {order.supplier_name || order.supplierName}
                   </option>
                 ))}
@@ -565,20 +565,20 @@ const TradeFinanceModal = ({
             {/* Issuing Bank */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issuing Bank <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.issuing_bank}
-                onChange={(e) => handleChange("issuing_bank", e.target.value)}
+                onChange={(e) => handleChange('issuing_bank', e.target.value)}
                 placeholder="e.g., Emirates NBD"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } ${errors.issuing_bank ? "border-red-500" : ""}`}
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } ${errors.issuing_bank ? 'border-red-500' : ''}`}
               />
               {errors.issuing_bank && (
                 <p className="text-red-500 text-xs mt-1">
@@ -590,19 +590,19 @@ const TradeFinanceModal = ({
             {/* Advising Bank */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Advising Bank
               </label>
               <input
                 type="text"
                 value={formData.advising_bank}
-                onChange={(e) => handleChange("advising_bank", e.target.value)}
+                onChange={(e) => handleChange('advising_bank', e.target.value)}
                 placeholder="e.g., HSBC Bank"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               />
             </div>
@@ -610,19 +610,19 @@ const TradeFinanceModal = ({
             {/* Applicant */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Applicant (Buyer/Importer)
               </label>
               <input
                 type="text"
                 value={formData.applicant}
-                onChange={(e) => handleChange("applicant", e.target.value)}
+                onChange={(e) => handleChange('applicant', e.target.value)}
                 placeholder="e.g., Ultimate Steel LLC"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               />
             </div>
@@ -630,21 +630,21 @@ const TradeFinanceModal = ({
             {/* Beneficiary */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
-                Beneficiary (Seller/Supplier){" "}
+                Beneficiary (Seller/Supplier){' '}
                 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.beneficiary}
-                onChange={(e) => handleChange("beneficiary", e.target.value)}
+                onChange={(e) => handleChange('beneficiary', e.target.value)}
                 placeholder="e.g., Steel Manufacturer Co."
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } ${errors.beneficiary ? "border-red-500" : ""}`}
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } ${errors.beneficiary ? 'border-red-500' : ''}`}
               />
               {errors.beneficiary && (
                 <p className="text-red-500 text-xs mt-1">
@@ -656,22 +656,22 @@ const TradeFinanceModal = ({
             {/* Amount */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Amount <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
                 value={formData.amount}
-                onChange={(e) => handleChange("amount", e.target.value)}
+                onChange={(e) => handleChange('amount', e.target.value)}
                 placeholder="0.00"
                 min="0"
                 step="0.01"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } ${errors.amount ? "border-red-500" : ""}`}
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } ${errors.amount ? 'border-red-500' : ''}`}
               />
               {errors.amount && (
                 <p className="text-red-500 text-xs mt-1">{errors.amount}</p>
@@ -681,17 +681,17 @@ const TradeFinanceModal = ({
             {/* Currency */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Currency <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.currency}
-                onChange={(e) => handleChange("currency", e.target.value)}
+                onChange={(e) => handleChange('currency', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
                 {CURRENCY_OPTIONS.map((curr) => (
@@ -705,19 +705,19 @@ const TradeFinanceModal = ({
             {/* Issue Date */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issue Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 value={formData.issue_date}
-                onChange={(e) => handleChange("issue_date", e.target.value)}
+                onChange={(e) => handleChange('issue_date', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } ${errors.issue_date ? "border-red-500" : ""}`}
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } ${errors.issue_date ? 'border-red-500' : ''}`}
               />
               {errors.issue_date && (
                 <p className="text-red-500 text-xs mt-1">{errors.issue_date}</p>
@@ -727,19 +727,19 @@ const TradeFinanceModal = ({
             {/* Expiry Date */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Expiry Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 value={formData.expiry_date}
-                onChange={(e) => handleChange("expiry_date", e.target.value)}
+                onChange={(e) => handleChange('expiry_date', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } ${errors.expiry_date ? "border-red-500" : ""}`}
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } ${errors.expiry_date ? 'border-red-500' : ''}`}
               />
               {errors.expiry_date && (
                 <p className="text-red-500 text-xs mt-1">
@@ -751,7 +751,7 @@ const TradeFinanceModal = ({
             {/* Latest Shipment Date */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Latest Shipment Date
               </label>
@@ -759,12 +759,12 @@ const TradeFinanceModal = ({
                 type="date"
                 value={formData.latest_shipment_date}
                 onChange={(e) =>
-                  handleChange("latest_shipment_date", e.target.value)
+                  handleChange('latest_shipment_date', e.target.value)
                 }
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               />
             </div>
@@ -772,17 +772,17 @@ const TradeFinanceModal = ({
             {/* Tenor */}
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Tenor
               </label>
               <select
                 value={formData.tenor}
-                onChange={(e) => handleChange("tenor", e.target.value)}
+                onChange={(e) => handleChange('tenor', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
                 }`}
               >
                 {TENOR_OPTIONS.map((tenor) => (
@@ -799,7 +799,7 @@ const TradeFinanceModal = ({
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
               {showAdvanced ? (
                 <ChevronUp size={16} />
@@ -813,7 +813,7 @@ const TradeFinanceModal = ({
               <div className="mt-4 space-y-4">
                 {/* Document Requirements Checklist */}
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
                 >
                   <h4 className="font-medium mb-3">Required Documents</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -844,21 +844,21 @@ const TradeFinanceModal = ({
                 {/* Special Conditions */}
                 <div>
                   <label
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Special Conditions
                   </label>
                   <textarea
                     value={formData.special_conditions}
                     onChange={(e) =>
-                      handleChange("special_conditions", e.target.value)
+                      handleChange('special_conditions', e.target.value)
                     }
                     rows="3"
                     placeholder="Enter any special conditions or clauses..."
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
-                        ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   />
                 </div>
@@ -866,19 +866,19 @@ const TradeFinanceModal = ({
                 {/* Notes */}
                 <div>
                   <label
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Notes
                   </label>
                   <textarea
                     value={formData.notes}
-                    onChange={(e) => handleChange("notes", e.target.value)}
+                    onChange={(e) => handleChange('notes', e.target.value)}
                     rows="2"
                     placeholder="Internal notes..."
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
-                        ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   />
                 </div>
@@ -886,15 +886,15 @@ const TradeFinanceModal = ({
                 {/* File Upload */}
                 <div>
                   <label
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Attach Document Copy
                   </label>
                   <div
                     className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? "bg-gray-700 border-gray-600"
-                        : "bg-white border-gray-300"
+                        ? 'bg-gray-700 border-gray-600'
+                        : 'bg-white border-gray-300'
                     }`}
                   >
                     <Upload size={16} className="text-gray-400" />
@@ -919,7 +919,7 @@ const TradeFinanceModal = ({
           {isAmendment && (
             <div className="mt-6 space-y-4">
               <h4
-                className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Amendment Information
               </h4>
@@ -928,7 +928,7 @@ const TradeFinanceModal = ({
                 {/* Amendment Number (Read Only) */}
                 <div>
                   <label
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Amendment Number
                   </label>
@@ -938,8 +938,8 @@ const TradeFinanceModal = ({
                     readOnly
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode
-                        ? "bg-gray-600 border-gray-600 text-gray-300"
-                        : "bg-gray-100 border-gray-300 text-gray-600"
+                        ? 'bg-gray-600 border-gray-600 text-gray-300'
+                        : 'bg-gray-100 border-gray-300 text-gray-600'
                     }`}
                   />
                 </div>
@@ -947,7 +947,7 @@ const TradeFinanceModal = ({
                 {/* Amendment Date */}
                 <div>
                   <label
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Amendment Date
                   </label>
@@ -955,12 +955,12 @@ const TradeFinanceModal = ({
                     type="date"
                     value={formData.amendment_date}
                     onChange={(e) =>
-                      handleChange("amendment_date", e.target.value)
+                      handleChange('amendment_date', e.target.value)
                     }
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
-                        ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   />
                 </div>
@@ -969,22 +969,22 @@ const TradeFinanceModal = ({
               {/* Amendment Details */}
               <div>
                 <label
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Amendment Details <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={formData.amendment_details}
                   onChange={(e) =>
-                    handleChange("amendment_details", e.target.value)
+                    handleChange('amendment_details', e.target.value)
                   }
                   rows="4"
                   placeholder="Describe the changes made in this amendment..."
                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300 text-gray-900"
-                  } ${errors.amendment_details ? "border-red-500" : ""}`}
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } ${errors.amendment_details ? 'border-red-500' : ''}`}
                 />
                 {errors.amendment_details && (
                   <p className="text-red-500 text-xs mt-1">
@@ -998,16 +998,16 @@ const TradeFinanceModal = ({
 
         {/* Footer */}
         <div
-          className={`flex justify-end gap-3 px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+          className={`flex justify-end gap-3 px-6 py-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
         >
           <button
             onClick={onClose}
             disabled={isSaving}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600 text-white"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-900"
-            } ${isSaving ? "opacity-50 cursor-not-allowed" : ""}`}
+                ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+            } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             Cancel
           </button>
@@ -1015,7 +1015,7 @@ const TradeFinanceModal = ({
             onClick={handleSubmit}
             disabled={isSaving}
             className={`px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
-              isSaving ? "opacity-60 cursor-not-allowed" : ""
+              isSaving ? 'opacity-60 cursor-not-allowed' : ''
             }`}
           >
             {isSaving ? (
@@ -1024,11 +1024,11 @@ const TradeFinanceModal = ({
                 Saving...
               </>
             ) : isAmendment ? (
-              "Create Amendment"
+              'Create Amendment'
             ) : editingRecord ? (
-              "Update Document"
+              'Update Document'
             ) : (
-              "Create Document"
+              'Create Document'
             )}
           </button>
         </div>
@@ -1056,12 +1056,12 @@ const TradeFinanceList = () => {
 
   // Filter states
   const [filters, setFilters] = useState({
-    search: "",
-    document_type: "",
-    status: "",
-    expiry_filter: "",
-    start_date: "",
-    end_date: "",
+    search: '',
+    document_type: '',
+    status: '',
+    expiry_filter: '',
+    start_date: '',
+    end_date: '',
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -1084,7 +1084,7 @@ const TradeFinanceList = () => {
 
       // Remove empty filters
       Object.keys(params).forEach((key) => {
-        if (params[key] === "" || params[key] === null) {
+        if (params[key] === '' || params[key] === null) {
           delete params[key];
         }
       });
@@ -1106,8 +1106,8 @@ const TradeFinanceList = () => {
         }
       }
     } catch (err) {
-      console.error("Error loading trade finance records:", err);
-      setError(err.message || "Failed to load trade finance records");
+      console.error('Error loading trade finance records:', err);
+      setError(err.message || 'Failed to load trade finance records');
       setRecords([]);
     } finally {
       setLoading(false);
@@ -1120,7 +1120,7 @@ const TradeFinanceList = () => {
       const response = await importOrderService.getImportOrders({ limit: 100 });
       setImportOrders(response.orders || response.data || []);
     } catch (err) {
-      console.error("Error loading import orders:", err);
+      console.error('Error loading import orders:', err);
     }
   };
 
@@ -1153,21 +1153,21 @@ const TradeFinanceList = () => {
         const daysUntilExpiry = getDaysUntilExpiry(record.expiry_date);
 
         switch (filters.expiry_filter) {
-          case "expiring_7":
+          case 'expiring_7':
             return (
               daysUntilExpiry !== null &&
               daysUntilExpiry >= 0 &&
               daysUntilExpiry <= 7
             );
-          case "expiring_30":
+          case 'expiring_30':
             return (
               daysUntilExpiry !== null &&
               daysUntilExpiry >= 0 &&
               daysUntilExpiry <= 30
             );
-          case "expired":
+          case 'expired':
             return daysUntilExpiry !== null && daysUntilExpiry < 0;
-          case "active":
+          case 'active':
             return daysUntilExpiry === null || daysUntilExpiry >= 0;
           default:
             return true;
@@ -1185,12 +1185,12 @@ const TradeFinanceList = () => {
 
   const handleClearFilters = () => {
     setFilters({
-      search: "",
-      document_type: "",
-      status: "",
-      expiry_filter: "",
-      start_date: "",
-      end_date: "",
+      search: '',
+      document_type: '',
+      status: '',
+      expiry_filter: '',
+      start_date: '',
+      end_date: '',
     });
   };
 
@@ -1219,10 +1219,10 @@ const TradeFinanceList = () => {
 
   const handleDelete = async (record) => {
     const confirmed = await confirm({
-      title: "Delete Trade Finance Document?",
+      title: 'Delete Trade Finance Document?',
       message: `Are you sure you want to delete "${record.reference_number}"? This action cannot be undone.`,
-      confirmText: "Delete",
-      variant: "danger",
+      confirmText: 'Delete',
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -1231,7 +1231,7 @@ const TradeFinanceList = () => {
       await tradeFinanceService.deleteTradeFinanceRecord(record.id);
       loadRecords(pagination.current_page);
     } catch (err) {
-      setError(err.message || "Failed to delete record");
+      setError(err.message || 'Failed to delete record');
     }
   };
 
@@ -1246,7 +1246,7 @@ const TradeFinanceList = () => {
       // Create amendment (update with amendment status)
       await tradeFinanceService.updateTradeFinanceRecord(editingRecord.id, {
         ...data,
-        status: "amended",
+        status: 'amended',
       });
     } else {
       // Create new record
@@ -1259,16 +1259,16 @@ const TradeFinanceList = () => {
     // Export functionality placeholder
     const csvContent = [
       [
-        "Reference",
-        "Type",
-        "Issuing Bank",
-        "Beneficiary",
-        "Amount",
-        "Currency",
-        "Issue Date",
-        "Expiry Date",
-        "Status",
-      ].join(","),
+        'Reference',
+        'Type',
+        'Issuing Bank',
+        'Beneficiary',
+        'Amount',
+        'Currency',
+        'Issue Date',
+        'Expiry Date',
+        'Status',
+      ].join(','),
       ...filteredRecords.map((r) =>
         [
           r.reference_number,
@@ -1280,15 +1280,15 @@ const TradeFinanceList = () => {
           r.issue_date,
           r.expiry_date,
           r.status,
-        ].join(","),
+        ].join(','),
       ),
-    ].join("\n");
+    ].join('\n');
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
+    const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `trade-finance-export-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `trade-finance-export-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -1318,7 +1318,7 @@ const TradeFinanceList = () => {
 
   // Get linked order number
   const getLinkedOrderNumber = (importOrderId) => {
-    if (!importOrderId) return "-";
+    if (!importOrderId) return '-';
     const order = importOrders.find((o) => o.id === importOrderId);
     return order
       ? order.import_order_number ||
@@ -1329,7 +1329,7 @@ const TradeFinanceList = () => {
 
   return (
     <div
-      className={`p-6 ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+      className={`p-6 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
@@ -1345,8 +1345,8 @@ const TradeFinanceList = () => {
             onClick={handleExport}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600 text-white"
-                : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
+                ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
             }`}
           >
             <Download size={18} />
@@ -1365,11 +1365,11 @@ const TradeFinanceList = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div
-          className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+          className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
         >
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-lg ${isDarkMode ? "bg-blue-900/30" : "bg-blue-100"}`}
+              className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100'}`}
             >
               <FileText size={20} className="text-blue-600" />
             </div>
@@ -1381,11 +1381,11 @@ const TradeFinanceList = () => {
         </div>
 
         <div
-          className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+          className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
         >
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-100"}`}
+              className={`p-2 rounded-lg ${isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-100'}`}
             >
               <Clock size={20} className="text-yellow-600" />
             </div>
@@ -1399,11 +1399,11 @@ const TradeFinanceList = () => {
         </div>
 
         <div
-          className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+          className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
         >
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-lg ${isDarkMode ? "bg-red-900/30" : "bg-red-100"}`}
+              className={`p-2 rounded-lg ${isDarkMode ? 'bg-red-900/30' : 'bg-red-100'}`}
             >
               <AlertTriangle size={20} className="text-red-600" />
             </div>
@@ -1417,18 +1417,18 @@ const TradeFinanceList = () => {
         </div>
 
         <div
-          className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+          className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
         >
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}
+              className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-900/30' : 'bg-green-100'}`}
             >
               <DollarSign size={20} className="text-green-600" />
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Value</p>
               <p className="text-xl font-bold">
-                {formatCurrency(summaryStats.totalAmount, "USD")}
+                {formatCurrency(summaryStats.totalAmount, 'USD')}
               </p>
             </div>
           </div>
@@ -1437,7 +1437,7 @@ const TradeFinanceList = () => {
 
       {/* Filters */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 mb-6 shadow-sm`}
       >
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
@@ -1451,11 +1451,11 @@ const TradeFinanceList = () => {
                 type="text"
                 placeholder="Search by reference, bank name..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange("search", e.target.value)}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                    : "bg-white border-gray-300 placeholder-gray-500"
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                    : 'bg-white border-gray-300 placeholder-gray-500'
                 }`}
               />
             </div>
@@ -1465,12 +1465,12 @@ const TradeFinanceList = () => {
           <select
             value={filters.document_type}
             onChange={(e) =>
-              handleFilterChange("document_type", e.target.value)
+              handleFilterChange('document_type', e.target.value)
             }
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode
-                ? "bg-gray-700 border-gray-600 text-white"
-                : "bg-white border-gray-300"
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'bg-white border-gray-300'
             }`}
           >
             <option value="">All Types</option>
@@ -1484,11 +1484,11 @@ const TradeFinanceList = () => {
           {/* Status Filter */}
           <select
             value={filters.status}
-            onChange={(e) => handleFilterChange("status", e.target.value)}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode
-                ? "bg-gray-700 border-gray-600 text-white"
-                : "bg-white border-gray-300"
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'bg-white border-gray-300'
             }`}
           >
             <option value="">All Status</option>
@@ -1503,12 +1503,12 @@ const TradeFinanceList = () => {
           <select
             value={filters.expiry_filter}
             onChange={(e) =>
-              handleFilterChange("expiry_filter", e.target.value)
+              handleFilterChange('expiry_filter', e.target.value)
             }
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode
-                ? "bg-gray-700 border-gray-600 text-white"
-                : "bg-white border-gray-300"
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'bg-white border-gray-300'
             }`}
           >
             {EXPIRY_FILTER_OPTIONS.map((option) => (
@@ -1523,12 +1523,12 @@ const TradeFinanceList = () => {
             onClick={() => setShowFilters(!showFilters)}
             className={`px-3 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600 text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
           >
             <Filter size={16} />
-            {showFilters ? "Less" : "More"}
+            {showFilters ? 'Less' : 'More'}
           </button>
 
           {/* Clear Filters */}
@@ -1552,7 +1552,7 @@ const TradeFinanceList = () => {
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issue Date From
               </label>
@@ -1560,29 +1560,29 @@ const TradeFinanceList = () => {
                 type="date"
                 value={filters.start_date}
                 onChange={(e) =>
-                  handleFilterChange("start_date", e.target.value)
+                  handleFilterChange('start_date', e.target.value)
                 }
                 className={`w-full px-3 py-2 border rounded-lg ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300'
                 }`}
               />
             </div>
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issue Date To
               </label>
               <input
                 type="date"
                 value={filters.end_date}
-                onChange={(e) => handleFilterChange("end_date", e.target.value)}
+                onChange={(e) => handleFilterChange('end_date', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300"
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300'
                 }`}
               />
             </div>
@@ -1606,7 +1606,7 @@ const TradeFinanceList = () => {
 
       {/* Table */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm overflow-hidden`}
       >
         {loading ? (
           <div className="p-8 text-center">
@@ -1631,7 +1631,7 @@ const TradeFinanceList = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+              <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Reference
@@ -1666,12 +1666,12 @@ const TradeFinanceList = () => {
                 </tr>
               </thead>
               <tbody
-                className={`${isDarkMode ? "bg-gray-800 divide-gray-700" : "bg-white divide-gray-200"} divide-y`}
+                className={`${isDarkMode ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'} divide-y`}
               >
                 {filteredRecords.map((record) => (
                   <tr
                     key={record.id}
-                    className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`}
+                    className={`hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors`}
                   >
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="font-medium">
@@ -1696,12 +1696,12 @@ const TradeFinanceList = () => {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className="text-sm">
-                        {record.issuing_bank || "-"}
+                        {record.issuing_bank || '-'}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className="text-sm">
-                        {record.beneficiary || "-"}
+                        {record.beneficiary || '-'}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right">
@@ -1767,15 +1767,15 @@ const TradeFinanceList = () => {
         {/* Pagination */}
         {pagination.total_pages > 1 && (
           <div
-            className={`px-6 py-3 flex items-center justify-between border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+            className={`px-6 py-3 flex items-center justify-between border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
           >
             <div className="text-sm text-gray-500">
-              Showing {(pagination.current_page - 1) * pagination.per_page + 1}{" "}
-              to{" "}
+              Showing {(pagination.current_page - 1) * pagination.per_page + 1}{' '}
+              to{' '}
               {Math.min(
                 pagination.current_page * pagination.per_page,
                 pagination.total,
-              )}{" "}
+              )}{' '}
               of {pagination.total} results
             </div>
             <div className="flex space-x-2">
@@ -1784,8 +1784,8 @@ const TradeFinanceList = () => {
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
                   isDarkMode
-                    ? "border-gray-600 hover:bg-gray-700"
-                    : "border-gray-300 hover:bg-gray-100"
+                    ? 'border-gray-600 hover:bg-gray-700'
+                    : 'border-gray-300 hover:bg-gray-100'
                 }`}
               >
                 Previous
@@ -1795,8 +1795,8 @@ const TradeFinanceList = () => {
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
                   isDarkMode
-                    ? "border-gray-600 hover:bg-gray-700"
-                    : "border-gray-300 hover:bg-gray-100"
+                    ? 'border-gray-600 hover:bg-gray-700'
+                    : 'border-gray-300 hover:bg-gray-100'
                 }`}
               >
                 Next

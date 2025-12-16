@@ -11,8 +11,8 @@
  * - Time limit for obtaining documentation: 90 days
  */
 
-import { useState, useEffect } from "react";
-import { useTheme } from "../../../../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   Globe,
   FileText,
@@ -22,7 +22,7 @@ import {
   Upload,
   Info,
   ChevronRight,
-} from "lucide-react";
+} from 'lucide-react';
 
 const ZeroRatedExportsWidget = ({
   data = null,
@@ -33,7 +33,7 @@ const ZeroRatedExportsWidget = ({
 }) => {
   const { isDarkMode } = useTheme();
   const [exportData, setExportData] = useState(data || null);
-  const [selectedTab, setSelectedTab] = useState("exports");
+  const [selectedTab, setSelectedTab] = useState('exports');
 
   useEffect(() => {
     if (data) {
@@ -53,8 +53,8 @@ const ZeroRatedExportsWidget = ({
       <div
         className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F] hover:border-teal-600"
-            : "bg-white border-[#E0E0E0] hover:border-teal-500"
+            ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-600'
+            : 'bg-white border-[#E0E0E0] hover:border-teal-500'
         }`}
       >
         {/* Header */}
@@ -65,12 +65,12 @@ const ZeroRatedExportsWidget = ({
             </div>
             <div>
               <h3
-                className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Zero-Rated Exports
               </h3>
               <p
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Documentation Status
               </p>
@@ -78,7 +78,7 @@ const ZeroRatedExportsWidget = ({
           </div>
         </div>
         <div
-          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           <span className="text-sm">No data available</span>
         </div>
@@ -89,42 +89,42 @@ const ZeroRatedExportsWidget = ({
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
     }).format(safeAmount);
   };
 
   const getStatusConfig = (status) => {
     switch (status) {
-      case "complete":
+      case 'complete':
         return {
-          label: "Complete",
+          label: 'Complete',
           icon: CheckCircle,
-          bgColor: isDarkMode ? "bg-green-900/30" : "bg-green-50",
-          textColor: "text-green-500",
+          bgColor: isDarkMode ? 'bg-green-900/30' : 'bg-green-50',
+          textColor: 'text-green-500',
         };
-      case "pending":
+      case 'pending':
         return {
-          label: "Pending",
+          label: 'Pending',
           icon: Clock,
-          bgColor: isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50",
-          textColor: "text-yellow-500",
+          bgColor: isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-50',
+          textColor: 'text-yellow-500',
         };
-      case "overdue":
+      case 'overdue':
         return {
-          label: "Overdue",
+          label: 'Overdue',
           icon: AlertTriangle,
-          bgColor: isDarkMode ? "bg-red-900/30" : "bg-red-50",
-          textColor: "text-red-500",
+          bgColor: isDarkMode ? 'bg-red-900/30' : 'bg-red-50',
+          textColor: 'text-red-500',
         };
       default:
         return {
-          label: "Unknown",
+          label: 'Unknown',
           icon: FileText,
-          bgColor: isDarkMode ? "bg-gray-700" : "bg-gray-100",
-          textColor: isDarkMode ? "text-gray-400" : "text-gray-500",
+          bgColor: isDarkMode ? 'bg-gray-700' : 'bg-gray-100',
+          textColor: isDarkMode ? 'text-gray-400' : 'text-gray-500',
         };
     }
   };
@@ -139,8 +139,8 @@ const ZeroRatedExportsWidget = ({
     <div
       className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
         isDarkMode
-          ? "bg-[#1E2328] border-[#37474F] hover:border-teal-600"
-          : "bg-white border-[#E0E0E0] hover:border-teal-500"
+          ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-600'
+          : 'bg-white border-[#E0E0E0] hover:border-teal-500'
       }`}
     >
       {/* Header */}
@@ -152,7 +152,7 @@ const ZeroRatedExportsWidget = ({
           <div>
             <h3
               className={`text-base font-semibold flex items-center gap-1.5 ${
-                isDarkMode ? "text-white" : "text-gray-900"
+                isDarkMode ? 'text-white' : 'text-gray-900'
               }`}
             >
               Zero-Rated Exports
@@ -164,8 +164,8 @@ const ZeroRatedExportsWidget = ({
                 <span
                   className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs rounded shadow-md whitespace-nowrap ${
                     isDarkMode
-                      ? "bg-gray-700 text-white"
-                      : "bg-yellow-100 text-gray-800 border border-yellow-300"
+                      ? 'bg-gray-700 text-white'
+                      : 'bg-yellow-100 text-gray-800 border border-yellow-300'
                   }`}
                 >
                   Export sales outside UAE - 0% VAT
@@ -173,7 +173,7 @@ const ZeroRatedExportsWidget = ({
               </span>
             </h3>
             <p
-              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               Documentation Status
             </p>
@@ -184,53 +184,53 @@ const ZeroRatedExportsWidget = ({
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div
-          className={`p-2.5 rounded-lg text-center ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
+          className={`p-2.5 rounded-lg text-center ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
         >
           <p
-            className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {exportData.summary.totalExports}
           </p>
           <p
-            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             Total Exports
           </p>
         </div>
         <div
-          className={`p-2.5 rounded-lg text-center ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
+          className={`p-2.5 rounded-lg text-center ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
         >
           <p
             className={`text-lg font-bold ${
               exportData.summary.compliancePercentage >= 90
-                ? "text-green-500"
+                ? 'text-green-500'
                 : exportData.summary.compliancePercentage >= 70
-                  ? "text-yellow-500"
-                  : "text-red-500"
+                  ? 'text-yellow-500'
+                  : 'text-red-500'
             }`}
           >
             {exportData.summary.compliancePercentage.toFixed(0)}%
           </p>
           <p
-            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             Compliant
           </p>
         </div>
         <div
-          className={`p-2.5 rounded-lg text-center ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
+          className={`p-2.5 rounded-lg text-center ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
         >
           <p
             className={`text-lg font-bold ${
               exportData.summary.pendingDocumentation > 0
-                ? "text-yellow-500"
-                : "text-green-500"
+                ? 'text-yellow-500'
+                : 'text-green-500'
             }`}
           >
             {exportData.summary.pendingDocumentation}
           </p>
           <p
-            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             Pending Docs
           </p>
@@ -239,28 +239,28 @@ const ZeroRatedExportsWidget = ({
 
       {/* Tab Selector */}
       <div
-        className={`flex rounded-lg p-0.5 mb-4 ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-100"}`}
+        className={`flex rounded-lg p-0.5 mb-4 ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-100'}`}
       >
         <button
-          onClick={() => setSelectedTab("exports")}
+          onClick={() => setSelectedTab('exports')}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
-            selectedTab === "exports"
-              ? "bg-teal-500 text-white"
+            selectedTab === 'exports'
+              ? 'bg-teal-500 text-white'
               : isDarkMode
-                ? "text-gray-400"
-                : "text-gray-600"
+                ? 'text-gray-400'
+                : 'text-gray-600'
           }`}
         >
           Recent Exports
         </button>
         <button
-          onClick={() => setSelectedTab("documents")}
+          onClick={() => setSelectedTab('documents')}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
-            selectedTab === "documents"
-              ? "bg-teal-500 text-white"
+            selectedTab === 'documents'
+              ? 'bg-teal-500 text-white'
               : isDarkMode
-                ? "text-gray-400"
-                : "text-gray-600"
+                ? 'text-gray-400'
+                : 'text-gray-600'
           }`}
         >
           Documents
@@ -268,7 +268,7 @@ const ZeroRatedExportsWidget = ({
       </div>
 
       {/* Recent Exports Tab */}
-      {selectedTab === "exports" && (
+      {selectedTab === 'exports' && (
         <div className="space-y-2 max-h-56 overflow-y-auto">
           {exportData.recentExports.map((exp) => {
             const statusConfig = getStatusConfig(exp.status);
@@ -281,15 +281,15 @@ const ZeroRatedExportsWidget = ({
                 onClick={() => onViewExport && onViewExport(exp)}
                 className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
                   isDarkMode
-                    ? "bg-[#2E3B4E] border-[#37474F] hover:border-teal-600"
-                    : "bg-white border-gray-200 hover:border-teal-400"
+                    ? 'bg-[#2E3B4E] border-[#37474F] hover:border-teal-600'
+                    : 'bg-white border-gray-200 hover:border-teal-400'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span
-                        className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                       >
                         {exp.invoiceNumber}
                       </span>
@@ -300,14 +300,14 @@ const ZeroRatedExportsWidget = ({
                       </span>
                     </div>
                     <p
-                      className={`text-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       {exp.customer}
                     </p>
                   </div>
                   <div className="text-right ml-2">
                     <p
-                      className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(exp.amount)}
                     </p>
@@ -322,14 +322,14 @@ const ZeroRatedExportsWidget = ({
                     </div>
                   </div>
                 </div>
-                {exp.status !== "complete" && exp.daysRemaining !== null && (
+                {exp.status !== 'complete' && exp.daysRemaining !== null && (
                   <div
                     className={`mt-2 text-xs ${
                       exp.daysRemaining < 0
-                        ? "text-red-500"
+                        ? 'text-red-500'
                         : exp.daysRemaining < 30
-                          ? "text-yellow-500"
-                          : "text-green-500"
+                          ? 'text-yellow-500'
+                          : 'text-green-500'
                     }`}
                   >
                     {exp.daysRemaining < 0
@@ -344,30 +344,30 @@ const ZeroRatedExportsWidget = ({
       )}
 
       {/* Documents Tab */}
-      {selectedTab === "documents" && (
+      {selectedTab === 'documents' && (
         <div className="space-y-2">
           {exportData.documentTypes
             .filter((d) => d.required)
             .map((doc, idx) => (
               <div
                 key={idx}
-                className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
+                className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <FileText
                       size={14}
-                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                     />
                     <span
-                      className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {doc.name}
                     </span>
                   </div>
                   <span
                     className={`text-xs font-medium ${
-                      doc.pending === 0 ? "text-green-500" : "text-yellow-500"
+                      doc.pending === 0 ? 'text-green-500' : 'text-yellow-500'
                     }`}
                   >
                     {doc.complete}/{doc.complete + doc.pending}
@@ -375,12 +375,12 @@ const ZeroRatedExportsWidget = ({
                 </div>
                 <div
                   className={`h-2 rounded-full overflow-hidden ${
-                    isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                    isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
                   }`}
                 >
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      doc.pending === 0 ? "bg-green-500" : "bg-yellow-500"
+                      doc.pending === 0 ? 'bg-green-500' : 'bg-yellow-500'
                     }`}
                     style={{
                       width: `${(doc.complete / (doc.complete + doc.pending)) * 100}%`,
@@ -394,16 +394,16 @@ const ZeroRatedExportsWidget = ({
 
       {/* Total Export Value */}
       <div
-        className={`mt-4 pt-3 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+        className={`mt-4 pt-3 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
       >
         <div className="flex items-center justify-between">
           <span
-            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             Total Export Value (Zero-Rated)
           </span>
           <span
-            className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {formatCurrency(exportData.summary.totalValue)}
           </span>
@@ -417,8 +417,8 @@ const ZeroRatedExportsWidget = ({
             onClick={onUploadDocument}
             className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
               isDarkMode
-                ? "bg-emerald-600 hover:bg-emerald-500 text-white"
-                : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-emerald-500 hover:bg-emerald-600 text-white'
             }`}
           >
             <Upload size={14} />
@@ -430,8 +430,8 @@ const ZeroRatedExportsWidget = ({
             onClick={onViewAll}
             className={`py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
               isDarkMode
-                ? "bg-[#2E3B4E] hover:bg-[#3E4B5E] text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                ? 'bg-[#2E3B4E] hover:bg-[#3E4B5E] text-white'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
           >
             View All

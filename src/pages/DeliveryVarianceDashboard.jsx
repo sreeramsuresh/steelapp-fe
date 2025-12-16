@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Line, Bar } from "react-chartjs-2";
+import { useState, useEffect } from 'react';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,8 +11,8 @@ import {
   Title,
   Tooltip,
   Legend,
-} from "chart.js";
-import { deliveryVarianceService } from "../services/deliveryVarianceService";
+} from 'chart.js';
+import { deliveryVarianceService } from '../services/deliveryVarianceService';
 
 ChartJS.register(
   CategoryScale,
@@ -67,7 +67,7 @@ export default function DeliveryVarianceDashboard() {
       setLateDeliveries(lateData);
     } catch (err) {
       setError(err.message);
-      console.error("Dashboard load error:", err);
+      console.error('Dashboard load error:', err);
     } finally {
       setLoading(false);
     }
@@ -86,10 +86,10 @@ export default function DeliveryVarianceDashboard() {
       trend.trendData?.map((d) => new Date(d.date).toLocaleDateString()) || [],
     datasets: [
       {
-        label: "On-Time Delivery %",
+        label: 'On-Time Delivery %',
         data: trend.trendData?.map((d) => d.onTimeDeliveryPct) || [],
-        borderColor: "rgb(75, 192, 192)",
-        backgroundColor: "rgba(75, 192, 192, 0.1)",
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.1)',
         tension: 0.4,
       },
     ],
@@ -99,13 +99,13 @@ export default function DeliveryVarianceDashboard() {
     labels: breakdown.varianceRanges?.map((r) => r.rangeLabel) || [],
     datasets: [
       {
-        label: "Late Deliveries",
+        label: 'Late Deliveries',
         data: breakdown.varianceRanges?.map((r) => r.count) || [],
         backgroundColor: [
-          "rgba(255, 193, 7, 0.8)",
-          "rgba(255, 152, 0, 0.8)",
-          "rgba(255, 87, 34, 0.8)",
-          "rgba(244, 67, 54, 0.8)",
+          'rgba(255, 193, 7, 0.8)',
+          'rgba(255, 152, 0, 0.8)',
+          'rgba(255, 87, 34, 0.8)',
+          'rgba(244, 67, 54, 0.8)',
         ],
       },
     ],
@@ -115,25 +115,25 @@ export default function DeliveryVarianceDashboard() {
     labels: comparison.suppliers?.map((s) => s.supplierName) || [],
     datasets: [
       {
-        label: "On-Time Delivery %",
+        label: 'On-Time Delivery %',
         data: comparison.suppliers?.map((s) => s.onTimeDeliveryPct) || [],
-        backgroundColor: "rgba(76, 175, 80, 0.8)",
+        backgroundColor: 'rgba(76, 175, 80, 0.8)',
       },
     ],
   };
 
   const _getRatingColor = (rating) => {
     switch (rating) {
-      case "CERTIFIED":
-        return "bg-green-100 text-green-800";
-      case "PREFERRED":
-        return "bg-blue-100 text-blue-800";
-      case "ACCEPTABLE":
-        return "bg-yellow-100 text-yellow-800";
-      case "AT_RISK":
-        return "bg-red-100 text-red-800";
+      case 'CERTIFIED':
+        return 'bg-green-100 text-green-800';
+      case 'PREFERRED':
+        return 'bg-blue-100 text-blue-800';
+      case 'ACCEPTABLE':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'AT_RISK':
+        return 'bg-red-100 text-red-800';
       default:
-        return "bg-gray-100 text-gray-800";
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -214,7 +214,7 @@ export default function DeliveryVarianceDashboard() {
           </h2>
           <Bar
             data={comparisonChartData}
-            options={{ responsive: true, indexAxis: "y" }}
+            options={{ responsive: true, indexAxis: 'y' }}
           />
         </div>
       )}

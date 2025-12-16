@@ -6,7 +6,7 @@
  * Lists all stock reservations with filtering and actions
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -35,7 +35,7 @@ import {
   DialogActions,
   LinearProgress,
   InputAdornment,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Add as AddIcon,
   Visibility as ViewIcon,
@@ -43,34 +43,34 @@ import {
   Cancel as CancelIcon,
   Refresh as RefreshIcon,
   Search as SearchIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 import {
   stockMovementService,
   RESERVATION_STATUSES,
-} from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
+} from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return "-";
+  if (!dateValue) return '-';
   const date =
-    typeof dateValue === "object" && dateValue.seconds
+    typeof dateValue === 'object' && dateValue.seconds
       ? new Date(dateValue.seconds * 1000)
       : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 };
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = "KG") => {
-  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = 'KG') => {
+  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -79,7 +79,7 @@ const formatQuantity = (qty, unit = "KG") => {
 const getStatusChip = (status) => {
   const statusInfo = RESERVATION_STATUSES[status] || {
     label: status,
-    color: "default",
+    color: 'default',
   };
   return statusInfo;
 };
@@ -96,9 +96,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [warehouseFilter, setWarehouseFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [warehouseFilter, setWarehouseFilter] = useState('');
   const [includeExpired, setIncludeExpired] = useState(false);
 
   // Action dialogs
@@ -110,8 +110,8 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
     open: false,
     reservation: null,
   });
-  const [fulfillQuantity, setFulfillQuantity] = useState("");
-  const [cancelReason, setCancelReason] = useState("");
+  const [fulfillQuantity, setFulfillQuantity] = useState('');
+  const [cancelReason, setCancelReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   // Load warehouses for filter dropdown
@@ -121,7 +121,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error("Error loading warehouses:", err);
+        console.error('Error loading warehouses:', err);
       }
     };
     loadWarehouses();
@@ -161,8 +161,8 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       setReservations(filteredData);
       setTotalCount(result.pagination?.totalItems || filteredData.length || 0);
     } catch (err) {
-      console.error("Error loading reservations:", err);
-      setError("Failed to load reservations");
+      console.error('Error loading reservations:', err);
+      setError('Failed to load reservations');
     } finally {
       setLoading(false);
     }
@@ -209,11 +209,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         },
       );
       setFulfillDialog({ open: false, reservation: null });
-      setFulfillQuantity("");
+      setFulfillQuantity('');
       loadReservations();
     } catch (err) {
-      console.error("Error fulfilling reservation:", err);
-      setError(err.message || "Failed to fulfill reservation");
+      console.error('Error fulfilling reservation:', err);
+      setError(err.message || 'Failed to fulfill reservation');
     } finally {
       setActionLoading(false);
     }
@@ -221,7 +221,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
   // Open cancel dialog
   const handleOpenCancelDialog = (reservation) => {
-    setCancelReason("");
+    setCancelReason('');
     setCancelDialog({ open: true, reservation });
   };
 
@@ -236,11 +236,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         cancelReason,
       );
       setCancelDialog({ open: false, reservation: null });
-      setCancelReason("");
+      setCancelReason('');
       loadReservations();
     } catch (err) {
-      console.error("Error cancelling reservation:", err);
-      setError(err.message || "Failed to cancel reservation");
+      console.error('Error cancelling reservation:', err);
+      setError(err.message || 'Failed to cancel reservation');
     } finally {
       setActionLoading(false);
     }
@@ -267,10 +267,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       <Paper sx={{ p: 2, mb: 2 }}>
         <Box
           sx={{
-            display: "flex",
+            display: 'flex',
             gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
+            flexWrap: 'wrap',
+            alignItems: 'center',
           }}
         >
           {/* Search Input */}
@@ -333,10 +333,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           <FormControl size="small" sx={{ minWidth: 130 }}>
             <InputLabel>Show Expired</InputLabel>
             <Select
-              value={includeExpired ? "yes" : "no"}
+              value={includeExpired ? 'yes' : 'no'}
               label="Show Expired"
               onChange={(e) => {
-                setIncludeExpired(e.target.value === "yes");
+                setIncludeExpired(e.target.value === 'yes');
                 setPage(0);
               }}
             >
@@ -355,7 +355,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 onClick={loadReservations}
                 disabled={loading}
                 size="small"
-                sx={{ border: 1, borderColor: "divider" }}
+                sx={{ border: 1, borderColor: 'divider' }}
               >
                 <RefreshIcon fontSize="small" />
               </IconButton>
@@ -367,9 +367,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             startIcon={<AddIcon />}
             onClick={onCreateNew}
             sx={{
-              bgcolor: "#0d9488",
-              "&:hover": { bgcolor: "#0f766e" },
-              textTransform: "none",
+              bgcolor: '#0d9488',
+              '&:hover': { bgcolor: '#0f766e' },
+              textTransform: 'none',
             }}
           >
             New Reservation
@@ -381,7 +381,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "grey.100" }}>
+            <TableRow sx={{ backgroundColor: 'grey.100' }}>
               <TableCell>Reservation #</TableCell>
               <TableCell>Product</TableCell>
               <TableCell>Warehouse</TableCell>
@@ -412,10 +412,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               reservations.map((reservation) => {
                 const statusInfo = getStatusChip(reservation.status);
                 const progress = getFulfillmentProgress(reservation);
-                const canFulfill = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                const canFulfill = ['ACTIVE', 'PARTIALLY_FULFILLED'].includes(
                   reservation.status,
                 );
-                const canCancel = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                const canCancel = ['ACTIVE', 'PARTIALLY_FULFILLED'].includes(
                   reservation.status,
                 );
 
@@ -436,7 +436,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                         </Typography>
                       )}
                     </TableCell>
-                    <TableCell>{reservation.warehouseName || "-"}</TableCell>
+                    <TableCell>{reservation.warehouseName || '-'}</TableCell>
                     <TableCell align="right">
                       {formatQuantity(
                         reservation.quantityReserved,
@@ -445,13 +445,13 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                     </TableCell>
                     <TableCell align="center" sx={{ minWidth: 150 }}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                       >
                         <LinearProgress
                           variant="determinate"
                           value={progress}
                           sx={{ flex: 1, height: 8, borderRadius: 4 }}
-                          color={progress === 100 ? "success" : "primary"}
+                          color={progress === 100 ? 'success' : 'primary'}
                         />
                         <Typography variant="caption" sx={{ minWidth: 35 }}>
                           {progress}%
@@ -461,8 +461,8 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                         {formatQuantity(
                           reservation.quantityFulfilled,
                           reservation.unit,
-                        )}{" "}
-                        /{" "}
+                        )}{' '}
+                        /{' '}
                         {formatQuantity(
                           reservation.quantityReserved,
                           reservation.unit,
@@ -539,14 +539,14 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         <DialogTitle>Fulfill Reservation</DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            Reservation:{" "}
+            Reservation:{' '}
             <strong>{fulfillDialog.reservation?.reservationNumber}</strong>
           </Typography>
           <Typography gutterBottom>
             Product: <strong>{fulfillDialog.reservation?.productName}</strong>
           </Typography>
           <Typography gutterBottom>
-            Remaining:{" "}
+            Remaining:{' '}
             <strong>
               {formatQuantity(
                 fulfillDialog.reservation?.quantityRemaining,
@@ -566,7 +566,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               step: 0.01,
             }}
             sx={{ mt: 2 }}
-            helperText={`Max: ${fulfillDialog.reservation?.quantityRemaining || 0} ${fulfillDialog.reservation?.unit || "KG"}`}
+            helperText={`Max: ${fulfillDialog.reservation?.quantityRemaining || 0} ${fulfillDialog.reservation?.unit || 'KG'}`}
           />
         </DialogContent>
         <DialogActions>
@@ -602,15 +602,15 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         <DialogTitle>Cancel Reservation</DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            Are you sure you want to cancel reservation{" "}
+            Are you sure you want to cancel reservation{' '}
             <strong>{cancelDialog.reservation?.reservationNumber}</strong>?
           </Typography>
           <Typography gutterBottom color="text.secondary">
-            This will release{" "}
+            This will release{' '}
             {formatQuantity(
               cancelDialog.reservation?.quantityRemaining,
               cancelDialog.reservation?.unit,
-            )}{" "}
+            )}{' '}
             of reserved stock.
           </Typography>
           <TextField

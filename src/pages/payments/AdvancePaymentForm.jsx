@@ -12,8 +12,8 @@
  * - Accordion for optional sections
  */
 
-import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
@@ -25,32 +25,32 @@ import {
   Building2,
   Search,
   ChevronDown,
-} from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import advancePaymentService from "../../services/advancePaymentService";
-import { customerService } from "../../services/customerService";
-import { invoiceService } from "../../services/invoiceService";
-import { notificationService } from "../../services/notificationService";
-import { formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import advancePaymentService from '../../services/advancePaymentService';
+import { customerService } from '../../services/customerService';
+import { invoiceService } from '../../services/invoiceService';
+import { notificationService } from '../../services/notificationService';
+import { formatCurrency, formatDateForInput } from '../../utils/invoiceUtils';
 
 // UAE Emirates for place of supply
 const EMIRATES = [
-  { value: "AE-AZ", label: "Abu Dhabi" },
-  { value: "AE-DU", label: "Dubai" },
-  { value: "AE-SH", label: "Sharjah" },
-  { value: "AE-AJ", label: "Ajman" },
-  { value: "AE-UQ", label: "Umm Al Quwain" },
-  { value: "AE-RK", label: "Ras Al Khaimah" },
-  { value: "AE-FU", label: "Fujairah" },
+  { value: 'AE-AZ', label: 'Abu Dhabi' },
+  { value: 'AE-DU', label: 'Dubai' },
+  { value: 'AE-SH', label: 'Sharjah' },
+  { value: 'AE-AJ', label: 'Ajman' },
+  { value: 'AE-UQ', label: 'Umm Al Quwain' },
+  { value: 'AE-RK', label: 'Ras Al Khaimah' },
+  { value: 'AE-FU', label: 'Fujairah' },
 ];
 
 // Payment methods
 const PAYMENT_METHODS = [
-  { value: "bank_transfer", label: "Bank Transfer" },
-  { value: "cheque", label: "Cheque" },
-  { value: "cash", label: "Cash" },
-  { value: "credit_card", label: "Credit Card" },
-  { value: "online_payment", label: "Online Payment" },
+  { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'cheque', label: 'Cheque' },
+  { value: 'cash', label: 'Cash' },
+  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'online_payment', label: 'Online Payment' },
 ];
 
 // VAT rate for advance payments (UAE standard rate)
@@ -70,7 +70,7 @@ const AdvancePaymentForm = () => {
 
   // Customer search state
   const [customers, setCustomers] = useState([]);
-  const [customerSearch, setCustomerSearch] = useState("");
+  const [customerSearch, setCustomerSearch] = useState('');
   const [customerSearching, setCustomerSearching] = useState(false);
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -84,19 +84,19 @@ const AdvancePaymentForm = () => {
   const [payment, setPayment] = useState({
     customerId: null,
     customer: null,
-    receiptNumber: "",
+    receiptNumber: '',
     paymentDate: formatDateForInput(new Date()),
     amount: 0,
     vatRate: VAT_RATE,
     vatAmount: 0,
     totalAmount: 0,
     isVatInclusive: true,
-    paymentMethod: "bank_transfer",
-    referenceNumber: "",
-    bankAccount: "",
-    placeOfSupply: "AE-DU",
-    purpose: "",
-    notes: "",
+    paymentMethod: 'bank_transfer',
+    referenceNumber: '',
+    bankAccount: '',
+    placeOfSupply: 'AE-DU',
+    purpose: '',
+    notes: '',
     applyToInvoiceId: null,
   });
 
@@ -107,7 +107,7 @@ const AdvancePaymentForm = () => {
       loadPayment();
     } else {
       loadNextReceiptNumber();
-      const customerIdParam = searchParams.get("customerId");
+      const customerIdParam = searchParams.get('customerId');
       if (customerIdParam) {
         loadCustomerById(customerIdParam);
       }
@@ -153,12 +153,12 @@ const AdvancePaymentForm = () => {
   const loadCustomers = async () => {
     try {
       const response = await customerService.getCustomers({
-        status: "active",
+        status: 'active',
         limit: 1000,
       });
       setCustomers(response.customers || response || []);
     } catch (error) {
-      console.error("Failed to load customers:", error);
+      console.error('Failed to load customers:', error);
     }
   };
 
@@ -166,14 +166,14 @@ const AdvancePaymentForm = () => {
     try {
       setCustomerSearching(true);
       const response = await customerService.searchCustomers(query, {
-        status: "active",
+        status: 'active',
       });
       const results = response.customers || response || [];
       if (results.length > 0) {
         setShowCustomerDropdown(true);
       }
     } catch (error) {
-      console.error("Error searching customers:", error);
+      console.error('Error searching customers:', error);
     } finally {
       setCustomerSearching(false);
     }
@@ -185,7 +185,7 @@ const AdvancePaymentForm = () => {
       setSelectedCustomer(customer);
       setPayment((prev) => ({ ...prev, customerId: customer.id, customer }));
     } catch (error) {
-      console.error("Error loading customer:", error);
+      console.error('Error loading customer:', error);
     }
   };
 
@@ -194,12 +194,12 @@ const AdvancePaymentForm = () => {
       setLoadingInvoices(true);
       const response = await invoiceService.getInvoices({
         customerId,
-        paymentStatus: "unpaid,partially_paid",
-        status: "issued",
+        paymentStatus: 'unpaid,partially_paid',
+        status: 'issued',
       });
       setCustomerInvoices(response.invoices || response.data || []);
     } catch (error) {
-      console.error("Error loading customer invoices:", error);
+      console.error('Error loading customer invoices:', error);
       setCustomerInvoices([]);
     } finally {
       setLoadingInvoices(false);
@@ -216,9 +216,9 @@ const AdvancePaymentForm = () => {
         setSelectedCustomer(customer);
       }
     } catch (error) {
-      console.error("Error loading advance payment:", error);
-      notificationService.error("Failed to load advance payment");
-      navigate("/payments/advance");
+      console.error('Error loading advance payment:', error);
+      notificationService.error('Failed to load advance payment');
+      navigate('/payments/advance');
     } finally {
       setLoading(false);
     }
@@ -229,35 +229,35 @@ const AdvancePaymentForm = () => {
       const response = await advancePaymentService.getNextNumber();
       setPayment((prev) => ({
         ...prev,
-        receiptNumber: response.receiptNumber || "APR-0001",
+        receiptNumber: response.receiptNumber || 'APR-0001',
       }));
     } catch (error) {
-      console.error("Error loading next receipt number:", error);
+      console.error('Error loading next receipt number:', error);
     }
   };
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
     setPayment((prev) => ({ ...prev, customerId: customer.id, customer }));
-    setCustomerSearch("");
+    setCustomerSearch('');
     setShowCustomerDropdown(false);
   };
 
   const validateForm = () => {
     const errors = [];
-    if (!payment.customerId) errors.push("Please select a customer");
-    if (!payment.receiptNumber) errors.push("Receipt number is required");
-    if (!payment.paymentDate) errors.push("Payment date is required");
+    if (!payment.customerId) errors.push('Please select a customer');
+    if (!payment.receiptNumber) errors.push('Receipt number is required');
+    if (!payment.paymentDate) errors.push('Payment date is required');
     if (!payment.totalAmount || payment.totalAmount <= 0)
-      errors.push("Amount must be greater than zero");
-    if (!payment.paymentMethod) errors.push("Payment method is required");
+      errors.push('Amount must be greater than zero');
+    if (!payment.paymentMethod) errors.push('Payment method is required');
     setValidationErrors(errors);
     return errors.length === 0;
   };
 
   const handleSave = async () => {
     if (!validateForm()) {
-      notificationService.error("Please fix the validation errors");
+      notificationService.error('Please fix the validation errors');
       return;
     }
 
@@ -267,10 +267,10 @@ const AdvancePaymentForm = () => {
 
       if (isEditMode) {
         await advancePaymentService.update(id, paymentData);
-        notificationService.success("Advance payment updated successfully");
+        notificationService.success('Advance payment updated successfully');
       } else {
         const result = await advancePaymentService.create(paymentData);
-        notificationService.success("Advance payment recorded successfully");
+        notificationService.success('Advance payment recorded successfully');
 
         if (payment.applyToInvoiceId && result.id) {
           try {
@@ -278,21 +278,21 @@ const AdvancePaymentForm = () => {
               result.id,
               payment.applyToInvoiceId,
             );
-            notificationService.success("Payment applied to invoice");
+            notificationService.success('Payment applied to invoice');
           } catch (applyError) {
-            console.error("Error applying to invoice:", applyError);
+            console.error('Error applying to invoice:', applyError);
             notificationService.warning(
-              "Payment recorded but could not apply to invoice",
+              'Payment recorded but could not apply to invoice',
             );
           }
         }
       }
 
-      navigate("/payments/advance");
+      navigate('/payments/advance');
     } catch (error) {
-      console.error("Error saving advance payment:", error);
+      console.error('Error saving advance payment:', error);
       notificationService.error(
-        error.message || "Failed to save advance payment",
+        error.message || 'Failed to save advance payment',
       );
     } finally {
       setSaving(false);
@@ -313,21 +313,21 @@ const AdvancePaymentForm = () => {
   }, [customers, customerSearch]);
 
   // ===================== THEME CLASSES =====================
-  const cardBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
-  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
-  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
-  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
-  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
-  const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
+  const cardBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
+  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
+  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
+  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
+  const accordionBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
   const inputFocus =
-    "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
+    'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
 
   // Loading state
   if (loading) {
     return (
       <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
@@ -339,7 +339,7 @@ const AdvancePaymentForm = () => {
 
   return (
     <div
-      className={`h-full overflow-auto ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+      className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
     >
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
@@ -350,30 +350,30 @@ const AdvancePaymentForm = () => {
           <div
             className={`sticky top-0 z-10 backdrop-blur-md ${
               isDarkMode
-                ? "bg-[#0f151b]/94 border-b border-[#2a3640]"
-                : "bg-white/94 border-b border-gray-200"
+                ? 'bg-[#0f151b]/94 border-b border-[#2a3640]'
+                : 'bg-white/94 border-b border-gray-200'
             } px-4 py-3`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate("/payments/advance")}
+                  onClick={() => navigate('/payments/advance')}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode
-                      ? "hover:bg-[#141a20] text-[#93a4b4]"
-                      : "hover:bg-gray-100 text-gray-600"
+                      ? 'hover:bg-[#141a20] text-[#93a4b4]'
+                      : 'hover:bg-gray-100 text-gray-600'
                   }`}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
                   <h1 className={`text-lg font-extrabold ${textPrimary}`}>
-                    {isEditMode ? "Edit Advance Receipt" : "Advance Receipt"}
+                    {isEditMode ? 'Edit Advance Receipt' : 'Advance Receipt'}
                   </h1>
                   <p className={`text-xs ${textMuted}`}>
                     {isEditMode
                       ? `Editing ${payment.receiptNumber}`
-                      : "Pre-Invoice Payment - VAT Article 26"}
+                      : 'Pre-Invoice Payment - VAT Article 26'}
                   </p>
                 </div>
               </div>
@@ -381,27 +381,27 @@ const AdvancePaymentForm = () => {
                 <span
                   className={`px-2.5 py-1 rounded-xl text-xs border ${
                     isDarkMode
-                      ? "border-[#4aa3ff]/30 bg-[#4aa3ff]/12 text-[#4aa3ff]"
-                      : "border-teal-200 bg-teal-50 text-teal-700"
+                      ? 'border-[#4aa3ff]/30 bg-[#4aa3ff]/12 text-[#4aa3ff]'
+                      : 'border-teal-200 bg-teal-50 text-teal-700'
                   }`}
                 >
-                  {isEditMode ? "Edit" : "Draft"}
+                  {isEditMode ? 'Edit' : 'Draft'}
                 </span>
                 <button
                   onClick={handleSave}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
                     isDarkMode
-                      ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
-                      : "bg-teal-600 text-white hover:bg-teal-700"
-                  } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
+                      ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]'
+                      : 'bg-teal-600 text-white hover:bg-teal-700'
+                  } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
                   {saving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
-                  {saving ? "Saving..." : "Save Receipt"}
+                  {saving ? 'Saving...' : 'Save Receipt'}
                 </button>
               </div>
             </div>
@@ -414,13 +414,13 @@ const AdvancePaymentForm = () => {
               <div
                 className={`col-span-12 p-4 rounded-[14px] border ${
                   isDarkMode
-                    ? "bg-red-900/20 border-red-600/50 text-red-200"
-                    : "bg-red-50 border-red-300 text-red-800"
+                    ? 'bg-red-900/20 border-red-600/50 text-red-200'
+                    : 'bg-red-50 border-red-300 text-red-800'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <AlertTriangle
-                    className={isDarkMode ? "text-red-400" : "text-red-600"}
+                    className={isDarkMode ? 'text-red-400' : 'text-red-600'}
                     size={20}
                   />
                   <div>
@@ -489,8 +489,8 @@ const AdvancePaymentForm = () => {
                             onClick={() => handleCustomerSelect(customer)}
                             className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
                               isDarkMode
-                                ? "hover:bg-[#1a2027]"
-                                : "hover:bg-gray-50"
+                                ? 'hover:bg-[#1a2027]'
+                                : 'hover:bg-gray-50'
                             }`}
                           >
                             <div
@@ -515,8 +515,8 @@ const AdvancePaymentForm = () => {
                   <div
                     className={`p-3 rounded-[14px] border ${
                       isDarkMode
-                        ? "border-[#4aa3ff]/35 bg-[#4aa3ff]/10"
-                        : "border-teal-300 bg-teal-50"
+                        ? 'border-[#4aa3ff]/35 bg-[#4aa3ff]/10'
+                        : 'border-teal-300 bg-teal-50'
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -549,8 +549,8 @@ const AdvancePaymentForm = () => {
                           }}
                           className={`px-2.5 py-1 text-xs rounded-xl border transition-colors ${
                             isDarkMode
-                              ? "border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]"
-                              : "border-gray-300 bg-white hover:border-teal-500"
+                              ? 'border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]'
+                              : 'border-gray-300 bg-white hover:border-teal-500'
                           }`}
                         >
                           Change
@@ -638,7 +638,7 @@ const AdvancePaymentForm = () => {
                   {/* Amount (VAT Inclusive) */}
                   <div className="col-span-6 md:col-span-4">
                     <label className={`block text-xs ${textMuted} mb-1.5`}>
-                      Amount Received (VAT Incl.){" "}
+                      Amount Received (VAT Incl.){' '}
                       <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -651,7 +651,7 @@ const AdvancePaymentForm = () => {
                         type="number"
                         min="0"
                         step="0.01"
-                        value={payment.totalAmount || ""}
+                        value={payment.totalAmount || ''}
                         onChange={(e) =>
                           handleTotalAmountChange(e.target.value)
                         }
@@ -800,8 +800,8 @@ const AdvancePaymentForm = () => {
                             className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-colors ${
                               payment.applyToInvoiceId === invoice.id
                                 ? isDarkMode
-                                  ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/10"
-                                  : "border-teal-400 bg-teal-50"
+                                  ? 'border-[#4aa3ff]/50 bg-[#4aa3ff]/10'
+                                  : 'border-teal-400 bg-teal-50'
                                 : `${cardBorder} hover:border-[#4aa3ff]/30`
                             }`}
                           >
@@ -827,7 +827,7 @@ const AdvancePaymentForm = () => {
                                   {invoice.invoiceNumber}
                                 </div>
                                 <div className={`text-xs ${textMuted}`}>
-                                  Due:{" "}
+                                  Due:{' '}
                                   {formatCurrency(
                                     invoice.balanceDue ||
                                       invoice.outstanding ||
@@ -891,7 +891,7 @@ const AdvancePaymentForm = () => {
                         Total Received:
                       </span>
                       <span
-                        className={`font-bold font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}
+                        className={`font-bold font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}
                       >
                         {formatCurrency(payment.totalAmount)}
                       </span>
@@ -903,22 +903,22 @@ const AdvancePaymentForm = () => {
                 <div
                   className={`p-3 rounded-[14px] border ${
                     isDarkMode
-                      ? "bg-[#4aa3ff]/10 border-[#4aa3ff]/30"
-                      : "bg-blue-50 border-blue-200"
+                      ? 'bg-[#4aa3ff]/10 border-[#4aa3ff]/30'
+                      : 'bg-blue-50 border-blue-200'
                   }`}
                 >
                   <div className="flex items-start gap-2">
                     <Building2
-                      className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`}
+                      className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-600'}`}
                     />
                     <div>
                       <div
-                        className={`text-xs font-bold ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-700"}`}
+                        className={`text-xs font-bold ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-700'}`}
                       >
                         UAE VAT Article 26
                       </div>
                       <p
-                        className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-blue-600"}`}
+                        className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-blue-600'}`}
                       >
                         Advance payments create an immediate tax point. VAT at
                         5% must be declared in the period received.
@@ -931,17 +931,17 @@ const AdvancePaymentForm = () => {
                 <div
                   className={`p-3 rounded-[14px] border ${
                     isDarkMode
-                      ? "bg-amber-900/20 border-amber-700/50"
-                      : "bg-amber-50 border-amber-200"
+                      ? 'bg-amber-900/20 border-amber-700/50'
+                      : 'bg-amber-50 border-amber-200'
                   }`}
                 >
                   <div
-                    className={`text-xs font-bold mb-1 ${isDarkMode ? "text-amber-400" : "text-amber-700"}`}
+                    className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-amber-400' : 'text-amber-700'}`}
                   >
                     VAT Accounting
                   </div>
                   <p
-                    className={`text-xs ${isDarkMode ? "text-amber-300/80" : "text-amber-600"}`}
+                    className={`text-xs ${isDarkMode ? 'text-amber-300/80' : 'text-amber-600'}`}
                   >
                     VAT of {formatCurrency(payment.vatAmount)} will be recorded
                     as output VAT. When applied to an invoice, VAT will be

@@ -14,8 +14,8 @@
  * - Accordion for optional sections
  */
 
-import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
@@ -26,19 +26,19 @@ import {
   Building2,
   CreditCard,
   ChevronDown,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { customerService } from "../services/customerService";
-import { notificationService } from "../services/notificationService";
-import CustomerCreditPanel from "../components/credit/CustomerCreditPanel";
-import TRNInput from "../components/TRNInput";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { customerService } from '../services/customerService';
+import { notificationService } from '../services/notificationService';
+import CustomerCreditPanel from '../components/credit/CustomerCreditPanel';
+import TRNInput from '../components/TRNInput';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../components/ui/dialog";
+} from '../components/ui/dialog';
 
 const CustomerForm = () => {
   const { customerId } = useParams();
@@ -47,17 +47,17 @@ const CustomerForm = () => {
 
   // Form State
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
-    company: "",
-    email: "",
-    phone: "",
-    address: "",
-    vatNumber: "",
-    trn: "",
+    id: '',
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    address: '',
+    vatNumber: '',
+    trn: '',
     creditLimit: 0,
-    paymentTerms: "",
-    customerCode: "",
+    paymentTerms: '',
+    customerCode: '',
     dsoValue: 0,
     creditUtilization: 0,
   });
@@ -67,7 +67,7 @@ const CustomerForm = () => {
     creditUsed: 0,
     creditAvailable: 0,
     creditScore: 0,
-    creditGrade: "A",
+    creditGrade: 'A',
     dsoDays: 0,
     agingCurrent: 0,
     aging1To30: 0,
@@ -82,7 +82,7 @@ const CustomerForm = () => {
   // UI State
   const [loading, setLoading] = useState(!!customerId);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isEditMode, setIsEditMode] = useState(!customerId);
 
   // Modals
@@ -102,21 +102,21 @@ const CustomerForm = () => {
   const fetchCustomer = async () => {
     try {
       setLoading(true);
-      setError("");
+      setError('');
       const customer = await customerService.getCustomerById(customerId);
 
       setFormData({
-        id: customer.id || "",
-        name: customer.name || "",
-        company: customer.company || "",
-        email: customer.email || "",
-        phone: customer.phone || "",
-        address: customer.address || "",
-        vatNumber: customer.vatNumber || "",
-        trn: customer.trn || "",
+        id: customer.id || '',
+        name: customer.name || '',
+        company: customer.company || '',
+        email: customer.email || '',
+        phone: customer.phone || '',
+        address: customer.address || '',
+        vatNumber: customer.vatNumber || '',
+        trn: customer.trn || '',
         creditLimit: customer.creditLimit || 0,
-        paymentTerms: customer.paymentTerms || "",
-        customerCode: customer.customerCode || "",
+        paymentTerms: customer.paymentTerms || '',
+        customerCode: customer.customerCode || '',
         dsoValue: customer.dsoValue || 0,
         creditUtilization: customer.creditUtilization || 0,
       });
@@ -125,7 +125,7 @@ const CustomerForm = () => {
         creditUsed: customer.creditUsed || 0,
         creditAvailable: customer.creditAvailable || 0,
         creditScore: customer.creditScore || 0,
-        creditGrade: customer.creditGrade || "A",
+        creditGrade: customer.creditGrade || 'A',
         dsoDays: customer.dsoDay || customer.dsoDays || 0,
         agingCurrent: customer.agingCurrent || 0,
         aging1To30: customer.aging1To30 || 0,
@@ -137,8 +137,8 @@ const CustomerForm = () => {
         lastCreditUpdated: customer.lastCreditUpdated || null,
       });
     } catch (err) {
-      console.error("Error fetching customer:", err);
-      setError("Failed to load customer data");
+      console.error('Error fetching customer:', err);
+      setError('Failed to load customer data');
     } finally {
       setLoading(false);
     }
@@ -152,10 +152,10 @@ const CustomerForm = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      setError("");
+      setError('');
 
       if (!formData.name.trim()) {
-        setError("Customer name is required");
+        setError('Customer name is required');
         return;
       }
 
@@ -182,13 +182,13 @@ const CustomerForm = () => {
 
       notificationService.success(
         customerId
-          ? "Customer updated successfully"
-          : "Customer created successfully",
+          ? 'Customer updated successfully'
+          : 'Customer created successfully',
       );
-      navigate("/payables");
+      navigate('/payables');
     } catch (err) {
-      console.error("Error saving customer:", err);
-      setError(err.message || "Failed to save customer");
+      console.error('Error saving customer:', err);
+      setError(err.message || 'Failed to save customer');
     } finally {
       setSaving(false);
     }
@@ -201,23 +201,23 @@ const CustomerForm = () => {
   }) => {
     try {
       setSaving(true);
-      setError("");
+      setError('');
 
       await customerService.updateCreditLimit(cId, {
         credit_limit: parseFloat(newLimit),
         review_reason: reason,
       });
 
-      notificationService.success("Credit limit updated successfully");
+      notificationService.success('Credit limit updated successfully');
       setFormData((prev) => ({ ...prev, creditLimit: newLimit }));
 
       if (customerId) {
         fetchCustomer();
       }
     } catch (err) {
-      console.error("Error updating credit limit:", err);
-      setError("Failed to update credit limit");
-      notificationService.error("Failed to update credit limit");
+      console.error('Error updating credit limit:', err);
+      setError('Failed to update credit limit');
+      notificationService.error('Failed to update credit limit');
     } finally {
       setSaving(false);
     }
@@ -233,8 +233,8 @@ const CustomerForm = () => {
       setPaymentHistory(history || []);
       setIsPaymentHistoryModalOpen(true);
     } catch (err) {
-      console.error("Error fetching payment history:", err);
-      notificationService.error("Failed to load payment history");
+      console.error('Error fetching payment history:', err);
+      notificationService.error('Failed to load payment history');
     }
   };
 
@@ -250,21 +250,21 @@ const CustomerForm = () => {
   );
 
   // ===================== THEME CLASSES =====================
-  const cardBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
-  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
-  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
-  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
-  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
-  const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
+  const cardBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
+  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
+  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
+  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
+  const accordionBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
   const inputFocus =
-    "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
+    'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
 
   // Loading state
   if (loading && customerId) {
     return (
       <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
@@ -276,7 +276,7 @@ const CustomerForm = () => {
 
   return (
     <div
-      className={`h-full overflow-auto ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+      className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
     >
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
@@ -287,30 +287,30 @@ const CustomerForm = () => {
           <div
             className={`sticky top-0 z-10 backdrop-blur-md ${
               isDarkMode
-                ? "bg-[#0f151b]/94 border-b border-[#2a3640]"
-                : "bg-white/94 border-b border-gray-200"
+                ? 'bg-[#0f151b]/94 border-b border-[#2a3640]'
+                : 'bg-white/94 border-b border-gray-200'
             } px-4 py-3`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate("/payables")}
+                  onClick={() => navigate('/payables')}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode
-                      ? "hover:bg-[#141a20] text-[#93a4b4]"
-                      : "hover:bg-gray-100 text-gray-600"
+                      ? 'hover:bg-[#141a20] text-[#93a4b4]'
+                      : 'hover:bg-gray-100 text-gray-600'
                   }`}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
                   <h1 className={`text-lg font-extrabold ${textPrimary}`}>
-                    {customerId ? "Edit Customer" : "New Customer"}
+                    {customerId ? 'Edit Customer' : 'New Customer'}
                   </h1>
                   <p className={`text-xs ${textMuted}`}>
                     {customerId
-                      ? "Update customer details"
-                      : "Add new customer to system"}
+                      ? 'Update customer details'
+                      : 'Add new customer to system'}
                   </p>
                 </div>
               </div>
@@ -321,14 +321,14 @@ const CustomerForm = () => {
                     className={`px-3 py-2 rounded-xl text-sm border transition-colors ${
                       isEditMode
                         ? isDarkMode
-                          ? "border-red-500/50 bg-red-500/12 text-red-400"
-                          : "border-red-200 bg-red-50 text-red-700"
+                          ? 'border-red-500/50 bg-red-500/12 text-red-400'
+                          : 'border-red-200 bg-red-50 text-red-700'
                         : isDarkMode
-                          ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/12 text-[#4aa3ff]"
-                          : "border-teal-200 bg-teal-50 text-teal-700"
+                          ? 'border-[#4aa3ff]/50 bg-[#4aa3ff]/12 text-[#4aa3ff]'
+                          : 'border-teal-200 bg-teal-50 text-teal-700'
                     }`}
                   >
-                    {isEditMode ? "Cancel Edit" : "Edit"}
+                    {isEditMode ? 'Cancel Edit' : 'Edit'}
                   </button>
                 )}
                 {isEditMode && (
@@ -337,16 +337,16 @@ const CustomerForm = () => {
                     disabled={saving}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
                       isDarkMode
-                        ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
-                        : "bg-teal-600 text-white hover:bg-teal-700"
-                    } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
+                        ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]'
+                        : 'bg-teal-600 text-white hover:bg-teal-700'
+                    } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     {saving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Save className="h-4 w-4" />
                     )}
-                    {saving ? "Saving..." : customerId ? "Update" : "Create"}
+                    {saving ? 'Saving...' : customerId ? 'Update' : 'Create'}
                   </button>
                 )}
               </div>
@@ -360,13 +360,13 @@ const CustomerForm = () => {
               <div
                 className={`col-span-12 p-4 rounded-[14px] border ${
                   isDarkMode
-                    ? "bg-red-900/20 border-red-600/50 text-red-200"
-                    : "bg-red-50 border-red-300 text-red-800"
+                    ? 'bg-red-900/20 border-red-600/50 text-red-200'
+                    : 'bg-red-50 border-red-300 text-red-800'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <AlertCircle
-                    className={isDarkMode ? "text-red-400" : "text-red-600"}
+                    className={isDarkMode ? 'text-red-400' : 'text-red-600'}
                     size={20}
                   />
                   <div>
@@ -659,8 +659,8 @@ const CustomerForm = () => {
                     <div
                       className={`p-3 rounded-xl text-center ${
                         isDarkMode
-                          ? "bg-[#0a0f14] text-[#93a4b4]"
-                          : "bg-gray-100 text-gray-500"
+                          ? 'bg-[#0a0f14] text-[#93a4b4]'
+                          : 'bg-gray-100 text-gray-500'
                       }`}
                     >
                       <p className="text-xs">
@@ -687,13 +687,13 @@ const CustomerForm = () => {
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Name:</span>
                       <span className={`font-medium ${textPrimary}`}>
-                        {formData.name || "-"}
+                        {formData.name || '-'}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Company:</span>
                       <span className={textPrimary}>
-                        {formData.company || "-"}
+                        {formData.company || '-'}
                       </span>
                     </div>
                     {formData.trn && (
@@ -708,9 +708,9 @@ const CustomerForm = () => {
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Credit Limit:</span>
                       <span
-                        className={`font-mono font-bold ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}
+                        className={`font-mono font-bold ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}
                       >
-                        AED{" "}
+                        AED{' '}
                         {parseFloat(formData.creditLimit || 0).toLocaleString()}
                       </span>
                     </div>
@@ -734,15 +734,15 @@ const CustomerForm = () => {
                         </div>
                         <div
                           className={`text-2xl font-extrabold ${
-                            creditData.creditGrade === "A"
-                              ? "text-green-500"
-                              : creditData.creditGrade === "B"
-                                ? "text-green-400"
-                                : creditData.creditGrade === "C"
-                                  ? "text-yellow-500"
-                                  : creditData.creditGrade === "D"
-                                    ? "text-orange-500"
-                                    : "text-red-500"
+                            creditData.creditGrade === 'A'
+                              ? 'text-green-500'
+                              : creditData.creditGrade === 'B'
+                                ? 'text-green-400'
+                                : creditData.creditGrade === 'C'
+                                  ? 'text-yellow-500'
+                                  : creditData.creditGrade === 'D'
+                                    ? 'text-orange-500'
+                                    : 'text-red-500'
                           }`}
                         >
                           {creditData.creditGrade}
@@ -760,7 +760,7 @@ const CustomerForm = () => {
                     <div
                       className="mt-3 pt-3 border-t border-dashed"
                       style={{
-                        borderColor: isDarkMode ? "#2a3640" : "#e5e7eb",
+                        borderColor: isDarkMode ? '#2a3640' : '#e5e7eb',
                       }}
                     >
                       <div className="flex justify-between text-sm">
@@ -772,7 +772,7 @@ const CustomerForm = () => {
                       <div className="flex justify-between text-sm mt-1">
                         <span className={textMuted}>Available:</span>
                         <span
-                          className={`font-mono ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                          className={`font-mono ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                         >
                           AED {creditData.creditAvailable.toLocaleString()}
                         </span>
@@ -785,22 +785,22 @@ const CustomerForm = () => {
                 <div
                   className={`p-3 rounded-[14px] border ${
                     isDarkMode
-                      ? "bg-[#4aa3ff]/10 border-[#4aa3ff]/30"
-                      : "bg-blue-50 border-blue-200"
+                      ? 'bg-[#4aa3ff]/10 border-[#4aa3ff]/30'
+                      : 'bg-blue-50 border-blue-200'
                   }`}
                 >
                   <div className="flex items-start gap-2">
                     <Info
-                      className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`}
+                      className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-600'}`}
                     />
                     <div>
                       <div
-                        className={`text-xs font-bold ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-700"}`}
+                        className={`text-xs font-bold ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-700'}`}
                       >
                         Credit Management
                       </div>
                       <p
-                        className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-blue-600"}`}
+                        className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-blue-600'}`}
                       >
                         Credit grades (A-E) are calculated from DSO and payment
                         history. Lower DSO indicates faster payments.
@@ -817,7 +817,7 @@ const CustomerForm = () => {
       {/* Aging Analysis Modal */}
       <Dialog open={isAgingModalOpen} onOpenChange={setIsAgingModalOpen}>
         <DialogContent
-          className={isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white"}
+          className={isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white'}
         >
           <DialogHeader>
             <DialogTitle className={textPrimary}>
@@ -831,36 +831,36 @@ const CustomerForm = () => {
           <div className="space-y-3">
             {[
               {
-                label: "Current (0 days)",
+                label: 'Current (0 days)',
                 value: creditData.agingCurrent,
-                color: "text-green-500",
+                color: 'text-green-500',
               },
               {
-                label: "1-30 days overdue",
+                label: '1-30 days overdue',
                 value: creditData.aging1To30,
-                color: "text-yellow-500",
+                color: 'text-yellow-500',
               },
               {
-                label: "31-60 days overdue",
+                label: '31-60 days overdue',
                 value: creditData.aging31To60,
-                color: "text-orange-500",
+                color: 'text-orange-500',
               },
               {
-                label: "61-90 days overdue",
+                label: '61-90 days overdue',
                 value: creditData.aging61To90,
-                color: "text-orange-600",
+                color: 'text-orange-600',
               },
               {
-                label: "90+ days overdue",
+                label: '90+ days overdue',
                 value: creditData.aging90Plus,
-                color: "text-red-500",
+                color: 'text-red-500',
               },
             ].map((bucket, idx) => (
               <div key={idx} className="flex items-center justify-between">
                 <span className={textMuted}>{bucket.label}</span>
                 <span className={`font-mono font-bold ${bucket.color}`}>
-                  AED{" "}
-                  {bucket.value.toLocaleString("en-US", {
+                  AED{' '}
+                  {bucket.value.toLocaleString('en-US', {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -871,14 +871,14 @@ const CustomerForm = () => {
             >
               <span className={textPrimary}>Total Outstanding</span>
               <span className={`font-mono ${textPrimary}`}>
-                AED{" "}
+                AED{' '}
                 {(
                   creditData.agingCurrent +
                   creditData.aging1To30 +
                   creditData.aging31To60 +
                   creditData.aging61To90 +
                   creditData.aging90Plus
-                ).toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                ).toLocaleString('en-US', { maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -891,7 +891,7 @@ const CustomerForm = () => {
         onOpenChange={setIsPaymentHistoryModalOpen}
       >
         <DialogContent
-          className={`${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white"} max-w-2xl`}
+          className={`${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white'} max-w-2xl`}
         >
           <DialogHeader>
             <DialogTitle className={textPrimary}>
@@ -905,9 +905,9 @@ const CustomerForm = () => {
           <div className={`rounded-xl border overflow-hidden ${cardBorder}`}>
             <table
               className="min-w-full divide-y"
-              style={{ borderColor: isDarkMode ? "#2a3640" : "#e5e7eb" }}
+              style={{ borderColor: isDarkMode ? '#2a3640' : '#e5e7eb' }}
             >
-              <thead className={isDarkMode ? "bg-[#0f151b]" : "bg-gray-50"}>
+              <thead className={isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50'}>
                 <tr>
                   <th
                     className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}
@@ -932,7 +932,7 @@ const CustomerForm = () => {
                 </tr>
               </thead>
               <tbody
-                className={`divide-y ${isDarkMode ? "divide-[#2a3640]" : "divide-gray-200"}`}
+                className={`divide-y ${isDarkMode ? 'divide-[#2a3640]' : 'divide-gray-200'}`}
               >
                 {paymentHistory.length > 0 ? (
                   paymentHistory.map((payment, idx) => (
@@ -943,24 +943,24 @@ const CustomerForm = () => {
                       <td
                         className={`px-3 py-2 text-sm font-mono ${textPrimary}`}
                       >
-                        AED{" "}
-                        {payment.amount.toLocaleString("en-US", {
+                        AED{' '}
+                        {payment.amount.toLocaleString('en-US', {
                           maximumFractionDigits: 2,
                         })}
                       </td>
                       <td className={`px-3 py-2 text-sm ${textMuted}`}>
-                        {payment.reference || "-"}
+                        {payment.reference || '-'}
                       </td>
                       <td className="px-3 py-2 text-sm">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                            payment.status === "completed"
+                            payment.status === 'completed'
                               ? isDarkMode
-                                ? "bg-green-900/30 text-green-400"
-                                : "bg-green-100 text-green-700"
+                                ? 'bg-green-900/30 text-green-400'
+                                : 'bg-green-100 text-green-700'
                               : isDarkMode
-                                ? "bg-yellow-900/30 text-yellow-400"
-                                : "bg-yellow-100 text-yellow-700"
+                                ? 'bg-yellow-900/30 text-yellow-400'
+                                : 'bg-yellow-100 text-yellow-700'
                           }`}
                         >
                           {payment.status}

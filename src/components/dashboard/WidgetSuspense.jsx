@@ -2,10 +2,10 @@
  * WidgetSuspense - Suspense boundary with error handling for lazy widgets
  */
 
-import { Suspense, Component } from "react";
-import { RefreshCw, AlertTriangle } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import WidgetSkeleton from "./WidgetSkeleton";
+import { Suspense, Component } from 'react';
+import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import WidgetSkeleton from './WidgetSkeleton';
 
 class WidgetErrorBoundary extends Component {
   constructor(props) {
@@ -38,7 +38,7 @@ class WidgetErrorBoundary extends Component {
     const {
       children,
       maxRetries = 3,
-      widgetName = "Widget",
+      widgetName = 'Widget',
       isDarkMode,
     } = this.props;
 
@@ -47,21 +47,21 @@ class WidgetErrorBoundary extends Component {
 
       return (
         <div
-          className={`rounded-xl border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+          className={`rounded-xl border p-4 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
         >
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <AlertTriangle size={32} className="text-red-500 mb-3" />
             <h4
-              className={`font-medium mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`font-medium mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Failed to load {widgetName}
             </h4>
             <p
-              className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               {canRetry
                 ? `Retrying... (${retryCount}/${maxRetries})`
-                : "Max retries reached"}
+                : 'Max retries reached'}
             </p>
             {canRetry && (
               <button
@@ -83,9 +83,9 @@ class WidgetErrorBoundary extends Component {
 
 const WidgetSuspense = ({
   children,
-  variant = "card",
-  size = "md",
-  widgetName = "Widget",
+  variant = 'card',
+  size = 'md',
+  widgetName = 'Widget',
   maxRetries = 3,
 }) => {
   const { isDarkMode } = useTheme();
@@ -104,12 +104,12 @@ const WidgetSuspense = ({
 };
 
 export const withWidgetSuspense = (WrappedComponent, options = {}) => {
-  const { variant = "card", size = "md", widgetName, maxRetries = 3 } = options;
+  const { variant = 'card', size = 'md', widgetName, maxRetries = 3 } = options;
   const displayName =
     widgetName ||
     WrappedComponent.displayName ||
     WrappedComponent.name ||
-    "Widget";
+    'Widget';
 
   const WithSuspense = (props) => (
     <WidgetSuspense

@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Save,
   Plus,
@@ -16,16 +16,16 @@ import {
   Loader2,
   Eye,
   Package,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { quotationsAPI, productsAPI, apiClient } from "../services/api";
-import { customerService } from "../services/customerService";
-import pricelistService from "../services/pricelistService";
-import { formatCurrency, calculateItemAmount } from "../utils/invoiceUtils";
-import { STEEL_GRADES, FINISHES } from "../types";
-import QuotationPreview from "../components/quotations/QuotationPreview";
-import StockAvailabilityIndicator from "../components/invoice/StockAvailabilityIndicator";
-import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { quotationsAPI, productsAPI, apiClient } from '../services/api';
+import { customerService } from '../services/customerService';
+import pricelistService from '../services/pricelistService';
+import { formatCurrency, calculateItemAmount } from '../utils/invoiceUtils';
+import { STEEL_GRADES, FINISHES } from '../types';
+import QuotationPreview from '../components/quotations/QuotationPreview';
+import StockAvailabilityIndicator from '../components/invoice/StockAvailabilityIndicator';
+import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
 
 const FormSettingsPanel = ({
   isOpen,
@@ -44,9 +44,9 @@ const FormSettingsPanel = ({
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
       return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isOpen, onClose]);
 
@@ -56,12 +56,12 @@ const FormSettingsPanel = ({
     <div className="flex items-start justify-between py-3">
       <div className="flex-1 pr-4">
         <p
-          className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+          className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
         >
           {label}
         </p>
         <p
-          className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           {description}
         </p>
@@ -69,12 +69,12 @@ const FormSettingsPanel = ({
       <button
         onClick={onChange}
         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-          enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
+          enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
         }`}
       >
         <span
           className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-            enabled ? "translate-x-5" : "translate-x-0"
+            enabled ? 'translate-x-5' : 'translate-x-0'
           }`}
         />
       </button>
@@ -85,22 +85,22 @@ const FormSettingsPanel = ({
     <div
       ref={panelRef}
       className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
-        isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"
+        isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
       }`}
     >
       <div
-        className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+        className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
       >
         <div className="flex items-center justify-between">
           <h3
-            className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+            className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
           >
             Form Settings
           </h3>
           <button
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`}
           >
             <X className="h-4 w-4" />
@@ -113,7 +113,7 @@ const FormSettingsPanel = ({
           enabled={preferences.showValidationHighlighting}
           onChange={() =>
             onPreferenceChange(
-              "showValidationHighlighting",
+              'showValidationHighlighting',
               !preferences.showValidationHighlighting,
             )
           }
@@ -124,7 +124,7 @@ const FormSettingsPanel = ({
           enabled={preferences.showSpeedButtons}
           onChange={() =>
             onPreferenceChange(
-              "showSpeedButtons",
+              'showSpeedButtons',
               !preferences.showSpeedButtons,
             )
           }
@@ -134,7 +134,7 @@ const FormSettingsPanel = ({
       </div>
 
       <div
-        className={`px-4 py-2 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"} border-t ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}
+        className={`px-4 py-2 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}
       >
         Settings are saved automatically
       </div>
@@ -144,14 +144,14 @@ const FormSettingsPanel = ({
 
 // ==================== DESIGN TOKENS ====================
 const COLORS = {
-  bg: "#0b0f14",
-  card: "#141a20",
-  border: "#2a3640",
-  text: "#e6edf3",
-  muted: "#93a4b4",
-  accent: "#4aa3ff",
-  accentHover: "#5bb2ff",
-  inputBg: "#0f151b",
+  bg: '#0b0f14',
+  card: '#141a20',
+  border: '#2a3640',
+  text: '#e6edf3',
+  muted: '#93a4b4',
+  accent: '#4aa3ff',
+  accentHover: '#5bb2ff',
+  inputBg: '#0f151b',
 };
 
 // Drawer Component for secondary content
@@ -162,42 +162,42 @@ const Drawer = ({
   subtitle,
   children,
   isDarkMode,
-  width = "w-[min(620px,92vw)]",
+  width = 'w-[min(620px,92vw)]',
 }) => {
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && isOpen) onClose();
+      if (e.key === 'Escape' && isOpen) onClose();
     };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
   return (
     <>
       <div
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
       />
       <div
         className={`fixed top-0 right-0 h-full ${width} z-[31]
-          ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"}
+          ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
           overflow-auto transition-transform duration-300 ${
-            isOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+    isOpen ? 'translate-x-0' : 'translate-x-full'
+    }`}
       >
         <div className="p-4">
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
-            ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"}
+            ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'}
             z-[1]`}
           >
             <div>
               <div className="text-sm font-extrabold">{title}</div>
               {subtitle && (
                 <div
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   {subtitle}
                 </div>
@@ -205,7 +205,7 @@ const Drawer = ({
             </div>
             <button
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#2a3640]' : 'hover:bg-gray-100'}`}
             >
               <X className="h-4 w-4" />
             </button>
@@ -229,48 +229,48 @@ const QuotationForm = () => {
 
   // Form preferences (with localStorage persistence)
   const [formPreferences, setFormPreferences] = useState(() => {
-    const saved = localStorage.getItem("quotationFormPreferences");
+    const saved = localStorage.getItem('quotationFormPreferences');
     return saved
       ? JSON.parse(saved)
       : {
-          showSpeedButtons: true,
-          showValidationHighlighting: true,
-        };
+        showSpeedButtons: true,
+        showValidationHighlighting: true,
+      };
   });
 
   const [formData, setFormData] = useState({
-    quotationNumber: "",
-    customerId: "",
+    quotationNumber: '',
+    customerId: '',
     customerDetails: {
-      name: "",
-      company: "",
-      email: "",
-      phone: "",
+      name: '',
+      company: '',
+      email: '',
+      phone: '',
       address: {
-        street: "",
-        city: "",
-        emirate: "",
-        country: "UAE",
+        street: '',
+        city: '',
+        emirate: '',
+        country: 'UAE',
       },
-      vatNumber: "",
+      vatNumber: '',
     },
-    quotationDate: new Date().toISOString().split("T")[0],
-    validUntil: "",
+    quotationDate: new Date().toISOString().split('T')[0],
+    validUntil: '',
     // Customer PO fields
-    customerPurchaseOrderNumber: "",
-    customerPurchaseOrderDate: "",
+    customerPurchaseOrderNumber: '',
+    customerPurchaseOrderDate: '',
     // Warehouse
-    warehouseId: "",
-    warehouseName: "",
-    warehouseCode: "",
-    warehouseCity: "",
+    warehouseId: '',
+    warehouseName: '',
+    warehouseCode: '',
+    warehouseCity: '',
     // Currency
-    currency: "AED",
+    currency: 'AED',
     exchangeRate: 1,
-    deliveryTerms: "",
-    paymentTerms: "",
-    notes: "",
-    termsAndConditions: "",
+    deliveryTerms: '',
+    paymentTerms: '',
+    notes: '',
+    termsAndConditions: '',
     items: [],
     subtotal: 0,
     vatAmount: 0,
@@ -283,11 +283,11 @@ const QuotationForm = () => {
     loadingCharges: 0,
     otherCharges: 0,
     // Discount (invoice-level, optional)
-    discountType: "amount",
+    discountType: 'amount',
     discountPercentage: 0,
     discountAmount: 0,
     total: 0,
-    status: "draft",
+    status: 'draft',
   });
 
   const [customers, setCustomers] = useState([]);
@@ -295,13 +295,13 @@ const QuotationForm = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
   // Customer input for autocomplete
-  const [customerInputValue, setCustomerInputValue] = useState("");
+  const [customerInputValue, setCustomerInputValue] = useState('');
 
   // Pricelist state
   const [selectedPricelistId, setSelectedPricelistId] = useState(null);
@@ -309,7 +309,7 @@ const QuotationForm = () => {
 
   // Pinned products (localStorage)
   const [pinnedProductIds, setPinnedProductIds] = useState(() => {
-    const saved = localStorage.getItem("quotationPinnedProducts");
+    const saved = localStorage.getItem('quotationPinnedProducts');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -334,25 +334,25 @@ const QuotationForm = () => {
       let isValid = true;
 
       switch (fieldName) {
-        case "quotationNumber":
-          isValid = value && String(value).trim() !== "";
+        case 'quotationNumber':
+          isValid = value && String(value).trim() !== '';
           break;
-        case "customerName":
-          isValid = value && String(value).trim() !== "";
+        case 'customerName':
+          isValid = value && String(value).trim() !== '';
           break;
-        case "quotationDate":
-          isValid = value && String(value).trim() !== "";
+        case 'quotationDate':
+          isValid = value && String(value).trim() !== '';
           break;
-        case "warehouse":
+        case 'warehouse':
           // Warehouse is optional for drafts, required for others
-          if (formData.status === "draft") {
+          if (formData.status === 'draft') {
             isValid = true;
           } else {
-            isValid = value && String(value).trim() !== "";
+            isValid = value && String(value).trim() !== '';
           }
           break;
-        case "currency":
-          isValid = value && String(value).trim() !== "";
+        case 'currency':
+          isValid = value && String(value).trim() !== '';
           break;
         default:
           isValid = true;
@@ -360,7 +360,7 @@ const QuotationForm = () => {
 
       setFieldValidation((prev) => ({
         ...prev,
-        [fieldName]: isValid ? "valid" : "invalid",
+        [fieldName]: isValid ? 'valid' : 'invalid',
       }));
 
       return isValid;
@@ -374,9 +374,9 @@ const QuotationForm = () => {
       try {
         const [customersResponse, productsResponse, warehousesResponse] =
           await Promise.all([
-            customerService.getCustomers({ status: "active", limit: 1000 }),
+            customerService.getCustomers({ status: 'active', limit: 1000 }),
             productsAPI.getAll({ limit: 1000 }),
-            apiClient.get("/warehouses"),
+            apiClient.get('/warehouses'),
           ]);
 
         setCustomers(customersResponse.customers || []);
@@ -395,17 +395,17 @@ const QuotationForm = () => {
         if (!isEdit && activeWarehouses.length > 0 && !formData.warehouseId) {
           const sharjahWarehouse = activeWarehouses.find(
             (w) =>
-              w.city?.toLowerCase().includes("sharjah") ||
-              w.name?.toLowerCase().includes("sharjah"),
+              w.city?.toLowerCase().includes('sharjah') ||
+              w.name?.toLowerCase().includes('sharjah'),
           );
           const defaultWarehouse = sharjahWarehouse || activeWarehouses[0];
 
           setFormData((prev) => ({
             ...prev,
             warehouseId: defaultWarehouse.id.toString(),
-            warehouseName: defaultWarehouse.name || "",
-            warehouseCode: defaultWarehouse.code || "",
-            warehouseCity: defaultWarehouse.city || "",
+            warehouseName: defaultWarehouse.name || '',
+            warehouseCode: defaultWarehouse.code || '',
+            warehouseCity: defaultWarehouse.city || '',
           }));
         }
 
@@ -418,8 +418,8 @@ const QuotationForm = () => {
           }));
         }
       } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load initial data");
+        console.error('Error fetching data:', err);
+        setError('Failed to load initial data');
       }
     };
 
@@ -437,61 +437,61 @@ const QuotationForm = () => {
 
           // Transform snake_case to camelCase
           setFormData({
-            quotationNumber: response.quotationNumber || "",
-            customerId: response.customerId || "",
+            quotationNumber: response.quotationNumber || '',
+            customerId: response.customerId || '',
             customerDetails:
-              typeof response.customerDetails === "string"
+              typeof response.customerDetails === 'string'
                 ? JSON.parse(response.customerDetails)
                 : response.customerDetails || {
-                    name: "",
-                    company: "",
-                    email: "",
-                    phone: "",
-                    address: {
-                      street: "",
-                      city: "",
-                      emirate: "",
-                      country: "UAE",
-                    },
-                    vatNumber: "",
+                  name: '',
+                  company: '',
+                  email: '',
+                  phone: '',
+                  address: {
+                    street: '',
+                    city: '',
+                    emirate: '',
+                    country: 'UAE',
                   },
-            quotationDate: response.quotationDate?.split("T")[0] || "",
-            validUntil: response.validUntil?.split("T")[0] || "",
+                  vatNumber: '',
+                },
+            quotationDate: response.quotationDate?.split('T')[0] || '',
+            validUntil: response.validUntil?.split('T')[0] || '',
             customerPurchaseOrderNumber:
-              response.customerPurchaseOrderNumber || "",
+              response.customerPurchaseOrderNumber || '',
             customerPurchaseOrderDate:
-              response.customerPurchaseOrderDate?.split("T")[0] || "",
-            warehouseId: response.warehouseId?.toString() || "",
-            warehouseName: response.warehouseName || "",
-            warehouseCode: response.warehouseCode || "",
-            warehouseCity: response.warehouseCity || "",
-            currency: response.currency || "AED",
+              response.customerPurchaseOrderDate?.split('T')[0] || '',
+            warehouseId: response.warehouseId?.toString() || '',
+            warehouseName: response.warehouseName || '',
+            warehouseCode: response.warehouseCode || '',
+            warehouseCity: response.warehouseCity || '',
+            currency: response.currency || 'AED',
             exchangeRate: response.exchangeRate || 1,
-            deliveryTerms: response.deliveryTerms || "",
-            paymentTerms: response.paymentTerms || "",
-            notes: response.notes || "",
-            termsAndConditions: response.termsAndConditions || "",
+            deliveryTerms: response.deliveryTerms || '',
+            paymentTerms: response.paymentTerms || '',
+            notes: response.notes || '',
+            termsAndConditions: response.termsAndConditions || '',
             items: (response.items || []).map((item) => ({
-              productId: item.productId || "",
-              name: item.name || "",
-              specification: item.specification || "",
-              grade: item.grade || "",
-              finish: item.finish || "",
-              size: item.size || "",
-              thickness: item.thickness || "",
-              description: item.description || "",
-              hsnCode: item.hsnCode || "",
-              unit: item.unit || "pcs",
+              productId: item.productId || '',
+              name: item.name || '',
+              specification: item.specification || '',
+              grade: item.grade || '',
+              finish: item.finish || '',
+              size: item.size || '',
+              thickness: item.thickness || '',
+              description: item.description || '',
+              hsnCode: item.hsnCode || '',
+              unit: item.unit || 'pcs',
               quantity: item.quantity || 0,
               rate: item.rate || 0,
               discount: item.discount || 0,
-              discountType: item.discountType || "amount",
+              discountType: item.discountType || 'amount',
               taxableAmount: item.taxableAmount || 0,
               vatRate: item.vatRate || 5,
               amount: item.amount || 0,
               netAmount: item.netAmount || 0,
               // Stock & Source Fields (Phase 3)
-              sourceType: item.sourceType || "WAREHOUSE",
+              sourceType: item.sourceType || 'WAREHOUSE',
             })),
             subtotal: response.subtotal || 0,
             vatAmount: response.vatAmount || 0,
@@ -502,11 +502,11 @@ const QuotationForm = () => {
             insuranceCharges: response.insuranceCharges || 0,
             loadingCharges: response.loadingCharges || 0,
             otherCharges: response.otherCharges || 0,
-            discountType: response.discountType || "amount",
+            discountType: response.discountType || 'amount',
             discountPercentage: response.discountPercentage || 0,
             discountAmount: response.discountAmount || 0,
             total: response.total || 0,
-            status: response.status || "draft",
+            status: response.status || 'draft',
           });
 
           // Set customer input value for autocomplete
@@ -514,8 +514,8 @@ const QuotationForm = () => {
             setCustomerInputValue(response.customerDetails.name);
           }
         } catch (err) {
-          console.error("Error fetching quotation:", err);
-          setError("Failed to load quotation data");
+          console.error('Error fetching quotation:', err);
+          setError('Failed to load quotation data');
         } finally {
           setLoading(false);
         }
@@ -529,13 +529,13 @@ const QuotationForm = () => {
   // Run field validation when key fields change
   useEffect(() => {
     if (formData.quotationNumber)
-      validateField("quotationNumber", formData.quotationNumber);
+      validateField('quotationNumber', formData.quotationNumber);
     if (formData.customerDetails.name)
-      validateField("customerName", formData.customerDetails.name);
+      validateField('customerName', formData.customerDetails.name);
     if (formData.quotationDate)
-      validateField("quotationDate", formData.quotationDate);
-    if (formData.warehouseId) validateField("warehouse", formData.warehouseId);
-    if (formData.currency) validateField("currency", formData.currency);
+      validateField('quotationDate', formData.quotationDate);
+    if (formData.warehouseId) validateField('warehouse', formData.warehouseId);
+    if (formData.currency) validateField('currency', formData.currency);
   }, [
     formData.quotationNumber,
     formData.customerDetails.name,
@@ -559,16 +559,16 @@ const QuotationForm = () => {
           customerId: String(customerId),
           customerDetails: {
             name: customer.name,
-            company: customer.company || "",
-            email: customer.email || "",
-            phone: customer.phone || "",
+            company: customer.company || '',
+            email: customer.email || '',
+            phone: customer.phone || '',
             address: customer.address || {
-              street: "",
-              city: "",
-              emirate: "",
-              country: "UAE",
+              street: '',
+              city: '',
+              emirate: '',
+              country: 'UAE',
             },
-            vatNumber: customer.vatNumber || "",
+            vatNumber: customer.vatNumber || '',
           },
         }));
 
@@ -581,7 +581,7 @@ const QuotationForm = () => {
             setPricelistName(
               response.pricelist?.name ||
                 response.data?.name ||
-                "Custom Price List",
+                'Custom Price List',
             );
           } catch (_fetchError) {
             // Silently ignore - pricelist is optional
@@ -591,7 +591,7 @@ const QuotationForm = () => {
         } else {
           // Use default pricelist
           setSelectedPricelistId(null);
-          setPricelistName("Default Price List");
+          setPricelistName('Default Price List');
         }
         return;
       }
@@ -606,16 +606,16 @@ const QuotationForm = () => {
         customerId,
         customerDetails: {
           name: customer.name,
-          company: customer.company || "",
-          email: customer.email || "",
-          phone: customer.phone || "",
+          company: customer.company || '',
+          email: customer.email || '',
+          phone: customer.phone || '',
           address: customer.address || {
-            street: "",
-            city: "",
-            emirate: "",
-            country: "UAE",
+            street: '',
+            city: '',
+            emirate: '',
+            country: 'UAE',
           },
-          vatNumber: customer.vatNumber || "",
+          vatNumber: customer.vatNumber || '',
         },
       }));
 
@@ -628,7 +628,7 @@ const QuotationForm = () => {
           setPricelistName(
             response.pricelist?.name ||
               response.data?.name ||
-              "Custom Price List",
+              'Custom Price List',
           );
         } catch (_fetchError) {
           // Silently ignore - pricelist is optional
@@ -638,26 +638,26 @@ const QuotationForm = () => {
       } else {
         // Use default pricelist
         setSelectedPricelistId(null);
-        setPricelistName("Default Price List");
+        setPricelistName('Default Price List');
       }
     } else {
       // Clear customer - reset everything
-      setCustomerInputValue("");
+      setCustomerInputValue('');
       setFormData((prev) => ({
         ...prev,
         customerId,
         customerDetails: {
-          name: "",
-          company: "",
-          email: "",
-          phone: "",
+          name: '',
+          company: '',
+          email: '',
+          phone: '',
           address: {
-            street: "",
-            city: "",
-            emirate: "",
-            country: "UAE",
+            street: '',
+            city: '',
+            emirate: '',
+            country: 'UAE',
           },
-          vatNumber: "",
+          vatNumber: '',
         },
       }));
       setSelectedPricelistId(null);
@@ -673,7 +673,7 @@ const QuotationForm = () => {
         ? prev.filter((pinnedId) => pinnedId !== productId)
         : [...prev, productId];
       localStorage.setItem(
-        "quotationPinnedProducts",
+        'quotationPinnedProducts',
         JSON.stringify(newPinned),
       );
       return newPinned;
@@ -698,7 +698,7 @@ const QuotationForm = () => {
       product.display_name ||
       product.uniqueName ||
       product.unique_name ||
-      "";
+      '';
 
     // Fetch price from pricelist if available
     let sellingPrice = parseFloat(product.sellingPrice || product.price) || 0;
@@ -720,34 +720,34 @@ const QuotationForm = () => {
     const primaryUom = (
       product.primaryUom ||
       product.primary_uom ||
-      ""
+      ''
     ).toUpperCase();
     let quantityUom;
-    if (primaryUom === "MT" || primaryUom === "KG") {
+    if (primaryUom === 'MT' || primaryUom === 'KG') {
       quantityUom = primaryUom;
     } else {
-      const category = (product.category || "").toLowerCase();
-      const isCoil = category.includes("coil");
-      quantityUom = isCoil ? "MT" : "PCS";
+      const category = (product.category || '').toLowerCase();
+      const isCoil = category.includes('coil');
+      quantityUom = isCoil ? 'MT' : 'PCS';
     }
 
     // Get pricing basis and unit weight from product
     const pricingBasis =
-      product.pricingBasis || product.pricing_basis || "PER_MT";
+      product.pricingBasis || product.pricing_basis || 'PER_MT';
     const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
     const quantity = 1;
 
     // Flag if weight is missing for weight-based pricing
     const missingWeightWarning =
-      (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") &&
-      quantityUom === "PCS" &&
+      (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG') &&
+      quantityUom === 'PCS' &&
       !unitWeightKg;
 
     // Calculate theoretical weight
     let theoreticalWeightKg = null;
-    if (quantityUom === "MT") {
+    if (quantityUom === 'MT') {
       theoreticalWeightKg = quantity * 1000;
-    } else if (quantityUom === "KG") {
+    } else if (quantityUom === 'KG') {
       theoreticalWeightKg = quantity;
     } else if (unitWeightKg) {
       theoreticalWeightKg = quantity * unitWeightKg;
@@ -763,23 +763,23 @@ const QuotationForm = () => {
     );
 
     const newItem = {
-      productId: product.id || "",
+      productId: product.id || '',
       name: productDisplayName,
       specification:
         product.specifications?.specification ||
         product.specifications?.size ||
-        "",
-      grade: product.specifications?.grade || product.grade || "",
-      finish: product.specifications?.finish || product.finish || "",
-      size: product.specifications?.size || product.size || "",
-      thickness: product.specifications?.thickness || product.thickness || "",
-      description: product.description || "",
-      hsnCode: product.hsnCode || "",
-      unit: product.unit || "kg",
+        '',
+      grade: product.specifications?.grade || product.grade || '',
+      finish: product.specifications?.finish || product.finish || '',
+      size: product.specifications?.size || product.size || '',
+      thickness: product.specifications?.thickness || product.thickness || '',
+      description: product.description || '',
+      hsnCode: product.hsnCode || '',
+      unit: product.unit || 'kg',
       quantity,
       rate: sellingPrice,
       discount: 0,
-      discountType: "amount",
+      discountType: 'amount',
       taxableAmount: grossAmount,
       vatRate: 5,
       amount: grossAmount,
@@ -791,7 +791,7 @@ const QuotationForm = () => {
       theoreticalWeightKg,
       missingWeightWarning,
       // Stock & Source Fields (Phase 3)
-      sourceType: "WAREHOUSE",
+      sourceType: 'WAREHOUSE',
     };
 
     setFormData((prev) => ({
@@ -808,32 +808,32 @@ const QuotationForm = () => {
       items: [
         ...prev.items,
         {
-          productId: "",
-          name: "",
-          specification: "",
-          grade: "",
-          finish: "",
-          size: "",
-          thickness: "",
-          description: "",
-          hsnCode: "",
-          unit: "pcs",
+          productId: '',
+          name: '',
+          specification: '',
+          grade: '',
+          finish: '',
+          size: '',
+          thickness: '',
+          description: '',
+          hsnCode: '',
+          unit: 'pcs',
           quantity: 1,
           rate: 0,
           discount: 0,
-          discountType: "amount",
+          discountType: 'amount',
           taxableAmount: 0,
           vatRate: 5,
           amount: 0,
           netAmount: 0,
           // Pricing & Commercial Fields
-          pricingBasis: "PER_MT",
+          pricingBasis: 'PER_MT',
           unitWeightKg: null,
-          quantityUom: "PCS",
+          quantityUom: 'PCS',
           theoreticalWeightKg: null,
           missingWeightWarning: false,
           // Stock & Source Fields (Phase 3)
-          sourceType: "WAREHOUSE",
+          sourceType: 'WAREHOUSE',
         },
       ],
     }));
@@ -852,7 +852,7 @@ const QuotationForm = () => {
     newItems[index][field] = value;
 
     // If product is selected, populate item details
-    if (field === "productId" && value) {
+    if (field === 'productId' && value) {
       const product = products.find((p) => p.id === parseInt(value));
       if (product) {
         const productDisplayName =
@@ -881,27 +881,27 @@ const QuotationForm = () => {
         const primaryUom = (
           product.primaryUom ||
           product.primary_uom ||
-          ""
+          ''
         ).toUpperCase();
         let quantityUom;
-        if (primaryUom === "MT" || primaryUom === "KG") {
+        if (primaryUom === 'MT' || primaryUom === 'KG') {
           quantityUom = primaryUom;
         } else {
-          const category = (product.category || "").toLowerCase();
-          const isCoil = category.includes("coil");
-          quantityUom = isCoil ? "MT" : "PCS";
+          const category = (product.category || '').toLowerCase();
+          const isCoil = category.includes('coil');
+          quantityUom = isCoil ? 'MT' : 'PCS';
         }
 
         // Get pricing basis and unit weight from product
         const pricingBasis =
-          product.pricingBasis || product.pricing_basis || "PER_MT";
+          product.pricingBasis || product.pricing_basis || 'PER_MT';
         const unitWeightKg =
           product.unitWeightKg || product.unit_weight_kg || null;
 
         // Flag if weight is missing for weight-based pricing
         const missingWeightWarning =
-          (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") &&
-          quantityUom === "PCS" &&
+          (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG') &&
+          quantityUom === 'PCS' &&
           !unitWeightKg;
 
         newItems[index] = {
@@ -911,30 +911,30 @@ const QuotationForm = () => {
             product.specifications?.specification ||
             product.specifications?.size ||
             newItems[index].specification ||
-            "",
+            '',
           grade:
             product.specifications?.grade ||
             product.grade ||
             newItems[index].grade ||
-            "",
+            '',
           finish:
             product.specifications?.finish ||
             product.finish ||
             newItems[index].finish ||
-            "",
+            '',
           size:
             product.specifications?.size ||
             product.size ||
             newItems[index].size ||
-            "",
+            '',
           thickness:
             product.specifications?.thickness ||
             product.thickness ||
             newItems[index].thickness ||
-            "",
-          description: product.description || "",
-          hsnCode: product.hsnCode || "",
-          unit: product.unit || "pcs",
+            '',
+          description: product.description || '',
+          hsnCode: product.hsnCode || '',
+          unit: product.unit || 'pcs',
           rate: sellingPrice,
           // Pricing & Commercial Fields
           pricingBasis,
@@ -956,12 +956,12 @@ const QuotationForm = () => {
     const grossAmount = calculateItemAmount(
       quantity,
       rate,
-      item.pricingBasis || "PER_MT",
+      item.pricingBasis || 'PER_MT',
       item.unitWeightKg,
-      item.quantityUom || "PCS",
+      item.quantityUom || 'PCS',
     );
     const discountAmount =
-      item.discountType === "percentage"
+      item.discountType === 'percentage'
         ? (grossAmount * discount) / 100
         : discount;
     const taxableAmount = grossAmount - discountAmount;
@@ -972,13 +972,13 @@ const QuotationForm = () => {
     // Update theoretical weight when quantity changes
     let theoreticalWeightKg = item.theoreticalWeightKg;
     if (
-      field === "quantity" ||
-      field === "unitWeightKg" ||
-      field === "productId"
+      field === 'quantity' ||
+      field === 'unitWeightKg' ||
+      field === 'productId'
     ) {
-      if (item.quantityUom === "MT") {
+      if (item.quantityUom === 'MT') {
         theoreticalWeightKg = quantity * 1000;
-      } else if (item.quantityUom === "KG") {
+      } else if (item.quantityUom === 'KG') {
         theoreticalWeightKg = quantity;
       } else if (item.unitWeightKg) {
         theoreticalWeightKg = quantity * item.unitWeightKg;
@@ -1022,7 +1022,7 @@ const QuotationForm = () => {
 
     // Apply invoice-level discount
     const discountAmount =
-      formData.discountType === "percentage"
+      formData.discountType === 'percentage'
         ? (subtotal * (parseFloat(formData.discountPercentage) || 0)) / 100
         : parseFloat(formData.discountAmount) || 0;
 
@@ -1072,23 +1072,23 @@ const QuotationForm = () => {
 
     // Validation
     const errors = [];
-    if (!formData.quotationNumber || formData.quotationNumber.trim() === "") {
-      errors.push("Quotation number is required");
+    if (!formData.quotationNumber || formData.quotationNumber.trim() === '') {
+      errors.push('Quotation number is required');
     }
     if (
       !formData.customerDetails.name ||
-      formData.customerDetails.name.trim() === ""
+      formData.customerDetails.name.trim() === ''
     ) {
-      errors.push("Customer name is required");
+      errors.push('Customer name is required');
     }
     if (!formData.quotationDate) {
-      errors.push("Quotation date is required");
+      errors.push('Quotation date is required');
     }
     if (!formData.items || formData.items.length === 0) {
-      errors.push("At least one item is required");
+      errors.push('At least one item is required');
     } else {
       formData.items.forEach((item, index) => {
-        if (!item.name || item.name.trim() === "") {
+        if (!item.name || item.name.trim() === '') {
           errors.push(`Item ${index + 1}: Product name is required`);
         }
         if (!item.quantity || item.quantity <= 0) {
@@ -1107,15 +1107,15 @@ const QuotationForm = () => {
     }
 
     if (errors.length > 0) {
-      setError(errors.join("\n"));
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setError(errors.join('\n'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
     setIsSaving(true);
 
     try {
-      setError("");
+      setError('');
 
       // Transform to backend format (snake_case)
       const dataToSubmit = {
@@ -1125,51 +1125,51 @@ const QuotationForm = () => {
         quotation_date: formData.quotationDate,
         valid_until: formData.validUntil || null,
         customer_purchase_order_number:
-          formData.customerPurchaseOrderNumber || "",
+          formData.customerPurchaseOrderNumber || '',
         customer_purchase_order_date:
           formData.customerPurchaseOrderDate || null,
         warehouse_id: formData.warehouseId
           ? Number(formData.warehouseId)
           : null,
-        warehouse_name: formData.warehouseName || "",
-        warehouse_code: formData.warehouseCode || "",
-        warehouse_city: formData.warehouseCity || "",
-        currency: formData.currency || "AED",
+        warehouse_name: formData.warehouseName || '',
+        warehouse_code: formData.warehouseCode || '',
+        warehouse_city: formData.warehouseCity || '',
+        currency: formData.currency || 'AED',
         exchange_rate: formData.exchangeRate || 1,
-        delivery_terms: formData.deliveryTerms || "",
-        payment_terms: formData.paymentTerms || "",
-        notes: formData.notes || "",
-        terms_and_conditions: formData.termsAndConditions || "",
+        delivery_terms: formData.deliveryTerms || '',
+        payment_terms: formData.paymentTerms || '',
+        notes: formData.notes || '',
+        terms_and_conditions: formData.termsAndConditions || '',
         items: formData.items.map((item) => ({
           product_id: item.productId ? Number(item.productId) : null,
           name: item.name,
-          specification: item.specification || "",
-          grade: item.grade || "",
-          finish: item.finish || "",
-          size: item.size || "",
-          thickness: item.thickness || "",
-          description: item.description || "",
-          hsn_code: item.hsnCode || "",
-          unit: item.unit || "pcs",
+          specification: item.specification || '',
+          grade: item.grade || '',
+          finish: item.finish || '',
+          size: item.size || '',
+          thickness: item.thickness || '',
+          description: item.description || '',
+          hsn_code: item.hsnCode || '',
+          unit: item.unit || 'pcs',
           quantity: parseFloat(item.quantity) || 0,
           rate: parseFloat(item.rate) || 0,
           discount: parseFloat(item.discount) || 0,
-          discount_type: item.discountType || "amount",
+          discount_type: item.discountType || 'amount',
           taxable_amount: parseFloat(item.taxableAmount) || 0,
           vat_rate: parseFloat(item.vatRate) || 0,
           amount: parseFloat(item.amount) || 0,
           net_amount: parseFloat(item.netAmount) || 0,
           // Pricing & Commercial Fields
-          pricing_basis: item.pricingBasis || "PER_MT",
+          pricing_basis: item.pricingBasis || 'PER_MT',
           unit_weight_kg: item.unitWeightKg
             ? parseFloat(item.unitWeightKg)
             : null,
-          quantity_uom: item.quantityUom || "PCS",
+          quantity_uom: item.quantityUom || 'PCS',
           theoretical_weight_kg: item.theoreticalWeightKg
             ? parseFloat(item.theoreticalWeightKg)
             : null,
           // Stock & Source Fields (Phase 3)
-          source_type: item.sourceType || "WAREHOUSE",
+          source_type: item.sourceType || 'WAREHOUSE',
         })),
         subtotal: parseFloat(formData.subtotal) || 0,
         vat_amount: parseFloat(formData.vatAmount) || 0,
@@ -1180,41 +1180,41 @@ const QuotationForm = () => {
         insurance_charges: parseFloat(formData.insuranceCharges) || 0,
         loading_charges: parseFloat(formData.loadingCharges) || 0,
         other_charges: parseFloat(formData.otherCharges) || 0,
-        discount_type: formData.discountType || "amount",
+        discount_type: formData.discountType || 'amount',
         discount_percentage: parseFloat(formData.discountPercentage) || 0,
         discount_amount: parseFloat(formData.discountAmount) || 0,
         total: parseFloat(formData.total) || 0,
-        status: formData.status || "draft",
+        status: formData.status || 'draft',
       };
 
       if (isEdit) {
         await quotationsAPI.update(id, dataToSubmit);
-        setSuccess("Quotation updated successfully");
+        setSuccess('Quotation updated successfully');
       } else {
         await quotationsAPI.create(dataToSubmit);
-        setSuccess("Quotation created successfully");
+        setSuccess('Quotation created successfully');
       }
 
       // Standardized smooth transition delay (300ms)
       setTimeout(() => {
-        navigate("/quotations");
+        navigate('/quotations');
       }, 300);
     } catch (err) {
-      console.error("Error saving quotation:", err);
+      console.error('Error saving quotation:', err);
       const apiErrors = err?.response?.data?.errors;
       if (Array.isArray(apiErrors) && apiErrors.length) {
         const msgs = apiErrors.map((apiErr) =>
-          typeof apiErr === "string"
+          typeof apiErr === 'string'
             ? apiErr
             : apiErr.message || JSON.stringify(apiErr),
         );
-        setError(msgs.join("\n"));
+        setError(msgs.join('\n'));
       } else if (err?.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err?.message) {
         setError(err.message);
       } else {
-        setError("Failed to save quotation");
+        setError('Failed to save quotation');
       }
     } finally {
       setIsSaving(false);
@@ -1224,7 +1224,7 @@ const QuotationForm = () => {
   if (loading && isEdit) {
     return (
       <div
-        className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
       >
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
@@ -1237,7 +1237,7 @@ const QuotationForm = () => {
   const Input = ({
     label,
     inputError,
-    className = "",
+    className = '',
     required = false,
     validationState = null,
     showValidation = true,
@@ -1250,27 +1250,27 @@ const QuotationForm = () => {
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode
-          ? "border-gray-600 bg-gray-800"
-          : "border-gray-300 bg-white";
+          ? 'border-gray-600 bg-gray-800'
+          : 'border-gray-300 bg-white';
       }
-      if (inputError || validationState === "invalid") {
+      if (inputError || validationState === 'invalid') {
         return isDarkMode
-          ? "border-red-500 bg-red-900/10"
-          : "border-red-500 bg-red-50";
+          ? 'border-red-500 bg-red-900/10'
+          : 'border-red-500 bg-red-50';
       }
-      if (validationState === "valid") {
+      if (validationState === 'valid') {
         return isDarkMode
-          ? "border-green-500 bg-green-900/10"
-          : "border-green-500 bg-green-50";
+          ? 'border-green-500 bg-green-900/10'
+          : 'border-green-500 bg-green-50';
       }
       if (required && validationState === null) {
         return isDarkMode
-          ? "border-yellow-600/50 bg-yellow-900/5"
-          : "border-yellow-400/50 bg-yellow-50/30";
+          ? 'border-yellow-600/50 bg-yellow-900/5'
+          : 'border-yellow-400/50 bg-yellow-50/30';
       }
       return isDarkMode
-        ? "border-gray-600 bg-gray-800"
-        : "border-gray-300 bg-white";
+        ? 'border-gray-600 bg-gray-800'
+        : 'border-gray-300 bg-white';
     };
 
     return (
@@ -1279,8 +1279,8 @@ const QuotationForm = () => {
           <label
             htmlFor={inputId}
             className={`block text-xs font-medium ${
-              isDarkMode ? "text-gray-400" : "text-gray-700"
-            } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
+              isDarkMode ? 'text-gray-400' : 'text-gray-700'
+            } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
           >
             {label}
           </label>
@@ -1289,14 +1289,14 @@ const QuotationForm = () => {
           id={inputId}
           className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
             isDarkMode
-              ? "text-white placeholder-gray-500"
-              : "text-gray-900 placeholder-gray-400"
+              ? 'text-white placeholder-gray-500'
+              : 'text-gray-900 placeholder-gray-400'
           } ${getValidationClasses()} ${className}`}
           {...props}
         />
         {inputError && (
           <p
-            className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+            className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
           >
             {inputError}
           </p>
@@ -1309,7 +1309,7 @@ const QuotationForm = () => {
     label,
     children,
     selectError,
-    className = "",
+    className = '',
     required = false,
     validationState = null,
     showValidation = true,
@@ -1322,27 +1322,27 @@ const QuotationForm = () => {
     const getValidationClasses = () => {
       if (!showValidation) {
         return isDarkMode
-          ? "border-gray-600 bg-gray-800"
-          : "border-gray-300 bg-white";
+          ? 'border-gray-600 bg-gray-800'
+          : 'border-gray-300 bg-white';
       }
-      if (selectError || validationState === "invalid") {
+      if (selectError || validationState === 'invalid') {
         return isDarkMode
-          ? "border-red-500 bg-red-900/10"
-          : "border-red-500 bg-red-50";
+          ? 'border-red-500 bg-red-900/10'
+          : 'border-red-500 bg-red-50';
       }
-      if (validationState === "valid") {
+      if (validationState === 'valid') {
         return isDarkMode
-          ? "border-green-500 bg-green-900/10"
-          : "border-green-500 bg-green-50";
+          ? 'border-green-500 bg-green-900/10'
+          : 'border-green-500 bg-green-50';
       }
       if (required && validationState === null) {
         return isDarkMode
-          ? "border-yellow-600/50 bg-yellow-900/5"
-          : "border-yellow-400/50 bg-yellow-50/30";
+          ? 'border-yellow-600/50 bg-yellow-900/5'
+          : 'border-yellow-400/50 bg-yellow-50/30';
       }
       return isDarkMode
-        ? "border-gray-600 bg-gray-800"
-        : "border-gray-300 bg-white";
+        ? 'border-gray-600 bg-gray-800'
+        : 'border-gray-300 bg-white';
     };
 
     return (
@@ -1351,8 +1351,8 @@ const QuotationForm = () => {
           <label
             htmlFor={selectId}
             className={`block text-xs font-medium ${
-              isDarkMode ? "text-gray-400" : "text-gray-700"
-            } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
+              isDarkMode ? 'text-gray-400' : 'text-gray-700'
+            } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
           >
             {label}
           </label>
@@ -1360,7 +1360,7 @@ const QuotationForm = () => {
         <select
           id={selectId}
           className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
-            isDarkMode ? "text-white" : "text-gray-900"
+            isDarkMode ? 'text-white' : 'text-gray-900'
           } ${getValidationClasses()} ${className}`}
           {...props}
         >
@@ -1368,7 +1368,7 @@ const QuotationForm = () => {
         </select>
         {error && (
           <p
-            className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+            className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
           >
             {error}
           </p>
@@ -1388,14 +1388,14 @@ const QuotationForm = () => {
     label,
     disabled = false,
     renderOption,
-    noOptionsText = "No options",
-    className = "",
+    noOptionsText = 'No options',
+    className = '',
     title,
     inputError,
     required = false,
     validationState = null,
     showValidation = true,
-    "data-testid": dataTestId,
+    'data-testid': dataTestId,
   }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState(options);
@@ -1408,7 +1408,7 @@ const QuotationForm = () => {
     }, [filteredOptions]);
 
     // Fuzzy match helpers
-    const norm = (s) => (s || "").toString().toLowerCase().trim();
+    const norm = (s) => (s || '').toString().toLowerCase().trim();
     const ed1 = (a, b) => {
       if (a === b) return 0;
       const la = a.length,
@@ -1454,7 +1454,7 @@ const QuotationForm = () => {
         const tokens = q.split(/\s+/).filter(Boolean);
         const scored = [];
         for (const o of opts) {
-          const optLabel = norm(o.label || o.name || "");
+          const optLabel = norm(o.label || o.name || '');
           if (!optLabel) continue;
           let ok = true;
           let score = 0;
@@ -1497,7 +1497,7 @@ const QuotationForm = () => {
 
     const handleKeyDown = (e) => {
       if (!isOpen) {
-        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
           setIsOpen(true);
           return;
         }
@@ -1505,19 +1505,19 @@ const QuotationForm = () => {
       }
 
       switch (e.key) {
-        case "ArrowDown":
+        case 'ArrowDown':
           e.preventDefault();
           setHighlightedIndex((prev) =>
             prev < filteredOptions.length - 1 ? prev + 1 : 0,
           );
           break;
-        case "ArrowUp":
+        case 'ArrowUp':
           e.preventDefault();
           setHighlightedIndex((prev) =>
             prev > 0 ? prev - 1 : filteredOptions.length - 1,
           );
           break;
-        case "Enter":
+        case 'Enter':
           e.preventDefault();
           if (
             highlightedIndex >= 0 &&
@@ -1526,7 +1526,7 @@ const QuotationForm = () => {
             handleOptionSelect(filteredOptions[highlightedIndex]);
           }
           break;
-        case "Escape":
+        case 'Escape':
           setIsOpen(false);
           setHighlightedIndex(-1);
           break;
@@ -1540,13 +1540,13 @@ const QuotationForm = () => {
         const inputRect = inputRef.current.getBoundingClientRect();
         const dropdown = dropdownRef.current;
 
-        dropdown.style.position = "fixed";
+        dropdown.style.position = 'fixed';
         dropdown.style.top = `${inputRect.bottom + 4}px`;
         dropdown.style.left = `${inputRect.left}px`;
         dropdown.style.minWidth = `${inputRect.width}px`;
-        dropdown.style.width = "auto";
-        dropdown.style.maxWidth = "90vw";
-        dropdown.style.zIndex = "9999";
+        dropdown.style.width = 'auto';
+        dropdown.style.maxWidth = '90vw';
+        dropdown.style.zIndex = '9999';
       }
     }, [isOpen]);
 
@@ -1556,12 +1556,12 @@ const QuotationForm = () => {
         const handleScroll = () => updateDropdownPosition();
         const handleResize = () => updateDropdownPosition();
 
-        window.addEventListener("scroll", handleScroll, true);
-        window.addEventListener("resize", handleResize);
+        window.addEventListener('scroll', handleScroll, true);
+        window.addEventListener('resize', handleResize);
 
         return () => {
-          window.removeEventListener("scroll", handleScroll, true);
-          window.removeEventListener("resize", handleResize);
+          window.removeEventListener('scroll', handleScroll, true);
+          window.removeEventListener('resize', handleResize);
         };
       }
     }, [isOpen, updateDropdownPosition]);
@@ -1571,7 +1571,7 @@ const QuotationForm = () => {
         <div ref={inputRef}>
           <Input
             label={label}
-            value={inputValue || ""}
+            value={inputValue || ''}
             onChange={handleInputChange}
             onFocus={() => setIsOpen(true)}
             onBlur={() => setTimeout(() => setIsOpen(false), 150)}
@@ -1595,8 +1595,8 @@ const QuotationForm = () => {
             role="listbox"
             className={`border rounded-lg shadow-xl max-h-60 overflow-auto ${
               isDarkMode
-                ? "bg-gray-800 border-gray-600"
-                : "bg-white border-gray-200"
+                ? 'bg-gray-800 border-gray-600'
+                : 'bg-white border-gray-200'
             }`}
           >
             {filteredOptions.length > 0 ? (
@@ -1609,11 +1609,11 @@ const QuotationForm = () => {
                   className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
                     index === highlightedIndex
                       ? isDarkMode
-                        ? "bg-teal-700 text-white border-gray-700"
-                        : "bg-teal-100 text-gray-900 border-gray-100"
+                        ? 'bg-teal-700 text-white border-gray-700'
+                        : 'bg-teal-100 text-gray-900 border-gray-100'
                       : isDarkMode
-                        ? "hover:bg-gray-700 text-white border-gray-700"
-                        : "hover:bg-gray-50 text-gray-900 border-gray-100"
+                        ? 'hover:bg-gray-700 text-white border-gray-700'
+                        : 'hover:bg-gray-50 text-gray-900 border-gray-100'
                   }`}
                   role="option"
                   aria-selected={index === highlightedIndex}
@@ -1629,7 +1629,7 @@ const QuotationForm = () => {
                       {option.subtitle && (
                         <div
                           className={`text-sm ${
-                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
                           }`}
                         >
                           {option.subtitle}
@@ -1642,7 +1642,7 @@ const QuotationForm = () => {
             ) : (
               <div
                 className={`px-3 py-2 text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}
               >
                 {noOptionsText}
@@ -1656,17 +1656,17 @@ const QuotationForm = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-2 md:p-4`}
+      className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} p-2 md:p-4`}
     >
       {/* Header - Compact on mobile */}
       <div className="mb-4 md:mb-6">
         <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
           <button
-            onClick={() => navigate("/quotations")}
+            onClick={() => navigate('/quotations')}
             className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
               isDarkMode
-                ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
             <ArrowLeft size={18} className="md:hidden" />
@@ -1674,16 +1674,16 @@ const QuotationForm = () => {
           </button>
           <div className="flex-1">
             <h1
-              className={`text-lg md:text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-lg md:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
-              {isEdit ? "Edit Quotation" : "New Quotation"}
+              {isEdit ? 'Edit Quotation' : 'New Quotation'}
             </h1>
             <p
-              className={`text-xs md:text-sm mt-0.5 md:mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-xs md:text-sm mt-0.5 md:mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               {isEdit
-                ? "Update quotation details"
-                : "Create a new quotation for your customer"}
+                ? 'Update quotation details'
+                : 'Create a new quotation for your customer'}
             </p>
           </div>
           <div className="relative">
@@ -1691,8 +1691,8 @@ const QuotationForm = () => {
               onClick={() => setShowFormSettings(!showFormSettings)}
               className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
                 isDarkMode
-                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
               title="Form Settings"
             >
@@ -1718,7 +1718,7 @@ const QuotationForm = () => {
           <AlertCircle size={18} className="flex-shrink-0" />
           <div className="flex-1 whitespace-pre-line">{error}</div>
           <button
-            onClick={() => setError("")}
+            onClick={() => setError('')}
             className="text-red-500 hover:text-red-700"
           >
             <X size={16} />
@@ -1740,15 +1740,15 @@ const QuotationForm = () => {
           <div
             className={`p-3 md:p-6 rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <div className="flex items-center gap-2 mb-3 md:mb-4">
               <FileText size={18} className="text-teal-600 md:hidden" />
               <FileText size={20} className="text-teal-600 hidden md:block" />
               <h2
-                className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-base md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Basic Information
               </h2>
@@ -1764,7 +1764,7 @@ const QuotationForm = () => {
                     ...prev,
                     quotationNumber: e.target.value,
                   }));
-                  validateField("quotationNumber", e.target.value);
+                  validateField('quotationNumber', e.target.value);
                 }}
                 required
                 validationState={fieldValidation.quotationNumber}
@@ -1780,7 +1780,7 @@ const QuotationForm = () => {
                     ...prev,
                     quotationDate: e.target.value,
                   }));
-                  validateField("quotationDate", e.target.value);
+                  validateField('quotationDate', e.target.value);
                 }}
                 required
                 validationState={fieldValidation.quotationDate}
@@ -1807,7 +1807,7 @@ const QuotationForm = () => {
                     ...prev,
                     currency: e.target.value,
                   }));
-                  validateField("currency", e.target.value);
+                  validateField('currency', e.target.value);
                 }}
                 required
                 validationState={fieldValidation.currency}
@@ -1826,15 +1826,15 @@ const QuotationForm = () => {
           <div
             className={`p-3 md:p-6 rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <div className="flex items-center gap-2 mb-3 md:mb-4">
               <User size={18} className="text-teal-600 md:hidden" />
               <User size={20} className="text-teal-600 hidden md:block" />
               <h2
-                className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-base md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Customer Information
               </h2>
@@ -1852,20 +1852,20 @@ const QuotationForm = () => {
                 value={
                   formData.customerId
                     ? customers.find(
-                        (c) => c.id === parseInt(formData.customerId),
-                      )
+                      (c) => c.id === parseInt(formData.customerId),
+                    )
                     : null
                 }
                 inputValue={customerInputValue}
                 onInputChange={(e, newValue) => {
-                  setCustomerInputValue(newValue || "");
+                  setCustomerInputValue(newValue || '');
                 }}
                 onChange={(e, selected) => {
                   if (selected) {
                     handleCustomerChange(selected.id, selected);
                   } else {
-                    handleCustomerChange("");
-                    setCustomerInputValue("");
+                    handleCustomerChange('');
+                    setCustomerInputValue('');
                   }
                 }}
                 noOptionsText="No customers found"
@@ -1884,7 +1884,7 @@ const QuotationForm = () => {
                       name: e.target.value,
                     },
                   }));
-                  validateField("customerName", e.target.value);
+                  validateField('customerName', e.target.value);
                 }}
                 required
                 validationState={fieldValidation.customerName}
@@ -1981,15 +1981,15 @@ const QuotationForm = () => {
           <div
             className={`p-3 md:p-6 rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <div className="flex items-center gap-2 mb-3 md:mb-4">
               <Package size={18} className="text-teal-600 md:hidden" />
               <Package size={20} className="text-teal-600 hidden md:block" />
               <h2
-                className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-base md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Warehouse & Delivery
               </h2>
@@ -2007,13 +2007,13 @@ const QuotationForm = () => {
                   setFormData((prev) => ({
                     ...prev,
                     warehouseId,
-                    warehouseName: w ? w.name : "",
-                    warehouseCode: w ? w.code : "",
-                    warehouseCity: w ? w.city : "",
+                    warehouseName: w ? w.name : '',
+                    warehouseCode: w ? w.code : '',
+                    warehouseCity: w ? w.city : '',
                   }));
-                  validateField("warehouse", warehouseId);
+                  validateField('warehouse', warehouseId);
                 }}
-                required={formData.status !== "draft"}
+                required={formData.status !== 'draft'}
                 validationState={fieldValidation.warehouse}
                 showValidation={formPreferences.showValidationHighlighting}
               >
@@ -2057,8 +2057,8 @@ const QuotationForm = () => {
           <div
             className={`p-3 md:p-6 rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <div className="flex items-center justify-between mb-3 md:mb-4">
@@ -2066,7 +2066,7 @@ const QuotationForm = () => {
                 <Package size={18} className="text-teal-600 md:hidden" />
                 <Package size={20} className="text-teal-600 hidden md:block" />
                 <h2
-                  className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-base md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Items ({formData.items.length})
                 </h2>
@@ -2087,7 +2087,7 @@ const QuotationForm = () => {
             {formPreferences.showSpeedButtons && sortedProducts.length > 0 && (
               <div className="mb-4">
                 <p
-                  className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                 >
                   Quick Add (Pinned & Top Products)
                 </p>
@@ -2105,18 +2105,18 @@ const QuotationForm = () => {
                           className={`px-2 md:px-3 py-1.5 md:py-2 pr-6 md:pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
                             isPinned
                               ? isDarkMode
-                                ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg"
-                                : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg"
+                                ? 'border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg'
+                                : 'border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg'
                               : isDarkMode
-                                ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md"
-                                : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md"
+                                ? 'border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md'
+                                : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                           }`}
                         >
                           {product.displayName ||
                             product.display_name ||
                             product.uniqueName ||
                             product.unique_name ||
-                            "N/A"}
+                            'N/A'}
                         </button>
                         <button
                           type="button"
@@ -2124,13 +2124,13 @@ const QuotationForm = () => {
                           className={`absolute right-0.5 md:right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                             isPinned
                               ? isDarkMode
-                                ? "text-teal-300 hover:text-teal-200"
-                                : "text-teal-700 hover:text-teal-800"
+                                ? 'text-teal-300 hover:text-teal-200'
+                                : 'text-teal-700 hover:text-teal-800'
                               : isDarkMode
-                                ? "text-gray-400 hover:text-teal-400"
-                                : "text-gray-500 hover:text-teal-600"
+                                ? 'text-gray-400 hover:text-teal-400'
+                                : 'text-gray-500 hover:text-teal-600'
                           }`}
-                          title={isPinned ? "Unpin product" : "Pin product"}
+                          title={isPinned ? 'Unpin product' : 'Pin product'}
                         >
                           {isPinned ? (
                             <Pin
@@ -2162,19 +2162,19 @@ const QuotationForm = () => {
               <div className="text-center py-8 md:py-12">
                 <Package
                   size={40}
-                  className={`mx-auto mb-3 md:mb-4 md:hidden ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                  className={`mx-auto mb-3 md:mb-4 md:hidden ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                 />
                 <Package
                   size={48}
-                  className={`mx-auto mb-3 md:mb-4 hidden md:block ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                  className={`mx-auto mb-3 md:mb-4 hidden md:block ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                 />
                 <p
-                  className={`text-sm md:text-lg font-medium mb-1 md:mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-sm md:text-lg font-medium mb-1 md:mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   No items added yet
                 </p>
                 <p
-                  className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                 >
                   Click &quot;Add Item&quot; or use Quick Add buttons
                 </p>
@@ -2186,8 +2186,8 @@ const QuotationForm = () => {
                     key={index}
                     className={`p-3 md:p-4 border rounded-lg ${
                       isDarkMode
-                        ? "border-gray-600 bg-gray-800/50"
-                        : "border-gray-200 bg-gray-50"
+                        ? 'border-gray-600 bg-gray-800/50'
+                        : 'border-gray-200 bg-gray-50'
                     }`}
                   >
                     {/* Stock Availability & Source Type Row */}
@@ -2196,7 +2196,7 @@ const QuotationForm = () => {
                       {item.productId && formData.warehouseId && (
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                            className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                           >
                             Stock:
                           </span>
@@ -2213,14 +2213,14 @@ const QuotationForm = () => {
                       {/* Source Type Selector */}
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Source:
                         </span>
                         <SourceTypeSelector
-                          value={item.sourceType || "WAREHOUSE"}
+                          value={item.sourceType || 'WAREHOUSE'}
                           onChange={(value) =>
-                            updateItem(index, "sourceType", value)
+                            updateItem(index, 'sourceType', value)
                           }
                           id={`source-type-${index}`}
                         />
@@ -2233,7 +2233,7 @@ const QuotationForm = () => {
                           label="Product"
                           value={item.productId}
                           onChange={(e) =>
-                            updateItem(index, "productId", e.target.value)
+                            updateItem(index, 'productId', e.target.value)
                           }
                         >
                           <option value="">Select or enter manually</option>
@@ -2243,7 +2243,7 @@ const QuotationForm = () => {
                                 product.display_name ||
                                 product.uniqueName ||
                                 product.unique_name ||
-                                "N/A"}
+                                'N/A'}
                             </option>
                           ))}
                         </Select>
@@ -2251,7 +2251,7 @@ const QuotationForm = () => {
                           placeholder="Item name"
                           value={item.name}
                           onChange={(e) =>
-                            updateItem(index, "name", e.target.value)
+                            updateItem(index, 'name', e.target.value)
                           }
                           required
                           className="mt-2"
@@ -2260,9 +2260,9 @@ const QuotationForm = () => {
 
                       <Select
                         label="Grade"
-                        value={item.grade || ""}
+                        value={item.grade || ''}
                         onChange={(e) =>
-                          updateItem(index, "grade", e.target.value)
+                          updateItem(index, 'grade', e.target.value)
                         }
                       >
                         <option value="">Select Grade</option>
@@ -2275,9 +2275,9 @@ const QuotationForm = () => {
 
                       <Select
                         label="Finish"
-                        value={item.finish || ""}
+                        value={item.finish || ''}
                         onChange={(e) =>
-                          updateItem(index, "finish", e.target.value)
+                          updateItem(index, 'finish', e.target.value)
                         }
                       >
                         <option value="">Select Finish</option>
@@ -2291,9 +2291,9 @@ const QuotationForm = () => {
                       <Input
                         label="Size"
                         type="text"
-                        value={item.size || ""}
+                        value={item.size || ''}
                         onChange={(e) =>
-                          updateItem(index, "size", e.target.value)
+                          updateItem(index, 'size', e.target.value)
                         }
                         placeholder="e.g., 1220x2440"
                       />
@@ -2301,9 +2301,9 @@ const QuotationForm = () => {
                       <Input
                         label="Thickness"
                         type="text"
-                        value={item.thickness || ""}
+                        value={item.thickness || ''}
                         onChange={(e) =>
-                          updateItem(index, "thickness", e.target.value)
+                          updateItem(index, 'thickness', e.target.value)
                         }
                         placeholder="e.g., 1.2mm"
                       />
@@ -2311,9 +2311,9 @@ const QuotationForm = () => {
                       <div>
                         <label
                           htmlFor={`item-quantity-${index}`}
-                          className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
-                          Quantity ({item.quantityUom || "PCS"})
+                          Quantity ({item.quantityUom || 'PCS'})
                         </label>
                         <input
                           id={`item-quantity-${index}`}
@@ -2321,28 +2321,28 @@ const QuotationForm = () => {
                           value={item.quantity}
                           onChange={(e) => {
                             const allowDecimal =
-                              item.quantityUom === "MT" ||
-                              item.quantityUom === "KG";
+                              item.quantityUom === 'MT' ||
+                              item.quantityUom === 'KG';
                             const val = allowDecimal
                               ? parseFloat(e.target.value)
                               : parseInt(e.target.value, 10);
                             updateItem(
                               index,
-                              "quantity",
-                              isNaN(val) ? "" : val,
+                              'quantity',
+                              isNaN(val) ? '' : val,
                             );
                           }}
                           min="0"
                           step={
-                            item.quantityUom === "MT" ||
-                            item.quantityUom === "KG"
-                              ? "0.001"
-                              : "1"
+                            item.quantityUom === 'MT' ||
+                            item.quantityUom === 'KG'
+                              ? '0.001'
+                              : '1'
                           }
                           className={`w-full px-3 py-2 text-sm border rounded-md ${
                             isDarkMode
-                              ? "bg-gray-700 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
                           }`}
                           required
                         />
@@ -2351,19 +2351,19 @@ const QuotationForm = () => {
                       <div>
                         <label
                           htmlFor={`item-unit-weight-${index}`}
-                          className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Unit Wt (kg)
                         </label>
                         <input
                           id={`item-unit-weight-${index}`}
                           type="number"
-                          value={item.unitWeightKg || ""}
+                          value={item.unitWeightKg || ''}
                           onChange={(e) =>
                             updateItem(
                               index,
-                              "unitWeightKg",
-                              e.target.value === ""
+                              'unitWeightKg',
+                              e.target.value === ''
                                 ? null
                                 : parseFloat(e.target.value),
                             )
@@ -2373,30 +2373,30 @@ const QuotationForm = () => {
                           placeholder="0.00"
                           className={`w-full px-3 py-2 text-sm border rounded-md ${
                             isDarkMode
-                              ? "bg-gray-700 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
-                          } ${item.missingWeightWarning ? "border-red-500" : ""}`}
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } ${item.missingWeightWarning ? 'border-red-500' : ''}`}
                         />
                       </div>
 
                       <div>
                         <div
-                          className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Total Wt (kg)
                         </div>
                         <div
                           className={`px-3 py-2 text-sm border rounded-md ${
                             isDarkMode
-                              ? "bg-gray-700/50 border-gray-600 text-gray-300"
-                              : "bg-gray-100 border-gray-300 text-gray-600"
+                              ? 'bg-gray-700/50 border-gray-600 text-gray-300'
+                              : 'bg-gray-100 border-gray-300 text-gray-600'
                           }`}
                         >
                           {(() => {
                             const totalWt =
                               item.theoreticalWeightKg ||
                               item.quantity * (item.unitWeightKg || 0);
-                            return totalWt ? totalWt.toFixed(2) : "-";
+                            return totalWt ? totalWt.toFixed(2) : '-';
                           })()}
                         </div>
                       </div>
@@ -2404,12 +2404,12 @@ const QuotationForm = () => {
                       <div>
                         <label
                           htmlFor={`item-rate-${index}`}
-                          className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Rate ({formData.currency})
                         </label>
                         <div
-                          className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                          className={`flex rounded-md overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                         >
                           <input
                             id={`item-rate-${index}`}
@@ -2418,7 +2418,7 @@ const QuotationForm = () => {
                             onChange={(e) =>
                               updateItem(
                                 index,
-                                "rate",
+                                'rate',
                                 parseFloat(e.target.value) || 0,
                               )
                             }
@@ -2426,22 +2426,22 @@ const QuotationForm = () => {
                             step="0.01"
                             className={`flex-1 px-3 py-2 text-sm border-0 ${
                               isDarkMode
-                                ? "bg-gray-700 text-white"
-                                : "bg-white text-gray-900"
+                                ? 'bg-gray-700 text-white'
+                                : 'bg-white text-gray-900'
                             }`}
                             required
                           />
                           <select
-                            value={item.pricingBasis || "PER_MT"}
+                            value={item.pricingBasis || 'PER_MT'}
                             onChange={(e) =>
-                              updateItem(index, "pricingBasis", e.target.value)
+                              updateItem(index, 'pricingBasis', e.target.value)
                             }
                             className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
-                              item.pricingBasis === "PER_KG"
-                                ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                                : item.pricingBasis === "PER_PCS"
-                                  ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
-                                  : "bg-gray-50 text-gray-600 border-gray-300"
+                              item.pricingBasis === 'PER_KG'
+                                ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700'
+                                : item.pricingBasis === 'PER_PCS'
+                                  ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700'
+                                  : 'bg-gray-50 text-gray-600 border-gray-300'
                             }`}
                           >
                             <option value="PER_MT">/MT</option>
@@ -2456,7 +2456,7 @@ const QuotationForm = () => {
                         type="number"
                         value={item.vatRate}
                         onChange={(e) =>
-                          updateItem(index, "vatRate", e.target.value)
+                          updateItem(index, 'vatRate', e.target.value)
                         }
                         min="0"
                         max="100"
@@ -2467,7 +2467,7 @@ const QuotationForm = () => {
                         <div className="flex-1">
                           <div
                             className={`block text-xs font-medium mb-1 ${
-                              isDarkMode ? "text-gray-400" : "text-gray-700"
+                              isDarkMode ? 'text-gray-400' : 'text-gray-700'
                             }`}
                           >
                             Total
@@ -2475,8 +2475,8 @@ const QuotationForm = () => {
                           <div
                             className={`px-2 py-1.5 text-sm border rounded-md ${
                               isDarkMode
-                                ? "bg-gray-700 border-gray-600 text-gray-300"
-                                : "bg-gray-100 border-gray-300 text-gray-600"
+                                ? 'bg-gray-700 border-gray-600 text-gray-300'
+                                : 'bg-gray-100 border-gray-300 text-gray-600'
                             }`}
                           >
                             {formatCurrency(item.netAmount)}
@@ -2496,10 +2496,10 @@ const QuotationForm = () => {
                     {/* Missing Weight Warning */}
                     {item.missingWeightWarning && (
                       <div
-                        className={`mt-2 p-2 rounded-md border ${isDarkMode ? "bg-amber-900/30 border-amber-600" : "bg-amber-50 border-amber-200"}`}
+                        className={`mt-2 p-2 rounded-md border ${isDarkMode ? 'bg-amber-900/30 border-amber-600' : 'bg-amber-50 border-amber-200'}`}
                       >
                         <p
-                          className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}
+                          className={`text-xs ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}
                         >
                           <AlertCircle className="inline h-3 w-3 mr-1" />
                           Unit weight missing for weight-based pricing (
@@ -2512,7 +2512,7 @@ const QuotationForm = () => {
                     {/* Additional fields - collapsible on mobile */}
                     <details className="mt-2 md:mt-3">
                       <summary
-                        className={`text-xs cursor-pointer ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        className={`text-xs cursor-pointer ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                       >
                         More details
                       </summary>
@@ -2522,7 +2522,7 @@ const QuotationForm = () => {
                           type="text"
                           value={item.specification}
                           onChange={(e) =>
-                            updateItem(index, "specification", e.target.value)
+                            updateItem(index, 'specification', e.target.value)
                           }
                         />
 
@@ -2530,7 +2530,7 @@ const QuotationForm = () => {
                           label="Unit"
                           value={item.unit}
                           onChange={(e) =>
-                            updateItem(index, "unit", e.target.value)
+                            updateItem(index, 'unit', e.target.value)
                           }
                         >
                           <option value="pcs">Pieces</option>
@@ -2547,7 +2547,7 @@ const QuotationForm = () => {
                           type="text"
                           value={item.hsnCode}
                           onChange={(e) =>
-                            updateItem(index, "hsnCode", e.target.value)
+                            updateItem(index, 'hsnCode', e.target.value)
                           }
                         />
                       </div>
@@ -2567,14 +2567,14 @@ const QuotationForm = () => {
             <div
               className={`p-4 rounded-2xl border ${
                 isDarkMode
-                  ? "bg-[#141a20] border-[#2a3640]"
-                  : "bg-white border-gray-200"
+                  ? 'bg-[#141a20] border-[#2a3640]'
+                  : 'bg-white border-gray-200'
               }`}
             >
               <div className="flex items-center gap-2 mb-3">
                 <Calculator size={18} className="text-teal-600" />
                 <h3
-                  className={`text-sm font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-sm font-extrabold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   Summary
                 </h3>
@@ -2583,12 +2583,12 @@ const QuotationForm = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-[13px]">
                   <span
-                    className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}
+                    className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}
                   >
                     Subtotal
                   </span>
                   <span
-                    className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {formatCurrency(formData.subtotal)}
                   </span>
@@ -2598,13 +2598,13 @@ const QuotationForm = () => {
                   <div className="flex justify-between text-[13px]">
                     <span
                       className={
-                        isDarkMode ? "text-[#93a4b4]" : "text-gray-500"
+                        isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'
                       }
                     >
                       VAT
                     </span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(formData.vatAmount)}
                     </span>
@@ -2620,13 +2620,13 @@ const QuotationForm = () => {
                   <div className="flex justify-between text-[13px]">
                     <span
                       className={
-                        isDarkMode ? "text-[#93a4b4]" : "text-gray-500"
+                        isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'
                       }
                     >
                       Charges
                     </span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(
                         (parseFloat(formData.packingCharges) || 0) +
@@ -2640,12 +2640,12 @@ const QuotationForm = () => {
                 )}
 
                 <div
-                  className={`h-px my-2 ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"}`}
+                  className={`h-px my-2 ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'}`}
                 />
 
                 <div className="flex justify-between items-center">
                   <span
-                    className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     Total
                   </span>
@@ -2656,12 +2656,12 @@ const QuotationForm = () => {
 
                 <div className="flex justify-between text-xs pt-1">
                   <span
-                    className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}
+                    className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}
                   >
                     {formData.items.length} items
                   </span>
                   <span
-                    className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}
+                    className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}
                   >
                     Qty: {formData.totalQuantity}
                   </span>
@@ -2673,12 +2673,12 @@ const QuotationForm = () => {
             <div
               className={`p-4 rounded-2xl border ${
                 isDarkMode
-                  ? "bg-[#141a20] border-[#2a3640]"
-                  : "bg-white border-gray-200"
+                  ? 'bg-[#141a20] border-[#2a3640]'
+                  : 'bg-white border-gray-200'
               }`}
             >
               <div
-                className={`text-xs font-medium mb-2 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Quick Actions
               </div>
@@ -2688,8 +2688,8 @@ const QuotationForm = () => {
                   onClick={() => setChargesDrawerOpen(true)}
                   className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
                     isDarkMode
-                      ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
-                      : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
+                      ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
+                      : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
                   }`}
                 >
                   <Package className="h-4 w-4 opacity-60" />
@@ -2701,7 +2701,7 @@ const QuotationForm = () => {
                     (parseFloat(formData.otherCharges) || 0) >
                     0 && (
                     <span
-                      className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
+                      className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'}`}
                     >
                       {formatCurrency(
                         (parseFloat(formData.packingCharges) || 0) +
@@ -2718,15 +2718,15 @@ const QuotationForm = () => {
                   onClick={() => setNotesDrawerOpen(true)}
                   className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
                     isDarkMode
-                      ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
-                      : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
+                      ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
+                      : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
                   }`}
                 >
                   <FileText className="h-4 w-4 opacity-60" />
                   Notes & Terms
                   {(formData.notes || formData.termsAndConditions) && (
                     <span
-                      className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`}
+                      className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? 'bg-teal-400' : 'bg-teal-500'}`}
                     />
                   )}
                 </button>
@@ -2740,8 +2740,8 @@ const QuotationForm = () => {
                 onClick={() => setShowPreview(true)}
                 className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] rounded-xl border transition-colors ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]"
-                    : "bg-white border-gray-300 text-gray-700 hover:border-blue-500"
+                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]'
+                    : 'bg-white border-gray-300 text-gray-700 hover:border-blue-500'
                 }`}
               >
                 <Eye size={16} />
@@ -2751,7 +2751,7 @@ const QuotationForm = () => {
                 type="submit"
                 disabled={isSaving}
                 className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl text-[13px] cursor-pointer ${
-                  isSaving ? "opacity-60 cursor-not-allowed" : ""
+                  isSaving ? 'opacity-60 cursor-not-allowed' : ''
                 }`}
               >
                 {isSaving ? (
@@ -2762,17 +2762,17 @@ const QuotationForm = () => {
                 ) : (
                   <>
                     <Save size={16} />
-                    {isEdit ? "Update Quotation" : "Create Quotation"}
+                    {isEdit ? 'Update Quotation' : 'Create Quotation'}
                   </>
                 )}
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/quotations")}
+                onClick={() => navigate('/quotations')}
                 className={`w-full py-2 text-[13px] text-center ${
                   isDarkMode
-                    ? "text-[#93a4b4] hover:text-white"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? 'text-[#93a4b4] hover:text-white'
+                    : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 Cancel
@@ -2794,7 +2794,7 @@ const QuotationForm = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Packing Charges
               </label>
@@ -2812,14 +2812,14 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
+                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div>
               <label
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Freight Charges
               </label>
@@ -2837,14 +2837,14 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
+                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div>
               <label
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Insurance Charges
               </label>
@@ -2862,14 +2862,14 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
+                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div>
               <label
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Loading Charges
               </label>
@@ -2887,14 +2887,14 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
+                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div className="col-span-2">
               <label
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Other Charges
               </label>
@@ -2912,19 +2912,19 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
+                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
           </div>
 
           <div
-            className={`p-3 rounded-[14px] ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+            className={`p-3 rounded-[14px] ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}
           >
             <div className="flex justify-between items-center">
               <span
-                className={`text-sm ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`text-sm ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Total Charges
               </span>
@@ -2945,8 +2945,8 @@ const QuotationForm = () => {
           className="sticky bottom-0 pt-4 mt-6"
           style={{
             background: isDarkMode
-              ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
+              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
           }}
         >
           <button
@@ -2970,7 +2970,7 @@ const QuotationForm = () => {
         <div className="space-y-4 mt-4">
           <div>
             <label
-              className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Notes
             </label>
@@ -2983,14 +2983,14 @@ const QuotationForm = () => {
               rows={4}
               className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
                 isDarkMode
-                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
+                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
               } focus:ring-2 focus:ring-[#4aa3ff]/20`}
             />
           </div>
           <div>
             <label
-              className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Terms & Conditions
             </label>
@@ -3006,8 +3006,8 @@ const QuotationForm = () => {
               rows={5}
               className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
                 isDarkMode
-                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
+                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
               } focus:ring-2 focus:ring-[#4aa3ff]/20`}
             />
           </div>
@@ -3017,8 +3017,8 @@ const QuotationForm = () => {
           className="sticky bottom-0 pt-4 mt-6"
           style={{
             background: isDarkMode
-              ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
+              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
           }}
         >
           <button

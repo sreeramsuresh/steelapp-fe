@@ -49,7 +49,7 @@ export interface Payment {
  * Type guard to check if object is a valid Payment
  */
 export function isPayment(obj: unknown): obj is Payment {
-  if (!obj || typeof obj !== "object") return false;
+  if (!obj || typeof obj !== 'object') return false;
   const record = obj as Record<string, unknown>;
-  return typeof record.id === "number" && typeof record.amount === "number";
+  return typeof record.id === 'number' && typeof record.amount === 'number';
 }

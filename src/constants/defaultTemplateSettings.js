@@ -13,27 +13,27 @@
  * When useInvoiceSettings is true, the document uses the invoice template color instead.
  */
 export const DEFAULT_DOCUMENT_TEMPLATE_COLORS = {
-  quotation: { primaryColor: "#009999", useInvoiceSettings: false }, // Teal
-  purchaseOrder: { primaryColor: "#2563eb", useInvoiceSettings: false }, // Blue
-  deliveryNote: { primaryColor: "#0d9488", useInvoiceSettings: false }, // Teal-600
-  creditNote: { primaryColor: "#dc2626", useInvoiceSettings: false }, // Red
-  statement: { primaryColor: "#4f46e5", useInvoiceSettings: false }, // Indigo
+  quotation: { primaryColor: '#009999', useInvoiceSettings: false }, // Teal
+  purchaseOrder: { primaryColor: '#2563eb', useInvoiceSettings: false }, // Blue
+  deliveryNote: { primaryColor: '#0d9488', useInvoiceSettings: false }, // Teal-600
+  creditNote: { primaryColor: '#dc2626', useInvoiceSettings: false }, // Red
+  statement: { primaryColor: '#4f46e5', useInvoiceSettings: false }, // Indigo
 };
 
 export const DEFAULT_TEMPLATE_SETTINGS = {
   // === VERSION ===
-  version: "1.0.0", // Used to track template migrations
+  version: '1.0.0', // Used to track template migrations
 
   // === COLORS ===
   colors: {
-    primary: "#008080", // Main teal color for headers, lines (rgb: 0, 128, 128)
-    secondary: "#0d9488", // Lighter teal for accents (teal-600: rgb: 13, 148, 136)
-    textPrimary: "#000000", // Black for main text
-    textSecondary: "#404040", // Dark gray for secondary text (rgb: 64, 64, 64)
-    textLight: "#808080", // Light gray for labels (rgb: 128, 128, 128)
-    tableBgEven: "#FAFAFA", // Very light gray for alternating rows (rgb: 250, 250, 250)
-    tableBgOdd: "#FFFFFF", // White for alternating rows
-    borderColor: "#C8C8C8", // Light gray for borders (rgb: 200, 200, 200)
+    primary: '#008080', // Main teal color for headers, lines (rgb: 0, 128, 128)
+    secondary: '#0d9488', // Lighter teal for accents (teal-600: rgb: 13, 148, 136)
+    textPrimary: '#000000', // Black for main text
+    textSecondary: '#404040', // Dark gray for secondary text (rgb: 64, 64, 64)
+    textLight: '#808080', // Light gray for labels (rgb: 128, 128, 128)
+    tableBgEven: '#FAFAFA', // Very light gray for alternating rows (rgb: 250, 250, 250)
+    tableBgOdd: '#FFFFFF', // White for alternating rows
+    borderColor: '#C8C8C8', // Light gray for borders (rgb: 200, 200, 200)
   },
 
   // === LAYOUT ===
@@ -53,7 +53,7 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
   // === TYPOGRAPHY ===
   // Industry Gold Standard for A4 Professional Invoices
   typography: {
-    fontFamily: "helvetica", // Base font: helvetica, times, courier
+    fontFamily: 'helvetica', // Base font: helvetica, times, courier
     fontSize: {
       base: 8, // Body text (addresses, dates): 8-9pt
       small: 7, // Footer, small labels: 7pt
@@ -71,7 +71,7 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
     showLogo: true, // Show company logo
     logoMaxWidth: 50, // Maximum logo width in mm
     logoMaxHeight: 15, // Maximum logo height in mm
-    logoPosition: "right", // Logo position: left, right, center
+    logoPosition: 'right', // Logo position: left, right, center
     showSeal: true, // Show company seal/stamp
     sealSize: 20, // Seal size in mm (square)
     companyNameInHeader: true, // Show company name in header
@@ -120,8 +120,8 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
 
   // === TABLE CONFIGURATION ===
   table: {
-    headerBgColor: "#008080", // Table header background (matches primary color)
-    headerTextColor: "#FFFFFF", // Table header text color (white)
+    headerBgColor: '#008080', // Table header background (matches primary color)
+    headerTextColor: '#FFFFFF', // Table header text color (white)
     showAlternatingRows: true, // Alternate row colors
     rowHeight: 7, // Default row height in mm
     borderWidth: 0.3, // Table border width in mm
@@ -138,57 +138,57 @@ export const DEFAULT_TEMPLATE_SETTINGS = {
 
   // === FORMATTING ===
   formatting: {
-    currencySymbol: "AED", // Currency symbol
-    currencyPosition: "before", // before or after number
+    currencySymbol: 'AED', // Currency symbol
+    currencyPosition: 'before', // before or after number
     decimalPlaces: 2, // Number of decimal places
-    thousandsSeparator: ",", // Thousands separator
-    decimalSeparator: ".", // Decimal separator
-    dateFormat: "DD-MM-YYYY", // Date format: DD-MM-YYYY, MM-DD-YYYY, YYYY-MM-DD
+    thousandsSeparator: ',', // Thousands separator
+    decimalSeparator: '.', // Decimal separator
+    dateFormat: 'DD-MM-YYYY', // Date format: DD-MM-YYYY, MM-DD-YYYY, YYYY-MM-DD
     showCurrencySymbol: true, // Show currency symbol in amounts
   },
 
   // === TEXT LABELS ===
   labels: {
     // Can be used for multi-language support in the future
-    invoiceTo: "Invoice To:",
-    invoiceNo: "Invoice No:",
-    invoiceDate: "Invoice Date:",
-    dueDate: "Due Date:",
-    salesOrder: "SO:",
-    orderDate: "Order Date:",
+    invoiceTo: 'Invoice To:',
+    invoiceNo: 'Invoice No:',
+    invoiceDate: 'Invoice Date:',
+    dueDate: 'Due Date:',
+    salesOrder: 'SO:',
+    orderDate: 'Order Date:',
 
     // Table headers
-    serialNo: "Sr.",
-    description: "Description",
-    quantity: "Quantity",
-    unitPrice: "Unit Price",
-    vat: "VAT",
-    price: "Price",
+    serialNo: 'Sr.',
+    description: 'Description',
+    quantity: 'Quantity',
+    unitPrice: 'Unit Price',
+    vat: 'VAT',
+    price: 'Price',
 
     // Summary
-    subtotal: "SubTotal",
-    discount: "Discount",
-    vatAmount: "VAT",
-    total: "TOTAL",
+    subtotal: 'SubTotal',
+    discount: 'Discount',
+    vatAmount: 'VAT',
+    total: 'TOTAL',
 
     // Footer
-    paymentTerm: "Payment Term:",
-    comment: "Comment:",
-    warehouse: "Warehouse:",
-    authorizedSignatory: "Authorized Signatory",
-    companySeal: "Company Seal",
-    page: "Page:",
+    paymentTerm: 'Payment Term:',
+    comment: 'Comment:',
+    warehouse: 'Warehouse:',
+    authorizedSignatory: 'Authorized Signatory',
+    companySeal: 'Company Seal',
+    page: 'Page:',
   },
 
   // === CUSTOM FOOTER TEXT ===
   footer: {
     showCustomText: false,
-    customText: "", // Custom footer text (if enabled)
+    customText: '', // Custom footer text (if enabled)
   },
 
   // === ADVANCED OPTIONS ===
   advanced: {
-    pdfQuality: "high", // high, medium, low
+    pdfQuality: 'high', // high, medium, low
     compression: true, // Enable PDF compression
     embedFonts: false, // Embed fonts in PDF (larger file size)
     allowPrinting: true, // PDF printing permission
@@ -221,7 +221,7 @@ export const mergeTemplateSettings = (userSettings) => {
     for (const key in source) {
       if (
         source[key] &&
-        typeof source[key] === "object" &&
+        typeof source[key] === 'object' &&
         !Array.isArray(source[key])
       ) {
         if (!target[key]) target[key] = {};
@@ -256,7 +256,7 @@ export const validateTemplateSettings = (settings) => {
   const hexColorPattern = /^#[0-9A-F]{6}$/i;
   if (settings.colors) {
     Object.entries(settings.colors).forEach(([key, value]) => {
-      if (typeof value === "string" && !hexColorPattern.test(value)) {
+      if (typeof value === 'string' && !hexColorPattern.test(value)) {
         errors.push(`Invalid color for ${key}: ${value}`);
       }
     });
@@ -264,7 +264,7 @@ export const validateTemplateSettings = (settings) => {
 
   // Validate margins (must be positive numbers)
   if (settings.layout) {
-    ["marginTop", "marginBottom", "marginLeft", "marginRight"].forEach(
+    ['marginTop', 'marginBottom', 'marginLeft', 'marginRight'].forEach(
       (margin) => {
         if (
           settings.layout[margin] &&
@@ -302,7 +302,7 @@ export const validateTemplateSettings = (settings) => {
 export const getDocumentTemplateColor = (documentType, companySettings) => {
   // Convert camelCase to snake_case for database lookup
   // e.g., 'purchaseOrder' -> 'purchase_order'
-  const snakeCaseType = documentType.replace(/([A-Z])/g, "_$1").toLowerCase();
+  const snakeCaseType = documentType.replace(/([A-Z])/g, '_$1').toLowerCase();
 
   // Get the invoice/main template color as fallback
   const invoiceColor =
@@ -310,7 +310,7 @@ export const getDocumentTemplateColor = (documentType, companySettings) => {
     companySettings?.settings?.invoice_template?.colors?.primary ||
     companySettings?.settings?.templateCustomColors?.primary ||
     DEFAULT_TEMPLATE_SETTINGS.colors.primary ||
-    "#0d9488";
+    '#0d9488';
 
   // Get document-specific settings (handle both camelCase and snake_case)
   // Frontend uses camelCase, backend/database uses snake_case
@@ -348,7 +348,7 @@ export const getDocumentTemplateColor = (documentType, companySettings) => {
   if (!docSettings || useInvoiceSettings) {
     const color = invoiceColor;
     console.log(
-      `[getDocumentTemplateColor] Using invoice color (${useInvoiceSettings ? "synced" : "no custom settings"}): ${color}`,
+      `[getDocumentTemplateColor] Using invoice color (${useInvoiceSettings ? 'synced' : 'no custom settings'}): ${color}`,
     );
     return color;
   }
