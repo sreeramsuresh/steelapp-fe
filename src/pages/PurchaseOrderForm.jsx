@@ -91,6 +91,8 @@ import { pinnedProductsService } from '../services/pinnedProductsService';
 import { importContainerService } from '../services/importContainerService';
 import PurchaseOrderPreview from '../components/purchase-orders/PurchaseOrderPreview';
 import TRNInput from '../components/TRNInput';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 const { PAYMENT_MODES } = payablesService;
 
 // Payment Form Component
@@ -191,34 +193,19 @@ const PaymentForm = ({
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="payment-method"
-              className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
-            >
-              Payment Method
-            </label>
-            <select
-              id="payment-method"
-              value={formData.paymentMethod}
-              onChange={(e) =>
-                setFormData({ ...formData, paymentMethod: e.target.value })
-              }
-              className={`w-full px-3 py-2 border rounded-lg ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
-            >
-              {Object.values(PAYMENT_MODES).map((mode) => (
-                <option key={mode.value} value={mode.value}>
-                  {mode.icon} {mode.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FormSelect
+            label="Payment Method"
+            value={formData.paymentMethod}
+            onValueChange={(value) =>
+              setFormData({ ...formData, paymentMethod: value })
+            }
+          >
+            {Object.values(PAYMENT_MODES).map((mode) => (
+              <SelectItem key={mode.value} value={mode.value}>
+                {mode.icon} {mode.label}
+              </SelectItem>
+            ))}
+          </FormSelect>
 
           <div>
             <label
@@ -2144,28 +2131,20 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
-                    Warehouse *
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="select-warehouse"
-                      value={selectedWarehouse}
-                      onChange={(e) => setSelectedWarehouse(e.target.value)}
-                      className={`${INPUT_CLASSES(isDarkMode)} appearance-none ${invalidFields.has('warehouse') ? 'border-red-500' : ''}`}
-                    >
-                      <option value="">Select Warehouse</option>
-                      {warehouses.map((warehouse) => (
-                        <option key={warehouse.id} value={warehouse.id}>
-                          {warehouse.name} - {warehouse.city}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                    />
-                  </div>
+                  <FormSelect
+                    label="Warehouse"
+                    value={selectedWarehouse || 'none'}
+                    onValueChange={(value) => setSelectedWarehouse(value === 'none' ? '' : value)}
+                    required={true}
+                    validationState={invalidFields.has('warehouse') ? 'invalid' : null}
+                  >
+                    <SelectItem value="none">Select Warehouse</SelectItem>
+                    {warehouses.map((warehouse) => (
+                      <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                        {warehouse.name} - {warehouse.city}
+                      </SelectItem>
+                    ))}
+                  </FormSelect>
                 </div>
 
                 {/* Divider */}
@@ -2175,32 +2154,27 @@ const PurchaseOrderForm = () => {
 
                 {/* Row 2: Supplier */}
                 <div className="col-span-12 sm:col-span-6">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
-                    Supplier *
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <select
-                        id="select-supplier"
-                        value={selectedSupplierId}
-                        onChange={(e) => {
-                          setSelectedSupplierId(e.target.value);
-                          handleSupplierSelect(e.target.value);
+                  <div className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <FormSelect
+                        label="Supplier"
+                        value={selectedSupplierId || 'none'}
+                        onValueChange={(value) => {
+                          const supplierId = value === 'none' ? '' : value;
+                          setSelectedSupplierId(supplierId);
+                          handleSupplierSelect(supplierId);
                         }}
                         disabled={loadingSuppliers}
-                        className={`${INPUT_CLASSES(isDarkMode)} appearance-none ${invalidFields.has('supplier') ? 'border-red-500' : ''}`}
+                        required={true}
+                        validationState={invalidFields.has('supplier') ? 'invalid' : null}
                       >
-                        <option value="">Select Supplier</option>
+                        <SelectItem value="none">Select Supplier</SelectItem>
                         {suppliers.map((supplier) => (
-                          <option key={supplier.id} value={supplier.id}>
+                          <SelectItem key={supplier.id} value={supplier.id.toString()}>
                             {supplier.name}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
-                      <ChevronDown
-                        size={16}
-                        className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                      />
+                      </FormSelect>
                     </div>
                     {selectedSupplierId && (
                       <button
@@ -2222,58 +2196,32 @@ const PurchaseOrderForm = () => {
                   )}
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
-                    Stock Status
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="stock-status"
-                      value={purchaseOrder.stockStatus}
-                      onChange={(e) =>
-                        handleInputChange('stockStatus', e.target.value)
-                      }
-                      className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                    >
-                      <option value="retain">Retain (To be received)</option>
-                      <option value="transit">In Transit</option>
-                      <option value="received">Received</option>
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                    />
-                  </div>
+                  <FormSelect
+                    label="Stock Status"
+                    value={purchaseOrder.stockStatus}
+                    onValueChange={(value) => handleInputChange('stockStatus', value)}
+                  >
+                    <SelectItem value="retain">Retain (To be received)</SelectItem>
+                    <SelectItem value="transit">In Transit</SelectItem>
+                    <SelectItem value="received">Received</SelectItem>
+                  </FormSelect>
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>Incoterms</label>
-                  <div className="relative">
-                    <select
-                      id="incoterms"
-                      value={purchaseOrder.incoterms}
-                      onChange={(e) =>
-                        handleInputChange('incoterms', e.target.value)
-                      }
-                      className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                    >
-                      <option value="">Select Incoterm</option>
-                      <option value="FOB">FOB - Free on Board</option>
-                      <option value="CIF">
-                        CIF - Cost, Insurance & Freight
-                      </option>
-                      <option value="EXW">EXW - Ex Works</option>
-                      <option value="DDP">DDP - Delivered Duty Paid</option>
-                      <option value="DAP">DAP - Delivered at Place</option>
-                      <option value="FCA">FCA - Free Carrier</option>
-                      <option value="CPT">CPT - Carriage Paid To</option>
-                      <option value="CIP">
-                        CIP - Carriage and Insurance Paid To
-                      </option>
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                    />
-                  </div>
+                  <FormSelect
+                    label="Incoterms"
+                    value={purchaseOrder.incoterms || 'none'}
+                    onValueChange={(value) => handleInputChange('incoterms', value === 'none' ? '' : value)}
+                  >
+                    <SelectItem value="none">Select Incoterm</SelectItem>
+                    <SelectItem value="FOB">FOB - Free on Board</SelectItem>
+                    <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
+                    <SelectItem value="EXW">EXW - Ex Works</SelectItem>
+                    <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
+                    <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
+                    <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
+                    <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
+                    <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
+                  </FormSelect>
                 </div>
               </div>
             </div>
@@ -3150,25 +3098,14 @@ const PurchaseOrderForm = () => {
               {/* Discount */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
-                    Discount Type
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={purchaseOrder.discountType}
-                      onChange={(e) =>
-                        handleInputChange('discountType', e.target.value)
-                      }
-                      className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                    >
-                      <option value="amount">Amount</option>
-                      <option value="percentage">Percentage</option>
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                    />
-                  </div>
+                  <FormSelect
+                    label="Discount Type"
+                    value={purchaseOrder.discountType}
+                    onValueChange={(value) => handleInputChange('discountType', value)}
+                  >
+                    <SelectItem value="amount">Amount</SelectItem>
+                    <SelectItem value="percentage">Percentage</SelectItem>
+                  </FormSelect>
                 </div>
                 <div>
                   <label className={LABEL_CLASSES(isDarkMode)}>
@@ -3249,55 +3186,35 @@ const PurchaseOrderForm = () => {
             </div>
             <div className="mt-4 space-y-4">
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>Incoterms</label>
-                <div className="relative">
-                  <select
-                    value={purchaseOrder.incoterms}
-                    onChange={(e) =>
-                      handleInputChange('incoterms', e.target.value)
-                    }
-                    className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                  >
-                    <option value="">Select Incoterm</option>
-                    <option value="FOB">FOB - Free on Board</option>
-                    <option value="CIF">CIF - Cost, Insurance & Freight</option>
-                    <option value="EXW">EXW - Ex Works</option>
-                    <option value="DDP">DDP - Delivered Duty Paid</option>
-                    <option value="DAP">DAP - Delivered at Place</option>
-                    <option value="FCA">FCA - Free Carrier</option>
-                    <option value="CPT">CPT - Carriage Paid To</option>
-                    <option value="CIP">
-                      CIP - Carriage and Insurance Paid To
-                    </option>
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                  />
-                </div>
+                <FormSelect
+                  label="Incoterms"
+                  value={purchaseOrder.incoterms || 'none'}
+                  onValueChange={(value) => handleInputChange('incoterms', value === 'none' ? '' : value)}
+                >
+                  <SelectItem value="none">Select Incoterm</SelectItem>
+                  <SelectItem value="FOB">FOB - Free on Board</SelectItem>
+                  <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
+                  <SelectItem value="EXW">EXW - Ex Works</SelectItem>
+                  <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
+                  <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
+                  <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
+                  <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
+                  <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
+                </FormSelect>
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
-                  Destination Warehouse
-                </label>
-                <div className="relative">
-                  <select
-                    value={selectedWarehouse}
-                    onChange={(e) => setSelectedWarehouse(e.target.value)}
-                    className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                  >
-                    <option value="">Select Warehouse</option>
-                    {warehouses.map((warehouse) => (
-                      <option key={warehouse.id} value={warehouse.id}>
-                        {warehouse.name} - {warehouse.city}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                  />
-                </div>
+                <FormSelect
+                  label="Destination Warehouse"
+                  value={selectedWarehouse || 'none'}
+                  onValueChange={(value) => setSelectedWarehouse(value === 'none' ? '' : value)}
+                >
+                  <SelectItem value="none">Select Warehouse</SelectItem>
+                  {warehouses.map((warehouse) => (
+                    <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                      {warehouse.name} - {warehouse.city}
+                    </SelectItem>
+                  ))}
+                </FormSelect>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -3333,28 +3250,15 @@ const PurchaseOrderForm = () => {
                 </div>
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
-                  Stock Status
-                </label>
-                <div className="relative">
-                  <select
-                    value={purchaseOrder.stockStatus}
-                    onChange={(e) =>
-                      handleInputChange('stockStatus', e.target.value)
-                    }
-                    className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                  >
-                    <option value="retain">Retain (To be received)</option>
-                    <option value="transit">In Transit</option>
-                    <option value="received">
-                      Received (Add to Inventory)
-                    </option>
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                  />
-                </div>
+                <FormSelect
+                  label="Stock Status"
+                  value={purchaseOrder.stockStatus}
+                  onValueChange={(value) => handleInputChange('stockStatus', value)}
+                >
+                  <SelectItem value="retain">Retain (To be received)</SelectItem>
+                  <SelectItem value="transit">In Transit</SelectItem>
+                  <SelectItem value="received">Received (Add to Inventory)</SelectItem>
+                </FormSelect>
               </div>
             </div>
             <div
@@ -3627,34 +3531,21 @@ const PurchaseOrderForm = () => {
               {/* Payment Terms */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
-                    Payment Terms
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={purchaseOrder.paymentTerms}
-                      onChange={(e) =>
-                        handleInputChange('paymentTerms', e.target.value)
-                      }
-                      className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                    >
-                      <option value="Net 7">Net 7 days</option>
-                      <option value="Net 15">Net 15 days</option>
-                      <option value="Net 30">Net 30 days</option>
-                      <option value="Net 60">Net 60 days</option>
-                      <option value="Net 90">Net 90 days</option>
-                      <option value="Due on Receipt">Due on Receipt</option>
-                      <option value="Advance Payment">Advance Payment</option>
-                      <option value="50% Advance, 50% on Delivery">
-                        50% Advance, 50% on Delivery
-                      </option>
-                      <option value="Custom">Custom Terms</option>
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                    />
-                  </div>
+                  <FormSelect
+                    label="Payment Terms"
+                    value={purchaseOrder.paymentTerms}
+                    onValueChange={(value) => handleInputChange('paymentTerms', value)}
+                  >
+                    <SelectItem value="Net 7">Net 7 days</SelectItem>
+                    <SelectItem value="Net 15">Net 15 days</SelectItem>
+                    <SelectItem value="Net 30">Net 30 days</SelectItem>
+                    <SelectItem value="Net 60">Net 60 days</SelectItem>
+                    <SelectItem value="Net 90">Net 90 days</SelectItem>
+                    <SelectItem value="Due on Receipt">Due on Receipt</SelectItem>
+                    <SelectItem value="Advance Payment">Advance Payment</SelectItem>
+                    <SelectItem value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</SelectItem>
+                    <SelectItem value="Custom">Custom Terms</SelectItem>
+                  </FormSelect>
                 </div>
                 <div>
                   <label className={LABEL_CLASSES(isDarkMode)}>Due Date</label>
@@ -3833,26 +3724,15 @@ const PurchaseOrderForm = () => {
             <div className="mt-4 space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
-                    Approval Status
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={purchaseOrder.approvalStatus}
-                      onChange={(e) =>
-                        handleInputChange('approvalStatus', e.target.value)
-                      }
-                      className={`${INPUT_CLASSES(isDarkMode)} appearance-none`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-                    />
-                  </div>
+                  <FormSelect
+                    label="Approval Status"
+                    value={purchaseOrder.approvalStatus}
+                    onValueChange={(value) => handleInputChange('approvalStatus', value)}
+                  >
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </FormSelect>
                 </div>
                 <div>
                   <label className={LABEL_CLASSES(isDarkMode)}>

@@ -102,6 +102,16 @@ import { creditNoteService } from '../services/creditNoteService';
 import { invoiceService } from '../services/invoiceService';
 import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
+import { FormSelect } from '../components/ui/form-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from '../components/ui/select';
 import {
   formatCurrency,
   formatDateForInput,
@@ -1394,36 +1404,38 @@ const CreditNoteForm = () => {
                         </div>
 
                         {/* Date Filter */}
-                        <select
-                          value={dateFilter}
-                          onChange={(e) => setDateFilter(e.target.value)}
-                          className={`px-3 py-1.5 rounded-lg border ${
+                        <Select value={dateFilter} onValueChange={setDateFilter}>
+                          <SelectTrigger className={`px-3 h-auto py-1.5 rounded-lg border ${
                             isDarkMode
                               ? 'border-gray-600 bg-gray-700 text-white'
                               : 'border-gray-300 bg-white text-gray-900'
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                        >
-                          <option value="all">All dates</option>
-                          <option value="7">Last 7 days</option>
-                          <option value="30">Last 30 days</option>
-                          <option value="90">Last 90 days</option>
-                        </select>
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All dates</SelectItem>
+                            <SelectItem value="7">Last 7 days</SelectItem>
+                            <SelectItem value="30">Last 30 days</SelectItem>
+                            <SelectItem value="90">Last 90 days</SelectItem>
+                          </SelectContent>
+                        </Select>
 
                         {/* Amount Filter */}
-                        <select
-                          value={amountFilter}
-                          onChange={(e) => setAmountFilter(e.target.value)}
-                          className={`px-3 py-1.5 rounded-lg border ${
+                        <Select value={amountFilter} onValueChange={setAmountFilter}>
+                          <SelectTrigger className={`px-3 h-auto py-1.5 rounded-lg border ${
                             isDarkMode
                               ? 'border-gray-600 bg-gray-700 text-white'
                               : 'border-gray-300 bg-white text-gray-900'
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                        >
-                          <option value="all">All amounts</option>
-                          <option value="1000">Above AED 1,000</option>
-                          <option value="5000">Above AED 5,000</option>
-                          <option value="10000">Above AED 10,000</option>
-                        </select>
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All amounts</SelectItem>
+                            <SelectItem value="1000">Above AED 1,000</SelectItem>
+                            <SelectItem value="5000">Above AED 5,000</SelectItem>
+                            <SelectItem value="10000">Above AED 10,000</SelectItem>
+                          </SelectContent>
+                        </Select>
 
                         {/* Clear Filters Button */}
                         {hasActiveFilters && (
@@ -1854,16 +1866,16 @@ const CreditNoteForm = () => {
                       Credit Note Type{' '}
                       <span className="text-red-500 font-bold">*</span>
                     </label>
-                    <select
-                      id="credit-note-type"
-                      value={creditNote.creditNoteType}
-                      onChange={(e) => {
+                    <Select
+                      value={creditNote.creditNoteType || 'none'}
+                      onValueChange={(value) => {
+                        const newValue = value === 'none' ? '' : value;
                         setCreditNote((prev) => ({
                           ...prev,
-                          creditNoteType: e.target.value,
+                          creditNoteType: newValue,
                         }));
                         // Clear error when type is selected
-                        if (e.target.value) {
+                        if (newValue) {
                           setInvalidFields((prev) => {
                             const newSet = new Set(prev);
                             newSet.delete('creditNoteType');
@@ -1872,8 +1884,8 @@ const CreditNoteForm = () => {
                         }
                       }}
                       disabled={!isEditable}
-                      aria-required="true"
-                      className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                    >
+                      <SelectTrigger id="credit-note-type" className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                         !isEditable
                           ? isDarkMode
                             ? 'border-gray-600 bg-gray-700 text-gray-500 cursor-not-allowed'
@@ -1883,15 +1895,18 @@ const CreditNoteForm = () => {
                             : isDarkMode
                               ? 'border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500'
                               : 'border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500'
-                      } focus:outline-none focus:ring-2`}
-                    >
-                      <option value="">-- Select Credit Note Type --</option>
-                      {CREDIT_NOTE_TYPES.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
+                      } focus:outline-none focus:ring-2`}>
+                        <SelectValue placeholder="-- Select Credit Note Type --" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">-- Select Credit Note Type --</SelectItem>
+                        {CREDIT_NOTE_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {invalidFields.has('creditNoteType') ? (
                       <p className="mt-1 text-xs text-red-500">
                         Please select a credit note type
@@ -1992,15 +2007,12 @@ const CreditNoteForm = () => {
                       Reason for Return{' '}
                       <span className="text-red-500 font-bold">*</span>
                     </label>
-                    <select
-                      id="reason-for-return"
-                      value={creditNote.reasonForReturn}
-                      onChange={(e) => handleReasonChange(e.target.value)}
-                      onBlur={() => handleFieldBlur('reasonForReturn')}
+                    <Select
+                      value={creditNote.reasonForReturn || 'none'}
+                      onValueChange={(value) => handleReasonChange(value === 'none' ? '' : value)}
                       disabled={!isEditable}
-                      aria-required="true"
-                      aria-invalid={shouldShowError('reasonForReturn')}
-                      className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                    >
+                      <SelectTrigger id="reason-for-return" onBlur={() => handleFieldBlur('reasonForReturn')} className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                         !isEditable ? 'cursor-not-allowed opacity-60' : ''
                       } ${
                         shouldShowError('reasonForReturn') ||
@@ -2009,39 +2021,45 @@ const CreditNoteForm = () => {
                           : isDarkMode
                             ? 'border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500'
                             : 'border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500'
-                      } focus:outline-none focus:ring-2`}
-                    >
-                      <option value="">Select reason...</option>
-                      <optgroup label="Physical Return (Items Required)">
-                        {RETURN_REASONS.filter(
-                          (r) =>
-                            r.category === REASON_CATEGORIES.PHYSICAL_RETURN,
-                        ).map((reason) => (
-                          <option key={reason.value} value={reason.value}>
-                            {reason.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="Financial Only (No Return)">
-                        {RETURN_REASONS.filter(
-                          (r) =>
-                            r.category === REASON_CATEGORIES.FINANCIAL_ONLY,
-                        ).map((reason) => (
-                          <option key={reason.value} value={reason.value}>
-                            {reason.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="Other">
-                        {RETURN_REASONS.filter(
-                          (r) => r.category === REASON_CATEGORIES.FLEXIBLE,
-                        ).map((reason) => (
-                          <option key={reason.value} value={reason.value}>
-                            {reason.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                    </select>
+                      } focus:outline-none focus:ring-2`}>
+                        <SelectValue placeholder="Select reason..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Select reason...</SelectItem>
+                        <SelectGroup>
+                          <SelectLabel>Physical Return (Items Required)</SelectLabel>
+                          {RETURN_REASONS.filter(
+                            (r) =>
+                              r.category === REASON_CATEGORIES.PHYSICAL_RETURN,
+                          ).map((reason) => (
+                            <SelectItem key={reason.value} value={reason.value}>
+                              {reason.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>Financial Only (No Return)</SelectLabel>
+                          {RETURN_REASONS.filter(
+                            (r) =>
+                              r.category === REASON_CATEGORIES.FINANCIAL_ONLY,
+                          ).map((reason) => (
+                            <SelectItem key={reason.value} value={reason.value}>
+                              {reason.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>Other</SelectLabel>
+                          {RETURN_REASONS.filter(
+                            (r) => r.category === REASON_CATEGORIES.FLEXIBLE,
+                          ).map((reason) => (
+                            <SelectItem key={reason.value} value={reason.value}>
+                              {reason.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     {(shouldShowError('reasonForReturn') ||
                       invalidFields.has('reasonForReturn')) && (
                       <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
@@ -2124,15 +2142,15 @@ const CreditNoteForm = () => {
                           <span className="text-red-500">*</span>
                         )}
                       </label>
-                      <select
-                        id="settlement-method"
-                        value={creditNote.refundMethod}
-                        onChange={(e) => {
+                      <Select
+                        value={creditNote.refundMethod || 'none'}
+                        onValueChange={(value) => {
+                          const newValue = value === 'none' ? '' : value;
                           setCreditNote((prev) => ({
                             ...prev,
-                            refundMethod: e.target.value,
+                            refundMethod: newValue,
                           }));
-                          if (e.target.value) {
+                          if (newValue) {
                             setInvalidFields((prev) => {
                               const newSet = new Set(prev);
                               newSet.delete('refundMethod');
@@ -2140,22 +2158,25 @@ const CreditNoteForm = () => {
                             });
                           }
                         }}
-                        onBlur={() => handleFieldBlur('refundMethod')}
-                        className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                      >
+                        <SelectTrigger id="settlement-method" onBlur={() => handleFieldBlur('refundMethod')} className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                           invalidFields.has('refundMethod')
                             ? 'border-red-500 ring-1 ring-red-500'
                             : isDarkMode
                               ? 'border-gray-600 bg-gray-700 text-white'
                               : 'border-gray-300 bg-white text-gray-900'
-                        } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                      >
-                        <option value="">Select settlement method...</option>
-                        {REFUND_METHODS.map((method) => (
-                          <option key={method.value} value={method.value}>
-                            {method.label}
-                          </option>
-                        ))}
-                      </select>
+                        } focus:outline-none focus:ring-2 focus:ring-teal-500`}>
+                          <SelectValue placeholder="Select settlement method..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Select settlement method...</SelectItem>
+                          {REFUND_METHODS.map((method) => (
+                            <SelectItem key={method.value} value={method.value}>
+                              {method.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <p
                         className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                       >

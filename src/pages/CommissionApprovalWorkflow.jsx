@@ -8,6 +8,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 export default function CommissionApprovalWorkflow() {
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -312,19 +314,20 @@ export default function CommissionApprovalWorkflow() {
                   Showing {(currentPage - 1) * pageSize + 1} to{' '}
                   {Math.min(currentPage * pageSize, totalCount)} of {totalCount}
                 </span>
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
+                <FormSelect
+                  value={String(pageSize)}
+                  onValueChange={(value) => {
+                    setPageSize(Number(value));
                     setCurrentPage(1);
                   }}
-                  className="px-2 py-1 rounded border bg-white border-gray-300 text-gray-900 text-sm"
+                  showValidation={false}
+                  className="w-auto"
                 >
-                  <option value={5}>5 per page</option>
-                  <option value={10}>10 per page</option>
-                  <option value={20}>20 per page</option>
-                  <option value={50}>50 per page</option>
-                </select>
+                  <SelectItem value="5">5 per page</SelectItem>
+                  <SelectItem value="10">10 per page</SelectItem>
+                  <SelectItem value="20">20 per page</SelectItem>
+                  <SelectItem value="50">50 per page</SelectItem>
+                </FormSelect>
               </div>
               <div className="flex items-center space-x-2">
                 <button

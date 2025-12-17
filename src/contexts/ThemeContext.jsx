@@ -37,6 +37,14 @@ export const ThemeProvider = ({ children }) => {
     // Update CSS custom properties for the current theme
     const root = document.documentElement;
 
+    // Toggle .dark class for shadcn components
+    if (isDarkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+
+    // Legacy CSS custom properties (for existing components that use these)
     if (isDarkMode) {
       // Dark theme CSS variables
       root.style.setProperty('--primary-bg', '#121418');

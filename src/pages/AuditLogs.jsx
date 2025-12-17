@@ -16,6 +16,8 @@ import {
   X,
 } from 'lucide-react';
 import { toUAETime, toUAEDateForInput } from '../utils/timezone';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 const AuditLogs = () => {
   const { isDarkMode } = useTheme();
@@ -354,52 +356,36 @@ const AuditLogs = () => {
 
             {/* Category */}
             <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+              <FormSelect
+                label="Category"
+                value={filters.category || 'none'}
+                onValueChange={(value) => handleFilterChange('category', value === 'none' ? '' : value)}
+                showValidation={false}
               >
-                Category
-              </label>
-              <select
-                value={filters.category}
-                onChange={(e) => handleFilterChange('category', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-              >
-                <option value="">All Categories</option>
+                <SelectItem value="none">All Categories</SelectItem>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>
+                  <SelectItem key={cat} value={cat}>
                     {cat}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             {/* Status */}
             <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+              <FormSelect
+                label="Status"
+                value={filters.status || 'none'}
+                onValueChange={(value) => handleFilterChange('status', value === 'none' ? '' : value)}
+                showValidation={false}
               >
-                Status
-              </label>
-              <select
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-              >
-                <option value="">All Status</option>
+                <SelectItem value="none">All Status</SelectItem>
                 {statuses.map((status) => (
-                  <option key={status} value={status}>
+                  <SelectItem key={status} value={status}>
                     {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             {/* Start Date */}

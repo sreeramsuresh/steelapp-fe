@@ -27,6 +27,8 @@ import pricelistService from '../services/pricelistService';
 import { productService } from '../services/dataService';
 import { notificationService } from '../services/notificationService';
 import PriceHistoryTab from '../components/pricelist/PriceHistoryTab';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 // ==================== DESIGN TOKENS ====================
 const COLORS = {
@@ -145,43 +147,6 @@ const Input = ({
         {...props}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
-  );
-};
-
-// Custom Select component
-const Select = ({
-  label,
-  options,
-  value,
-  onChange,
-  className = '',
-  isDarkMode,
-}) => {
-  return (
-    <div className="space-y-1">
-      {label && (
-        <label
-          className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-        >
-          {label}
-        </label>
-      )}
-      <select
-        value={value}
-        onChange={onChange}
-        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-          isDarkMode
-            ? 'bg-gray-800 border-gray-600 text-white'
-            : 'bg-white border-gray-300 text-gray-900'
-        } ${className}`}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
     </div>
   );
 };
@@ -1014,18 +979,16 @@ export default function PriceListForm() {
 
                   {/* Currency */}
                   <div className="col-span-6 sm:col-span-3">
-                    <label className={LABEL_CLASSES(isDarkMode)}>
-                      Currency
-                    </label>
-                    <select
+                    <FormSelect
+                      label="Currency"
                       value={formData.currency}
-                      onChange={(e) => handleChange('currency', e.target.value)}
-                      className={INPUT_CLASSES(isDarkMode)}
+                      onValueChange={(value) => handleChange('currency', value)}
+                      showValidation={false}
                     >
-                      <option value="AED">AED</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                    </select>
+                      <SelectItem value="AED">AED</SelectItem>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="EUR">EUR</SelectItem>
+                    </FormSelect>
                   </div>
 
                   {/* Toggles */}
@@ -1571,17 +1534,17 @@ export default function PriceListForm() {
             {/* Content */}
             <div className="space-y-3">
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>Operation</label>
-                <select
+                <FormSelect
+                  label="Operation"
                   value={bulkOperation.type}
-                  onChange={(e) =>
-                    setBulkOperation({ ...bulkOperation, type: e.target.value })
+                  onValueChange={(value) =>
+                    setBulkOperation({ ...bulkOperation, type: value })
                   }
-                  className={INPUT_CLASSES(isDarkMode)}
+                  showValidation={false}
                 >
-                  <option value="increase">Increase Prices</option>
-                  <option value="decrease">Decrease Prices</option>
-                </select>
+                  <SelectItem value="increase">Increase Prices</SelectItem>
+                  <SelectItem value="decrease">Decrease Prices</SelectItem>
+                </FormSelect>
               </div>
 
               <div>

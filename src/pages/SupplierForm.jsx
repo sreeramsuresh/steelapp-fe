@@ -13,6 +13,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { supplierService } from '../services/supplierService';
 import { notificationService } from '../services/notificationService';
 import TRNInput from '../components/TRNInput';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 /**
  * Country codes for primary country selection
@@ -386,25 +388,26 @@ export function SupplierForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Supplier Location */}
               <div>
-                <label className={labelClasses}>
-                  <Building2 size={14} className="inline mr-1" />
-                  Supplier Location *
-                </label>
-                <div className="relative">
-                  <select
-                    value={formData.supplierLocation}
-                    onChange={(e) =>
-                      handleChange('supplierLocation', e.target.value)
-                    }
-                    className={`${inputClasses} appearance-none`}
-                  >
-                    {SUPPLIER_LOCATION_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <FormSelect
+                  label={
+                    <>
+                      <Building2 size={14} className="inline mr-1" />
+                      Supplier Location
+                    </>
+                  }
+                  value={formData.supplierLocation}
+                  onValueChange={(value) =>
+                    handleChange('supplierLocation', value)
+                  }
+                  required={true}
+                  showValidation={false}
+                >
+                  {SUPPLIER_LOCATION_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </FormSelect>
                 <p
                   className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
@@ -450,27 +453,28 @@ export function SupplierForm() {
 
               {/* Primary Country */}
               <div>
-                <label className={labelClasses}>
-                  <Globe size={14} className="inline mr-1" />
-                  Primary Country{' '}
-                  {formData.supplierLocation === 'OVERSEAS' && '*'}
-                </label>
-                <div className="relative">
-                  <select
-                    value={formData.primaryCountry}
-                    onChange={(e) =>
-                      handleChange('primaryCountry', e.target.value)
-                    }
-                    className={`${inputClasses} appearance-none ${errors.primaryCountry ? 'border-red-500' : ''}`}
-                    disabled={formData.supplierLocation === 'UAE_LOCAL'}
-                  >
-                    {COUNTRY_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <FormSelect
+                  label={
+                    <>
+                      <Globe size={14} className="inline mr-1" />
+                      Primary Country
+                    </>
+                  }
+                  value={formData.primaryCountry}
+                  onValueChange={(value) =>
+                    handleChange('primaryCountry', value)
+                  }
+                  required={formData.supplierLocation === 'OVERSEAS'}
+                  disabled={formData.supplierLocation === 'UAE_LOCAL'}
+                  validationState={errors.primaryCountry ? 'invalid' : null}
+                  showValidation={true}
+                >
+                  {COUNTRY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </FormSelect>
                 {errors.primaryCountry && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.primaryCountry}

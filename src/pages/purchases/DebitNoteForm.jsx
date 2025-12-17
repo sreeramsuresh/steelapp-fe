@@ -32,6 +32,8 @@ import debitNoteService from '../../services/debitNoteService';
 import vendorBillService from '../../services/vendorBillService';
 import { notificationService } from '../../services/notificationService';
 import { formatCurrency, formatDateForInput } from '../../utils/invoiceUtils';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 // Reason categories
 const REASON_CATEGORIES = [
@@ -651,22 +653,22 @@ const DebitNoteForm = () => {
                     <label className={`block text-xs ${textMuted} mb-1.5`}>
                       Reason Category
                     </label>
-                    <select
+                    <FormSelect
                       value={debitNote.reasonCategory}
-                      onChange={(e) =>
+                      onValueChange={(value) =>
                         setDebitNote((prev) => ({
                           ...prev,
-                          reasonCategory: e.target.value,
+                          reasonCategory: value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      showValidation={false}
                     >
                       {REASON_CATEGORIES.map((cat) => (
-                        <option key={cat.value} value={cat.value}>
+                        <SelectItem key={cat.value} value={cat.value}>
                           {cat.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                    </FormSelect>
                   </div>
 
                   {/* VAT Category */}
@@ -674,22 +676,22 @@ const DebitNoteForm = () => {
                     <label className={`block text-xs ${textMuted} mb-1.5`}>
                       VAT Category
                     </label>
-                    <select
+                    <FormSelect
                       value={debitNote.vatCategory}
-                      onChange={(e) =>
+                      onValueChange={(value) =>
                         setDebitNote((prev) => ({
                           ...prev,
-                          vatCategory: e.target.value,
+                          vatCategory: value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      showValidation={false}
                     >
                       {VAT_CATEGORIES.map((cat) => (
-                        <option key={cat.value} value={cat.value}>
+                        <SelectItem key={cat.value} value={cat.value}>
                           {cat.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                    </FormSelect>
                   </div>
 
                   {/* Reason */}

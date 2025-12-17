@@ -39,6 +39,8 @@ import {
   formatDateForInput,
   calculateItemAmount,
 } from '../../utils/invoiceUtils';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 // Procurement channels
 const PROCUREMENT_CHANNELS = [
@@ -245,88 +247,6 @@ const Input = ({
         } ${getValidationClasses()} ${className}`}
         {...props}
       />
-      {error && (
-        <p
-          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
-        >
-          {error}
-        </p>
-      )}
-    </div>
-  );
-};
-
-const _Select = ({
-  label,
-  children,
-  error,
-  className = '',
-  required = false,
-  validationState = null,
-  showValidation = true,
-  id,
-  ...props
-}) => {
-  const { isDarkMode } = useTheme();
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
-
-  const getValidationClasses = () => {
-    if (!showValidation) {
-      return isDarkMode
-        ? 'border-gray-600 bg-gray-800'
-        : 'border-gray-300 bg-white';
-    }
-
-    if (error || validationState === 'invalid') {
-      return isDarkMode
-        ? 'border-red-500 bg-red-900/10'
-        : 'border-red-500 bg-red-50';
-    }
-    if (validationState === 'valid') {
-      return isDarkMode
-        ? 'border-green-500 bg-green-900/10'
-        : 'border-green-500 bg-green-50';
-    }
-    if (required && validationState === null) {
-      return isDarkMode
-        ? 'border-yellow-600/50 bg-yellow-900/5'
-        : 'border-yellow-400/50 bg-yellow-50/30';
-    }
-    return isDarkMode
-      ? 'border-gray-600 bg-gray-800'
-      : 'border-gray-300 bg-white';
-  };
-
-  return (
-    <div className="space-y-0.5">
-      {label && (
-        <label
-          htmlFor={selectId}
-          className={`block text-xs font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
-        >
-          {label}
-        </label>
-      )}
-      <div className="relative">
-        <select
-          id={selectId}
-          className={`w-full pl-2 pr-8 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none h-[38px] ${
-            isDarkMode
-              ? 'text-white disabled:bg-gray-700 disabled:text-gray-500'
-              : 'text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
-          } ${getValidationClasses()} ${className}`}
-          {...props}
-        >
-          {children}
-        </select>
-        <ChevronDown
-          className={`absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}
-        />
-      </div>
       {error && (
         <p
           className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
@@ -1466,29 +1386,23 @@ const VendorBillForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Vendor Selection */}
                 <div>
-                  <label
-                    htmlFor="vendor-select"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  <FormSelect
+                    label="Vendor"
+                    value={bill.vendorId || 'none'}
+                    onValueChange={(value) =>
+                      handleVendorChange(value === 'none' ? '' : value)
+                    }
+                    required={true}
+                    showValidation={false}
+                    placeholder="Select Vendor..."
                   >
-                    Vendor <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="vendor-select"
-                    value={bill.vendorId || ''}
-                    onChange={(e) => handleVendorChange(e.target.value)}
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  >
-                    <option value="">Select Vendor...</option>
+                    <SelectItem value="none">Select Vendor...</SelectItem>
                     {vendors.map((vendor) => (
-                      <option key={vendor.id} value={vendor.id}>
+                      <SelectItem key={vendor.id} value={String(vendor.id)}>
                         {vendor.name}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
 
                 {/* Bill Number */}
@@ -1569,33 +1483,23 @@ const VendorBillForm = () => {
 
                 {/* Payment Terms */}
                 <div>
-                  <label
-                    htmlFor="payment-terms"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Payment Terms
-                  </label>
-                  <select
-                    id="payment-terms"
+                  <FormSelect
+                    label="Payment Terms"
                     value={bill.paymentTerms}
-                    onChange={(e) =>
+                    onValueChange={(value) =>
                       setBill((prev) => ({
                         ...prev,
-                        paymentTerms: e.target.value,
+                        paymentTerms: value,
                       }))
                     }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    showValidation={false}
                   >
                     {PAYMENT_TERMS.map((term) => (
-                      <option key={term.value} value={term.value}>
+                      <SelectItem key={term.value} value={term.value}>
                         {term.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
 
                 {/* Due Date */}
@@ -1623,30 +1527,20 @@ const VendorBillForm = () => {
 
                 {/* Procurement Channel */}
                 <div>
-                  <label
-                    htmlFor="procurement-channel"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Procurement Channel
-                  </label>
-                  <select
-                    id="procurement-channel"
+                  <FormSelect
+                    label="Procurement Channel"
                     value={bill.procurementChannel}
-                    onChange={(e) =>
-                      handleProcurementChannelChange(e.target.value)
+                    onValueChange={(value) =>
+                      handleProcurementChannelChange(value)
                     }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    showValidation={false}
                   >
                     {PROCUREMENT_CHANNELS.map((channel) => (
-                      <option key={channel.value} value={channel.value}>
+                      <SelectItem key={channel.value} value={channel.value}>
                         {channel.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                   <p
                     className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
@@ -1659,41 +1553,31 @@ const VendorBillForm = () => {
                 {/* Import Container (shown for import purchases) */}
                 {bill.procurementChannel === 'IMPORTED' && (
                   <div>
-                    <label
-                      htmlFor="import-container"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                    >
-                      Import Container
-                    </label>
-                    <select
-                      id="import-container"
-                      value={bill.importContainerId || ''}
-                      onChange={(e) => {
+                    <FormSelect
+                      label="Import Container"
+                      value={bill.importContainerId ? String(bill.importContainerId) : 'none'}
+                      onValueChange={(value) => {
+                        const parsedValue = value === 'none' ? null : parseInt(value);
                         const container = availableContainers.find(
-                          (c) => c.id === parseInt(e.target.value),
+                          (c) => c.id === parsedValue,
                         );
                         setBill((prev) => ({
                           ...prev,
-                          importContainerId: e.target.value
-                            ? parseInt(e.target.value)
-                            : null,
+                          importContainerId: parsedValue,
                           importContainerNumber:
                             container?.containerNumber || '',
                         }));
                       }}
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white'
-                          : 'border-gray-300 bg-white text-gray-900'
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      showValidation={false}
+                      placeholder="Select Container..."
                     >
-                      <option value="">Select Container...</option>
+                      <SelectItem value="none">Select Container...</SelectItem>
                       {availableContainers.map((container) => (
-                        <option key={container.id} value={container.id}>
+                        <SelectItem key={container.id} value={String(container.id)}>
                           {container.containerNumber} - {container.status}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                    </FormSelect>
                   </div>
                 )}
               </div>
@@ -1712,92 +1596,65 @@ const VendorBillForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* VAT Category */}
                 <div>
-                  <label
-                    htmlFor="vat-category"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    VAT Category <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="vat-category"
+                  <FormSelect
+                    label="VAT Category"
                     value={bill.vatCategory}
-                    onChange={(e) => handleVatCategoryChange(e.target.value)}
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    onValueChange={(value) => handleVatCategoryChange(value)}
+                    required={true}
+                    showValidation={false}
                   >
                     {VAT_CATEGORIES.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
+                      <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
 
                 {/* Place of Supply */}
                 <div>
-                  <label
-                    htmlFor="place-of-supply"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
-                    Place of Supply
-                  </label>
-                  <select
-                    id="place-of-supply"
+                  <FormSelect
+                    label="Place of Supply"
                     value={bill.placeOfSupply}
-                    onChange={(e) =>
+                    onValueChange={(value) =>
                       setBill((prev) => ({
                         ...prev,
-                        placeOfSupply: e.target.value,
+                        placeOfSupply: value,
                       }))
                     }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    showValidation={false}
                   >
                     {EMIRATES.map((emirate) => (
-                      <option key={emirate.value} value={emirate.value}>
+                      <SelectItem key={emirate.value} value={emirate.value}>
                         {emirate.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
 
                 {/* Blocked VAT Reason - only shown for BLOCKED category */}
                 {bill.vatCategory === 'BLOCKED' && (
                   <div className="md:col-span-2">
-                    <label
-                      htmlFor="blocked-vat-reason"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                    >
-                      Blocked VAT Reason <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      id="blocked-vat-reason"
-                      value={bill.blockedVatReason}
-                      onChange={(e) =>
+                    <FormSelect
+                      label="Blocked VAT Reason"
+                      value={bill.blockedVatReason || 'none'}
+                      onValueChange={(value) =>
                         setBill((prev) => ({
                           ...prev,
-                          blockedVatReason: e.target.value,
+                          blockedVatReason: value === 'none' ? '' : value,
                         }))
                       }
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white'
-                          : 'border-gray-300 bg-white text-gray-900'
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      required={true}
+                      showValidation={false}
+                      placeholder="Select reason..."
                     >
-                      <option value="">Select reason...</option>
+                      <SelectItem value="none">Select reason...</SelectItem>
                       {BLOCKED_VAT_REASONS.map((reason) => (
-                        <option key={reason.value} value={reason.value}>
+                        <SelectItem key={reason.value} value={reason.value}>
                           {reason.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                    </FormSelect>
                     <p
                       className={`mt-1 text-xs ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
                     >
@@ -1917,36 +1774,35 @@ const VendorBillForm = () => {
                       {/* Product/Description */}
                       <div className="col-span-12 md:col-span-4">
                         <label
-                          htmlFor={`item-product-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Product / Description
                         </label>
-                        <select
-                          id={`item-product-${index}`}
-                          value={item.productId || ''}
-                          onChange={(e) =>
-                            handleItemChange(index, 'productId', e.target.value)
+                        <FormSelect
+                          value={item.productId ? String(item.productId) : 'none'}
+                          onValueChange={(value) =>
+                            handleItemChange(
+                              index,
+                              'productId',
+                              value === 'none' ? '' : value,
+                            )
                           }
-                          className={`w-full px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-white'
-                              : 'border-gray-300 bg-white text-gray-900'
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          showValidation={false}
+                          placeholder="Select or type description..."
                         >
-                          <option value="">
+                          <SelectItem value="none">
                             Select or type description...
-                          </option>
+                          </SelectItem>
                           {products.map((product) => (
-                            <option key={product.id} value={product.id}>
+                            <SelectItem key={product.id} value={String(product.id)}>
                               {product.displayName ||
                                 product.display_name ||
                                 product.uniqueName ||
                                 product.unique_name ||
                                 'N/A'}
-                            </option>
+                            </SelectItem>
                           ))}
-                        </select>
+                        </FormSelect>
                         <input
                           type="text"
                           value={item.description}
@@ -2213,35 +2069,29 @@ const VendorBillForm = () => {
                           {/* Line Procurement Channel */}
                           <div className="col-span-6 md:col-span-2">
                             <label
-                              htmlFor={`item-procurement-channel-${index}`}
                               className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                             >
                               <Ship className="inline h-3 w-3 mr-1" />
                               Source
                             </label>
-                            <select
-                              id={`item-procurement-channel-${index}`}
+                            <FormSelect
                               value={
                                 item.procurementChannel ||
                                 bill.procurementChannel ||
                                 'LOCAL'
                               }
-                              onChange={(e) =>
+                              onValueChange={(value) =>
                                 handleItemChange(
                                   index,
                                   'procurementChannel',
-                                  e.target.value,
+                                  value,
                                 )
                               }
-                              className={`w-full px-2 py-1.5 rounded border text-xs ${
-                                isDarkMode
-                                  ? 'border-gray-600 bg-gray-700 text-white'
-                                  : 'border-gray-300 bg-white text-gray-900'
-                              } focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                              showValidation={false}
                             >
-                              <option value="LOCAL">Local</option>
-                              <option value="IMPORTED">Import</option>
-                            </select>
+                              <SelectItem value="LOCAL">Local</SelectItem>
+                              <SelectItem value="IMPORTED">Import</SelectItem>
+                            </FormSelect>
                           </div>
 
                           {/* PO Weight */}

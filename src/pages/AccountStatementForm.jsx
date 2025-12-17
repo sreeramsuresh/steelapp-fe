@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, FileText, ChevronDown } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { accountStatementsAPI, apiClient } from '../services/api';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 const AccountStatementForm = () => {
   const navigate = useNavigate();
@@ -105,38 +107,24 @@ const AccountStatementForm = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Customer Selection */}
           <div>
-            <label
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+            <FormSelect
+              label="Customer"
+              value={formData.customerId || 'none'}
+              onValueChange={(value) =>
+                handleChange({ target: { name: 'customer_id', value: value === 'none' ? '' : value } })
+              }
+              required={true}
+              showValidation={false}
+              placeholder="Select a customer"
             >
-              Customer <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <select
-                name="customer_id"
-                value={formData.customerId}
-                onChange={handleChange}
-                required
-                className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                  isDarkMode
-                    ? 'bg-gray-800 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-              >
-                <option value="">Select a customer</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.name}{' '}
-                    {customer.company ? `- ${customer.company}` : ''}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  size={20}
-                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-                />
-              </div>
-            </div>
+              <SelectItem value="none">Select a customer</SelectItem>
+              {customers.map((customer) => (
+                <SelectItem key={customer.id} value={String(customer.id)}>
+                  {customer.name}{' '}
+                  {customer.company ? `- ${customer.company}` : ''}
+                </SelectItem>
+              ))}
+            </FormSelect>
           </div>
 
           {/* Date Range */}

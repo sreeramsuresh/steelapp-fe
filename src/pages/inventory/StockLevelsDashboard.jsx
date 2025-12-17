@@ -27,6 +27,8 @@ import { warehouseService } from '../../services/warehouseService';
 import { notificationService } from '../../services/notificationService';
 import { formatCurrency } from '../../utils/invoiceUtils';
 import BatchAllocationKPIs from '../../components/dashboard/BatchAllocationKPIs';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 /**
  * Stock Levels Dashboard
@@ -513,36 +515,22 @@ const StockLevelsDashboard = () => {
               <div className="flex flex-wrap gap-4 items-center">
                 {/* Warehouse */}
                 <div className="min-w-[180px]">
-                  <label
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  <FormSelect
+                    label="Warehouse"
+                    value={warehouseFilter}
+                    onValueChange={(value) => {
+                      setWarehouseFilter(value);
+                      setPage(1);
+                    }}
+                    showValidation={false}
                   >
-                    Warehouse
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={warehouseFilter}
-                      onChange={(e) => {
-                        setWarehouseFilter(e.target.value);
-                        setPage(1);
-                      }}
-                      className={`w-full px-4 py-2 border rounded-lg appearance-none ${
-                        isDarkMode
-                          ? 'bg-gray-800 border-gray-600 text-white'
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                    >
-                      <option value="all">All Warehouses</option>
-                      {warehouses.map((wh) => (
-                        <option key={wh.id} value={wh.id}>
-                          {wh.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    />
-                  </div>
+                    <SelectItem value="all">All Warehouses</SelectItem>
+                    {warehouses.map((wh) => (
+                      <SelectItem key={wh.id} value={String(wh.id)}>
+                        {wh.name}
+                      </SelectItem>
+                    ))}
+                  </FormSelect>
                 </div>
 
                 {/* Low Stock Only */}

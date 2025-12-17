@@ -26,6 +26,8 @@ import {
 import { PAYMENT_MODES } from '../utils/paymentUtils';
 import AddPaymentForm from '../components/payments/AddPaymentForm';
 import PaymentDrawer from '../components/payments/PaymentDrawer';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 // Stale-while-revalidate cache configuration
 const CACHE_KEYS = {
@@ -762,16 +764,17 @@ const Receivables = () => {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
-            <select
+            <FormSelect
               value={filters.dateType}
-              onChange={(e) =>
-                setFilters({ dateType: e.target.value, page: '1' })
+              onValueChange={(value) =>
+                setFilters({ dateType: value, page: '1' })
               }
-              className="px-2 py-2 rounded border w-32"
+              showValidation={false}
+              className="w-32"
             >
-              <option value="invoice">Invoice Date</option>
-              <option value="due">Due Date</option>
-            </select>
+              <SelectItem value="invoice">Invoice Date</SelectItem>
+              <SelectItem value="due">Due Date</SelectItem>
+            </FormSelect>
             <input
               type="date"
               value={filters.start}
@@ -797,19 +800,19 @@ const Receivables = () => {
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <select
+            <FormSelect
               value={filters.status}
-              onChange={(e) =>
-                setFilters({ status: e.target.value, page: '1' })
+              onValueChange={(value) =>
+                setFilters({ status: value, page: '1' })
               }
-              className="px-2 py-2 rounded border w-full"
+              showValidation={false}
             >
-              <option value="all">All</option>
-              <option value="unpaid">Unpaid</option>
-              <option value="partially_paid">Partially Paid</option>
-              <option value="paid">Paid</option>
-              <option value="overdue">Overdue</option>
-            </select>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="unpaid">Unpaid</SelectItem>
+              <SelectItem value="partially_paid">Partially Paid</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="overdue">Overdue</SelectItem>
+            </FormSelect>
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <input

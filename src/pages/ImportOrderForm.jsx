@@ -26,6 +26,8 @@ import { importOrderService } from '../services/importOrderService';
 import { supplierService } from '../services/supplierService';
 import { productService } from '../services/productService';
 import { notificationService } from '../services/notificationService';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 // ==================== DESIGN TOKENS ====================
 // eslint-disable-next-line no-unused-vars
@@ -162,55 +164,6 @@ const Input = ({
         } ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
-      {error && (
-        <p
-          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
-        >
-          {error}
-        </p>
-      )}
-    </div>
-  );
-};
-
-const Select = ({
-  label,
-  children,
-  error,
-  className = '',
-  required = false,
-  ...props
-}) => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <div className="space-y-0.5">
-      {label && (
-        <label
-          className={`block text-xs font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
-        >
-          {label}
-        </label>
-      )}
-      <div className="relative">
-        <select
-          className={`w-full pl-2 pr-8 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none ${
-            isDarkMode
-              ? 'border-gray-600 bg-gray-800 text-white disabled:bg-gray-700 disabled:text-gray-500'
-              : 'border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
-          } ${error ? 'border-red-500' : ''} ${className}`}
-          {...props}
-        >
-          {children}
-        </select>
-        <ChevronDown
-          className={`absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}
-        />
-      </div>
       {error && (
         <p
           className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
@@ -1295,20 +1248,20 @@ const ImportOrderForm = () => {
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <Select
+                  <FormSelect
                     label="Status"
                     value={order.status}
-                    onChange={(e) =>
-                      handleFieldChange('status', e.target.value)
+                    onValueChange={(value) =>
+                      handleFieldChange('status', value)
                     }
                     required
                   >
                     {STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </Select>
+                  </FormSelect>
                 </div>
                 <div className="col-span-6 sm:col-span-3">
                   <Input
@@ -1348,35 +1301,36 @@ const ImportOrderForm = () => {
             <Card title="Supplier & Trade Terms" icon={Building2}>
               <div className="grid grid-cols-12 gap-3">
                 <div className="col-span-12 sm:col-span-6">
-                  <Select
+                  <FormSelect
                     label="Supplier"
-                    value={order.supplier_id}
-                    onChange={(e) => handleSupplierChange(e.target.value)}
-                    error={errors.supplier_id}
+                    value={order.supplier_id || 'none'}
+                    onValueChange={(value) => handleSupplierChange(value === 'none' ? '' : value)}
+                    validationState={errors.supplier_id ? 'invalid' : null}
                     required
+                    placeholder="Select Supplier"
                   >
-                    <option value="">Select Supplier</option>
+                    <SelectItem value="none">Select Supplier</SelectItem>
                     {suppliers.map((supplier) => (
-                      <option key={supplier.id} value={supplier.id}>
+                      <SelectItem key={supplier.id} value={String(supplier.id)}>
                         {supplier.name || supplier.company_name}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </Select>
+                  </FormSelect>
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <Select
+                  <FormSelect
                     label="Supplier VAT Status"
                     value={order.supplier_vat_status}
-                    onChange={(e) =>
-                      handleFieldChange('supplier_vat_status', e.target.value)
+                    onValueChange={(value) =>
+                      handleFieldChange('supplier_vat_status', value)
                     }
                   >
                     {SUPPLIER_VAT_STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </Select>
+                  </FormSelect>
                 </div>
                 {(order.supplier_vat_status === 'uae_registered' ||
                   order.supplier_vat_status === 'gcc_registered') && (
@@ -1419,38 +1373,38 @@ const ImportOrderForm = () => {
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <Select
+                  <FormSelect
                     label="Incoterm"
                     value={order.incoterm}
-                    onChange={(e) =>
-                      handleFieldChange('incoterm', e.target.value)
+                    onValueChange={(value) =>
+                      handleFieldChange('incoterm', value)
                     }
-                    error={errors.incoterm}
+                    validationState={errors.incoterm ? 'invalid' : null}
                     required
                   >
                     {INCOTERMS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </Select>
+                  </FormSelect>
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <Select
+                  <FormSelect
                     label="Payment Terms"
                     value={order.payment_terms}
-                    onChange={(e) =>
-                      handleFieldChange('payment_terms', e.target.value)
+                    onValueChange={(value) =>
+                      handleFieldChange('payment_terms', value)
                     }
-                    error={errors.payment_terms}
+                    validationState={errors.payment_terms ? 'invalid' : null}
                     required
                   >
                     {PAYMENT_TERMS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </Select>
+                  </FormSelect>
                 </div>
                 <div className="col-span-6 sm:col-span-3">
                   <Input
@@ -2145,38 +2099,40 @@ const ImportOrderForm = () => {
             {/* Shipping Fields */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <Select
+                <FormSelect
                   label="Origin Port"
-                  value={order.origin_port}
-                  onChange={(e) =>
-                    handleFieldChange('origin_port', e.target.value)
+                  value={order.origin_port || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('origin_port', value === 'none' ? '' : value)
                   }
+                  placeholder="Select Origin Port"
                 >
-                  <option value="">Select Origin Port</option>
+                  <SelectItem value="none">Select Origin Port</SelectItem>
                   {COMMON_PORTS.map((port) => (
-                    <option key={port.value} value={port.value}>
+                    <SelectItem key={port.value} value={port.value}>
                       {port.label}
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
-                <Select
+                </FormSelect>
+                <FormSelect
                   label="Destination Port"
-                  value={order.destination_port}
-                  onChange={(e) =>
-                    handleFieldChange('destination_port', e.target.value)
+                  value={order.destination_port || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('destination_port', value === 'none' ? '' : value)
                   }
-                  error={errors.destination_port}
+                  validationState={errors.destination_port ? 'invalid' : null}
                   required
+                  placeholder="Select Destination Port"
                 >
-                  <option value="">Select Destination Port</option>
+                  <SelectItem value="none">Select Destination Port</SelectItem>
                   {COMMON_PORTS.filter((p) => p.country === 'UAE').map(
                     (port) => (
-                      <option key={port.value} value={port.value}>
+                      <SelectItem key={port.value} value={port.value}>
                         {port.label}
-                      </option>
+                      </SelectItem>
                     ),
                   )}
-                </Select>
+                </FormSelect>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -2195,19 +2151,19 @@ const ImportOrderForm = () => {
                     Auto-derived for VAT return
                   </span>
                 </div>
-                <Select
+                <FormSelect
                   label="Shipping Method"
                   value={order.shipping_method}
-                  onChange={(e) =>
-                    handleFieldChange('shipping_method', e.target.value)
+                  onValueChange={(value) =>
+                    handleFieldChange('shipping_method', value)
                   }
                 >
                   {SHIPPING_METHOD_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -2263,41 +2219,42 @@ const ImportOrderForm = () => {
                   <Globe className="h-4 w-4" /> UAE VAT Treatment (Article 51)
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
-                  <Select
+                  <FormSelect
                     label="Movement Type"
                     value={order.movement_type}
-                    onChange={(e) =>
-                      handleFieldChange('movement_type', e.target.value)
+                    onValueChange={(value) =>
+                      handleFieldChange('movement_type', value)
                     }
-                    error={errors.movement_type}
+                    validationState={errors.movement_type ? 'invalid' : null}
                   >
                     {MOVEMENT_TYPES.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </Select>
+                  </FormSelect>
                   {(order.movement_type === 'dz_entry' ||
                     order.movement_type === 'dz_to_dz' ||
                     order.movement_type === 'dz_to_mainland') && (
-                    <Select
+                    <FormSelect
                       label="Designated Zone"
-                      value={order.designated_zone_name}
-                      onChange={(e) =>
+                      value={order.designated_zone_name || 'none'}
+                      onValueChange={(value) =>
                         handleFieldChange(
                           'designated_zone_name',
-                          e.target.value,
+                          value === 'none' ? '' : value,
                         )
                       }
-                      error={errors.designated_zone_name}
+                      validationState={errors.designated_zone_name ? 'invalid' : null}
+                      placeholder="Select Zone"
                     >
-                      <option value="">Select Zone</option>
+                      <SelectItem value="none">Select Zone</SelectItem>
                       {UAE_DESIGNATED_ZONES.map((zone) => (
-                        <option key={zone.code} value={zone.code}>
+                        <SelectItem key={zone.code} value={zone.code}>
                           {zone.name} ({zone.emirate})
-                        </option>
+                        </SelectItem>
                       ))}
-                    </Select>
+                    </FormSelect>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-3 mt-3">
@@ -2421,19 +2378,19 @@ const ImportOrderForm = () => {
             {/* Cost Fields */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <Select
+                <FormSelect
                   label="Currency"
                   value={order.currency}
-                  onChange={(e) =>
-                    handleFieldChange('currency', e.target.value)
+                  onValueChange={(value) =>
+                    handleFieldChange('currency', value)
                   }
                 >
                   {CURRENCY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
                 <Input
                   label="Exchange Rate to AED"
                   type="number"
@@ -2449,20 +2406,20 @@ const ImportOrderForm = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <Select
+                <FormSelect
                   label="Rate Source"
                   value={order.exchange_rate_source}
-                  onChange={(e) =>
-                    handleFieldChange('exchange_rate_source', e.target.value)
+                  onValueChange={(value) =>
+                    handleFieldChange('exchange_rate_source', value)
                   }
-                  error={errors.exchange_rate_source}
+                  validationState={errors.exchange_rate_source ? 'invalid' : null}
                 >
                   {EXCHANGE_RATE_SOURCE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
                 <Input
                   label="Rate Date"
                   type="date"

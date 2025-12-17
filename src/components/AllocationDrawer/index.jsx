@@ -117,7 +117,7 @@ const AllocationDrawer = ({
 
             return {
               ...prev,
-              unitPrice: response.data?.price?.toString() || prev.unitPrice,
+              unitPrice: response.price?.toString() || prev.unitPrice,
               priceLoading: false,
             };
           });
@@ -127,13 +127,31 @@ const AllocationDrawer = ({
 
         // Only update error if this is the latest request
         if (requestId === priceRequestIdRef.current) {
-          setDrawerState((prev) => ({
-            ...prev,
-            priceLoading: false,
-            error: !prev.unitPrice
-              ? 'Could not fetch price from price list. Please enter manually.'
-              : null,
-          }));
+          const status = err.response?.status;
+
+          setDrawerState((prev) => {
+            // Only show error if user hasn't manually entered price
+            let errorMessage = null;
+
+            if (!prev.unitPrice) {
+              if (status === 404) {
+                // Product not in pricelist - non-blocking, user can enter manually
+                errorMessage = 'Price not available for this product. Please enter manually.';
+              } else if (status === 422) {
+                // Configuration error - admin needs to fix
+                errorMessage = 'Contact administrator: No default pricelist configured for your company.';
+              } else {
+                // Other errors (500, network, etc.)
+                errorMessage = 'Could not fetch price from price list. Please enter manually.';
+              }
+            }
+
+            return {
+              ...prev,
+              priceLoading: false,
+              error: errorMessage,
+            };
+          });
         }
       }
     },
@@ -193,18 +211,47 @@ const AllocationDrawer = ({
   );
 
   // Handle quantity change
-  const handleQuantityChange = useCallback((e) => {
-    const value = e.target.value;
-    // Allow empty or valid decimal numbers
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setDrawerState((prev) => ({
-        ...prev,
-        quantity: value,
-        // Clear error when quantity changes
-        error: null,
-      }));
-    }
-  }, []);
+  const handleQuantityChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      // Allow empty or valid decimal numbers
+      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+        // P2-2: Warn if changing quantity with active allocations
+        if (
+          drawerState.sourceType === 'WAREHOUSE' &&
+          allocations?.length > 0 &&
+          drawerState.quantity !== '' &&
+          value !== drawerState.quantity
+        ) {
+          const currentQty = parseFloat(drawerState.quantity) || 0;
+          const newQty = parseFloat(value) || 0;
+          const allocatedQty = allocations.reduce(
+            (sum, a) => sum + parseFloat(a.quantity || 0),
+            0,
+          );
+
+          // Only warn if significantly different (not just decimal precision)
+          if (Math.abs(newQty - currentQty) > 0.001) {
+            const confirmed = window.confirm(
+              `Current batch allocations (${allocatedQty.toFixed(2)} ${drawerState.unit}) ` +
+                `match the existing quantity (${currentQty.toFixed(2)} ${drawerState.unit}).\n\n` +
+                `Changing to ${newQty.toFixed(2)} ${drawerState.unit} will require re-allocation.\n\n` +
+                `Continue?`,
+            );
+            if (!confirmed) return;
+          }
+        }
+
+        setDrawerState((prev) => ({
+          ...prev,
+          quantity: value,
+          // Clear error when quantity changes
+          error: null,
+        }));
+      }
+    },
+    [drawerState.sourceType, drawerState.quantity, drawerState.unit, allocations],
+  );
 
   // Handle unit change
   const handleUnitChange = useCallback((e) => {
@@ -239,15 +286,66 @@ const AllocationDrawer = ({
   }, [drawerState.productId, drawerState.quantity, fetchProductPrice]);
 
   // Handle source type change
-  const handleSourceTypeChange = useCallback((sourceType) => {
-    setDrawerState((prev) => ({
-      ...prev,
-      sourceType,
-      // Clear allocations when switching away from warehouse
-      selectedAllocations:
-        sourceType === 'WAREHOUSE' ? prev.selectedAllocations : [],
-    }));
-  }, []);
+  const handleSourceTypeChange = useCallback(
+    async (sourceType) => {
+      // P2-3: Warn if switching FROM warehouse TO drop-ship with active allocations
+      if (
+        drawerState.sourceType === 'WAREHOUSE' &&
+        (sourceType === 'LOCAL_DROP_SHIP' || sourceType === 'IMPORT_DROP_SHIP') &&
+        allocations?.length > 0
+      ) {
+        const allocatedQty = allocations.reduce(
+          (sum, a) => sum + parseFloat(a.quantity || 0),
+          0,
+        );
+
+        const confirmed = window.confirm(
+          `⚠️ Source Type Change Warning\n\n` +
+            `Current allocations: ${allocatedQty.toFixed(2)} ${drawerState.unit} from ${allocations.length} batch(es)\n\n` +
+            `Switching to Drop-Ship will:\n` +
+            `• Release all warehouse batch reservations\n` +
+            `• Clear allocation data\n` +
+            `• Mark this item as drop-ship (no warehouse stock impact)\n\n` +
+            `Continue?`,
+        );
+
+        if (!confirmed) return;
+
+        // Cancel reservation if switching away from warehouse
+        if (reservationId) {
+          console.log(
+            '[SOURCE TYPE CHANGE] Cancelling reservation:',
+            reservationId,
+          );
+          try {
+            await cancelReservation();
+          } catch (err) {
+            console.warn(
+              'Failed to cancel reservation on source type change:',
+              err,
+            );
+          }
+        }
+      }
+
+      setDrawerState((prev) => ({
+        ...prev,
+        sourceType,
+        // Clear allocations when switching away from warehouse
+        selectedAllocations:
+          sourceType === 'WAREHOUSE' ? prev.selectedAllocations : [],
+        allocationMethod:
+          sourceType === 'WAREHOUSE' ? prev.allocationMethod : null,
+      }));
+    },
+    [
+      drawerState.sourceType,
+      drawerState.unit,
+      allocations,
+      reservationId,
+      cancelReservation,
+    ],
+  );
 
   // Handle allocation changes from BatchAllocationPanel
   const handleAllocationsChange = useCallback((newAllocations) => {

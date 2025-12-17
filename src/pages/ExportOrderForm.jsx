@@ -31,6 +31,8 @@ import { customerService } from '../services/customerService';
 import { productService } from '../services/productService';
 import { notificationService } from '../services/notificationService';
 import pricelistService from '../services/pricelistService';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem, SelectGroup, SelectLabel } from '../components/ui/select';
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -127,67 +129,6 @@ const Input = ({
         } ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
-      {helperText && !error && (
-        <p
-          className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-        >
-          {helperText}
-        </p>
-      )}
-      {error && (
-        <p
-          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
-        >
-          {error}
-        </p>
-      )}
-    </div>
-  );
-};
-
-const Select = ({
-  label,
-  children,
-  error,
-  className = '',
-  required = false,
-  helperText,
-  id,
-  ...props
-}) => {
-  const { isDarkMode } = useTheme();
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
-
-  return (
-    <div className="space-y-0.5">
-      {label && (
-        <label
-          htmlFor={selectId}
-          className={`block text-xs font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
-        >
-          {label}
-        </label>
-      )}
-      <div className="relative">
-        <select
-          id={selectId}
-          className={`w-full pl-2 pr-8 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 appearance-none ${
-            isDarkMode
-              ? 'border-gray-600 bg-gray-800 text-white disabled:bg-gray-700 disabled:text-gray-500'
-              : 'border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400'
-          } ${error ? 'border-red-500' : ''} ${className}`}
-          {...props}
-        >
-          {children}
-        </select>
-        <ChevronDown
-          className={`absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}
-        />
-      </div>
       {helperText && !error && (
         <p
           className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
@@ -2075,18 +2016,19 @@ const ExportOrderForm = () => {
                 handleFieldChange('expected_ship_date', e.target.value)
               }
             />
-            <Select
+            <FormSelect
               label="Status"
-              value={order.status}
-              onChange={(e) => handleFieldChange('status', e.target.value)}
+              value={order.status || 'none'}
+              onValueChange={(value) => handleFieldChange('status', value === 'none' ? '' : value)}
               required
             >
+              <SelectItem value="none">Select Status</SelectItem>
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </Select>
+            </FormSelect>
             <div>
               <Input
                 label="Exporter TRN"
@@ -2279,22 +2221,22 @@ const ExportOrderForm = () => {
                 Origin (UAE)
               </h4>
               <div className="space-y-4">
-                <Select
+                <FormSelect
                   label="Origin Port"
-                  value={order.origin_port}
-                  onChange={(e) =>
-                    handleFieldChange('origin_port', e.target.value)
+                  value={order.origin_port || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('origin_port', value === 'none' ? '' : value)
                   }
                   error={errors.origin_port}
                   required
                 >
-                  <option value="">Select Port</option>
+                  <SelectItem value="none">Select Port</SelectItem>
                   {UAE_PORTS.map((port) => (
-                    <option key={port.value} value={port.value}>
+                    <SelectItem key={port.value} value={port.value}>
                       {port.label} ({port.type})
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
                 <Input
                   label="Origin Emirate"
                   value={order.origin_emirate}
@@ -2334,26 +2276,27 @@ const ExportOrderForm = () => {
                   error={errors.destination_country}
                   required
                 />
-                <Select
+                <FormSelect
                   label="Destination Port"
-                  value={order.destination_port}
-                  onChange={(e) =>
-                    handleFieldChange('destination_port', e.target.value)
+                  value={order.destination_port || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('destination_port', value === 'none' ? '' : value)
                   }
                   error={errors.destination_port}
                   required
                 >
-                  <option value="">Select Port</option>
+                  <SelectItem value="none">Select Port</SelectItem>
                   {Object.entries(groupedPorts).map(([region, ports]) => (
-                    <optgroup key={region} label={region}>
+                    <SelectGroup key={region}>
+                      <SelectLabel>{region}</SelectLabel>
                       {ports.map((port) => (
-                        <option key={port.value} value={port.value}>
+                        <SelectItem key={port.value} value={port.value}>
                           {port.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </optgroup>
+                    </SelectGroup>
                   ))}
-                </Select>
+                </FormSelect>
                 <Textarea
                   label="Destination Address"
                   value={order.destination_address}
@@ -2371,47 +2314,50 @@ const ExportOrderForm = () => {
         {/* Shipping Terms Section */}
         <Card title="Trade & Payment Terms" icon={CreditCard}>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Select
+            <FormSelect
               label="Incoterms"
-              value={order.incoterms}
-              onChange={(e) => handleFieldChange('incoterms', e.target.value)}
+              value={order.incoterms || 'none'}
+              onValueChange={(value) => handleFieldChange('incoterms', value === 'none' ? '' : value)}
               error={errors.incoterms}
               required
             >
+              <SelectItem value="none">Select Incoterm</SelectItem>
               {INCOTERMS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </Select>
-            <Select
+            </FormSelect>
+            <FormSelect
               label="Payment Method"
-              value={order.payment_method}
-              onChange={(e) =>
-                handleFieldChange('payment_method', e.target.value)
+              value={order.payment_method || 'none'}
+              onValueChange={(value) =>
+                handleFieldChange('payment_method', value === 'none' ? '' : value)
               }
               error={errors.payment_method}
               required
             >
+              <SelectItem value="none">Select Payment Method</SelectItem>
               {PAYMENT_METHOD_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </Select>
-            <Select
+            </FormSelect>
+            <FormSelect
               label="Shipping Method"
-              value={order.shipping_method}
-              onChange={(e) =>
-                handleFieldChange('shipping_method', e.target.value)
+              value={order.shipping_method || 'none'}
+              onValueChange={(value) =>
+                handleFieldChange('shipping_method', value === 'none' ? '' : value)
               }
             >
+              <SelectItem value="none">Select Shipping Method</SelectItem>
               {SHIPPING_METHOD_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </Select>
+            </FormSelect>
             <Input
               label="Container Numbers"
               value={order.container_numbers}
@@ -2500,32 +2446,34 @@ const ExportOrderForm = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Select
+            <FormSelect
               label="Export VAT Treatment"
-              value={order.export_vat_treatment}
-              onChange={(e) =>
-                handleFieldChange('export_vat_treatment', e.target.value)
+              value={order.export_vat_treatment || 'none'}
+              onValueChange={(value) =>
+                handleFieldChange('export_vat_treatment', value === 'none' ? '' : value)
               }
               required
             >
+              <SelectItem value="none">Select VAT Treatment</SelectItem>
               {EXPORT_VAT_TREATMENT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </Select>
-            <Select
+            </FormSelect>
+            <FormSelect
               label="Export Type"
-              value={order.export_type}
-              onChange={(e) => handleFieldChange('export_type', e.target.value)}
+              value={order.export_type || 'none'}
+              onValueChange={(value) => handleFieldChange('export_type', value === 'none' ? '' : value)}
               required
             >
+              <SelectItem value="none">Select Export Type</SelectItem>
               {EXPORT_TYPE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </Select>
+            </FormSelect>
             <Input
               label="Form 201 Box"
               value={
@@ -2553,22 +2501,22 @@ const ExportOrderForm = () => {
                 Designated Zone Export (Article 51)
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Select
+                <FormSelect
                   label="Designated Zone Origin"
-                  value={order.designated_zone_origin}
-                  onChange={(e) =>
-                    handleFieldChange('designated_zone_origin', e.target.value)
+                  value={order.designated_zone_origin || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('designated_zone_origin', value === 'none' ? '' : value)
                   }
                   error={errors.designated_zone_origin}
                   required
                 >
-                  <option value="">Select Designated Zone</option>
+                  <SelectItem value="none">Select Designated Zone</SelectItem>
                   {UAE_DESIGNATED_ZONES.map((zone) => (
-                    <option key={zone.code} value={zone.code}>
+                    <SelectItem key={zone.code} value={zone.code}>
                       {zone.name} ({zone.emirate})
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
                 <div
                   className={`p-3 rounded-lg ${isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}
                 >
@@ -2659,22 +2607,22 @@ const ExportOrderForm = () => {
                 GCC Export (Article 30)
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Select
+                <FormSelect
                   label="GCC Country"
-                  value={order.gcc_country_code}
-                  onChange={(e) =>
-                    handleFieldChange('gcc_country_code', e.target.value)
+                  value={order.gcc_country_code || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('gcc_country_code', value === 'none' ? '' : value)
                   }
                   error={errors.gcc_country_code}
                   required
                 >
-                  <option value="">Select GCC Country</option>
+                  <SelectItem value="none">Select GCC Country</SelectItem>
                   {GCC_COUNTRIES.map((country) => (
-                    <option key={country.code} value={country.code}>
+                    <SelectItem key={country.code} value={country.code}>
                       {country.name} (VAT: {country.vat_rate}%)
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
                 <Input
                   label="Customer GCC VAT ID"
                   value={order.customer_gcc_vat_id}
@@ -2766,19 +2714,20 @@ const ExportOrderForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <Select
+                <FormSelect
                   label="Currency"
-                  value={order.currency}
-                  onChange={(e) =>
-                    handleFieldChange('currency', e.target.value)
+                  value={order.currency || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('currency', value === 'none' ? '' : value)
                   }
                 >
+                  <SelectItem value="none">Select Currency</SelectItem>
                   {CURRENCY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
                 <Input
                   label="Exchange Rate to AED"
                   type="number"
@@ -2798,21 +2747,22 @@ const ExportOrderForm = () => {
                 />
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <Select
+                <FormSelect
                   label="Rate Source"
-                  value={order.exchange_rate_source}
-                  onChange={(e) =>
-                    handleFieldChange('exchange_rate_source', e.target.value)
+                  value={order.exchange_rate_source || 'none'}
+                  onValueChange={(value) =>
+                    handleFieldChange('exchange_rate_source', value === 'none' ? '' : value)
                   }
                   error={errors.exchange_rate_source}
                   required={order.status !== 'draft'}
                 >
+                  <SelectItem value="none">Select Rate Source</SelectItem>
                   {EXCHANGE_RATE_SOURCE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
-                    </option>
+                    </SelectItem>
                   ))}
-                </Select>
+                </FormSelect>
                 <Input
                   label="Rate Date"
                   type="date"

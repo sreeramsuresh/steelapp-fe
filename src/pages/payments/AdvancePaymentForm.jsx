@@ -32,6 +32,8 @@ import { customerService } from '../../services/customerService';
 import { invoiceService } from '../../services/invoiceService';
 import { notificationService } from '../../services/notificationService';
 import { formatCurrency, formatDateForInput } from '../../utils/invoiceUtils';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -614,25 +616,24 @@ const AdvancePaymentForm = () => {
 
                   {/* Payment Method */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
-                      Payment Method <span className="text-red-500">*</span>
-                    </label>
-                    <select
+                    <FormSelect
+                      label="Payment Method"
                       value={payment.paymentMethod}
-                      onChange={(e) =>
+                      onValueChange={(value) =>
                         setPayment((prev) => ({
                           ...prev,
-                          paymentMethod: e.target.value,
+                          paymentMethod: value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      required={true}
+                      showValidation={false}
                     >
                       {PAYMENT_METHODS.map((method) => (
-                        <option key={method.value} value={method.value}>
+                        <SelectItem key={method.value} value={method.value}>
                           {method.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                    </FormSelect>
                   </div>
 
                   {/* Amount (VAT Inclusive) */}
@@ -682,25 +683,23 @@ const AdvancePaymentForm = () => {
 
                   {/* Place of Supply */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
-                      Place of Supply
-                    </label>
-                    <select
+                    <FormSelect
+                      label="Place of Supply"
                       value={payment.placeOfSupply}
-                      onChange={(e) =>
+                      onValueChange={(value) =>
                         setPayment((prev) => ({
                           ...prev,
-                          placeOfSupply: e.target.value,
+                          placeOfSupply: value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      showValidation={false}
                     >
                       {EMIRATES.map((emirate) => (
-                        <option key={emirate.value} value={emirate.value}>
+                        <SelectItem key={emirate.value} value={emirate.value}>
                           {emirate.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                    </FormSelect>
                   </div>
 
                   {/* Purpose */}

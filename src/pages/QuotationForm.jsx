@@ -26,6 +26,8 @@ import { STEEL_GRADES, FINISHES } from '../types';
 import QuotationPreview from '../components/quotations/QuotationPreview';
 import StockAvailabilityIndicator from '../components/invoice/StockAvailabilityIndicator';
 import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 
 const FormSettingsPanel = ({
   isOpen,
@@ -1305,78 +1307,6 @@ const QuotationForm = () => {
     );
   };
 
-  const Select = ({
-    label,
-    children,
-    selectError,
-    className = '',
-    required = false,
-    validationState = null,
-    showValidation = true,
-    id: elementId,
-    ...props
-  }) => {
-    const selectId =
-      elementId || `select-${Math.random().toString(36).substr(2, 9)}`;
-
-    const getValidationClasses = () => {
-      if (!showValidation) {
-        return isDarkMode
-          ? 'border-gray-600 bg-gray-800'
-          : 'border-gray-300 bg-white';
-      }
-      if (selectError || validationState === 'invalid') {
-        return isDarkMode
-          ? 'border-red-500 bg-red-900/10'
-          : 'border-red-500 bg-red-50';
-      }
-      if (validationState === 'valid') {
-        return isDarkMode
-          ? 'border-green-500 bg-green-900/10'
-          : 'border-green-500 bg-green-50';
-      }
-      if (required && validationState === null) {
-        return isDarkMode
-          ? 'border-yellow-600/50 bg-yellow-900/5'
-          : 'border-yellow-400/50 bg-yellow-50/30';
-      }
-      return isDarkMode
-        ? 'border-gray-600 bg-gray-800'
-        : 'border-gray-300 bg-white';
-    };
-
-    return (
-      <div className="space-y-0.5">
-        {label && (
-          <label
-            htmlFor={selectId}
-            className={`block text-xs font-medium ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-700'
-            } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
-          >
-            {label}
-          </label>
-        )}
-        <select
-          id={selectId}
-          className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
-            isDarkMode ? 'text-white' : 'text-gray-900'
-          } ${getValidationClasses()} ${className}`}
-          {...props}
-        >
-          {children}
-        </select>
-        {error && (
-          <p
-            className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
-          >
-            {error}
-          </p>
-        )}
-      </div>
-    );
-  };
-
   // Autocomplete component with fuzzy search
   const Autocomplete = ({
     options = [],
@@ -1799,26 +1729,26 @@ const QuotationForm = () => {
                 }
               />
 
-              <Select
+              <FormSelect
                 label="Currency"
-                value={formData.currency}
-                onChange={(e) => {
+                value={formData.currency || 'AED'}
+                onValueChange={(value) => {
                   setFormData((prev) => ({
                     ...prev,
-                    currency: e.target.value,
+                    currency: value,
                   }));
-                  validateField('currency', e.target.value);
+                  validateField('currency', value);
                 }}
                 required
                 validationState={fieldValidation.currency}
                 showValidation={formPreferences.showValidationHighlighting}
               >
-                <option value="AED">AED (UAE Dirham)</option>
-                <option value="USD">USD (US Dollar)</option>
-                <option value="EUR">EUR (Euro)</option>
-                <option value="GBP">GBP (British Pound)</option>
-                <option value="INR">INR (Indian Rupee)</option>
-              </Select>
+                <SelectItem value="AED">AED (UAE Dirham)</SelectItem>
+                <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                <SelectItem value="GBP">GBP (British Pound)</SelectItem>
+                <SelectItem value="INR">INR (Indian Rupee)</SelectItem>
+              </FormSelect>
             </div>
           </div>
 
@@ -1996,34 +1926,44 @@ const QuotationForm = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              <Select
+              <FormSelect
                 label="Warehouse"
-                value={formData.warehouseId}
-                onChange={(e) => {
-                  const warehouseId = e.target.value;
-                  const w = warehouses.find(
-                    (wh) => wh.id.toString() === warehouseId,
-                  );
-                  setFormData((prev) => ({
-                    ...prev,
-                    warehouseId,
-                    warehouseName: w ? w.name : '',
-                    warehouseCode: w ? w.code : '',
-                    warehouseCity: w ? w.city : '',
-                  }));
-                  validateField('warehouse', warehouseId);
+                value={formData.warehouseId || 'none'}
+                onValueChange={(warehouseId) => {
+                  if (warehouseId === 'none') {
+                    setFormData((prev) => ({
+                      ...prev,
+                      warehouseId: '',
+                      warehouseName: '',
+                      warehouseCode: '',
+                      warehouseCity: '',
+                    }));
+                    validateField('warehouse', '');
+                  } else {
+                    const w = warehouses.find(
+                      (wh) => wh.id.toString() === warehouseId,
+                    );
+                    setFormData((prev) => ({
+                      ...prev,
+                      warehouseId,
+                      warehouseName: w ? w.name : '',
+                      warehouseCode: w ? w.code : '',
+                      warehouseCity: w ? w.city : '',
+                    }));
+                    validateField('warehouse', warehouseId);
+                  }
                 }}
                 required={formData.status !== 'draft'}
                 validationState={fieldValidation.warehouse}
                 showValidation={formPreferences.showValidationHighlighting}
               >
-                <option value="">Select warehouse</option>
+                <SelectItem value="none">Select warehouse</SelectItem>
                 {warehouses.map((wh) => (
-                  <option key={wh.id} value={wh.id}>
+                  <SelectItem key={wh.id} value={wh.id.toString()}>
                     {wh.name} ({wh.city})
-                  </option>
+                  </SelectItem>
                 ))}
-              </Select>
+              </FormSelect>
 
               <Input
                 label="Delivery Terms"
@@ -2229,24 +2169,24 @@ const QuotationForm = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
                       <div className="sm:col-span-2">
-                        <Select
+                        <FormSelect
                           label="Product"
-                          value={item.productId}
-                          onChange={(e) =>
-                            updateItem(index, 'productId', e.target.value)
+                          value={item.productId || 'none'}
+                          onValueChange={(value) =>
+                            updateItem(index, 'productId', value === 'none' ? '' : value)
                           }
                         >
-                          <option value="">Select or enter manually</option>
+                          <SelectItem value="none">Select or enter manually</SelectItem>
                           {products.map((product) => (
-                            <option key={product.id} value={product.id}>
+                            <SelectItem key={product.id} value={product.id.toString()}>
                               {product.displayName ||
                                 product.display_name ||
                                 product.uniqueName ||
                                 product.unique_name ||
                                 'N/A'}
-                            </option>
+                            </SelectItem>
                           ))}
-                        </Select>
+                        </FormSelect>
                         <Input
                           placeholder="Item name"
                           value={item.name}
@@ -2258,35 +2198,35 @@ const QuotationForm = () => {
                         />
                       </div>
 
-                      <Select
+                      <FormSelect
                         label="Grade"
-                        value={item.grade || ''}
-                        onChange={(e) =>
-                          updateItem(index, 'grade', e.target.value)
+                        value={item.grade || 'none'}
+                        onValueChange={(value) =>
+                          updateItem(index, 'grade', value === 'none' ? '' : value)
                         }
                       >
-                        <option value="">Select Grade</option>
+                        <SelectItem value="none">Select Grade</SelectItem>
                         {STEEL_GRADES.map((g) => (
-                          <option key={g} value={g}>
+                          <SelectItem key={g} value={g}>
                             {g}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </Select>
+                      </FormSelect>
 
-                      <Select
+                      <FormSelect
                         label="Finish"
-                        value={item.finish || ''}
-                        onChange={(e) =>
-                          updateItem(index, 'finish', e.target.value)
+                        value={item.finish || 'none'}
+                        onValueChange={(value) =>
+                          updateItem(index, 'finish', value === 'none' ? '' : value)
                         }
                       >
-                        <option value="">Select Finish</option>
+                        <SelectItem value="none">Select Finish</SelectItem>
                         {FINISHES.map((f) => (
-                          <option key={f} value={f}>
+                          <SelectItem key={f} value={f}>
                             {f}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </Select>
+                      </FormSelect>
 
                       <Input
                         label="Size"
@@ -2526,21 +2466,21 @@ const QuotationForm = () => {
                           }
                         />
 
-                        <Select
+                        <FormSelect
                           label="Unit"
-                          value={item.unit}
-                          onChange={(e) =>
-                            updateItem(index, 'unit', e.target.value)
+                          value={item.unit || 'pcs'}
+                          onValueChange={(value) =>
+                            updateItem(index, 'unit', value)
                           }
                         >
-                          <option value="pcs">Pieces</option>
-                          <option value="kg">Kilograms</option>
-                          <option value="tons">Tons</option>
-                          <option value="meters">Meters</option>
-                          <option value="sqm">Square Meters</option>
-                          <option value="feet">Feet</option>
-                          <option value="sqft">Square Feet</option>
-                        </Select>
+                          <SelectItem value="pcs">Pieces</SelectItem>
+                          <SelectItem value="kg">Kilograms</SelectItem>
+                          <SelectItem value="tons">Tons</SelectItem>
+                          <SelectItem value="meters">Meters</SelectItem>
+                          <SelectItem value="sqm">Square Meters</SelectItem>
+                          <SelectItem value="feet">Feet</SelectItem>
+                          <SelectItem value="sqft">Square Feet</SelectItem>
+                        </FormSelect>
 
                         <Input
                           label="HSN Code"

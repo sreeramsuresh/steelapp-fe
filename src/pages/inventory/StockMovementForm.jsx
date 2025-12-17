@@ -36,6 +36,8 @@ import {
 import { productService } from '../../services/dataService';
 import { warehouseService } from '../../services/warehouseService';
 import { notificationService } from '../../services/notificationService';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 // Available units
 const UNITS = ['KG', 'MT', 'PCS', 'SHEETS', 'COILS', 'BUNDLES', 'METERS'];
@@ -392,21 +394,23 @@ const StockMovementForm = () => {
                         Product <span className="text-red-500">*</span>
                       </label>
                       {isEditing ? (
-                        <select
-                          value={formData.productId}
-                          disabled
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} opacity-60`}
+                        <FormSelect
+                          value={formData.productId || 'none'}
+                          onValueChange={() => {}}
+                          disabled={true}
+                          showValidation={false}
+                          placeholder="Select product..."
                         >
-                          <option value="">Select product...</option>
+                          <SelectItem value="none">Select product...</SelectItem>
                           {products.map((p) => (
-                            <option key={p.id} value={p.id}>
+                            <SelectItem key={p.id} value={String(p.id)}>
                               {p.displayName ||
                                 p.display_name ||
                                 p.uniqueName ||
                                 p.name}
-                            </option>
+                            </SelectItem>
                           ))}
-                        </select>
+                        </FormSelect>
                       ) : selectedProduct || formData.productId ? (
                         <div
                           className={`flex items-center justify-between py-2.5 px-3 rounded-xl border ${
@@ -512,23 +516,23 @@ const StockMovementForm = () => {
                       <label className={`block text-xs ${textMuted} mb-1.5`}>
                         Warehouse <span className="text-red-500">*</span>
                       </label>
-                      <select
-                        value={formData.warehouseId}
-                        onChange={(e) =>
-                          handleChange('warehouseId', e.target.value)
+                      <FormSelect
+                        value={formData.warehouseId || 'none'}
+                        onValueChange={(value) =>
+                          handleChange('warehouseId', value === 'none' ? '' : value)
                         }
                         disabled={isEditing}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${
-                          errors.warehouseId ? 'border-red-500' : inputBorder
-                        } ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        validationState={errors.warehouseId ? 'invalid' : null}
+                        showValidation={true}
+                        placeholder="Select warehouse..."
                       >
-                        <option value="">Select warehouse...</option>
+                        <SelectItem value="none">Select warehouse...</SelectItem>
                         {warehouses.map((w) => (
-                          <option key={w.id} value={w.id}>
+                          <SelectItem key={w.id} value={String(w.id)}>
                             {w.name} {w.code && `(${w.code})`}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                      </FormSelect>
                       {errors.warehouseId && (
                         <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
                           <AlertCircle size={12} />
@@ -561,22 +565,22 @@ const StockMovementForm = () => {
                       <label className={`block text-xs ${textMuted} mb-1.5`}>
                         Type <span className="text-red-500">*</span>
                       </label>
-                      <select
+                      <FormSelect
                         value={formData.movementType}
-                        onChange={(e) =>
-                          handleChange('movementType', e.target.value)
+                        onValueChange={(value) =>
+                          handleChange('movementType', value)
                         }
                         disabled={isEditing}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        showValidation={false}
                       >
                         {Object.entries(
                           isEditing ? MOVEMENT_TYPES : MANUAL_MOVEMENT_TYPES,
                         ).map(([key, { label }]) => (
-                          <option key={key} value={key}>
+                          <SelectItem key={key} value={key}>
                             {label}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                      </FormSelect>
                     </div>
 
                     {/* Quantity */}
@@ -611,18 +615,18 @@ const StockMovementForm = () => {
                       <label className={`block text-xs ${textMuted} mb-1.5`}>
                         Unit <span className="text-red-500">*</span>
                       </label>
-                      <select
+                      <FormSelect
                         value={formData.unit}
-                        onChange={(e) => handleChange('unit', e.target.value)}
+                        onValueChange={(value) => handleChange('unit', value)}
                         disabled={isEditing}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        showValidation={false}
                       >
                         {UNITS.map((u) => (
-                          <option key={u} value={u}>
+                          <SelectItem key={u} value={u}>
                             {u}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                      </FormSelect>
                     </div>
 
                     {/* Reference Type */}
@@ -630,22 +634,22 @@ const StockMovementForm = () => {
                       <label className={`block text-xs ${textMuted} mb-1.5`}>
                         Reference Type
                       </label>
-                      <select
+                      <FormSelect
                         value={formData.referenceType}
-                        onChange={(e) =>
-                          handleChange('referenceType', e.target.value)
+                        onValueChange={(value) =>
+                          handleChange('referenceType', value)
                         }
                         disabled={isEditing}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                        showValidation={false}
                       >
                         {Object.entries(REFERENCE_TYPES).map(
                           ([key, { label }]) => (
-                            <option key={key} value={key}>
+                            <SelectItem key={key} value={key}>
                               {label}
-                            </option>
+                            </SelectItem>
                           ),
                         )}
-                      </select>
+                      </FormSelect>
                     </div>
 
                     {/* Reference Number */}

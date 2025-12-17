@@ -27,6 +27,8 @@ import {
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 import { toUAEDateForInput } from '../../utils/timezone';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 /**
  * COGS Analysis Dashboard
@@ -328,56 +330,36 @@ export default function COGSAnalysisReport() {
 
                 {/* Customer Filter */}
                 <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    Customer
-                  </label>
-                  <select
+                  <FormSelect
+                    label="Customer"
                     value={selectedCustomer}
-                    onChange={(e) => setSelectedCustomer(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-800 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    } border focus:ring-2 focus:ring-teal-500`}
+                    onValueChange={(value) => setSelectedCustomer(value)}
+                    showValidation={false}
                   >
-                    <option value="all">All Customers</option>
+                    <SelectItem value="all">All Customers</SelectItem>
                     {customers.map((customer) => (
-                      <option key={customer.id} value={customer.id}>
+                      <SelectItem key={customer.id} value={String(customer.id)}>
                         {customer.name}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
 
                 {/* Product Filter */}
                 <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    Product
-                  </label>
-                  <select
+                  <FormSelect
+                    label="Product"
                     value={selectedProduct}
-                    onChange={(e) => setSelectedProduct(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-800 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    } border focus:ring-2 focus:ring-teal-500`}
+                    onValueChange={(value) => setSelectedProduct(value)}
+                    showValidation={false}
                   >
-                    <option value="all">All Products</option>
+                    <SelectItem value="all">All Products</SelectItem>
                     {products.map((product) => (
-                      <option key={product.id} value={product.id}>
+                      <SelectItem key={product.id} value={String(product.id)}>
                         {product.name}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
 
                 <div className="flex items-end">

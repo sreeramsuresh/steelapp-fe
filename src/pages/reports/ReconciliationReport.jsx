@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { toUAEDateForInput } from '../../utils/timezone';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 /**
  * Stock Reconciliation Report
@@ -389,26 +391,16 @@ export default function ReconciliationReport() {
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 {/* Period Selector */}
                 <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    Period
-                  </label>
-                  <select
+                  <FormSelect
+                    label="Period"
                     value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-800 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    } border focus:ring-2 focus:ring-purple-500`}
+                    onValueChange={(value) => setPeriod(value)}
+                    showValidation={false}
                   >
-                    <option value="this_month">This Month</option>
-                    <option value="last_month">Last Month</option>
-                    <option value="custom">Custom Range</option>
-                  </select>
+                    <SelectItem value="this_month">This Month</SelectItem>
+                    <SelectItem value="last_month">Last Month</SelectItem>
+                    <SelectItem value="custom">Custom Range</SelectItem>
+                  </FormSelect>
                 </div>
 
                 {/* Date Range */}
@@ -464,56 +456,36 @@ export default function ReconciliationReport() {
 
                 {/* Warehouse Filter */}
                 <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    Warehouse
-                  </label>
-                  <select
+                  <FormSelect
+                    label="Warehouse"
                     value={selectedWarehouse}
-                    onChange={(e) => setSelectedWarehouse(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-800 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    } border focus:ring-2 focus:ring-purple-500`}
+                    onValueChange={(value) => setSelectedWarehouse(value)}
+                    showValidation={false}
                   >
-                    <option value="all">All Warehouses</option>
+                    <SelectItem value="all">All Warehouses</SelectItem>
                     {warehouses.map((wh) => (
-                      <option key={wh.id} value={wh.id}>
+                      <SelectItem key={wh.id} value={String(wh.id)}>
                         {wh.name}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
 
                 {/* Product Filter */}
                 <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    Product
-                  </label>
-                  <select
+                  <FormSelect
+                    label="Product"
                     value={selectedProduct}
-                    onChange={(e) => setSelectedProduct(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-800 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    } border focus:ring-2 focus:ring-purple-500`}
+                    onValueChange={(value) => setSelectedProduct(value)}
+                    showValidation={false}
                   >
-                    <option value="all">All Products</option>
+                    <SelectItem value="all">All Products</SelectItem>
                     {products.map((prod) => (
-                      <option key={prod.id} value={prod.id}>
+                      <SelectItem key={prod.id} value={String(prod.id)}>
                         {prod.name}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                  </FormSelect>
                 </div>
               </div>
 
