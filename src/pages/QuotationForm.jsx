@@ -1749,6 +1749,26 @@ const QuotationForm = () => {
                 <SelectItem value="GBP">GBP (British Pound)</SelectItem>
                 <SelectItem value="INR">INR (Indian Rupee)</SelectItem>
               </FormSelect>
+
+              <Input
+                label="Exchange Rate"
+                type="number"
+                step="0.0001"
+                min="0"
+                value={formData.exchangeRate || ''}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    exchangeRate: e.target.value,
+                  }))
+                }
+                placeholder="1.0000"
+                helperText={
+                  formData.currency !== 'AED'
+                    ? `Rate to convert ${formData.currency} to AED`
+                    : 'Default currency (1.0000)'
+                }
+              />
             </div>
           </div>
 
@@ -2856,6 +2876,118 @@ const QuotationForm = () => {
                     : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
+            </div>
+          </div>
+
+          {/* Discount Section */}
+          <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div
+              className={`block text-xs font-semibold ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}
+            >
+              Discount
+            </div>
+
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="discountType"
+                  value="percentage"
+                  checked={formData.discountType === 'percentage'}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      discountType: e.target.value,
+                    }))
+                  }
+                  className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                />
+                <span className={`text-sm ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-700'}`}>
+                  Percentage
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="discountType"
+                  value="fixed"
+                  checked={formData.discountType === 'fixed'}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      discountType: e.target.value,
+                    }))
+                  }
+                  className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                />
+                <span className={`text-sm ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-700'}`}>
+                  Fixed Amount
+                </span>
+              </label>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {formData.discountType === 'percentage' && (
+                <div>
+                  <label
+                    htmlFor="discountPercentage"
+                    className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                  >
+                    Discount Percentage (%)
+                  </label>
+                  <input
+                    id="discountPercentage"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.discountPercentage || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        discountPercentage: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                  />
+                </div>
+              )}
+
+              {formData.discountType === 'fixed' && (
+                <div>
+                  <label
+                    htmlFor="discountAmount"
+                    className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                  >
+                    Discount Amount
+                  </label>
+                  <input
+                    id="discountAmount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.discountAmount || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        discountAmount: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
