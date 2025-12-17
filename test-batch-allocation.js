@@ -18,7 +18,7 @@ async function runTest() {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
   const page = await browser.newPage();
@@ -42,7 +42,7 @@ async function runTest() {
     // Click on customer option
     await page.evaluate(() => {
       const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('Abc Corporation')
+        el.textContent.includes('Abc Corporation'),
       );
       if (option) option.click();
     });
@@ -76,7 +76,7 @@ async function runTest() {
     console.log('\n✅ Step 5: Select product from dropdown');
     await page.evaluate(() => {
       const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm')
+        el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm'),
       );
       if (option) option.click();
     });
@@ -118,7 +118,7 @@ async function runTest() {
 
     await page.evaluate(() => {
       const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('SS-316L')
+        el.textContent.includes('SS-316L'),
       );
       if (option) option.click();
     });
@@ -157,7 +157,7 @@ async function runTest() {
 
     await page.evaluate(() => {
       const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm')
+        el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm'),
       );
       if (option) option.click();
     });
@@ -180,7 +180,7 @@ async function runTest() {
     console.log('\n🧪 TEST 3: Click Auto-Fill FIFO without unit price (should show validation)');
     const autoFifoButton = await page.evaluate(() => {
       const button = Array.from(document.querySelectorAll('button')).find(btn =>
-        btn.textContent.includes('Auto-Fill FIFO') || btn.textContent.includes('Auto-FIFO')
+        btn.textContent.includes('Auto-Fill FIFO') || btn.textContent.includes('Auto-FIFO'),
       );
       if (button) {
         button.click();
@@ -225,7 +225,7 @@ async function runTest() {
     console.log('\n🧪 TEST 4: Click Auto-Fill FIFO with all fields (should allocate)');
     await page.evaluate(() => {
       const button = Array.from(document.querySelectorAll('button')).find(btn =>
-        btn.textContent.includes('Auto-Fill FIFO') || btn.textContent.includes('Auto-FIFO')
+        btn.textContent.includes('Auto-Fill FIFO') || btn.textContent.includes('Auto-FIFO'),
       );
       if (button) button.click();
     });
@@ -241,7 +241,7 @@ async function runTest() {
         allocatedCount: allocatedRows.length,
         hasSummary: !!allocationSummary,
         summaryText: allocationSummary ? allocationSummary.textContent.trim() : null,
-        error: errorDiv ? errorDiv.textContent.trim() : null
+        error: errorDiv ? errorDiv.textContent.trim() : null,
       };
     });
 
@@ -262,7 +262,7 @@ async function runTest() {
     console.log('\n📸 Screenshot saved to test-result.png');
 
     // Final summary
-    console.log('\n' + '='.repeat(60));
+    console.log(`\n${  '='.repeat(60)}`);
     console.log('TEST SUMMARY');
     console.log('='.repeat(60));
     console.log('✓ Stale error fix: ', errorAfterFirstProduct ? 'FAILED' : 'PASSED');

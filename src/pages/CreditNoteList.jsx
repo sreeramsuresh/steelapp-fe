@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -10,76 +10,76 @@ import {
   Download,
   Clock,
   PlayCircle,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { creditNoteService } from '../services/creditNoteService';
-import { companyService } from '../services/companyService';
-import { notificationService } from '../services/notificationService';
-import { formatCurrency, formatDate } from '../utils/invoiceUtils';
-import ConfirmDialog from '../components/ConfirmDialog';
-import { useConfirm } from '../hooks/useConfirm';
-import CreditNoteStatusActions from '../components/credit-notes/CreditNoteStatusActions';
-import QCInspectionModal from '../components/credit-notes/QCInspectionModal';
-import CreditNotePreview from '../components/credit-notes/CreditNotePreview';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { creditNoteService } from "../services/creditNoteService";
+import { companyService } from "../services/companyService";
+import { notificationService } from "../services/notificationService";
+import { formatCurrency, formatDate } from "../utils/invoiceUtils";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
+import CreditNoteStatusActions from "../components/credit-notes/CreditNoteStatusActions";
+import QCInspectionModal from "../components/credit-notes/QCInspectionModal";
+import CreditNotePreview from "../components/credit-notes/CreditNotePreview";
 import useCreditNoteDrafts, {
   getDraftStatusMessage,
-} from '../hooks/useCreditNoteDrafts';
-import { NewBadge } from '../components/shared';
-import { validateCreditNoteForDownload } from '../utils/recordUtils';
+} from "../hooks/useCreditNoteDrafts";
+import { NewBadge } from "../components/shared";
+import { validateCreditNoteForDownload } from "../utils/recordUtils";
 
 const STATUS_COLORS = {
   draft: {
-    bg: 'bg-gray-200 dark:bg-gray-700',
-    text: 'text-gray-800 dark:text-gray-200',
-    label: 'Draft',
+    bg: "bg-gray-200 dark:bg-gray-700",
+    text: "text-gray-800 dark:text-gray-200",
+    label: "Draft",
   },
   issued: {
-    bg: 'bg-blue-200 dark:bg-blue-800',
-    text: 'text-blue-800 dark:text-blue-100',
-    label: 'Issued',
+    bg: "bg-blue-200 dark:bg-blue-800",
+    text: "text-blue-800 dark:text-blue-100",
+    label: "Issued",
   },
   items_received: {
-    bg: 'bg-amber-200 dark:bg-amber-800',
-    text: 'text-amber-800 dark:text-amber-100',
-    label: 'Items Received',
+    bg: "bg-amber-200 dark:bg-amber-800",
+    text: "text-amber-800 dark:text-amber-100",
+    label: "Items Received",
   },
   items_inspected: {
-    bg: 'bg-purple-200 dark:bg-purple-800',
-    text: 'text-purple-800 dark:text-purple-100',
-    label: 'Items Inspected',
+    bg: "bg-purple-200 dark:bg-purple-800",
+    text: "text-purple-800 dark:text-purple-100",
+    label: "Items Inspected",
   },
   applied: {
-    bg: 'bg-green-200 dark:bg-green-800',
-    text: 'text-green-800 dark:text-green-100',
-    label: 'Applied',
+    bg: "bg-green-200 dark:bg-green-800",
+    text: "text-green-800 dark:text-green-100",
+    label: "Applied",
   },
   refunded: {
-    bg: 'bg-teal-200 dark:bg-teal-800',
-    text: 'text-teal-800 dark:text-teal-100',
-    label: 'Refunded',
+    bg: "bg-teal-200 dark:bg-teal-800",
+    text: "text-teal-800 dark:text-teal-100",
+    label: "Refunded",
   },
   completed: {
-    bg: 'bg-emerald-200 dark:bg-emerald-800',
-    text: 'text-emerald-800 dark:text-emerald-100',
-    label: 'Completed',
+    bg: "bg-emerald-200 dark:bg-emerald-800",
+    text: "text-emerald-800 dark:text-emerald-100",
+    label: "Completed",
   },
   cancelled: {
-    bg: 'bg-red-200 dark:bg-red-800',
-    text: 'text-red-800 dark:text-red-100',
-    label: 'Cancelled',
+    bg: "bg-red-200 dark:bg-red-800",
+    text: "text-red-800 dark:text-red-100",
+    label: "Cancelled",
   },
 };
 
 const TYPE_LABELS = {
   ACCOUNTING_ONLY: {
-    label: 'Accounting',
-    bg: 'bg-sky-200 dark:bg-sky-800',
-    text: 'text-sky-800 dark:text-sky-100',
+    label: "Accounting",
+    bg: "bg-sky-200 dark:bg-sky-800",
+    text: "text-sky-800 dark:text-sky-100",
   },
   RETURN_WITH_QC: {
-    label: 'Return + QC',
-    bg: 'bg-violet-200 dark:bg-violet-800',
-    text: 'text-violet-800 dark:text-violet-100',
+    label: "Return + QC",
+    bg: "bg-violet-200 dark:bg-violet-800",
+    text: "text-violet-800 dark:text-violet-100",
   },
 };
 
@@ -91,9 +91,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   const [creditNotes, setCreditNotes] = useState([]);
   const [_loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
   const [pagination, setPagination] = useState(null);
@@ -117,15 +117,15 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
   const handleDeleteDraft = async (draft) => {
     const confirmed = await confirm({
-      title: 'Discard Draft?',
-      message: `Are you sure you want to discard the draft credit note for ${draft.invoiceNumber || 'this invoice'}? This cannot be undone.`,
-      confirmText: 'Discard',
-      variant: 'danger',
+      title: "Discard Draft?",
+      message: `Are you sure you want to discard the draft credit note for ${draft.invoiceNumber || "this invoice"}? This cannot be undone.`,
+      confirmText: "Discard",
+      variant: "danger",
     });
 
     if (confirmed) {
       deleteDraft(draft.invoiceId);
-      notificationService.info('Draft discarded');
+      notificationService.info("Draft discarded");
     }
   };
 
@@ -136,7 +136,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
         const companyData = await companyService.getCompany();
         setCompany(companyData);
       } catch (error) {
-        console.error('Failed to fetch company data:', error);
+        console.error("Failed to fetch company data:", error);
       }
     };
     fetchCompany();
@@ -177,8 +177,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       setCreditNotes(response.data || []);
       setPagination(response.pagination);
     } catch (error) {
-      console.error('Error loading credit notes:', error);
-      notificationService.error('Failed to load credit notes');
+      console.error("Error loading credit notes:", error);
+      notificationService.error("Failed to load credit notes");
     } finally {
       setLoading(false);
       setInitialLoading(false);
@@ -187,21 +187,21 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
   const handleDelete = async (creditNote) => {
     const confirmed = await confirm({
-      title: 'Delete Credit Note?',
+      title: "Delete Credit Note?",
       message: `Are you sure you want to delete credit note ${creditNote.creditNoteNumber}? This action cannot be undone.`,
-      confirmText: 'Delete',
-      variant: 'danger',
+      confirmText: "Delete",
+      variant: "danger",
     });
 
     if (!confirmed) return;
 
     try {
       await creditNoteService.deleteCreditNote(creditNote.id);
-      notificationService.success('Credit note deleted successfully');
+      notificationService.success("Credit note deleted successfully");
       loadCreditNotes();
     } catch (error) {
-      console.error('Error deleting credit note:', error);
-      notificationService.error('Failed to delete credit note');
+      console.error("Error deleting credit note:", error);
+      notificationService.error("Failed to delete credit note");
     }
   };
 
@@ -215,7 +215,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       setPreviewCreditNote(fullCreditNote);
       setShowPreview(true);
     } catch (error) {
-      console.error('Failed to load credit note details:', error);
+      console.error("Failed to load credit note details:", error);
       // Fallback to existing data
       setPreviewCreditNote(creditNote);
       setShowPreview(true);
@@ -230,7 +230,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
     // Must have an ID (be saved) to download
     if (!creditNote.id) {
       notificationService.warning(
-        'Credit note must be saved before downloading PDF.',
+        "Credit note must be saved before downloading PDF.",
       );
       return;
     }
@@ -239,7 +239,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
     const validation = validateCreditNoteForDownload(creditNote);
     if (!validation.isValid) {
       notificationService.warning(
-        `Credit note is incomplete. Missing: ${validation.warnings.join(', ')}. You can still download, but the PDF may be incomplete.`,
+        `Credit note is incomplete. Missing: ${validation.warnings.join(", ")}. You can still download, but the PDF may be incomplete.`,
         { duration: 6000 },
       );
     }
@@ -252,10 +252,10 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
         creditNote.id,
         creditNote.creditNoteNumber || creditNote.credit_note_number,
       );
-      notificationService.success('PDF downloaded successfully!');
+      notificationService.success("PDF downloaded successfully!");
     } catch (error) {
-      console.error('PDF download error:', error);
-      notificationService.error(error.message || 'Failed to download PDF');
+      console.error("PDF download error:", error);
+      notificationService.error(error.message || "Failed to download PDF");
     } finally {
       setDownloadingIds((prev) => {
         const newSet = new Set(prev);
@@ -280,11 +280,11 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   if (initialLoading) {
     return (
       <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+        className={`h-full flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
+          <p className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
             Loading credit notes...
           </p>
         </div>
@@ -294,25 +294,25 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
   return (
     <div
-      className={`h-full overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+      className={`h-full overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
     >
       <div className="max-w-[1920px] mx-auto px-6 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1
-              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Credit Notes
             </h1>
             <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
             >
               Manage customer returns and refunds
             </p>
           </div>
           <button
-            onClick={() => navigate('/credit-notes/new')}
+            onClick={() => navigate("/credit-notes/new")}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -322,13 +322,13 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
         {/* Filters */}
         <div
-          className={`p-4 rounded-lg mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
+          className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <div className="relative">
                 <Search
-                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 />
                 <input
                   type="text"
@@ -337,8 +337,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
                     isDarkMode
-                      ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
-                      : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                      ? "border-gray-600 bg-gray-700 text-white placeholder-gray-400"
+                      : "border-gray-300 bg-white text-gray-900 placeholder-gray-500"
                   } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                 />
               </div>
@@ -349,8 +349,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className={`w-full px-4 py-2 rounded-lg border ${
                   isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-white'
-                    : 'border-gray-300 bg-white text-gray-900'
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-teal-500`}
               >
                 <option value="">All Statuses</option>
@@ -369,24 +369,24 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
           <div
             className={`mb-6 p-4 rounded-lg border-2 border-dashed ${
               isDarkMode
-                ? 'border-amber-600/50 bg-amber-900/10'
-                : 'border-amber-400 bg-amber-50'
+                ? "border-amber-600/50 bg-amber-900/10"
+                : "border-amber-400 bg-amber-50"
             }`}
           >
             <div className="flex items-center gap-2 mb-3">
               <Clock
-                className={`h-5 w-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
+                className={`h-5 w-5 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
               />
               <h3
-                className={`font-semibold ${isDarkMode ? 'text-amber-300' : 'text-amber-800'}`}
+                className={`font-semibold ${isDarkMode ? "text-amber-300" : "text-amber-800"}`}
               >
                 Unsaved Drafts
               </h3>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full ${
                   isDarkMode
-                    ? 'bg-amber-900/50 text-amber-300'
-                    : 'bg-amber-200 text-amber-800'
+                    ? "bg-amber-900/50 text-amber-300"
+                    : "bg-amber-200 text-amber-800"
                 }`}
               >
                 {allDrafts.length}
@@ -397,26 +397,26 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                 <div
                   key={draft.invoiceId}
                   className={`flex items-center justify-between p-3 rounded-lg ${
-                    isDarkMode ? 'bg-gray-800' : 'bg-white'
+                    isDarkMode ? "bg-gray-800" : "bg-white"
                   } shadow-sm`}
                 >
                   <div className="flex items-center gap-3">
                     <FileText
-                      className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     />
                     <div>
                       <div
-                        className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {draft.invoiceNumber || `Invoice #${draft.invoiceId}`}
                       </div>
                       <div
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                        className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                       >
                         {draft.customerName}
                       </div>
                       <div
-                        className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                        className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
                       >
                         {getDraftStatusMessage(draft)}
                       </div>
@@ -425,7 +425,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                   <div className="flex items-center gap-2">
                     {draft.data?.totalCredit > 0 && (
                       <span
-                        className={`text-sm font-medium mr-2 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+                        className={`text-sm font-medium mr-2 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
                       >
                         {formatCurrency(draft.data.totalCredit)}
                       </span>
@@ -434,8 +434,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                       onClick={() => handleDeleteDraft(draft)}
                       className={`p-2 rounded-lg transition-colors ${
                         isDarkMode
-                          ? 'hover:bg-gray-700 text-gray-400'
-                          : 'hover:bg-gray-100 text-gray-500'
+                          ? "hover:bg-gray-700 text-gray-400"
+                          : "hover:bg-gray-100 text-gray-500"
                       }`}
                       title="Discard draft"
                     >
@@ -457,88 +457,88 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
 
         {/* Credit Notes Table */}
         <div
-          className={`rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
+          className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
         >
           {creditNotes.length === 0 ? (
             <div className="p-12 text-center">
               <FileText
-                className={`h-16 w-16 mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
+                className={`h-16 w-16 mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
               />
               <h3
-                className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
+                className={`text-lg font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
               >
                 {debouncedSearch || statusFilter
-                  ? 'No matching credit notes'
-                  : 'No credit notes found'}
+                  ? "No matching credit notes"
+                  : "No credit notes found"}
               </h3>
               <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 {debouncedSearch || statusFilter
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'Use the button above to create your first credit note'}
+                  ? "Try adjusting your search or filter criteria"
+                  : "Use the button above to create your first credit note"}
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full table-auto">
-                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                   <tr>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Credit Note #
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Invoice #
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Customer
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Date
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Total Credit
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Type
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Status
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Actions
                     </th>
                     <th
-                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     ></th>
                   </tr>
                 </thead>
                 <tbody
-                  className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
+                  className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
                 >
                   {creditNotes.map((creditNote) => (
                     <tr
                       key={creditNote.id}
-                      className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}
+                      className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
                     >
                       <td
-                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         <div className="font-medium flex items-center">
                           <button
@@ -557,21 +557,21 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         </div>
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         {creditNote.invoiceNumber}
                       </td>
                       <td
-                        className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`px-6 py-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         <div className="max-w-xs truncate">
                           {creditNote.customer?.name ||
                             creditNote.customerName ||
-                            'N/A'}
+                            "N/A"}
                         </div>
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         {formatDate(creditNote.creditNoteDate)}
                       </td>
@@ -614,7 +614,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                           onOpenRefundModal={() => {
                             // Simple refund - use prompt for now
                             const method = window.prompt(
-                              'Refund method (cash, bank_transfer, cheque):',
+                              "Refund method (cash, bank_transfer, cheque):",
                             );
                             if (method) {
                               creditNoteService
@@ -623,7 +623,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                                 })
                                 .then(() => {
                                   notificationService.success(
-                                    'Refund processed',
+                                    "Refund processed",
                                   );
                                   loadCreditNotes();
                                 })
@@ -643,7 +643,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                           {/* Preview Button */}
                           <button
                             onClick={() => handlePreview(creditNote)}
-                            className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}
+                            className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="Preview"
                           >
                             <Eye className="h-4 w-4" />
@@ -654,15 +654,15 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                             disabled={downloadingIds.has(creditNote.id)}
                             className={`p-2 rounded transition-colors ${
                               downloadingIds.has(creditNote.id)
-                                ? 'opacity-50 cursor-not-allowed'
+                                ? "opacity-50 cursor-not-allowed"
                                 : isDarkMode
-                                  ? 'hover:bg-gray-600 text-blue-400'
-                                  : 'hover:bg-blue-100 text-blue-600'
+                                  ? "hover:bg-gray-600 text-blue-400"
+                                  : "hover:bg-blue-100 text-blue-600"
                             }`}
                             title={
                               downloadingIds.has(creditNote.id)
-                                ? 'Downloading...'
-                                : 'Download PDF'
+                                ? "Downloading..."
+                                : "Download PDF"
                             }
                           >
                             {downloadingIds.has(creditNote.id) ? (
@@ -672,19 +672,19 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                             )}
                           </button>
                           {/* Edit Button - Only show for drafts */}
-                          {creditNote.status === 'draft' && (
+                          {creditNote.status === "draft" && (
                             <button
                               onClick={() =>
                                 navigate(`/credit-notes/${creditNote.id}`)
                               }
-                              className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
+                              className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
                               title="Edit"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                           )}
                           {/* Delete Button - Only show for drafts */}
-                          {creditNote.status === 'draft' && (
+                          {creditNote.status === "draft" && (
                             <button
                               onClick={() => handleDelete(creditNote)}
                               className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
@@ -705,15 +705,15 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
           {/* Pagination */}
           {pagination && pagination.total > pageSize && (
             <div
-              className={`px-6 py-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+              className={`px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               <div className="flex items-center justify-between">
                 <div
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
-                  Showing{' '}
-                  {Math.min((currentPage - 1) * pageSize + 1, pagination.total)}{' '}
-                  to {Math.min(currentPage * pageSize, pagination.total)} of{' '}
+                  Showing{" "}
+                  {Math.min((currentPage - 1) * pageSize + 1, pagination.total)}{" "}
+                  to {Math.min(currentPage * pageSize, pagination.total)} of{" "}
                   {pagination.total} credit notes
                 </div>
                 <div className="flex gap-2">
@@ -722,11 +722,11 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                     disabled={currentPage === 1}
                     className={`px-3 py-1 rounded border ${
                       currentPage === 1
-                        ? 'opacity-50 cursor-not-allowed'
+                        ? "opacity-50 cursor-not-allowed"
                         : isDarkMode
-                          ? 'border-gray-600 hover:bg-gray-700'
-                          : 'border-gray-300 hover:bg-gray-50'
-                    } ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          ? "border-gray-600 hover:bg-gray-700"
+                          : "border-gray-300 hover:bg-gray-50"
+                    } ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     Previous
                   </button>
@@ -735,11 +735,11 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                     disabled={currentPage * pageSize >= pagination.total}
                     className={`px-3 py-1 rounded border ${
                       currentPage * pageSize >= pagination.total
-                        ? 'opacity-50 cursor-not-allowed'
+                        ? "opacity-50 cursor-not-allowed"
                         : isDarkMode
-                          ? 'border-gray-600 hover:bg-gray-700'
-                          : 'border-gray-300 hover:bg-gray-50'
-                    } ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          ? "border-gray-600 hover:bg-gray-700"
+                          : "border-gray-300 hover:bg-gray-50"
+                    } ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     Next
                   </button>

@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Import Container Service
@@ -33,7 +33,7 @@ export const importContainerService = {
     if (params.etaTo) queryParams.etaTo = params.etaTo;
     if (params.search) queryParams.search = params.search;
 
-    return apiClient.get('/import-containers', queryParams);
+    return apiClient.get("/import-containers", queryParams);
   },
 
   /**
@@ -47,7 +47,7 @@ export const importContainerService = {
    * Create a new container
    */
   async createContainer(data) {
-    return apiClient.post('/import-containers', data);
+    return apiClient.post("/import-containers", data);
   },
 
   /**
@@ -105,7 +105,7 @@ export const importContainerService = {
    * Get containers currently in transit
    */
   async getInTransit(params = {}) {
-    return apiClient.get('/import-containers/in-transit', params);
+    return apiClient.get("/import-containers/in-transit", params);
   },
 };
 

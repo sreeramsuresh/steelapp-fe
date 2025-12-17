@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import {
   BarChart3,
   Calendar,
@@ -11,9 +11,9 @@ import {
   RefreshCw,
   Filter,
   Download,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { apiClient } from '../services/api';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { apiClient } from "../services/api";
 import {
   LineChart,
   Line,
@@ -25,13 +25,13 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
+} from "recharts";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
-} from '../components/ui/card';
+} from "../components/ui/card";
 import {
   Table,
   TableHeader,
@@ -39,16 +39,16 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from '../components/ui/table';
-import { Spinner } from '../components/ui/LoadingStates';
-import { formatCurrency } from '../utils/invoiceUtils';
+} from "../components/ui/table";
+import { Spinner } from "../components/ui/LoadingStates";
+import { formatCurrency } from "../utils/invoiceUtils";
 
 const CHART_COLORS = {
-  primary: '#14B8A6',
-  secondary: '#3B82F6',
-  warning: '#F59E0B',
-  danger: '#EF4444',
-  success: '#22C55E',
+  primary: "#14B8A6",
+  secondary: "#3B82F6",
+  warning: "#F59E0B",
+  danger: "#EF4444",
+  success: "#22C55E",
 };
 
 /**
@@ -57,15 +57,15 @@ const CHART_COLORS = {
 const EmptyState = ({ icon: Icon, title, description, isDarkMode }) => (
   <div className="flex flex-col items-center justify-center py-12 text-center">
     <Icon
-      className={`h-16 w-16 mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
+      className={`h-16 w-16 mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
     />
     <h3
-      className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+      className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
     >
       {title}
     </h3>
     <p
-      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} max-w-md`}
+      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"} max-w-md`}
     >
       {description}
     </p>
@@ -86,15 +86,15 @@ const ErrorState = ({ message, onRetry, isDarkMode }) => (
   <div className="flex flex-col items-center justify-center py-12 text-center">
     <AlertCircle className="h-16 w-16 mb-4 text-red-500" />
     <h3
-      className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+      className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
     >
       Failed to Load Data
     </h3>
     <p
-      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} max-w-md mb-4`}
+      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"} max-w-md mb-4`}
     >
       {message ||
-        'An error occurred while loading analytics data. Please try again.'}
+        "An error occurred while loading analytics data. Please try again."}
     </p>
     {onRetry && (
       <button
@@ -126,11 +126,11 @@ const HealthTab = ({ isDarkMode }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.get('/analytics/allocation-health');
+      const response = await apiClient.get("/analytics/allocation-health");
       setHealthData(response);
     } catch (err) {
-      console.error('Error loading health data:', err);
-      setError(err.message || 'Failed to load allocation health data');
+      console.error("Error loading health data:", err);
+      setError(err.message || "Failed to load allocation health data");
     } finally {
       setLoading(false);
     }
@@ -178,17 +178,17 @@ const HealthTab = ({ isDarkMode }) => {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                 >
                   Negative Stock
                 </p>
                 <p
-                  className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {healthData.negativeStock?.length || 0}
                 </p>
@@ -198,17 +198,17 @@ const HealthTab = ({ isDarkMode }) => {
           </CardContent>
         </Card>
 
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                 >
                   Mismatches
                 </p>
                 <p
-                  className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {healthData.mismatches?.length || 0}
                 </p>
@@ -218,17 +218,17 @@ const HealthTab = ({ isDarkMode }) => {
           </CardContent>
         </Card>
 
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                 >
                   Pending Allocations
                 </p>
                 <p
-                  className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {healthData.pending?.length || 0}
                 </p>
@@ -242,9 +242,9 @@ const HealthTab = ({ isDarkMode }) => {
       {/* Issues Table */}
       {(healthData.negativeStock?.length > 0 ||
         healthData.mismatches?.length > 0) && (
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardHeader>
-            <CardTitle className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+            <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>
               Allocation Issues
             </CardTitle>
           </CardHeader>
@@ -267,19 +267,19 @@ const HealthTab = ({ isDarkMode }) => {
                       </span>
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
                       {item.productName || item.batchNumber}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
                       Stock: {item.currentStock}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {item.warehouse || 'N/A'}
+                      {item.warehouse || "N/A"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -291,17 +291,17 @@ const HealthTab = ({ isDarkMode }) => {
                       </span>
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
                       {item.productName || item.batchNumber}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
                       Expected: {item.expected}, Actual: {item.actual}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
                       Diff: {item.difference}
                     </TableCell>
@@ -332,11 +332,11 @@ const CostVarianceTab = ({ isDarkMode }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.get('/analytics/reports/cost-variance');
+      const response = await apiClient.get("/analytics/reports/cost-variance");
       setVarianceData(response);
     } catch (err) {
-      console.error('Error loading variance data:', err);
-      setError(err.message || 'Failed to load cost variance data');
+      console.error("Error loading variance data:", err);
+      setError(err.message || "Failed to load cost variance data");
     } finally {
       setLoading(false);
     }
@@ -382,9 +382,9 @@ const CostVarianceTab = ({ isDarkMode }) => {
     <div className="space-y-6">
       {/* Chart */}
       {varianceData.chartData && varianceData.chartData.length > 0 && (
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardHeader>
-            <CardTitle className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+            <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>
               Cost Variance Over Time
             </CardTitle>
           </CardHeader>
@@ -393,24 +393,24 @@ const CostVarianceTab = ({ isDarkMode }) => {
               <LineChart data={varianceData.chartData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke={isDarkMode ? '#374151' : '#E5E7EB'}
+                  stroke={isDarkMode ? "#374151" : "#E5E7EB"}
                 />
                 <XAxis
                   dataKey="date"
-                  stroke={isDarkMode ? '#9CA3AF' : '#6B7280'}
-                  style={{ fontSize: '12px' }}
+                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
+                  style={{ fontSize: "12px" }}
                 />
                 <YAxis
-                  stroke={isDarkMode ? '#9CA3AF' : '#6B7280'}
-                  style={{ fontSize: '12px' }}
+                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
+                  style={{ fontSize: "12px" }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                    border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
-                    borderRadius: '8px',
+                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
+                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                    borderRadius: "8px",
                   }}
-                  labelStyle={{ color: isDarkMode ? '#F3F4F6' : '#111827' }}
+                  labelStyle={{ color: isDarkMode ? "#F3F4F6" : "#111827" }}
                 />
                 <Legend />
                 <Line
@@ -429,9 +429,9 @@ const CostVarianceTab = ({ isDarkMode }) => {
 
       {/* Table */}
       {varianceData.tableData && varianceData.tableData.length > 0 && (
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardHeader>
-            <CardTitle className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+            <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>
               Cost Variance Details
             </CardTitle>
           </CardHeader>
@@ -452,32 +452,32 @@ const CostVarianceTab = ({ isDarkMode }) => {
                 {varianceData.tableData.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {row.date || 'N/A'}
+                      {row.date || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
-                      {row.invoiceNumber || 'N/A'}
+                      {row.invoiceNumber || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
-                      {row.productName || 'N/A'}
+                      {row.productName || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
                       {formatCurrency(row.oldCost || 0)}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
                       {formatCurrency(row.newCost || 0)}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
                       {formatCurrency(row.variance || 0)}
                     </TableCell>
@@ -485,17 +485,17 @@ const CostVarianceTab = ({ isDarkMode }) => {
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           (row.variance || 0) > 0
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                             : (row.variance || 0) < 0
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                              ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
                         }`}
                       >
                         {(row.variance || 0) > 0
-                          ? 'Increase'
+                          ? "Increase"
                           : (row.variance || 0) < 0
-                            ? 'Decrease'
-                            : 'No Change'}
+                            ? "Decrease"
+                            : "No Change"}
                       </span>
                     </TableCell>
                   </TableRow>
@@ -521,11 +521,11 @@ const ModificationLogTab = ({ isDarkMode }) => {
   const [error, setError] = useState(null);
   const [logData, setLogData] = useState([]);
   const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    user: '',
-    invoice: '',
-    reason: '',
+    startDate: "",
+    endDate: "",
+    user: "",
+    invoice: "",
+    reason: "",
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -541,13 +541,13 @@ const ModificationLogTab = ({ isDarkMode }) => {
       if (filters.reason) params.reason = filters.reason;
 
       const response = await apiClient.get(
-        '/analytics/reports/batch-modification',
+        "/analytics/reports/batch-modification",
         { params },
       );
       setLogData(response.modifications || []);
     } catch (err) {
-      console.error('Error loading modification log:', err);
-      setError(err.message || 'Failed to load modification log');
+      console.error("Error loading modification log:", err);
+      setError(err.message || "Failed to load modification log");
     } finally {
       setLoading(false);
     }
@@ -564,11 +564,11 @@ const ModificationLogTab = ({ isDarkMode }) => {
 
   const handleClearFilters = () => {
     setFilters({
-      startDate: '',
-      endDate: '',
-      user: '',
-      invoice: '',
-      reason: '',
+      startDate: "",
+      endDate: "",
+      user: "",
+      invoice: "",
+      reason: "",
     });
   };
 
@@ -578,42 +578,42 @@ const ModificationLogTab = ({ isDarkMode }) => {
 
     // Define headers
     const headers = [
-      'Date & Time',
-      'User',
-      'Invoice',
-      'Product',
-      'Old Batch',
-      'New Batch',
-      'Reason',
+      "Date & Time",
+      "User",
+      "Invoice",
+      "Product",
+      "Old Batch",
+      "New Batch",
+      "Reason",
     ];
 
     // Build CSV content
     const csvRows = [
-      headers.join(','),
+      headers.join(","),
       ...logData.map((log) =>
         [
-          `"${(log.timestamp || 'N/A').replace(/"/g, '""')}"`,
-          `"${(log.userName || log.user || 'System').replace(/"/g, '""')}"`,
-          `"${(log.invoiceNumber || 'N/A').replace(/"/g, '""')}"`,
-          `"${(log.productName || 'N/A').replace(/"/g, '""')}"`,
-          `"${(log.oldBatch || 'N/A').replace(/"/g, '""')}"`,
-          `"${(log.newBatch || 'N/A').replace(/"/g, '""')}"`,
-          `"${(log.reason || 'Not specified').replace(/"/g, '""')}"`,
-        ].join(','),
+          `"${(log.timestamp || "N/A").replace(/"/g, '""')}"`,
+          `"${(log.userName || log.user || "System").replace(/"/g, '""')}"`,
+          `"${(log.invoiceNumber || "N/A").replace(/"/g, '""')}"`,
+          `"${(log.productName || "N/A").replace(/"/g, '""')}"`,
+          `"${(log.oldBatch || "N/A").replace(/"/g, '""')}"`,
+          `"${(log.newBatch || "N/A").replace(/"/g, '""')}"`,
+          `"${(log.reason || "Not specified").replace(/"/g, '""')}"`,
+        ].join(","),
       ),
     ];
 
-    const csvContent = csvRows.join('\n');
+    const csvContent = csvRows.join("\n");
 
     // Create blob and download
     const blob = new Blob([`\ufeff${csvContent}`], {
-      type: 'text/csv;charset=utf-8;',
+      type: "text/csv;charset=utf-8;",
     });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    const filename = `batch-modification-log-${new Date().toISOString().split('T')[0]}.csv`;
-    link.setAttribute('download', filename);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    const filename = `batch-modification-log-${new Date().toISOString().split("T")[0]}.csv`;
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -641,11 +641,11 @@ const ModificationLogTab = ({ isDarkMode }) => {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+      <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-4">
             <h3
-              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Filters
             </h3>
@@ -653,12 +653,12 @@ const ModificationLogTab = ({ isDarkMode }) => {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
                 isDarkMode
-                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               <Filter className="h-4 w-4" />
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
+              {showFilters ? "Hide Filters" : "Show Filters"}
             </button>
           </div>
 
@@ -667,7 +667,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
               <div>
                 <label
                   htmlFor="log-start-date"
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                 >
                   Start Date
                 </label>
@@ -680,8 +680,8 @@ const ModificationLogTab = ({ isDarkMode }) => {
                   }
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300 text-gray-900'
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300 text-gray-900"
                   }`}
                 />
               </div>
@@ -689,7 +689,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
               <div>
                 <label
                   htmlFor="log-end-date"
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                 >
                   End Date
                 </label>
@@ -702,8 +702,8 @@ const ModificationLogTab = ({ isDarkMode }) => {
                   }
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300 text-gray-900'
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300 text-gray-900"
                   }`}
                 />
               </div>
@@ -711,7 +711,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
               <div>
                 <label
                   htmlFor="log-invoice-number"
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                 >
                   Invoice Number
                 </label>
@@ -725,8 +725,8 @@ const ModificationLogTab = ({ isDarkMode }) => {
                   placeholder="Enter invoice number"
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   }`}
                 />
               </div>
@@ -745,8 +745,8 @@ const ModificationLogTab = ({ isDarkMode }) => {
                 onClick={handleClearFilters}
                 className={`px-4 py-2 rounded-lg transition-colors ${
                   isDarkMode
-                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 Clear
@@ -765,9 +765,9 @@ const ModificationLogTab = ({ isDarkMode }) => {
           isDarkMode={isDarkMode}
         />
       ) : (
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+            <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>
               Modification History ({logData.length})
             </CardTitle>
             <button
@@ -775,10 +775,10 @@ const ModificationLogTab = ({ isDarkMode }) => {
               disabled={logData.length === 0}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
                 logData.length === 0
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : isDarkMode
-                    ? 'bg-teal-600 text-white hover:bg-teal-700'
-                    : 'bg-teal-600 text-white hover:bg-teal-700'
+                    ? "bg-teal-600 text-white hover:bg-teal-700"
+                    : "bg-teal-600 text-white hover:bg-teal-700"
               }`}
               title="Export to Excel (CSV)"
             >
@@ -803,39 +803,39 @@ const ModificationLogTab = ({ isDarkMode }) => {
                 {logData.map((log, index) => (
                   <TableRow key={index}>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {log.timestamp || 'N/A'}
+                      {log.timestamp || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
-                      {log.userName || log.user || 'System'}
+                      {log.userName || log.user || "System"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
-                      {log.invoiceNumber || 'N/A'}
+                      {log.invoiceNumber || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {log.productName || 'N/A'}
+                      {log.productName || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {log.oldBatch || 'N/A'}
+                      {log.oldBatch || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {log.newBatch || 'N/A'}
+                      {log.newBatch || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {log.reason || 'Not specified'}
+                      {log.reason || "Not specified"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -864,11 +864,11 @@ const BatchAgingTab = ({ isDarkMode }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.get('/analytics/reports/batch-aging');
+      const response = await apiClient.get("/analytics/reports/batch-aging");
       setAgingData(response);
     } catch (err) {
-      console.error('Error loading aging data:', err);
-      setError(err.message || 'Failed to load batch aging data');
+      console.error("Error loading aging data:", err);
+      setError(err.message || "Failed to load batch aging data");
     } finally {
       setLoading(false);
     }
@@ -914,9 +914,9 @@ const BatchAgingTab = ({ isDarkMode }) => {
     <div className="space-y-6">
       {/* Aging Chart */}
       {agingData.chartData && agingData.chartData.length > 0 && (
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardHeader>
-            <CardTitle className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+            <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>
               Inventory Aging Distribution
             </CardTitle>
           </CardHeader>
@@ -925,24 +925,24 @@ const BatchAgingTab = ({ isDarkMode }) => {
               <BarChart data={agingData.chartData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke={isDarkMode ? '#374151' : '#E5E7EB'}
+                  stroke={isDarkMode ? "#374151" : "#E5E7EB"}
                 />
                 <XAxis
                   dataKey="ageBucket"
-                  stroke={isDarkMode ? '#9CA3AF' : '#6B7280'}
-                  style={{ fontSize: '12px' }}
+                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
+                  style={{ fontSize: "12px" }}
                 />
                 <YAxis
-                  stroke={isDarkMode ? '#9CA3AF' : '#6B7280'}
-                  style={{ fontSize: '12px' }}
+                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
+                  style={{ fontSize: "12px" }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                    border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
-                    borderRadius: '8px',
+                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
+                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                    borderRadius: "8px",
                   }}
-                  labelStyle={{ color: isDarkMode ? '#F3F4F6' : '#111827' }}
+                  labelStyle={{ color: isDarkMode ? "#F3F4F6" : "#111827" }}
                 />
                 <Legend />
                 <Bar
@@ -958,9 +958,9 @@ const BatchAgingTab = ({ isDarkMode }) => {
 
       {/* Aging Batches Table */}
       {agingData.batches && agingData.batches.length > 0 && (
-        <Card className={isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : ''}>
+        <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardHeader>
-            <CardTitle className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+            <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>
               Aging Batches
             </CardTitle>
           </CardHeader>
@@ -980,27 +980,27 @@ const BatchAgingTab = ({ isDarkMode }) => {
                 {agingData.batches.map((batch, index) => (
                   <TableRow key={index}>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
-                      {batch.batchNumber || 'N/A'}
+                      {batch.batchNumber || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      {batch.productName || 'N/A'}
+                      {batch.productName || "N/A"}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
                       {batch.ageDays || 0}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
                       {batch.quantity || 0}
                     </TableCell>
                     <TableCell
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
                       {formatCurrency(batch.value || 0)}
                     </TableCell>
@@ -1008,17 +1008,17 @@ const BatchAgingTab = ({ isDarkMode }) => {
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           batch.ageDays > 180
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                            ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                             : batch.ageDays > 90
-                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                              : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                              : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                         }`}
                       >
                         {batch.ageDays > 180
-                          ? 'Critical'
+                          ? "Critical"
                           : batch.ageDays > 90
-                            ? 'Warning'
-                            : 'Normal'}
+                            ? "Warning"
+                            : "Normal"}
                       </span>
                     </TableCell>
                   </TableRow>
@@ -1041,30 +1041,30 @@ BatchAgingTab.propTypes = {
  */
 const BatchAnalyticsPage = () => {
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState('health');
+  const [activeTab, setActiveTab] = useState("health");
 
   const tabs = [
     {
-      id: 'health',
-      label: 'Allocation Health',
+      id: "health",
+      label: "Allocation Health",
       icon: AlertTriangle,
       component: HealthTab,
     },
     {
-      id: 'cost-variance',
-      label: 'Cost Variance',
+      id: "cost-variance",
+      label: "Cost Variance",
       icon: DollarSign,
       component: CostVarianceTab,
     },
     {
-      id: 'modification-log',
-      label: 'Modification Log',
+      id: "modification-log",
+      label: "Modification Log",
       icon: FileText,
       component: ModificationLogTab,
     },
     {
-      id: 'batch-aging',
-      label: 'Batch Aging',
+      id: "batch-aging",
+      label: "Batch Aging",
       icon: Calendar,
       component: BatchAgingTab,
     },
@@ -1074,30 +1074,30 @@ const BatchAnalyticsPage = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+      className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
     >
       {/* Header */}
       <div
-        className={`${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} border-b ${
-          isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+        className={`${isDarkMode ? "bg-[#1E2328]" : "bg-white"} border-b ${
+          isDarkMode ? "border-[#37474F]" : "border-gray-200"
         } p-6`}
       >
         <div className="flex items-center gap-3">
           <div
             className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50'
+              isDarkMode ? "bg-teal-900/30" : "bg-teal-50"
             }`}
           >
             <BarChart3 className="text-teal-600" size={24} />
           </div>
           <div>
             <h1
-              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Batch Analytics
             </h1>
             <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
             >
               Track allocation health, cost impact, modifications, and inventory
               aging
@@ -1115,10 +1115,10 @@ const BatchAnalyticsPage = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 font-medium transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'border-teal-600 text-teal-600'
+                    ? "border-teal-600 text-teal-600"
                     : isDarkMode
-                      ? 'border-transparent text-gray-400 hover:text-gray-300'
-                      : 'border-transparent text-gray-600 hover:text-gray-900'
+                      ? "border-transparent text-gray-400 hover:text-gray-300"
+                      : "border-transparent text-gray-600 hover:text-gray-900"
                 }`}
               >
                 <Icon size={18} />

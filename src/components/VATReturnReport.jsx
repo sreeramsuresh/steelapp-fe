@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   FileText,
   DollarSign,
@@ -23,17 +23,17 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   formatCurrency,
   formatDateDMY,
   toUAEDateProfessional,
-} from '../utils/invoiceUtils';
-import api from '../services/api';
-import vatReturnService from '../services/vatReturnService';
-import vendorBillService from '../services/vendorBillService';
-import advancePaymentService from '../services/advancePaymentService';
-import vatAmendmentService from '../services/vatAmendmentService';
+} from "../utils/invoiceUtils";
+import api from "../services/api";
+import vatReturnService from "../services/vatReturnService";
+import vendorBillService from "../services/vendorBillService";
+import advancePaymentService from "../services/advancePaymentService";
+import vatAmendmentService from "../services/vatAmendmentService";
 
 /**
  * UAE VAT Return Report Component - Enhanced
@@ -81,8 +81,8 @@ const VATReturnReport = () => {
   const [periods, setPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [customDates, setCustomDates] = useState({
-    startDate: '',
-    endDate: '',
+    startDate: "",
+    endDate: "",
   });
 
   // Enhanced data state
@@ -118,7 +118,7 @@ const VATReturnReport = () => {
 
   const loadPeriods = async () => {
     try {
-      const response = await api.get('/vat-return/periods');
+      const response = await api.get("/vat-return/periods");
       // api.get() returns response.data directly, so check response.success (not response.data.success)
       // Use optional chaining for safety in case response is undefined
       if (response?.success) {
@@ -135,7 +135,7 @@ const VATReturnReport = () => {
         }
       }
     } catch (err) {
-      console.error('Error loading VAT periods:', err);
+      console.error("Error loading VAT periods:", err);
     }
   };
 
@@ -153,7 +153,7 @@ const VATReturnReport = () => {
         const form201Data = await vatReturnService.getForm201Data(returnId);
         setForm201(form201Data);
       } catch (err) {
-        console.warn('Form 201 data not available:', err);
+        console.warn("Form 201 data not available:", err);
       }
 
       // Get vendor bills summary for period
@@ -165,7 +165,7 @@ const VATReturnReport = () => {
           });
           setVendorBillSummary(vendorSummary?.categories || []);
         } catch (err) {
-          console.warn('Vendor bill summary not available:', err);
+          console.warn("Vendor bill summary not available:", err);
         }
 
         // Get advance payments for period
@@ -176,7 +176,7 @@ const VATReturnReport = () => {
           });
           setAdvancePayments(advances || []);
         } catch (err) {
-          console.warn('Advance payments not available:', err);
+          console.warn("Advance payments not available:", err);
         }
 
         // Get blocked VAT log
@@ -187,7 +187,7 @@ const VATReturnReport = () => {
           });
           setBlockedVatLog(blockedLog?.entries || []);
         } catch (err) {
-          console.warn('Blocked VAT log not available:', err);
+          console.warn("Blocked VAT log not available:", err);
         }
       }
 
@@ -197,11 +197,11 @@ const VATReturnReport = () => {
           await vatAmendmentService.getByVatReturn(returnId);
         setAmendments(amendmentList || []);
       } catch (err) {
-        console.warn('Amendments not available:', err);
+        console.warn("Amendments not available:", err);
       }
     } catch (err) {
-      console.error('Error loading VAT return data:', err);
-      setError(err.response?.data?.error || 'Failed to load VAT return data');
+      console.error("Error loading VAT return data:", err);
+      setError(err.response?.data?.error || "Failed to load VAT return data");
     } finally {
       setLoading(false);
     }
@@ -209,12 +209,12 @@ const VATReturnReport = () => {
 
   const formatDateForInput = (date) => {
     const d = new Date(date);
-    return d.toISOString().split('T')[0];
+    return d.toISOString().split("T")[0];
   };
 
   const generateReport = async () => {
     if (!customDates.startDate || !customDates.endDate) {
-      setError('Please select start and end dates');
+      setError("Please select start and end dates");
       return;
     }
 
@@ -222,7 +222,7 @@ const VATReturnReport = () => {
     setError(null);
 
     try {
-      const response = await api.get('/vat-return/generate', {
+      const response = await api.get("/vat-return/generate", {
         params: {
           startDate: customDates.startDate,
           endDate: customDates.endDate,
@@ -241,7 +241,7 @@ const VATReturnReport = () => {
           });
           setVendorBillSummary(vendorSummary?.categories || []);
         } catch (err) {
-          console.warn('Vendor bill summary not available:', err);
+          console.warn("Vendor bill summary not available:", err);
         }
 
         try {
@@ -251,15 +251,15 @@ const VATReturnReport = () => {
           });
           setAdvancePayments(advances || []);
         } catch (err) {
-          console.warn('Advance payments not available:', err);
+          console.warn("Advance payments not available:", err);
         }
       } else {
-        setError(response?.error || 'Failed to generate report');
+        setError(response?.error || "Failed to generate report");
       }
     } catch (err) {
-      console.error('Error generating VAT return:', err);
+      console.error("Error generating VAT return:", err);
       setError(
-        err.response?.data?.error || 'Failed to generate VAT return report',
+        err.response?.data?.error || "Failed to generate VAT return report",
       );
     } finally {
       setLoading(false);
@@ -271,8 +271,8 @@ const VATReturnReport = () => {
     try {
       await vatReturnService.exportExcel(vatReturn.id);
     } catch (err) {
-      console.error('Excel export failed:', err);
-      setError('Failed to export Excel file');
+      console.error("Excel export failed:", err);
+      setError("Failed to export Excel file");
     }
   };
 
@@ -281,8 +281,8 @@ const VATReturnReport = () => {
     try {
       await vatReturnService.downloadPDF(vatReturn.id, vatReturn.returnNumber);
     } catch (err) {
-      console.error('PDF download failed:', err);
-      setError('Failed to download PDF');
+      console.error("PDF download failed:", err);
+      setError("Failed to download PDF");
     }
   };
 
@@ -290,7 +290,7 @@ const VATReturnReport = () => {
     if (!vatReturn?.id) return;
     if (
       !window.confirm(
-        'Are you sure you want to submit this VAT return to FTA? This action cannot be undone.',
+        "Are you sure you want to submit this VAT return to FTA? This action cannot be undone.",
       )
     ) {
       return;
@@ -299,8 +299,8 @@ const VATReturnReport = () => {
       const updated = await vatReturnService.submitReturn(vatReturn.id);
       setVatReturn(updated);
     } catch (err) {
-      console.error('Submit failed:', err);
-      setError('Failed to submit VAT return');
+      console.error("Submit failed:", err);
+      setError("Failed to submit VAT return");
     }
   };
 
@@ -313,14 +313,14 @@ const VATReturnReport = () => {
 
   // Style classes
   const cardClass = `rounded-lg border ${
-    isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+    isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
   } p-4 shadow-sm`;
 
-  const labelClass = `text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`;
-  const valueClass = `text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`;
-  const headerClass = `text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`;
+  const labelClass = `text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`;
+  const valueClass = `text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`;
+  const headerClass = `text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`;
 
-  const sectionHeaderClass = `flex items-center justify-between cursor-pointer p-2 -mx-2 rounded-lg hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors`;
+  const sectionHeaderClass = `flex items-center justify-between cursor-pointer p-2 -mx-2 rounded-lg hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`;
 
   // Calculate totals from vatReturn data
   const totals = vatReturn?.totals || {};
@@ -342,29 +342,29 @@ const VATReturnReport = () => {
 
   // VAT category labels for vendor bill summary
   const vatCategoryLabels = {
-    STANDARD: 'Standard Rated (5%)',
-    ZERO: 'Zero Rated (0%)',
-    EXEMPT: 'Exempt Supplies',
-    OUT_OF_SCOPE: 'Out of Scope',
-    REVERSE_CHARGE: 'Reverse Charge',
-    DESIGNATED_ZONE: 'Designated Zone',
+    STANDARD: "Standard Rated (5%)",
+    ZERO: "Zero Rated (0%)",
+    EXEMPT: "Exempt Supplies",
+    OUT_OF_SCOPE: "Out of Scope",
+    REVERSE_CHARGE: "Reverse Charge",
+    DESIGNATED_ZONE: "Designated Zone",
   };
 
   // Status badge component
   const StatusBadge = ({ status }) => {
     const statusConfig = {
-      draft: { bg: 'bg-gray-100 text-gray-700', label: 'Draft' },
+      draft: { bg: "bg-gray-100 text-gray-700", label: "Draft" },
       pending_review: {
-        bg: 'bg-yellow-100 text-yellow-700',
-        label: 'Pending Review',
+        bg: "bg-yellow-100 text-yellow-700",
+        label: "Pending Review",
       },
-      submitted: { bg: 'bg-blue-100 text-blue-700', label: 'Submitted' },
+      submitted: { bg: "bg-blue-100 text-blue-700", label: "Submitted" },
       acknowledged: {
-        bg: 'bg-green-100 text-green-700',
-        label: 'Acknowledged',
+        bg: "bg-green-100 text-green-700",
+        label: "Acknowledged",
       },
-      rejected_by_fta: { bg: 'bg-red-100 text-red-700', label: 'Rejected' },
-      cancelled: { bg: 'bg-gray-100 text-gray-500', label: 'Cancelled' },
+      rejected_by_fta: { bg: "bg-red-100 text-red-700", label: "Rejected" },
+      cancelled: { bg: "bg-gray-100 text-gray-500", label: "Cancelled" },
     };
     const config = statusConfig[status] || statusConfig.draft;
     return (
@@ -378,7 +378,7 @@ const VATReturnReport = () => {
 
   return (
     <div
-      className={`p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} min-h-screen`}
+      className={`p-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"} min-h-screen`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -388,12 +388,12 @@ const VATReturnReport = () => {
           </div>
           <div>
             <h1
-              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               UAE VAT Return Report
             </h1>
             <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
             >
               FTA Form 201 - Complete VAT Return Summary
             </p>
@@ -404,7 +404,7 @@ const VATReturnReport = () => {
       {/* Period Selection */}
       <div className={`${cardClass} mb-6`}>
         <h2
-          className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+          className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
         >
           Select Tax Period
         </h2>
@@ -416,10 +416,10 @@ const VATReturnReport = () => {
             <select
               className={`mt-1 w-full rounded-md border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               } p-2`}
-              value={selectedPeriod ? JSON.stringify(selectedPeriod) : ''}
+              value={selectedPeriod ? JSON.stringify(selectedPeriod) : ""}
               onChange={(e) => {
                 if (e.target.value) {
                   const period = JSON.parse(e.target.value);
@@ -434,11 +434,11 @@ const VATReturnReport = () => {
               <option value="">-- Select Period --</option>
               {periods.map((period, idx) => (
                 <option key={idx} value={JSON.stringify(period)}>
-                  {new Date(period.periodStart).toLocaleDateString('en-GB', {
-                    month: 'long',
-                    year: 'numeric',
+                  {new Date(period.periodStart).toLocaleDateString("en-GB", {
+                    month: "long",
+                    year: "numeric",
                   })}
-                  {' - '}
+                  {" - "}
                   {period.invoiceCount} invoices
                 </option>
               ))}
@@ -452,8 +452,8 @@ const VATReturnReport = () => {
               type="date"
               className={`mt-1 w-full rounded-md border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               } p-2`}
               value={customDates.startDate}
               onChange={(e) =>
@@ -468,8 +468,8 @@ const VATReturnReport = () => {
               type="date"
               className={`mt-1 w-full rounded-md border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               } p-2`}
               value={customDates.endDate}
               onChange={(e) =>
@@ -524,18 +524,18 @@ const VATReturnReport = () => {
                 <div>
                   <p className={labelClass}>Total Output VAT</p>
                   <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
+                    className={`text-2xl font-bold ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
                   >
                     {formatCurrency(totalOutputVat)}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                   >
                     Form 201 Box 7
                   </p>
                 </div>
                 <TrendingUp
-                  className={`h-8 w-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-500'}`}
+                  className={`h-8 w-8 ${isDarkMode ? "text-blue-400" : "text-blue-500"}`}
                 />
               </div>
             </div>
@@ -546,44 +546,44 @@ const VATReturnReport = () => {
                 <div>
                   <p className={labelClass}>Total Input VAT</p>
                   <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                    className={`text-2xl font-bold ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                   >
                     {formatCurrency(totalInputVat)}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                   >
                     Form 201 Box 13
                   </p>
                 </div>
                 <TrendingDown
-                  className={`h-8 w-8 ${isDarkMode ? 'text-green-400' : 'text-green-500'}`}
+                  className={`h-8 w-8 ${isDarkMode ? "text-green-400" : "text-green-500"}`}
                 />
               </div>
             </div>
 
             {/* Net VAT Due / Refundable */}
             <div
-              className={`${cardClass} border-l-4 ${netVatDue >= 0 ? 'border-l-red-500' : 'border-l-emerald-500'}`}
+              className={`${cardClass} border-l-4 ${netVatDue >= 0 ? "border-l-red-500" : "border-l-emerald-500"}`}
             >
               <div className="flex items-center justify-between">
                 <div>
                   <p className={labelClass}>
-                    {netVatDue >= 0 ? 'Net VAT Due' : 'VAT Refundable'}
+                    {netVatDue >= 0 ? "Net VAT Due" : "VAT Refundable"}
                   </p>
                   <p
-                    className={`text-2xl font-bold ${netVatDue >= 0 ? (isDarkMode ? 'text-red-400' : 'text-red-600') : isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}
+                    className={`text-2xl font-bold ${netVatDue >= 0 ? (isDarkMode ? "text-red-400" : "text-red-600") : isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}
                   >
                     {formatCurrency(Math.abs(netVatDue))}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                   >
-                    Form 201 Box {netVatDue >= 0 ? '14' : '15'}
+                    Form 201 Box {netVatDue >= 0 ? "14" : "15"}
                   </p>
                 </div>
                 <DollarSign
-                  className={`h-8 w-8 ${netVatDue >= 0 ? (isDarkMode ? 'text-red-400' : 'text-red-500') : isDarkMode ? 'text-emerald-400' : 'text-emerald-500'}`}
+                  className={`h-8 w-8 ${netVatDue >= 0 ? (isDarkMode ? "text-red-400" : "text-red-500") : isDarkMode ? "text-emerald-400" : "text-emerald-500"}`}
                 />
               </div>
             </div>
@@ -594,18 +594,18 @@ const VATReturnReport = () => {
                 <div>
                   <p className={labelClass}>Blocked VAT</p>
                   <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}
+                    className={`text-2xl font-bold ${isDarkMode ? "text-orange-400" : "text-orange-600"}`}
                   >
                     {formatCurrency(blockedVatTotal)}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                   >
                     Non-recoverable per Art. 53
                   </p>
                 </div>
                 <Ban
-                  className={`h-8 w-8 ${isDarkMode ? 'text-orange-400' : 'text-orange-500'}`}
+                  className={`h-8 w-8 ${isDarkMode ? "text-orange-400" : "text-orange-500"}`}
                 />
               </div>
             </div>
@@ -616,19 +616,19 @@ const VATReturnReport = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
-                  Tax Period:{' '}
+                  Tax Period:{" "}
                   {toUAEDateProfessional(
                     vatReturn.period?.start || vatReturn.periodStart,
-                  )}{' '}
-                  -{' '}
+                  )}{" "}
+                  -{" "}
                   {toUAEDateProfessional(
                     vatReturn.period?.end || vatReturn.periodEnd,
                   )}
                 </h3>
                 <p className={labelClass}>
-                  Filing Deadline:{' '}
+                  Filing Deadline:{" "}
                   {toUAEDateProfessional(
                     vatReturn.period?.filingDeadline ||
                       vatReturn.filingDeadline,
@@ -648,11 +648,11 @@ const VATReturnReport = () => {
               role="button"
               tabIndex={0}
               className={sectionHeaderClass}
-              onClick={() => toggleSection('outputVat')}
+              onClick={() => toggleSection("outputVat")}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  toggleSection('outputVat');
+                  toggleSection("outputVat");
                 }
               }}
             >
@@ -676,25 +676,25 @@ const VATReturnReport = () => {
                       ([emirate, data]) => (
                         <div
                           key={emirate}
-                          className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                          className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                         >
                           <p className={labelClass}>
-                            {emirate === 'abuDhabi'
-                              ? 'Abu Dhabi'
-                              : emirate === 'ummAlQuwain'
-                                ? 'Umm Al Quwain'
-                                : emirate === 'rasAlKhaimah'
-                                  ? 'Ras Al Khaimah'
+                            {emirate === "abuDhabi"
+                              ? "Abu Dhabi"
+                              : emirate === "ummAlQuwain"
+                                ? "Umm Al Quwain"
+                                : emirate === "rasAlKhaimah"
+                                  ? "Ras Al Khaimah"
                                   : emirate.charAt(0).toUpperCase() +
                                     emirate.slice(1)}
                           </p>
                           <p
-                            className={`${valueClass} ${data.vat > 0 ? 'text-green-600' : ''}`}
+                            className={`${valueClass} ${data.vat > 0 ? "text-green-600" : ""}`}
                           >
                             {formatCurrency(data.vat)}
                           </p>
                           <p
-                            className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                            className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                           >
                             Supplies: {formatCurrency(data.supplies)}
                           </p>
@@ -708,7 +708,7 @@ const VATReturnReport = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                   {/* Standard Rated */}
                   <div
-                    className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                    className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                   >
                     <div className="flex items-center mb-2">
                       <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
@@ -724,9 +724,9 @@ const VATReturnReport = () => {
                       )}
                     </p>
                     <p
-                      className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                     >
-                      VAT:{' '}
+                      VAT:{" "}
                       {formatCurrency(
                         vatReturn.standardRated?.vat || form201?.box1Vat || 0,
                       )}
@@ -735,7 +735,7 @@ const VATReturnReport = () => {
 
                   {/* Zero Rated */}
                   <div
-                    className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                    className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                   >
                     <div className="flex items-center mb-2">
                       <Info className="h-4 w-4 text-blue-600 mr-2" />
@@ -749,7 +749,7 @@ const VATReturnReport = () => {
                       )}
                     </p>
                     <p
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     >
                       VAT: AED 0.00
                     </p>
@@ -757,7 +757,7 @@ const VATReturnReport = () => {
 
                   {/* Exempt */}
                   <div
-                    className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                    className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                   >
                     <div className="flex items-center mb-2">
                       <AlertCircle className="h-4 w-4 text-yellow-600 mr-2" />
@@ -769,7 +769,7 @@ const VATReturnReport = () => {
                       )}
                     </p>
                     <p
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     >
                       No VAT applicable
                     </p>
@@ -777,7 +777,7 @@ const VATReturnReport = () => {
 
                   {/* Designated Zone */}
                   <div
-                    className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                    className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                   >
                     <div className="flex items-center mb-2">
                       <Building2 className="h-4 w-4 text-purple-600 mr-2" />
@@ -787,7 +787,7 @@ const VATReturnReport = () => {
                       {formatCurrency(vatReturn.designatedZone?.supplies || 0)}
                     </p>
                     <p
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     >
                       Free Zone supplies
                     </p>
@@ -796,16 +796,16 @@ const VATReturnReport = () => {
 
                 {/* Output VAT Total */}
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-blue-900/30 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-blue-900/30 border border-blue-700" : "bg-blue-50 border border-blue-200"}`}
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`font-semibold ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}
+                      className={`font-semibold ${isDarkMode ? "text-blue-300" : "text-blue-800"}`}
                     >
                       Total Output VAT (Box 7)
                     </span>
                     <span
-                      className={`text-xl font-bold ${isDarkMode ? 'text-blue-400' : 'text-blue-700'}`}
+                      className={`text-xl font-bold ${isDarkMode ? "text-blue-400" : "text-blue-700"}`}
                     >
                       {formatCurrency(totalOutputVat)}
                     </span>
@@ -821,11 +821,11 @@ const VATReturnReport = () => {
               role="button"
               tabIndex={0}
               className={sectionHeaderClass}
-              onClick={() => toggleSection('inputVat')}
+              onClick={() => toggleSection("inputVat")}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  toggleSection('inputVat');
+                  toggleSection("inputVat");
                 }
               }}
             >
@@ -848,8 +848,8 @@ const VATReturnReport = () => {
                       <tr
                         className={
                           isDarkMode
-                            ? 'text-gray-400 border-b border-gray-700'
-                            : 'text-gray-600 border-b border-gray-200'
+                            ? "text-gray-400 border-b border-gray-700"
+                            : "text-gray-600 border-b border-gray-200"
                         }
                       >
                         <th className="text-left py-2 px-3">Box</th>
@@ -861,22 +861,22 @@ const VATReturnReport = () => {
                     <tbody>
                       {/* Box 8: Goods Imported */}
                       <tr
-                        className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                       >
                         <td
-                          className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`py-3 px-3 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           Box 8
                         </td>
                         <td
                           className={
-                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
                           }
                         >
                           Goods imported into UAE
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           {formatCurrency(
                             form201?.box8Amount ||
@@ -885,7 +885,7 @@ const VATReturnReport = () => {
                           )}
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                          className={`text-right ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                         >
                           {formatCurrency(form201?.box8Vat || 0)}
                         </td>
@@ -893,27 +893,27 @@ const VATReturnReport = () => {
 
                       {/* Box 9: Adjustments to imports */}
                       <tr
-                        className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                       >
                         <td
-                          className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`py-3 px-3 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           Box 9
                         </td>
                         <td
                           className={
-                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
                           }
                         >
                           Adjustments to goods imported
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           {formatCurrency(form201?.box9Amount || 0)}
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          className={`text-right ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         >
                           -
                         </td>
@@ -921,27 +921,27 @@ const VATReturnReport = () => {
 
                       {/* Box 10: Standard rated expenses */}
                       <tr
-                        className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                       >
                         <td
-                          className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`py-3 px-3 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           Box 10
                         </td>
                         <td
                           className={
-                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
                           }
                         >
                           Standard rated expenses (5%)
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           {formatCurrency(form201?.box10Amount || 0)}
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                          className={`text-right ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                         >
                           {formatCurrency(form201?.box10Vat || 0)}
                         </td>
@@ -949,27 +949,27 @@ const VATReturnReport = () => {
 
                       {/* Box 11: Reverse charge (recoverable) */}
                       <tr
-                        className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                       >
                         <td
-                          className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`py-3 px-3 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           Box 11
                         </td>
                         <td
                           className={
-                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
                           }
                         >
                           Reverse charge (recoverable)
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          className={`text-right ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         >
                           -
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                          className={`text-right ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                         >
                           {formatCurrency(
                             form201?.box11Vat ||
@@ -981,27 +981,27 @@ const VATReturnReport = () => {
 
                       {/* Box 12: Input tax adjustments */}
                       <tr
-                        className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                       >
                         <td
-                          className={`py-3 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`py-3 px-3 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           Box 12
                         </td>
                         <td
                           className={
-                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
                           }
                         >
                           Adjustments to input tax
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           {formatCurrency(form201?.box12Amount || 0)}
                         </td>
                         <td
-                          className={`text-right ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          className={`text-right ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         >
                           -
                         </td>
@@ -1012,16 +1012,16 @@ const VATReturnReport = () => {
 
                 {/* Total Recoverable Tax */}
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-green-900/30 border border-green-700" : "bg-green-50 border border-green-200"}`}
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`font-semibold ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}
+                      className={`font-semibold ${isDarkMode ? "text-green-300" : "text-green-800"}`}
                     >
                       Total Recoverable Tax (Box 13)
                     </span>
                     <span
-                      className={`text-xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}
+                      className={`text-xl font-bold ${isDarkMode ? "text-green-400" : "text-green-700"}`}
                     >
                       {formatCurrency(totalInputVat)}
                     </span>
@@ -1038,11 +1038,11 @@ const VATReturnReport = () => {
                 role="button"
                 tabIndex={0}
                 className={sectionHeaderClass}
-                onClick={() => toggleSection('vendorBills')}
+                onClick={() => toggleSection("vendorBills")}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleSection('vendorBills');
+                    toggleSection("vendorBills");
                   }
                 }}
               >
@@ -1064,8 +1064,8 @@ const VATReturnReport = () => {
                       <tr
                         className={
                           isDarkMode
-                            ? 'text-gray-400 border-b border-gray-700'
-                            : 'text-gray-600 border-b border-gray-200'
+                            ? "text-gray-400 border-b border-gray-700"
+                            : "text-gray-600 border-b border-gray-200"
                         }
                       >
                         <th className="text-left py-2 px-3">VAT Category</th>
@@ -1080,25 +1080,25 @@ const VATReturnReport = () => {
                       {vendorBillSummary.map((row, idx) => (
                         <tr
                           key={idx}
-                          className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                          className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                         >
                           <td
-                            className={`py-2 px-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`py-2 px-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {vatCategoryLabels[row.category] || row.category}
                           </td>
                           <td
-                            className={`text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                            className={`text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                           >
                             {row.count || 0}
                           </td>
                           <td
-                            className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {formatCurrency(row.amount || 0)}
                           </td>
                           <td
-                            className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                            className={`text-right ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                           >
                             {formatCurrency(row.vat || 0)}
                           </td>
@@ -1118,11 +1118,11 @@ const VATReturnReport = () => {
                 role="button"
                 tabIndex={0}
                 className={sectionHeaderClass}
-                onClick={() => toggleSection('advancePayments')}
+                onClick={() => toggleSection("advancePayments")}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleSection('advancePayments');
+                    toggleSection("advancePayments");
                   }
                 }}
               >
@@ -1140,7 +1140,7 @@ const VATReturnReport = () => {
               {expandedSections.advancePayments && (
                 <div className="mt-4">
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-3`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-3`}
                   >
                     VAT collected on advance payments per UAE FTA Article 26
                   </p>
@@ -1150,8 +1150,8 @@ const VATReturnReport = () => {
                         <tr
                           className={
                             isDarkMode
-                              ? 'text-gray-400 border-b border-gray-700'
-                              : 'text-gray-600 border-b border-gray-200'
+                              ? "text-gray-400 border-b border-gray-700"
+                              : "text-gray-600 border-b border-gray-200"
                           }
                         >
                           <th className="text-left py-2 px-3">Receipt #</th>
@@ -1166,34 +1166,34 @@ const VATReturnReport = () => {
                         {advancePayments.slice(0, 10).map((ap) => (
                           <tr
                             key={ap.id}
-                            className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                            className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                           >
                             <td
-                              className={`py-2 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`py-2 px-3 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {ap.receiptNumber}
                             </td>
                             <td
                               className={
-                                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                isDarkMode ? "text-gray-300" : "text-gray-700"
                               }
                             >
                               {ap.customerName}
                             </td>
                             <td
                               className={
-                                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                isDarkMode ? "text-gray-300" : "text-gray-700"
                               }
                             >
                               {formatDateDMY(ap.paymentDate)}
                             </td>
                             <td
-                              className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {formatCurrency(ap.amount)}
                             </td>
                             <td
-                              className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                              className={`text-right ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                             >
                               {formatCurrency(ap.vatAmount)}
                             </td>
@@ -1207,16 +1207,16 @@ const VATReturnReport = () => {
                   </div>
 
                   <div
-                    className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-teal-900/30 border border-teal-700' : 'bg-teal-50 border border-teal-200'}`}
+                    className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-teal-900/30 border border-teal-700" : "bg-teal-50 border border-teal-200"}`}
                   >
                     <div className="flex justify-between items-center">
                       <span
-                        className={`font-semibold ${isDarkMode ? 'text-teal-300' : 'text-teal-800'}`}
+                        className={`font-semibold ${isDarkMode ? "text-teal-300" : "text-teal-800"}`}
                       >
                         Advance Payment VAT Total
                       </span>
                       <span
-                        className={`text-lg font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-700'}`}
+                        className={`text-lg font-bold ${isDarkMode ? "text-teal-400" : "text-teal-700"}`}
                       >
                         {formatCurrency(advancePaymentVat)}
                       </span>
@@ -1234,11 +1234,11 @@ const VATReturnReport = () => {
                 role="button"
                 tabIndex={0}
                 className={sectionHeaderClass}
-                onClick={() => toggleSection('blockedVat')}
+                onClick={() => toggleSection("blockedVat")}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleSection('blockedVat');
+                    toggleSection("blockedVat");
                   }
                 }}
               >
@@ -1256,7 +1256,7 @@ const VATReturnReport = () => {
               {expandedSections.blockedVat && (
                 <div className="mt-4">
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-3`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-3`}
                   >
                     Input VAT not recoverable per UAE FTA Article 53
                     (entertainment, personal use, etc.)
@@ -1267,8 +1267,8 @@ const VATReturnReport = () => {
                         <tr
                           className={
                             isDarkMode
-                              ? 'text-gray-400 border-b border-gray-700'
-                              : 'text-gray-600 border-b border-gray-200'
+                              ? "text-gray-400 border-b border-gray-700"
+                              : "text-gray-600 border-b border-gray-200"
                           }
                         >
                           <th className="text-left py-2 px-3">Category</th>
@@ -1280,24 +1280,24 @@ const VATReturnReport = () => {
                         {blockedVatLog.map((entry) => (
                           <tr
                             key={entry.id}
-                            className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                            className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                           >
                             <td
-                              className={`py-2 px-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`py-2 px-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {entry.categoryName || entry.category}
                             </td>
                             <td
-                              className={`text-right ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+                              className={`text-right ${isDarkMode ? "text-red-400" : "text-red-600"}`}
                             >
                               {formatCurrency(entry.blockedAmount)}
                             </td>
                             <td
                               className={
-                                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                isDarkMode ? "text-gray-300" : "text-gray-700"
                               }
                             >
-                              {entry.reason || 'Non-recoverable per FTA rules'}
+                              {entry.reason || "Non-recoverable per FTA rules"}
                             </td>
                           </tr>
                         ))}
@@ -1306,16 +1306,16 @@ const VATReturnReport = () => {
                   </div>
 
                   <div
-                    className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-red-900/30 border border-red-700' : 'bg-red-50 border border-red-200'}`}
+                    className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-red-900/30 border border-red-700" : "bg-red-50 border border-red-200"}`}
                   >
                     <div className="flex justify-between items-center">
                       <span
-                        className={`font-semibold ${isDarkMode ? 'text-red-300' : 'text-red-800'}`}
+                        className={`font-semibold ${isDarkMode ? "text-red-300" : "text-red-800"}`}
                       >
                         Total Blocked VAT
                       </span>
                       <span
-                        className={`text-lg font-bold ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}
+                        className={`text-lg font-bold ${isDarkMode ? "text-red-400" : "text-red-700"}`}
                       >
                         {formatCurrency(blockedVatTotal)}
                       </span>
@@ -1328,10 +1328,10 @@ const VATReturnReport = () => {
 
           {/* NET VAT CALCULATION */}
           <div
-            className={`${cardClass} bg-gradient-to-r ${isDarkMode ? 'from-blue-900/40 to-indigo-900/40' : 'from-blue-50 to-indigo-50'} border-2 ${isDarkMode ? 'border-blue-700' : 'border-blue-300'}`}
+            className={`${cardClass} bg-gradient-to-r ${isDarkMode ? "from-blue-900/40 to-indigo-900/40" : "from-blue-50 to-indigo-50"} border-2 ${isDarkMode ? "border-blue-700" : "border-blue-300"}`}
           >
             <h3
-              className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Net VAT Calculation
             </h3>
@@ -1349,32 +1349,32 @@ const VATReturnReport = () => {
                   Total Recoverable Tax (Box 13)
                 </span>
                 <span
-                  className={`${valueClass} ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                  className={`${valueClass} ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                 >
                   ({formatCurrency(totalInputVat)})
                 </span>
               </div>
 
               <div
-                className={`border-t-2 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'} pt-4 mt-4`}
+                className={`border-t-2 ${isDarkMode ? "border-gray-600" : "border-gray-300"} pt-4 mt-4`}
               >
                 <div className="flex justify-between items-center">
                   <span
-                    className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {netVatDue >= 0
-                      ? 'Net VAT Due (Box 14)'
-                      : 'VAT Refundable (Box 15)'}
+                      ? "Net VAT Due (Box 14)"
+                      : "VAT Refundable (Box 15)"}
                   </span>
                   <span
                     className={`text-2xl font-bold ${
                       netVatDue >= 0
                         ? isDarkMode
-                          ? 'text-red-400'
-                          : 'text-red-600'
+                          ? "text-red-400"
+                          : "text-red-600"
                         : isDarkMode
-                          ? 'text-green-400'
-                          : 'text-green-600'
+                          ? "text-green-400"
+                          : "text-green-600"
                     }`}
                   >
                     {formatCurrency(Math.abs(netVatDue))}
@@ -1382,9 +1382,9 @@ const VATReturnReport = () => {
                 </div>
                 {netVatDue < 0 && (
                   <p
-                    className={`text-sm mt-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                    className={`text-sm mt-2 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                   >
-                    You are entitled to a VAT refund of{' '}
+                    You are entitled to a VAT refund of{" "}
                     {formatCurrency(Math.abs(netVatDue))}
                   </p>
                 )}
@@ -1399,11 +1399,11 @@ const VATReturnReport = () => {
                 role="button"
                 tabIndex={0}
                 className={sectionHeaderClass}
-                onClick={() => toggleSection('amendments')}
+                onClick={() => toggleSection("amendments")}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleSection('amendments');
+                    toggleSection("amendments");
                   }
                 }}
               >
@@ -1425,8 +1425,8 @@ const VATReturnReport = () => {
                       <tr
                         className={
                           isDarkMode
-                            ? 'text-gray-400 border-b border-gray-700'
-                            : 'text-gray-600 border-b border-gray-200'
+                            ? "text-gray-400 border-b border-gray-700"
+                            : "text-gray-600 border-b border-gray-200"
                         }
                       >
                         <th className="text-left py-2 px-3">Amendment #</th>
@@ -1441,43 +1441,43 @@ const VATReturnReport = () => {
                       {amendments.map((a) => (
                         <tr
                           key={a.id}
-                          className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                          className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                         >
                           <td
-                            className={`py-2 px-3 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`py-2 px-3 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {a.amendmentNumber}
                           </td>
                           <td
                             className={
-                              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                              isDarkMode ? "text-gray-300" : "text-gray-700"
                             }
                           >
                             {formatDateDMY(a.createdAt)}
                           </td>
                           <td
                             className={
-                              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                              isDarkMode ? "text-gray-300" : "text-gray-700"
                             }
                           >
-                            {a.amendmentType?.replace(/_/g, ' ') ||
-                              'Voluntary Disclosure'}
+                            {a.amendmentType?.replace(/_/g, " ") ||
+                              "Voluntary Disclosure"}
                           </td>
                           <td
                             className={`text-right ${
                               a.differenceVat >= 0
                                 ? isDarkMode
-                                  ? 'text-red-400'
-                                  : 'text-red-600'
+                                  ? "text-red-400"
+                                  : "text-red-600"
                                 : isDarkMode
-                                  ? 'text-green-400'
-                                  : 'text-green-600'
+                                  ? "text-green-400"
+                                  : "text-green-600"
                             }`}
                           >
                             {formatCurrency(a.differenceVat || 0)}
                           </td>
                           <td
-                            className={`text-right ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}
+                            className={`text-right ${isDarkMode ? "text-orange-400" : "text-orange-600"}`}
                           >
                             {formatCurrency(
                               a.estimatedPenalty || a.actualPenalty || 0,
@@ -1502,11 +1502,11 @@ const VATReturnReport = () => {
                 role="button"
                 tabIndex={0}
                 className={sectionHeaderClass}
-                onClick={() => toggleSection('invoices')}
+                onClick={() => toggleSection("invoices")}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleSection('invoices');
+                    toggleSection("invoices");
                   }
                 }}
               >
@@ -1527,7 +1527,7 @@ const VATReturnReport = () => {
                     <thead>
                       <tr
                         className={
-                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
                         }
                       >
                         <th className="text-left py-2">Invoice #</th>
@@ -1542,41 +1542,41 @@ const VATReturnReport = () => {
                       {vatReturn.invoices.slice(0, 50).map((inv, idx) => (
                         <tr
                           key={idx}
-                          className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                          className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                         >
                           <td
-                            className={`py-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`py-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {inv.invoiceNumber}
                           </td>
                           <td
                             className={
-                              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                              isDarkMode ? "text-gray-300" : "text-gray-700"
                             }
                           >
                             {inv.customerName}
                           </td>
                           <td
                             className={
-                              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                              isDarkMode ? "text-gray-300" : "text-gray-700"
                             }
                           >
                             {formatDateDMY(inv.taxPointDate)}
                           </td>
                           <td
                             className={
-                              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                              isDarkMode ? "text-gray-300" : "text-gray-700"
                             }
                           >
-                            {inv.placeOfSupply || '-'}
+                            {inv.placeOfSupply || "-"}
                           </td>
                           <td
-                            className={`text-right ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {formatCurrency(inv.subtotal)}
                           </td>
                           <td
-                            className={`text-right ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                            className={`text-right ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                           >
                             {formatCurrency(inv.vatAmount)}
                           </td>
@@ -1586,7 +1586,7 @@ const VATReturnReport = () => {
                   </table>
                   {vatReturn.invoices.length > 50 && (
                     <p
-                      className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     >
                       Showing first 50 of {vatReturn.invoices.length} invoices
                     </p>
@@ -1602,8 +1602,8 @@ const VATReturnReport = () => {
               onClick={exportToExcel}
               className={`inline-flex items-center px-4 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
               }`}
             >
               <FileSpreadsheet className="h-4 w-4 mr-2" />
@@ -1614,8 +1614,8 @@ const VATReturnReport = () => {
               onClick={downloadPDF}
               className={`inline-flex items-center px-4 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
               }`}
             >
               <FileDown className="h-4 w-4 mr-2" />
@@ -1633,7 +1633,7 @@ const VATReturnReport = () => {
               Preview Form 201
             </button>
 
-            {vatReturn?.status === 'draft' && (
+            {vatReturn?.status === "draft" && (
               <button
                 onClick={handleSubmit}
                 className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -1650,14 +1650,14 @@ const VATReturnReport = () => {
       {!vatReturn && !loading && !error && (
         <div className={`${cardClass} text-center py-12`}>
           <FileText
-            className={`h-12 w-12 mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
+            className={`h-12 w-12 mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
           />
           <h3
-            className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             No Report Generated
           </h3>
-          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+          <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
             Select a tax period and click &quot;Generate Report&quot; to view
             VAT return data
           </p>

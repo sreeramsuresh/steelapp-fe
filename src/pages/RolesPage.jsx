@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -21,15 +21,15 @@ import {
   Switch,
   CircularProgress,
   Alert,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   People as PeopleIcon,
   Security as SecurityIcon,
-} from '@mui/icons-material';
-import { roleService } from '../services/roleService';
+} from "@mui/icons-material";
+import { roleService } from "../services/roleService";
 
 export default function RolesPage() {
   const [roles, setRoles] = useState([]);
@@ -38,9 +38,9 @@ export default function RolesPage() {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    displayName: '',
-    description: '',
+    name: "",
+    displayName: "",
+    description: "",
     isDirector: false,
   });
 
@@ -65,17 +65,17 @@ export default function RolesPage() {
     if (role) {
       setEditingRole(role);
       setFormData({
-        name: role.name || '',
-        displayName: role.display_name || '',
-        description: role.description || '',
+        name: role.name || "",
+        displayName: role.display_name || "",
+        description: role.description || "",
         isDirector: role.is_director || false,
       });
     } else {
       setEditingRole(null);
       setFormData({
-        name: '',
-        displayName: '',
-        description: '',
+        name: "",
+        displayName: "",
+        description: "",
         isDirector: false,
       });
     }
@@ -86,9 +86,9 @@ export default function RolesPage() {
     setOpenDialog(false);
     setEditingRole(null);
     setFormData({
-      name: '',
-      displayName: '',
-      description: '',
+      name: "",
+      displayName: "",
+      description: "",
       isDirector: false,
     });
   };
@@ -116,7 +116,7 @@ export default function RolesPage() {
   };
 
   const handleDelete = async (roleId) => {
-    if (!window.confirm('Are you sure you want to delete this role?')) return;
+    if (!window.confirm("Are you sure you want to delete this role?")) return;
 
     try {
       await roleService.deleteRole(roleId);
@@ -195,7 +195,7 @@ export default function RolesPage() {
                       {role.name}
                     </Typography>
                   </TableCell>
-                  <TableCell>{role.description || '-'}</TableCell>
+                  <TableCell>{role.description || "-"}</TableCell>
                   <TableCell>
                     <Chip
                       icon={<PeopleIcon />}
@@ -249,10 +249,10 @@ export default function RolesPage() {
         fullWidth
       >
         <DialogTitle>
-          {editingRole ? 'Edit Role' : 'Create New Role'}
+          {editingRole ? "Edit Role" : "Create New Role"}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               label="Role Name"
               value={formData.name}
@@ -300,7 +300,7 @@ export default function RolesPage() {
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleSave} variant="contained">
-            {editingRole ? 'Update' : 'Create'}
+            {editingRole ? "Update" : "Create"}
           </Button>
         </DialogActions>
       </Dialog>

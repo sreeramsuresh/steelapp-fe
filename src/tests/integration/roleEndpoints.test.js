@@ -11,12 +11,12 @@
  * - Multi-tenancy (company scoping)
  */
 
-import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
-import { roleService } from '../../services/roleService';
-import { notificationService } from '../../services/notificationService';
+import { describe, test, expect, beforeEach, vi, afterEach } from "vitest";
+import { roleService } from "../../services/roleService";
+import { notificationService } from "../../services/notificationService";
 
 // Mock the apiClient
-vi.mock('../../services/api', () => ({
+vi.mock("../../services/api", () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),
@@ -26,7 +26,7 @@ vi.mock('../../services/api', () => ({
 }));
 
 // Mock notification service
-vi.mock('../../services/notificationService', () => ({
+vi.mock("../../services/notificationService", () => ({
   notificationService: {
     success: vi.fn(),
     error: vi.fn(),
@@ -34,13 +34,13 @@ vi.mock('../../services/notificationService', () => ({
   },
 }));
 
-import { apiClient } from '../../services/api';
+import { apiClient } from "../../services/api";
 
 // Helper to create mock role data
 const createMockRole = (overrides = {}) => ({
   id: 1,
-  name: 'Test Role',
-  description: 'Test description',
+  name: "Test Role",
+  description: "Test description",
   isDirector: false,
   isSystemRole: false,
   companyId: 1,
@@ -54,42 +54,42 @@ const createMockRole = (overrides = {}) => ({
 const mockSystemRoles = [
   createMockRole({
     id: 1,
-    name: 'Managing Director',
+    name: "Managing Director",
     isSystemRole: true,
     isDirector: true,
   }),
   createMockRole({
     id: 2,
-    name: 'Operations Manager',
+    name: "Operations Manager",
     isSystemRole: true,
     isDirector: true,
   }),
   createMockRole({
     id: 3,
-    name: 'Finance Manager',
+    name: "Finance Manager",
     isSystemRole: true,
     isDirector: true,
   }),
-  createMockRole({ id: 4, name: 'Sales Manager', isSystemRole: true }),
-  createMockRole({ id: 5, name: 'Purchase Manager', isSystemRole: true }),
-  createMockRole({ id: 6, name: 'Warehouse Manager', isSystemRole: true }),
-  createMockRole({ id: 7, name: 'Accounts Manager', isSystemRole: true }),
-  createMockRole({ id: 8, name: 'Sales Executive', isSystemRole: true }),
-  createMockRole({ id: 9, name: 'Purchase Executive', isSystemRole: true }),
-  createMockRole({ id: 10, name: 'Stock Keeper', isSystemRole: true }),
-  createMockRole({ id: 11, name: 'Accounts Executive', isSystemRole: true }),
-  createMockRole({ id: 12, name: 'Logistics Coordinator', isSystemRole: true }),
+  createMockRole({ id: 4, name: "Sales Manager", isSystemRole: true }),
+  createMockRole({ id: 5, name: "Purchase Manager", isSystemRole: true }),
+  createMockRole({ id: 6, name: "Warehouse Manager", isSystemRole: true }),
+  createMockRole({ id: 7, name: "Accounts Manager", isSystemRole: true }),
+  createMockRole({ id: 8, name: "Sales Executive", isSystemRole: true }),
+  createMockRole({ id: 9, name: "Purchase Executive", isSystemRole: true }),
+  createMockRole({ id: 10, name: "Stock Keeper", isSystemRole: true }),
+  createMockRole({ id: 11, name: "Accounts Executive", isSystemRole: true }),
+  createMockRole({ id: 12, name: "Logistics Coordinator", isSystemRole: true }),
 ];
 
-describe('Role Endpoints - GET /api/roles', () => {
+describe("Role Endpoints - GET /api/roles", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('should return all roles (system + custom)', async () => {
+  test("should return all roles (system + custom)", async () => {
     const customRole = createMockRole({
       id: 13,
-      name: 'Quality Inspector',
+      name: "Quality Inspector",
       isSystemRole: false,
     });
     const allRoles = [...mockSystemRoles, customRole];
@@ -98,12 +98,12 @@ describe('Role Endpoints - GET /api/roles', () => {
 
     const result = await roleService.getRoles();
 
-    expect(apiClient.get).toHaveBeenCalledWith('/roles');
+    expect(apiClient.get).toHaveBeenCalledWith("/roles");
     expect(result).toEqual(allRoles);
     expect(result).toHaveLength(13);
   });
 
-  test('should return only system roles when no custom roles exist', async () => {
+  test("should return only system roles when no custom roles exist", async () => {
     apiClient.get.mockResolvedValue(mockSystemRoles);
 
     const result = await roleService.getRoles();
@@ -113,7 +113,7 @@ describe('Role Endpoints - GET /api/roles', () => {
     expect(result.every((r) => r.isSystemRole)).toBe(true);
   });
 
-  test('should return empty array when no roles exist', async () => {
+  test("should return empty array when no roles exist", async () => {
     apiClient.get.mockResolvedValue([]);
 
     const result = await roleService.getRoles();
@@ -122,14 +122,14 @@ describe('Role Endpoints - GET /api/roles', () => {
     expect(result).toHaveLength(0);
   });
 
-  test('should handle API error gracefully', async () => {
-    const errorMessage = 'Network error';
+  test("should handle API error gracefully", async () => {
+    const errorMessage = "Network error";
     apiClient.get.mockRejectedValue(new Error(errorMessage));
 
     await expect(roleService.getRoles()).rejects.toThrow(errorMessage);
   });
 
-  test('should return roles scoped to company', async () => {
+  test("should return roles scoped to company", async () => {
     const company1Roles = mockSystemRoles.map((r) => ({ ...r, companyId: 1 }));
     apiClient.get.mockResolvedValue(company1Roles);
 
@@ -139,15 +139,15 @@ describe('Role Endpoints - GET /api/roles', () => {
   });
 });
 
-describe('Role Endpoints - POST /api/roles (Create)', () => {
+describe("Role Endpoints - POST /api/roles (Create)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('should create custom role successfully', async () => {
+  test("should create custom role successfully", async () => {
     const roleData = {
-      name: 'Quality Inspector',
-      description: 'Inspects product quality',
+      name: "Quality Inspector",
+      description: "Inspects product quality",
       isDirector: false,
       permissionKeys: [],
     };
@@ -161,16 +161,16 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
 
     const result = await roleService.createRole(roleData);
 
-    expect(apiClient.post).toHaveBeenCalledWith('/roles', roleData);
+    expect(apiClient.post).toHaveBeenCalledWith("/roles", roleData);
     expect(result).toEqual(createdRole);
-    expect(result.name).toBe('Quality Inspector');
+    expect(result.name).toBe("Quality Inspector");
     expect(result.isSystemRole).toBe(false);
   });
 
-  test('should create director role successfully', async () => {
+  test("should create director role successfully", async () => {
     const roleData = {
-      name: 'Quality Director',
-      description: 'Director of quality',
+      name: "Quality Director",
+      description: "Director of quality",
       isDirector: true,
       permissionKeys: [],
     };
@@ -189,8 +189,8 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
 
   test('should return 400 error for reserved name "admin"', async () => {
     const roleData = {
-      name: 'admin',
-      description: 'Admin role',
+      name: "admin",
+      description: "Admin role",
       isDirector: false,
       permissionKeys: [],
     };
@@ -209,8 +209,8 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
 
   test('should return 400 error for reserved name "superuser"', async () => {
     const roleData = {
-      name: 'superuser',
-      description: 'Super user role',
+      name: "superuser",
+      description: "Super user role",
       isDirector: false,
       permissionKeys: [],
     };
@@ -229,8 +229,8 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
 
   test('should return 400 error for reserved name "root"', async () => {
     const roleData = {
-      name: 'root',
-      description: 'Root role',
+      name: "root",
+      description: "Root role",
       isDirector: false,
       permissionKeys: [],
     };
@@ -247,10 +247,10 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
     await expect(roleService.createRole(roleData)).rejects.toMatchObject(error);
   });
 
-  test('should return 409 error for duplicate role name', async () => {
+  test("should return 409 error for duplicate role name", async () => {
     const roleData = {
-      name: 'Sales Manager', // Already exists as system role
-      description: 'Duplicate',
+      name: "Sales Manager", // Already exists as system role
+      description: "Duplicate",
       isDirector: false,
       permissionKeys: [],
     };
@@ -258,7 +258,7 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
     const error = {
       response: {
         status: 409,
-        data: { message: 'A role with this name already exists' },
+        data: { message: "A role with this name already exists" },
       },
     };
 
@@ -267,10 +267,10 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
     await expect(roleService.createRole(roleData)).rejects.toMatchObject(error);
   });
 
-  test('should return 400 error for name too short', async () => {
+  test("should return 400 error for name too short", async () => {
     const roleData = {
-      name: 'AB', // Less than 3 characters
-      description: 'Too short',
+      name: "AB", // Less than 3 characters
+      description: "Too short",
       isDirector: false,
       permissionKeys: [],
     };
@@ -278,7 +278,7 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
     const error = {
       response: {
         status: 400,
-        data: { message: 'Display name must be at least 3 characters' },
+        data: { message: "Display name must be at least 3 characters" },
       },
     };
 
@@ -287,10 +287,10 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
     await expect(roleService.createRole(roleData)).rejects.toMatchObject(error);
   });
 
-  test('should return 400 error for name too long', async () => {
+  test("should return 400 error for name too long", async () => {
     const roleData = {
-      name: 'A'.repeat(51), // More than 50 characters
-      description: 'Too long',
+      name: "A".repeat(51), // More than 50 characters
+      description: "Too long",
       isDirector: false,
       permissionKeys: [],
     };
@@ -298,7 +298,7 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
     const error = {
       response: {
         status: 400,
-        data: { message: 'Display name must be less than 50 characters' },
+        data: { message: "Display name must be less than 50 characters" },
       },
     };
 
@@ -308,16 +308,16 @@ describe('Role Endpoints - POST /api/roles (Create)', () => {
   });
 });
 
-describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
+describe("Role Endpoints - PUT /api/roles/:id (Update)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('should update custom role successfully', async () => {
+  test("should update custom role successfully", async () => {
     const roleId = 13;
     const roleData = {
-      name: 'Quality Inspector Updated',
-      description: 'Updated description',
+      name: "Quality Inspector Updated",
+      description: "Updated description",
       isDirector: false,
       permissionKeys: [],
     };
@@ -333,16 +333,16 @@ describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
 
     expect(apiClient.put).toHaveBeenCalledWith(`/roles/${roleId}`, roleData);
     expect(result).toEqual(updatedRole);
-    expect(result.name).toBe('Quality Inspector Updated');
+    expect(result.name).toBe("Quality Inspector Updated");
   });
 
-  test('should update system role description only', async () => {
+  test("should update system role description only", async () => {
     const roleId = 4; // Sales Manager (system role)
     const roleData = {
-      name: 'Sales Manager', // Name stays the same
-      description: 'Updated description for Sales Manager',
+      name: "Sales Manager", // Name stays the same
+      description: "Updated description for Sales Manager",
       isDirector: false,
-      permissionKeys: ['sales.create', 'sales.edit'],
+      permissionKeys: ["sales.create", "sales.edit"],
     };
 
     const updatedRole = createMockRole({
@@ -355,15 +355,15 @@ describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
 
     const result = await roleService.updateRole(roleId, roleData);
 
-    expect(result.description).toBe('Updated description for Sales Manager');
+    expect(result.description).toBe("Updated description for Sales Manager");
     expect(result.isSystemRole).toBe(true);
   });
 
-  test('should update system role director status', async () => {
+  test("should update system role director status", async () => {
     const roleId = 4; // Sales Manager
     const roleData = {
-      name: 'Sales Manager',
-      description: 'Sales manager with director privileges',
+      name: "Sales Manager",
+      description: "Sales manager with director privileges",
       isDirector: true, // Promoting to director
       permissionKeys: [],
     };
@@ -381,11 +381,11 @@ describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
     expect(result.isDirector).toBe(true);
   });
 
-  test('should return 409 error when updating to duplicate name', async () => {
+  test("should return 409 error when updating to duplicate name", async () => {
     const roleId = 13;
     const roleData = {
-      name: 'Sales Manager', // Trying to rename to existing role
-      description: 'Conflict',
+      name: "Sales Manager", // Trying to rename to existing role
+      description: "Conflict",
       isDirector: false,
       permissionKeys: [],
     };
@@ -393,7 +393,7 @@ describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
     const error = {
       response: {
         status: 409,
-        data: { message: 'A role with this name already exists' },
+        data: { message: "A role with this name already exists" },
       },
     };
 
@@ -404,11 +404,11 @@ describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
     ).rejects.toMatchObject(error);
   });
 
-  test('should return 404 error for non-existent role', async () => {
+  test("should return 404 error for non-existent role", async () => {
     const roleId = 9999;
     const roleData = {
-      name: 'Updated Role',
-      description: 'Updated',
+      name: "Updated Role",
+      description: "Updated",
       isDirector: false,
       permissionKeys: [],
     };
@@ -416,7 +416,7 @@ describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
     const error = {
       response: {
         status: 404,
-        data: { message: 'Role not found' },
+        data: { message: "Role not found" },
       },
     };
 
@@ -428,12 +428,12 @@ describe('Role Endpoints - PUT /api/roles/:id (Update)', () => {
   });
 });
 
-describe('Role Endpoints - DELETE /api/roles/:id', () => {
+describe("Role Endpoints - DELETE /api/roles/:id", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('should delete custom role successfully', async () => {
+  test("should delete custom role successfully", async () => {
     const roleId = 13; // Custom role
     apiClient.delete.mockResolvedValue({ success: true });
 
@@ -443,13 +443,13 @@ describe('Role Endpoints - DELETE /api/roles/:id', () => {
     expect(result).toEqual({ success: true });
   });
 
-  test('should return 403 error when trying to delete system role', async () => {
+  test("should return 403 error when trying to delete system role", async () => {
     const roleId = 1; // Managing Director (system role)
 
     const error = {
       response: {
         status: 403,
-        data: { message: 'System roles cannot be deleted' },
+        data: { message: "System roles cannot be deleted" },
       },
     };
 
@@ -458,12 +458,12 @@ describe('Role Endpoints - DELETE /api/roles/:id', () => {
     await expect(roleService.deleteRole(roleId)).rejects.toMatchObject(error);
   });
 
-  test('should return 403 error for all system roles (12 roles)', async () => {
+  test("should return 403 error for all system roles (12 roles)", async () => {
     for (const systemRole of mockSystemRoles) {
       const error = {
         response: {
           status: 403,
-          data: { message: 'System roles cannot be deleted' },
+          data: { message: "System roles cannot be deleted" },
         },
       };
 
@@ -475,13 +475,13 @@ describe('Role Endpoints - DELETE /api/roles/:id', () => {
     }
   });
 
-  test('should return 404 error when deleting non-existent role', async () => {
+  test("should return 404 error when deleting non-existent role", async () => {
     const roleId = 9999;
 
     const error = {
       response: {
         status: 404,
-        data: { message: 'Role not found' },
+        data: { message: "Role not found" },
       },
     };
 
@@ -490,13 +490,13 @@ describe('Role Endpoints - DELETE /api/roles/:id', () => {
     await expect(roleService.deleteRole(roleId)).rejects.toMatchObject(error);
   });
 
-  test('should return 409 error when deleting role assigned to users', async () => {
+  test("should return 409 error when deleting role assigned to users", async () => {
     const roleId = 13;
 
     const error = {
       response: {
         status: 409,
-        data: { message: 'Cannot delete role that is assigned to users' },
+        data: { message: "Cannot delete role that is assigned to users" },
       },
     };
 
@@ -506,12 +506,12 @@ describe('Role Endpoints - DELETE /api/roles/:id', () => {
   });
 });
 
-describe('Role Endpoints - Multi-tenancy', () => {
+describe("Role Endpoints - Multi-tenancy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('should scope roles to company when fetching', async () => {
+  test("should scope roles to company when fetching", async () => {
     const company1Roles = mockSystemRoles.map((r) => ({ ...r, companyId: 1 }));
     apiClient.get.mockResolvedValue(company1Roles);
 
@@ -520,10 +520,10 @@ describe('Role Endpoints - Multi-tenancy', () => {
     expect(result.every((r) => r.companyId === 1)).toBe(true);
   });
 
-  test('should create role scoped to current company', async () => {
+  test("should create role scoped to current company", async () => {
     const roleData = {
-      name: 'Quality Inspector',
-      description: 'Company 1 QI',
+      name: "Quality Inspector",
+      description: "Company 1 QI",
       isDirector: false,
       permissionKeys: [],
     };
@@ -536,11 +536,11 @@ describe('Role Endpoints - Multi-tenancy', () => {
     expect(result.companyId).toBe(1);
   });
 
-  test('should allow same role name in different companies', async () => {
+  test("should allow same role name in different companies", async () => {
     // Company 1 creates "Quality Inspector"
     const company1RoleData = {
-      name: 'Quality Inspector',
-      description: 'Company 1 QI',
+      name: "Quality Inspector",
+      description: "Company 1 QI",
       isDirector: false,
       permissionKeys: [],
     };
@@ -557,8 +557,8 @@ describe('Role Endpoints - Multi-tenancy', () => {
 
     // Company 2 creates "Quality Inspector" (should be allowed)
     const company2RoleData = {
-      name: 'Quality Inspector',
-      description: 'Company 2 QI',
+      name: "Quality Inspector",
+      description: "Company 2 QI",
       isDirector: false,
       permissionKeys: [],
     };
@@ -574,14 +574,14 @@ describe('Role Endpoints - Multi-tenancy', () => {
     expect(result2.companyId).toBe(2);
 
     // Both should succeed
-    expect(result1.name).toBe('Quality Inspector');
-    expect(result2.name).toBe('Quality Inspector');
+    expect(result1.name).toBe("Quality Inspector");
+    expect(result2.name).toBe("Quality Inspector");
   });
 
-  test('should not allow duplicate role name within same company', async () => {
+  test("should not allow duplicate role name within same company", async () => {
     const roleData = {
-      name: 'Quality Inspector',
-      description: 'Duplicate in same company',
+      name: "Quality Inspector",
+      description: "Duplicate in same company",
       isDirector: false,
       permissionKeys: [],
     };
@@ -589,7 +589,7 @@ describe('Role Endpoints - Multi-tenancy', () => {
     const error = {
       response: {
         status: 409,
-        data: { message: 'A role with this name already exists' },
+        data: { message: "A role with this name already exists" },
       },
     };
 
@@ -599,17 +599,17 @@ describe('Role Endpoints - Multi-tenancy', () => {
   });
 });
 
-describe('Role Endpoints - Permission Keys', () => {
+describe("Role Endpoints - Permission Keys", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('should create role with permission keys', async () => {
+  test("should create role with permission keys", async () => {
     const roleData = {
-      name: 'Quality Inspector',
-      description: 'QI with permissions',
+      name: "Quality Inspector",
+      description: "QI with permissions",
       isDirector: false,
-      permissionKeys: ['quality.view', 'quality.create', 'quality.edit'],
+      permissionKeys: ["quality.view", "quality.create", "quality.edit"],
     };
 
     const createdRole = createMockRole({ id: 13, ...roleData });
@@ -618,23 +618,23 @@ describe('Role Endpoints - Permission Keys', () => {
     const result = await roleService.createRole(roleData);
 
     expect(result.permissionKeys).toEqual([
-      'quality.view',
-      'quality.create',
-      'quality.edit',
+      "quality.view",
+      "quality.create",
+      "quality.edit",
     ]);
   });
 
-  test('should update role permission keys', async () => {
+  test("should update role permission keys", async () => {
     const roleId = 13;
     const roleData = {
-      name: 'Quality Inspector',
-      description: 'Updated permissions',
+      name: "Quality Inspector",
+      description: "Updated permissions",
       isDirector: false,
       permissionKeys: [
-        'quality.view',
-        'quality.create',
-        'quality.edit',
-        'quality.delete',
+        "quality.view",
+        "quality.create",
+        "quality.edit",
+        "quality.delete",
       ],
     };
 
@@ -646,10 +646,10 @@ describe('Role Endpoints - Permission Keys', () => {
     expect(result.permissionKeys).toHaveLength(4);
   });
 
-  test('should create role with empty permission keys', async () => {
+  test("should create role with empty permission keys", async () => {
     const roleData = {
-      name: 'Basic Role',
-      description: 'No permissions',
+      name: "Basic Role",
+      description: "No permissions",
       isDirector: false,
       permissionKeys: [],
     };

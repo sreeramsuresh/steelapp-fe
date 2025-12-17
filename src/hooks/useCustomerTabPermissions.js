@@ -26,14 +26,14 @@ const useMockAuth = () => {
   return {
     user: {
       id: 1,
-      name: 'Developer',
+      name: "Developer",
       permissions: [
-        'customers.read',
-        'finance.view',
-        'invoices.read',
-        'payments.read',
-        'credit_notes.read',
-        'activity.read',
+        "customers.read",
+        "finance.view",
+        "invoices.read",
+        "payments.read",
+        "credit_notes.read",
+        "activity.read",
       ],
     },
   };
@@ -57,13 +57,13 @@ export function useCustomerTabPermissions() {
    * Tabs are only visible if ALL required permissions are present
    */
   const tabPermissions = {
-    overview: hasPermission('customers.read'), // Always visible if can read customers
-    'ar-aging':
-      hasPermission('customers.read') && hasPermission('finance.view'), // Finance only
-    invoices: hasPermission('invoices.read'),
-    payments: hasPermission('payments.read'),
-    'credit-notes': hasPermission('credit_notes.read'),
-    activity: hasPermission('customers.read'), // All customer viewers can see activity
+    overview: hasPermission("customers.read"), // Always visible if can read customers
+    "ar-aging":
+      hasPermission("customers.read") && hasPermission("finance.view"), // Finance only
+    invoices: hasPermission("invoices.read"),
+    payments: hasPermission("payments.read"),
+    "credit-notes": hasPermission("credit_notes.read"),
+    activity: hasPermission("customers.read"), // All customer viewers can see activity
   };
 
   /**

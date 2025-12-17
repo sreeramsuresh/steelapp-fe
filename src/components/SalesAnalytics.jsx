@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import {
   BarChart3,
   TrendingUp,
@@ -17,8 +17,8 @@ import {
   CheckCircle,
   RefreshCw,
   ChevronDown,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   format,
   startOfMonth,
@@ -27,26 +27,26 @@ import {
   endOfQuarter,
   subMonths,
   subQuarters,
-} from 'date-fns';
-import { analyticsService } from '../services/analyticsService';
-import { useApiData } from '../hooks/useApi';
+} from "date-fns";
+import { analyticsService } from "../services/analyticsService";
+import { useApiData } from "../hooks/useApi";
 
 const SalesAnalytics = () => {
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [dateRange, setDateRange] = useState('month');
+  const [activeTab, setActiveTab] = useState("overview");
+  const [dateRange, setDateRange] = useState("month");
   const [selectedPeriod, setSelectedPeriod] = useState(new Date());
 
   const dateParams = useMemo(() => {
     const date = new Date(selectedPeriod);
     let startDate, endDate;
 
-    if (dateRange === 'month') {
-      startDate = format(startOfMonth(date), 'yyyy-MM-dd');
-      endDate = format(endOfMonth(date), 'yyyy-MM-dd');
-    } else if (dateRange === 'quarter') {
-      startDate = format(startOfQuarter(date), 'yyyy-MM-dd');
-      endDate = format(endOfQuarter(date), 'yyyy-MM-dd');
+    if (dateRange === "month") {
+      startDate = format(startOfMonth(date), "yyyy-MM-dd");
+      endDate = format(endOfMonth(date), "yyyy-MM-dd");
+    } else if (dateRange === "quarter") {
+      startDate = format(startOfQuarter(date), "yyyy-MM-dd");
+      endDate = format(endOfQuarter(date), "yyyy-MM-dd");
     }
 
     return { startDate, endDate };
@@ -56,14 +56,14 @@ const SalesAnalytics = () => {
   const prevDateParams = useMemo(() => {
     const date = new Date(selectedPeriod);
     let prevStart, prevEnd;
-    if (dateRange === 'month') {
+    if (dateRange === "month") {
       const prev = subMonths(date, 1);
-      prevStart = format(startOfMonth(prev), 'yyyy-MM-dd');
-      prevEnd = format(endOfMonth(prev), 'yyyy-MM-dd');
-    } else if (dateRange === 'quarter') {
+      prevStart = format(startOfMonth(prev), "yyyy-MM-dd");
+      prevEnd = format(endOfMonth(prev), "yyyy-MM-dd");
+    } else if (dateRange === "quarter") {
       const prev = subQuarters(date, 1);
-      prevStart = format(startOfQuarter(prev), 'yyyy-MM-dd');
-      prevEnd = format(endOfQuarter(prev), 'yyyy-MM-dd');
+      prevStart = format(startOfQuarter(prev), "yyyy-MM-dd");
+      prevEnd = format(endOfQuarter(prev), "yyyy-MM-dd");
     }
     return { startDate: prevStart, endDate: prevEnd };
   }, [selectedPeriod, dateRange]);
@@ -129,14 +129,14 @@ const SalesAnalytics = () => {
 
     const monthlyTrend = Array.isArray(salesTrendsArray)
       ? salesTrendsArray
-        .slice()
-        .sort((a, b) => new Date(a.period) - new Date(b.period))
-        .map((row) => ({
-          month: format(new Date(row.period), 'MMM yyyy'),
-          revenue: safeNum(row.revenue),
-          orders: parseInt(row.invoiceCount || 0),
-          customers: parseInt(row.uniqueCustomers || 0),
-        }))
+          .slice()
+          .sort((a, b) => new Date(a.period) - new Date(b.period))
+          .map((row) => ({
+            month: format(new Date(row.period), "MMM yyyy"),
+            revenue: safeNum(row.revenue),
+            orders: parseInt(row.invoiceCount || 0),
+            customers: parseInt(row.uniqueCustomers || 0),
+          }))
       : [];
 
     // Compute growth vs previous point from trends
@@ -154,47 +154,47 @@ const SalesAnalytics = () => {
     // Top products mapping from productPerformance array with growth vs previous period
     const topProductsArr = Array.isArray(productPerformance)
       ? productPerformance
-        .slice()
-        .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
-        .map((p) => {
-          const prevProduct = prevMap.get(p.id) || {};
-          const revGrowth = (function () {
-            const c = safeNum(p.totalRevenue);
-            const pr = safeNum(prevProduct.totalRevenue);
-            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-          })();
-          const qtyGrowth = (function () {
-            const c = safeNum(p.totalSold);
-            const pr = safeNum(prevProduct.totalSold);
-            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-          })();
-          const ordGrowth = (function () {
-            const c = parseInt(p.timesSold || 0);
-            const pr = parseInt(prevProduct.timesSold || 0);
-            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-          })();
-          return {
-            id: p.id,
-            product: p.name,
-            revenue: safeNum(p.totalRevenue),
-            orders: parseInt(p.timesSold || 0),
-            quantity: safeNum(p.totalSold),
-            category: p.category,
-            revenueGrowth: revGrowth,
-            quantityGrowth: qtyGrowth,
-            ordersGrowth: ordGrowth,
-            prevRevenue: safeNum(prev.totalRevenue),
-            prevQuantity: safeNum(prev.totalSold),
-            prevOrders: parseInt(prev.timesSold || 0),
-          };
-        })
+          .slice()
+          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
+          .map((p) => {
+            const prevProduct = prevMap.get(p.id) || {};
+            const revGrowth = (function () {
+              const c = safeNum(p.totalRevenue);
+              const pr = safeNum(prevProduct.totalRevenue);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            const qtyGrowth = (function () {
+              const c = safeNum(p.totalSold);
+              const pr = safeNum(prevProduct.totalSold);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            const ordGrowth = (function () {
+              const c = parseInt(p.timesSold || 0);
+              const pr = parseInt(prevProduct.timesSold || 0);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            return {
+              id: p.id,
+              product: p.name,
+              revenue: safeNum(p.totalRevenue),
+              orders: parseInt(p.timesSold || 0),
+              quantity: safeNum(p.totalSold),
+              category: p.category,
+              revenueGrowth: revGrowth,
+              quantityGrowth: qtyGrowth,
+              ordersGrowth: ordGrowth,
+              prevRevenue: safeNum(prev.totalRevenue),
+              prevQuantity: safeNum(prev.totalSold),
+              prevOrders: parseInt(prev.timesSold || 0),
+            };
+          })
       : [];
 
     // Category performance aggregated from productPerformance
     const categoryPerf = {};
     if (Array.isArray(productPerformance)) {
       for (const p of productPerformance) {
-        const key = p.category || 'Uncategorized';
+        const key = p.category || "Uncategorized";
         if (!categoryPerf[key]) {
           categoryPerf[key] = { revenue: 0, orders: 0, avgOrderValue: 0 };
         }
@@ -210,13 +210,13 @@ const SalesAnalytics = () => {
     // Top customers mapping from customerAnalysis array
     const topCustomersArr = Array.isArray(customerAnalysis)
       ? customerAnalysis
-        .slice()
-        .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
-        .map((c) => ({
-          customer: c.name || c.company || 'Unknown',
-          revenue: safeNum(c.totalRevenue),
-          orders: parseInt(c.totalInvoices || 0),
-        }))
+          .slice()
+          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
+          .map((c) => ({
+            customer: c.name || c.company || "Unknown",
+            revenue: safeNum(c.totalRevenue),
+            orders: parseInt(c.totalInvoices || 0),
+          }))
       : [];
 
     const revMetrics = dashboardData.revenueMetrics || {};
@@ -262,9 +262,9 @@ const SalesAnalytics = () => {
   ]);
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: 'AED',
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -273,7 +273,7 @@ const SalesAnalytics = () => {
   const formatGrowth = (growth) => {
     if (growth > 0) return `+${growth.toFixed(1)}%`;
     if (growth < 0) return `${growth.toFixed(1)}%`;
-    return '0%';
+    return "0%";
   };
 
   const getGrowthIcon = (growth) => {
@@ -289,7 +289,7 @@ const SalesAnalytics = () => {
         <div className="flex gap-4 items-center">
           <div className="relative">
             <label
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Period
             </label>
@@ -298,8 +298,8 @@ const SalesAnalytics = () => {
               onChange={(e) => setDateRange(e.target.value)}
               className={`w-32 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-800 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               }`}
             >
               <option value="month">Monthly</option>
@@ -308,24 +308,24 @@ const SalesAnalytics = () => {
             <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
               <ChevronDown
                 size={20}
-                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
+                className={isDarkMode ? "text-gray-400" : "text-gray-500"}
               />
             </div>
           </div>
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Select Period
             </label>
             <input
               type="month"
-              value={format(selectedPeriod, 'yyyy-MM')}
+              value={format(selectedPeriod, "yyyy-MM")}
               onChange={(e) => setSelectedPeriod(new Date(e.target.value))}
               className={`w-40 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-800 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               }`}
             />
           </div>
@@ -333,8 +333,8 @@ const SalesAnalytics = () => {
         <button
           className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
             isDarkMode
-              ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-              : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+              ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+              : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
           }`}
         >
           <Download size={16} />
@@ -348,21 +348,21 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <DollarSign size={24} color="#10b981" />
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                 >
                   Total Revenue
                 </span>
               </div>
               <h3
-                className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 {formatCurrency(analytics.currentRevenue)}
               </h3>
@@ -372,12 +372,12 @@ const SalesAnalytics = () => {
                   title={`Prev: ${formatCurrency(analytics.prevTotalRevenue || 0)} • Current: ${formatCurrency(analytics.currentRevenue || 0)}`}
                   className={`text-sm font-medium ${
                     analytics.revenueGrowth > 0
-                      ? 'text-green-600'
+                      ? "text-green-600"
                       : analytics.revenueGrowth < 0
-                        ? 'text-red-600'
+                        ? "text-red-600"
                         : isDarkMode
-                          ? 'text-gray-400'
-                          : 'text-gray-600'
+                          ? "text-gray-400"
+                          : "text-gray-600"
                   }`}
                 >
                   {formatGrowth(analytics.revenueGrowth)} vs last {dateRange}
@@ -391,21 +391,21 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Package size={24} color="#3b82f6" />
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                 >
                   Total Orders
                 </span>
               </div>
               <h3
-                className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 {analytics.currentOrders}
               </h3>
@@ -415,12 +415,12 @@ const SalesAnalytics = () => {
                   title={`Prev: ${(analytics.prevTotalInvoices || 0).toLocaleString()} • Current: ${(analytics.currentOrders || 0).toLocaleString()}`}
                   className={`text-sm font-medium ${
                     analytics.ordersGrowth > 0
-                      ? 'text-green-600'
+                      ? "text-green-600"
                       : analytics.ordersGrowth < 0
-                        ? 'text-red-600'
+                        ? "text-red-600"
                         : isDarkMode
-                          ? 'text-gray-400'
-                          : 'text-gray-600'
+                          ? "text-gray-400"
+                          : "text-gray-600"
                   }`}
                 >
                   {formatGrowth(analytics.ordersGrowth)} vs last {dateRange}
@@ -434,21 +434,21 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Users size={24} color="#8b5cf6" />
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                 >
                   Active Customers
                 </span>
               </div>
               <h3
-                className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 {analytics.uniqueCustomers}
               </h3>
@@ -457,12 +457,12 @@ const SalesAnalytics = () => {
                 <span
                   className={`text-sm font-medium ${
                     analytics.customersGrowth > 0
-                      ? 'text-green-600'
+                      ? "text-green-600"
                       : analytics.customersGrowth < 0
-                        ? 'text-red-600'
+                        ? "text-red-600"
                         : isDarkMode
-                          ? 'text-gray-400'
-                          : 'text-gray-600'
+                          ? "text-gray-400"
+                          : "text-gray-600"
                   }`}
                 >
                   {formatGrowth(analytics.customersGrowth)} vs last {dateRange}
@@ -476,21 +476,21 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Target size={24} color="#f59e0b" />
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                 >
                   Avg Order Value
                 </span>
               </div>
               <h3
-                className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 {formatCurrency(analytics.avgOrderValue)}
               </h3>
@@ -500,12 +500,12 @@ const SalesAnalytics = () => {
                   title={`Prev: ${formatCurrency(analytics.prevAvgOrderValue || 0)} • Current: ${formatCurrency(analytics.avgOrderValue || 0)}`}
                   className={`text-sm font-medium ${
                     analytics.avgOrderGrowth > 0
-                      ? 'text-green-600'
+                      ? "text-green-600"
                       : analytics.avgOrderGrowth < 0
-                        ? 'text-red-600'
+                        ? "text-red-600"
                         : isDarkMode
-                          ? 'text-gray-400'
-                          : 'text-gray-600'
+                          ? "text-gray-400"
+                          : "text-gray-600"
                   }`}
                 >
                   {formatGrowth(analytics.avgOrderGrowth)} vs last {dateRange}
@@ -522,13 +522,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <h3
-                className={`text-lg font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Revenue Trend (Last 6 Months)
               </h3>
@@ -550,21 +550,21 @@ const SalesAnalytics = () => {
                       <div className="flex items-end h-36 mb-2">
                         <div
                           className="w-5 bg-gradient-to-br from-teal-600 to-teal-700 rounded-t transition-all duration-300"
-                          style={{ height: `${height}px`, minHeight: '4px' }}
+                          style={{ height: `${height}px`, minHeight: "4px" }}
                         />
                       </div>
                       <span
-                        className={`text-xs font-semibold mb-1 text-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`text-xs font-semibold mb-1 text-center ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {formatCurrency(month.revenue || 0).replace(
-                          'د.إ',
-                          'د.إ',
+                          "د.إ",
+                          "د.إ",
                         )}
                       </span>
                       <span
-                        className={`text-xs text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        className={`text-xs text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                       >
-                        {month.month || ''}
+                        {month.month || ""}
                       </span>
                     </div>
                   );
@@ -578,13 +578,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <h3
-                className={`text-lg font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Category Performance
               </h3>
@@ -606,20 +606,20 @@ const SalesAnalytics = () => {
                       <div key={category}>
                         <div className="flex justify-between items-center mb-2">
                           <span
-                            className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {category.charAt(0).toUpperCase() +
                               category.slice(1)}
                           </span>
                           <span
-                            className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {formatCurrency(data.revenue)}
                           </span>
                         </div>
                         <div
                           className={`h-2 rounded-full mb-1 ${
-                            isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+                            isDarkMode ? "bg-gray-700" : "bg-gray-300"
                           }`}
                         >
                           <div
@@ -628,7 +628,7 @@ const SalesAnalytics = () => {
                           />
                         </div>
                         <span
-                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         >
                           {data.orders} orders
                         </span>
@@ -648,20 +648,20 @@ const SalesAnalytics = () => {
       {/* Analysis Header */}
       <div className="flex justify-between items-center mb-6">
         <h3
-          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+          className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
         >
           Customer Sales Analysis
         </h3>
         <span
           className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
             isDarkMode
-              ? 'border-teal-600 bg-teal-900/20 text-teal-300'
-              : 'border-teal-300 bg-teal-50 text-teal-700'
+              ? "border-teal-600 bg-teal-900/20 text-teal-300"
+              : "border-teal-300 bg-teal-50 text-teal-700"
           }`}
         >
           {format(
             selectedPeriod,
-            dateRange === 'month' ? 'MMMM yyyy' : 'QQQ yyyy',
+            dateRange === "month" ? "MMMM yyyy" : "QQQ yyyy",
           )}
         </span>
       </div>
@@ -672,15 +672,15 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Users size={20} className="text-purple-600" />
                 <h3
-                  className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   Customer Distribution
                 </h3>
@@ -689,12 +689,12 @@ const SalesAnalytics = () => {
                 <div>
                   <div className="flex justify-between mb-1">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       High Value (AED 0.5M+)
                     </span>
                     <span
-                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {
                         analytics.topCustomers.filter(
@@ -704,7 +704,7 @@ const SalesAnalytics = () => {
                     </span>
                   </div>
                   <span
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     {formatCurrency(
                       analytics.topCustomers
@@ -714,17 +714,17 @@ const SalesAnalytics = () => {
                   </span>
                 </div>
                 <hr
-                  className={isDarkMode ? 'border-gray-700' : 'border-gray-200'}
+                  className={isDarkMode ? "border-gray-700" : "border-gray-200"}
                 />
                 <div>
                   <div className="flex justify-between mb-1">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Medium Value (AED 0.1M - 0.5M)
                     </span>
                     <span
-                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {
                         analytics.topCustomers.filter(
@@ -734,7 +734,7 @@ const SalesAnalytics = () => {
                     </span>
                   </div>
                   <span
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     {formatCurrency(
                       analytics.topCustomers
@@ -746,17 +746,17 @@ const SalesAnalytics = () => {
                   </span>
                 </div>
                 <hr
-                  className={isDarkMode ? 'border-gray-700' : 'border-gray-200'}
+                  className={isDarkMode ? "border-gray-700" : "border-gray-200"}
                 />
                 <div>
                   <div className="flex justify-between mb-1">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Regular (AED Under 0.1M)
                     </span>
                     <span
-                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {
                         analytics.topCustomers.filter((c) => c.revenue < 100000)
@@ -765,7 +765,7 @@ const SalesAnalytics = () => {
                     </span>
                   </div>
                   <span
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     {formatCurrency(
                       analytics.topCustomers
@@ -784,13 +784,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <h3
-                className={`text-base font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-base font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Top Customers by Revenue
               </h3>
@@ -800,8 +800,8 @@ const SalesAnalytics = () => {
                     key={customer.customer || index}
                     className={`border rounded-lg p-4 ${
                       isDarkMode
-                        ? 'border-gray-700 bg-gray-800/50'
-                        : 'border-gray-200 bg-gray-50'
+                        ? "border-gray-700 bg-gray-800/50"
+                        : "border-gray-200 bg-gray-50"
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -809,14 +809,14 @@ const SalesAnalytics = () => {
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
                           index === 0
-                            ? 'bg-yellow-400 text-gray-900'
+                            ? "bg-yellow-400 text-gray-900"
                             : index === 1
-                              ? 'bg-gray-400 text-white'
+                              ? "bg-gray-400 text-white"
                               : index === 2
-                                ? 'bg-orange-600 text-white'
+                                ? "bg-orange-600 text-white"
                                 : isDarkMode
-                                  ? 'bg-teal-900/50 text-teal-300'
-                                  : 'bg-teal-100 text-teal-700'
+                                  ? "bg-teal-900/50 text-teal-300"
+                                  : "bg-teal-100 text-teal-700"
                         }`}
                       >
                         {index < 3 ? (
@@ -829,15 +829,15 @@ const SalesAnalytics = () => {
                       {/* Customer Info */}
                       <div className="flex-1">
                         <h4
-                          className={`font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
-                          {customer.customer || 'Unknown Customer'}
+                          {customer.customer || "Unknown Customer"}
                         </h4>
                         <div className="flex flex-wrap gap-4">
                           <div className="flex items-center gap-1">
                             <DollarSign size={14} className="text-green-600" />
                             <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                             >
                               {formatCurrency(customer.revenue || 0)}
                             </span>
@@ -845,7 +845,7 @@ const SalesAnalytics = () => {
                           <div className="flex items-center gap-1">
                             <Package size={14} className="text-blue-600" />
                             <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                             >
                               {customer.orders || 0} orders
                             </span>
@@ -853,12 +853,12 @@ const SalesAnalytics = () => {
                           <div className="flex items-center gap-1">
                             <Target size={14} className="text-orange-600" />
                             <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                             >
                               {formatCurrency(
                                 (customer.revenue || 0) /
                                   (customer.orders || 1),
-                              )}{' '}
+                              )}{" "}
                               avg
                             </span>
                           </div>
@@ -869,7 +869,7 @@ const SalesAnalytics = () => {
                       <div className="w-24">
                         <div
                           className={`h-2 rounded-full overflow-hidden ${
-                            isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
+                            isDarkMode ? "bg-gray-700" : "bg-gray-200"
                           }`}
                         >
                           <div
@@ -893,15 +893,15 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp size={20} className="text-teal-600" />
                 <h3
-                  className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   Key Insights
                 </h3>
@@ -944,7 +944,7 @@ const SalesAnalytics = () => {
                     <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
                       <Target size={16} className="text-blue-600 mt-0.5" />
                       <p className="text-sm text-blue-800">
-                        Average customer lifetime value:{' '}
+                        Average customer lifetime value:{" "}
                         {formatCurrency(avgValue)}
                       </p>
                     </div>
@@ -963,7 +963,7 @@ const SalesAnalytics = () => {
       {/* Performance Header */}
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h3
-          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+          className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
         >
           Product Performance Metrics
         </h3>
@@ -971,8 +971,8 @@ const SalesAnalytics = () => {
           <select
             className={`w-48 px-4 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
               isDarkMode
-                ? 'bg-gray-800 border-gray-600 text-white'
-                : 'bg-white border-gray-300 text-gray-900'
+                ? "bg-gray-800 border-gray-600 text-white"
+                : "bg-white border-gray-300 text-gray-900"
             }`}
             defaultValue="revenue"
           >
@@ -983,7 +983,7 @@ const SalesAnalytics = () => {
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
             <ChevronDown
               size={20}
-              className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
+              className={isDarkMode ? "text-gray-400" : "text-gray-500"}
             />
           </div>
         </div>
@@ -996,8 +996,8 @@ const SalesAnalytics = () => {
             <div
               className={`border rounded-xl h-full ${
                 isDarkMode
-                  ? 'border-[#37474F] bg-[#1E2328]'
-                  : 'border-gray-200 bg-white'
+                  ? "border-[#37474F] bg-[#1E2328]"
+                  : "border-gray-200 bg-white"
               }`}
             >
               <div className="p-6">
@@ -1008,27 +1008,27 @@ const SalesAnalytics = () => {
                       size={20}
                       className={
                         index === 0
-                          ? 'text-yellow-400 fill-yellow-400'
+                          ? "text-yellow-400 fill-yellow-400"
                           : index === 1
-                            ? 'text-gray-400 fill-gray-400'
-                            : 'text-orange-600 fill-orange-600'
+                            ? "text-gray-400 fill-gray-400"
+                            : "text-orange-600 fill-orange-600"
                       }
                     />
                   ) : (
                     <span
                       className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                         isDarkMode
-                          ? 'bg-teal-900/50 text-teal-300'
-                          : 'bg-teal-100 text-teal-700'
+                          ? "bg-teal-900/50 text-teal-300"
+                          : "bg-teal-100 text-teal-700"
                       }`}
                     >
                       #{index + 1}
                     </span>
                   )}
                   <h4
-                    className={`font-semibold flex-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-semibold flex-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
-                    {product.product || 'Unknown Product'}
+                    {product.product || "Unknown Product"}
                   </h4>
                 </div>
 
@@ -1036,7 +1036,7 @@ const SalesAnalytics = () => {
                 <div className="space-y-3 mb-4">
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                     >
                       Revenue
                     </span>
@@ -1046,12 +1046,12 @@ const SalesAnalytics = () => {
                           title={`Prev: ${formatCurrency(product.prevRevenue || 0)} • Current: ${formatCurrency(product.revenue || 0)}`}
                           className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
                             product.revenueGrowth > 0
-                              ? 'border-green-300 bg-green-50 text-green-700'
+                              ? "border-green-300 bg-green-50 text-green-700"
                               : product.revenueGrowth < 0
-                                ? 'border-red-300 bg-red-50 text-red-700'
+                                ? "border-red-300 bg-red-50 text-red-700"
                                 : isDarkMode
-                                  ? 'border-gray-600 bg-gray-800 text-gray-300'
-                                  : 'border-gray-300 bg-gray-50 text-gray-700'
+                                  ? "border-gray-600 bg-gray-800 text-gray-300"
+                                  : "border-gray-300 bg-gray-50 text-gray-700"
                           }`}
                         >
                           {getGrowthIcon(product.revenueGrowth)}
@@ -1059,7 +1059,7 @@ const SalesAnalytics = () => {
                         </span>
                       )}
                       <span
-                        className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {formatCurrency(product.revenue || 0)}
                       </span>
@@ -1067,7 +1067,7 @@ const SalesAnalytics = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                     >
                       Quantity Sold
                     </span>
@@ -1077,12 +1077,12 @@ const SalesAnalytics = () => {
                           title={`Prev: ${(product.prevQuantity || 0).toLocaleString()} • Current: ${(product.quantity || 0).toLocaleString()}`}
                           className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
                             product.quantityGrowth > 0
-                              ? 'border-green-300 bg-green-50 text-green-700'
+                              ? "border-green-300 bg-green-50 text-green-700"
                               : product.quantityGrowth < 0
-                                ? 'border-red-300 bg-red-50 text-red-700'
+                                ? "border-red-300 bg-red-50 text-red-700"
                                 : isDarkMode
-                                  ? 'border-gray-600 bg-gray-800 text-gray-300'
-                                  : 'border-gray-300 bg-gray-50 text-gray-700'
+                                  ? "border-gray-600 bg-gray-800 text-gray-300"
+                                  : "border-gray-300 bg-gray-50 text-gray-700"
                           }`}
                         >
                           {getGrowthIcon(product.quantityGrowth)}
@@ -1090,7 +1090,7 @@ const SalesAnalytics = () => {
                         </span>
                       )}
                       <span
-                        className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {(product.quantity || 0).toLocaleString()} units
                       </span>
@@ -1098,7 +1098,7 @@ const SalesAnalytics = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                     >
                       Orders
                     </span>
@@ -1108,12 +1108,12 @@ const SalesAnalytics = () => {
                           title={`Prev: ${product.prevOrders || 0} • Current: ${product.orders || 0}`}
                           className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
                             product.ordersGrowth > 0
-                              ? 'border-green-300 bg-green-50 text-green-700'
+                              ? "border-green-300 bg-green-50 text-green-700"
                               : product.ordersGrowth < 0
-                                ? 'border-red-300 bg-red-50 text-red-700'
+                                ? "border-red-300 bg-red-50 text-red-700"
                                 : isDarkMode
-                                  ? 'border-gray-600 bg-gray-800 text-gray-300'
-                                  : 'border-gray-300 bg-gray-50 text-gray-700'
+                                  ? "border-gray-600 bg-gray-800 text-gray-300"
+                                  : "border-gray-300 bg-gray-50 text-gray-700"
                           }`}
                         >
                           {getGrowthIcon(product.ordersGrowth)}
@@ -1121,7 +1121,7 @@ const SalesAnalytics = () => {
                         </span>
                       )}
                       <span
-                        className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {product.orders || 0}
                       </span>
@@ -1129,16 +1129,16 @@ const SalesAnalytics = () => {
                   </div>
                   <div className="flex justify-between">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                     >
                       Avg Order Size
                     </span>
                     <span
-                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {Math.round(
                         (product.quantity || 0) / (product.orders || 1),
-                      )}{' '}
+                      )}{" "}
                       units
                     </span>
                   </div>
@@ -1148,12 +1148,12 @@ const SalesAnalytics = () => {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                     >
                       Market Share
                     </span>
                     <span
-                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {(
                         (product.revenue / analytics.currentRevenue) *
@@ -1164,7 +1164,7 @@ const SalesAnalytics = () => {
                   </div>
                   <div
                     className={`h-1.5 rounded-full overflow-hidden ${
-                      isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
+                      isDarkMode ? "bg-gray-700" : "bg-gray-200"
                     }`}
                   >
                     <div
@@ -1187,13 +1187,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6 text-center">
               <h4
-                className={`text-base font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-base font-semibold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Best Performing Category
               </h4>
@@ -1211,13 +1211,13 @@ const SalesAnalytics = () => {
                         .slice(1)}
                   </p>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                   >
                     {formatCurrency(
                       Object.entries(analytics.categoryPerformance).sort(
                         ([, a], [, b]) => b.revenue - a.revenue,
                       )[0][1].revenue,
-                    )}{' '}
+                    )}{" "}
                     revenue
                   </p>
                 </>
@@ -1230,13 +1230,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6 text-center">
               <h4
-                className={`text-base font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-base font-semibold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Most Popular Product
               </h4>
@@ -1244,7 +1244,7 @@ const SalesAnalytics = () => {
                 {analytics.topProducts[0]?.product}
               </p>
               <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 {analytics.topProducts[0]?.orders} orders
               </p>
@@ -1256,13 +1256,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6 text-center">
               <h4
-                className={`text-base font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-base font-semibold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Revenue Leader
               </h4>
@@ -1270,7 +1270,7 @@ const SalesAnalytics = () => {
                 {analytics.topProducts[0]?.product}
               </p>
               <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 {formatCurrency(analytics.topProducts[0]?.revenue)}
               </p>
@@ -1286,7 +1286,7 @@ const SalesAnalytics = () => {
       {/* Reports Header */}
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h3
-          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+          className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
         >
           Monthly & Quarterly Reports
         </h3>
@@ -1294,8 +1294,8 @@ const SalesAnalytics = () => {
           <button
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
-                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
             }`}
           >
             <RefreshCw size={16} />
@@ -1314,31 +1314,31 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Calendar size={20} className="text-blue-600" />
                 <h4
-                  className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   Report Period
                 </h4>
               </div>
               <p
-                className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-2xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 {format(
                   selectedPeriod,
-                  dateRange === 'month' ? 'MMMM yyyy' : 'QQQ yyyy',
+                  dateRange === "month" ? "MMMM yyyy" : "QQQ yyyy",
                 )}
               </p>
               <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
-                {dateRange === 'month' ? 'Monthly' : 'Quarterly'} Report
+                {dateRange === "month" ? "Monthly" : "Quarterly"} Report
               </p>
             </div>
           </div>
@@ -1348,15 +1348,15 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl h-full ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <BarChart3 size={20} className="text-teal-600" />
                 <h4
-                  className={`text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   Performance vs Target
                 </h4>
@@ -1364,23 +1364,23 @@ const SalesAnalytics = () => {
               <p
                 className={`text-2xl font-bold mb-2 ${
                   analytics.revenueGrowth > 0
-                    ? 'text-green-600'
+                    ? "text-green-600"
                     : analytics.revenueGrowth < 0
-                      ? 'text-red-600'
+                      ? "text-red-600"
                       : isDarkMode
-                        ? 'text-white'
-                        : 'text-gray-900'
+                        ? "text-white"
+                        : "text-gray-900"
                 }`}
               >
                 {analytics.revenueGrowth > 0
-                  ? 'Above'
+                  ? "Above"
                   : analytics.revenueGrowth < 0
-                    ? 'Below'
-                    : 'On'}{' '}
+                    ? "Below"
+                    : "On"}{" "}
                 Target
               </p>
               <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 {formatGrowth(analytics.revenueGrowth)} growth
               </p>
@@ -1395,13 +1395,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl overflow-hidden ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <h4
-                className={`text-base font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-base font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Revenue Breakdown by Product Category
               </h4>
@@ -1411,32 +1411,32 @@ const SalesAnalytics = () => {
                     <tr
                       className={
                         isDarkMode
-                          ? 'border-b border-gray-700'
-                          : 'border-b border-gray-200'
+                          ? "border-b border-gray-700"
+                          : "border-b border-gray-200"
                       }
                     >
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Category
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Revenue
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Orders
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Avg Order Value
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Market Share
                       </th>
@@ -1450,13 +1450,13 @@ const SalesAnalytics = () => {
                           key={category}
                           className={`border-b transition-colors ${
                             isDarkMode
-                              ? 'border-gray-700 hover:bg-gray-800/50'
-                              : 'border-gray-100 hover:bg-gray-50'
+                              ? "border-gray-700 hover:bg-gray-800/50"
+                              : "border-gray-100 hover:bg-gray-50"
                           }`}
                         >
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {category.charAt(0).toUpperCase() +
                                 category.slice(1)}
@@ -1464,21 +1464,21 @@ const SalesAnalytics = () => {
                           </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {formatCurrency(data.revenue)}
                             </span>
                           </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                             >
                               {data.orders}
                             </span>
                           </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                             >
                               {formatCurrency(data.revenue / data.orders)}
                             </span>
@@ -1487,8 +1487,8 @@ const SalesAnalytics = () => {
                             <span
                               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
                                 isDarkMode
-                                  ? 'border-teal-600 bg-teal-900/20 text-teal-300'
-                                  : 'border-teal-300 bg-teal-50 text-teal-700'
+                                  ? "border-teal-600 bg-teal-900/20 text-teal-300"
+                                  : "border-teal-300 bg-teal-50 text-teal-700"
                               }`}
                             >
                               {(
@@ -1511,13 +1511,13 @@ const SalesAnalytics = () => {
           <div
             className={`border rounded-xl overflow-hidden ${
               isDarkMode
-                ? 'border-[#37474F] bg-[#1E2328]'
-                : 'border-gray-200 bg-white'
+                ? "border-[#37474F] bg-[#1E2328]"
+                : "border-gray-200 bg-white"
             }`}
           >
             <div className="p-6">
               <h4
-                className={`text-base font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-base font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Monthly Trend Analysis
               </h4>
@@ -1527,32 +1527,32 @@ const SalesAnalytics = () => {
                     <tr
                       className={
                         isDarkMode
-                          ? 'border-b border-gray-700'
-                          : 'border-b border-gray-200'
+                          ? "border-b border-gray-700"
+                          : "border-b border-gray-200"
                       }
                     >
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Month
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Revenue
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Orders
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Customers
                       </th>
                       <th
-                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`text-left py-3 px-4 font-semibold text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Growth %
                       </th>
@@ -1572,34 +1572,34 @@ const SalesAnalytics = () => {
                           key={month.month}
                           className={`border-b transition-colors ${
                             isDarkMode
-                              ? 'border-gray-700 hover:bg-gray-800/50'
-                              : 'border-gray-100 hover:bg-gray-50'
+                              ? "border-gray-700 hover:bg-gray-800/50"
+                              : "border-gray-100 hover:bg-gray-50"
                           }`}
                         >
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {month.month}
                             </span>
                           </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {formatCurrency(month.revenue)}
                             </span>
                           </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                             >
                               {month.orders}
                             </span>
                           </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                             >
                               {month.customers}
                             </span>
@@ -1609,19 +1609,19 @@ const SalesAnalytics = () => {
                               <span
                                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
                                   growth > 0
-                                    ? 'border-green-300 bg-green-50 text-green-700'
+                                    ? "border-green-300 bg-green-50 text-green-700"
                                     : growth < 0
-                                      ? 'border-red-300 bg-red-50 text-red-700'
+                                      ? "border-red-300 bg-red-50 text-red-700"
                                       : isDarkMode
-                                        ? 'border-gray-600 bg-gray-800 text-gray-300'
-                                        : 'border-gray-300 bg-gray-50 text-gray-700'
+                                        ? "border-gray-600 bg-gray-800 text-gray-300"
+                                        : "border-gray-300 bg-gray-50 text-gray-700"
                                 }`}
                               >
                                 {formatGrowth(growth)}
                               </span>
                             ) : (
                               <span
-                                className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                                className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                               >
                                 -
                               </span>
@@ -1643,14 +1643,14 @@ const SalesAnalytics = () => {
   return (
     <div
       className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${
-        isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
+        isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
       }`}
     >
       <div
         className={`border rounded-xl overflow-hidden shadow-lg ${
           isDarkMode
-            ? 'border-[#37474F] bg-[#1E2328]'
-            : 'border-gray-200 bg-white'
+            ? "border-[#37474F] bg-[#1E2328]"
+            : "border-gray-200 bg-white"
         }`}
       >
         <div className="p-6">
@@ -1659,12 +1659,12 @@ const SalesAnalytics = () => {
             <div className="flex items-center gap-4 mb-2">
               <BarChart3 size={28} className="text-teal-600" />
               <h1
-                className={`text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-3xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 📊 Sales Analytics
               </h1>
             </div>
-            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+            <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
               Comprehensive sales performance analysis and reporting
             </p>
           </div>
@@ -1673,60 +1673,60 @@ const SalesAnalytics = () => {
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setActiveTab('overview')}
+                onClick={() => setActiveTab("overview")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  activeTab === 'overview'
+                  activeTab === "overview"
                     ? isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                      ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
+                      : "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
                     : isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
+                      ? "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
+                      : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <BarChart3 size={18} />
                 Revenue Overview
               </button>
               <button
-                onClick={() => setActiveTab('customers')}
+                onClick={() => setActiveTab("customers")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  activeTab === 'customers'
+                  activeTab === "customers"
                     ? isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                      ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
+                      : "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
                     : isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
+                      ? "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
+                      : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <Users size={18} />
                 Customer Analysis
               </button>
               <button
-                onClick={() => setActiveTab('products')}
+                onClick={() => setActiveTab("products")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  activeTab === 'products'
+                  activeTab === "products"
                     ? isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                      ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
+                      : "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
                     : isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
+                      ? "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
+                      : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <Package size={18} />
                 Product Performance
               </button>
               <button
-                onClick={() => setActiveTab('reports')}
+                onClick={() => setActiveTab("reports")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  activeTab === 'reports'
+                  activeTab === "reports"
                     ? isDarkMode
-                      ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
+                      ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
+                      : "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
                     : isDarkMode
-                      ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
-                      : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
+                      ? "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
+                      : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <Calendar size={18} />
@@ -1737,10 +1737,10 @@ const SalesAnalytics = () => {
 
           {/* Tab Content */}
           <div>
-            {activeTab === 'overview' && renderOverview()}
-            {activeTab === 'customers' && renderCustomerAnalysis()}
-            {activeTab === 'products' && renderProductPerformance()}
-            {activeTab === 'reports' && renderReports()}
+            {activeTab === "overview" && renderOverview()}
+            {activeTab === "customers" && renderCustomerAnalysis()}
+            {activeTab === "products" && renderProductPerformance()}
+            {activeTab === "reports" && renderReports()}
           </div>
         </div>
       </div>

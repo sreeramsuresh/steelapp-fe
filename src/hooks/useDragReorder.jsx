@@ -11,7 +11,7 @@
  * });
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from "react";
 
 /**
  * Custom hook for drag-and-drop reordering
@@ -39,13 +39,13 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       setIsDragging(true);
 
       // Set drag image and data
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', index.toString());
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", index.toString());
 
       // Add slight delay for visual feedback
       setTimeout(() => {
         if (dragNodeRef.current) {
-          dragNodeRef.current.style.opacity = '0.5';
+          dragNodeRef.current.style.opacity = "0.5";
         }
       }, 0);
     },
@@ -58,7 +58,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       if (!enabled) return;
 
       if (dragNodeRef.current) {
-        dragNodeRef.current.style.opacity = '1';
+        dragNodeRef.current.style.opacity = "1";
       }
 
       setIsDragging(false);
@@ -76,7 +76,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       if (!enabled) return;
 
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
+      e.dataTransfer.dropEffect = "move";
 
       if (index !== dragOverIndex) {
         setDragOverIndex(index);
@@ -178,9 +178,9 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
           e.stopPropagation();
           handleDragStart(e, index);
         },
-        style: { cursor: 'grab' },
-        title: 'Drag to reorder',
-        'aria-label': `Drag to reorder item ${index + 1}`,
+        style: { cursor: "grab" },
+        title: "Drag to reorder",
+        "aria-label": `Drag to reorder item ${index + 1}`,
       };
     },
     [enabled, handleDragStart],
@@ -272,7 +272,7 @@ export default useDragReorder;
  * Drag handle icon component (GripVertical)
  * Inline SVG to avoid additional dependencies
  */
-export const DragHandleIcon = ({ size = 16, className = '' }) => (
+export const DragHandleIcon = ({ size = 16, className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}

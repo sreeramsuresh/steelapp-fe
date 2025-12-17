@@ -9,7 +9,7 @@
  * - Reduced motion detection
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 
 /**
  * Hook to detect user's reduced motion preference
@@ -18,12 +18,12 @@ export const useReducedMotion = () => {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mediaQuery.matches);
 
     const handler = (e) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   return prefersReducedMotion;
@@ -38,10 +38,10 @@ export const useAnnounce = () => {
   useEffect(() => {
     // Create announcer element if it doesn&apos;t exist
     if (!announceRef.current) {
-      const announcer = document.createElement('div');
-      announcer.setAttribute('aria-live', 'polite');
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.setAttribute('role', 'status');
+      const announcer = document.createElement("div");
+      announcer.setAttribute("aria-live", "polite");
+      announcer.setAttribute("aria-atomic", "true");
+      announcer.setAttribute("role", "status");
       announcer.style.cssText = `
         position: absolute;
         width: 1px;
@@ -65,11 +65,11 @@ export const useAnnounce = () => {
     };
   }, []);
 
-  const announce = useCallback((message, priority = 'polite') => {
+  const announce = useCallback((message, priority = "polite") => {
     if (announceRef.current) {
-      announceRef.current.setAttribute('aria-live', priority);
+      announceRef.current.setAttribute("aria-live", priority);
       // Clear and set to trigger announcement
-      announceRef.current.textContent = '';
+      announceRef.current.textContent = "";
       setTimeout(() => {
         if (announceRef.current) {
           announceRef.current.textContent = message;
@@ -110,7 +110,7 @@ export const useFocusTrap = (isActive = true) => {
 
     // Handle tab key
     const handleKeyDown = (e) => {
-      if (e.key !== 'Tab') return;
+      if (e.key !== "Tab") return;
 
       const elements = getFocusableElements();
       if (elements.length === 0) return;
@@ -127,10 +127,10 @@ export const useFocusTrap = (isActive = true) => {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
       // Restore focus
       if (previousFocusRef.current && previousFocusRef.current.focus) {
         previousFocusRef.current.focus();
@@ -148,14 +148,14 @@ export const useArrowNavigation = ({
   itemCount,
   currentIndex = 0,
   onIndexChange,
-  orientation = 'vertical',
+  orientation = "vertical",
   loop = true,
 }) => {
   const handleKeyDown = useCallback(
     (e) => {
-      const isVertical = orientation === 'vertical';
-      const prevKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
-      const nextKey = isVertical ? 'ArrowDown' : 'ArrowRight';
+      const isVertical = orientation === "vertical";
+      const prevKey = isVertical ? "ArrowUp" : "ArrowLeft";
+      const nextKey = isVertical ? "ArrowDown" : "ArrowRight";
 
       if (e.key === prevKey) {
         e.preventDefault();
@@ -171,10 +171,10 @@ export const useArrowNavigation = ({
           newIndex = loop ? 0 : itemCount - 1;
         }
         onIndexChange(newIndex);
-      } else if (e.key === 'Home') {
+      } else if (e.key === "Home") {
         e.preventDefault();
         onIndexChange(0);
-      } else if (e.key === 'End') {
+      } else if (e.key === "End") {
         e.preventDefault();
         onIndexChange(itemCount - 1);
       }
@@ -196,11 +196,11 @@ const useAccessibility = () => {
   const getButtonProps = useCallback(
     ({ label, pressed, expanded, controls, describedBy }) => {
       const props = {};
-      if (label) props['aria-label'] = label;
-      if (typeof pressed === 'boolean') props['aria-pressed'] = pressed;
-      if (typeof expanded === 'boolean') props['aria-expanded'] = expanded;
-      if (controls) props['aria-controls'] = controls;
-      if (describedBy) props['aria-describedby'] = describedBy;
+      if (label) props["aria-label"] = label;
+      if (typeof pressed === "boolean") props["aria-pressed"] = pressed;
+      if (typeof expanded === "boolean") props["aria-expanded"] = expanded;
+      if (controls) props["aria-controls"] = controls;
+      if (describedBy) props["aria-describedby"] = describedBy;
       return props;
     },
     [],
@@ -209,48 +209,48 @@ const useAccessibility = () => {
   const getInputProps = useCallback(
     ({ label, required, invalid, describedBy, errorId }) => {
       const props = {};
-      if (label) props['aria-label'] = label;
-      if (required) props['aria-required'] = true;
-      if (invalid) props['aria-invalid'] = true;
-      if (describedBy) props['aria-describedby'] = describedBy;
-      if (invalid && errorId) props['aria-errormessage'] = errorId;
+      if (label) props["aria-label"] = label;
+      if (required) props["aria-required"] = true;
+      if (invalid) props["aria-invalid"] = true;
+      if (describedBy) props["aria-describedby"] = describedBy;
+      if (invalid && errorId) props["aria-errormessage"] = errorId;
       return props;
     },
     [],
   );
 
   const getListProps = useCallback(({ label, multiselectable }) => {
-    const props = { role: 'listbox' };
-    if (label) props['aria-label'] = label;
-    if (multiselectable) props['aria-multiselectable'] = true;
+    const props = { role: "listbox" };
+    if (label) props["aria-label"] = label;
+    if (multiselectable) props["aria-multiselectable"] = true;
     return props;
   }, []);
 
   const getListItemProps = useCallback(({ selected, position, setSize }) => {
-    const props = { role: 'option' };
-    if (typeof selected === 'boolean') props['aria-selected'] = selected;
-    if (position) props['aria-posinset'] = position;
-    if (setSize) props['aria-setsize'] = setSize;
+    const props = { role: "option" };
+    if (typeof selected === "boolean") props["aria-selected"] = selected;
+    if (position) props["aria-posinset"] = position;
+    if (setSize) props["aria-setsize"] = setSize;
     return props;
   }, []);
 
   const getDialogProps = useCallback(({ label, describedBy }) => {
-    const props = { role: 'dialog', 'aria-modal': true };
-    if (label) props['aria-label'] = label;
-    if (describedBy) props['aria-describedby'] = describedBy;
+    const props = { role: "dialog", "aria-modal": true };
+    if (label) props["aria-label"] = label;
+    if (describedBy) props["aria-describedby"] = describedBy;
     return props;
   }, []);
 
-  const getAlertProps = useCallback(({ type = 'info' }) => {
+  const getAlertProps = useCallback(({ type = "info" }) => {
     return {
-      role: type === 'error' ? 'alert' : 'status',
-      'aria-live': type === 'error' ? 'assertive' : 'polite',
+      role: type === "error" ? "alert" : "status",
+      "aria-live": type === "error" ? "assertive" : "polite",
     };
   }, []);
 
   // Skip link for keyboard users
   const SkipLink = useCallback(
-    ({ targetId, children = 'Skip to main content' }) => (
+    ({ targetId, children = "Skip to main content" }) => (
       <a
         href={`#${targetId}`}
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-teal-600 focus:text-white focus:rounded"
@@ -319,10 +319,10 @@ export const animations = {
   // Get CSS transition string
   getTransition: (
     prefersReducedMotion,
-    properties = 'all',
-    duration = '200ms',
+    properties = "all",
+    duration = "200ms",
   ) => {
-    if (prefersReducedMotion) return 'none';
+    if (prefersReducedMotion) return "none";
     return `${properties} ${duration} ease-in-out`;
   },
 };
@@ -332,28 +332,28 @@ export const animations = {
  */
 export const a11yClasses = {
   // Screen reader only
-  srOnly: 'sr-only',
+  srOnly: "sr-only",
 
   // Focus visible styles
   focusVisible:
-    'focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2',
+    "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2",
 
   // Interactive element base
   interactive:
-    'cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2',
+    "cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2",
 
   // Disabled state
-  disabled: 'opacity-50 cursor-not-allowed pointer-events-none',
+  disabled: "opacity-50 cursor-not-allowed pointer-events-none",
 
   // High contrast border for inputs
-  inputFocus: 'focus:border-teal-500 focus:ring-1 focus:ring-teal-500',
+  inputFocus: "focus:border-teal-500 focus:ring-1 focus:ring-teal-500",
 };
 
 /**
  * Generate unique IDs for ARIA relationships
  */
 let idCounter = 0;
-export const generateId = (prefix = 'a11y') => {
+export const generateId = (prefix = "a11y") => {
   idCounter += 1;
   return `${prefix}-${idCounter}`;
 };

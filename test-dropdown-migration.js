@@ -17,7 +17,7 @@ async function testDropdownDarkMode() {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: CHROMIUM_PATH,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
   try {
@@ -39,7 +39,7 @@ async function testDropdownDarkMode() {
 
     // Check for any remaining native selects
     const nativeSelectCount = await page.$$eval('select', selects =>
-      selects.filter(s => !s.closest('[data-radix-select-viewport]')).length
+      selects.filter(s => !s.closest('[data-radix-select-viewport]')).length,
     );
     if (nativeSelectCount > 0) {
       console.log(`  ⚠️  Found ${nativeSelectCount} native select elements (may be intentional for table cells)`);
@@ -134,12 +134,12 @@ async function testDropdownDarkMode() {
     // Take screenshot of final form
     await page.screenshot({
       path: '/mnt/d/Ultimate Steel/test-dropdown-result.png',
-      fullPage: true
+      fullPage: true,
     });
     console.log('\n📸 Screenshot saved to test-dropdown-result.png');
 
     // Summary
-    console.log('\n' + '='.repeat(50));
+    console.log(`\n${  '='.repeat(50)}`);
     console.log('✅ MIGRATION TEST COMPLETE');
     console.log('='.repeat(50));
     console.log(`Total forms tested: 5`);

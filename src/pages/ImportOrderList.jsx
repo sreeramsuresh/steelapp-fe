@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Search, Eye, Edit, Trash2 } from 'lucide-react';
-import { importOrderService } from '../services/importOrderService';
-import { useTheme } from '../contexts/ThemeContext';
-import ConfirmDialog from '../components/ConfirmDialog';
-import { useConfirm } from '../hooks/useConfirm';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Plus, Search, Eye, Edit, Trash2 } from "lucide-react";
+import { importOrderService } from "../services/importOrderService";
+import { useTheme } from "../contexts/ThemeContext";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
 
 const ImportOrderList = () => {
   const { isDarkMode } = useTheme();
@@ -21,10 +21,10 @@ const ImportOrderList = () => {
 
   // Filter states
   const [filters, setFilters] = useState({
-    search: '',
-    status: '',
-    start_date: '',
-    end_date: '',
+    search: "",
+    status: "",
+    start_date: "",
+    end_date: "",
   });
 
   // Load orders
@@ -78,11 +78,11 @@ const ImportOrderList = () => {
   // Handle delete
   const handleDelete = async (orderId) => {
     const confirmed = await confirm({
-      title: 'Delete Import Order?',
+      title: "Delete Import Order?",
       message:
-        'Are you sure you want to delete this import order? This action cannot be undone.',
-      confirmText: 'Delete',
-      variant: 'danger',
+        "Are you sure you want to delete this import order? This action cannot be undone.",
+      confirmText: "Delete",
+      variant: "danger",
     });
 
     if (!confirmed) return;
@@ -99,7 +99,7 @@ const ImportOrderList = () => {
 
   return (
     <div
-      className={`p-6 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}
+      className={`p-6 ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
@@ -120,7 +120,7 @@ const ImportOrderList = () => {
 
       {/* Filters */}
       <div
-        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 mb-6 shadow-sm`}
+        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}
       >
         <form
           onSubmit={handleSearch}
@@ -136,11 +136,11 @@ const ImportOrderList = () => {
                 type="text"
                 placeholder="Search orders..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300'
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300"
                 }`}
               />
             </div>
@@ -148,11 +148,11 @@ const ImportOrderList = () => {
 
           <select
             value={filters.status}
-            onChange={(e) => handleFilterChange('status', e.target.value)}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white'
-                : 'bg-white border-gray-300'
+                ? "bg-gray-700 border-gray-600 text-white"
+                : "bg-white border-gray-300"
             }`}
           >
             <option value="">All Status</option>
@@ -166,11 +166,11 @@ const ImportOrderList = () => {
           <input
             type="date"
             value={filters.startDate}
-            onChange={(e) => handleFilterChange('start_date', e.target.value)}
+            onChange={(e) => handleFilterChange("start_date", e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white'
-                : 'bg-white border-gray-300'
+                ? "bg-gray-700 border-gray-600 text-white"
+                : "bg-white border-gray-300"
             }`}
             placeholder="Start Date"
           />
@@ -178,11 +178,11 @@ const ImportOrderList = () => {
           <input
             type="date"
             value={filters.endDate}
-            onChange={(e) => handleFilterChange('end_date', e.target.value)}
+            onChange={(e) => handleFilterChange("end_date", e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white'
-                : 'bg-white border-gray-300'
+                ? "bg-gray-700 border-gray-600 text-white"
+                : "bg-white border-gray-300"
             }`}
             placeholder="End Date"
           />
@@ -198,7 +198,7 @@ const ImportOrderList = () => {
 
       {/* Orders Table */}
       <div
-        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm overflow-hidden`}
+        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}
       >
         {loading ? (
           <div className="p-8 text-center">
@@ -218,7 +218,7 @@ const ImportOrderList = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className={`${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+              <thead className={`${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Order Number
@@ -244,12 +244,12 @@ const ImportOrderList = () => {
                 </tr>
               </thead>
               <tbody
-                className={`${isDarkMode ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'}`}
+                className={`${isDarkMode ? "bg-gray-800 divide-gray-700" : "bg-white divide-gray-200"}`}
               >
                 {orders.map((order) => (
                   <tr
                     key={order.id}
-                    className={`hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                    className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium">
@@ -258,11 +258,11 @@ const ImportOrderList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm">
-                        {order.supplierName || 'N/A'}
+                        {order.supplierName || "N/A"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">{order.originPort || 'N/A'}</div>
+                      <div className="text-sm">{order.originPort || "N/A"}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm">
@@ -271,20 +271,20 @@ const ImportOrderList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium">
-                        {order.currency}{' '}
+                        {order.currency}{" "}
                         {parseFloat(order.total || 0).toFixed(2)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          order.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : order.status === 'shipped'
-                              ? 'bg-blue-100 text-blue-800'
-                              : order.status === 'confirmed'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-800'
+                          order.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : order.status === "shipped"
+                              ? "bg-blue-100 text-blue-800"
+                              : order.status === "confirmed"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-100 text-gray-800"
                         }`}
                       >
                         {statusOptions.find((s) => s.value === order.status)
@@ -322,11 +322,11 @@ const ImportOrderList = () => {
         {pagination.totalPages > 1 && (
           <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200">
             <div className="text-sm text-gray-700">
-              Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{' '}
+              Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
               {Math.min(
                 pagination.currentPage * pagination.perPage,
                 pagination.total,
-              )}{' '}
+              )}{" "}
               of {pagination.total} results
             </div>
             <div className="flex space-x-2">

@@ -22,9 +22,9 @@
  * }
  */
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
-const STORAGE_KEY = 'credit_note_drafts';
+const STORAGE_KEY = "credit_note_drafts";
 
 /**
  * Get midnight timestamp for today (when drafts expire)
@@ -59,7 +59,7 @@ const safeJsonParse = (str, fallback = null) => {
  * Format relative time for display
  */
 export const formatRelativeTime = (timestamp) => {
-  if (!timestamp) return '';
+  if (!timestamp) return "";
 
   const now = Date.now();
   const diff = now - timestamp;
@@ -68,7 +68,7 @@ export const formatRelativeTime = (timestamp) => {
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
 
-  if (seconds < 10) return 'just now';
+  if (seconds < 10) return "just now";
   if (seconds < 60) return `${seconds}s ago`;
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
@@ -80,12 +80,12 @@ export const formatRelativeTime = (timestamp) => {
  * Format time until expiry
  */
 export const formatTimeUntilExpiry = (expiresAt) => {
-  if (!expiresAt) return '';
+  if (!expiresAt) return "";
 
   const now = Date.now();
   const diff = expiresAt - now;
 
-  if (diff <= 0) return 'expired';
+  if (diff <= 0) return "expired";
 
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -101,7 +101,7 @@ export const formatTimeUntilExpiry = (expiresAt) => {
  * Format: "Saved 2h ago • Expires tonight at midnight"
  */
 export const getDraftStatusMessage = (draft) => {
-  if (!draft) return '';
+  if (!draft) return "";
 
   const savedTime = formatRelativeTime(draft.timestamp);
   const now = new Date();
@@ -136,7 +136,7 @@ const saveAllDrafts = (drafts) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
     return true;
   } catch (error) {
-    console.error('useCreditNoteDrafts: Failed to save drafts', error);
+    console.error("useCreditNoteDrafts: Failed to save drafts", error);
     return false;
   }
 };
@@ -233,7 +233,7 @@ const useCreditNoteDrafts = ({
       const invoiceId = invoiceInfo.invoiceId || currentInvoiceId;
       if (!invoiceId) {
         console.warn(
-          'useCreditNoteDrafts: Cannot save draft without invoiceId',
+          "useCreditNoteDrafts: Cannot save draft without invoiceId",
         );
         return false;
       }
@@ -241,8 +241,8 @@ const useCreditNoteDrafts = ({
       const newDraft = {
         data,
         invoiceId,
-        invoiceNumber: invoiceInfo.invoiceNumber || data.invoiceNumber || '',
-        customerName: invoiceInfo.customerName || data.customerName || '',
+        invoiceNumber: invoiceInfo.invoiceNumber || data.invoiceNumber || "",
+        customerName: invoiceInfo.customerName || data.customerName || "",
         timestamp: Date.now(),
         expiresAt: getMidnightTimestamp(),
       };
@@ -310,7 +310,7 @@ const useCreditNoteDrafts = ({
     const sameDraft = allDrafts[targetInvoiceId];
     if (sameDraft && !isDraftExpired(sameDraft)) {
       return {
-        type: 'same_invoice',
+        type: "same_invoice",
         existingDraft: sameDraft,
         allDrafts: existingDrafts,
       };
@@ -319,7 +319,7 @@ const useCreditNoteDrafts = ({
     // Check if there are drafts for different invoices
     if (existingDrafts.length > 0) {
       return {
-        type: 'different_invoice',
+        type: "different_invoice",
         existingDraft: existingDrafts[0], // Return first draft
         allDrafts: existingDrafts,
       };
@@ -382,8 +382,8 @@ const useCreditNoteDrafts = ({
             data,
             invoiceId,
             invoiceNumber:
-              invoiceInfo.invoiceNumber || data.invoiceNumber || '',
-            customerName: invoiceInfo.customerName || data.customerName || '',
+              invoiceInfo.invoiceNumber || data.invoiceNumber || "",
+            customerName: invoiceInfo.customerName || data.customerName || "",
             timestamp: Date.now(),
             expiresAt: getMidnightTimestamp(),
           };
@@ -392,16 +392,16 @@ const useCreditNoteDrafts = ({
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(allDrafts));
           } catch (e) {
-            console.error('Failed to save draft on exit', e);
+            console.error("Failed to save draft on exit", e);
           }
         }
       }
       // NO event.preventDefault() - allows silent exit
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [currentInvoiceId]);
 
@@ -418,8 +418,8 @@ const useCreditNoteDrafts = ({
             data,
             invoiceId,
             invoiceNumber:
-              invoiceInfo.invoiceNumber || data.invoiceNumber || '',
-            customerName: invoiceInfo.customerName || data.customerName || '',
+              invoiceInfo.invoiceNumber || data.invoiceNumber || "",
+            customerName: invoiceInfo.customerName || data.customerName || "",
             timestamp: Date.now(),
             expiresAt: getMidnightTimestamp(),
           };
@@ -427,7 +427,7 @@ const useCreditNoteDrafts = ({
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(allDrafts));
           } catch (e) {
-            console.error('Failed to save draft on unmount', e);
+            console.error("Failed to save draft on unmount", e);
           }
         }
       }

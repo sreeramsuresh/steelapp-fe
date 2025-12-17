@@ -1,5 +1,5 @@
-import MarketingHeader from './MarketingHeader';
-import MarketingFooter from './MarketingFooter';
+import MarketingHeader from "./MarketingHeader";
+import MarketingFooter from "./MarketingFooter";
 
 const MarketingLayout = ({ children }) => {
   return (

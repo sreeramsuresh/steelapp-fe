@@ -1,21 +1,21 @@
-import { useState, useContext } from 'react';
+import { useState, useContext } from "react";
 import {
   Card,
   CardHeader,
   CardContent,
   CardDescription,
   CardTitle,
-} from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+} from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
-import { DarkModeContext } from '../../context/DarkModeContext';
+} from "../ui/dialog";
+import { DarkModeContext } from "../../context/DarkModeContext";
 import {
   AlertCircle,
   TrendingUp,
@@ -23,7 +23,7 @@ import {
   Calendar,
   Shield,
   Edit3,
-} from 'lucide-react';
+} from "lucide-react";
 
 /**
  * CustomerCreditPanel Component
@@ -48,33 +48,33 @@ const CustomerCreditPanel = ({
   const [newCreditLimit, setNewCreditLimit] = useState(
     customer.creditLimit || 0,
   );
-  const [reviewReason, setReviewReason] = useState('');
+  const [reviewReason, setReviewReason] = useState("");
 
   // Get credit grade color and icon
   const getCreditGradeColor = (grade) => {
     const colorMap = {
-      A: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      B: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      C: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      D: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-      E: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      A: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      B: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      C: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      D: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      E: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
     };
-    return colorMap[grade] || 'bg-gray-100 text-gray-800';
+    return colorMap[grade] || "bg-gray-100 text-gray-800";
   };
 
   const getCreditGradeDescription = (grade) => {
     const descriptions = {
-      A: 'Excellent - Reliable payment history',
-      B: 'Good - Minor delays occasional',
-      C: 'Fair - Moderate payment delays',
-      D: 'Poor - Frequent delays (orders blocked)',
-      E: 'Critical - Severe delays (orders blocked)',
+      A: "Excellent - Reliable payment history",
+      B: "Good - Minor delays occasional",
+      C: "Fair - Moderate payment delays",
+      D: "Poor - Frequent delays (orders blocked)",
+      E: "Critical - Severe delays (orders blocked)",
     };
-    return descriptions[grade] || 'Unknown';
+    return descriptions[grade] || "Unknown";
   };
 
   // Determine if customer can place orders
-  const canPlaceOrders = !['D', 'E'].includes(customer.creditGrade);
+  const canPlaceOrders = !["D", "E"].includes(customer.creditGrade);
 
   // Calculate credit utilization percentage
   const creditUtilization = customer.creditLimit
@@ -83,15 +83,15 @@ const CustomerCreditPanel = ({
 
   // Get color for utilization bar
   const getUtilizationColor = (percentage) => {
-    if (percentage <= 50) return 'bg-green-500';
-    if (percentage <= 75) return 'bg-yellow-500';
-    if (percentage <= 90) return 'bg-orange-500';
-    return 'bg-red-500';
+    if (percentage <= 50) return "bg-green-500";
+    if (percentage <= 75) return "bg-yellow-500";
+    if (percentage <= 90) return "bg-orange-500";
+    return "bg-red-500";
   };
 
   const handleUpdateCreditLimit = () => {
     if (newCreditLimit < 0) {
-      alert('Credit limit cannot be negative');
+      alert("Credit limit cannot be negative");
       return;
     }
     onUpdateCreditLimit({
@@ -101,13 +101,13 @@ const CustomerCreditPanel = ({
     });
     setIsEditModalOpen(false);
     setNewCreditLimit(customer.creditLimit || 0);
-    setReviewReason('');
+    setReviewReason("");
   };
 
-  const cardBg = isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white';
-  const textColor = isDarkMode ? 'text-gray-100' : 'text-gray-900';
-  const mutedColor = isDarkMode ? 'text-gray-400' : 'text-gray-600';
-  const dividerColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const cardBg = isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white";
+  const textColor = isDarkMode ? "text-gray-100" : "text-gray-900";
+  const mutedColor = isDarkMode ? "text-gray-400" : "text-gray-600";
+  const dividerColor = isDarkMode ? "border-gray-700" : "border-gray-200";
 
   return (
     <>
@@ -118,12 +118,12 @@ const CustomerCreditPanel = ({
               <Shield className="w-5 h-5 text-blue-600" />
               <CardTitle className={textColor}>Credit Management</CardTitle>
             </div>
-            <Badge className={getCreditGradeColor(customer.creditGrade || 'A')}>
-              Grade {customer.creditGrade || 'A'}
+            <Badge className={getCreditGradeColor(customer.creditGrade || "A")}>
+              Grade {customer.creditGrade || "A"}
             </Badge>
           </div>
           <CardDescription className={mutedColor}>
-            {getCreditGradeDescription(customer.creditGrade || 'A')}
+            {getCreditGradeDescription(customer.creditGrade || "A")}
           </CardDescription>
         </CardHeader>
 
@@ -133,15 +133,15 @@ const CustomerCreditPanel = ({
             <div
               className={`p-3 rounded-lg border flex gap-2 ${
                 isDarkMode
-                  ? 'bg-red-900 border-red-700 text-red-100'
-                  : 'bg-red-50 border-red-200 text-red-900'
+                  ? "bg-red-900 border-red-700 text-red-100"
+                  : "bg-red-50 border-red-200 text-red-900"
               }`}
             >
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-semibold">Order Blocked</p>
                 <p>
-                  This customer cannot place new orders due to grade{' '}
+                  This customer cannot place new orders due to grade{" "}
                   {customer.creditGrade}. Payment action required.
                 </p>
               </div>
@@ -161,7 +161,7 @@ const CustomerCreditPanel = ({
 
             {/* Progress Bar */}
             <div
-              className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
+              className={`h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
             >
               <div
                 className={`h-full transition-all ${getUtilizationColor(creditUtilization)}`}
@@ -172,40 +172,40 @@ const CustomerCreditPanel = ({
             {/* Credit Details Grid */}
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <p className={`${mutedColor} text-xs font-medium mb-1`}>
                   Limit
                 </p>
                 <p className={`${textColor} text-lg font-bold`}>
-                  AED{' '}
-                  {(customer.creditLimit || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.creditLimit || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </p>
               </div>
 
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <p className={`${mutedColor} text-xs font-medium mb-1`}>Used</p>
                 <p className={`${textColor} text-lg font-bold`}>
-                  AED{' '}
-                  {(customer.creditUsed || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.creditUsed || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </p>
               </div>
 
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <p className={`${mutedColor} text-xs font-medium mb-1`}>
                   Available
                 </p>
                 <p className={`${textColor} text-lg font-bold text-green-600`}>
-                  AED{' '}
-                  {(customer.creditAvailable || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.creditAvailable || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </p>
@@ -216,7 +216,7 @@ const CustomerCreditPanel = ({
           {/* Payment Metrics */}
           <div
             className="space-y-3 border-t pt-4"
-            style={{ borderColor: isDarkMode ? '#374151' : '#e5e7eb' }}
+            style={{ borderColor: isDarkMode ? "#374151" : "#e5e7eb" }}
           >
             <h3 className={`${textColor} font-semibold text-sm`}>
               Payment Metrics
@@ -243,7 +243,7 @@ const CustomerCreditPanel = ({
                 <span className={`${textColor} font-semibold`}>
                   {customer.lastPaymentDate
                     ? new Date(customer.lastPaymentDate).toLocaleDateString()
-                    : 'No payments'}
+                    : "No payments"}
                 </span>
               </div>
 
@@ -263,7 +263,7 @@ const CustomerCreditPanel = ({
           {/* Aging Analysis */}
           <div
             className="space-y-3 border-t pt-4"
-            style={{ borderColor: isDarkMode ? '#374151' : '#e5e7eb' }}
+            style={{ borderColor: isDarkMode ? "#374151" : "#e5e7eb" }}
           >
             <div className="flex items-center justify-between">
               <h3 className={`${textColor} font-semibold text-sm`}>
@@ -281,8 +281,8 @@ const CustomerCreditPanel = ({
                   Current (0 days)
                 </span>
                 <span className={`${textColor} font-semibold`}>
-                  AED{' '}
-                  {(customer.agingCurrent || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.agingCurrent || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -294,8 +294,8 @@ const CustomerCreditPanel = ({
                   1-30 days overdue
                 </span>
                 <span className={`${textColor} font-semibold`}>
-                  AED{' '}
-                  {(customer.aging1_30 || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.aging1_30 || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -307,8 +307,8 @@ const CustomerCreditPanel = ({
                   31-60 days overdue
                 </span>
                 <span className={`${textColor} font-semibold`}>
-                  AED{' '}
-                  {(customer.aging31_60 || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.aging31_60 || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -320,8 +320,8 @@ const CustomerCreditPanel = ({
                   61-90 days overdue
                 </span>
                 <span className={`${textColor} font-semibold`}>
-                  AED{' '}
-                  {(customer.aging61_90 || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.aging61_90 || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -333,8 +333,8 @@ const CustomerCreditPanel = ({
                   90+ days overdue
                 </span>
                 <span className={`${textColor} font-semibold text-red-600`}>
-                  AED{' '}
-                  {(customer.aging90_plus || 0).toLocaleString('en-US', {
+                  AED{" "}
+                  {(customer.aging90_plus || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -346,7 +346,7 @@ const CustomerCreditPanel = ({
           {!readOnly && (
             <div
               className="border-t pt-4 flex gap-2"
-              style={{ borderColor: isDarkMode ? '#374151' : '#e5e7eb' }}
+              style={{ borderColor: isDarkMode ? "#374151" : "#e5e7eb" }}
             >
               <Button
                 size="sm"
@@ -367,8 +367,8 @@ const CustomerCreditPanel = ({
           <div
             className={`p-3 rounded-lg border text-sm ${
               isDarkMode
-                ? 'bg-blue-900 border-blue-700 text-blue-100'
-                : 'bg-blue-50 border-blue-200 text-blue-900'
+                ? "bg-blue-900 border-blue-700 text-blue-100"
+                : "bg-blue-50 border-blue-200 text-blue-900"
             }`}
           >
             <p className="font-semibold mb-2">Credit Grade Criteria</p>
@@ -398,7 +398,7 @@ const CustomerCreditPanel = ({
       {/* Credit Limit Adjustment Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent
-          className={isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}
+          className={isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"}
         >
           <DialogHeader>
             <DialogTitle className={textColor}>Adjust Credit Limit</DialogTitle>
@@ -415,14 +415,14 @@ const CustomerCreditPanel = ({
               </label>
               <input
                 type="text"
-                value={(customer.creditLimit || 0).toLocaleString('en-US', {
+                value={(customer.creditLimit || 0).toLocaleString("en-US", {
                   maximumFractionDigits: 2,
                 })}
                 disabled
                 className={`w-full px-3 py-2 rounded border ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-gray-400'
-                    : 'bg-gray-100 border-gray-300 text-gray-600'
+                    ? "bg-gray-700 border-gray-600 text-gray-400"
+                    : "bg-gray-100 border-gray-300 text-gray-600"
                 }`}
               />
             </div>
@@ -439,8 +439,8 @@ const CustomerCreditPanel = ({
                 min="0"
                 className={`w-full px-3 py-2 rounded border ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300'
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               />
               <p className={`${mutedColor} text-xs mt-1`}>
@@ -458,8 +458,8 @@ const CustomerCreditPanel = ({
                 placeholder="Payment history improvement, business growth, risk assessment, etc."
                 className={`w-full px-3 py-2 rounded border text-sm ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 placeholder-gray-400'
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 placeholder-gray-400"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 rows="3"
               />
@@ -471,7 +471,7 @@ const CustomerCreditPanel = ({
                 onClick={() => {
                   setIsEditModalOpen(false);
                   setNewCreditLimit(customer.creditLimit || 0);
-                  setReviewReason('');
+                  setReviewReason("");
                 }}
               >
                 Cancel

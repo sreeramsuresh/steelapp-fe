@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Download, FileSpreadsheet, ArrowLeft, Filter } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { payablesService } from '../services/payablesService';
-import { formatCurrency } from '../utils/invoiceUtils';
-import { useApiData } from '../hooks/useApi';
-import { companyService } from '../services';
-import { generateStatementPDF } from '../utils/statementPdfGenerator';
+import { useEffect, useMemo, useState, useRef } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Download, FileSpreadsheet, ArrowLeft, Filter } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { payablesService } from "../services/payablesService";
+import { formatCurrency } from "../utils/invoiceUtils";
+import { useApiData } from "../hooks/useApi";
+import { companyService } from "../services";
+import { generateStatementPDF } from "../utils/statementPdfGenerator";
 
 const formatDate = (d) => {
-  if (!d) return '';
+  if (!d) return "";
   try {
     return new Date(d).toLocaleDateString();
   } catch {
@@ -30,12 +30,12 @@ const CustomerPerspective = () => {
   const navigate = useNavigate();
   const { customerId } = useParams();
   const [sp, setSp] = useSearchParams();
-  const customerNameParam = sp.get('name') || '';
+  const customerNameParam = sp.get("name") || "";
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
   // Default to no date filter so initial view shows ALL data
-  const [start, setStart] = useState(sp.get('start') || '');
-  const [end, setEnd] = useState(sp.get('end') || '');
+  const [start, setStart] = useState(sp.get("start") || "");
+  const [end, setEnd] = useState(sp.get("end") || "");
   const containerRef = useRef(null);
 
   const fetchData = async () => {
@@ -46,7 +46,7 @@ const CustomerPerspective = () => {
       customer_id: customerId || undefined,
       start_date: start || undefined,
       end_date: end || undefined,
-      date_type: 'invoice',
+      date_type: "invoice",
       limit: 1000,
     };
     const resp = await payablesService.getInvoices(params);
@@ -54,7 +54,7 @@ const CustomerPerspective = () => {
     // Client-side filter as a safety net, in case backend ignores params
     if (customerId) {
       const byId = list.filter((r) => {
-        const id = String(r.customer?.id ?? r.customerId ?? '').trim();
+        const id = String(r.customer?.id ?? r.customerId ?? "").trim();
         return id && id === String(customerId).trim();
       });
       if (byId.length > 0) {
@@ -62,7 +62,7 @@ const CustomerPerspective = () => {
       } else if (customerNameParam) {
         const target = customerNameParam.trim().toLowerCase();
         const byName = list.filter((r) => {
-          const nm = (r.customer?.name || '').trim().toLowerCase();
+          const nm = (r.customer?.name || "").trim().toLowerCase();
           return nm === target || nm.includes(target);
         });
         list = byName;
@@ -70,7 +70,7 @@ const CustomerPerspective = () => {
     } else if (customerNameParam) {
       const target = customerNameParam.trim().toLowerCase();
       list = list.filter((r) => {
-        const nm = (r.customer?.name || '').trim().toLowerCase();
+        const nm = (r.customer?.name || "").trim().toLowerCase();
         return nm === target || nm.includes(target);
       });
     }
@@ -100,7 +100,7 @@ const CustomerPerspective = () => {
 
   const customerName = useMemo(() => {
     // Prefer explicit query param, then data
-    return customerNameParam || items[0]?.customer?.name || '';
+    return customerNameParam || items[0]?.customer?.name || "";
   }, [items, customerNameParam]);
 
   const applyQuick = (days) => {
@@ -110,19 +110,19 @@ const CustomerPerspective = () => {
     setEnd(e);
     setSp((prev) => {
       const next = new URLSearchParams(prev);
-      next.set('start', s);
-      next.set('end', e);
+      next.set("start", s);
+      next.set("end", e);
       return next;
     });
   };
 
   const clearDates = () => {
-    setStart('');
-    setEnd('');
+    setStart("");
+    setEnd("");
     setSp((prev) => {
       const next = new URLSearchParams(prev);
-      next.delete('start');
-      next.delete('end');
+      next.delete("start");
+      next.delete("end");
       return next;
     });
     // Fetch all data again
@@ -132,10 +132,10 @@ const CustomerPerspective = () => {
   const applyFilters = () => {
     setSp((prev) => {
       const next = new URLSearchParams(prev);
-      if (start) next.set('start', start);
-      else next.delete('start');
-      if (end) next.set('end', end);
-      else next.delete('end');
+      if (start) next.set("start", start);
+      else next.delete("start");
+      if (end) next.set("end", end);
+      else next.delete("end");
       return next;
     });
     fetchData();
@@ -145,18 +145,18 @@ const CustomerPerspective = () => {
     // Try backend export to XLSX, fallback to CSV
     try {
       const blob = await payablesService.exportDownload(
-        'invoices',
+        "invoices",
         {
           customer: customerId || customerName,
           start_date: start,
           end_date: end,
-          date_type: 'invoice',
+          date_type: "invoice",
         },
-        'xlsx',
+        "xlsx",
       );
       const fname = `Statement-${customerName || customerId}-${start}_to_${end}.xlsx`;
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = fname;
       document.body.appendChild(a);
@@ -167,20 +167,20 @@ const CustomerPerspective = () => {
     } catch (e) {
       // Fallback to CSV
       const headers = [
-        'Invoice #',
-        'Invoice Date',
-        'Due Date',
-        'Currency',
-        'Invoice Amount',
-        'Received',
-        'Outstanding',
-        'Status',
+        "Invoice #",
+        "Invoice Date",
+        "Due Date",
+        "Currency",
+        "Invoice Amount",
+        "Received",
+        "Outstanding",
+        "Status",
       ];
       const rows = items.map((r) => [
         r.invoiceNo || r.invoiceNumber,
         r.invoiceDate || r.date,
         r.dueDate || r.dueDate,
-        r.currency || 'AED',
+        r.currency || "AED",
         r.invoiceAmount || 0,
         r.received || 0,
         r.outstanding || 0,
@@ -190,15 +190,15 @@ const CustomerPerspective = () => {
         .map((r) =>
           r
             .map((v) =>
-              v !== undefined && v !== null ? `${v}`.replace(/"/g, '""') : '',
+              v !== undefined && v !== null ? `${v}`.replace(/"/g, '""') : "",
             )
             .map((v) => `"${v}"`)
-            .join(','),
+            .join(","),
         )
-        .join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        .join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `Statement-${customerName || customerId}-${start}_to_${end}.csv`;
       a.click();
@@ -220,30 +220,30 @@ const CustomerPerspective = () => {
 
   return (
     <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
     >
       <div
-        className={`p-4 sm:p-6 rounded-2xl border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'}`}
+        className={`p-4 sm:p-6 rounded-2xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"}`}
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate('/payables')}
-              className={`p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-600'}`}
+              onClick={() => navigate("/payables")}
+              className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <ArrowLeft size={18} />
             </button>
             <div>
               <div
-                className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Statement Of Account
               </div>
               <div
-                className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
-                {customerName || 'Customer'} • {formatDate(start)} -{' '}
+                {customerName || "Customer"} • {formatDate(start)} -{" "}
                 {formatDate(end)}
               </div>
             </div>
@@ -268,7 +268,7 @@ const CustomerPerspective = () => {
 
         {/* Filters */}
         <div
-          className={`p-3 rounded-lg border mb-4 ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}
+          className={`p-3 rounded-lg border mb-4 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
         >
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
@@ -311,21 +311,21 @@ const CustomerPerspective = () => {
           {/* PDF Header */}
           <div>
             <div
-              className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Statement Of Account
             </div>
             <div
-              className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
             >
-              {customerName || 'Customer'} • {formatDate(start)} -{' '}
+              {customerName || "Customer"} • {formatDate(start)} -{" "}
               {formatDate(end)}
             </div>
           </div>
           {/* Summary */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-gray-50 border-gray-200"}`}
             >
               <div className="text-xs opacity-70">Total Invoiced</div>
               <div className="text-lg font-semibold">
@@ -333,7 +333,7 @@ const CustomerPerspective = () => {
               </div>
             </div>
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-gray-50 border-gray-200"}`}
             >
               <div className="text-xs opacity-70">Total Received</div>
               <div className="text-lg font-semibold">
@@ -341,7 +341,7 @@ const CustomerPerspective = () => {
               </div>
             </div>
             <div
-              className={`p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-gray-50 border-gray-200"}`}
             >
               <div className="text-xs opacity-70">Total Outstanding</div>
               <div className="text-lg font-semibold">
@@ -352,13 +352,13 @@ const CustomerPerspective = () => {
 
           {/* Table */}
           <div
-            className={`rounded-lg border overflow-hidden ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}
+            className={`rounded-lg border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
           >
             <div className="overflow-auto">
               <table className="min-w-full divide-y">
-                <thead className={isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}>
+                <thead className={isDarkMode ? "bg-gray-800" : "bg-gray-50"}>
                   <tr
-                    className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                    className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                   >
                     <th className="px-4 py-3 text-left text-xs uppercase">
                       Invoice #
@@ -387,7 +387,7 @@ const CustomerPerspective = () => {
                   </tr>
                 </thead>
                 <tbody
-                  className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
+                  className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
                 >
                   {loading ? (
                     <tr>
@@ -413,7 +413,7 @@ const CustomerPerspective = () => {
                         <td className="px-4 py-2">
                           {formatDate(row.dueDate || row.dueDate)}
                         </td>
-                        <td className="px-4 py-2">{row.currency || 'AED'}</td>
+                        <td className="px-4 py-2">{row.currency || "AED"}</td>
                         <td className="px-4 py-2 text-right">
                           {formatCurrency(row.invoiceAmount || 0)}
                         </td>

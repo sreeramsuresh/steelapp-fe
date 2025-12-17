@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
-import { Loader2 } from 'lucide-react';
+import PropTypes from "prop-types";
+import { Loader2 } from "lucide-react";
 
 /**
  * LoadingButton - Reusable button with loading state
@@ -16,39 +16,39 @@ const LoadingButton = ({
   disabled = false,
   onClick,
   icon: Icon,
-  loadingText = 'Loading...',
+  loadingText = "Loading...",
   children,
-  variant = 'primary',
-  size = 'md',
-  className = '',
-  type = 'button',
+  variant = "primary",
+  size = "md",
+  className = "",
+  type = "button",
   ...props
 }) => {
   const isDisabled = loading || disabled;
 
   // Variant styles
   const variantStyles = {
-    primary: 'bg-teal-600 hover:bg-teal-700 text-white',
-    secondary: 'bg-gray-600 hover:bg-gray-700 text-white',
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
-    success: 'bg-green-600 hover:bg-green-700 text-white',
-    warning: 'bg-yellow-600 hover:bg-yellow-700 text-white',
+    primary: "bg-teal-600 hover:bg-teal-700 text-white",
+    secondary: "bg-gray-600 hover:bg-gray-700 text-white",
+    danger: "bg-red-600 hover:bg-red-700 text-white",
+    success: "bg-green-600 hover:bg-green-700 text-white",
+    warning: "bg-yellow-600 hover:bg-yellow-700 text-white",
     outline:
-      'border-2 border-teal-600 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20',
+      "border-2 border-teal-600 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20",
   };
 
   // Size styles
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-4 py-2 text-base",
+    lg: "px-6 py-3 text-lg",
   };
 
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2';
+    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2";
   const disabledStyles = isDisabled
-    ? 'opacity-60 cursor-not-allowed pointer-events-none'
-    : '';
+    ? "opacity-60 cursor-not-allowed pointer-events-none"
+    : "";
 
   return (
     <button
@@ -81,16 +81,16 @@ LoadingButton.propTypes = {
   loadingText: PropTypes.string,
   children: PropTypes.node.isRequired,
   variant: PropTypes.oneOf([
-    'primary',
-    'secondary',
-    'danger',
-    'success',
-    'warning',
-    'outline',
+    "primary",
+    "secondary",
+    "danger",
+    "success",
+    "warning",
+    "outline",
   ]),
-  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  size: PropTypes.oneOf(["sm", "md", "lg"]),
   className: PropTypes.string,
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
+  type: PropTypes.oneOf(["button", "submit", "reset"]),
 };
 
 export default LoadingButton;

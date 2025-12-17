@@ -20,7 +20,7 @@
  * });
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from "react";
 
 /**
  * Custom hook for bulk selection and actions
@@ -49,7 +49,7 @@ const useBulkActions = ({
   // Check if an item is selected
   const isSelected = useCallback(
     (item) => {
-      const id = typeof item === 'object' ? getId(item) : item;
+      const id = typeof item === "object" ? getId(item) : item;
       return selectedIds.has(id);
     },
     [selectedIds, getId],
@@ -73,7 +73,7 @@ const useBulkActions = ({
   // Toggle selection for a single item
   const toggleSelect = useCallback(
     (item) => {
-      const id = typeof item === 'object' ? getId(item) : item;
+      const id = typeof item === "object" ? getId(item) : item;
       setSelectedIds((prev) => {
         const next = new Set(prev);
         if (next.has(id)) {
@@ -90,7 +90,7 @@ const useBulkActions = ({
   // Select a single item
   const select = useCallback(
     (item) => {
-      const id = typeof item === 'object' ? getId(item) : item;
+      const id = typeof item === "object" ? getId(item) : item;
       setSelectedIds((prev) => {
         const next = new Set(prev);
         next.add(id);
@@ -103,7 +103,7 @@ const useBulkActions = ({
   // Deselect a single item
   const deselect = useCallback(
     (item) => {
-      const id = typeof item === 'object' ? getId(item) : item;
+      const id = typeof item === "object" ? getId(item) : item;
       setSelectedIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
@@ -189,7 +189,7 @@ const useBulkActions = ({
 
       const newItems = items.map((item) => {
         if (selectedIds.has(getId(item))) {
-          return typeof updates === 'function'
+          return typeof updates === "function"
             ? updates(item)
             : { ...item, ...updates };
         }
@@ -204,11 +204,11 @@ const useBulkActions = ({
   // Get checkbox props for an item
   const getCheckboxProps = useCallback(
     (item) => {
-      const id = typeof item === 'object' ? getId(item) : item;
+      const id = typeof item === "object" ? getId(item) : item;
       return {
         checked: selectedIds.has(id),
         onChange: () => toggleSelect(item),
-        'aria-label': `Select item`,
+        "aria-label": `Select item`,
       };
     },
     [selectedIds, getId, toggleSelect],
@@ -220,7 +220,7 @@ const useBulkActions = ({
       checked: isAllSelected,
       indeterminate: isSomeSelected,
       onChange: toggleSelectAll,
-      'aria-label': isAllSelected ? 'Deselect all' : 'Select all',
+      "aria-label": isAllSelected ? "Deselect all" : "Select all",
     };
   }, [isAllSelected, isSomeSelected, toggleSelectAll]);
 
@@ -263,15 +263,15 @@ export const BulkCheckbox = ({
   checked = false,
   indeterminate = false,
   onChange,
-  className = '',
+  className = "",
   isDarkMode = false,
-  size = 'md',
+  size = "md",
   ...props
 }) => {
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
+    lg: "w-6 h-6",
   };
 
   return (
@@ -291,14 +291,14 @@ export const BulkCheckbox = ({
           transition-all
           duration-150
           ${
-    isDarkMode
-      ? 'bg-gray-700 border-gray-500 checked:bg-teal-600 checked:border-teal-600'
-      : 'bg-white border-gray-300 checked:bg-teal-500 checked:border-teal-500'
-    }
+            isDarkMode
+              ? "bg-gray-700 border-gray-500 checked:bg-teal-600 checked:border-teal-600"
+              : "bg-white border-gray-300 checked:bg-teal-500 checked:border-teal-500"
+          }
           focus:ring-2
           focus:ring-teal-500
           focus:ring-offset-1
-          ${isDarkMode ? 'focus:ring-offset-gray-800' : 'focus:ring-offset-white'}
+          ${isDarkMode ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"}
         `}
         {...props}
       />
@@ -315,7 +315,7 @@ export const BulkActionsToolbar = ({
   onDuplicate,
   onClear,
   isDarkMode = false,
-  className = '',
+  className = "",
   additionalActions = [],
 }) => {
   if (selectedCount === 0) return null;
@@ -324,14 +324,14 @@ export const BulkActionsToolbar = ({
     <div
       className={`
         flex items-center gap-3 px-4 py-2 rounded-lg
-        ${isDarkMode ? 'bg-teal-900/50 border border-teal-700' : 'bg-teal-50 border border-teal-200'}
+        ${isDarkMode ? "bg-teal-900/50 border border-teal-700" : "bg-teal-50 border border-teal-200"}
         ${className}
       `}
     >
       <span
-        className={`text-sm font-medium ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
+        className={`text-sm font-medium ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}
       >
-        {selectedCount} item{selectedCount !== 1 ? 's' : ''} selected
+        {selectedCount} item{selectedCount !== 1 ? "s" : ""} selected
       </span>
 
       <div className="flex items-center gap-2 ml-auto">
@@ -342,10 +342,10 @@ export const BulkActionsToolbar = ({
               px-3 py-1 text-xs font-medium rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-          }
+                isDarkMode
+                  ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+              }
             `}
           >
             Duplicate
@@ -360,10 +360,10 @@ export const BulkActionsToolbar = ({
               px-3 py-1 text-xs font-medium rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-          }
+                isDarkMode
+                  ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+              }
             `}
           >
             {action.label}
@@ -377,10 +377,10 @@ export const BulkActionsToolbar = ({
               px-3 py-1 text-xs font-medium rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'bg-red-900/50 text-red-300 hover:bg-red-900/70'
-            : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-          }
+                isDarkMode
+                  ? "bg-red-900/50 text-red-300 hover:bg-red-900/70"
+                  : "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+              }
             `}
           >
             Delete
@@ -394,10 +394,10 @@ export const BulkActionsToolbar = ({
               px-2 py-1 text-xs rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'text-gray-400 hover:text-gray-200'
-            : 'text-gray-500 hover:text-gray-700'
-          }
+                isDarkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-gray-500 hover:text-gray-700"
+              }
             `}
           >
             Clear

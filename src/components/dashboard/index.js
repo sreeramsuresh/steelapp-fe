@@ -4,13 +4,13 @@
 // ============================================================================
 
 // Chart wrappers
-export * from './charts';
+export * from "./charts";
 
 // Configuration
-export * from './config/DashboardConfig';
+export * from "./config/DashboardConfig";
 
 // Widget components
-export * from './widgets';
+export * from "./widgets";
 
 // ============================================================================
 // USAGE GUIDE

@@ -19,7 +19,7 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from 'recharts';
+} from "recharts";
 
 // ============================================================================
 // THEME CONFIGURATION
@@ -27,40 +27,40 @@ import {
 
 const getThemeColors = (isDarkMode) => ({
   // Background colors
-  background: isDarkMode ? '#1E2328' : '#FFFFFF',
-  cardBackground: isDarkMode ? '#2E3B4E' : '#F5F5F5',
+  background: isDarkMode ? "#1E2328" : "#FFFFFF",
+  cardBackground: isDarkMode ? "#2E3B4E" : "#F5F5F5",
 
   // Text colors
-  textPrimary: isDarkMode ? '#FFFFFF' : '#212121',
-  textSecondary: isDarkMode ? '#B0BEC5' : '#757575',
-  textMuted: isDarkMode ? '#78909C' : '#BDBDBD',
+  textPrimary: isDarkMode ? "#FFFFFF" : "#212121",
+  textSecondary: isDarkMode ? "#B0BEC5" : "#757575",
+  textMuted: isDarkMode ? "#78909C" : "#BDBDBD",
 
   // Grid and axis colors
-  grid: isDarkMode ? '#37474F' : '#E0E0E0',
-  axis: isDarkMode ? '#78909C' : '#9E9E9E',
+  grid: isDarkMode ? "#37474F" : "#E0E0E0",
+  axis: isDarkMode ? "#78909C" : "#9E9E9E",
 
   // Chart colors - consistent across themes
-  primary: '#14B8A6', // Teal-500
-  secondary: '#3B82F6', // Blue-500
-  success: '#22C55E', // Green-500
-  warning: '#F59E0B', // Amber-500
-  error: '#EF4444', // Red-500
-  purple: '#8B5CF6', // Purple-500
-  pink: '#EC4899', // Pink-500
-  indigo: '#6366F1', // Indigo-500
+  primary: "#14B8A6", // Teal-500
+  secondary: "#3B82F6", // Blue-500
+  success: "#22C55E", // Green-500
+  warning: "#F59E0B", // Amber-500
+  error: "#EF4444", // Red-500
+  purple: "#8B5CF6", // Purple-500
+  pink: "#EC4899", // Pink-500
+  indigo: "#6366F1", // Indigo-500
 
   // Chart color palette for multi-series
   palette: [
-    '#14B8A6', // Teal
-    '#3B82F6', // Blue
-    '#22C55E', // Green
-    '#F59E0B', // Amber
-    '#EF4444', // Red
-    '#8B5CF6', // Purple
-    '#EC4899', // Pink
-    '#6366F1', // Indigo
-    '#06B6D4', // Cyan
-    '#84CC16', // Lime
+    "#14B8A6", // Teal
+    "#3B82F6", // Blue
+    "#22C55E", // Green
+    "#F59E0B", // Amber
+    "#EF4444", // Red
+    "#8B5CF6", // Purple
+    "#EC4899", // Pink
+    "#6366F1", // Indigo
+    "#06B6D4", // Cyan
+    "#84CC16", // Lime
   ],
 });
 
@@ -107,14 +107,14 @@ const CustomTooltip = ({ active, payload, label, isDarkMode, formatter }) => {
 export const BarChartWrapper = ({
   data,
   dataKey,
-  xAxisKey = 'name',
+  xAxisKey = "name",
   isDarkMode = false,
   height = 300,
   formatter,
   showGrid = true,
   showLegend = false,
   colors,
-  layout = 'horizontal',
+  layout = "horizontal",
   stacked = false,
   barSize = 20,
   multiSeries = null, // Array of { dataKey, name, color }
@@ -138,15 +138,15 @@ export const BarChartWrapper = ({
             />
           )}
           <XAxis
-            dataKey={layout === 'horizontal' ? xAxisKey : undefined}
-            type={layout === 'horizontal' ? 'category' : 'number'}
+            dataKey={layout === "horizontal" ? xAxisKey : undefined}
+            type={layout === "horizontal" ? "category" : "number"}
             tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
             axisLine={{ stroke: themeColors.grid }}
             tickLine={{ stroke: themeColors.grid }}
           />
           <YAxis
-            dataKey={layout === 'vertical' ? xAxisKey : undefined}
-            type={layout === 'vertical' ? 'category' : 'number'}
+            dataKey={layout === "vertical" ? xAxisKey : undefined}
+            type={layout === "vertical" ? "category" : "number"}
             tick={{ fill: themeColors.textSecondary, fontSize: 12 }}
             axisLine={{ stroke: themeColors.grid }}
             tickLine={{ stroke: themeColors.grid }}
@@ -167,7 +167,7 @@ export const BarChartWrapper = ({
                 dataKey={series.dataKey}
                 name={series.name}
                 fill={series.color || chartColors[index % chartColors.length]}
-                stackId={stacked ? 'stack' : undefined}
+                stackId={stacked ? "stack" : undefined}
                 barSize={barSize}
                 radius={[4, 4, 0, 0]}
               />
@@ -200,7 +200,7 @@ export const BarChartWrapper = ({
 export const LineChartWrapper = ({
   data,
   dataKey,
-  xAxisKey = 'name',
+  xAxisKey = "name",
   isDarkMode = false,
   height = 300,
   formatter,
@@ -252,7 +252,7 @@ export const LineChartWrapper = ({
             multiSeries.map((series, index) => (
               <Line
                 key={series.dataKey}
-                type={curved ? 'monotone' : 'linear'}
+                type={curved ? "monotone" : "linear"}
                 dataKey={series.dataKey}
                 name={series.name}
                 stroke={series.color || chartColors[index % chartColors.length]}
@@ -260,11 +260,11 @@ export const LineChartWrapper = ({
                 dot={
                   showDots
                     ? {
-                      fill:
+                        fill:
                           series.color ||
                           chartColors[index % chartColors.length],
-                      strokeWidth: 2,
-                    }
+                        strokeWidth: 2,
+                      }
                     : false
                 }
                 activeDot={{ r: 6, strokeWidth: 2 }}
@@ -272,7 +272,7 @@ export const LineChartWrapper = ({
             ))
           ) : (
             <Line
-              type={curved ? 'monotone' : 'linear'}
+              type={curved ? "monotone" : "linear"}
               dataKey={dataKey}
               stroke={chartColors[0]}
               strokeWidth={2}
@@ -293,7 +293,7 @@ export const LineChartWrapper = ({
 export const AreaChartWrapper = ({
   data,
   dataKey,
-  xAxisKey = 'name',
+  xAxisKey = "name",
   isDarkMode = false,
   height = 300,
   formatter,
@@ -375,7 +375,7 @@ export const AreaChartWrapper = ({
             multiSeries.map((series, index) => (
               <Area
                 key={series.dataKey}
-                type={curved ? 'monotone' : 'linear'}
+                type={curved ? "monotone" : "linear"}
                 dataKey={series.dataKey}
                 name={series.name}
                 stroke={series.color || chartColors[index % chartColors.length]}
@@ -386,12 +386,12 @@ export const AreaChartWrapper = ({
                     : series.color || chartColors[index % chartColors.length]
                 }
                 fillOpacity={gradient ? 1 : 0.3}
-                stackId={stacked ? 'stack' : undefined}
+                stackId={stacked ? "stack" : undefined}
               />
             ))
           ) : (
             <Area
-              type={curved ? 'monotone' : 'linear'}
+              type={curved ? "monotone" : "linear"}
               dataKey={dataKey}
               stroke={chartColors[0]}
               strokeWidth={2}
@@ -411,15 +411,15 @@ export const AreaChartWrapper = ({
 
 export const PieChartWrapper = ({
   data,
-  dataKey = 'value',
-  nameKey = 'name',
+  dataKey = "value",
+  nameKey = "name",
   isDarkMode = false,
   height = 300,
   formatter,
   showLegend = true,
   colors,
   innerRadius = 0,
-  outerRadius = '80%',
+  outerRadius = "80%",
   showLabels = false,
   labelFormatter,
 }) => {
@@ -445,7 +445,7 @@ export const PieChartWrapper = ({
         x={x}
         y={y}
         fill={themeColors.textPrimary}
-        textAnchor={x > cx ? 'start' : 'end'}
+        textAnchor={x > cx ? "start" : "end"}
         dominantBaseline="central"
         fontSize={12}
       >
@@ -505,7 +505,7 @@ export const PieChartWrapper = ({
 export const RadarChartWrapper = ({
   data,
   dataKey,
-  angleKey = 'subject',
+  angleKey = "subject",
   isDarkMode = false,
   height = 300,
   formatter,

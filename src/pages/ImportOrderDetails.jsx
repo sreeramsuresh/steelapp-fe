@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
   Edit,
@@ -34,135 +34,135 @@ import {
   Mail,
   Globe,
   X,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { importOrderService } from '../services/importOrderService';
-import ConfirmDialog from '../components/ConfirmDialog';
-import { useConfirm } from '../hooks/useConfirm';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { importOrderService } from "../services/importOrderService";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useConfirm } from "../hooks/useConfirm";
 
 // Status configuration
 const STATUS_CONFIG = {
   draft: {
-    color: 'gray',
-    bgLight: 'bg-gray-100',
-    bgDark: 'bg-gray-800',
-    textLight: 'text-gray-800',
-    textDark: 'text-gray-300',
-    borderLight: 'border-gray-300',
-    borderDark: 'border-gray-600',
+    color: "gray",
+    bgLight: "bg-gray-100",
+    bgDark: "bg-gray-800",
+    textLight: "text-gray-800",
+    textDark: "text-gray-300",
+    borderLight: "border-gray-300",
+    borderDark: "border-gray-600",
     icon: FileText,
-    label: 'Draft',
+    label: "Draft",
   },
   confirmed: {
-    color: 'blue',
-    bgLight: 'bg-blue-100',
-    bgDark: 'bg-blue-900/30',
-    textLight: 'text-blue-800',
-    textDark: 'text-blue-300',
-    borderLight: 'border-blue-300',
-    borderDark: 'border-blue-600',
+    color: "blue",
+    bgLight: "bg-blue-100",
+    bgDark: "bg-blue-900/30",
+    textLight: "text-blue-800",
+    textDark: "text-blue-300",
+    borderLight: "border-blue-300",
+    borderDark: "border-blue-600",
     icon: CheckCircle,
-    label: 'Confirmed',
+    label: "Confirmed",
   },
   shipped: {
-    color: 'indigo',
-    bgLight: 'bg-indigo-100',
-    bgDark: 'bg-indigo-900/30',
-    textLight: 'text-indigo-800',
-    textDark: 'text-indigo-300',
-    borderLight: 'border-indigo-300',
-    borderDark: 'border-indigo-600',
+    color: "indigo",
+    bgLight: "bg-indigo-100",
+    bgDark: "bg-indigo-900/30",
+    textLight: "text-indigo-800",
+    textDark: "text-indigo-300",
+    borderLight: "border-indigo-300",
+    borderDark: "border-indigo-600",
     icon: Ship,
-    label: 'Shipped',
+    label: "Shipped",
   },
   in_transit: {
-    color: 'amber',
-    bgLight: 'bg-amber-100',
-    bgDark: 'bg-amber-900/30',
-    textLight: 'text-amber-800',
-    textDark: 'text-amber-300',
-    borderLight: 'border-amber-300',
-    borderDark: 'border-amber-600',
+    color: "amber",
+    bgLight: "bg-amber-100",
+    bgDark: "bg-amber-900/30",
+    textLight: "text-amber-800",
+    textDark: "text-amber-300",
+    borderLight: "border-amber-300",
+    borderDark: "border-amber-600",
     icon: Ship,
-    label: 'In Transit',
+    label: "In Transit",
   },
   arrived: {
-    color: 'purple',
-    bgLight: 'bg-purple-100',
-    bgDark: 'bg-purple-900/30',
-    textLight: 'text-purple-800',
-    textDark: 'text-purple-300',
-    borderLight: 'border-purple-300',
-    borderDark: 'border-purple-600',
+    color: "purple",
+    bgLight: "bg-purple-100",
+    bgDark: "bg-purple-900/30",
+    textLight: "text-purple-800",
+    textDark: "text-purple-300",
+    borderLight: "border-purple-300",
+    borderDark: "border-purple-600",
     icon: Anchor,
-    label: 'Arrived',
+    label: "Arrived",
   },
   customs: {
-    color: 'orange',
-    bgLight: 'bg-orange-100',
-    bgDark: 'bg-orange-900/30',
-    textLight: 'text-orange-800',
-    textDark: 'text-orange-300',
-    borderLight: 'border-orange-300',
-    borderDark: 'border-orange-600',
+    color: "orange",
+    bgLight: "bg-orange-100",
+    bgDark: "bg-orange-900/30",
+    textLight: "text-orange-800",
+    textDark: "text-orange-300",
+    borderLight: "border-orange-300",
+    borderDark: "border-orange-600",
     icon: ShieldCheck,
-    label: 'Customs Clearance',
+    label: "Customs Clearance",
   },
   customs_clearance: {
-    color: 'orange',
-    bgLight: 'bg-orange-100',
-    bgDark: 'bg-orange-900/30',
-    textLight: 'text-orange-800',
-    textDark: 'text-orange-300',
-    borderLight: 'border-orange-300',
-    borderDark: 'border-orange-600',
+    color: "orange",
+    bgLight: "bg-orange-100",
+    bgDark: "bg-orange-900/30",
+    textLight: "text-orange-800",
+    textDark: "text-orange-300",
+    borderLight: "border-orange-300",
+    borderDark: "border-orange-600",
     icon: ShieldCheck,
-    label: 'Customs Clearance',
+    label: "Customs Clearance",
   },
   completed: {
-    color: 'green',
-    bgLight: 'bg-green-100',
-    bgDark: 'bg-green-900/30',
-    textLight: 'text-green-800',
-    textDark: 'text-green-300',
-    borderLight: 'border-green-300',
-    borderDark: 'border-green-600',
+    color: "green",
+    bgLight: "bg-green-100",
+    bgDark: "bg-green-900/30",
+    textLight: "text-green-800",
+    textDark: "text-green-300",
+    borderLight: "border-green-300",
+    borderDark: "border-green-600",
     icon: CheckCircle,
-    label: 'Completed',
+    label: "Completed",
   },
   cancelled: {
-    color: 'red',
-    bgLight: 'bg-red-100',
-    bgDark: 'bg-red-900/30',
-    textLight: 'text-red-800',
-    textDark: 'text-red-300',
-    borderLight: 'border-red-300',
-    borderDark: 'border-red-600',
+    color: "red",
+    bgLight: "bg-red-100",
+    bgDark: "bg-red-900/30",
+    textLight: "text-red-800",
+    textDark: "text-red-300",
+    borderLight: "border-red-300",
+    borderDark: "border-red-600",
     icon: XCircle,
-    label: 'Cancelled',
+    label: "Cancelled",
   },
 };
 
 // Status transitions
 const STATUS_TRANSITIONS = {
-  draft: ['confirmed', 'cancelled'],
-  confirmed: ['shipped', 'in_transit', 'cancelled'],
-  shipped: ['in_transit', 'cancelled'],
-  in_transit: ['arrived', 'customs', 'customs_clearance', 'cancelled'],
-  arrived: ['customs', 'customs_clearance', 'cancelled'],
-  customs: ['completed', 'cancelled'],
-  customs_clearance: ['completed', 'cancelled'],
+  draft: ["confirmed", "cancelled"],
+  confirmed: ["shipped", "in_transit", "cancelled"],
+  shipped: ["in_transit", "cancelled"],
+  in_transit: ["arrived", "customs", "customs_clearance", "cancelled"],
+  arrived: ["customs", "customs_clearance", "cancelled"],
+  customs: ["completed", "cancelled"],
+  customs_clearance: ["completed", "cancelled"],
   completed: [],
   cancelled: [],
 };
 
 // Document tabs configuration
 const DOCUMENT_TABS = [
-  { id: 'trade', label: 'Trade Documents', icon: FileText },
-  { id: 'shipping', label: 'Shipping Documents', icon: Ship },
-  { id: 'customs', label: 'Customs Documents', icon: ShieldCheck },
-  { id: 'certificates', label: 'Material Certificates', icon: Award },
-  { id: 'finance', label: 'Trade Finance', icon: Banknote },
+  { id: "trade", label: "Trade Documents", icon: FileText },
+  { id: "shipping", label: "Shipping Documents", icon: Ship },
+  { id: "customs", label: "Customs Documents", icon: ShieldCheck },
+  { id: "certificates", label: "Material Certificates", icon: Award },
+  { id: "finance", label: "Trade Finance", icon: Banknote },
 ];
 
 const ImportOrderDetails = () => {
@@ -176,9 +176,9 @@ const ImportOrderDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [activeDocTab, setActiveDocTab] = useState('trade');
+  const [activeDocTab, setActiveDocTab] = useState("trade");
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [statusUpdateNotes, setStatusUpdateNotes] = useState('');
+  const [statusUpdateNotes, setStatusUpdateNotes] = useState("");
   const [showStatusNotesModal, setShowStatusNotesModal] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
 
@@ -190,8 +190,8 @@ const ImportOrderDetails = () => {
       const response = await importOrderService.getImportOrder(id);
       setOrder(response.order || response);
     } catch (err) {
-      console.error('Error loading import order:', err);
-      setError(err.message || 'Failed to load import order');
+      console.error("Error loading import order:", err);
+      setError(err.message || "Failed to load import order");
     } finally {
       setLoading(false);
     }
@@ -213,19 +213,19 @@ const ImportOrderDetails = () => {
 
   // Format date
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-AE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-AE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   // Format currency
-  const formatCurrency = (amount, currency = 'USD') => {
-    if (!amount && amount !== 0) return 'N/A';
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
+  const formatCurrency = (amount, currency = "USD") => {
+    if (!amount && amount !== 0) return "N/A";
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
       currency,
       minimumFractionDigits: 2,
     }).format(amount);
@@ -253,31 +253,31 @@ const ImportOrderDetails = () => {
       );
       setSuccess(`Status updated to ${getStatusConfig(pendingStatus).label}`);
       setShowStatusNotesModal(false);
-      setStatusUpdateNotes('');
+      setStatusUpdateNotes("");
       setPendingStatus(null);
       loadOrder();
     } catch (err) {
-      setError(err.message || 'Failed to update status');
+      setError(err.message || "Failed to update status");
     }
   };
 
   // Handle delete
   const handleDelete = async () => {
     const confirmed = await confirm({
-      title: 'Delete Import Order?',
+      title: "Delete Import Order?",
       message: `Are you sure you want to delete import order ${order?.importOrderNumber || order?.import_order_number}? This action cannot be undone.`,
-      confirmText: 'Delete',
-      variant: 'danger',
+      confirmText: "Delete",
+      variant: "danger",
     });
 
     if (!confirmed) return;
 
     try {
       await importOrderService.deleteImportOrder(id);
-      setSuccess('Import order deleted successfully');
-      setTimeout(() => navigate('/import-orders'), 1500);
+      setSuccess("Import order deleted successfully");
+      setTimeout(() => navigate("/import-orders"), 1500);
     } catch (err) {
-      setError(err.message || 'Failed to delete import order');
+      setError(err.message || "Failed to delete import order");
     }
   };
 
@@ -289,14 +289,14 @@ const ImportOrderDetails = () => {
   // Get shipping method icon
   const getShippingIcon = (method) => {
     switch (method?.toLowerCase()) {
-      case 'air':
-      case 'air_freight':
+      case "air":
+      case "air_freight":
         return Plane;
-      case 'land':
-      case 'road':
+      case "land":
+      case "road":
         return Truck;
-      case 'sea':
-      case 'ocean':
+      case "sea":
+      case "ocean":
       default:
         return Ship;
     }
@@ -306,12 +306,12 @@ const ImportOrderDetails = () => {
   if (loading) {
     return (
       <div
-        className={`p-6 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+        className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
           <span
-            className={`ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            className={`ml-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
           >
             Loading import order...
           </span>
@@ -324,23 +324,23 @@ const ImportOrderDetails = () => {
   if (error && !order) {
     return (
       <div
-        className={`p-6 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+        className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
       >
         <div
           className={`text-center p-12 rounded-2xl border ${
             isDarkMode
-              ? 'bg-[#1E2328] border-[#37474F]'
-              : 'bg-white border-[#E0E0E0]'
+              ? "bg-[#1E2328] border-[#37474F]"
+              : "bg-white border-[#E0E0E0]"
           }`}
         >
           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
           <h2
-            className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             Error Loading Order
           </h2>
           <p
-            className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+            className={`mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
           >
             {error}
           </p>
@@ -359,18 +359,18 @@ const ImportOrderDetails = () => {
   if (!order) {
     return (
       <div
-        className={`p-6 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+        className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
       >
         <div
           className={`text-center p-12 rounded-2xl border ${
             isDarkMode
-              ? 'bg-[#1E2328] border-[#37474F]'
-              : 'bg-white border-[#E0E0E0]'
+              ? "bg-[#1E2328] border-[#37474F]"
+              : "bg-white border-[#E0E0E0]"
           }`}
         >
           <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />
           <p
-            className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
           >
             Import order not found
           </p>
@@ -387,12 +387,12 @@ const ImportOrderDetails = () => {
 
   // Normalize field names (handle both camelCase and snake_case)
   const orderNumber =
-    order.importOrderNumber || order.import_order_number || 'N/A';
+    order.importOrderNumber || order.import_order_number || "N/A";
   const orderDate = order.orderDate || order.order_date;
   const piNumber = order.piNumber || order.pi_number;
   const poNumber = order.poNumber || order.po_number;
-  const status = order.status || 'draft';
-  const currency = order.currency || 'USD';
+  const status = order.status || "draft";
+  const currency = order.currency || "USD";
   const exchangeRate = order.exchangeRate || order.exchange_rate || 1;
   const subtotal = order.subtotal || order.sub_total || 0;
   const freightCost = order.freightCost || order.freight_cost || 0;
@@ -414,18 +414,18 @@ const ImportOrderDetails = () => {
   const items = order.items || order.lineItems || order.line_items || [];
   const supplier = order.supplier || {};
   const supplierName =
-    order.supplierName || order.supplier_name || supplier.name || 'N/A';
-  const originPort = order.originPort || order.origin_port || 'N/A';
+    order.supplierName || order.supplier_name || supplier.name || "N/A";
+  const originPort = order.originPort || order.origin_port || "N/A";
   const destinationPort =
-    order.destinationPort || order.destination_port || 'Jebel Ali, UAE';
-  const shippingMethod = order.shippingMethod || order.shipping_method || 'sea';
+    order.destinationPort || order.destination_port || "Jebel Ali, UAE";
+  const shippingMethod = order.shippingMethod || order.shipping_method || "sea";
   const vesselName = order.vesselName || order.vessel_name;
   const containerNumber = order.containerNumber || order.container_number;
   const blNumber = order.blNumber || order.bl_number;
   const etd = order.etd || order.estimated_departure;
   const eta = order.eta || order.estimated_arrival;
   const actualArrival = order.actualArrival || order.actual_arrival;
-  const incoterms = order.incoterms || 'CIF';
+  const incoterms = order.incoterms || "CIF";
   const paymentTerms = order.paymentTerms || order.payment_terms;
   const lcNumber = order.lcNumber || order.lc_number;
   const createdAt = order.createdAt || order.created_at;
@@ -442,17 +442,17 @@ const ImportOrderDetails = () => {
 
   return (
     <div
-      className={`p-6 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+      className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
     >
       {/* Header with Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate('/import-orders')}
+            onClick={() => navigate("/import-orders")}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
-                ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                ? "text-gray-400 hover:text-gray-300 hover:bg-gray-800"
+                : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
             }`}
           >
             <ArrowLeft size={24} />
@@ -460,14 +460,14 @@ const ImportOrderDetails = () => {
           <div>
             <h1
               className={`text-2xl md:text-3xl font-bold flex items-center gap-3 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <Package size={32} className="text-teal-600" />
               {orderNumber}
             </h1>
             <p
-              className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Import Order Details
             </p>
@@ -487,13 +487,13 @@ const ImportOrderDetails = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          {status === 'draft' && (
+          {status === "draft" && (
             <Link
               to={`/import-orders/${id}/edit`}
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
-                  ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-                  : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                  ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                  : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
               }`}
             >
               <Edit size={18} />
@@ -505,8 +505,8 @@ const ImportOrderDetails = () => {
             onClick={handlePrint}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
-                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
             }`}
           >
             <Printer size={18} />
@@ -524,7 +524,7 @@ const ImportOrderDetails = () => {
                 Update Status
                 <ChevronRight
                   size={16}
-                  className={`transform transition-transform ${statusDropdownOpen ? 'rotate-90' : ''}`}
+                  className={`transform transition-transform ${statusDropdownOpen ? "rotate-90" : ""}`}
                 />
               </button>
               {statusDropdownOpen && (
@@ -536,8 +536,8 @@ const ImportOrderDetails = () => {
                   <div
                     className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg z-20 border ${
                       isDarkMode
-                        ? 'bg-gray-800 border-gray-700'
-                        : 'bg-white border-gray-200'
+                        ? "bg-gray-800 border-gray-700"
+                        : "bg-white border-gray-200"
                     }`}
                   >
                     {availableTransitions.map((nextStatus) => {
@@ -549,8 +549,8 @@ const ImportOrderDetails = () => {
                           onClick={() => handleStatusUpdate(nextStatus)}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                             isDarkMode
-                              ? 'hover:bg-gray-700 text-gray-200'
-                              : 'hover:bg-gray-50 text-gray-700'
+                              ? "hover:bg-gray-700 text-gray-200"
+                              : "hover:bg-gray-50 text-gray-700"
                           }`}
                         >
                           <NextIcon
@@ -584,13 +584,13 @@ const ImportOrderDetails = () => {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-[#E0E0E0]"
             }`}
           >
             <h2
               className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <FileText size={20} className="text-teal-600" />
@@ -599,48 +599,48 @@ const ImportOrderDetails = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Order Date
                 </p>
                 <p
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatDate(orderDate)}
                 </p>
               </div>
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   PI Number
                 </p>
                 <p
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
-                  {piNumber || 'N/A'}
+                  {piNumber || "N/A"}
                 </p>
               </div>
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   PO Number
                 </p>
                 <p
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
-                  {poNumber || 'N/A'}
+                  {poNumber || "N/A"}
                 </p>
               </div>
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Created
                 </p>
                 <p
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatDate(createdAt)}
                 </p>
@@ -648,12 +648,12 @@ const ImportOrderDetails = () => {
               {createdBy && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Created By
                   </p>
                   <p
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {createdBy}
                   </p>
@@ -662,12 +662,12 @@ const ImportOrderDetails = () => {
               {updatedAt && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Last Modified
                   </p>
                   <p
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {formatDate(updatedAt)}
                   </p>
@@ -679,7 +679,7 @@ const ImportOrderDetails = () => {
             {statusHistory.length > 0 && (
               <div className="mt-6 pt-6 border-t border-dashed ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
                 <h3
-                  className={`text-sm font-semibold mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                 >
                   Status History
                 </h3>
@@ -697,19 +697,19 @@ const ImportOrderDetails = () => {
                         />
                         <div className="flex-1">
                           <p
-                            className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {entryConfig.label}
                           </p>
                           <p
-                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                           >
-                            {formatDate(entry.timestamp || entry.date)}{' '}
+                            {formatDate(entry.timestamp || entry.date)}{" "}
                             {entry.user && `by ${entry.user}`}
                           </p>
                           {entry.notes && (
                             <p
-                              className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                              className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                             >
                               {entry.notes}
                             </p>
@@ -727,13 +727,13 @@ const ImportOrderDetails = () => {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-[#E0E0E0]"
             }`}
           >
             <h2
               className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <Building2 size={20} className="text-teal-600" />
@@ -742,12 +742,12 @@ const ImportOrderDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Supplier Name
                 </p>
                 <p
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {order.supplierId ? (
                     <Link
@@ -765,12 +765,12 @@ const ImportOrderDetails = () => {
               {(supplier.contactPerson || supplier.contact_person) && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Contact Person
                   </p>
                   <p
-                    className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     <User size={14} />
                     {supplier.contactPerson || supplier.contact_person}
@@ -782,12 +782,12 @@ const ImportOrderDetails = () => {
                 order.supplier_email) && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Email
                   </p>
                   <p
-                    className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     <Mail size={14} />
                     {supplier.email ||
@@ -801,12 +801,12 @@ const ImportOrderDetails = () => {
                 order.supplier_phone) && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Phone
                   </p>
                   <p
-                    className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     <Phone size={14} />
                     {supplier.phone ||
@@ -817,25 +817,25 @@ const ImportOrderDetails = () => {
               )}
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Payment Terms
                 </p>
                 <p
-                  className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <CreditCard size={14} />
-                  {paymentTerms || 'N/A'}
+                  {paymentTerms || "N/A"}
                 </p>
               </div>
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Incoterms
                 </p>
                 <p
-                  className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <Globe size={14} />
                   {incoterms}
@@ -845,12 +845,12 @@ const ImportOrderDetails = () => {
               {(order.supplier_vat_status || order.supplierVatStatus) && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Supplier VAT Status
                   </p>
                   <p
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {order.supplier_vat_status || order.supplierVatStatus}
                   </p>
@@ -860,12 +860,12 @@ const ImportOrderDetails = () => {
               {(order.supplier_trn || order.supplierTrn) && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Supplier TRN
                   </p>
                   <p
-                    className={`font-medium font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {order.supplier_trn || order.supplierTrn}
                   </p>
@@ -874,12 +874,12 @@ const ImportOrderDetails = () => {
               {lcNumber && (
                 <div className="md:col-span-2">
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     LC Number
                   </p>
                   <p
-                    className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     <Banknote size={14} />
                     {lcNumber}
@@ -893,13 +893,13 @@ const ImportOrderDetails = () => {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-[#E0E0E0]"
             }`}
           >
             <h2
               className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <ShippingIcon size={20} className="text-teal-600" />
@@ -908,46 +908,46 @@ const ImportOrderDetails = () => {
 
             {/* Route Visualization */}
             <div
-              className={`p-4 rounded-lg mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
+              className={`p-4 rounded-lg mb-4 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
             >
               <div className="flex items-center justify-between">
                 <div className="text-center">
                   <MapPin
-                    className={`w-8 h-8 mx-auto mb-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
+                    className={`w-8 h-8 mx-auto mb-2 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
                   />
                   <p
-                    className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {originPort}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Origin
                   </p>
                 </div>
                 <div className="flex-1 mx-4">
                   <div
-                    className={`h-0.5 relative ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`}
+                    className={`h-0.5 relative ${isDarkMode ? "bg-gray-700" : "bg-gray-300"}`}
                   >
                     <ShippingIcon
                       className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 ${
-                        isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                        isDarkMode ? "text-teal-400" : "text-teal-600"
                       }`}
                     />
                   </div>
                 </div>
                 <div className="text-center">
                   <MapPin
-                    className={`w-8 h-8 mx-auto mb-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                    className={`w-8 h-8 mx-auto mb-2 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                   />
                   <p
-                    className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {destinationPort}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Destination
                   </p>
@@ -958,26 +958,26 @@ const ImportOrderDetails = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Shipping Method
                 </p>
                 <p
-                  className={`font-medium flex items-center gap-2 capitalize ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium flex items-center gap-2 capitalize ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <ShippingIcon size={14} />
-                  {shippingMethod?.replace('_', ' ') || 'Sea Freight'}
+                  {shippingMethod?.replace("_", " ") || "Sea Freight"}
                 </p>
               </div>
               {vesselName && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Vessel Name
                   </p>
                   <p
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {vesselName}
                   </p>
@@ -986,12 +986,12 @@ const ImportOrderDetails = () => {
               {containerNumber && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Container No.
                   </p>
                   <p
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {containerNumber}
                   </p>
@@ -1000,12 +1000,12 @@ const ImportOrderDetails = () => {
               {blNumber && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     B/L Number
                   </p>
                   <p
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {blNumber}
                   </p>
@@ -1013,12 +1013,12 @@ const ImportOrderDetails = () => {
               )}
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   ETD
                 </p>
                 <p
-                  className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <Calendar size={14} />
                   {formatDate(etd)}
@@ -1026,12 +1026,12 @@ const ImportOrderDetails = () => {
               </div>
               <div>
                 <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   ETA
                 </p>
                 <p
-                  className={`font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <Calendar size={14} />
                   {formatDate(eta)}
@@ -1040,7 +1040,7 @@ const ImportOrderDetails = () => {
               {actualArrival && (
                 <div>
                   <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Actual Arrival
                   </p>
@@ -1060,10 +1060,10 @@ const ImportOrderDetails = () => {
               order.designated_zone_name ||
               order.designatedZoneName) && (
               <div
-                className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
               >
                 <h3
-                  className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <ShieldCheck size={16} className="text-teal-600" />
                   UAE VAT Treatment (Article 51)
@@ -1071,29 +1071,29 @@ const ImportOrderDetails = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     >
                       Movement Type
                     </p>
                     <p
-                      className={`font-medium capitalize ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`font-medium capitalize ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {(
                         order.movement_type ||
                         order.movementType ||
-                        'mainland'
-                      ).replace(/_/g, ' ')}
+                        "mainland"
+                      ).replace(/_/g, " ")}
                     </p>
                   </div>
                   {(order.designated_zone_name || order.designatedZoneName) && (
                     <div>
                       <p
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                       >
                         Designated Zone
                       </p>
                       <p
-                        className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {order.designated_zone_name || order.designatedZoneName}
                       </p>
@@ -1103,12 +1103,12 @@ const ImportOrderDetails = () => {
                     order.customsAssessmentDate) && (
                     <div>
                       <p
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                       >
                         Tax Point Date
                       </p>
                       <p
-                        className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {formatDate(
                           order.customs_assessment_date ||
@@ -1121,12 +1121,12 @@ const ImportOrderDetails = () => {
                     order.importDeclarationNumber) && (
                     <div>
                       <p
-                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                       >
                         BOE Number
                       </p>
                       <p
-                        className={`font-medium font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`font-medium font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {order.import_declaration_number ||
                           order.importDeclarationNumber}
@@ -1135,21 +1135,21 @@ const ImportOrderDetails = () => {
                   )}
                 </div>
                 {/* Zero-Rated Alert */}
-                {((order.movement_type || order.movementType) === 'dz_entry' ||
+                {((order.movement_type || order.movementType) === "dz_entry" ||
                   (order.movement_type || order.movementType) ===
-                    'dz_to_dz') && (
+                    "dz_to_dz") && (
                   <div
-                    className={`mt-3 p-3 rounded-lg text-sm ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}
+                    className={`mt-3 p-3 rounded-lg text-sm ${isDarkMode ? "bg-green-900/30 border border-green-700" : "bg-green-50 border border-green-200"}`}
                   >
                     <p
                       className={
-                        isDarkMode ? 'text-green-300' : 'text-green-800'
+                        isDarkMode ? "text-green-300" : "text-green-800"
                       }
                     >
-                      <strong>Zero-Rated VAT:</strong> Goods entering{' '}
+                      <strong>Zero-Rated VAT:</strong> Goods entering{" "}
                       {order.designated_zone_name ||
                         order.designatedZoneName ||
-                        'designated zone'}{' '}
+                        "designated zone"}{" "}
                       qualify for 0% VAT under UAE VAT Law Article 51.
                     </p>
                   </div>
@@ -1162,66 +1162,66 @@ const ImportOrderDetails = () => {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-[#E0E0E0]"
             }`}
           >
             <h2
               className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <Package size={20} className="text-teal-600" />
               Line Items
               <span
-                className={`text-sm font-normal ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`text-sm font-normal ml-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
-                ({items.length} {items.length === 1 ? 'item' : 'items'})
+                ({items.length} {items.length === 1 ? "item" : "items"})
               </span>
             </h2>
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+                <thead className={isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}>
                   <tr>
                     <th
                       className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
                       Product
                     </th>
                     <th
                       className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
                       Specification
                     </th>
                     <th
                       className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
                       HS Code
                     </th>
                     <th
                       className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
                       Qty
                     </th>
                     <th
                       className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
                       Unit Price
                     </th>
                     <th
                       className={`px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
                       Total
@@ -1229,13 +1229,13 @@ const ImportOrderDetails = () => {
                   </tr>
                 </thead>
                 <tbody
-                  className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
+                  className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
                 >
                   {items.length === 0 ? (
                     <tr>
                       <td
                         colSpan="6"
-                        className={`px-4 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        className={`px-4 py-8 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                       >
                         No items in this order
                       </td>
@@ -1247,12 +1247,12 @@ const ImportOrderDetails = () => {
                         item.product_name ||
                         item.name ||
                         item.description ||
-                        'N/A';
+                        "N/A";
                       const specification =
-                        item.specification || item.specs || item.grade || '-';
-                      const hsCode = item.hsCode || item.hs_code || '-';
+                        item.specification || item.specs || item.grade || "-";
+                      const hsCode = item.hsCode || item.hs_code || "-";
                       const quantity = item.quantity || item.qty || 0;
-                      const unit = item.unit || 'MT';
+                      const unit = item.unit || "MT";
                       const unitPrice =
                         item.unitPrice || item.unit_price || item.price || 0;
                       const lineTotal =
@@ -1266,46 +1266,46 @@ const ImportOrderDetails = () => {
                       return (
                         <tr
                           key={item.id || index}
-                          className={`${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}
+                          className={`${isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"}`}
                         >
                           <td className="px-4 py-3">
                             <div
-                              className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                              className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {productName}
                             </div>
                             {(mill || heatNumber) && (
                               <div
-                                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                                className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                               >
                                 {mill && `Mill: ${mill}`}
-                                {mill && heatNumber && ' | '}
+                                {mill && heatNumber && " | "}
                                 {heatNumber && `Heat: ${heatNumber}`}
                               </div>
                             )}
                           </td>
                           <td
-                            className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                            className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                           >
                             {specification}
                           </td>
                           <td
-                            className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                            className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                           >
                             {hsCode}
                           </td>
                           <td
-                            className={`px-4 py-3 text-sm text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                            className={`px-4 py-3 text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                           >
                             {quantity.toLocaleString()} {unit}
                           </td>
                           <td
-                            className={`px-4 py-3 text-sm text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                            className={`px-4 py-3 text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                           >
                             {formatCurrency(unitPrice, currency)}
                           </td>
                           <td
-                            className={`px-4 py-3 text-sm text-right font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            className={`px-4 py-3 text-sm text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {formatCurrency(lineTotal, currency)}
                           </td>
@@ -1322,13 +1322,13 @@ const ImportOrderDetails = () => {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-[#E0E0E0]"
             }`}
           >
             <h2
               className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <FileCheck size={20} className="text-teal-600" />
@@ -1337,7 +1337,7 @@ const ImportOrderDetails = () => {
 
             {/* Tab Navigation */}
             <div
-              className={`flex flex-wrap gap-2 mb-4 border-b pb-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+              className={`flex flex-wrap gap-2 mb-4 border-b pb-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               {DOCUMENT_TABS.map((tab) => {
                 const TabIcon = tab.icon;
@@ -1348,10 +1348,10 @@ const ImportOrderDetails = () => {
                     onClick={() => setActiveDocTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-teal-600 text-white'
+                        ? "bg-teal-600 text-white"
                         : isDarkMode
-                          ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-                          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                          ? "text-gray-400 hover:text-gray-200 hover:bg-gray-800"
+                          : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
                     }`}
                   >
                     <TabIcon size={16} />
@@ -1366,74 +1366,74 @@ const ImportOrderDetails = () => {
               {documents.filter(
                 (doc) =>
                   doc.category === activeDocTab ||
-                  (!doc.category && activeDocTab === 'trade'),
+                  (!doc.category && activeDocTab === "trade"),
               ).length === 0 ? (
-                  <div
-                    className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
-                    <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No documents in this category</p>
-                  </div>
-                ) : (
-                  documents
-                    .filter(
-                      (doc) =>
-                        doc.category === activeDocTab ||
-                      (!doc.category && activeDocTab === 'trade'),
-                    )
-                    .map((doc, index) => (
-                      <div
-                        key={doc.id || index}
-                        className={`flex items-center justify-between p-3 rounded-lg ${
-                          isDarkMode
-                            ? 'bg-gray-800 hover:bg-gray-750'
-                            : 'bg-gray-50 hover:bg-gray-100'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText
-                            className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                          />
-                          <div>
-                            <p
-                              className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                            >
-                              {doc.name || doc.fileName || doc.file_name}
-                            </p>
-                            <p
-                              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                            >
-                              {doc.uploadedAt
-                                ? formatDate(doc.uploadedAt || doc.uploaded_at)
-                                : 'Uploaded'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode
-                                ? 'hover:bg-gray-700 text-gray-400'
-                                : 'hover:bg-gray-200 text-gray-600'
-                            }`}
-                            title="View"
+                <div
+                  className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No documents in this category</p>
+                </div>
+              ) : (
+                documents
+                  .filter(
+                    (doc) =>
+                      doc.category === activeDocTab ||
+                      (!doc.category && activeDocTab === "trade"),
+                  )
+                  .map((doc, index) => (
+                    <div
+                      key={doc.id || index}
+                      className={`flex items-center justify-between p-3 rounded-lg ${
+                        isDarkMode
+                          ? "bg-gray-800 hover:bg-gray-750"
+                          : "bg-gray-50 hover:bg-gray-100"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText
+                          className={`w-5 h-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        />
+                        <div>
+                          <p
+                            className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
-                            <Eye size={16} />
-                          </button>
-                          <button
-                            className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode
-                                ? 'hover:bg-gray-700 text-gray-400'
-                                : 'hover:bg-gray-200 text-gray-600'
-                            }`}
-                            title="Download"
+                            {doc.name || doc.fileName || doc.file_name}
+                          </p>
+                          <p
+                            className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                           >
-                            <Download size={16} />
-                          </button>
+                            {doc.uploadedAt
+                              ? formatDate(doc.uploadedAt || doc.uploaded_at)
+                              : "Uploaded"}
+                          </p>
                         </div>
                       </div>
-                    ))
-                )}
+                      <div className="flex items-center gap-2">
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode
+                              ? "hover:bg-gray-700 text-gray-400"
+                              : "hover:bg-gray-200 text-gray-600"
+                          }`}
+                          title="View"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode
+                              ? "hover:bg-gray-700 text-gray-400"
+                              : "hover:bg-gray-200 text-gray-600"
+                          }`}
+                          title="Download"
+                        >
+                          <Download size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+              )}
             </div>
           </div>
 
@@ -1442,17 +1442,17 @@ const ImportOrderDetails = () => {
             <div
               className={`p-6 rounded-xl border ${
                 isDarkMode
-                  ? 'bg-[#1E2328] border-[#37474F]'
-                  : 'bg-white border-[#E0E0E0]'
+                  ? "bg-[#1E2328] border-[#37474F]"
+                  : "bg-white border-[#E0E0E0]"
               }`}
             >
               <h2
-                className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 Notes
               </h2>
               <p
-                className={`text-sm whitespace-pre-wrap ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                className={`text-sm whitespace-pre-wrap ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
               >
                 {notes}
               </p>
@@ -1466,13 +1466,13 @@ const ImportOrderDetails = () => {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-[#E0E0E0]"
             }`}
           >
             <h2
               className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <DollarSign size={20} className="text-teal-600" />
@@ -1482,29 +1482,29 @@ const ImportOrderDetails = () => {
             <div className="space-y-3">
               {/* Currency & Exchange Rate */}
               <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
               >
                 <div className="flex justify-between items-center">
                   <span
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     Currency
                   </span>
                   <span
-                    className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     {currency}
                   </span>
                 </div>
-                {currency !== 'AED' && (
+                {currency !== "AED" && (
                   <div className="flex justify-between items-center mt-2">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     >
                       Exchange Rate
                     </span>
                     <span
-                      className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       1 {currency} = {exchangeRate} AED
                     </span>
@@ -1513,18 +1513,18 @@ const ImportOrderDetails = () => {
               </div>
 
               <hr
-                className={isDarkMode ? 'border-gray-700' : 'border-gray-200'}
+                className={isDarkMode ? "border-gray-700" : "border-gray-200"}
               />
 
               {/* Subtotal */}
               <div className="flex justify-between">
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Subtotal (FOB)
                 </span>
                 <span
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatCurrency(subtotal, currency)}
                 </span>
@@ -1533,12 +1533,12 @@ const ImportOrderDetails = () => {
               {/* Freight */}
               <div className="flex justify-between">
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Freight
                 </span>
                 <span
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatCurrency(freightCost, currency)}
                 </span>
@@ -1547,48 +1547,48 @@ const ImportOrderDetails = () => {
               {/* Insurance */}
               <div className="flex justify-between">
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Insurance
                 </span>
                 <span
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatCurrency(insuranceCost, currency)}
                 </span>
               </div>
 
               <hr
-                className={isDarkMode ? 'border-gray-700' : 'border-gray-200'}
+                className={isDarkMode ? "border-gray-700" : "border-gray-200"}
               />
 
               {/* CIF Value */}
               <div className="flex justify-between">
                 <span
-                  className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                 >
                   CIF Value
                 </span>
                 <span
-                  className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatCurrency(cifValue, currency)}
                 </span>
               </div>
 
               <hr
-                className={isDarkMode ? 'border-gray-700' : 'border-gray-200'}
+                className={isDarkMode ? "border-gray-700" : "border-gray-200"}
               />
 
               {/* Customs Duty */}
               <div className="flex justify-between">
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Customs Duty (5%)
                 </span>
                 <span
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatCurrency(customsDuty, currency)}
                 </span>
@@ -1597,53 +1597,53 @@ const ImportOrderDetails = () => {
               {/* VAT */}
               <div className="flex justify-between">
                 <span
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   VAT (5%)
                   <span
-                    className={`ml-1 text-xs ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                    className={`ml-1 text-xs ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                   >
                     (Recoverable)
                   </span>
                 </span>
                 <span
-                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   {formatCurrency(vat, currency)}
                 </span>
               </div>
 
               <hr
-                className={`my-2 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                className={`my-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
               />
 
               {/* Grand Total */}
               <div
-                className={`p-4 rounded-lg ${isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50'}`}
+                className={`p-4 rounded-lg ${isDarkMode ? "bg-teal-900/30" : "bg-teal-50"}`}
               >
                 <div className="flex justify-between items-center">
                   <span
-                    className={`font-semibold ${isDarkMode ? 'text-teal-300' : 'text-teal-800'}`}
+                    className={`font-semibold ${isDarkMode ? "text-teal-300" : "text-teal-800"}`}
                   >
                     Grand Total
                   </span>
                   <span
-                    className={`text-xl font-bold ${isDarkMode ? 'text-teal-300' : 'text-teal-800'}`}
+                    className={`text-xl font-bold ${isDarkMode ? "text-teal-300" : "text-teal-800"}`}
                   >
                     {formatCurrency(grandTotal, currency)}
                   </span>
                 </div>
-                {currency !== 'AED' && (
+                {currency !== "AED" && (
                   <div className="flex justify-between items-center mt-2">
                     <span
-                      className={`text-sm ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
+                      className={`text-sm ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
                     >
                       Total in AED
                     </span>
                     <span
-                      className={`font-semibold ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
+                      className={`font-semibold ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}
                     >
-                      {formatCurrency(grandTotalAED, 'AED')}
+                      {formatCurrency(grandTotalAED, "AED")}
                     </span>
                   </div>
                 )}
@@ -1652,10 +1652,10 @@ const ImportOrderDetails = () => {
               {/* Exchange Rate Source (FTA Audit Trail) */}
               {(order.exchange_rate_source || order.exchangeRateSource) && (
                 <div
-                  className={`p-3 rounded-lg text-xs ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}
+                  className={`p-3 rounded-lg text-xs ${isDarkMode ? "bg-gray-800" : "bg-gray-100"}`}
                 >
                   <p
-                    className={`font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Exchange Rate Audit Trail
                   </p>
@@ -1663,14 +1663,14 @@ const ImportOrderDetails = () => {
                     <div>
                       <span
                         className={
-                          isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                          isDarkMode ? "text-gray-500" : "text-gray-500"
                         }
                       >
-                        Source:{' '}
+                        Source:{" "}
                       </span>
                       <span
                         className={
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }
                       >
                         {order.exchange_rate_source || order.exchangeRateSource}
@@ -1680,14 +1680,14 @@ const ImportOrderDetails = () => {
                       <div>
                         <span
                           className={
-                            isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                            isDarkMode ? "text-gray-500" : "text-gray-500"
                           }
                         >
-                          Date:{' '}
+                          Date:{" "}
                         </span>
                         <span
                           className={
-                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
                           }
                         >
                           {formatDate(
@@ -1701,13 +1701,13 @@ const ImportOrderDetails = () => {
                       <div>
                         <span
                           className={
-                            isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                            isDarkMode ? "text-gray-500" : "text-gray-500"
                           }
                         >
-                          Ref:{' '}
+                          Ref:{" "}
                         </span>
                         <span
-                          className={`font-mono ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                          className={`font-mono ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                         >
                           {order.exchange_rate_reference ||
                             order.exchangeRateReference}
@@ -1724,10 +1724,10 @@ const ImportOrderDetails = () => {
                 order.goods_imported_value ||
                 order.goodsImportedValue) && (
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-indigo-900/30 border border-indigo-700' : 'bg-indigo-50 border border-indigo-200'}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? "bg-indigo-900/30 border border-indigo-700" : "bg-indigo-50 border border-indigo-200"}`}
                 >
                   <p
-                    className={`font-semibold mb-3 text-sm ${isDarkMode ? 'text-indigo-300' : 'text-indigo-800'}`}
+                    className={`font-semibold mb-3 text-sm ${isDarkMode ? "text-indigo-300" : "text-indigo-800"}`}
                   >
                     FTA Form 201 VAT Return Mapping
                   </p>
@@ -1735,64 +1735,64 @@ const ImportOrderDetails = () => {
                     <div className="flex justify-between">
                       <span
                         className={
-                          isDarkMode ? 'text-indigo-200' : 'text-indigo-700'
+                          isDarkMode ? "text-indigo-200" : "text-indigo-700"
                         }
                       >
                         Box 12: Goods Imported
                       </span>
                       <span
-                        className={`font-medium font-mono ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}
+                        className={`font-medium font-mono ${isDarkMode ? "text-indigo-100" : "text-indigo-900"}`}
                       >
                         {formatCurrency(
                           order.goods_imported_value ||
                             order.goodsImportedValue ||
                             cifValue + customsDuty,
-                          'AED',
+                          "AED",
                         )}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span
                         className={
-                          isDarkMode ? 'text-indigo-200' : 'text-indigo-700'
+                          isDarkMode ? "text-indigo-200" : "text-indigo-700"
                         }
                       >
                         Box 9: Reverse Charge (Output)
                       </span>
                       <span
-                        className={`font-medium font-mono ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}
+                        className={`font-medium font-mono ${isDarkMode ? "text-indigo-100" : "text-indigo-900"}`}
                       >
                         {formatCurrency(
                           order.reverse_charge_output ||
                             order.reverseChargeOutput ||
                             vat,
-                          'AED',
+                          "AED",
                         )}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span
                         className={
-                          isDarkMode ? 'text-indigo-200' : 'text-indigo-700'
+                          isDarkMode ? "text-indigo-200" : "text-indigo-700"
                         }
                       >
                         Box 15: Reverse Charge (Input)
                       </span>
                       <span
-                        className={`font-medium font-mono ${isDarkMode ? 'text-indigo-100' : 'text-indigo-900'}`}
+                        className={`font-medium font-mono ${isDarkMode ? "text-indigo-100" : "text-indigo-900"}`}
                       >
                         {formatCurrency(
                           order.reverse_charge_input ||
                             order.reverseChargeInput ||
                             vat,
-                          'AED',
+                          "AED",
                         )}
                       </span>
                     </div>
                     <div
-                      className={`pt-2 mt-2 border-t text-xs ${isDarkMode ? 'border-indigo-700 text-indigo-300' : 'border-indigo-200 text-indigo-600'}`}
+                      className={`pt-2 mt-2 border-t text-xs ${isDarkMode ? "border-indigo-700 text-indigo-300" : "border-indigo-200 text-indigo-600"}`}
                     >
-                      Net VAT payable: {formatCurrency(0, 'AED')}{' '}
+                      Net VAT payable: {formatCurrency(0, "AED")}{" "}
                       (self-accounted reverse charge)
                     </div>
                   </div>
@@ -1805,13 +1805,13 @@ const ImportOrderDetails = () => {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-[#E0E0E0]"
             }`}
           >
             <h2
               className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               <Clock size={20} className="text-teal-600" />
@@ -1821,7 +1821,7 @@ const ImportOrderDetails = () => {
             <div className="space-y-4">
               {statusHistory.length === 0 ? (
                 <div
-                  className={`text-center py-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No activity recorded yet</p>
@@ -1848,19 +1848,19 @@ const ImportOrderDetails = () => {
                       </div>
                       <div className="flex-1">
                         <p
-                          className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           Status changed to {entryConfig.label}
                         </p>
                         <p
-                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         >
                           {formatDate(entry.timestamp || entry.date)}
                           {entry.user && ` by ${entry.user}`}
                         </p>
                         {entry.notes && (
                           <p
-                            className={`text-xs mt-1 p-2 rounded ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-50 text-gray-600'}`}
+                            className={`text-xs mt-1 p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-50 text-gray-600"}`}
                           >
                             {entry.notes}
                           </p>
@@ -1876,22 +1876,22 @@ const ImportOrderDetails = () => {
                 <div className="flex gap-3">
                   <div
                     className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                      isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                      isDarkMode ? "bg-gray-800" : "bg-gray-100"
                     }`}
                   >
                     <FileText
                       size={14}
-                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
+                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
                     />
                   </div>
                   <div className="flex-1">
                     <p
-                      className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       Order created
                     </p>
                     <p
-                      className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                     >
                       {formatDate(createdAt)}
                       {createdBy && ` by ${createdBy}`}
@@ -1908,14 +1908,14 @@ const ImportOrderDetails = () => {
       {showStatusNotesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div
-            className={`rounded-xl max-w-md w-full ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}
+            className={`rounded-xl max-w-md w-full ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
           >
             <div
-              className={`p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
+              className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
             >
               <div className="flex items-center justify-between">
                 <h2
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   Update Status
                 </h2>
@@ -1923,12 +1923,12 @@ const ImportOrderDetails = () => {
                   onClick={() => {
                     setShowStatusNotesModal(false);
                     setPendingStatus(null);
-                    setStatusUpdateNotes('');
+                    setStatusUpdateNotes("");
                   }}
                   className={`p-1 rounded-lg transition-colors ${
                     isDarkMode
-                      ? 'hover:bg-gray-700 text-gray-400'
-                      : 'hover:bg-gray-100 text-gray-500'
+                      ? "hover:bg-gray-700 text-gray-400"
+                      : "hover:bg-gray-100 text-gray-500"
                   }`}
                 >
                   <X size={20} />
@@ -1937,15 +1937,15 @@ const ImportOrderDetails = () => {
             </div>
             <div className="p-6">
               <p
-                className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                className={`mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
               >
-                Update status to{' '}
+                Update status to{" "}
                 <strong>
                   {pendingStatus && getStatusConfig(pendingStatus).label}
                 </strong>
               </p>
               <label
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
                 Notes (optional)
               </label>
@@ -1956,24 +1956,24 @@ const ImportOrderDetails = () => {
                 rows={3}
                 className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                   isDarkMode
-                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-500'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                    ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
                 }`}
               />
             </div>
             <div
-              className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
+              className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
             >
               <button
                 onClick={() => {
                   setShowStatusNotesModal(false);
                   setPendingStatus(null);
-                  setStatusUpdateNotes('');
+                  setStatusUpdateNotes("");
                 }}
                 className={`px-4 py-2 rounded-lg transition-colors ${
                   isDarkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? "text-gray-300 hover:bg-gray-700"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 Cancel
@@ -2007,8 +2007,8 @@ const ImportOrderDetails = () => {
           <div
             className={`p-4 rounded-lg border shadow-lg max-w-md ${
               isDarkMode
-                ? 'bg-red-900/20 border-red-700 text-red-300'
-                : 'bg-red-50 border-red-200 text-red-800'
+                ? "bg-red-900/20 border-red-700 text-red-300"
+                : "bg-red-50 border-red-200 text-red-800"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -2027,8 +2027,8 @@ const ImportOrderDetails = () => {
           <div
             className={`p-4 rounded-lg border shadow-lg max-w-md ${
               isDarkMode
-                ? 'bg-green-900/20 border-green-700 text-green-300'
-                : 'bg-green-50 border-green-200 text-green-800'
+                ? "bg-green-900/20 border-green-700 text-green-300"
+                : "bg-green-50 border-green-200 text-green-800"
             }`}
           >
             <div className="flex items-center gap-2">

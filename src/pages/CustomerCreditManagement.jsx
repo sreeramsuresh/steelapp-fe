@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { AlertCircle, TrendingUp } from 'lucide-react';
-import { customerCreditService } from '../services/customerCreditService';
+import { useState, useEffect } from "react";
+import { AlertCircle, TrendingUp } from "lucide-react";
+import { customerCreditService } from "../services/customerCreditService";
 
 export default function CustomerCreditManagement() {
   const [_customers, _setCustomers] = useState([]);
@@ -12,8 +12,8 @@ export default function CustomerCreditManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
-  const [newCreditLimit, setNewCreditLimit] = useState('');
-  const [adjustmentReason, setAdjustmentReason] = useState('');
+  const [newCreditLimit, setNewCreditLimit] = useState("");
+  const [adjustmentReason, setAdjustmentReason] = useState("");
 
   useEffect(() => {
     loadCreditData();
@@ -38,10 +38,10 @@ export default function CustomerCreditManagement() {
       const errorMsg =
         err.response?.data?.message ||
         err.message ||
-        'Failed to load credit data';
+        "Failed to load credit data";
       setError(errorMsg);
       console.error(
-        '[CustomerCreditManagement] Error loading credit data:',
+        "[CustomerCreditManagement] Error loading credit data:",
         err,
       );
     } finally {
@@ -68,10 +68,10 @@ export default function CustomerCreditManagement() {
       const errorMsg =
         err.response?.data?.message ||
         err.message ||
-        'Failed to load customer details';
+        "Failed to load customer details";
       setError(`Error loading customer details: ${errorMsg}`);
       console.error(
-        '[CustomerCreditManagement] Error loading customer details:',
+        "[CustomerCreditManagement] Error loading customer details:",
         err,
       );
     }
@@ -85,14 +85,14 @@ export default function CustomerCreditManagement() {
       await customerCreditService.updateCreditLimit(
         selectedCustomer.id,
         parseFloat(newCreditLimit),
-        adjustmentReason || 'Manual adjustment',
+        adjustmentReason || "Manual adjustment",
       );
 
       setError(null);
       // Reload data
       setTimeout(() => {
         handleSelectCustomer(selectedCustomer);
-        setAdjustmentReason('');
+        setAdjustmentReason("");
       }, 1000);
     } catch (err) {
       setError(`Error updating credit limit: ${err.message}`);
@@ -103,18 +103,18 @@ export default function CustomerCreditManagement() {
 
   const getCreditGradeColor = (grade) => {
     switch (grade) {
-      case 'A':
-        return 'bg-green-100 text-green-800';
-      case 'B':
-        return 'bg-blue-100 text-blue-800';
-      case 'C':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'D':
-        return 'bg-orange-100 text-orange-800';
-      case 'E':
-        return 'bg-red-100 text-red-800';
+      case "A":
+        return "bg-green-100 text-green-800";
+      case "B":
+        return "bg-blue-100 text-blue-800";
+      case "C":
+        return "bg-yellow-100 text-yellow-800";
+      case "D":
+        return "bg-orange-100 text-orange-800";
+      case "E":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -213,11 +213,11 @@ export default function CustomerCreditManagement() {
                       </div>
                       <div className="grid grid-cols-3 gap-2 text-sm">
                         <div>
-                          <span className="text-gray-600">DSO:</span>{' '}
+                          <span className="text-gray-600">DSO:</span>{" "}
                           {customer.dsoValue} days
                         </div>
                         <div>
-                          <span className="text-gray-600">Utilization:</span>{' '}
+                          <span className="text-gray-600">Utilization:</span>{" "}
                           {customer.creditUtilization}%
                         </div>
                         <div>
@@ -320,7 +320,7 @@ export default function CustomerCreditManagement() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Available Credit</span>
                     <span
-                      className={`font-semibold ${creditDetails.creditLimit - creditDetails.outstandingAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                      className={`font-semibold ${creditDetails.creditLimit - creditDetails.outstandingAmount >= 0 ? "text-green-600" : "text-red-600"}`}
                     >
                       $
                       {Math.max(
@@ -416,7 +416,7 @@ export default function CustomerCreditManagement() {
                       disabled={updating || !newCreditLimit}
                       className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 transition"
                     >
-                      {updating ? 'Updating...' : 'Update Limit'}
+                      {updating ? "Updating..." : "Update Limit"}
                     </button>
                   </div>
                 </div>

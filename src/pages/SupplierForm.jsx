@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Save,
@@ -8,47 +8,47 @@ import {
   Globe,
   Factory,
   Clock,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { supplierService } from '../services/supplierService';
-import { notificationService } from '../services/notificationService';
-import TRNInput from '../components/TRNInput';
-import { FormSelect } from '../components/ui/form-select';
-import { SelectItem } from '../components/ui/select';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { supplierService } from "../services/supplierService";
+import { notificationService } from "../services/notificationService";
+import TRNInput from "../components/TRNInput";
+import { FormSelect } from "../components/ui/form-select";
+import { SelectItem } from "../components/ui/select";
 
 /**
  * Country codes for primary country selection
  * Common steel-exporting countries
  */
 const COUNTRY_OPTIONS = [
-  { value: '', label: 'Select Country' },
-  { value: 'UAE', label: 'United Arab Emirates' },
-  { value: 'CHN', label: 'China' },
-  { value: 'KOR', label: 'South Korea' },
-  { value: 'IND', label: 'India' },
-  { value: 'TWN', label: 'Taiwan' },
-  { value: 'JPN', label: 'Japan' },
-  { value: 'VNM', label: 'Vietnam' },
-  { value: 'IDN', label: 'Indonesia' },
-  { value: 'MYS', label: 'Malaysia' },
-  { value: 'THA', label: 'Thailand' },
-  { value: 'TUR', label: 'Turkey' },
-  { value: 'SAU', label: 'Saudi Arabia' },
-  { value: 'OMN', label: 'Oman' },
-  { value: 'BHR', label: 'Bahrain' },
-  { value: 'KWT', label: 'Kuwait' },
-  { value: 'QAT', label: 'Qatar' },
-  { value: 'EUR', label: 'Europe (Other)' },
-  { value: 'USA', label: 'United States' },
-  { value: 'OTH', label: 'Other' },
+  { value: "", label: "Select Country" },
+  { value: "UAE", label: "United Arab Emirates" },
+  { value: "CHN", label: "China" },
+  { value: "KOR", label: "South Korea" },
+  { value: "IND", label: "India" },
+  { value: "TWN", label: "Taiwan" },
+  { value: "JPN", label: "Japan" },
+  { value: "VNM", label: "Vietnam" },
+  { value: "IDN", label: "Indonesia" },
+  { value: "MYS", label: "Malaysia" },
+  { value: "THA", label: "Thailand" },
+  { value: "TUR", label: "Turkey" },
+  { value: "SAU", label: "Saudi Arabia" },
+  { value: "OMN", label: "Oman" },
+  { value: "BHR", label: "Bahrain" },
+  { value: "KWT", label: "Kuwait" },
+  { value: "QAT", label: "Qatar" },
+  { value: "EUR", label: "Europe (Other)" },
+  { value: "USA", label: "United States" },
+  { value: "OTH", label: "Other" },
 ];
 
 /**
  * Supplier Location options
  */
 const SUPPLIER_LOCATION_OPTIONS = [
-  { value: 'UAE_LOCAL', label: 'UAE Local' },
-  { value: 'OVERSEAS', label: 'Overseas' },
+  { value: "UAE_LOCAL", label: "UAE Local" },
+  { value: "OVERSEAS", label: "Overseas" },
 ];
 
 /**
@@ -71,21 +71,21 @@ export function SupplierForm() {
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    country: 'UAE',
-    taxId: '',
-    contactPerson: '',
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    country: "UAE",
+    taxId: "",
+    contactPerson: "",
     // New classification fields (v2 Procurement)
-    supplierLocation: 'UAE_LOCAL',
+    supplierLocation: "UAE_LOCAL",
     isMill: false,
-    primaryCountry: 'UAE',
+    primaryCountry: "UAE",
     typicalLeadTimeDays: 7,
     // Additional fields
-    notes: '',
+    notes: "",
     isActive: true,
   });
 
@@ -102,33 +102,33 @@ export function SupplierForm() {
       const supplier = await supplierService.getSupplier(id);
       if (supplier) {
         setFormData({
-          name: supplier.name || '',
-          email: supplier.email || '',
-          phone: supplier.phone || '',
-          address: supplier.address || '',
-          city: supplier.city || '',
-          country: supplier.country || 'UAE',
-          taxId: supplier.taxId || supplier.tax_id || '',
+          name: supplier.name || "",
+          email: supplier.email || "",
+          phone: supplier.phone || "",
+          address: supplier.address || "",
+          city: supplier.city || "",
+          country: supplier.country || "UAE",
+          taxId: supplier.taxId || supplier.tax_id || "",
           contactPerson:
-            supplier.contactPerson || supplier.contact_person || '',
+            supplier.contactPerson || supplier.contact_person || "",
           supplierLocation:
             supplier.supplierLocation ||
             supplier.supplier_location ||
-            'UAE_LOCAL',
+            "UAE_LOCAL",
           isMill: supplier.isMill ?? supplier.is_mill ?? false,
           primaryCountry:
-            supplier.primaryCountry || supplier.primary_country || 'UAE',
+            supplier.primaryCountry || supplier.primary_country || "UAE",
           typicalLeadTimeDays:
             supplier.typicalLeadTimeDays ??
             supplier.typical_lead_time_days ??
             7,
-          notes: supplier.notes || '',
+          notes: supplier.notes || "",
           isActive: supplier.isActive ?? supplier.is_active ?? true,
         });
       }
     } catch (err) {
-      console.error('Failed to load supplier:', err);
-      notificationService.error('Failed to load supplier');
+      console.error("Failed to load supplier:", err);
+      notificationService.error("Failed to load supplier");
     } finally {
       setLoading(false);
     }
@@ -146,12 +146,12 @@ export function SupplierForm() {
     }
 
     // Auto-update primaryCountry when supplierLocation changes
-    if (field === 'supplierLocation') {
-      if (value === 'UAE_LOCAL') {
+    if (field === "supplierLocation") {
+      if (value === "UAE_LOCAL") {
         setFormData((prev) => ({
           ...prev,
           supplierLocation: value,
-          primaryCountry: 'UAE',
+          primaryCountry: "UAE",
           typicalLeadTimeDays: 7, // Local suppliers typically faster
         }));
       } else {
@@ -168,20 +168,20 @@ export function SupplierForm() {
     const newErrors = {};
 
     if (!formData.name?.trim()) {
-      newErrors.name = 'Supplier name is required';
+      newErrors.name = "Supplier name is required";
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = "Invalid email format";
     }
 
-    if (formData.supplierLocation === 'OVERSEAS' && !formData.primaryCountry) {
+    if (formData.supplierLocation === "OVERSEAS" && !formData.primaryCountry) {
       newErrors.primaryCountry =
-        'Primary country is required for overseas suppliers';
+        "Primary country is required for overseas suppliers";
     }
 
     if (formData.typicalLeadTimeDays < 0) {
-      newErrors.typicalLeadTimeDays = 'Lead time cannot be negative';
+      newErrors.typicalLeadTimeDays = "Lead time cannot be negative";
     }
 
     setErrors(newErrors);
@@ -192,7 +192,7 @@ export function SupplierForm() {
     e.preventDefault();
 
     if (!validate()) {
-      notificationService.error('Please fix the validation errors');
+      notificationService.error("Please fix the validation errors");
       return;
     }
 
@@ -206,16 +206,16 @@ export function SupplierForm() {
 
       if (isEditMode) {
         await supplierService.updateSupplier(id, payload);
-        notificationService.success('Supplier updated successfully');
+        notificationService.success("Supplier updated successfully");
       } else {
         await supplierService.createSupplier(payload);
-        notificationService.success('Supplier created successfully');
+        notificationService.success("Supplier created successfully");
       }
 
-      navigate('/suppliers');
+      navigate("/suppliers");
     } catch (err) {
-      console.error('Failed to save supplier:', err);
-      notificationService.error(err.message || 'Failed to save supplier');
+      console.error("Failed to save supplier:", err);
+      notificationService.error(err.message || "Failed to save supplier");
     } finally {
       setSaving(false);
     }
@@ -223,17 +223,17 @@ export function SupplierForm() {
 
   const inputClasses = `w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
     isDarkMode
-      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
-      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+      ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
   }`;
 
-  const labelClasses = `block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`;
+  const labelClasses = `block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2
-          className={`h-8 w-8 animate-spin ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
+          className={`h-8 w-8 animate-spin ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
         />
       </div>
     );
@@ -241,26 +241,26 @@ export function SupplierForm() {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? 'bg-[#161A1D]' : 'bg-gray-50'}`}
+      className={`min-h-screen ${isDarkMode ? "bg-[#161A1D]" : "bg-gray-50"}`}
     >
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/suppliers')}
+              onClick={() => navigate("/suppliers")}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode
-                  ? 'hover:bg-gray-700 text-gray-300'
-                  : 'hover:bg-gray-100 text-gray-600'
+                  ? "hover:bg-gray-700 text-gray-300"
+                  : "hover:bg-gray-100 text-gray-600"
               }`}
             >
               <ArrowLeft size={24} />
             </button>
             <h1
-              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
-              {isEditMode ? 'Edit Supplier' : 'New Supplier'}
+              {isEditMode ? "Edit Supplier" : "New Supplier"}
             </h1>
           </div>
         </div>
@@ -270,12 +270,12 @@ export function SupplierForm() {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-gray-200'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-gray-200"
             }`}
           >
             <h2
-              className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Basic Information
             </h2>
@@ -285,8 +285,8 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  className={`${inputClasses} ${errors.name ? 'border-red-500' : ''}`}
+                  onChange={(e) => handleChange("name", e.target.value)}
+                  className={`${inputClasses} ${errors.name ? "border-red-500" : ""}`}
                   placeholder="Enter supplier name"
                 />
                 {errors.name && (
@@ -300,7 +300,7 @@ export function SupplierForm() {
                   type="text"
                   value={formData.contactPerson}
                   onChange={(e) =>
-                    handleChange('contactPerson', e.target.value)
+                    handleChange("contactPerson", e.target.value)
                   }
                   className={inputClasses}
                   placeholder="Primary contact name"
@@ -312,8 +312,8 @@ export function SupplierForm() {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  className={`${inputClasses} ${errors.email ? 'border-red-500' : ''}`}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className={`${inputClasses} ${errors.email ? "border-red-500" : ""}`}
                   placeholder="supplier@example.com"
                 />
                 {errors.email && (
@@ -326,7 +326,7 @@ export function SupplierForm() {
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onChange={(e) => handleChange("phone", e.target.value)}
                   className={inputClasses}
                   placeholder="+971 XX XXX XXXX"
                 />
@@ -337,7 +337,7 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
+                  onChange={(e) => handleChange("address", e.target.value)}
                   className={inputClasses}
                   placeholder="Street address"
                 />
@@ -348,7 +348,7 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.city}
-                  onChange={(e) => handleChange('city', e.target.value)}
+                  onChange={(e) => handleChange("city", e.target.value)}
                   className={inputClasses}
                   placeholder="City"
                 />
@@ -357,7 +357,7 @@ export function SupplierForm() {
               {/* Tax ID / TRN - UAE VAT Compliance */}
               <TRNInput
                 value={formData.taxId}
-                onChange={(value) => handleChange('taxId', value)}
+                onChange={(value) => handleChange("taxId", value)}
                 label="Tax ID / TRN"
                 required={false}
               />
@@ -368,18 +368,18 @@ export function SupplierForm() {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-gray-200'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-gray-200"
             }`}
           >
             <h2
-              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               <Globe size={20} />
               Procurement Classification
             </h2>
             <p
-              className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               These fields help categorize suppliers for procurement channel
               tracking and margin calculations.
@@ -397,7 +397,7 @@ export function SupplierForm() {
                   }
                   value={formData.supplierLocation}
                   onValueChange={(value) =>
-                    handleChange('supplierLocation', value)
+                    handleChange("supplierLocation", value)
                   }
                   required={true}
                   showValidation={false}
@@ -409,11 +409,11 @@ export function SupplierForm() {
                   ))}
                 </FormSelect>
                 <p
-                  className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
-                  {formData.supplierLocation === 'UAE_LOCAL'
-                    ? 'Local suppliers: faster delivery, lower margins (~8%)'
-                    : 'Overseas suppliers: longer lead times, higher margins (~18%)'}
+                  {formData.supplierLocation === "UAE_LOCAL"
+                    ? "Local suppliers: faster delivery, lower margins (~8%)"
+                    : "Overseas suppliers: longer lead times, higher margins (~18%)"}
                 </p>
               </div>
 
@@ -426,26 +426,26 @@ export function SupplierForm() {
                 <div
                   className={`flex items-center gap-4 h-[52px] px-4 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-800 border-gray-600'
-                      : 'bg-white border-gray-300'
+                      ? "bg-gray-800 border-gray-600"
+                      : "bg-white border-gray-300"
                   }`}
                 >
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.isMill}
-                      onChange={(e) => handleChange('isMill', e.target.checked)}
+                      onChange={(e) => handleChange("isMill", e.target.checked)}
                       className="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
                     <span
-                      className={isDarkMode ? 'text-white' : 'text-gray-900'}
+                      className={isDarkMode ? "text-white" : "text-gray-900"}
                     >
                       This is a Mill / Manufacturer
                     </span>
                   </label>
                 </div>
                 <p
-                  className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Mills produce steel directly; traders/distributors resell
                 </p>
@@ -462,11 +462,11 @@ export function SupplierForm() {
                   }
                   value={formData.primaryCountry}
                   onValueChange={(value) =>
-                    handleChange('primaryCountry', value)
+                    handleChange("primaryCountry", value)
                   }
-                  required={formData.supplierLocation === 'OVERSEAS'}
-                  disabled={formData.supplierLocation === 'UAE_LOCAL'}
-                  validationState={errors.primaryCountry ? 'invalid' : null}
+                  required={formData.supplierLocation === "OVERSEAS"}
+                  disabled={formData.supplierLocation === "UAE_LOCAL"}
+                  validationState={errors.primaryCountry ? "invalid" : null}
                   showValidation={true}
                 >
                   {COUNTRY_OPTIONS.map((opt) => (
@@ -492,11 +492,11 @@ export function SupplierForm() {
                   type="number"
                   value={formData.typicalLeadTimeDays}
                   onChange={(e) =>
-                    handleChange('typicalLeadTimeDays', e.target.value)
+                    handleChange("typicalLeadTimeDays", e.target.value)
                   }
                   min="0"
                   max="365"
-                  className={`${inputClasses} ${errors.typicalLeadTimeDays ? 'border-red-500' : ''}`}
+                  className={`${inputClasses} ${errors.typicalLeadTimeDays ? "border-red-500" : ""}`}
                   placeholder="Expected delivery days"
                 />
                 {errors.typicalLeadTimeDays && (
@@ -505,7 +505,7 @@ export function SupplierForm() {
                   </p>
                 )}
                 <p
-                  className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Average days from order to delivery
                 </p>
@@ -517,12 +517,12 @@ export function SupplierForm() {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-gray-200'
+                ? "bg-[#1E2328] border-[#37474F]"
+                : "bg-white border-gray-200"
             }`}
           >
             <h2
-              className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Additional Information
             </h2>
@@ -530,7 +530,7 @@ export function SupplierForm() {
               <label className={labelClasses}>Notes</label>
               <textarea
                 value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
+                onChange={(e) => handleChange("notes", e.target.value)}
                 rows={3}
                 className={inputClasses}
                 placeholder="Additional notes about this supplier..."
@@ -542,10 +542,10 @@ export function SupplierForm() {
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => handleChange('isActive', e.target.checked)}
+                  onChange={(e) => handleChange("isActive", e.target.checked)}
                   className="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                 />
-                <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                <span className={isDarkMode ? "text-white" : "text-gray-900"}>
                   Supplier is active
                 </span>
               </label>
@@ -556,11 +556,11 @@ export function SupplierForm() {
           <div className="flex justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate('/suppliers')}
+              onClick={() => navigate("/suppliers")}
               className={`px-6 py-3 rounded-lg border transition-colors ${
                 isDarkMode
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
               }`}
             >
               Cancel
@@ -575,7 +575,7 @@ export function SupplierForm() {
               ) : (
                 <Save size={20} />
               )}
-              {isEditMode ? 'Update Supplier' : 'Create Supplier'}
+              {isEditMode ? "Update Supplier" : "Create Supplier"}
             </button>
           </div>
         </form>

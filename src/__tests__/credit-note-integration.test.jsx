@@ -8,37 +8,37 @@
  * - Manual credit amount validation
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
-import CreditNoteForm from '../pages/CreditNoteForm';
-import { ThemeProvider } from '../contexts/ThemeContext';
-import * as creditNoteService from '../services/creditNoteService';
-import * as invoiceService from '../services/invoiceService';
-import * as companyService from '../services/companyService';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
+import CreditNoteForm from "../pages/CreditNoteForm";
+import { ThemeProvider } from "../contexts/ThemeContext";
+import * as creditNoteService from "../services/creditNoteService";
+import * as invoiceService from "../services/invoiceService";
+import * as companyService from "../services/companyService";
 
 // Mock implementations
 const mockInvoice = {
   id: 337,
-  invoiceNumber: 'INV-202512-0042',
-  date: '2025-12-02T20:00:00.000Z',
-  status: 'issued',
+  invoiceNumber: "INV-202512-0042",
+  date: "2025-12-02T20:00:00.000Z",
+  status: "issued",
   customerId: 8,
-  customerName: 'Emirates Fabrication',
+  customerName: "Emirates Fabrication",
   customer: {
     id: 8,
-    name: 'Emirates Fabrication',
-    address: { street: '123 Business Bay', city: 'Dubai', country: 'UAE' },
-    phone: '+971501234567',
-    email: 'contact@emiratesfab.ae',
-    trn: '123456789012345',
+    name: "Emirates Fabrication",
+    address: { street: "123 Business Bay", city: "Dubai", country: "UAE" },
+    phone: "+971501234567",
+    email: "contact@emiratesfab.ae",
+    trn: "123456789012345",
   },
   items: [
     {
       id: 1,
       productId: 10,
-      name: 'Stainless Steel Sheet',
+      name: "Stainless Steel Sheet",
       quantity: 11,
       rate: 222,
       amount: 2442,
@@ -50,8 +50,8 @@ const mockInvoice = {
 
 const mockCompany = {
   id: 1,
-  name: 'Ultimate Steel Trading LLC',
-  trn: '100123456789012',
+  name: "Ultimate Steel Trading LLC",
+  trn: "100123456789012",
 };
 
 // Hoist service mock functions to ensure they're the same instances
@@ -81,7 +81,7 @@ const {
   mockNotificationInfo: vi.fn(),
 }));
 
-vi.mock('../services/creditNoteService', () => ({
+vi.mock("../services/creditNoteService", () => ({
   creditNoteService: {
     getCreditNote: mockGetCreditNote,
     getNextCreditNoteNumber: mockGetNextCreditNoteNumber,
@@ -90,20 +90,20 @@ vi.mock('../services/creditNoteService', () => ({
   },
 }));
 
-vi.mock('../services/invoiceService', () => ({
+vi.mock("../services/invoiceService", () => ({
   invoiceService: {
     getInvoice: mockGetInvoice,
     searchForCreditNote: mockSearchForCreditNote,
   },
 }));
 
-vi.mock('../services/companyService', () => ({
+vi.mock("../services/companyService", () => ({
   companyService: {
     getCompany: mockGetCompany,
   },
 }));
 
-vi.mock('../services/notificationService', () => ({
+vi.mock("../services/notificationService", () => ({
   notificationService: {
     success: mockNotificationSuccess,
     error: mockNotificationError,
@@ -135,7 +135,7 @@ const {
   mockClearPendingSave: vi.fn(),
 }));
 
-vi.mock('../hooks/useCreditNoteDrafts', () => ({
+vi.mock("../hooks/useCreditNoteDrafts", () => ({
   default: () => ({
     // State
     drafts: {},
@@ -157,9 +157,9 @@ vi.mock('../hooks/useCreditNoteDrafts', () => ({
     // Utilities
     cleanupExpiredDrafts: vi.fn().mockReturnValue({}),
   }),
-  getDraftStatusMessage: vi.fn().mockReturnValue('Draft saved 5 minutes ago'),
-  formatRelativeTime: vi.fn().mockReturnValue('5 minutes ago'),
-  formatTimeUntilExpiry: vi.fn().mockReturnValue('6h 30m'),
+  getDraftStatusMessage: vi.fn().mockReturnValue("Draft saved 5 minutes ago"),
+  formatRelativeTime: vi.fn().mockReturnValue("5 minutes ago"),
+  formatTimeUntilExpiry: vi.fn().mockReturnValue("6h 30m"),
   cleanupExpiredDrafts: vi.fn().mockReturnValue({}),
 }));
 
@@ -170,8 +170,8 @@ const { mockNavigate, mockUseParams, mockUseSearchParams } = vi.hoisted(() => ({
   mockUseSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
 }));
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -186,7 +186,7 @@ const TestWrapper = ({ children }) => (
   </BrowserRouter>
 );
 
-describe('Credit Note Integration Tests', () => {
+describe("Credit Note Integration Tests", () => {
   let localStorageMock;
 
   beforeEach(() => {
@@ -222,7 +222,7 @@ describe('Credit Note Integration Tests', () => {
 
     // Use hoisted mock functions directly for service mocks
     mockGetNextCreditNoteNumber.mockResolvedValue({
-      nextNumber: 'CN-2025-0008',
+      nextNumber: "CN-2025-0008",
     });
     mockGetCompany.mockResolvedValue(mockCompany);
     mockGetInvoice.mockResolvedValue(mockInvoice);
@@ -237,17 +237,17 @@ describe('Credit Note Integration Tests', () => {
   // Complete Workflow: Create Credit Note with Manual Amount
   // ============================================
 
-  describe('Complete Workflow - Manual Credit Amount', () => {
-    it('should create credit note with manual amount from start to finish', async () => {
+  describe("Complete Workflow - Manual Credit Amount", () => {
+    it("should create credit note with manual amount from start to finish", async () => {
       mockUseSearchParams.mockReturnValue([
-        new URLSearchParams('invoiceId=337'),
+        new URLSearchParams("invoiceId=337"),
         vi.fn(),
       ]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
-        creditNoteNumber: 'CN-2025-0008',
-        status: 'draft',
+        creditNoteNumber: "CN-2025-0008",
+        status: "draft",
       });
 
       render(
@@ -262,25 +262,25 @@ describe('Credit Note Integration Tests', () => {
       });
 
       // Step 2: Select reason
-      const reasonSelect = screen.getByDisplayValue('Select reason...');
-      await userEvent.selectOptions(reasonSelect, 'goodwill_credit');
+      const reasonSelect = screen.getByDisplayValue("Select reason...");
+      await userEvent.selectOptions(reasonSelect, "goodwill_credit");
 
       // Step 3: Enter manual credit amount
-      const manualCreditInput = screen.getByTestId('manual-credit-amount');
+      const manualCreditInput = screen.getByTestId("manual-credit-amount");
       await userEvent.clear(manualCreditInput);
-      await userEvent.type(manualCreditInput, '500');
+      await userEvent.type(manualCreditInput, "500");
 
       // Step 4: Select settlement method (required when manual credit amount > 0)
       const settlementMethodSelect = screen.getByDisplayValue(
-        'Select settlement method...',
+        "Select settlement method...",
       );
       await userEvent.selectOptions(
         settlementMethodSelect,
-        'credit_adjustment',
+        "credit_adjustment",
       );
 
       // Step 5: Save draft explicitly (skip localStorage auto-save check since hook is mocked)
-      const saveDraftButton = screen.getByRole('button', {
+      const saveDraftButton = screen.getByRole("button", {
         name: /save draft/i,
       });
       await userEvent.click(saveDraftButton);
@@ -293,9 +293,9 @@ describe('Credit Note Integration Tests', () => {
       // Step 7: Verify saved data
       const callArgs = mockCreateCreditNote.mock.calls[0][0];
       expect(callArgs.manualCreditAmount).toBe(500);
-      expect(callArgs.reasonForReturn).toBe('goodwill_credit');
-      expect(callArgs.refundMethod).toBe('credit_adjustment');
-      expect(callArgs.status).toBe('draft');
+      expect(callArgs.reasonForReturn).toBe("goodwill_credit");
+      expect(callArgs.refundMethod).toBe("credit_adjustment");
+      expect(callArgs.status).toBe("draft");
       expect(callArgs.invoiceId).toBe(337);
     });
   });
@@ -304,19 +304,19 @@ describe('Credit Note Integration Tests', () => {
   // Draft Resume Workflow
   // ============================================
 
-  describe('Draft Resume Workflow', () => {
-    it('should resume draft, modify amount, and save', async () => {
+  describe("Draft Resume Workflow", () => {
+    it("should resume draft, modify amount, and save", async () => {
       // Setup existing draft via the mocked hook
       const existingDraft = {
         data: {
           invoiceId: 337,
-          invoiceNumber: 'INV-202512-0042',
-          creditNoteNumber: 'CN-2025-0008',
-          creditNoteDate: '2025-12-05',
-          reasonForReturn: 'goodwill_credit',
-          creditNoteType: 'ACCOUNTING_ONLY',
+          invoiceNumber: "INV-202512-0042",
+          creditNoteNumber: "CN-2025-0008",
+          creditNoteDate: "2025-12-05",
+          reasonForReturn: "goodwill_credit",
+          creditNoteType: "ACCOUNTING_ONLY",
           manualCreditAmount: 500,
-          refundMethod: 'credit_adjustment',
+          refundMethod: "credit_adjustment",
           items: mockInvoice.items.map((item) => ({
             ...item,
             selected: false,
@@ -326,15 +326,15 @@ describe('Credit Note Integration Tests', () => {
           customer: mockInvoice.customer,
         },
         invoiceId: 337,
-        invoiceNumber: 'INV-202512-0042',
-        customerName: 'Emirates Fabrication',
+        invoiceNumber: "INV-202512-0042",
+        customerName: "Emirates Fabrication",
         timestamp: Date.now(),
         expiresAt: Date.now() + 86400000,
       };
 
       // Configure mock to return a draft conflict
       mockCheckConflict.mockReturnValue({
-        type: 'same_invoice',
+        type: "same_invoice",
         existingDraft,
         allDrafts: [existingDraft],
       });
@@ -343,13 +343,13 @@ describe('Credit Note Integration Tests', () => {
       mockGetDraft.mockReturnValue(existingDraft);
 
       mockUseSearchParams.mockReturnValue([
-        new URLSearchParams('invoiceId=337'),
+        new URLSearchParams("invoiceId=337"),
         vi.fn(),
       ]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
-        status: 'draft',
+        status: "draft",
       });
 
       render(
@@ -361,11 +361,11 @@ describe('Credit Note Integration Tests', () => {
       // Step 1: Wait for conflict modal with Resume Draft option
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: /resume draft/i }),
+          screen.getByRole("button", { name: /resume draft/i }),
         ).toBeInTheDocument();
       });
 
-      const resumeButton = screen.getByRole('button', {
+      const resumeButton = screen.getByRole("button", {
         name: /resume draft/i,
       });
       await userEvent.click(resumeButton);
@@ -376,12 +376,12 @@ describe('Credit Note Integration Tests', () => {
       });
 
       // Step 3: Verify draft loaded and modify amount
-      const manualCreditInput = screen.getByTestId('manual-credit-amount');
+      const manualCreditInput = screen.getByTestId("manual-credit-amount");
       await userEvent.clear(manualCreditInput);
-      await userEvent.type(manualCreditInput, '750');
+      await userEvent.type(manualCreditInput, "750");
 
       // Step 4: Save
-      const saveDraftButton = screen.getByRole('button', {
+      const saveDraftButton = screen.getByRole("button", {
         name: /save draft/i,
       });
       await userEvent.click(saveDraftButton);
@@ -399,16 +399,16 @@ describe('Credit Note Integration Tests', () => {
   // Date Format Throughout Workflow
   // ============================================
 
-  describe('Date Format Consistency', () => {
-    it('should maintain correct date format from load to save', async () => {
+  describe("Date Format Consistency", () => {
+    it("should maintain correct date format from load to save", async () => {
       const creditNoteWithDate = {
         id: 107,
-        creditNoteNumber: 'CN-2025-0007',
+        creditNoteNumber: "CN-2025-0007",
         invoiceId: 337,
-        creditNoteDate: '2025-12-04T20:00:00.000Z', // ISO from backend
-        status: 'draft',
-        reasonForReturn: 'overcharge',
-        creditNoteType: 'ACCOUNTING_ONLY',
+        creditNoteDate: "2025-12-04T20:00:00.000Z", // ISO from backend
+        status: "draft",
+        reasonForReturn: "overcharge",
+        creditNoteType: "ACCOUNTING_ONLY",
         manualCreditAmount: 0,
         items: [],
         customer: mockInvoice.customer,
@@ -417,7 +417,7 @@ describe('Credit Note Integration Tests', () => {
       mockGetCreditNote.mockResolvedValue(creditNoteWithDate);
       mockUpdateCreditNote.mockResolvedValue(creditNoteWithDate);
 
-      mockUseParams.mockReturnValue({ id: '107' });
+      mockUseParams.mockReturnValue({ id: "107" });
 
       const { container } = render(
         <TestWrapper>
@@ -428,30 +428,30 @@ describe('Credit Note Integration Tests', () => {
       // Step 1: Verify date loaded correctly
       await waitFor(() => {
         const dateInput = container.querySelector('input[type="date"]');
-        expect(dateInput.value).toBe('2025-12-05'); // Converted to UAE time
+        expect(dateInput.value).toBe("2025-12-05"); // Converted to UAE time
       });
 
       // Step 2: Modify manual amount
-      const manualCreditInput = screen.getByTestId('manual-credit-amount');
+      const manualCreditInput = screen.getByTestId("manual-credit-amount");
       await userEvent.clear(manualCreditInput);
-      await userEvent.type(manualCreditInput, '100');
+      await userEvent.type(manualCreditInput, "100");
 
       // Step 3: Wait for and select settlement method (appears after manual credit amount > 0)
       await waitFor(() => {
         expect(
-          screen.getByDisplayValue('Select settlement method...'),
+          screen.getByDisplayValue("Select settlement method..."),
         ).toBeInTheDocument();
       });
       const settlementMethodSelect = screen.getByDisplayValue(
-        'Select settlement method...',
+        "Select settlement method...",
       );
       await userEvent.selectOptions(
         settlementMethodSelect,
-        'credit_adjustment',
+        "credit_adjustment",
       );
 
       // Step 4: Save
-      const saveDraftButton = screen.getByRole('button', {
+      const saveDraftButton = screen.getByRole("button", {
         name: /save draft/i,
       });
       await userEvent.click(saveDraftButton);
@@ -460,7 +460,7 @@ describe('Credit Note Integration Tests', () => {
       await waitFor(() => {
         expect(mockUpdateCreditNote).toHaveBeenCalled();
         const callArgs = mockUpdateCreditNote.mock.calls[0][1];
-        expect(callArgs.creditNoteDate).toBe('2025-12-05'); // Should be yyyy-MM-dd
+        expect(callArgs.creditNoteDate).toBe("2025-12-05"); // Should be yyyy-MM-dd
       });
     });
   });
@@ -469,10 +469,10 @@ describe('Credit Note Integration Tests', () => {
   // Validation Workflow
   // ============================================
 
-  describe('Validation Workflow', () => {
-    it('should prevent save without required fields', async () => {
+  describe("Validation Workflow", () => {
+    it("should prevent save without required fields", async () => {
       mockUseSearchParams.mockReturnValue([
-        new URLSearchParams('invoiceId=337'),
+        new URLSearchParams("invoiceId=337"),
         vi.fn(),
       ]);
 
@@ -487,7 +487,7 @@ describe('Credit Note Integration Tests', () => {
       });
 
       // Try to save without reason or amount
-      const saveDraftButton = screen.getByRole('button', {
+      const saveDraftButton = screen.getByRole("button", {
         name: /save draft/i,
       });
       await userEvent.click(saveDraftButton);
@@ -503,15 +503,15 @@ describe('Credit Note Integration Tests', () => {
       expect(mockCreateCreditNote).not.toHaveBeenCalled();
     });
 
-    it('should allow save with manual credit amount and reason', async () => {
+    it("should allow save with manual credit amount and reason", async () => {
       mockUseSearchParams.mockReturnValue([
-        new URLSearchParams('invoiceId=337'),
+        new URLSearchParams("invoiceId=337"),
         vi.fn(),
       ]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
-        status: 'draft',
+        status: "draft",
       });
 
       render(
@@ -525,24 +525,24 @@ describe('Credit Note Integration Tests', () => {
       });
 
       // Fill required fields
-      const reasonSelect = screen.getByDisplayValue('Select reason...');
-      await userEvent.selectOptions(reasonSelect, 'goodwill_credit');
+      const reasonSelect = screen.getByDisplayValue("Select reason...");
+      await userEvent.selectOptions(reasonSelect, "goodwill_credit");
 
-      const manualCreditInput = screen.getByTestId('manual-credit-amount');
+      const manualCreditInput = screen.getByTestId("manual-credit-amount");
       await userEvent.clear(manualCreditInput);
-      await userEvent.type(manualCreditInput, '500');
+      await userEvent.type(manualCreditInput, "500");
 
       // Select settlement method (required when manual credit amount > 0)
       const settlementMethodSelect = screen.getByDisplayValue(
-        'Select settlement method...',
+        "Select settlement method...",
       );
       await userEvent.selectOptions(
         settlementMethodSelect,
-        'credit_adjustment',
+        "credit_adjustment",
       );
 
       // Save
-      const saveDraftButton = screen.getByRole('button', {
+      const saveDraftButton = screen.getByRole("button", {
         name: /save draft/i,
       });
       await userEvent.click(saveDraftButton);
@@ -558,16 +558,16 @@ describe('Credit Note Integration Tests', () => {
   // Issue Tax Document Workflow
   // ============================================
 
-  describe('Issue Tax Document Workflow', () => {
-    it('should issue credit note immediately (skip draft)', async () => {
+  describe("Issue Tax Document Workflow", () => {
+    it("should issue credit note immediately (skip draft)", async () => {
       mockUseSearchParams.mockReturnValue([
-        new URLSearchParams('invoiceId=337'),
+        new URLSearchParams("invoiceId=337"),
         vi.fn(),
       ]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
-        status: 'issued',
+        status: "issued",
       });
 
       render(
@@ -581,24 +581,24 @@ describe('Credit Note Integration Tests', () => {
       });
 
       // Fill form
-      const reasonSelect = screen.getByDisplayValue('Select reason...');
-      await userEvent.selectOptions(reasonSelect, 'goodwill_credit');
+      const reasonSelect = screen.getByDisplayValue("Select reason...");
+      await userEvent.selectOptions(reasonSelect, "goodwill_credit");
 
-      const manualCreditInput = screen.getByTestId('manual-credit-amount');
+      const manualCreditInput = screen.getByTestId("manual-credit-amount");
       await userEvent.clear(manualCreditInput);
-      await userEvent.type(manualCreditInput, '500');
+      await userEvent.type(manualCreditInput, "500");
 
       // Select settlement method (required when manual credit amount > 0)
       const settlementMethodSelect = screen.getByDisplayValue(
-        'Select settlement method...',
+        "Select settlement method...",
       );
       await userEvent.selectOptions(
         settlementMethodSelect,
-        'credit_adjustment',
+        "credit_adjustment",
       );
 
       // Click "Issue Tax Document" instead of "Save Draft"
-      const issueButton = screen.getByRole('button', {
+      const issueButton = screen.getByRole("button", {
         name: /issue tax document/i,
       });
       await userEvent.click(issueButton);
@@ -607,7 +607,7 @@ describe('Credit Note Integration Tests', () => {
       await waitFor(() => {
         expect(mockCreateCreditNote).toHaveBeenCalled();
         const callArgs = mockCreateCreditNote.mock.calls[0][0];
-        expect(callArgs.status).toBe('issued');
+        expect(callArgs.status).toBe("issued");
       });
     });
   });

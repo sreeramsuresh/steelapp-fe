@@ -19,7 +19,7 @@
  * />
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   CheckCircle,
   XCircle,
@@ -29,22 +29,22 @@ import {
   ShieldCheck,
   Copy,
   Check,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { trnService } from '../services/trnService';
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { trnService } from "../services/trnService";
 
 const TRNVerifyInput = ({
-  value = '',
+  value = "",
   onChange,
   onVerified,
-  countryCode = 'AE',
-  label = 'TRN',
+  countryCode = "AE",
+  label = "TRN",
   placeholder,
   required = false,
   disabled = false,
   error: externalError,
   helperText,
-  className = '',
+  className = "",
   showVerifyButton = true,
   autoValidate = true,
 }) => {
@@ -114,7 +114,7 @@ const TRNVerifyInput = ({
       setVerificationResult({
         success: false,
         verified: null,
-        error: error.message || 'Verification failed',
+        error: error.message || "Verification failed",
         manualVerificationUrl: trnService.manualVerificationUrl,
       });
     } finally {
@@ -134,12 +134,12 @@ const TRNVerifyInput = ({
 
   // Determine input border color based on state
   const getBorderColor = () => {
-    if (externalError) return 'border-red-500';
-    if (verificationResult?.verified === true) return 'border-green-500';
-    if (verificationResult?.verified === false) return 'border-red-500';
-    if (formatValid === true) return 'border-teal-500';
-    if (formatValid === false) return 'border-orange-500';
-    return isDarkMode ? 'border-gray-600' : 'border-gray-300';
+    if (externalError) return "border-red-500";
+    if (verificationResult?.verified === true) return "border-green-500";
+    if (verificationResult?.verified === false) return "border-red-500";
+    if (formatValid === true) return "border-teal-500";
+    if (formatValid === false) return "border-orange-500";
+    return isDarkMode ? "border-gray-600" : "border-gray-300";
   };
 
   // Render verification status icon
@@ -180,8 +180,8 @@ const TRNVerifyInput = ({
       {label && (
         <label
           className={`block text-xs font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
+            isDarkMode ? "text-gray-400" : "text-gray-700"
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
         >
           {label}
         </label>
@@ -195,11 +195,11 @@ const TRNVerifyInput = ({
             value={localValue}
             onChange={handleChange}
             disabled={disabled}
-            placeholder={placeholder || formatInfo?.example || 'Enter TRN'}
+            placeholder={placeholder || formatInfo?.example || "Enter TRN"}
             className={`w-full pl-3 pr-10 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
               isDarkMode
-                ? 'bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
-                : 'bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+                ? "bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
+                : "bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
             } ${getBorderColor()}`}
           />
           {/* Status icon */}
@@ -209,7 +209,7 @@ const TRNVerifyInput = ({
                 type="button"
                 onClick={handleCopy}
                 className={`p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
                 title="Copy TRN"
               >
@@ -232,8 +232,8 @@ const TRNVerifyInput = ({
             disabled={disabled || verifying || !localValue || !formatValid}
             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 flex items-center gap-1.5 ${
               disabled || verifying || !localValue || !formatValid
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
-                : 'bg-teal-600 text-white hover:bg-teal-700 active:bg-teal-800'
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500"
+                : "bg-teal-600 text-white hover:bg-teal-700 active:bg-teal-800"
             }`}
           >
             {verifying ? (
@@ -257,15 +257,15 @@ const TRNVerifyInput = ({
           className={`mt-2 p-3 rounded-lg text-sm ${
             verificationResult.verified === true
               ? isDarkMode
-                ? 'bg-green-900/30 border border-green-700'
-                : 'bg-green-50 border border-green-200'
+                ? "bg-green-900/30 border border-green-700"
+                : "bg-green-50 border border-green-200"
               : verificationResult.verified === false
                 ? isDarkMode
-                  ? 'bg-red-900/30 border border-red-700'
-                  : 'bg-red-50 border border-red-200'
+                  ? "bg-red-900/30 border border-red-700"
+                  : "bg-red-50 border border-red-200"
                 : isDarkMode
-                  ? 'bg-yellow-900/30 border border-yellow-700'
-                  : 'bg-yellow-50 border border-yellow-200'
+                  ? "bg-yellow-900/30 border border-yellow-700"
+                  : "bg-yellow-50 border border-yellow-200"
           }`}
         >
           {verificationResult.verified === true && (
@@ -275,19 +275,19 @@ const TRNVerifyInput = ({
                 <span>Verified with FTA</span>
               </div>
               {verificationResult.businessName && (
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                  <span className="font-medium">Business:</span>{' '}
+                <p className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+                  <span className="font-medium">Business:</span>{" "}
                   {verificationResult.businessName}
                 </p>
               )}
               {verificationResult.status && (
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                  <span className="font-medium">Status:</span>{' '}
+                <p className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+                  <span className="font-medium">Status:</span>{" "}
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                      verificationResult.status === 'active'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                      verificationResult.status === "active"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
                     }`}
                   >
                     {verificationResult.status}
@@ -296,9 +296,9 @@ const TRNVerifyInput = ({
               )}
               {verificationResult.registrationDate && (
                 <p
-                  className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
-                  Registered since:{' '}
+                  Registered since:{" "}
                   {new Date(
                     verificationResult.registrationDate,
                   ).toLocaleDateString()}
@@ -314,7 +314,7 @@ const TRNVerifyInput = ({
                 <span>TRN Not Found</span>
               </div>
               <p
-                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
                 This TRN was not found in the FTA database. The entity may not
                 be VAT registered.
@@ -328,12 +328,12 @@ const TRNVerifyInput = ({
                 <AlertCircle className="h-4 w-4" />
                 <span>
                   {verificationResult.apiConfigured === false
-                    ? 'FTA API Not Configured'
-                    : 'Verification Unavailable'}
+                    ? "FTA API Not Configured"
+                    : "Verification Unavailable"}
                 </span>
               </div>
               <p
-                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
                 {verificationResult.message || verificationResult.error}
               </p>
@@ -351,7 +351,7 @@ const TRNVerifyInput = ({
               {verificationResult.instructions && (
                 <div
                   className={`mt-2 p-2 rounded text-xs ${
-                    isDarkMode ? 'bg-gray-800' : 'bg-white'
+                    isDarkMode ? "bg-gray-800" : "bg-white"
                   }`}
                 >
                   <p className="font-medium mb-1">Manual Verification Steps:</p>
@@ -370,7 +370,7 @@ const TRNVerifyInput = ({
       {/* Format error */}
       {formatError && !verificationResult && (
         <p
-          className={`text-xs ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}
+          className={`text-xs ${isDarkMode ? "text-orange-400" : "text-orange-600"}`}
         >
           {formatError}
         </p>
@@ -379,7 +379,7 @@ const TRNVerifyInput = ({
       {/* External error */}
       {externalError && (
         <p
-          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
         >
           {externalError}
         </p>
@@ -390,7 +390,7 @@ const TRNVerifyInput = ({
         <div className="flex items-start gap-1">
           {formatInfo && (
             <p
-              className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+              className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
             >
               {helperText || `Format: ${formatInfo.description}`}
             </p>

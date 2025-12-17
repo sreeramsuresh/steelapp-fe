@@ -237,7 +237,7 @@ export function getPaginationSummary(pagination) {
   summary += `- Page 1: ${firstPage} items (with customer info)\n`;
 
   if (middlePageCount > 0) {
-    summary += `- Pages 2-${middlePageCount + 1}: ${middlePages.join(', ')} items (continued)\n`;
+    summary += `- Pages 2-${middlePageCount + 1}: ${middlePages.join(", ")} items (continued)\n`;
   }
 
   summary += `- Page ${pagination.pages}: ${lastPage} items (with totals & signature)`;

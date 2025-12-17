@@ -25,7 +25,7 @@ export const toSnakeCase = (str) => {
  * @returns {any} Field value or undefined
  */
 export const safeField = (obj, camelCase) => {
-  if (!obj || typeof obj !== 'object') return undefined;
+  if (!obj || typeof obj !== "object") return undefined;
   if (obj[camelCase] !== undefined) return obj[camelCase];
   const snakeCase = toSnakeCase(camelCase);
   return obj[snakeCase];
@@ -38,14 +38,14 @@ export const safeField = (obj, camelCase) => {
  * @returns {string} Display name or empty string
  */
 export const getProductDisplayName = (product) => {
-  if (!product) return '';
+  if (!product) return "";
   return (
     product.displayName ||
     product.display_name ||
     product.fullName ||
     product.full_name ||
     product.name ||
-    ''
+    ""
   );
 };
 
@@ -56,14 +56,14 @@ export const getProductDisplayName = (product) => {
  * @returns {string} Full name or empty string
  */
 export const getProductFullName = (product) => {
-  if (!product) return '';
+  if (!product) return "";
   return (
     product.fullName ||
     product.full_name ||
     product.displayName ||
     product.display_name ||
     product.name ||
-    ''
+    ""
   );
 };
 
@@ -73,9 +73,9 @@ export const getProductFullName = (product) => {
  * @param {'selling' | 'cost'} type - Price type (default: 'selling')
  * @returns {number} Price value or 0
  */
-export const getPrice = (product, type = 'selling') => {
+export const getPrice = (product, type = "selling") => {
   if (!product) return 0;
-  if (type === 'selling') {
+  if (type === "selling") {
     return product.sellingPrice ?? product.selling_price ?? product.price ?? 0;
   }
   return (
@@ -113,7 +113,7 @@ export const getStock = (product) => {
  * @param {'createdAt' | 'updatedAt' | 'deletedAt'} field - Timestamp field name
  * @returns {string | null} ISO timestamp string or null
  */
-export const getTimestamp = (obj, field = 'createdAt') => {
+export const getTimestamp = (obj, field = "createdAt") => {
   if (!obj) return null;
   const snakeCase = toSnakeCase(field);
   return obj[field] || obj[snakeCase] || null;
@@ -128,14 +128,14 @@ export const getCustomerFields = (customer) => {
   if (!customer) return {};
   return {
     id: customer.id,
-    name: customer.name || customer.companyName || customer.company_name || '',
-    email: customer.email || '',
+    name: customer.name || customer.companyName || customer.company_name || "",
+    email: customer.email || "",
     phone:
-      customer.phone || customer.phoneNumber || customer.phone_number || '',
+      customer.phone || customer.phoneNumber || customer.phone_number || "",
     creditLimit: customer.creditLimit ?? customer.credit_limit ?? 0,
     currentCredit: customer.currentCredit ?? customer.current_credit ?? 0,
-    paymentTerms: customer.paymentTerms || customer.payment_terms || '',
-    trnNumber: customer.trnNumber || customer.trn_number || '',
+    paymentTerms: customer.paymentTerms || customer.payment_terms || "",
+    trnNumber: customer.trnNumber || customer.trn_number || "",
   };
 };
 
@@ -148,10 +148,10 @@ export const getInvoiceFields = (invoice) => {
   if (!invoice) return {};
   return {
     id: invoice.id,
-    invoiceNumber: invoice.invoiceNumber || invoice.invoice_number || '',
+    invoiceNumber: invoice.invoiceNumber || invoice.invoice_number || "",
     customerId: invoice.customerId ?? invoice.customer_id,
-    status: invoice.status || '',
-    paymentStatus: invoice.paymentStatus || invoice.payment_status || '',
+    status: invoice.status || "",
+    paymentStatus: invoice.paymentStatus || invoice.payment_status || "",
     deliveryStatus: invoice.deliveryStatus || invoice.delivery_status || null,
     subtotal: invoice.subtotal ?? 0,
     vatAmount: invoice.vatAmount ?? invoice.vat_amount ?? 0,
@@ -174,9 +174,9 @@ export const normalizeProduct = (product) => {
   return {
     ...product,
     // Name fields
-    displayName: product.displayName || product.display_name || '',
-    fullName: product.fullName || product.full_name || '',
-    uniqueName: product.uniqueName || product.unique_name || '',
+    displayName: product.displayName || product.display_name || "",
+    fullName: product.fullName || product.full_name || "",
+    uniqueName: product.uniqueName || product.unique_name || "",
     // Price fields
     sellingPrice: product.sellingPrice ?? product.selling_price ?? 0,
     costPrice: product.costPrice ?? product.cost_price ?? 0,
@@ -185,9 +185,9 @@ export const normalizeProduct = (product) => {
     minStock: product.minStock ?? product.min_stock ?? 0,
     maxStock: product.maxStock ?? product.max_stock ?? 0,
     // Size fields
-    sizeInch: product.sizeInch || product.size_inch || '',
+    sizeInch: product.sizeInch || product.size_inch || "",
     // Origin
-    origin: product.origin || 'UAE',
+    origin: product.origin || "UAE",
   };
 };
 

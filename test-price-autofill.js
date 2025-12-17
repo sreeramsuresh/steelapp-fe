@@ -17,7 +17,7 @@ async function runTest() {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
   const page = await browser.newPage();
@@ -64,7 +64,7 @@ async function runTest() {
 
     const customerSelected = await page.evaluate(() => {
       const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.toLowerCase().includes('abc')
+        el.textContent.toLowerCase().includes('abc'),
       );
       if (option) {
         option.click();
@@ -86,7 +86,7 @@ async function runTest() {
       const select = document.querySelector('select');
       if (select) {
         const finalTaxOption = Array.from(select.options).find(opt =>
-          opt.textContent.includes('Final Tax Invoice')
+          opt.textContent.includes('Final Tax Invoice'),
         );
         if (finalTaxOption) {
           select.value = finalTaxOption.value;
@@ -103,7 +103,7 @@ async function runTest() {
     // Check for Add Product button
     const hasAddButton = await page.evaluate(() => {
       const button = Array.from(document.querySelectorAll('button')).find(btn =>
-        btn.textContent.includes('Add Product') || btn.textContent.includes('Add Item')
+        btn.textContent.includes('Add Product') || btn.textContent.includes('Add Item'),
       );
       if (button) {
         button.click();
@@ -162,7 +162,7 @@ async function runTest() {
       // Return available options for debugging
       return {
         found: false,
-        availableOptions: options.slice(0, 10).map(o => (o.textContent || o.innerText || '').substring(0, 60))
+        availableOptions: options.slice(0, 10).map(o => (o.textContent || o.innerText || '').substring(0, 60)),
       };
     });
 
@@ -188,13 +188,13 @@ async function runTest() {
         document.querySelector('input#unitPrice'),
         document.querySelector('input[name="unitPrice"]'),
         document.querySelector('input[placeholder*="price" i]'),
-        ...Array.from(document.querySelectorAll('input[type="number"]'))
+        ...Array.from(document.querySelectorAll('input[type="number"]')),
       ].filter(Boolean);
 
       const results = {
         foundInputs: priceInputs.length,
         prices: [],
-        labels: []
+        labels: [],
       };
 
       priceInputs.forEach((input, idx) => {
@@ -217,7 +217,7 @@ async function runTest() {
     // Check if any price was auto-filled with expected value (4950)
     const expectedPrice = '4950';
     const hasPriceAutofilled = priceCheck.prices.some(price =>
-      price === expectedPrice || price === '4950.00' || price === '4950.0'
+      price === expectedPrice || price === '4950.00' || price === '4950.0',
     );
 
     if (hasPriceAutofilled) {
@@ -243,7 +243,7 @@ async function runTest() {
     console.log('\n📸 Screenshot saved to price-autofill-test.png');
 
     // Final summary
-    console.log('\n' + '='.repeat(60));
+    console.log(`\n${  '='.repeat(60)}`);
     console.log('TEST SUMMARY');
     console.log('='.repeat(60));
     console.log('✓ Navigation: PASSED');

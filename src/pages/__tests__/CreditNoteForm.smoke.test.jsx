@@ -20,19 +20,19 @@
  * - Loading states
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
-import CreditNoteForm from '../CreditNoteForm';
-import { ThemeContext } from '../../contexts/ThemeContext';
-import { creditNoteService } from '../../services/creditNoteService';
-import { invoiceService } from '../../services/invoiceService';
-import { companyService } from '../../services/companyService';
-import { notificationService } from '../../services/notificationService';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { BrowserRouter, MemoryRouter } from "react-router-dom";
+import CreditNoteForm from "../CreditNoteForm";
+import { ThemeContext } from "../../contexts/ThemeContext";
+import { creditNoteService } from "../../services/creditNoteService";
+import { invoiceService } from "../../services/invoiceService";
+import { companyService } from "../../services/companyService";
+import { notificationService } from "../../services/notificationService";
 
 // Mock services - Must return objects matching the exact export structure
-vi.mock('../../services/creditNoteService', () => {
+vi.mock("../../services/creditNoteService", () => {
   return {
     creditNoteService: {
       getNextCreditNoteNumber: vi.fn(),
@@ -49,7 +49,7 @@ vi.mock('../../services/creditNoteService', () => {
   };
 });
 
-vi.mock('../../services/invoiceService', () => {
+vi.mock("../../services/invoiceService", () => {
   return {
     invoiceService: {
       getInvoice: vi.fn(),
@@ -58,7 +58,7 @@ vi.mock('../../services/invoiceService', () => {
   };
 });
 
-vi.mock('../../services/companyService', () => {
+vi.mock("../../services/companyService", () => {
   return {
     companyService: {
       getCompany: vi.fn(),
@@ -66,7 +66,7 @@ vi.mock('../../services/companyService', () => {
   };
 });
 
-vi.mock('../../services/notificationService', () => {
+vi.mock("../../services/notificationService", () => {
   return {
     notificationService: {
       success: vi.fn(),
@@ -76,7 +76,7 @@ vi.mock('../../services/notificationService', () => {
     },
   };
 });
-vi.mock('../../hooks/useCreditNoteDrafts', () => ({
+vi.mock("../../hooks/useCreditNoteDrafts", () => ({
   default: () => ({
     saveDraft: vi.fn(),
     getDraft: vi.fn(),
@@ -87,37 +87,37 @@ vi.mock('../../hooks/useCreditNoteDrafts', () => ({
     clearPendingSave: vi.fn(),
     refreshDrafts: vi.fn(),
   }),
-  getDraftStatusMessage: vi.fn().mockReturnValue('Draft saved'),
+  getDraftStatusMessage: vi.fn().mockReturnValue("Draft saved"),
 }));
 
 // Mock data
 const mockInvoice = {
   id: 1,
-  invoiceNumber: 'INV-2024-001',
-  date: '2024-01-15',
-  status: 'issued',
+  invoiceNumber: "INV-2024-001",
+  date: "2024-01-15",
+  status: "issued",
   total: 10000,
   customer: {
     id: 1,
-    name: 'Test Customer',
+    name: "Test Customer",
     address: {
-      street: '123 Test St',
-      city: 'Dubai',
-      state: 'Dubai',
-      postal_code: '12345',
-      country: 'UAE',
+      street: "123 Test St",
+      city: "Dubai",
+      state: "Dubai",
+      postal_code: "12345",
+      country: "UAE",
     },
-    phone: '+971501234567',
-    email: 'test@customer.com',
-    trn: '123456789012345',
+    phone: "+971501234567",
+    email: "test@customer.com",
+    trn: "123456789012345",
   },
   items: [
     {
       id: 1,
       productId: 1,
-      name: 'Steel Product 1',
-      productName: 'Steel Product 1',
-      description: 'High quality steel',
+      name: "Steel Product 1",
+      productName: "Steel Product 1",
+      description: "High quality steel",
       quantity: 10,
       rate: 500,
       amount: 5000,
@@ -126,9 +126,9 @@ const mockInvoice = {
     {
       id: 2,
       productId: 2,
-      name: 'Steel Product 2',
-      productName: 'Steel Product 2',
-      description: 'Premium steel',
+      name: "Steel Product 2",
+      productName: "Steel Product 2",
+      description: "Premium steel",
       quantity: 5,
       rate: 1000,
       amount: 5000,
@@ -139,43 +139,43 @@ const mockInvoice = {
 
 const mockCreditNote = {
   id: 1,
-  creditNoteNumber: 'CN-2024-001',
+  creditNoteNumber: "CN-2024-001",
   invoiceId: 1,
-  invoiceNumber: 'INV-2024-001',
-  creditNoteDate: '2024-01-20',
-  status: 'draft',
-  creditNoteType: 'RETURN_WITH_QC',
-  reasonForReturn: 'defective',
-  notes: 'Test notes',
+  invoiceNumber: "INV-2024-001",
+  creditNoteDate: "2024-01-20",
+  status: "draft",
+  creditNoteType: "RETURN_WITH_QC",
+  reasonForReturn: "defective",
+  notes: "Test notes",
   items: [],
   subtotal: 0,
   vatAmount: 0,
   totalCredit: 0,
   customer: mockInvoice.customer,
-  refundMethod: '',
-  refundDate: '',
-  refundReference: '',
-  expectedReturnDate: '2024-01-25',
+  refundMethod: "",
+  refundDate: "",
+  refundReference: "",
+  expectedReturnDate: "2024-01-25",
   manualCreditAmount: 0,
 };
 
 const mockCompany = {
   id: 1,
-  name: 'Ultimate Steels LLC',
-  address: '123 Steel St',
-  trn: '123456789012345',
+  name: "Ultimate Steels LLC",
+  address: "123 Steel St",
+  trn: "123456789012345",
 };
 
 // Test wrapper component with mocked ThemeContext
 const TestWrapper = ({
   children,
   isDarkMode = false,
-  route = '/credit-notes/new',
+  route = "/credit-notes/new",
 }) => {
   const mockThemeContext = {
     isDarkMode,
     toggleDarkMode: vi.fn(),
-    themeMode: isDarkMode ? 'dark' : 'light',
+    themeMode: isDarkMode ? "dark" : "light",
     toggleTheme: vi.fn(),
     setTheme: vi.fn(),
   };
@@ -189,13 +189,13 @@ const TestWrapper = ({
   );
 };
 
-describe('CreditNoteForm - Smoke Tests', () => {
+describe("CreditNoteForm - Smoke Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Default mock implementations
     creditNoteService.getNextCreditNoteNumber.mockResolvedValue({
-      nextNumber: 'CN-2024-001',
+      nextNumber: "CN-2024-001",
     });
 
     creditNoteService.getCreditNote.mockResolvedValue(mockCreditNote);
@@ -213,7 +213,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
     notificationService.info = vi.fn();
   });
 
-  describe('Header Section', () => {
+  describe("Header Section", () => {
     it('renders page title "New Credit Note"', async () => {
       render(
         <TestWrapper>
@@ -222,11 +222,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+        expect(screen.getByText("New Credit Note")).toBeInTheDocument();
       });
     });
 
-    it('renders page subtitle', async () => {
+    it("renders page subtitle", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -240,7 +240,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('renders Back arrow button', async () => {
+    it("renders Back arrow button", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -248,13 +248,13 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const buttons = screen.getAllByRole('button');
-        const backButton = buttons.find((btn) => btn.querySelector('svg'));
+        const buttons = screen.getAllByRole("button");
+        const backButton = buttons.find((btn) => btn.querySelector("svg"));
         expect(backButton).toBeInTheDocument();
       });
     });
 
-    it('renders Preview button with Eye icon', async () => {
+    it("renders Preview button with Eye icon", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -263,7 +263,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: /preview/i }),
+          screen.getByRole("button", { name: /preview/i }),
         ).toBeInTheDocument();
       });
     });
@@ -277,7 +277,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: /save draft/i }),
+          screen.getByRole("button", { name: /save draft/i }),
         ).toBeInTheDocument();
       });
     });
@@ -291,12 +291,12 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: /issue tax document/i }),
+          screen.getByRole("button", { name: /issue tax document/i }),
         ).toBeInTheDocument();
       });
     });
 
-    it('Save Draft button has Save icon', async () => {
+    it("Save Draft button has Save icon", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -304,14 +304,14 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const saveDraftButton = screen.getByRole('button', {
+        const saveDraftButton = screen.getByRole("button", {
           name: /save draft/i,
         });
-        expect(saveDraftButton.querySelector('svg')).toBeInTheDocument();
+        expect(saveDraftButton.querySelector("svg")).toBeInTheDocument();
       });
     });
 
-    it('Issue Tax Document button has Send icon', async () => {
+    it("Issue Tax Document button has Send icon", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -319,14 +319,14 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const issueButton = screen.getByRole('button', {
+        const issueButton = screen.getByRole("button", {
           name: /issue tax document/i,
         });
-        expect(issueButton.querySelector('svg')).toBeInTheDocument();
+        expect(issueButton.querySelector("svg")).toBeInTheDocument();
       });
     });
 
-    it('Back button is clickable', async () => {
+    it("Back button is clickable", async () => {
       const user = userEvent.setup();
 
       render(
@@ -336,16 +336,16 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const buttons = screen.getAllByRole('button');
+        const buttons = screen.getAllByRole("button");
         const backButton = buttons.find(
           (btn) =>
-            btn.querySelector('svg') && !btn.textContent.includes('Preview'),
+            btn.querySelector("svg") && !btn.textContent.includes("Preview"),
         );
         expect(backButton).toBeInTheDocument();
       });
     });
 
-    it('Preview button is clickable', async () => {
+    it("Preview button is clickable", async () => {
       const user = userEvent.setup();
 
       render(
@@ -356,11 +356,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: /preview/i }),
+          screen.getByRole("button", { name: /preview/i }),
         ).toBeInTheDocument();
       });
 
-      const previewButton = screen.getByRole('button', { name: /preview/i });
+      const previewButton = screen.getByRole("button", { name: /preview/i });
       await user.click(previewButton);
 
       // Preview modal should be triggered (implementation depends on modal)
@@ -368,8 +368,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Basic Information Fields', () => {
-    it('renders Credit Note Number field (read-only)', async () => {
+  describe("Basic Information Fields", () => {
+    it("renders Credit Note Number field (read-only)", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -377,13 +377,13 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const input = screen.getByDisplayValue('CN-2024-001');
+        const input = screen.getByDisplayValue("CN-2024-001");
         expect(input).toBeInTheDocument();
         expect(input).toBeDisabled();
       });
     });
 
-    it('renders Credit Note Type dropdown', async () => {
+    it("renders Credit Note Type dropdown", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -396,12 +396,12 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const select = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="ACCOUNTING_ONLY"]'));
       expect(select).toBeInTheDocument();
     });
 
-    it('Credit Note Type dropdown has both options', async () => {
+    it("Credit Note Type dropdown has both options", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -409,7 +409,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const typeSelect = selects.find((s) =>
           s.querySelector('option[value="ACCOUNTING_ONLY"]'),
         );
@@ -417,17 +417,17 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="ACCOUNTING_ONLY"]'));
 
-      const options = within(typeSelect).getAllByRole('option');
+      const options = within(typeSelect).getAllByRole("option");
       const optionValues = options.map((opt) => opt.value);
 
-      expect(optionValues).toContain('ACCOUNTING_ONLY');
-      expect(optionValues).toContain('RETURN_WITH_QC');
+      expect(optionValues).toContain("ACCOUNTING_ONLY");
+      expect(optionValues).toContain("RETURN_WITH_QC");
     });
 
-    it('renders Reason for Return dropdown with required indicator', async () => {
+    it("renders Reason for Return dropdown with required indicator", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -436,11 +436,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         const label = screen.getByText(/reason for return/i);
-        expect(label.textContent).toContain('*');
+        expect(label.textContent).toContain("*");
       });
     });
 
-    it('Reason dropdown has all options including physical return reasons', async () => {
+    it("Reason dropdown has all options including physical return reasons", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -448,7 +448,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const reasonSelect = selects.find((s) =>
           s.querySelector('option[value="defective"]'),
         );
@@ -456,28 +456,28 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const reasonSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="defective"]'));
 
-      const options = within(reasonSelect).getAllByRole('option');
+      const options = within(reasonSelect).getAllByRole("option");
       const optionValues = options.map((opt) => opt.value);
 
       // Physical return reasons
-      expect(optionValues).toContain('defective');
-      expect(optionValues).toContain('damaged');
-      expect(optionValues).toContain('wrong_item');
-      expect(optionValues).toContain('quality_issue');
+      expect(optionValues).toContain("defective");
+      expect(optionValues).toContain("damaged");
+      expect(optionValues).toContain("wrong_item");
+      expect(optionValues).toContain("quality_issue");
 
       // Financial only reasons
-      expect(optionValues).toContain('overcharge');
-      expect(optionValues).toContain('duplicate_order');
-      expect(optionValues).toContain('goodwill_credit');
+      expect(optionValues).toContain("overcharge");
+      expect(optionValues).toContain("duplicate_order");
+      expect(optionValues).toContain("goodwill_credit");
 
       // Other
-      expect(optionValues).toContain('other');
+      expect(optionValues).toContain("other");
     });
 
-    it('renders Notes textarea', async () => {
+    it("renders Notes textarea", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -492,7 +492,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('Notes textarea allows typing', async () => {
+    it("Notes textarea allows typing", async () => {
       const user = userEvent.setup();
 
       render(
@@ -510,14 +510,14 @@ describe('CreditNoteForm - Smoke Tests', () => {
       const textarea = screen.getByPlaceholderText(
         /additional notes about the return/i,
       );
-      await user.type(textarea, 'Test note');
+      await user.type(textarea, "Test note");
 
-      expect(textarea).toHaveValue('Test note');
+      expect(textarea).toHaveValue("Test note");
     });
   });
 
-  describe('Invoice Selection', () => {
-    it('renders invoice search input with Search icon', async () => {
+  describe("Invoice Selection", () => {
+    it("renders invoice search input with Search icon", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -535,11 +535,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
         /start typing invoice number or customer name/i,
       );
       expect(
-        searchInput.parentElement.querySelector('svg'),
+        searchInput.parentElement.querySelector("svg"),
       ).toBeInTheDocument();
     });
 
-    it('invoice search input has required indicator', async () => {
+    it("invoice search input has required indicator", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -548,11 +548,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         const label = screen.getByText(/invoice number/i);
-        expect(label.textContent).toContain('*');
+        expect(label.textContent).toContain("*");
       });
     });
 
-    it('allows typing in invoice search', async () => {
+    it("allows typing in invoice search", async () => {
       const user = userEvent.setup();
 
       render(
@@ -572,12 +572,12 @@ describe('CreditNoteForm - Smoke Tests', () => {
       const searchInput = screen.getByPlaceholderText(
         /start typing invoice number or customer name/i,
       );
-      await user.type(searchInput, 'INV');
+      await user.type(searchInput, "INV");
 
-      expect(searchInput).toHaveValue('INV');
+      expect(searchInput).toHaveValue("INV");
     });
 
-    it('renders filter controls when search has results', async () => {
+    it("renders filter controls when search has results", async () => {
       const user = userEvent.setup();
 
       render(
@@ -597,7 +597,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       const searchInput = screen.getByPlaceholderText(
         /start typing invoice number or customer name/i,
       );
-      await user.type(searchInput, 'INV');
+      await user.type(searchInput, "INV");
 
       await waitFor(() => {
         expect(invoiceService.searchForCreditNote).toHaveBeenCalled();
@@ -605,8 +605,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Customer Information Display', () => {
-    it('renders customer name when invoice is selected', async () => {
+  describe("Customer Information Display", () => {
+    it("renders customer name when invoice is selected", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -614,11 +614,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Test Customer')).toBeInTheDocument();
+        expect(screen.getByText("Test Customer")).toBeInTheDocument();
       });
     });
 
-    it('customer information is read-only', async () => {
+    it("customer information is read-only", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -626,19 +626,19 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Test Customer')).toBeInTheDocument();
+        expect(screen.getByText("Test Customer")).toBeInTheDocument();
       });
 
       // Customer info should be displayed as text, not input fields
-      const customerNameInput = screen.queryByDisplayValue('Test Customer');
+      const customerNameInput = screen.queryByDisplayValue("Test Customer");
       if (customerNameInput) {
         expect(customerNameInput).toBeDisabled();
       }
     });
   });
 
-  describe('Items Section - RETURN_WITH_QC', () => {
-    it('renders items section header when invoice is selected', async () => {
+  describe("Items Section - RETURN_WITH_QC", () => {
+    it("renders items section header when invoice is selected", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -650,7 +650,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('renders item checkboxes for each invoice item', async () => {
+    it("renders item checkboxes for each invoice item", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -658,12 +658,12 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
+        const checkboxes = screen.getAllByRole("checkbox");
         expect(checkboxes.length).toBeGreaterThan(0);
       });
     });
 
-    it('renders item names', async () => {
+    it("renders item names", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -671,12 +671,12 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Steel Product 1')).toBeInTheDocument();
-        expect(screen.getByText('Steel Product 2')).toBeInTheDocument();
+        expect(screen.getByText("Steel Product 1")).toBeInTheDocument();
+        expect(screen.getByText("Steel Product 2")).toBeInTheDocument();
       });
     });
 
-    it('renders Original Qty field for each item', async () => {
+    it("renders Original Qty field for each item", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -689,7 +689,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('renders Return Qty field for each item with required indicator', async () => {
+    it("renders Return Qty field for each item with required indicator", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -702,7 +702,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('renders Amount field for each item', async () => {
+    it("renders Amount field for each item", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -715,7 +715,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('checkboxes are clickable', async () => {
+    it("checkboxes are clickable", async () => {
       const user = userEvent.setup();
 
       render(
@@ -725,19 +725,19 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
+        const checkboxes = screen.getAllByRole("checkbox");
         expect(checkboxes[0]).toBeInTheDocument();
       });
 
-      const checkbox = screen.getAllByRole('checkbox')[0];
+      const checkbox = screen.getAllByRole("checkbox")[0];
       await user.click(checkbox);
 
       expect(checkbox).toBeChecked();
     });
   });
 
-  describe('Refund Information Section', () => {
-    it('does not render refund section for draft credit notes', async () => {
+  describe("Refund Information Section", () => {
+    it("does not render refund section for draft credit notes", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -752,8 +752,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Financial Summary', () => {
-    it('renders Credit Summary section when items are selected or manual amount entered', async () => {
+  describe("Financial Summary", () => {
+    it("renders Credit Summary section when items are selected or manual amount entered", async () => {
       const user = userEvent.setup();
 
       render(
@@ -763,11 +763,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
+        const checkboxes = screen.getAllByRole("checkbox");
         expect(checkboxes[0]).toBeInTheDocument();
       });
 
-      const checkbox = screen.getAllByRole('checkbox')[0];
+      const checkbox = screen.getAllByRole("checkbox")[0];
       await user.click(checkbox);
 
       await waitFor(() => {
@@ -775,7 +775,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('displays Subtotal in summary', async () => {
+    it("displays Subtotal in summary", async () => {
       const user = userEvent.setup();
 
       render(
@@ -785,11 +785,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
+        const checkboxes = screen.getAllByRole("checkbox");
         expect(checkboxes[0]).toBeInTheDocument();
       });
 
-      const checkbox = screen.getAllByRole('checkbox')[0];
+      const checkbox = screen.getAllByRole("checkbox")[0];
       await user.click(checkbox);
 
       await waitFor(() => {
@@ -797,7 +797,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('displays VAT Amount in summary', async () => {
+    it("displays VAT Amount in summary", async () => {
       const user = userEvent.setup();
 
       render(
@@ -807,11 +807,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
+        const checkboxes = screen.getAllByRole("checkbox");
         expect(checkboxes[0]).toBeInTheDocument();
       });
 
-      const checkbox = screen.getAllByRole('checkbox')[0];
+      const checkbox = screen.getAllByRole("checkbox")[0];
       await user.click(checkbox);
 
       await waitFor(() => {
@@ -819,7 +819,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('displays Total Credit in summary', async () => {
+    it("displays Total Credit in summary", async () => {
       const user = userEvent.setup();
 
       render(
@@ -829,11 +829,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
+        const checkboxes = screen.getAllByRole("checkbox");
         expect(checkboxes[0]).toBeInTheDocument();
       });
 
-      const checkbox = screen.getAllByRole('checkbox')[0];
+      const checkbox = screen.getAllByRole("checkbox")[0];
       await user.click(checkbox);
 
       await waitFor(() => {
@@ -841,7 +841,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('displays Net Refund in summary', async () => {
+    it("displays Net Refund in summary", async () => {
       const user = userEvent.setup();
 
       render(
@@ -851,11 +851,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
+        const checkboxes = screen.getAllByRole("checkbox");
         expect(checkboxes[0]).toBeInTheDocument();
       });
 
-      const checkbox = screen.getAllByRole('checkbox')[0];
+      const checkbox = screen.getAllByRole("checkbox")[0];
       await user.click(checkbox);
 
       await waitFor(() => {
@@ -864,8 +864,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Manual Credit Amount - ACCOUNTING_ONLY', () => {
-    it('renders Manual Credit Amount section when type is ACCOUNTING_ONLY', async () => {
+  describe("Manual Credit Amount - ACCOUNTING_ONLY", () => {
+    it("renders Manual Credit Amount section when type is ACCOUNTING_ONLY", async () => {
       const user = userEvent.setup();
 
       render(
@@ -875,7 +875,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const typeSelect = selects.find((s) =>
           s.querySelector('option[value="ACCOUNTING_ONLY"]'),
         );
@@ -888,7 +888,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('Manual Credit Amount input allows numeric input', async () => {
+    it("Manual Credit Amount input allows numeric input", async () => {
       const user = userEvent.setup();
 
       render(
@@ -901,18 +901,18 @@ describe('CreditNoteForm - Smoke Tests', () => {
         expect(screen.getByText(/manual credit amount/i)).toBeInTheDocument();
       });
 
-      const inputs = screen.getAllByRole('spinbutton');
+      const inputs = screen.getAllByRole("spinbutton");
       const manualAmountInput = inputs.find(
-        (input) => input.getAttribute('placeholder') === '0.00',
+        (input) => input.getAttribute("placeholder") === "0.00",
       );
 
       if (manualAmountInput) {
-        await user.type(manualAmountInput, '1000');
+        await user.type(manualAmountInput, "1000");
         expect(manualAmountInput).toHaveValue(1000);
       }
     });
 
-    it('renders helper text for manual credit amount', async () => {
+    it("renders helper text for manual credit amount", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -927,8 +927,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Return Logistics - RETURN_WITH_QC', () => {
-    it('renders Return Logistics section when type is RETURN_WITH_QC', async () => {
+  describe("Return Logistics - RETURN_WITH_QC", () => {
+    it("renders Return Logistics section when type is RETURN_WITH_QC", async () => {
       const user = userEvent.setup();
 
       render(
@@ -938,7 +938,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const typeSelect = selects.find((s) =>
           s.querySelector('option[value="ACCOUNTING_ONLY"]'),
         );
@@ -947,9 +947,9 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       // Change to RETURN_WITH_QC
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="RETURN_WITH_QC"]'));
-      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+      await user.selectOptions(typeSelect, "RETURN_WITH_QC");
 
       await waitFor(() => {
         const logisticsElements = screen.getAllByText(/return logistics/i);
@@ -957,7 +957,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('renders Expected Return Date with required indicator', async () => {
+    it("renders Expected Return Date with required indicator", async () => {
       const user = userEvent.setup();
 
       render(
@@ -967,7 +967,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const typeSelect = selects.find((s) =>
           s.querySelector('option[value="RETURN_WITH_QC"]'),
         );
@@ -975,17 +975,17 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="RETURN_WITH_QC"]'));
-      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+      await user.selectOptions(typeSelect, "RETURN_WITH_QC");
 
       await waitFor(() => {
         const label = screen.getByText(/expected return date/i);
-        expect(label.textContent).toContain('*');
+        expect(label.textContent).toContain("*");
       });
     });
 
-    it('renders Return Shipping Cost field', async () => {
+    it("renders Return Shipping Cost field", async () => {
       const user = userEvent.setup();
 
       render(
@@ -995,7 +995,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const typeSelect = selects.find((s) =>
           s.querySelector('option[value="RETURN_WITH_QC"]'),
         );
@@ -1003,16 +1003,16 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="RETURN_WITH_QC"]'));
-      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+      await user.selectOptions(typeSelect, "RETURN_WITH_QC");
 
       await waitFor(() => {
         expect(screen.getByText(/return shipping cost/i)).toBeInTheDocument();
       });
     });
 
-    it('renders Restocking Fee field with helper text', async () => {
+    it("renders Restocking Fee field with helper text", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1022,7 +1022,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const typeSelect = selects.find((s) =>
           s.querySelector('option[value="RETURN_WITH_QC"]'),
         );
@@ -1030,9 +1030,9 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="RETURN_WITH_QC"]'));
-      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+      await user.selectOptions(typeSelect, "RETURN_WITH_QC");
 
       await waitFor(() => {
         expect(screen.getByText(/restocking fee/i)).toBeInTheDocument();
@@ -1043,8 +1043,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Validation Messages', () => {
-    it('shows validation errors when Save Draft is clicked without required fields', async () => {
+  describe("Validation Messages", () => {
+    it("shows validation errors when Save Draft is clicked without required fields", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1055,11 +1055,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: /save draft/i }),
+          screen.getByRole("button", { name: /save draft/i }),
         ).toBeInTheDocument();
       });
 
-      const saveDraftButton = screen.getByRole('button', {
+      const saveDraftButton = screen.getByRole("button", {
         name: /save draft/i,
       });
       await user.click(saveDraftButton);
@@ -1071,7 +1071,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('displays required field indicator legend', async () => {
+    it("displays required field indicator legend", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -1085,7 +1085,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('shows red asterisk for required fields', async () => {
+    it("shows red asterisk for required fields", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -1093,14 +1093,14 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const labels = screen.getAllByText('*');
+        const labels = screen.getAllByText("*");
         expect(labels.length).toBeGreaterThan(0);
       });
     });
   });
 
-  describe('Conditional Rendering', () => {
-    it('items section is required for RETURN_WITH_QC', async () => {
+  describe("Conditional Rendering", () => {
+    it("items section is required for RETURN_WITH_QC", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1110,7 +1110,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const typeSelect = selects.find((s) =>
           s.querySelector('option[value="RETURN_WITH_QC"]'),
         );
@@ -1118,17 +1118,17 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="RETURN_WITH_QC"]'));
-      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+      await user.selectOptions(typeSelect, "RETURN_WITH_QC");
 
       await waitFor(() => {
         const itemsLabel = screen.getByText(/select items to return/i);
-        expect(itemsLabel.textContent).toContain('*');
+        expect(itemsLabel.textContent).toContain("*");
       });
     });
 
-    it('items section is optional for ACCOUNTING_ONLY', async () => {
+    it("items section is optional for ACCOUNTING_ONLY", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -1140,7 +1140,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('logistics section only shows for RETURN_WITH_QC', async () => {
+    it("logistics section only shows for RETURN_WITH_QC", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1155,9 +1155,9 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="RETURN_WITH_QC"]'));
-      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+      await user.selectOptions(typeSelect, "RETURN_WITH_QC");
 
       // Check Quick Actions section IS visible after selecting RETURN_WITH_QC
       await waitFor(() => {
@@ -1165,7 +1165,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('manual credit amount only shows for ACCOUNTING_ONLY', async () => {
+    it("manual credit amount only shows for ACCOUNTING_ONLY", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1179,9 +1179,9 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const typeSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="RETURN_WITH_QC"]'));
-      await user.selectOptions(typeSelect, 'RETURN_WITH_QC');
+      await user.selectOptions(typeSelect, "RETURN_WITH_QC");
 
       await waitFor(() => {
         expect(
@@ -1191,8 +1191,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Dark Mode Compatibility', () => {
-    it('renders in light mode by default', async () => {
+  describe("Dark Mode Compatibility", () => {
+    it("renders in light mode by default", async () => {
       render(
         <TestWrapper isDarkMode={false}>
           <CreditNoteForm />
@@ -1200,13 +1200,13 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+        expect(screen.getByText("New Credit Note")).toBeInTheDocument();
       });
     });
   });
 
-  describe('API Integration', () => {
-    it('calls getNextCreditNoteNumber on mount for new credit note', async () => {
+  describe("API Integration", () => {
+    it("calls getNextCreditNoteNumber on mount for new credit note", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -1218,7 +1218,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('calls getCompany on mount', async () => {
+    it("calls getCompany on mount", async () => {
       render(
         <TestWrapper>
           <CreditNoteForm />
@@ -1230,7 +1230,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('calls getInvoice when invoiceId is in URL params', async () => {
+    it("calls getInvoice when invoiceId is in URL params", async () => {
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
           <CreditNoteForm />
@@ -1238,11 +1238,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(invoiceService.getInvoice).toHaveBeenCalledWith('1');
+        expect(invoiceService.getInvoice).toHaveBeenCalledWith("1");
       });
     });
 
-    it('calls searchForCreditNote when typing in invoice search', async () => {
+    it("calls searchForCreditNote when typing in invoice search", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1262,7 +1262,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       const searchInput = screen.getByPlaceholderText(
         /start typing invoice number or customer name/i,
       );
-      await user.type(searchInput, 'INV');
+      await user.type(searchInput, "INV");
 
       await waitFor(
         () => {
@@ -1273,8 +1273,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Helper Text and Icons', () => {
-    it('displays helper icon and text for reason auto-selection', async () => {
+  describe("Helper Text and Icons", () => {
+    it("displays helper icon and text for reason auto-selection", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1284,7 +1284,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const reasonSelect = selects.find((s) =>
           s.querySelector('option[value="defective"]'),
         );
@@ -1292,9 +1292,9 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const reasonSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="defective"]'));
-      await user.selectOptions(reasonSelect, 'defective');
+      await user.selectOptions(reasonSelect, "defective");
 
       await waitFor(() => {
         expect(
@@ -1303,7 +1303,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
     });
 
-    it('shows financial-only helper text when selecting financial reason', async () => {
+    it("shows financial-only helper text when selecting financial reason", async () => {
       const user = userEvent.setup();
 
       render(
@@ -1313,7 +1313,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
+        const selects = screen.getAllByRole("combobox");
         const reasonSelect = selects.find((s) =>
           s.querySelector('option[value="overcharge"]'),
         );
@@ -1321,9 +1321,9 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       const reasonSelect = screen
-        .getAllByRole('combobox')
+        .getAllByRole("combobox")
         .find((s) => s.querySelector('option[value="overcharge"]'));
-      await user.selectOptions(reasonSelect, 'overcharge');
+      await user.selectOptions(reasonSelect, "overcharge");
 
       await waitFor(() => {
         expect(
@@ -1333,11 +1333,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
   });
 
-  describe('Edge Cases', () => {
-    it('shows action buttons for draft credit notes', async () => {
+  describe("Edge Cases", () => {
+    it("shows action buttons for draft credit notes", async () => {
       const draftCreditNote = {
         ...mockCreditNote,
-        status: 'draft',
+        status: "draft",
       };
 
       creditNoteService.getCreditNote.mockResolvedValue(draftCreditNote);
@@ -1350,15 +1350,15 @@ describe('CreditNoteForm - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: /save draft/i }),
+          screen.getByRole("button", { name: /save draft/i }),
         ).toBeInTheDocument();
         expect(
-          screen.getByRole('button', { name: /issue tax document/i }),
+          screen.getByRole("button", { name: /issue tax document/i }),
         ).toBeInTheDocument();
       });
     });
 
-    it('handles missing invoice data gracefully', async () => {
+    it("handles missing invoice data gracefully", async () => {
       invoiceService.getInvoice.mockResolvedValue(null);
 
       render(
@@ -1368,7 +1368,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+        expect(screen.getByText("New Credit Note")).toBeInTheDocument();
       });
 
       // Form should still render even if invoice data is missing
@@ -1379,8 +1379,8 @@ describe('CreditNoteForm - Smoke Tests', () => {
       ).toBeInTheDocument();
     });
 
-    it('handles API errors gracefully', async () => {
-      invoiceService.getInvoice.mockRejectedValue(new Error('API Error'));
+    it("handles API errors gracefully", async () => {
+      invoiceService.getInvoice.mockRejectedValue(new Error("API Error"));
 
       render(
         <TestWrapper route="/credit-notes/new?invoiceId=1">
@@ -1393,10 +1393,10 @@ describe('CreditNoteForm - Smoke Tests', () => {
       });
 
       // Form should still render after error
-      expect(screen.getByText('New Credit Note')).toBeInTheDocument();
+      expect(screen.getByText("New Credit Note")).toBeInTheDocument();
     });
 
-    it('handles empty items array', async () => {
+    it("handles empty items array", async () => {
       const invoiceWithNoItems = {
         ...mockInvoice,
         items: [],
@@ -1411,11 +1411,11 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Test Customer')).toBeInTheDocument();
+        expect(screen.getByText("Test Customer")).toBeInTheDocument();
       });
 
       // Should show no items - verify no checkboxes are rendered
-      const checkboxes = screen.queryAllByRole('checkbox');
+      const checkboxes = screen.queryAllByRole("checkbox");
       expect(checkboxes.length).toBe(0);
     });
   });

@@ -98,7 +98,7 @@ export interface Product {
  * Type guard to check if object is a valid Product
  */
 export function isProduct(obj: unknown): obj is Product {
-  if (!obj || typeof obj !== 'object') return false;
+  if (!obj || typeof obj !== "object") return false;
   const record = obj as Record<string, unknown>;
-  return typeof record.id === 'number' && typeof record.name === 'string';
+  return typeof record.id === "number" && typeof record.name === "string";
 }

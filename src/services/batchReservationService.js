@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Batch Reservation Service
@@ -28,12 +28,12 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Reservation response with allocations
    */
   async reserveFIFO(params) {
-    const response = await apiClient.post('/batch-reservations/fifo', {
+    const response = await apiClient.post("/batch-reservations/fifo", {
       draft_invoice_id: params.draftInvoiceId || 0,
       product_id: params.productId,
       warehouse_id: params.warehouseId,
       required_quantity: params.requiredQuantity,
-      unit: params.unit || 'KG',
+      unit: params.unit || "KG",
       line_item_temp_id: params.lineItemTempId,
     });
     return response;
@@ -51,7 +51,7 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Reservation response with allocations
    */
   async reserveManual(params) {
-    const response = await apiClient.post('/batch-reservations/manual', {
+    const response = await apiClient.post("/batch-reservations/manual", {
       draft_invoice_id: params.draftInvoiceId || 0,
       product_id: params.productId,
       warehouse_id: params.warehouseId,
@@ -82,7 +82,7 @@ export const batchReservationService = {
     }
 
     const response = await apiClient.get(
-      '/batch-reservations/available',
+      "/batch-reservations/available",
       queryParams,
     );
     return response;
@@ -96,7 +96,9 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Draft reservations with totals
    */
   async getDraftReservations(draftInvoiceId, lineItemTempId = null) {
-    const queryParams = lineItemTempId ? { line_item_temp_id: lineItemTempId } : {};
+    const queryParams = lineItemTempId
+      ? { line_item_temp_id: lineItemTempId }
+      : {};
     const response = await apiClient.get(
       `/batch-reservations/draft/${draftInvoiceId}`,
       queryParams,
@@ -126,7 +128,7 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Cancellation result
    */
   async cancelLineItemReservations(params) {
-    const response = await apiClient.delete('/batch-reservations/line-item', {
+    const response = await apiClient.delete("/batch-reservations/line-item", {
       data: {
         draft_invoice_id: params.draftInvoiceId || 0,
         line_item_temp_id: params.lineItemTempId,
@@ -158,9 +160,9 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Updated reservation response
    */
   async extendReservation(params) {
-    const response = await apiClient.post('/batch-reservations/extend', {
+    const response = await apiClient.post("/batch-reservations/extend", {
       draft_invoice_id: params.draftInvoiceId || 0,
-      line_item_temp_id: params.lineItemTempId || '',
+      line_item_temp_id: params.lineItemTempId || "",
       extend_minutes: params.extendMinutes || 30,
     });
     return response;
@@ -176,7 +178,7 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Conversion result
    */
   async convertReservations(params) {
-    const response = await apiClient.post('/batch-reservations/convert', {
+    const response = await apiClient.post("/batch-reservations/convert", {
       invoice_id: params.invoiceId,
       line_item_mappings: params.lineItemMappings,
     });
@@ -203,10 +205,10 @@ export const batchReservationService = {
    * @returns {Promise<Object>} Finalization result with invoice number and deduction details
    */
   async finalizeInvoice(params) {
-    const response = await apiClient.post('/batch-reservations/finalize', {
+    const response = await apiClient.post("/batch-reservations/finalize", {
       draft_invoice_id: params.draftInvoiceId,
       line_item_mappings: params.lineItemMappings,
-      target_status: params.targetStatus || 'issued',
+      target_status: params.targetStatus || "issued",
       skip_stock_deduction: params.skipStockDeduction || false,
     });
     return response;

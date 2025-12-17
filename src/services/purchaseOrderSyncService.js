@@ -1,6 +1,6 @@
-import { inventoryService } from './inventoryService';
-import { stockMovementService } from './stockMovementService';
-import { notificationService } from './notificationService';
+import { inventoryService } from "./inventoryService";
+import { stockMovementService } from "./stockMovementService";
+import { notificationService } from "./notificationService";
 
 /**
  * Service to handle synchronization between Purchase Orders, Inventory, and Stock Movement
@@ -15,22 +15,22 @@ class PurchaseOrderSyncService {
   async handlePOStatusChange(po, newStatus, newStockStatus) {
     try {
       // eslint-disable-next-line no-console
-      console.log('Handling PO status change:', {
+      console.log("Handling PO status change:", {
         po,
         newStatus,
         newStockStatus,
       });
 
       // If PO is marked as received, add items to inventory
-      if (newStatus === 'received' && po.items && po.items.length > 0) {
+      if (newStatus === "received" && po.items && po.items.length > 0) {
         await this.addPOItemsToInventory(po);
       }
 
       // If stock status changes from transit to retain for a received PO
       if (
-        newStockStatus === 'retain' &&
-        po.stockStatus === 'transit' &&
-        po.status === 'received'
+        newStockStatus === "retain" &&
+        po.stockStatus === "transit" &&
+        po.status === "received"
       ) {
         await this.movePOFromTransitToStock(po);
       }
@@ -38,8 +38,8 @@ class PurchaseOrderSyncService {
       return true;
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error handling PO status change:', error);
-      notificationService.error('Failed to sync PO with inventory');
+      console.error("Error handling PO status change:", error);
+      notificationService.error("Failed to sync PO with inventory");
       throw error;
     }
   }
@@ -76,30 +76,30 @@ class PurchaseOrderSyncService {
             // Create new inventory item
             const inventoryItem = {
               productType: item.productType || item.name,
-              grade: item.grade || '',
-              thickness: item.thickness || '',
-              size: item.size || '',
-              finish: item.finish || '',
+              grade: item.grade || "",
+              thickness: item.thickness || "",
+              size: item.size || "",
+              finish: item.finish || "",
               quantity: item.quantity,
               pricePurchased: item.rate || 0,
               sellingPrice: 0, // To be set later
               landedCost: item.rate || 0,
               warehouseId: po.warehouseId,
-              warehouseName: po.warehouseName || '',
+              warehouseName: po.warehouseName || "",
               location: `From PO #${po.poNumber}`,
               description: this.generateItemDescription(item),
             };
 
             await inventoryService.createItem(inventoryItem);
             // eslint-disable-next-line no-console
-            console.log('Created new inventory item:', inventoryItem);
+            console.log("Created new inventory item:", inventoryItem);
           }
 
           // Create stock movement
           await this.createStockMovement(
             po,
             item,
-            'IN',
+            "IN",
             `Received from PO #${po.poNumber}`,
           );
         }
@@ -110,7 +110,7 @@ class PurchaseOrderSyncService {
       );
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error adding PO items to inventory:', error);
+      console.error("Error adding PO items to inventory:", error);
       throw error;
     }
   }
@@ -130,7 +130,7 @@ class PurchaseOrderSyncService {
       );
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error moving PO from transit to stock:', error);
+      console.error("Error moving PO from transit to stock:", error);
       throw error;
     }
   }
@@ -157,15 +157,15 @@ class PurchaseOrderSyncService {
   async createStockMovement(po, item, movement, notes) {
     try {
       const stockMovement = {
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split("T")[0],
         movement,
         productType: item.productType || item.name,
-        grade: item.grade || '',
-        thickness: item.thickness || '',
-        size: item.size || '',
-        finish: item.finish || '',
+        grade: item.grade || "",
+        thickness: item.thickness || "",
+        size: item.size || "",
+        finish: item.finish || "",
         invoiceNo: po.poNumber,
-        quantity: movement === 'OUT' ? -item.quantity : item.quantity,
+        quantity: movement === "OUT" ? -item.quantity : item.quantity,
         currentStock: 0, // Will be calculated by backend
         seller: po.supplierName,
         notes,
@@ -173,10 +173,10 @@ class PurchaseOrderSyncService {
 
       await stockMovementService.createMovement(stockMovement);
       // eslint-disable-next-line no-console
-      console.log('Created stock movement:', stockMovement);
+      console.log("Created stock movement:", stockMovement);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error creating stock movement:', error);
+      console.error("Error creating stock movement:", error);
       throw error;
     }
   }
@@ -191,12 +191,12 @@ class PurchaseOrderSyncService {
     if (item.productType || item.name)
       parts.push(`SS ${(item.productType || item.name).toUpperCase()}`);
     if (item.grade)
-      parts.push(item.grade.replace(/^(gr|ss)\s*/i, '').toUpperCase());
+      parts.push(item.grade.replace(/^(gr|ss)\s*/i, "").toUpperCase());
     if (item.finish) parts.push(`${item.finish} finish`);
     if (item.size) parts.push(item.size);
     if (item.thickness) parts.push(`${item.thickness}MM`);
 
-    return parts.join(' ') || 'Steel Product';
+    return parts.join(" ") || "Steel Product";
   }
 
   /**
@@ -210,9 +210,9 @@ class PurchaseOrderSyncService {
     for (const po of purchaseOrders) {
       // Only show as transit if stock_status is 'transit' and not yet received/cancelled
       if (
-        po.stockStatus === 'transit' &&
-        po.status !== 'received' &&
-        po.status !== 'cancelled'
+        po.stockStatus === "transit" &&
+        po.status !== "received" &&
+        po.status !== "cancelled"
       ) {
         if (po.items && Array.isArray(po.items)) {
           for (const item of po.items) {
@@ -220,12 +220,12 @@ class PurchaseOrderSyncService {
               transitMovements.push({
                 id: `transit_${po.id}_${item.id || Math.random()}`,
                 date: po.expectedDeliveryDate || po.poDate,
-                movement: 'OUT',
+                movement: "OUT",
                 productType: item.productType || item.name,
-                grade: item.grade || '',
-                thickness: item.thickness || '',
-                size: item.size || '',
-                finish: item.finish || '',
+                grade: item.grade || "",
+                thickness: item.thickness || "",
+                size: item.size || "",
+                finish: item.finish || "",
                 invoiceNo: po.poNumber,
                 quantity: -item.quantity, // Negative for transit
                 currentStock: 0,

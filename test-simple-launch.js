@@ -21,7 +21,7 @@ async function testPuppeteerLaunch() {
     const browser = await puppeteer.launch({
       headless: true,
       executablePath: '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     console.log('✅ Chrome launched successfully!');

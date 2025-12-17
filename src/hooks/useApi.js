@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   getErrorMessage,
   ErrorTypes,
   DisplayTypes,
-} from '../utils/errorHandler';
-import notificationService from '../services/notificationService';
-import { reportApiUnhealthy } from '../contexts/ApiHealthContext';
+} from "../utils/errorHandler";
+import notificationService from "../services/notificationService";
+import { reportApiUnhealthy } from "../contexts/ApiHealthContext";
 
 /**
  * useApi - Hook for API calls with centralized error handling
@@ -69,10 +69,10 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
             // Set appError for full-page display
             setAppError(errorInfo);
             // Optionally redirect to login
-            if (errorInfo.action === 'LOGIN') {
+            if (errorInfo.action === "LOGIN") {
               // Give time for the user to see the error before redirect
               setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = "/login";
               }, 2000);
             }
             break;
@@ -150,7 +150,7 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
 export const useApiData = (apiFunction, dependencies = [], options = true) => {
   // Support backward compatibility: options can be boolean (immediate) or object
   const normalizedOptions =
-    typeof options === 'boolean' ? { immediate: options } : options;
+    typeof options === "boolean" ? { immediate: options } : options;
 
   const {
     immediate = true,
@@ -203,9 +203,9 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
 
           case ErrorTypes.AUTH:
             setAppError(errorInfo);
-            if (errorInfo.action === 'LOGIN') {
+            if (errorInfo.action === "LOGIN") {
               setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = "/login";
               }, 2000);
             }
             break;
