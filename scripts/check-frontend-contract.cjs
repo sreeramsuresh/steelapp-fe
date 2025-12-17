@@ -16,18 +16,29 @@ const path = require('path');
 
 const BACKEND_PATH = path.resolve(__dirname, '../../steelapprnp');
 const CONTRACT_TEST = 'grpc/__tests__/frontend-backend-contract/quick-contract-test.js';
+const CONTRACT_TEST_FALLBACK = 'grpc/__tests__/frontend-backend-contract/frontend-contract.test.js';
 
 console.log('\n🔍 Checking Frontend-Proto Contract...\n');
 console.log('━'.repeat(70));
 
+// Check which test to use (quick test preferred, fallback to Jest)
+const fs = require('fs');
+const testToUse = fs.existsSync(path.join(BACKEND_PATH, CONTRACT_TEST))
+  ? CONTRACT_TEST
+  : CONTRACT_TEST_FALLBACK;
+
+const isJestTest = testToUse.includes('.test.js');
+
 try {
-  // Run the quick contract test (no Jest framework overhead)
+  // Run the contract test
   execSync(
-    `node ${CONTRACT_TEST}`,
+    isJestTest
+      ? `npx jest ${testToUse} --forceExit --verbose=false --silent=false`
+      : `node ${testToUse}`,
     {
       cwd: BACKEND_PATH,
       stdio: 'inherit', // Show output in terminal
-      timeout: 15000, // 15 second timeout (quick test is much faster)
+      timeout: isJestTest ? 60000 : 15000, // Jest needs more time
     }
   );
 
