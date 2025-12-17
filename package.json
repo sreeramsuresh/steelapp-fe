@@ -6,6 +6,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
+    "dev:strict": "node scripts/check-frontend-contract.cjs && vite",
     "build": "vite build",
     "build:ci": "npm run build && npm run ci:guard-bundle",
     "ci:guard-bundle": "bash scripts/ci-guard-contract-bundle.sh",
