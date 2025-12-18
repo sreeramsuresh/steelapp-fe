@@ -141,10 +141,13 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
     const gross = parseFloat(formData.grossWeight) || 0;
     const tare = parseFloat(formData.tareWeight) || 0;
     const netWeight = gross - tare;
-    if (netWeight !== formData.netWeight) {
-      setFormData((prev) => ({ ...prev, netWeight: netWeight > 0 ? netWeight : "" }));
+    const calculatedNetWeight = netWeight > 0 ? netWeight.toString() : "";
+    const currentNetWeight = formData.netWeight ? formData.netWeight.toString() : "";
+
+    if (calculatedNetWeight !== currentNetWeight) {
+      setFormData((prev) => ({ ...prev, netWeight: calculatedNetWeight }));
     }
-  }, [formData.grossWeight, formData.tareWeight]);
+  }, [formData.grossWeight, formData.tareWeight, formData.netWeight]);
 
   // Auto-calculate demurrage days
   useEffect(() => {

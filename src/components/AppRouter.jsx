@@ -43,7 +43,7 @@ import ExportOrderDetails from "../pages/ExportOrderDetails";
 import TransitList from "../pages/TransitList";
 
 // Container Management Components
-import { ContainerList } from "../pages/containers";
+import { ContainerList, ContainerForm } from "../pages/containers";
 
 // Finance Components
 import FinanceDashboard from "../pages/FinanceDashboard";
@@ -857,6 +857,30 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           element={
             <ProtectedRoute user={user} requiredPermission="import_orders.read">
               <ContainerList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/containers/new"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.create">
+              <ContainerForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/containers/:id"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.read">
+              <ContainerForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/containers/:id/edit"
+          element={
+            <ProtectedRoute user={user} requiredPermission="import_orders.update">
+              <ContainerForm />
             </ProtectedRoute>
           }
         />
