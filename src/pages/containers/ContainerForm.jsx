@@ -155,12 +155,20 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
       const startDate = new Date(formData.demurrageStartDate);
       const today = new Date();
       const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-      const daysIncurred = Math.max(0, daysDiff - formData.freeDaysAtPort);
-      setFormData((prev) => ({ ...prev, demurrageDaysIncurred: daysIncurred }));
+      const daysIncurred = Math.max(0, daysDiff - (parseInt(formData.freeDaysAtPort) || 0));
+      const calculatedDays = daysIncurred.toString();
+      const currentDays = formData.demurrageDaysIncurred ? formData.demurrageDaysIncurred.toString() : "0";
+
+      if (calculatedDays !== currentDays) {
+        setFormData((prev) => ({ ...prev, demurrageDaysIncurred: daysIncurred }));
+      }
     } else {
-      setFormData((prev) => ({ ...prev, demurrageDaysIncurred: 0 }));
+      const currentDays = formData.demurrageDaysIncurred ? formData.demurrageDaysIncurred.toString() : "0";
+      if (currentDays !== "0") {
+        setFormData((prev) => ({ ...prev, demurrageDaysIncurred: 0 }));
+      }
     }
-  }, [formData.demurrageStartDate, formData.freeDaysAtPort]);
+  }, [formData.demurrageStartDate, formData.freeDaysAtPort, formData.demurrageDaysIncurred]);
 
   // Auto-calculate detention days
   useEffect(() => {
@@ -168,11 +176,19 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
       const startDate = new Date(formData.detentionStartDate);
       const today = new Date();
       const daysIncurred = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)));
-      setFormData((prev) => ({ ...prev, detentionDaysIncurred: daysIncurred }));
+      const calculatedDays = daysIncurred.toString();
+      const currentDays = formData.detentionDaysIncurred ? formData.detentionDaysIncurred.toString() : "0";
+
+      if (calculatedDays !== currentDays) {
+        setFormData((prev) => ({ ...prev, detentionDaysIncurred: daysIncurred }));
+      }
     } else {
-      setFormData((prev) => ({ ...prev, detentionDaysIncurred: 0 }));
+      const currentDays = formData.detentionDaysIncurred ? formData.detentionDaysIncurred.toString() : "0";
+      if (currentDays !== "0") {
+        setFormData((prev) => ({ ...prev, detentionDaysIncurred: 0 }));
+      }
     }
-  }, [formData.detentionStartDate]);
+  }, [formData.detentionStartDate, formData.detentionDaysIncurred]);
 
   // Populate form when editing
   useEffect(() => {
