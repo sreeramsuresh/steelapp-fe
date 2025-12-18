@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-12-18T06:50:05.416Z",
+  "duration": 52.13,
+  "total": 4,
+  "passed": 3,
+  "failed": 1,
+  "tests": [
+    {
+      "name": "Account Statement Form",
+      "success": false,
+      "testFile": "test-account-statement-form.js",
+      "exitCode": 1
+    },
+    {
+      "name": "Add Payment Form",
+      "success": true,
+      "testFile": "test-add-payment-form.js"
+    },
+    {
+      "name": "Reservation Form",
+      "success": true,
+      "testFile": "test-reservation-form.js"
+    },
+    {
+      "name": "Transfer Form",
+      "success": true,
+      "testFile": "test-transfer-form.js"
+    }
+  ]
+}

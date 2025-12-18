@@ -24,7 +24,12 @@
     "cypress": "cypress open",
     "cypress:headless": "cypress run",
     "test:e2e": "cypress run",
-    "test:e2e:open": "cypress open"
+    "test:e2e:open": "cypress open",
+    "test:forms": "node tests/form-validation/run-all-tests.js",
+    "test:form:account-statement": "node tests/form-validation/test-account-statement-form.js",
+    "test:form:payment": "node tests/form-validation/test-add-payment-form.js",
+    "test:form:reservation": "node tests/form-validation/test-reservation-form.js",
+    "test:form:transfer": "node tests/form-validation/test-transfer-form.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

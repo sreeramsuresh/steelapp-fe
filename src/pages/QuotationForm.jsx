@@ -16,6 +16,8 @@ import {
   Loader2,
   Eye,
   Package,
+  Calendar,
+  Layers,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { quotationsAPI, productsAPI, apiClient } from "../services/api";
@@ -28,6 +30,14 @@ import StockAvailabilityIndicator from "../components/invoice/StockAvailabilityI
 import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
+// Steel industry specific components (STEEL-FORMS-PHASE1 Priority 2)
+import PriceValiditySelector from "../components/quotations/PriceValiditySelector";
+import VolumeDiscountTiersModal from "../components/quotations/VolumeDiscountTiersModal";
+import BatchesModal from "../components/quotations/BatchesModal";
+import DeliveryScheduleModal from "../components/quotations/DeliveryScheduleModal";
+import AlternativeProductsModal from "../components/quotations/AlternativeProductsModal";
+import StockReservationToggle from "../components/quotations/StockReservationToggle";
+import LeadTimeInput from "../components/quotations/LeadTimeInput";
 
 const FormSettingsPanel = ({
   isOpen,
@@ -229,6 +239,15 @@ const QuotationForm = () => {
   const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
   const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
 
+  // Steel industry feature states (STEEL-FORMS-PHASE1 Priority 2)
+  const [batchesModalOpen, setBatchesModalOpen] = useState(false);
+  const [selectedItemForBatches, setSelectedItemForBatches] = useState(null);
+  const [deliveryScheduleModalOpen, setDeliveryScheduleModalOpen] = useState(false);
+  const [selectedItemForDelivery, setSelectedItemForDelivery] = useState(null);
+  const [alternativeProductsModalOpen, setAlternativeProductsModalOpen] = useState(false);
+  const [selectedItemForAlternatives, setSelectedItemForAlternatives] = useState(null);
+  const [volumeDiscountModalOpen, setVolumeDiscountModalOpen] = useState(false);
+
   // Form preferences (with localStorage persistence)
   const [formPreferences, setFormPreferences] = useState(() => {
     const saved = localStorage.getItem("quotationFormPreferences");
@@ -290,6 +309,9 @@ const QuotationForm = () => {
     discountAmount: 0,
     total: 0,
     status: "draft",
+    // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+    priceValidityCondition: "",
+    volumeDiscountTiers: [],
   });
 
   const [customers, setCustomers] = useState([]);
@@ -492,8 +514,24 @@ const QuotationForm = () => {
               vatRate: item.vatRate || 5,
               amount: item.amount || 0,
               netAmount: item.netAmount || 0,
+              // Pricing & Commercial Fields
+              pricingBasis: item.pricingBasis || "PER_MT",
+              unitWeightKg: item.unitWeightKg || null,
+              quantityUom: item.quantityUom || "PCS",
+              theoreticalWeightKg: item.theoreticalWeightKg || null,
+              missingWeightWarning: false,
               // Stock & Source Fields (Phase 3)
               sourceType: item.sourceType || "WAREHOUSE",
+              // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+              stockReserved: item.stockReserved || false,
+              reservationExpiry: item.reservationExpiry || null,
+              estimatedLeadTimeDays: item.estimatedLeadTimeDays || null,
+              deliverySchedule: typeof item.deliverySchedule === "string"
+                ? JSON.parse(item.deliverySchedule)
+                : (item.deliverySchedule || []),
+              alternativeProducts: typeof item.alternativeProducts === "string"
+                ? JSON.parse(item.alternativeProducts)
+                : (item.alternativeProducts || []),
             })),
             subtotal: response.subtotal || 0,
             vatAmount: response.vatAmount || 0,
@@ -509,6 +547,11 @@ const QuotationForm = () => {
             discountAmount: response.discountAmount || 0,
             total: response.total || 0,
             status: response.status || "draft",
+            // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+            priceValidityCondition: response.priceValidityCondition || "",
+            volumeDiscountTiers: typeof response.volumeDiscountTiers === "string"
+              ? JSON.parse(response.volumeDiscountTiers)
+              : (response.volumeDiscountTiers || []),
           });
 
           // Set customer input value for autocomplete
@@ -794,6 +837,12 @@ const QuotationForm = () => {
       missingWeightWarning,
       // Stock & Source Fields (Phase 3)
       sourceType: "WAREHOUSE",
+      // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+      stockReserved: false,
+      reservationExpiry: null,
+      estimatedLeadTimeDays: null,
+      deliverySchedule: [],
+      alternativeProducts: [],
     };
 
     setFormData((prev) => ({
@@ -836,6 +885,12 @@ const QuotationForm = () => {
           missingWeightWarning: false,
           // Stock & Source Fields (Phase 3)
           sourceType: "WAREHOUSE",
+          // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+          stockReserved: false,
+          reservationExpiry: null,
+          estimatedLeadTimeDays: null,
+          deliverySchedule: [],
+          alternativeProducts: [],
         },
       ],
     }));
@@ -847,6 +902,46 @@ const QuotationForm = () => {
       items: prev.items.filter((_, i) => i !== index),
     }));
     setTimeout(calculateTotals, 0);
+  };
+
+  // Steel industry specific handlers (STEEL-FORMS-PHASE1 Priority 2)
+  const handleToggleStockReservation = (index, reserved, expiryTime) => {
+    const newItems = [...formData.items];
+    newItems[index].stockReserved = reserved;
+    newItems[index].reservationExpiry = expiryTime;
+    setFormData((prev) => ({ ...prev, items: newItems }));
+  };
+
+  const handleViewBatches = (index) => {
+    const item = formData.items[index];
+    setSelectedItemForBatches(item);
+    setBatchesModalOpen(true);
+  };
+
+  const handleSaveDeliverySchedule = (index, schedule) => {
+    const newItems = [...formData.items];
+    newItems[index].deliverySchedule = schedule;
+    setFormData((prev) => ({ ...prev, items: newItems }));
+  };
+
+  const handleSaveAlternativeProducts = (index, alternatives) => {
+    const newItems = [...formData.items];
+    newItems[index].alternativeProducts = alternatives;
+    setFormData((prev) => ({ ...prev, items: newItems }));
+  };
+
+  const handleOpenDeliverySchedule = (index) => {
+    setSelectedItemForDelivery(index);
+    setDeliveryScheduleModalOpen(true);
+  };
+
+  const handleOpenAlternativeProducts = (index) => {
+    setSelectedItemForAlternatives(index);
+    setAlternativeProductsModalOpen(true);
+  };
+
+  const handleSaveVolumeDiscountTiers = (tiers) => {
+    setFormData((prev) => ({ ...prev, volumeDiscountTiers: tiers }));
   };
 
   const updateItem = async (index, field, value) => {
@@ -1172,6 +1267,16 @@ const QuotationForm = () => {
             : null,
           // Stock & Source Fields (Phase 3)
           source_type: item.sourceType || "WAREHOUSE",
+          // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+          stock_reserved: item.stockReserved || false,
+          reservation_expiry: item.reservationExpiry || null,
+          estimated_lead_time_days: item.estimatedLeadTimeDays || null,
+          delivery_schedule: item.deliverySchedule?.length > 0
+            ? JSON.stringify(item.deliverySchedule)
+            : null,
+          alternative_products: item.alternativeProducts?.length > 0
+            ? JSON.stringify(item.alternativeProducts)
+            : null,
         })),
         subtotal: parseFloat(formData.subtotal) || 0,
         vat_amount: parseFloat(formData.vatAmount) || 0,
@@ -1187,6 +1292,11 @@ const QuotationForm = () => {
         discount_amount: parseFloat(formData.discountAmount) || 0,
         total: parseFloat(formData.total) || 0,
         status: formData.status || "draft",
+        // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+        price_validity_condition: formData.priceValidityCondition || null,
+        volume_discount_tiers: formData.volumeDiscountTiers?.length > 0
+          ? JSON.stringify(formData.volumeDiscountTiers)
+          : null,
       };
 
       if (isEdit) {
@@ -2010,6 +2120,17 @@ const QuotationForm = () => {
                 }
                 placeholder="e.g., 30 days from invoice"
               />
+
+              {/* Price Validity Condition (STEEL-FORMS-PHASE1 Priority 2) */}
+              <PriceValiditySelector
+                value={formData.priceValidityCondition}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    priceValidityCondition: value,
+                  }))
+                }
+              />
             </div>
           </div>
 
@@ -2185,6 +2306,67 @@ const QuotationForm = () => {
                           id={`source-type-${index}`}
                         />
                       </div>
+                    </div>
+
+                    {/* Steel Industry Action Buttons (STEEL-FORMS-PHASE1 Priority 2) */}
+                    <div className="flex flex-wrap items-center gap-2 mb-3 border-t border-b py-2 mt-2" style={{borderColor: isDarkMode ? '#37474F' : '#e5e7eb'}}>
+                      {/* Stock Reservation */}
+                      <StockReservationToggle
+                        item={item}
+                        index={index}
+                        onToggleReservation={handleToggleStockReservation}
+                      />
+
+                      {/* View Batches */}
+                      {item.productId && (
+                        <button
+                          type="button"
+                          onClick={() => handleViewBatches(index)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            isDarkMode
+                              ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
+                              : "bg-teal-50 text-teal-700 hover:bg-teal-100"
+                          }`}
+                        >
+                          <Package className="h-4 w-4" />
+                          Batches
+                        </button>
+                      )}
+
+                      {/* Delivery Schedule */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDeliverySchedule(index)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          isDarkMode
+                            ? "bg-blue-900/30 text-blue-300 hover:bg-blue-900/50"
+                            : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                        }`}
+                      >
+                        <Calendar className="h-4 w-4" />
+                        Schedule {item.deliverySchedule?.length > 0 && `(${item.deliverySchedule.length})`}
+                      </button>
+
+                      {/* Alternative Products */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenAlternativeProducts(index)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          isDarkMode
+                            ? "bg-purple-900/30 text-purple-300 hover:bg-purple-900/50"
+                            : "bg-purple-50 text-purple-700 hover:bg-purple-100"
+                        }`}
+                      >
+                        <Layers className="h-4 w-4" />
+                        Alternatives {item.alternativeProducts?.length > 0 && `(${item.alternativeProducts.length})`}
+                      </button>
+
+                      {/* Lead Time Input */}
+                      <LeadTimeInput
+                        item={item}
+                        index={index}
+                        onUpdate={updateItem}
+                      />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
@@ -2660,6 +2842,20 @@ const QuotationForm = () => {
                 Quick Actions
               </div>
               <div className="space-y-1.5">
+                {/* Volume Discount Tiers Button (STEEL-FORMS-PHASE1 Priority 2) */}
+                <button
+                  type="button"
+                  onClick={() => setVolumeDiscountModalOpen(true)}
+                  className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-all flex items-center gap-2 ${
+                    isDarkMode
+                      ? "bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-800/50"
+                      : "bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200"
+                  }`}
+                >
+                  <Calculator className="h-4 w-4" />
+                  <span>Volume Discounts {formData.volumeDiscountTiers?.length > 0 && `(${formData.volumeDiscountTiers.length})`}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setChargesDrawerOpen(true)}
@@ -3130,6 +3326,48 @@ const QuotationForm = () => {
           quotation={formData}
           company={{}}
           onClose={() => setShowPreview(false)}
+        />
+      )}
+
+      {/* Steel Industry Modals (STEEL-FORMS-PHASE1 Priority 2) */}
+      <VolumeDiscountTiersModal
+        isOpen={volumeDiscountModalOpen}
+        onClose={() => setVolumeDiscountModalOpen(false)}
+        tiers={formData.volumeDiscountTiers}
+        onSave={handleSaveVolumeDiscountTiers}
+      />
+
+      <BatchesModal
+        isOpen={batchesModalOpen}
+        onClose={() => setBatchesModalOpen(false)}
+        productId={selectedItemForBatches?.productId}
+        productName={selectedItemForBatches?.name}
+        warehouseId={formData.warehouseId}
+      />
+
+      {selectedItemForDelivery !== null && (
+        <DeliveryScheduleModal
+          isOpen={deliveryScheduleModalOpen}
+          onClose={() => {
+            setDeliveryScheduleModalOpen(false);
+            setSelectedItemForDelivery(null);
+          }}
+          schedule={formData.items[selectedItemForDelivery]?.deliverySchedule || []}
+          lineQuantity={formData.items[selectedItemForDelivery]?.quantity || 0}
+          onSave={(schedule) => handleSaveDeliverySchedule(selectedItemForDelivery, schedule)}
+        />
+      )}
+
+      {selectedItemForAlternatives !== null && (
+        <AlternativeProductsModal
+          isOpen={alternativeProductsModalOpen}
+          onClose={() => {
+            setAlternativeProductsModalOpen(false);
+            setSelectedItemForAlternatives(null);
+          }}
+          alternatives={formData.items[selectedItemForAlternatives]?.alternativeProducts || []}
+          currentProductId={formData.items[selectedItemForAlternatives]?.productId}
+          onSave={(alternatives) => handleSaveAlternativeProducts(selectedItemForAlternatives, alternatives)}
         />
       )}
     </div>

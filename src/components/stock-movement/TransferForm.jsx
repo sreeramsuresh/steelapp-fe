@@ -3,65 +3,56 @@
  * Phase 5: Inter-Warehouse Transfers
  *
  * Form for creating new stock transfers
+ * Migrated from Material-UI to Tailwind CSS
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Alert,
-  CircularProgress,
-  Autocomplete,
-  Chip,
-  Divider,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  ArrowBack as BackIcon,
-  SwapHoriz as TransferIcon,
-} from "@mui/icons-material";
-import { stockMovementService } from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
-import { productService } from "../../services/dataService";
+  ArrowLeft,
+  ArrowRight,
+  Save,
+  Plus,
+  Trash2,
+  AlertTriangle,
+  Loader2,
+  Package,
+  ChevronDown,
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
+import { productService } from '../../services/dataService';
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = "KG") => {
-  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = 'KG') => {
+  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 const TransferForm = ({ onCancel, onSuccess }) => {
+  const { isDarkMode } = useTheme();
+
   const [warehouses, setWarehouses] = useState([]);
   const [products, setProducts] = useState([]);
   const [stockLevels, setStockLevels] = useState({});
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [_loadingProducts, setLoadingProducts] = useState(true);
 
-  const [sourceWarehouseId, setSourceWarehouseId] = useState("");
-  const [destinationWarehouseId, setDestinationWarehouseId] = useState("");
-  const [expectedDate, setExpectedDate] = useState("");
-  const [notes, setNotes] = useState("");
+  const [sourceWarehouseId, setSourceWarehouseId] = useState('');
+  const [destinationWarehouseId, setDestinationWarehouseId] = useState('');
+  const [expectedDate, setExpectedDate] = useState('');
+  const [notes, setNotes] = useState('');
   const [items, setItems] = useState([]);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  // Product autocomplete state
+  const [activeItemId, setActiveItemId] = useState(null);
+  const [productSearchTerms, setProductSearchTerms] = useState({});
+  const [filteredProductsMap, setFilteredProductsMap] = useState({});
+  const dropdownRefs = useRef({});
 
   // Load warehouses
   useEffect(() => {
@@ -71,8 +62,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error("Error loading warehouses:", err);
-        setError("Failed to load warehouses");
+        console.error('Error loading warehouses:', err);
+        setError('Failed to load warehouses');
       } finally {
         setLoadingWarehouses(false);
       }
@@ -88,8 +79,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         const result = await productService.getProducts({ limit: 1000 });
         setProducts(result.data || []);
       } catch (err) {
-        console.error("Error loading products:", err);
-        setError("Failed to load products");
+        console.error('Error loading products:', err);
+        setError('Failed to load products');
       } finally {
         setLoadingProducts(false);
       }
@@ -116,91 +107,140 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           levels[item.productId] = {
             quantityOnHand: parseFloat(item.quantityOnHand) || 0,
             quantityAvailable: parseFloat(item.quantityAvailable) || 0,
-            unit: item.unit || "KG",
+            unit: item.unit || 'KG',
           };
         });
         setStockLevels(levels);
       } catch (err) {
-        console.error("Error loading stock levels:", err);
+        console.error('Error loading stock levels:', err);
       }
     };
 
     loadStockLevels();
   }, [sourceWarehouseId]);
 
+  // Filter products for autocomplete
+  useEffect(() => {
+    const newFilteredMap = {};
+    Object.keys(productSearchTerms).forEach((itemId) => {
+      const search = productSearchTerms[itemId].toLowerCase();
+      const selectedIds = items
+        .filter((item) => item.id.toString() !== itemId && item.productId)
+        .map((item) => item.productId);
+
+      const filtered = products.filter((p) => {
+        if (selectedIds.includes(p.id)) return false;
+        if (!search) return true;
+        return (
+          p.name?.toLowerCase().includes(search) ||
+          p.sku?.toLowerCase().includes(search)
+        );
+      });
+      newFilteredMap[itemId] = filtered;
+    });
+    setFilteredProductsMap(newFilteredMap);
+  }, [productSearchTerms, products, items]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeItemId) {
+        const dropdownRef = dropdownRefs.current[activeItemId];
+        if (dropdownRef && !dropdownRef.contains(event.target)) {
+          setActiveItemId(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeItemId]);
+
   // Add new item
   const handleAddItem = () => {
-    setItems([
-      ...items,
-      {
-        id: Date.now(),
-        productId: "",
-        product: null,
-        quantity: "",
-        unit: "KG",
-        notes: "",
-      },
-    ]);
+    const newItem = {
+      id: Date.now(),
+      productId: '',
+      product: null,
+      quantity: '',
+      unit: 'KG',
+      notes: '',
+    };
+    setItems([...items, newItem]);
+    setProductSearchTerms({ ...productSearchTerms, [newItem.id]: '' });
   };
 
   // Remove item
   const handleRemoveItem = (itemId) => {
     setItems(items.filter((item) => item.id !== itemId));
+    const newSearchTerms = { ...productSearchTerms };
+    delete newSearchTerms[itemId];
+    setProductSearchTerms(newSearchTerms);
   };
 
   // Update item
-  const handleItemChange = (itemId, field, value) => {
-    setItems(
-      items.map((item) => {
+  const handleItemChange = useCallback((itemId, field, value) => {
+    setItems((prevItems) =>
+      prevItems.map((item) => {
         if (item.id !== itemId) return item;
 
         const updates = { [field]: value };
 
         // If product changed, update productId and unit
-        if (field === "product" && value) {
+        if (field === 'product' && value) {
           updates.productId = value.id;
-          updates.unit = stockLevels[value.id]?.unit || "KG";
+          updates.unit = stockLevels[value.id]?.unit || 'KG';
         }
 
         return { ...item, ...updates };
       }),
     );
-  };
+  }, [stockLevels]);
+
+  // Handle product select
+  const handleProductSelect = useCallback((itemId, product) => {
+    handleItemChange(itemId, 'product', product);
+    setProductSearchTerms((prev) => ({
+      ...prev,
+      [itemId]: `${product.name} (${product.sku || 'No SKU'})`,
+    }));
+    setActiveItemId(null);
+  }, [handleItemChange]);
 
   // Validate form
   const validateForm = () => {
     if (!sourceWarehouseId) {
-      setError("Please select a source warehouse");
+      setError('Please select a source warehouse');
       return false;
     }
     if (!destinationWarehouseId) {
-      setError("Please select a destination warehouse");
+      setError('Please select a destination warehouse');
       return false;
     }
     if (sourceWarehouseId === destinationWarehouseId) {
-      setError("Source and destination warehouses must be different");
+      setError('Source and destination warehouses must be different');
       return false;
     }
     if (items.length === 0) {
-      setError("Please add at least one item to transfer");
+      setError('Please add at least one item to transfer');
       return false;
     }
 
     // Validate each item
     for (const item of items) {
       if (!item.productId) {
-        setError("Please select a product for all items");
+        setError('Please select a product for all items');
         return false;
       }
       const qty = parseFloat(item.quantity) || 0;
       if (qty <= 0) {
-        setError("Quantity must be greater than 0 for all items");
+        setError('Quantity must be greater than 0 for all items');
         return false;
       }
       const available = stockLevels[item.productId]?.quantityAvailable || 0;
       if (qty > available) {
         setError(
-          `Insufficient stock for ${item.product?.name || "product"}. Available: ${formatQuantity(available, item.unit)}`,
+          `Insufficient stock for ${item.product?.name || 'product'}. Available: ${formatQuantity(available, item.unit)}`,
         );
         return false;
       }
@@ -236,268 +276,415 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       const result = await stockMovementService.createTransfer(transferData);
       onSuccess?.(result);
     } catch (err) {
-      console.error("Error creating transfer:", err);
-      setError(err.message || "Failed to create transfer");
+      console.error('Error creating transfer:', err);
+      setError(err.message || 'Failed to create transfer');
     } finally {
       setSaving(false);
     }
   };
 
-  // Filter out already selected products
-  const getAvailableProducts = (currentItemId) => {
-    const selectedIds = items
-      .filter((item) => item.id !== currentItemId && item.productId)
-      .map((item) => item.productId);
-    return products.filter((p) => !selectedIds.includes(p.id));
-  };
+  // Performance: Memoize warehouse filtering to avoid recalculating on every render
+  const sourceWarehouses = useMemo(() => {
+    return warehouses.filter((wh) => wh.id !== parseInt(destinationWarehouseId));
+  }, [warehouses, destinationWarehouseId]);
+
+  const destinationWarehouses = useMemo(() => {
+    return warehouses.filter((wh) => wh.id !== parseInt(sourceWarehouseId));
+  }, [warehouses, sourceWarehouseId]);
 
   return (
-    <Box>
+    <div className={`min-h-screen ${isDarkMode ? 'bg-[#0a0e12] text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <TransferIcon fontSize="large" color="primary" />
-          <Typography variant="h5">Create Stock Transfer</Typography>
-        </Box>
-        <Button startIcon={<BackIcon />} onClick={onCancel}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <ArrowRight className="w-8 h-8 text-blue-500" />
+          <h1 className="text-2xl font-bold">Create Stock Transfer</h1>
+        </div>
+        <button
+          onClick={onCancel}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
+            isDarkMode
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          <ArrowLeft className="w-4 h-4" />
           Back to List
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {/* Error Alert */}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
+        <div
+          className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
+            isDarkMode
+              ? 'bg-red-900 bg-opacity-30 border border-red-700'
+              : 'bg-red-50 border border-red-200'
+          }`}
+        >
+          <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          </div>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-500 hover:text-red-700"
+          >
+            <Package className="w-4 h-4" />
+          </button>
+        </div>
       )}
 
-      {/* Form */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Transfer Details
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
+      {/* Transfer Details Card */}
+      <div
+        className={`p-6 rounded-lg shadow mb-6 ${
+          isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        }`}
+      >
+        <h2 className="text-lg font-semibold mb-4">Transfer Details</h2>
+        <hr className={`mb-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
-        <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {/* Source Warehouse */}
-          <FormControl sx={{ minWidth: 250 }} disabled={loadingWarehouses}>
-            <InputLabel>Source Warehouse *</InputLabel>
-            <Select
-              value={sourceWarehouseId}
-              label="Source Warehouse *"
-              onChange={(e) => setSourceWarehouseId(e.target.value)}
+          <div>
+            <label
+              htmlFor="source-warehouse"
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}
             >
-              {warehouses
-                .filter((wh) => wh.id !== parseInt(destinationWarehouseId))
-                .map((wh) => (
-                  <MenuItem key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ""}
-                  </MenuItem>
+              Source Warehouse *
+            </label>
+            <div className="relative">
+              <select
+                id="source-warehouse"
+                value={sourceWarehouseId}
+                onChange={(e) => setSourceWarehouseId(e.target.value)}
+                disabled={loadingWarehouses}
+                className={`w-full px-3 py-2 rounded-lg border appearance-none ${
+                  isDarkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                <option value="">Select source...</option>
+                {sourceWarehouses.map((wh) => (
+                  <option key={wh.id} value={wh.id}>
+                    {wh.name} {wh.code ? `(${wh.code})` : ''}
+                  </option>
                 ))}
-            </Select>
-          </FormControl>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
 
           {/* Destination Warehouse */}
-          <FormControl sx={{ minWidth: 250 }} disabled={loadingWarehouses}>
-            <InputLabel>Destination Warehouse *</InputLabel>
-            <Select
-              value={destinationWarehouseId}
-              label="Destination Warehouse *"
-              onChange={(e) => setDestinationWarehouseId(e.target.value)}
+          <div>
+            <label
+              htmlFor="destination-warehouse"
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}
             >
-              {warehouses
-                .filter((wh) => wh.id !== parseInt(sourceWarehouseId))
-                .map((wh) => (
-                  <MenuItem key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ""}
-                  </MenuItem>
+              Destination Warehouse *
+            </label>
+            <div className="relative">
+              <select
+                id="destination-warehouse"
+                value={destinationWarehouseId}
+                onChange={(e) => setDestinationWarehouseId(e.target.value)}
+                disabled={loadingWarehouses}
+                className={`w-full px-3 py-2 rounded-lg border appearance-none ${
+                  isDarkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                <option value="">Select destination...</option>
+                {destinationWarehouses.map((wh) => (
+                  <option key={wh.id} value={wh.id}>
+                    {wh.name} {wh.code ? `(${wh.code})` : ''}
+                  </option>
                 ))}
-            </Select>
-          </FormControl>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
 
           {/* Expected Date */}
-          <TextField
-            label="Expected Arrival Date"
-            type="date"
-            value={expectedDate}
-            onChange={(e) => setExpectedDate(e.target.value)}
-            sx={{ minWidth: 180 }}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Box>
+          <div>
+            <label
+              htmlFor="expected-date"
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}
+            >
+              Expected Arrival Date
+            </label>
+            <input
+              id="expected-date"
+              type="date"
+              value={expectedDate}
+              onChange={(e) => setExpectedDate(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? 'bg-gray-700 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+          </div>
+        </div>
 
-        <Box sx={{ mt: 2 }}>
-          <TextField
-            label="Notes"
-            multiline
-            rows={2}
-            fullWidth
+        <div>
+          <label
+            htmlFor="notes"
+            className={`block text-sm font-medium mb-1 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}
+          >
+            Notes
+          </label>
+          <textarea
+            id="notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
+            rows={2}
             placeholder="Optional notes about this transfer..."
+            className={`w-full px-3 py-2 rounded-lg border ${
+              isDarkMode
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
-        </Box>
-      </Paper>
+        </div>
+      </div>
 
-      {/* Items */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
-          <Typography variant="h6">Items to Transfer</Typography>
-          <Button
-            startIcon={<AddIcon />}
+      {/* Items Card */}
+      <div
+        className={`p-6 rounded-lg shadow mb-6 ${
+          isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Items to Transfer</h2>
+          <button
             onClick={handleAddItem}
             disabled={!sourceWarehouseId}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
+              !sourceWarehouseId
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
+            }`}
           >
+            <Plus className="w-4 h-4" />
             Add Item
-          </Button>
-        </Box>
-        <Divider sx={{ mb: 2 }} />
+          </button>
+        </div>
+        <hr className={`mb-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
         {!sourceWarehouseId ? (
-          <Alert severity="info">
-            Please select a source warehouse first to add items.
-          </Alert>
+          <div
+            className={`p-3 rounded-lg ${
+              isDarkMode ? 'bg-blue-900 bg-opacity-20 border border-blue-700' : 'bg-blue-50 border border-blue-200'
+            }`}
+          >
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Please select a source warehouse first to add items.
+            </p>
+          </div>
         ) : items.length === 0 ? (
-          <Alert severity="info">
-            No items added. Click &quot;Add Item&quot; to add products to this
-            transfer.
-          </Alert>
+          <div
+            className={`p-3 rounded-lg ${
+              isDarkMode ? 'bg-blue-900 bg-opacity-20 border border-blue-700' : 'bg-blue-50 border border-blue-200'
+            }`}
+          >
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              No items added. Click &quot;Add Item&quot; to add products to this transfer.
+            </p>
+          </div>
         ) : (
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ backgroundColor: "grey.50" }}>
-                  <TableCell sx={{ minWidth: 300 }}>Product</TableCell>
-                  <TableCell align="right">Available</TableCell>
-                  <TableCell align="right" sx={{ width: 150 }}>
-                    Quantity
-                  </TableCell>
-                  <TableCell>Unit</TableCell>
-                  <TableCell sx={{ width: 200 }}>Notes</TableCell>
-                  <TableCell sx={{ width: 60 }}></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr
+                  className={`${
+                    isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+                  } border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                >
+                  <th className="px-4 py-3 text-left text-sm font-medium">Product</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">Available</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">Quantity</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">Unit</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">Notes</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium w-16"></th>
+                </tr>
+              </thead>
+              <tbody>
                 {items.map((item) => {
-                  const available =
-                    stockLevels[item.productId]?.quantityAvailable || 0;
-                  const stockUnit = stockLevels[item.productId]?.unit || "KG";
+                  const available = stockLevels[item.productId]?.quantityAvailable || 0;
+                  const stockUnit = stockLevels[item.productId]?.unit || 'KG';
+                  const filteredProducts = filteredProductsMap[item.id] || [];
 
                   return (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        <Autocomplete
-                          size="small"
-                          options={getAvailableProducts(item.id)}
-                          getOptionLabel={(option) =>
-                            `${option.name} (${option.sku || "No SKU"})`
-                          }
-                          value={item.product}
-                          onChange={(e, newValue) =>
-                            handleItemChange(item.id, "product", newValue)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              placeholder="Select product..."
-                            />
-                          )}
-                          loading={loadingProducts}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        {item.productId ? (
-                          <Chip
-                            label={formatQuantity(available, stockUnit)}
-                            size="small"
-                            color={available > 0 ? "success" : "error"}
-                            variant="outlined"
+                    <tr
+                      key={item.id}
+                      className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                    >
+                      <td className="px-4 py-3" style={{ minWidth: '300px' }}>
+                        <div className="relative" ref={(el) => (dropdownRefs.current[item.id] = el)}>
+                          <input
+                            type="text"
+                            value={productSearchTerms[item.id] || ''}
+                            onChange={(e) => {
+                              setProductSearchTerms({
+                                ...productSearchTerms,
+                                [item.id]: e.target.value,
+                              });
+                              setActiveItemId(item.id);
+                            }}
+                            onFocus={() => setActiveItemId(item.id)}
+                            placeholder="Select product..."
+                            className={`w-full px-3 py-2 text-sm rounded border ${
+                              isDarkMode
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
+                            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                           />
+                          {activeItemId === item.id && filteredProducts.length > 0 && (
+                            <div
+                              className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg ${
+                                isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
+                              }`}
+                            >
+                              {filteredProducts.slice(0, 20).map((product) => (
+                                <button
+                                  key={product.id}
+                                  type="button"
+                                  onClick={() => handleProductSelect(item.id, product)}
+                                  className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-500 hover:text-white transition-colors ${
+                                    item.productId === product.id
+                                      ? 'bg-blue-500 text-white'
+                                      : isDarkMode
+                                        ? 'text-gray-200'
+                                        : 'text-gray-900'
+                                  }`}
+                                >
+                                  <div className="font-medium">{product.name}</div>
+                                  <div className="text-xs opacity-75">{product.sku || 'No SKU'}</div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {item.productId ? (
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                              available > 0
+                                ? isDarkMode
+                                  ? 'bg-green-900 bg-opacity-30 border border-green-700 text-green-300'
+                                  : 'bg-green-100 border border-green-300 text-green-700'
+                                : isDarkMode
+                                  ? 'bg-red-900 bg-opacity-30 border border-red-700 text-red-300'
+                                  : 'bg-red-100 border border-red-300 text-red-700'
+                            }`}
+                          >
+                            {formatQuantity(available, stockUnit)}
+                          </span>
                         ) : (
-                          "-"
+                          <span className="text-gray-500">-</span>
                         )}
-                      </TableCell>
-                      <TableCell align="right">
-                        <TextField
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <input
                           type="number"
-                          size="small"
                           value={item.quantity}
-                          onChange={(e) =>
-                            handleItemChange(
-                              item.id,
-                              "quantity",
-                              e.target.value,
-                            )
-                          }
-                          inputProps={{ min: 0, step: 0.01 }}
-                          sx={{ width: 120 }}
-                          error={
-                            item.productId &&
-                            parseFloat(item.quantity) > available
-                          }
+                          onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
+                          min="0"
+                          step="0.01"
+                          className={`w-28 px-3 py-2 text-sm rounded border text-right ${
+                            item.productId && parseFloat(item.quantity) > available
+                              ? 'border-red-500 focus:ring-red-500'
+                              : isDarkMode
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-white border-gray-300 text-gray-900'
+                          } focus:outline-none focus:ring-2`}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{item.unit}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          size="small"
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm">{item.unit}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
                           value={item.notes}
-                          onChange={(e) =>
-                            handleItemChange(item.id, "notes", e.target.value)
-                          }
+                          onChange={(e) => handleItemChange(item.id, 'notes', e.target.value)}
                           placeholder="Optional..."
-                          fullWidth
+                          className={`w-full px-3 py-2 text-sm rounded border ${
+                            isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          size="small"
-                          color="error"
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
                           onClick={() => handleRemoveItem(item.id)}
+                          className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 dark:hover:bg-opacity-20 rounded"
                         >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
                   );
                 })}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
         )}
-      </Paper>
+      </div>
 
       {/* Actions */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-        <Button onClick={onCancel} disabled={saving}>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={onCancel}
+          disabled={saving}
+          className={`px-4 py-2 rounded-lg font-medium ${
+            isDarkMode
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
           Cancel
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={saving ? <CircularProgress size={16} /> : <SaveIcon />}
+        </button>
+        <button
           onClick={handleSubmit}
           disabled={saving || items.length === 0}
+          className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
+            saving || items.length === 0
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          }`}
         >
-          {saving ? "Creating..." : "Create Transfer"}
-        </Button>
-      </Box>
-    </Box>
+          {saving ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" />
+              Create Transfer
+            </>
+          )}
+        </button>
+      </div>
+    </div>
   );
 };
 

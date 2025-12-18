@@ -300,6 +300,42 @@ const CreditNoteForm = () => {
     restockingFee: 0,
     // Manual Credit Amount (for ACCOUNTING_ONLY when no items selected)
     manualCreditAmount: 0,
+    // Steel Return Specifics (Priority 3 - STEEL-FORMS-PHASE1)
+    returnReasonCategory: "",
+    vendorClaim: {
+      status: "PENDING",
+      claimAmount: 0,
+      settlementAmount: 0,
+      notes: "",
+    },
+    qualityFailureDetails: {
+      testParameter: "",
+      measuredValue: "",
+      specValue: "",
+      testDate: "",
+      photos: [],
+    },
+    heatNumberMatch: {
+      matches: null,
+      originalHeat: "",
+      returnedHeat: "",
+      notes: "",
+    },
+    gradeVerification: {
+      pmiTestDone: false,
+      verifiedGrade: "",
+      originalGrade: "",
+      testCertificatePath: "",
+    },
+    dispositionDecision: "",
+    rmaNumber: "",
+    rmaValidityDate: "",
+    rmaStatus: "PENDING",
+    approvalRequiredUi: false,
+    approvalThresholdAmount: 5000, // Default threshold AED 5,000
+    approverName: "",
+    approvalTimestamp: null,
+    sourceInvoices: [],
   });
 
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -2137,6 +2173,588 @@ const CreditNoteForm = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Steel Return Specifics - Show for RETURN_WITH_QC type */}
+              {creditNote.creditNoteType === "RETURN_WITH_QC" && (
+                <div
+                  className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+                >
+                  <h2
+                    className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Steel Return Classification
+                  </h2>
+                  <p
+                    className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Detailed classification and quality tracking for returned steel materials.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Return Reason Category */}
+                    <div>
+                      <label
+                        htmlFor="return-reason-category"
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      >
+                        Return Reason Category{" "}
+                        <span className="text-red-500 font-bold">*</span>
+                      </label>
+                      <Select
+                        value={creditNote.returnReasonCategory || "none"}
+                        onValueChange={(value) =>
+                          setCreditNote((prev) => ({
+                            ...prev,
+                            returnReasonCategory: value === "none" ? "" : value,
+                          }))
+                        }
+                        disabled={!isEditable}
+                      >
+                        <SelectTrigger
+                          id="return-reason-category"
+                          className={`w-full px-4 py-2 rounded-lg border ${
+                            !isEditable ? "cursor-not-allowed opacity-60" : ""
+                          } ${
+                            isDarkMode
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        >
+                          <SelectValue placeholder="Select category..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Select category...</SelectItem>
+                          <SelectItem value="MATERIAL_DEFECT">Material Defect</SelectItem>
+                          <SelectItem value="WRONG_DELIVERY">Wrong Delivery</SelectItem>
+                          <SelectItem value="DAMAGE_IN_TRANSIT">Damage in Transit</SelectItem>
+                          <SelectItem value="WRONG_GRADE">Wrong Grade</SelectItem>
+                          <SelectItem value="WRONG_DIMENSIONS">Wrong Dimensions</SelectItem>
+                          <SelectItem value="CUSTOMER_CHANGED_MIND">Customer Changed Mind</SelectItem>
+                          <SelectItem value="OTHER">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Disposition Decision */}
+                    <div>
+                      <label
+                        htmlFor="disposition-decision"
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      >
+                        Disposition Decision{" "}
+                        <span className="text-red-500 font-bold">*</span>
+                      </label>
+                      <Select
+                        value={creditNote.dispositionDecision || "none"}
+                        onValueChange={(value) =>
+                          setCreditNote((prev) => ({
+                            ...prev,
+                            dispositionDecision: value === "none" ? "" : value,
+                          }))
+                        }
+                        disabled={!isEditable}
+                      >
+                        <SelectTrigger
+                          id="disposition-decision"
+                          className={`w-full px-4 py-2 rounded-lg border ${
+                            !isEditable ? "cursor-not-allowed opacity-60" : ""
+                          } ${
+                            isDarkMode
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        >
+                          <SelectValue placeholder="Select disposition..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Select disposition...</SelectItem>
+                          <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
+                          <SelectItem value="RESTOCK_AS_NEW">Restock as New</SelectItem>
+                          <SelectItem value="RESTOCK_AS_SECOND_GRADE">Restock as Second Grade</SelectItem>
+                          <SelectItem value="SCRAP">Scrap</SelectItem>
+                          <SelectItem value="RETURN_TO_SUPPLIER">Return to Supplier</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Heat Number Match */}
+                    <div className="md:col-span-2">
+                      <label
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      >
+                        Heat Number Verification
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input
+                          type="text"
+                          value={creditNote.heatNumberMatch.originalHeat}
+                          onChange={(e) =>
+                            setCreditNote((prev) => ({
+                              ...prev,
+                              heatNumberMatch: {
+                                ...prev.heatNumberMatch,
+                                originalHeat: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="Original Heat Number"
+                          disabled={!isEditable}
+                          className={`px-3 py-2 rounded-lg border ${
+                            !isEditable ? "cursor-not-allowed opacity-60" : ""
+                          } ${
+                            isDarkMode
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        />
+                        <input
+                          type="text"
+                          value={creditNote.heatNumberMatch.returnedHeat}
+                          onChange={(e) =>
+                            setCreditNote((prev) => ({
+                              ...prev,
+                              heatNumberMatch: {
+                                ...prev.heatNumberMatch,
+                                returnedHeat: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="Returned Heat Number"
+                          disabled={!isEditable}
+                          className={`px-3 py-2 rounded-lg border ${
+                            !isEditable ? "cursor-not-allowed opacity-60" : ""
+                          } ${
+                            isDarkMode
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        />
+                        <Select
+                          value={
+                            creditNote.heatNumberMatch.matches === null
+                              ? "unknown"
+                              : creditNote.heatNumberMatch.matches
+                                ? "yes"
+                                : "no"
+                          }
+                          onValueChange={(value) =>
+                            setCreditNote((prev) => ({
+                              ...prev,
+                              heatNumberMatch: {
+                                ...prev.heatNumberMatch,
+                                matches: value === "unknown" ? null : value === "yes",
+                              },
+                            }))
+                          }
+                          disabled={!isEditable}
+                        >
+                          <SelectTrigger
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            }`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unknown">Unknown</SelectItem>
+                            <SelectItem value="yes">Match</SelectItem>
+                            <SelectItem value="no">Mismatch</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Grade Verification - PMI Test */}
+                    <div className="md:col-span-2">
+                      <label
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      >
+                        Grade Verification (PMI Test)
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="pmi-test-done"
+                            checked={creditNote.gradeVerification.pmiTestDone}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                gradeVerification: {
+                                  ...prev.gradeVerification,
+                                  pmiTestDone: e.target.checked,
+                                },
+                              }))
+                            }
+                            disabled={!isEditable}
+                            className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                          />
+                          <label
+                            htmlFor="pmi-test-done"
+                            className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                          >
+                            PMI Test Done
+                          </label>
+                        </div>
+                        <input
+                          type="text"
+                          value={creditNote.gradeVerification.originalGrade}
+                          onChange={(e) =>
+                            setCreditNote((prev) => ({
+                              ...prev,
+                              gradeVerification: {
+                                ...prev.gradeVerification,
+                                originalGrade: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="Original Grade"
+                          disabled={!isEditable}
+                          className={`px-3 py-2 rounded-lg border ${
+                            !isEditable ? "cursor-not-allowed opacity-60" : ""
+                          } ${
+                            isDarkMode
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        />
+                        <input
+                          type="text"
+                          value={creditNote.gradeVerification.verifiedGrade}
+                          onChange={(e) =>
+                            setCreditNote((prev) => ({
+                              ...prev,
+                              gradeVerification: {
+                                ...prev.gradeVerification,
+                                verifiedGrade: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="Verified Grade"
+                          disabled={!isEditable || !creditNote.gradeVerification.pmiTestDone}
+                          className={`px-3 py-2 rounded-lg border ${
+                            !isEditable || !creditNote.gradeVerification.pmiTestDone
+                              ? "cursor-not-allowed opacity-60"
+                              : ""
+                          } ${
+                            isDarkMode
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quality Failure Details - conditional on MATERIAL_DEFECT */}
+                    {(creditNote.returnReasonCategory === "MATERIAL_DEFECT" ||
+                      creditNote.returnReasonCategory === "WRONG_GRADE") && (
+                      <div className="md:col-span-2 border-t pt-4 mt-2">
+                        <label
+                          className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          Quality Failure Details
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                          <input
+                            type="text"
+                            value={creditNote.qualityFailureDetails.testParameter}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                qualityFailureDetails: {
+                                  ...prev.qualityFailureDetails,
+                                  testParameter: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Test Parameter"
+                            disabled={!isEditable}
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          />
+                          <input
+                            type="text"
+                            value={creditNote.qualityFailureDetails.measuredValue}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                qualityFailureDetails: {
+                                  ...prev.qualityFailureDetails,
+                                  measuredValue: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Measured Value"
+                            disabled={!isEditable}
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          />
+                          <input
+                            type="text"
+                            value={creditNote.qualityFailureDetails.specValue}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                qualityFailureDetails: {
+                                  ...prev.qualityFailureDetails,
+                                  specValue: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Spec Value"
+                            disabled={!isEditable}
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          />
+                          <input
+                            type="date"
+                            value={creditNote.qualityFailureDetails.testDate}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                qualityFailureDetails: {
+                                  ...prev.qualityFailureDetails,
+                                  testDate: e.target.value,
+                                },
+                              }))
+                            }
+                            disabled={!isEditable}
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Vendor Claim - conditional on MATERIAL_DEFECT or WRONG_DELIVERY */}
+                    {(creditNote.returnReasonCategory === "MATERIAL_DEFECT" ||
+                      creditNote.returnReasonCategory === "WRONG_DELIVERY") && (
+                      <div className="md:col-span-2 border-t pt-4 mt-2">
+                        <label
+                          className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          Vendor Claim Tracking
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                          <Select
+                            value={creditNote.vendorClaim.status}
+                            onValueChange={(value) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                vendorClaim: {
+                                  ...prev.vendorClaim,
+                                  status: value,
+                                },
+                              }))
+                            }
+                            disabled={!isEditable}
+                          >
+                            <SelectTrigger
+                              className={`px-3 py-2 rounded-lg border ${
+                                !isEditable ? "cursor-not-allowed opacity-60" : ""
+                              } ${
+                                isDarkMode
+                                  ? "border-gray-600 bg-gray-700 text-white"
+                                  : "border-gray-300 bg-white text-gray-900"
+                              }`}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PENDING">Pending</SelectItem>
+                              <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                              <SelectItem value="APPROVED">Approved</SelectItem>
+                              <SelectItem value="REJECTED">Rejected</SelectItem>
+                              <SelectItem value="SETTLED">Settled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <input
+                            type="number"
+                            value={creditNote.vendorClaim.claimAmount}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                vendorClaim: {
+                                  ...prev.vendorClaim,
+                                  claimAmount: parseFloat(e.target.value) || 0,
+                                },
+                              }))
+                            }
+                            placeholder="Claim Amount"
+                            disabled={!isEditable}
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          />
+                          <input
+                            type="number"
+                            value={creditNote.vendorClaim.settlementAmount}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                vendorClaim: {
+                                  ...prev.vendorClaim,
+                                  settlementAmount: parseFloat(e.target.value) || 0,
+                                },
+                              }))
+                            }
+                            placeholder="Settlement Amount"
+                            disabled={!isEditable}
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          />
+                          <input
+                            type="text"
+                            value={creditNote.vendorClaim.notes}
+                            onChange={(e) =>
+                              setCreditNote((prev) => ({
+                                ...prev,
+                                vendorClaim: {
+                                  ...prev.vendorClaim,
+                                  notes: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Claim Notes"
+                            disabled={!isEditable}
+                            className={`px-3 py-2 rounded-lg border ${
+                              !isEditable ? "cursor-not-allowed opacity-60" : ""
+                            } ${
+                              isDarkMode
+                                ? "border-gray-600 bg-gray-700 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* RMA Information - Auto-generated, display only */}
+                    {creditNote.rmaNumber && (
+                      <div className="md:col-span-2 border-t pt-4 mt-2">
+                        <label
+                          className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          RMA (Return Material Authorization)
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <label className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              RMA Number
+                            </label>
+                            <div
+                              className={`px-3 py-2 rounded-lg border ${
+                                isDarkMode
+                                  ? "border-gray-600 bg-gray-700 text-white"
+                                  : "border-gray-300 bg-gray-100 text-gray-900"
+                              }`}
+                            >
+                              {creditNote.rmaNumber}
+                            </div>
+                          </div>
+                          <div>
+                            <label className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              Valid Until
+                            </label>
+                            <div
+                              className={`px-3 py-2 rounded-lg border ${
+                                isDarkMode
+                                  ? "border-gray-600 bg-gray-700 text-white"
+                                  : "border-gray-300 bg-gray-100 text-gray-900"
+                              }`}
+                            >
+                              {creditNote.rmaValidityDate
+                                ? new Date(creditNote.rmaValidityDate).toLocaleDateString()
+                                : "N/A"}
+                            </div>
+                          </div>
+                          <div>
+                            <label className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              RMA Status
+                            </label>
+                            <div
+                              className={`px-3 py-2 rounded-lg border font-medium ${
+                                creditNote.rmaStatus === "APPROVED"
+                                  ? "text-green-600 border-green-500 bg-green-50"
+                                  : creditNote.rmaStatus === "EXPIRED"
+                                    ? "text-red-600 border-red-500 bg-red-50"
+                                    : isDarkMode
+                                      ? "border-gray-600 bg-gray-700 text-white"
+                                      : "border-gray-300 bg-gray-100 text-gray-900"
+                              }`}
+                            >
+                              {creditNote.rmaStatus}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Approval Workflow Display */}
+                    {creditNote.totalCredit > creditNote.approvalThresholdAmount && (
+                      <div className="md:col-span-2 border-t pt-4 mt-2">
+                        <div
+                          className={`p-3 rounded-lg ${
+                            isDarkMode ? "bg-yellow-900/20 border border-yellow-700" : "bg-yellow-50 border border-yellow-200"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                            <span className={`font-medium ${isDarkMode ? "text-yellow-400" : "text-yellow-800"}`}>
+                              Approval Required
+                            </span>
+                          </div>
+                          <p className={`text-sm ${isDarkMode ? "text-yellow-300" : "text-yellow-700"}`}>
+                            Credit amount {formatCurrency(creditNote.totalCredit)} exceeds approval threshold of{" "}
+                            {formatCurrency(creditNote.approvalThresholdAmount)}. Manager approval is required before
+                            processing.
+                          </p>
+                          {creditNote.approverName && (
+                            <p className={`text-xs mt-2 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}>
+                              Approved by: {creditNote.approverName} on{" "}
+                              {creditNote.approvalTimestamp
+                                ? new Date(creditNote.approvalTimestamp).toLocaleString()
+                                : "N/A"}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Settlement Method - Show for ACCOUNTING_ONLY with manual amount during draft/issued, OR for refunded/completed */}
               {((creditNote.creditNoteType === "ACCOUNTING_ONLY" &&

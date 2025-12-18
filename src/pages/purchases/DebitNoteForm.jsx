@@ -30,6 +30,7 @@ import {
 import { useTheme } from "../../contexts/ThemeContext";
 import debitNoteService from "../../services/debitNoteService";
 import vendorBillService from "../../services/vendorBillService";
+import { warehouseService } from "../../services/warehouseService";
 import { notificationService } from "../../services/notificationService";
 import { formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
 import { FormSelect } from "../../components/ui/form-select";
@@ -50,6 +51,33 @@ const VAT_CATEGORIES = [
   { value: "ZERO_RATED", label: "Zero Rated (0%)", rate: 0 },
   { value: "EXEMPT", label: "Exempt", rate: 0 },
   { value: "REVERSE_CHARGE", label: "Reverse Charge", rate: 5 },
+];
+
+// Settlement types
+const SETTLEMENT_TYPES = [
+  { value: "IMMEDIATE", label: "Immediate" },
+  { value: "NET_30", label: "Net 30" },
+  { value: "NET_60", label: "Net 60" },
+  { value: "NET_90", label: "Net 90" },
+  { value: "OFFSET_CREDIT", label: "Offset Credit" },
+];
+
+// Currencies
+const CURRENCIES = [
+  { value: "AED", label: "AED (درهم)" },
+  { value: "USD", label: "USD ($)" },
+  { value: "EUR", label: "EUR (€)" },
+  { value: "GBP", label: "GBP (£)" },
+  { value: "SAR", label: "SAR (﷼)" },
+  { value: "INR", label: "INR (₹)" },
+  { value: "CNY", label: "CNY (¥)" },
+];
+
+// Approval statuses
+const APPROVAL_STATUSES = [
+  { value: "PENDING", label: "Pending" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
 ];
 
 // Empty line item template
@@ -84,6 +112,9 @@ const DebitNoteForm = () => {
   const [showVendorBillDropdown, setShowVendorBillDropdown] = useState(false);
   const [selectedVendorBill, setSelectedVendorBill] = useState(null);
 
+  // Warehouses (for Phase 2b)
+  const [warehouses, setWarehouses] = useState([]);
+
   // Debit note data state
   const [debitNote, setDebitNote] = useState({
     vendorBillId: null,
@@ -102,6 +133,20 @@ const DebitNoteForm = () => {
     status: "draft",
     notes: "",
     items: [createEmptyItem()],
+    // Phase 2b fields
+    settlementType: "IMMEDIATE",
+    paymentReference: "",
+    settlementDate: "",
+    currency: "AED",
+    exchangeRate: 1.0,
+    amountInBaseCurrency: 0,
+    attachmentUrls: [],
+    approvalStatus: "PENDING",
+    warehouseId: null,
+    stockImpact: false,
+    modificationReason: "",
+    previousAmount: 0,
+    version: 1,
   });
 
   // Load initial data
@@ -115,7 +160,24 @@ const DebitNoteForm = () => {
         loadVendorBill(vendorBillIdParam);
       }
     }
+    loadWarehouses();
   }, [id]);
+
+  // Load warehouses
+  const loadWarehouses = async () => {
+    try {
+      const result = await warehouseService.getAll({ isActive: true });
+      setWarehouses(result.data || []);
+    } catch (error) {
+      console.error("Error loading warehouses:", error);
+    }
+  };
+
+  // Auto-calculate amountInBaseCurrency when totalDebit or exchangeRate changes
+  useEffect(() => {
+    const amountInBaseCurrency = debitNote.totalDebit * debitNote.exchangeRate;
+    setDebitNote((prev) => ({ ...prev, amountInBaseCurrency }));
+  }, [debitNote.totalDebit, debitNote.exchangeRate]);
 
   // Search vendor bills with debouncing
   useEffect(() => {
@@ -848,7 +910,380 @@ const DebitNoteForm = () => {
                 </div>
               </div>
 
-              {/* Section 4: Notes Accordion */}
+              {/* Section 4: Settlement & Payment Accordion */}
+              <details
+                open
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Settlement & Payment
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Payment terms and settlement details
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Settlement Type
+                      </label>
+                      <FormSelect
+                        value={debitNote.settlementType}
+                        onValueChange={(value) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            settlementType: value,
+                          }))
+                        }
+                        showValidation={false}
+                      >
+                        {SETTLEMENT_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Payment Reference
+                      </label>
+                      <input
+                        type="text"
+                        value={debitNote.paymentReference}
+                        onChange={(e) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            paymentReference: e.target.value,
+                          }))
+                        }
+                        placeholder="Payment ref #"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Settlement Date
+                      </label>
+                      <input
+                        type="date"
+                        value={debitNote.settlementDate}
+                        onChange={(e) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            settlementDate: e.target.value,
+                          }))
+                        }
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 5: Multi-Currency Support Accordion */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Multi-Currency Support
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Currency and exchange rate details
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Currency
+                      </label>
+                      <FormSelect
+                        value={debitNote.currency}
+                        onValueChange={(value) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            currency: value,
+                          }))
+                        }
+                        showValidation={false}
+                      >
+                        {CURRENCIES.map((curr) => (
+                          <SelectItem key={curr.value} value={curr.value}>
+                            {curr.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Exchange Rate
+                      </label>
+                      <input
+                        type="number"
+                        min="0.0001"
+                        step="0.0001"
+                        value={debitNote.exchangeRate}
+                        onChange={(e) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            exchangeRate: parseFloat(e.target.value) || 1.0,
+                          }))
+                        }
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    <div className="col-span-12 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Amount in Base Currency (AED)
+                      </label>
+                      <input
+                        type="text"
+                        value={formatCurrency(debitNote.amountInBaseCurrency)}
+                        disabled
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm font-mono ${
+                          isDarkMode
+                            ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                            : "bg-gray-100 border-gray-300 text-gray-500"
+                        }`}
+                      />
+                      <div className={`text-xs ${textMuted} mt-1`}>
+                        Auto-calculated: {debitNote.totalDebit} × {debitNote.exchangeRate}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 6: Document Management Accordion */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Document Management
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Attachments and approval status
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="col-span-12 md:col-span-8">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Attachment URLs (comma-separated)
+                      </label>
+                      <textarea
+                        value={debitNote.attachmentUrls.join(", ")}
+                        onChange={(e) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            attachmentUrls: e.target.value
+                              .split(",")
+                              .map((url) => url.trim())
+                              .filter(Boolean),
+                          }))
+                        }
+                        rows={2}
+                        placeholder="https://example.com/doc1.pdf, https://example.com/doc2.pdf"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    <div className="col-span-12 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Approval Status
+                      </label>
+                      <FormSelect
+                        value={debitNote.approvalStatus}
+                        onValueChange={(value) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            approvalStatus: value,
+                          }))
+                        }
+                        showValidation={false}
+                      >
+                        {APPROVAL_STATUSES.map((status) => (
+                          <SelectItem key={status.value} value={status.value}>
+                            {status.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 7: Warehouse & Stock Impact Accordion */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Warehouse & Stock Impact
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Optional inventory impact tracking
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="col-span-12">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={debitNote.stockImpact}
+                          onChange={(e) =>
+                            setDebitNote((prev) => ({
+                              ...prev,
+                              stockImpact: e.target.checked,
+                              warehouseId: e.target.checked ? prev.warehouseId : null,
+                            }))
+                          }
+                          className="w-4 h-4 rounded"
+                        />
+                        <span className={`text-sm ${textPrimary}`}>
+                          This debit note affects inventory
+                        </span>
+                      </label>
+                    </div>
+
+                    {debitNote.stockImpact && (
+                      <div className="col-span-12 md:col-span-6">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          Warehouse
+                        </label>
+                        <FormSelect
+                          value={debitNote.warehouseId?.toString() || ""}
+                          onValueChange={(value) =>
+                            setDebitNote((prev) => ({
+                              ...prev,
+                              warehouseId: value ? parseInt(value) : null,
+                            }))
+                          }
+                          showValidation={false}
+                        >
+                          <SelectItem value="">Select warehouse...</SelectItem>
+                          {warehouses.map((wh) => (
+                            <SelectItem key={wh.id} value={wh.id.toString()}>
+                              {wh.name}
+                            </SelectItem>
+                          ))}
+                        </FormSelect>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 8: Audit Trail Accordion */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Audit Trail
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Version history and modification tracking
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Version
+                      </label>
+                      <input
+                        type="text"
+                        value={debitNote.version}
+                        disabled
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm font-mono ${
+                          isDarkMode
+                            ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                            : "bg-gray-100 border-gray-300 text-gray-500"
+                        }`}
+                      />
+                    </div>
+
+                    <div className="col-span-6 md:col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Previous Amount
+                      </label>
+                      <input
+                        type="text"
+                        value={formatCurrency(debitNote.previousAmount)}
+                        disabled
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm font-mono ${
+                          isDarkMode
+                            ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                            : "bg-gray-100 border-gray-300 text-gray-500"
+                        }`}
+                      />
+                    </div>
+
+                    <div className="col-span-12 md:col-span-12">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Modification Reason {debitNote.version > 1 && <span className="text-red-500">*</span>}
+                      </label>
+                      <textarea
+                        value={debitNote.modificationReason}
+                        onChange={(e) =>
+                          setDebitNote((prev) => ({
+                            ...prev,
+                            modificationReason: e.target.value,
+                          }))
+                        }
+                        rows={2}
+                        disabled={debitNote.version === 1}
+                        placeholder={
+                          debitNote.version > 1
+                            ? "Explain what was changed and why..."
+                            : "Version 1 - no modification reason required"
+                        }
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${
+                          debitNote.version === 1 ? "opacity-60 cursor-not-allowed" : ""
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 9: Notes Accordion */}
               <details
                 className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
               >

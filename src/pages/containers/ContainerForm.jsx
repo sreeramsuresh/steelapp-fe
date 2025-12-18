@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { X, Loader2, Save } from "lucide-react";
+import { X, Loader2, Save, ChevronDown } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { importContainerService } from "../../services/importContainerService";
 import { suppliersAPI, purchaseOrdersAPI } from "../../services/api";
@@ -15,6 +15,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+// Container types
+const CONTAINER_TYPES = [
+  { value: "20FT", label: "20FT Standard" },
+  { value: "40FT", label: "40FT Standard" },
+  { value: "40HC", label: "40FT High Cube" },
+  { value: "45HC", label: "45FT High Cube" },
+  { value: "REEFER_20", label: "20FT Reefer" },
+  { value: "REEFER_40", label: "40FT Reefer" },
+];
+
+// Container sizes
+const CONTAINER_SIZES = [
+  { value: "20", label: "20 feet" },
+  { value: "40", label: "40 feet" },
+  { value: "45", label: "45 feet" },
+];
+
+// Customs clearance statuses
+const CUSTOMS_STATUSES = [
+  { value: "PENDING", label: "Pending" },
+  { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "CLEARED", label: "Cleared" },
+  { value: "ON_HOLD", label: "On Hold" },
+];
 
 /**
  * ContainerForm - Modal form for create/edit import containers
@@ -41,6 +66,47 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
     totalOtherCosts: "",
     purchaseOrderId: "",
     notes: "",
+    // Phase 2b fields
+    containerType: "40FT",
+    containerSize: "40",
+    isHighCube: false,
+    isReefer: false,
+    temperatureSetting: "",
+    carrierSealNumber: "",
+    customsSealNumber: "",
+    shipperSealNumber: "",
+    tareWeight: "",
+    grossWeight: "",
+    netWeight: "",
+    vgmWeight: "",
+    vgmCertifiedBy: "",
+    vgmCertifiedAt: "",
+    customsClearanceStatus: "PENDING",
+    customsAgent: "",
+    customsBrokerReference: "",
+    customsEntryNumber: "",
+    customsClearanceDate: "",
+    preShipmentInspection: false,
+    psiCertificateNumber: "",
+    psiDate: "",
+    certificateOfOriginNumber: "",
+    phytosanitaryCertificate: "",
+    freeDaysAtPort: 0,
+    demurrageStartDate: "",
+    demurrageDaysIncurred: 0,
+    demurrageCost: "",
+    detentionStartDate: "",
+    detentionDaysIncurred: 0,
+    detentionCost: "",
+    containerReleased: false,
+    releaseDate: "",
+    releaseReference: "",
+    deliveryOrderNumber: "",
+    emptyReturnDate: "",
+    emptyReturnDepot: "",
+    portCharges: "",
+    storageCharges: "",
+    documentationFees: "",
   });
 
   const [suppliers, setSuppliers] = useState([]);
@@ -70,6 +136,41 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
     loadData();
   }, [companyId]);
 
+  // Auto-calculate netWeight when gross/tare weights change
+  useEffect(() => {
+    const gross = parseFloat(formData.grossWeight) || 0;
+    const tare = parseFloat(formData.tareWeight) || 0;
+    const netWeight = gross - tare;
+    if (netWeight !== formData.netWeight) {
+      setFormData((prev) => ({ ...prev, netWeight: netWeight > 0 ? netWeight : "" }));
+    }
+  }, [formData.grossWeight, formData.tareWeight]);
+
+  // Auto-calculate demurrage days
+  useEffect(() => {
+    if (formData.demurrageStartDate) {
+      const startDate = new Date(formData.demurrageStartDate);
+      const today = new Date();
+      const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+      const daysIncurred = Math.max(0, daysDiff - formData.freeDaysAtPort);
+      setFormData((prev) => ({ ...prev, demurrageDaysIncurred: daysIncurred }));
+    } else {
+      setFormData((prev) => ({ ...prev, demurrageDaysIncurred: 0 }));
+    }
+  }, [formData.demurrageStartDate, formData.freeDaysAtPort]);
+
+  // Auto-calculate detention days
+  useEffect(() => {
+    if (formData.detentionStartDate) {
+      const startDate = new Date(formData.detentionStartDate);
+      const today = new Date();
+      const daysIncurred = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)));
+      setFormData((prev) => ({ ...prev, detentionDaysIncurred: daysIncurred }));
+    } else {
+      setFormData((prev) => ({ ...prev, detentionDaysIncurred: 0 }));
+    }
+  }, [formData.detentionStartDate]);
+
   // Populate form when editing
   useEffect(() => {
     if (container) {
@@ -91,6 +192,47 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         totalOtherCosts: container.totalOtherCosts || "",
         purchaseOrderId: container.purchaseOrderId?.toString() || "",
         notes: container.notes || "",
+        // Phase 2b fields
+        containerType: container.containerType || "40FT",
+        containerSize: container.containerSize || "40",
+        isHighCube: container.isHighCube || false,
+        isReefer: container.isReefer || false,
+        temperatureSetting: container.temperatureSetting || "",
+        carrierSealNumber: container.carrierSealNumber || "",
+        customsSealNumber: container.customsSealNumber || "",
+        shipperSealNumber: container.shipperSealNumber || "",
+        tareWeight: container.tareWeight || "",
+        grossWeight: container.grossWeight || "",
+        netWeight: container.netWeight || "",
+        vgmWeight: container.vgmWeight || "",
+        vgmCertifiedBy: container.vgmCertifiedBy || "",
+        vgmCertifiedAt: container.vgmCertifiedAt?.split("T")[0] || "",
+        customsClearanceStatus: container.customsClearanceStatus || "PENDING",
+        customsAgent: container.customsAgent || "",
+        customsBrokerReference: container.customsBrokerReference || "",
+        customsEntryNumber: container.customsEntryNumber || "",
+        customsClearanceDate: container.customsClearanceDate?.split("T")[0] || "",
+        preShipmentInspection: container.preShipmentInspection || false,
+        psiCertificateNumber: container.psiCertificateNumber || "",
+        psiDate: container.psiDate?.split("T")[0] || "",
+        certificateOfOriginNumber: container.certificateOfOriginNumber || "",
+        phytosanitaryCertificate: container.phytosanitaryCertificate || "",
+        freeDaysAtPort: container.freeDaysAtPort || 0,
+        demurrageStartDate: container.demurrageStartDate?.split("T")[0] || "",
+        demurrageDaysIncurred: container.demurrageDaysIncurred || 0,
+        demurrageCost: container.demurrageCost || "",
+        detentionStartDate: container.detentionStartDate?.split("T")[0] || "",
+        detentionDaysIncurred: container.detentionDaysIncurred || 0,
+        detentionCost: container.detentionCost || "",
+        containerReleased: container.containerReleased || false,
+        releaseDate: container.releaseDate?.split("T")[0] || "",
+        releaseReference: container.releaseReference || "",
+        deliveryOrderNumber: container.deliveryOrderNumber || "",
+        emptyReturnDate: container.emptyReturnDate?.split("T")[0] || "",
+        emptyReturnDepot: container.emptyReturnDepot || "",
+        portCharges: container.portCharges || "",
+        storageCharges: container.storageCharges || "",
+        documentationFees: container.documentationFees || "",
       });
     }
   }, [container]);
@@ -119,6 +261,18 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
     setError(null);
 
     try {
+      // Calculate total landed cost including new Phase 2b charges
+      const totalLandedCost =
+        parseFloat(formData.totalFob || 0) +
+        parseFloat(formData.totalFreight || 0) +
+        parseFloat(formData.totalInsurance || 0) +
+        parseFloat(formData.totalCustomsDuty || 0) +
+        parseFloat(formData.totalHandling || 0) +
+        parseFloat(formData.totalOtherCosts || 0) +
+        parseFloat(formData.portCharges || 0) +
+        parseFloat(formData.storageCharges || 0) +
+        parseFloat(formData.documentationFees || 0);
+
       const payload = {
         companyId,
         containerNumber: formData.containerNumber.trim(),
@@ -140,6 +294,52 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           ? parseInt(formData.purchaseOrderId)
           : null,
         notes: formData.notes.trim(),
+        // Phase 2b fields
+        containerType: formData.containerType,
+        containerSize: formData.containerSize,
+        isHighCube: formData.isHighCube,
+        isReefer: formData.isReefer,
+        temperatureSetting: formData.isReefer ? formData.temperatureSetting : null,
+        carrierSealNumber: formData.carrierSealNumber.trim(),
+        customsSealNumber: formData.customsSealNumber.trim(),
+        shipperSealNumber: formData.shipperSealNumber.trim(),
+        tareWeight: formData.tareWeight || null,
+        grossWeight: formData.grossWeight || null,
+        netWeight: formData.netWeight || null,
+        vgmWeight: formData.vgmWeight || null,
+        vgmCertifiedBy: formData.vgmCertifiedBy.trim(),
+        vgmCertifiedAt: formData.vgmCertifiedAt || null,
+        customsClearanceStatus: formData.customsClearanceStatus,
+        customsAgent: formData.customsAgent.trim(),
+        customsBrokerReference: formData.customsBrokerReference.trim(),
+        customsEntryNumber: formData.customsEntryNumber.trim(),
+        customsClearanceDate: formData.customsClearanceDate || null,
+        preShipmentInspection: formData.preShipmentInspection,
+        psiCertificateNumber: formData.preShipmentInspection
+          ? formData.psiCertificateNumber.trim()
+          : null,
+        psiDate: formData.preShipmentInspection ? formData.psiDate || null : null,
+        certificateOfOriginNumber: formData.certificateOfOriginNumber.trim(),
+        phytosanitaryCertificate: formData.phytosanitaryCertificate.trim(),
+        freeDaysAtPort: parseInt(formData.freeDaysAtPort) || 0,
+        demurrageStartDate: formData.demurrageStartDate || null,
+        demurrageDaysIncurred: parseInt(formData.demurrageDaysIncurred) || 0,
+        demurrageCost: formData.demurrageCost || "0",
+        detentionStartDate: formData.detentionStartDate || null,
+        detentionDaysIncurred: parseInt(formData.detentionDaysIncurred) || 0,
+        detentionCost: formData.detentionCost || "0",
+        containerReleased: formData.containerReleased,
+        releaseDate: formData.containerReleased ? formData.releaseDate || null : null,
+        releaseReference: formData.containerReleased
+          ? formData.releaseReference.trim()
+          : null,
+        deliveryOrderNumber: formData.deliveryOrderNumber.trim(),
+        emptyReturnDate: formData.emptyReturnDate || null,
+        emptyReturnDepot: formData.emptyReturnDepot.trim(),
+        portCharges: formData.portCharges || "0",
+        storageCharges: formData.storageCharges || "0",
+        documentationFees: formData.documentationFees || "0",
+        totalLandedCost: totalLandedCost.toString(),
       };
 
       let result;
@@ -477,21 +677,204 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
             </div>
           </div>
 
+          {/* PHASE 2B ACCORDION SECTIONS */}
+
+          {/* Container Specifications Accordion */}
+          <details open className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+                Container Specifications
+              </h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label className={labelClass}>Container Type</Label>
+                  <Select value={formData.containerType} onValueChange={(value) => handleChange("containerType", value)}>
+                    <SelectTrigger className={inputClass}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CONTAINER_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className={labelClass}>Container Size</Label>
+                  <Select value={formData.containerSize} onValueChange={(value) => handleChange("containerSize", value)}>
+                    <SelectTrigger className={inputClass}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CONTAINER_SIZES.map((size) => (
+                        <SelectItem key={size.value} value={size.value}>{size.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-4 pt-6">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={formData.isHighCube} onChange={(e) => handleChange("isHighCube", e.target.checked)} />
+                    <span className="text-sm">High Cube</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={formData.isReefer} onChange={(e) => handleChange("isReefer", e.target.checked)} />
+                    <span className="text-sm">Reefer</span>
+                  </label>
+                </div>
+              </div>
+              {formData.isReefer && (
+                <div>
+                  <Label className={labelClass}>Temperature Setting (°C)</Label>
+                  <Input type="number" step="0.1" value={formData.temperatureSetting} onChange={(e) => handleChange("temperatureSetting", e.target.value)} placeholder="-20" className={inputClass} />
+                </div>
+              )}
+            </div>
+          </details>
+
+          {/* Seal Numbers & Security Accordion */}
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Seal Numbers & Security</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>Carrier Seal Number</Label><Input value={formData.carrierSealNumber} onChange={(e) => handleChange("carrierSealNumber", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Customs Seal Number</Label><Input value={formData.customsSealNumber} onChange={(e) => handleChange("customsSealNumber", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Shipper Seal Number</Label><Input value={formData.shipperSealNumber} onChange={(e) => handleChange("shipperSealNumber", e.target.value)} className={inputClass} /></div>
+              </div>
+            </div>
+          </details>
+
+          {/* Weight Measurements Accordion */}
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Weight Measurements</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>Tare Weight (KG)</Label><Input type="number" step="0.01" value={formData.tareWeight} onChange={(e) => handleChange("tareWeight", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Gross Weight (KG)</Label><Input type="number" step="0.01" value={formData.grossWeight} onChange={(e) => handleChange("grossWeight", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Net Weight (KG)</Label><Input type="number" value={formData.netWeight} disabled className={inputClass} /><p className="text-xs text-gray-500 mt-1">Auto-calculated</p></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>VGM Weight (KG)</Label><Input type="number" step="0.01" value={formData.vgmWeight} onChange={(e) => handleChange("vgmWeight", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>VGM Certified By</Label><Input value={formData.vgmCertifiedBy} onChange={(e) => handleChange("vgmCertifiedBy", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>VGM Certified Date</Label><Input type="datetime-local" value={formData.vgmCertifiedAt} onChange={(e) => handleChange("vgmCertifiedAt", e.target.value)} className={inputClass} /></div>
+              </div>
+            </div>
+          </details>
+
+          {/* Customs Clearance Accordion */}
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Customs Clearance</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><Label className={labelClass}>Clearance Status</Label><Select value={formData.customsClearanceStatus} onValueChange={(value) => handleChange("customsClearanceStatus", value)}><SelectTrigger className={inputClass}><SelectValue /></SelectTrigger><SelectContent>{CUSTOMS_STATUSES.map((status) => (<SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>))}</SelectContent></Select></div>
+                <div><Label className={labelClass}>Customs Agent</Label><Input value={formData.customsAgent} onChange={(e) => handleChange("customsAgent", e.target.value)} className={inputClass} /></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>Broker Reference</Label><Input value={formData.customsBrokerReference} onChange={(e) => handleChange("customsBrokerReference", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Entry Number</Label><Input value={formData.customsEntryNumber} onChange={(e) => handleChange("customsEntryNumber", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Clearance Date</Label><Input type="date" value={formData.customsClearanceDate} onChange={(e) => handleChange("customsClearanceDate", e.target.value)} className={inputClass} /></div>
+              </div>
+            </div>
+          </details>
+
+          {/* Inspection & Certificates Accordion */}
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Inspection & Certificates</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4 space-y-4">
+              <div><label className="flex items-center gap-2"><input type="checkbox" checked={formData.preShipmentInspection} onChange={(e) => handleChange("preShipmentInspection", e.target.checked)} /><span className="text-sm">Pre-Shipment Inspection Required</span></label></div>
+              {formData.preShipmentInspection && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label className={labelClass}>PSI Certificate Number</Label><Input value={formData.psiCertificateNumber} onChange={(e) => handleChange("psiCertificateNumber", e.target.value)} className={inputClass} /></div>
+                  <div><Label className={labelClass}>PSI Date</Label><Input type="date" value={formData.psiDate} onChange={(e) => handleChange("psiDate", e.target.value)} className={inputClass} /></div>
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><Label className={labelClass}>Certificate of Origin Number</Label><Input value={formData.certificateOfOriginNumber} onChange={(e) => handleChange("certificateOfOriginNumber", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Phytosanitary Certificate</Label><Input value={formData.phytosanitaryCertificate} onChange={(e) => handleChange("phytosanitaryCertificate", e.target.value)} className={inputClass} /></div>
+              </div>
+            </div>
+          </details>
+
+          {/* Demurrage & Detention Accordion */}
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Demurrage & Detention Tracking</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4 space-y-4">
+              <div><Label className={labelClass}>Free Days at Port</Label><Input type="number" min="0" value={formData.freeDaysAtPort} onChange={(e) => handleChange("freeDaysAtPort", e.target.value)} className={inputClass} /></div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>Demurrage Start Date</Label><Input type="date" value={formData.demurrageStartDate} onChange={(e) => handleChange("demurrageStartDate", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Demurrage Days Incurred</Label><Input type="number" value={formData.demurrageDaysIncurred} disabled className={inputClass} /><p className="text-xs text-gray-500 mt-1">Auto-calculated</p></div>
+                <div><Label className={labelClass}>Demurrage Cost (AED)</Label><Input type="number" step="0.01" value={formData.demurrageCost} onChange={(e) => handleChange("demurrageCost", e.target.value)} className={inputClass} /></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>Detention Start Date</Label><Input type="date" value={formData.detentionStartDate} onChange={(e) => handleChange("detentionStartDate", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Detention Days Incurred</Label><Input type="number" value={formData.detentionDaysIncurred} disabled className={inputClass} /><p className="text-xs text-gray-500 mt-1">Auto-calculated</p></div>
+                <div><Label className={labelClass}>Detention Cost (AED)</Label><Input type="number" step="0.01" value={formData.detentionCost} onChange={(e) => handleChange("detentionCost", e.target.value)} className={inputClass} /></div>
+              </div>
+            </div>
+          </details>
+
+          {/* Container Release & Delivery Accordion */}
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Container Release & Delivery</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4 space-y-4">
+              <div><label className="flex items-center gap-2"><input type="checkbox" checked={formData.containerReleased} onChange={(e) => handleChange("containerReleased", e.target.checked)} /><span className="text-sm">Container Released</span></label></div>
+              {formData.containerReleased && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label className={labelClass}>Release Date</Label><Input type="date" value={formData.releaseDate} onChange={(e) => handleChange("releaseDate", e.target.value)} className={inputClass} /></div>
+                  <div><Label className={labelClass}>Release Reference</Label><Input value={formData.releaseReference} onChange={(e) => handleChange("releaseReference", e.target.value)} className={inputClass} /></div>
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>Delivery Order Number</Label><Input value={formData.deliveryOrderNumber} onChange={(e) => handleChange("deliveryOrderNumber", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Empty Return Date</Label><Input type="date" value={formData.emptyReturnDate} onChange={(e) => handleChange("emptyReturnDate", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Empty Return Depot</Label><Input value={formData.emptyReturnDepot} onChange={(e) => handleChange("emptyReturnDepot", e.target.value)} className={inputClass} /></div>
+              </div>
+            </div>
+          </details>
+
+          {/* Additional Cost Breakdown Accordion */}
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Additional Cost Breakdown</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><Label className={labelClass}>Port Charges (AED)</Label><Input type="number" step="0.01" value={formData.portCharges} onChange={(e) => handleChange("portCharges", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Storage Charges (AED)</Label><Input type="number" step="0.01" value={formData.storageCharges} onChange={(e) => handleChange("storageCharges", e.target.value)} className={inputClass} /></div>
+                <div><Label className={labelClass}>Documentation Fees (AED)</Label><Input type="number" step="0.01" value={formData.documentationFees} onChange={(e) => handleChange("documentationFees", e.target.value)} className={inputClass} /></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">These charges will be included in total landed cost calculation</p>
+            </div>
+          </details>
+
           {/* Notes */}
-          <div className="space-y-4">
-            <h3
-              className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
-            >
-              Notes
-            </h3>
-            <Textarea
-              value={formData.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
-              placeholder="Additional notes about this container..."
-              rows={3}
-              className={inputClass}
-            />
-          </div>
+          <details className="border rounded-lg overflow-hidden">
+            <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Notes</h3>
+              <ChevronDown className="w-5 h-5" />
+            </summary>
+            <div className="p-4">
+              <Textarea value={formData.notes} onChange={(e) => handleChange("notes", e.target.value)} placeholder="Additional notes about this container..." rows={3} className={inputClass} />
+            </div>
+          </details>
 
           {/* Footer */}
           <div

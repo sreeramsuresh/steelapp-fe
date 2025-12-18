@@ -15,6 +15,11 @@ const AccountStatementForm = () => {
     customer_id: "",
     start_date: "",
     end_date: "",
+    format: "SUMMARY",
+    currency: "AED",
+    include_zero_balance: false,
+    grouping: "BY_INVOICE",
+    delivery_method: "EMAIL",
     notes: "",
   });
   const [error, setError] = useState("");
@@ -37,12 +42,12 @@ const AccountStatementForm = () => {
     e.preventDefault();
 
     // Validation
-    if (!formData.customerId || !formData.startDate || !formData.endDate) {
+    if (!formData.customer_id || !formData.start_date || !formData.end_date) {
       setError("Please fill in all required fields");
       return;
     }
 
-    if (new Date(formData.startDate) > new Date(formData.endDate)) {
+    if (new Date(formData.start_date) > new Date(formData.end_date)) {
       setError("Start date must be before end date");
       return;
     }
@@ -109,7 +114,7 @@ const AccountStatementForm = () => {
           <div>
             <FormSelect
               label="Customer"
-              value={formData.customerId || "none"}
+              value={formData.customer_id || "none"}
               onValueChange={(value) =>
                 handleChange({
                   target: {
@@ -144,7 +149,7 @@ const AccountStatementForm = () => {
                 <input
                   type="date"
                   name="start_date"
-                  value={formData.startDate}
+                  value={formData.start_date}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -172,7 +177,7 @@ const AccountStatementForm = () => {
                 <input
                   type="date"
                   name="end_date"
-                  value={formData.endDate}
+                  value={formData.end_date}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
@@ -189,6 +194,115 @@ const AccountStatementForm = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Statement Format */}
+          <div>
+            <FormSelect
+              label="Statement Format"
+              value={formData.format}
+              onValueChange={(value) =>
+                handleChange({
+                  target: { name: "format", value },
+                })
+              }
+              required={true}
+              showValidation={false}
+              placeholder="Select format"
+            >
+              <SelectItem value="SUMMARY">Summary (Totals Only)</SelectItem>
+              <SelectItem value="DETAILED">Detailed (All Transactions)</SelectItem>
+              <SelectItem value="AGED">Aged (Aging Buckets)</SelectItem>
+            </FormSelect>
+          </div>
+
+          {/* Currency and Grouping */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <FormSelect
+                label="Currency"
+                value={formData.currency}
+                onValueChange={(value) =>
+                  handleChange({
+                    target: { name: "currency", value },
+                  })
+                }
+                required={true}
+                showValidation={false}
+                placeholder="Select currency"
+              >
+                <SelectItem value="AED">AED (UAE Dirham)</SelectItem>
+                <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                <SelectItem value="GBP">GBP (British Pound)</SelectItem>
+                <SelectItem value="SAR">SAR (Saudi Riyal)</SelectItem>
+                <SelectItem value="INR">INR (Indian Rupee)</SelectItem>
+              </FormSelect>
+            </div>
+
+            <div>
+              <FormSelect
+                label="Grouping"
+                value={formData.grouping}
+                onValueChange={(value) =>
+                  handleChange({
+                    target: { name: "grouping", value },
+                  })
+                }
+                required={true}
+                showValidation={false}
+                placeholder="Select grouping"
+              >
+                <SelectItem value="BY_INVOICE">By Invoice</SelectItem>
+                <SelectItem value="BY_DATE">By Date</SelectItem>
+                <SelectItem value="BY_PRODUCT">By Product</SelectItem>
+              </FormSelect>
+            </div>
+          </div>
+
+          {/* Delivery Method */}
+          <div>
+            <FormSelect
+              label="Delivery Method"
+              value={formData.delivery_method}
+              onValueChange={(value) =>
+                handleChange({
+                  target: { name: "delivery_method", value },
+                })
+              }
+              required={true}
+              showValidation={false}
+              placeholder="Select delivery method"
+            >
+              <SelectItem value="EMAIL">Email</SelectItem>
+              <SelectItem value="PRINT">Print</SelectItem>
+              <SelectItem value="PORTAL">Customer Portal</SelectItem>
+            </FormSelect>
+          </div>
+
+          {/* Include Zero Balance */}
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="include_zero_balance"
+              name="include_zero_balance"
+              checked={formData.include_zero_balance}
+              onChange={(e) =>
+                handleChange({
+                  target: {
+                    name: "include_zero_balance",
+                    value: e.target.checked,
+                  },
+                })
+              }
+              className="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-2 focus:ring-teal-500"
+            />
+            <label
+              htmlFor="include_zero_balance"
+              className={`text-sm font-medium cursor-pointer ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Include invoices with zero balance
+            </label>
           </div>
 
           {/* Notes */}
