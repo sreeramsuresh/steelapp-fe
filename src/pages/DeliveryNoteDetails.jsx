@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { deliveryNoteService } from "../services/deliveryNoteService"";
+import { deliveryNoteService } from "../services/deliveryNoteService";
 import { formatDate } from "../utils/invoiceUtils";
 import { useApiData } from "../hooks/useApi";
 import { companyService } from "../services";
