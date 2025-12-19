@@ -7,7 +7,7 @@
 import puppeteer from 'puppeteer';
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function runTest() {
@@ -16,7 +16,8 @@ async function runTest() {
 
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
+    executablePath:
+      '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
@@ -37,35 +38,47 @@ async function runTest() {
 
     if (!isLoggedIn) {
       console.log('   Logging in...');
-      await page.waitForSelector('input[placeholder="Enter your email"]', { timeout: 5000 });
-      await page.type('input[placeholder="Enter your email"]', 'test@steelapp.com');
+      await page.waitForSelector('input[placeholder="Enter your email"]', {
+        timeout: 5000,
+      });
+      await page.type(
+        'input[placeholder="Enter your email"]',
+        'test@steelapp.com',
+      );
       await page.type('input[placeholder="Enter your password"]', 'test123');
 
       // Click login button
       await page.click('button[type="submit"]');
 
       // Wait for navigation away from login page
-      await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 });
+      await page.waitForNavigation({
+        waitUntil: 'networkidle2',
+        timeout: 10000,
+      });
       await sleep(1000);
     }
     console.log('✓ Logged in\n');
 
     // Step 2: Navigate to create invoice
     console.log('📋 Step 2: Navigate to Create Invoice page');
-    await page.goto('http://localhost:5173/create-invoice', { waitUntil: 'networkidle2' });
+    await page.goto('http://localhost:5173/create-invoice', {
+      waitUntil: 'networkidle2',
+    });
     await sleep(1000);
     console.log('✓ Page loaded\n');
 
     // Step 3: Select customer
     console.log('👤 Step 3: Select customer');
-    await page.waitForSelector('input[placeholder*="Search customers" i]', { timeout: 5000 });
+    await page.waitForSelector('input[placeholder*="Search customers" i]', {
+      timeout: 5000,
+    });
     await page.type('input[placeholder*="Search customers" i]', 'ABC');
     await sleep(1500);
 
     const customerSelected = await page.evaluate(() => {
-      const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.toLowerCase().includes('abc'),
-      );
+      const option = Array.from(
+        document.querySelectorAll('[role="option"]'),
+      ).find((el) => el.textContent.toLowerCase().includes('abc'));
       if (option) {
         option.click();
         return true;
@@ -85,7 +98,7 @@ async function runTest() {
     await page.evaluate(() => {
       const select = document.querySelector('select');
       if (select) {
-        const finalTaxOption = Array.from(select.options).find(opt =>
+        const finalTaxOption = Array.from(select.options).find((opt) =>
           opt.textContent.includes('Final Tax Invoice'),
         );
         if (finalTaxOption) {
@@ -102,8 +115,10 @@ async function runTest() {
 
     // Check for Add Product button
     const hasAddButton = await page.evaluate(() => {
-      const button = Array.from(document.querySelectorAll('button')).find(btn =>
-        btn.textContent.includes('Add Product') || btn.textContent.includes('Add Item'),
+      const button = Array.from(document.querySelectorAll('button')).find(
+        (btn) =>
+          btn.textContent.includes('Add Product') ||
+          btn.textContent.includes('Add Item'),
       );
       if (button) {
         button.click();
@@ -121,10 +136,14 @@ async function runTest() {
     console.log('\n🔍 Step 6: Search for product SS-304');
 
     // Wait for product search input in the drawer
-    await page.waitForSelector('input[placeholder*="Search products" i]', { timeout: 5000 });
+    await page.waitForSelector('input[placeholder*="Search products" i]', {
+      timeout: 5000,
+    });
 
     // Clear and type product name
-    await page.click('input[placeholder*="Search products" i]', { clickCount: 3 });
+    await page.click('input[placeholder*="Search products" i]', {
+      clickCount: 3,
+    });
     await page.type('input[placeholder*="Search products" i]', 'SS-304');
     await sleep(2000); // Wait for autocomplete
     console.log('✓ Product search typed\n');
@@ -139,16 +158,19 @@ async function runTest() {
 
       if (options.length === 0) {
         // Try alternative selectors
-        options = Array.from(document.querySelectorAll('.dropdown-item, [class*="option"], li'));
+        options = Array.from(
+          document.querySelectorAll('.dropdown-item, [class*="option"], li'),
+        );
       }
 
       console.log('Found', options.length, 'potential options');
 
       // Find SS-304-Pipe
-      const option = options.find(el => {
+      const option = options.find((el) => {
         const text = el.textContent || el.innerText || '';
-        const matchesPipe = text.includes('SS-304-Pipe') ||
-                           (text.includes('SS-304') && text.toLowerCase().includes('pipe'));
+        const matchesPipe =
+          text.includes('SS-304-Pipe') ||
+          (text.includes('SS-304') && text.toLowerCase().includes('pipe'));
         return matchesPipe;
       });
 
@@ -162,7 +184,9 @@ async function runTest() {
       // Return available options for debugging
       return {
         found: false,
-        availableOptions: options.slice(0, 10).map(o => (o.textContent || o.innerText || '').substring(0, 60)),
+        availableOptions: options
+          .slice(0, 10)
+          .map((o) => (o.textContent || o.innerText || '').substring(0, 60)),
       };
     });
 
@@ -199,7 +223,8 @@ async function runTest() {
 
       priceInputs.forEach((input, idx) => {
         const value = input.value;
-        const label = input.labels?.[0]?.textContent || input.placeholder || `input-${idx}`;
+        const label =
+          input.labels?.[0]?.textContent || input.placeholder || `input-${idx}`;
 
         results.prices.push(value);
         results.labels.push(label);
@@ -216,8 +241,9 @@ async function runTest() {
 
     // Check if any price was auto-filled with expected value (4950)
     const expectedPrice = '4950';
-    const hasPriceAutofilled = priceCheck.prices.some(price =>
-      price === expectedPrice || price === '4950.00' || price === '4950.0',
+    const hasPriceAutofilled = priceCheck.prices.some(
+      (price) =>
+        price === expectedPrice || price === '4950.00' || price === '4950.0',
     );
 
     if (hasPriceAutofilled) {
@@ -228,43 +254,62 @@ async function runTest() {
       // Additional debugging - check console for errors
       const consoleErrors = await page.evaluate(() => {
         // Get any error messages from the page
-        const errorDivs = Array.from(document.querySelectorAll('[class*="error"], .error-message, .alert-error'));
-        return errorDivs.map(div => div.textContent.trim()).filter(t => t.length > 0);
+        const errorDivs = Array.from(
+          document.querySelectorAll(
+            '[class*="error"], .error-message, .alert-error',
+          ),
+        );
+        return errorDivs
+          .map((div) => div.textContent.trim())
+          .filter((t) => t.length > 0);
       });
 
       if (consoleErrors.length > 0) {
         console.log('\n⚠️  Page errors found:');
-        consoleErrors.forEach(err => console.log('   -', err));
+        consoleErrors.forEach((err) => console.log('   -', err));
       }
     }
 
     // Take screenshot
-    await page.screenshot({ path: '/mnt/d/Ultimate Steel/price-autofill-test.png', fullPage: true });
+    await page.screenshot({
+      path: '/mnt/d/Ultimate Steel/price-autofill-test.png',
+      fullPage: true,
+    });
     console.log('\n📸 Screenshot saved to price-autofill-test.png');
 
     // Final summary
-    console.log(`\n${  '='.repeat(60)}`);
+    console.log(`\n${'='.repeat(60)}`);
     console.log('TEST SUMMARY');
     console.log('='.repeat(60));
     console.log('✓ Navigation: PASSED');
     console.log('✓ Customer selection: PASSED');
     console.log('✓ Product search: PASSED');
     console.log('✓ Product selection: PASSED');
-    console.log(`${hasPriceAutofilled ? '✓' : '✗'} Price auto-fill: ${hasPriceAutofilled ? 'PASSED' : 'FAILED'}`);
+    console.log(
+      `${hasPriceAutofilled ? '✓' : '✗'} Price auto-fill: ${hasPriceAutofilled ? 'PASSED' : 'FAILED'}`,
+    );
     console.log('='.repeat(60));
 
     if (!hasPriceAutofilled) {
       console.log('\n🔍 DEBUGGING RECOMMENDATIONS:');
       console.log('1. Check browser console in DevTools for network errors');
-      console.log('2. Verify API endpoint GET /api/products/:id/price is being called');
-      console.log('3. Check AllocationDrawer component for price-setting logic');
-      console.log('4. Verify customer_id is being passed to the price endpoint');
+      console.log(
+        '2. Verify API endpoint GET /api/products/:id/price is being called',
+      );
+      console.log(
+        '3. Check AllocationDrawer component for price-setting logic',
+      );
+      console.log(
+        '4. Verify customer_id is being passed to the price endpoint',
+      );
     }
-
   } catch (error) {
     console.error('\n❌ Test failed with error:');
     console.error(error.message);
-    await page.screenshot({ path: '/mnt/d/Ultimate Steel/price-autofill-error.png', fullPage: true });
+    await page.screenshot({
+      path: '/mnt/d/Ultimate Steel/price-autofill-error.png',
+      fullPage: true,
+    });
     console.log('📸 Error screenshot saved to price-autofill-error.png');
   } finally {
     await browser.close();

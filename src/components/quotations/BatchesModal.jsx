@@ -3,7 +3,13 @@ import { X, Package, AlertCircle } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { apiClient } from "../../services/api";
 
-export default function BatchesModal({ isOpen, onClose, productId, productName, warehouseId }) {
+export default function BatchesModal({
+  isOpen,
+  onClose,
+  productId,
+  productName,
+  warehouseId,
+}) {
   const { isDarkMode } = useTheme();
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -40,7 +46,10 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose} />
+        <div
+          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          onClick={onClose}
+        />
 
         <div
           className={`inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full ${
@@ -59,7 +68,9 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
                   >
                     Available Batches
                   </h3>
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  <p
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
                     {productName}
                   </p>
                 </div>
@@ -88,7 +99,9 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
             {!loading && !error && batches.length === 0 && (
               <div className="text-center py-12">
                 <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <p
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   No batches available for this product
                 </p>
               </div>
@@ -125,7 +138,11 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
                     {batches.map((batch) => (
                       <tr
                         key={batch.id}
-                        className={isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"}
+                        className={
+                          isDarkMode
+                            ? "bg-gray-800 hover:bg-gray-750"
+                            : "bg-white hover:bg-gray-50"
+                        }
                       >
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span
@@ -181,10 +198,16 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
             )}
 
             {!loading && !error && batches.length > 0 && (
-              <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
-                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              <div
+                className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+              >
+                <p
+                  className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   <strong>Total Available:</strong>{" "}
-                  {batches.reduce((sum, b) => sum + (b.availableQuantity || 0), 0).toFixed(2)}{" "}
+                  {batches
+                    .reduce((sum, b) => sum + (b.availableQuantity || 0), 0)
+                    .toFixed(2)}{" "}
                   {batches[0]?.unit || "MT"}
                 </p>
               </div>
@@ -193,7 +216,9 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
 
           <div
             className={`px-4 py-3 sm:px-6 flex justify-end border-t ${
-              isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
+              isDarkMode
+                ? "bg-gray-700 border-gray-600"
+                : "bg-gray-50 border-gray-200"
             }`}
           >
             <button

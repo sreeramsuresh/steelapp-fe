@@ -27,35 +27,35 @@ module.exports = {
     node: true,
   },
   extends: [
-    'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:react/jsx-runtime',
-    'plugin:react-hooks/recommended',
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended",
     // 'plugin:import/recommended', // Disabled - causing performance issues
-    'plugin:jsx-a11y/recommended',
+    "plugin:jsx-a11y/recommended",
   ],
   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
+    ecmaVersion: "latest",
+    sourceType: "module",
     ecmaFeatures: {
       jsx: true,
     },
   },
   settings: {
     react: {
-      version: 'detect',
+      version: "detect",
     },
-    'import/resolver': {
+    "import/resolver": {
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
       },
     },
   },
   plugins: [
-    'react',
-    'react-hooks',
+    "react",
+    "react-hooks",
     // 'import', // Disabled - causing performance issues
-    'jsx-a11y',
+    "jsx-a11y",
   ],
   rules: {
     // ============================================
@@ -63,22 +63,25 @@ module.exports = {
     // ============================================
     // Frontend MUST use camelCase only
     // API Gateway handles conversion to snake_case for backend
-    'camelcase': ['warn', {
-      properties: 'never',
-      ignoreDestructuring: true,  // Allow snake_case from API responses
-      ignoreImports: true,
-      allow: ['^UPPER_SNAKE_CASE$', '^_.*', '^.*_.*'],  // Allow snake_case patterns
-    }],
+    camelcase: [
+      "warn",
+      {
+        properties: "never",
+        ignoreDestructuring: true, // Allow snake_case from API responses
+        ignoreImports: true,
+        allow: ["^UPPER_SNAKE_CASE$", "^_.*", "^.*_.*"], // Allow snake_case patterns
+      },
+    ],
 
     // React rules
-    'react/prop-types': 'off',
-    'react/react-in-jsx-scope': 'off',
-    'react/jsx-uses-react': 'off',
-    'react/jsx-uses-vars': 'error',
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-uses-react": "off",
+    "react/jsx-uses-vars": "error",
 
     // React Hooks rules
-    'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': 'warn',
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
 
     // Import rules - Disabled due to performance issues
     // 'import/no-unresolved': 'off', // Vite handles this
@@ -91,109 +94,139 @@ module.exports = {
     // 'import/newline-after-import': 'error',
 
     // Variable rules
-    'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-    'no-undef': 'error',
-    'no-shadow': 'error',
+    "no-unused-vars": [
+      "warn",
+      { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+    ],
+    "no-undef": "error",
+    "no-shadow": "error",
 
     // Code quality
-    'no-empty': ['error', { allowEmptyCatch: false }],
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
-    'no-debugger': 'error',
-    'no-duplicate-imports': 'error',
-    'no-var': 'error',
-    'prefer-const': 'error',
-    'prefer-template': 'warn',
-    'object-shorthand': ['warn', 'always'],
+    "no-empty": ["error", { allowEmptyCatch: false }],
+    "no-console": ["warn", { allow: ["warn", "error"] }],
+    "no-debugger": "error",
+    "no-duplicate-imports": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "prefer-template": "warn",
+    "object-shorthand": ["warn", "always"],
 
     // Style rules
-    'quotes': ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
-    'semi': ['error', 'always'],
-    'indent': ['error', 2, { SwitchCase: 1 }],
-    'comma-dangle': ['error', 'always-multiline'],
-    'eol-last': ['error', 'always'],
+    quotes: [
+      "error",
+      "single",
+      { avoidEscape: true, allowTemplateLiterals: true },
+    ],
+    semi: ["error", "always"],
+    indent: ["error", 2, { SwitchCase: 1 }],
+    "comma-dangle": ["error", "always-multiline"],
+    "eol-last": ["error", "always"],
 
     // JSX Accessibility
     // Label association errors downgraded to warn - fix incrementally
-    'jsx-a11y/label-has-associated-control': 'warn',
-    'jsx-a11y/alt-text': 'warn',
-    'jsx-a11y/anchor-is-valid': 'warn',
-    'jsx-a11y/click-events-have-key-events': 'warn',
-    'jsx-a11y/no-static-element-interactions': 'warn',
-    'jsx-a11y/role-supports-aria-props': 'warn',
-    'jsx-a11y/no-autofocus': 'warn',  // Autofocus on inputs is intentional for UX
+    "jsx-a11y/label-has-associated-control": "warn",
+    "jsx-a11y/alt-text": "warn",
+    "jsx-a11y/anchor-is-valid": "warn",
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/no-static-element-interactions": "warn",
+    "jsx-a11y/role-supports-aria-props": "warn",
+    "jsx-a11y/no-autofocus": "warn", // Autofocus on inputs is intentional for UX
   },
   overrides: [
     // TypeScript files
     {
-      files: ['*.ts', '*.tsx'],
-      parser: '@typescript-eslint/parser',
+      files: ["*.ts", "*.tsx"],
+      parser: "@typescript-eslint/parser",
       parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
+        ecmaVersion: "latest",
+        sourceType: "module",
         ecmaFeatures: { jsx: true },
       },
       extends: [
-        'eslint:recommended',
-        'plugin:@typescript-eslint/recommended',
-        'plugin:react/recommended',
-        'plugin:react/jsx-runtime',
-        'plugin:react-hooks/recommended',
-        'plugin:import/recommended',
-        'plugin:import/typescript',
-        'plugin:jsx-a11y/recommended',
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:react/recommended",
+        "plugin:react/jsx-runtime",
+        "plugin:react-hooks/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript",
+        "plugin:jsx-a11y/recommended",
       ],
-      plugins: ['react', '@typescript-eslint', 'react-hooks', 'import', 'jsx-a11y'],
+      plugins: [
+        "react",
+        "@typescript-eslint",
+        "react-hooks",
+        "import",
+        "jsx-a11y",
+      ],
       rules: {
-        'react/prop-types': 'off',
-        '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-        '@typescript-eslint/no-explicit-any': 'warn',
-        '@typescript-eslint/explicit-module-boundary-types': 'off',
-        '@typescript-eslint/no-non-null-assertion': 'warn',
-        'no-unused-vars': 'off',
-        'no-shadow': 'off',
-        '@typescript-eslint/no-shadow': ['error'],
+        "react/prop-types": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+        ],
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-non-null-assertion": "warn",
+        "no-unused-vars": "off",
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": ["error"],
       },
     },
     // Test files - more lenient
     {
-      files: ['**/*.test.js', '**/*.test.jsx', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.js', '**/*.spec.jsx'],
+      files: [
+        "**/*.test.js",
+        "**/*.test.jsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.js",
+        "**/*.spec.jsx",
+      ],
       env: {
         jest: true,
       },
       globals: {
-        describe: 'readonly',
-        it: 'readonly',
-        test: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
-        vi: 'readonly',
+        describe: "readonly",
+        it: "readonly",
+        test: "readonly",
+        expect: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
+        vi: "readonly",
       },
       rules: {
-        'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': 'off',
-        'no-undef': 'off',
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "no-undef": "off",
       },
     },
     // Config files
     {
-      files: ['*.config.js', '*.config.ts', 'vite.config.*', 'vitest.config.*', '.eslintrc.*'],
+      files: [
+        "*.config.js",
+        "*.config.ts",
+        "vite.config.*",
+        "vitest.config.*",
+        ".eslintrc.*",
+      ],
       rules: {
-        'import/no-default-export': 'off',
-        'no-undef': 'off',
+        "import/no-default-export": "off",
+        "no-undef": "off",
       },
     },
   ],
   ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-    'coverage/',
-    '*.min.js',
-    '*.backup.*',  // Backup files
-    'cypress/',  // Cypress test files have their own globals
-    'steelapp/',  // Build output directory with vendor files
+    "node_modules/",
+    "dist/",
+    "build/",
+    "coverage/",
+    "*.min.js",
+    "*.backup.*", // Backup files
+    "cypress/", // Cypress test files have their own globals
+    "steelapp/", // Build output directory with vendor files
+    "chromium/", // Vendored Chromium binaries
   ],
 };

@@ -8,7 +8,7 @@
 const features = {
   // Audit Logs - Track all user activities
   // Enable this in production after deployment
-  AUDIT_LOGS: import.meta.env.VITE_ENABLE_AUDIT_LOGS === "true" || false,
+  AUDIT_LOGS: import.meta.env.VITE_ENABLE_AUDIT_LOGS === 'true' || false,
 
   // Add more feature flags here as needed
   // Example:

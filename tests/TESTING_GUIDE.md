@@ -21,11 +21,13 @@ psql -U postgres -d steelapp
 ```
 
 Or via command line:
+
 ```bash
 psql -U postgres -d steelapp -f "/mnt/d/Ultimate Steel/steelapp-fe/tests/e2e-mcp/test-data-setup.sql"
 ```
 
 **Verify test data**:
+
 ```sql
 SELECT batch_number, warehouse_id, quantity_remaining
 FROM stock_batches
@@ -62,23 +64,23 @@ npm run test:e2e:open
 
 ### PRIMARY: Bug Fix Verification
 
-| Test | What It Checks | Pass Criteria |
-|------|----------------|---------------|
-| **Stock Numbers** | Warehouse stock displays correctly | Abu Dhabi: 5, Dubai: 5, Main: 7 (NOT 0) |
-| **Source Type** | Correct allocation source | Shows "Warehouse" (NOT "Local Drop Ship") |
-| **Batch Table** | Batch allocation table visible | 4 batches in FIFO order |
-| **API Parameter** | Correct API request | Uses `activeOnly=true` (NOT `hasStock=true`) |
+| Test              | What It Checks                     | Pass Criteria                                |
+| ----------------- | ---------------------------------- | -------------------------------------------- |
+| **Stock Numbers** | Warehouse stock displays correctly | Abu Dhabi: 5, Dubai: 5, Main: 7 (NOT 0)      |
+| **Source Type**   | Correct allocation source          | Shows "Warehouse" (NOT "Local Drop Ship")    |
+| **Batch Table**   | Batch allocation table visible     | 4 batches in FIFO order                      |
+| **API Parameter** | Correct API request                | Uses `activeOnly=true` (NOT `hasStock=true`) |
 
 ### SUPPORTING: Full Invoice Flow
 
-| Test | What It Checks |
-|------|----------------|
-| Customer Selection | Customer details populate |
-| Product Quick Add | Quick Add dropdown works |
-| Invoice Totals | Calculations correct (subtotal, VAT, total) |
-| Form Validation | Required fields validated |
-| Edge Cases | Zero-stock products show Local Drop Ship |
-| Console Errors | No JavaScript errors |
+| Test               | What It Checks                              |
+| ------------------ | ------------------------------------------- |
+| Customer Selection | Customer details populate                   |
+| Product Quick Add  | Quick Add dropdown works                    |
+| Invoice Totals     | Calculations correct (subtotal, VAT, total) |
+| Form Validation    | Required fields validated                   |
+| Edge Cases         | Zero-stock products show Local Drop Ship    |
+| Console Errors     | No JavaScript errors                        |
 
 ## Expected Results
 
@@ -115,12 +117,14 @@ What happened BEFORE the fixes:
 **Possible Causes**:
 
 1. **Race condition fix not applied**:
+
    ```bash
    # Check line 2388 in InvoiceForm.jsx
    # Should be: await applyAutoAllocation(...)
    ```
 
 2. **API parameter fix not applied**:
+
    ```bash
    # Check line 1627 in InvoiceForm.jsx
    # Should be: activeOnly: true (NOT hasStock: true)
@@ -176,20 +180,20 @@ grep -n "activeOnly" src/pages/InvoiceForm.jsx
 
 ### Warehouses
 
-| ID | Name | Stock |
-|----|------|-------|
-| 1 | Main Warehouse | 7 units (2 + 5 from batches 1, 2) |
-| 2 | Dubai Branch Warehouse | 5 units (batch 3) |
-| 3 | Abu Dhabi Warehouse | 5 units (batch 4) |
+| ID  | Name                   | Stock                             |
+| --- | ---------------------- | --------------------------------- |
+| 1   | Main Warehouse         | 7 units (2 + 5 from batches 1, 2) |
+| 2   | Dubai Branch Warehouse | 5 units (batch 3)                 |
+| 3   | Abu Dhabi Warehouse    | 5 units (batch 4)                 |
 
 ### Batches (FIFO Order)
 
-| Batch # | Warehouse | Qty | Received Date |
-|---------|-----------|-----|---------------|
-| BTH-001 | Main | 2 | 2024-01-01 (oldest) |
-| BTH-003 | Dubai | 5 | 2024-01-02 |
-| BTH-004 | Abu Dhabi | 5 | 2024-01-03 |
-| BTH-002 | Main | 5 | 2024-01-04 (newest) |
+| Batch # | Warehouse | Qty | Received Date       |
+| ------- | --------- | --- | ------------------- |
+| BTH-001 | Main      | 2   | 2024-01-01 (oldest) |
+| BTH-003 | Dubai     | 5   | 2024-01-02          |
+| BTH-004 | Abu Dhabi | 5   | 2024-01-03          |
+| BTH-002 | Main      | 5   | 2024-01-04 (newest) |
 
 ### Customer
 
@@ -217,7 +221,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Install dependencies
         run: npm ci
@@ -252,24 +256,29 @@ jobs:
 If automated tests fail, manually verify:
 
 ### Step 1: Login
+
 1. Go to `http://localhost:5173/login`
 2. Login with test credentials
 
 ### Step 2: Navigate to Create Invoice
+
 1. Click "Create Invoice" or navigate to `/create-invoice`
 2. Verify form loads
 
 ### Step 3: Select Customer
+
 1. Click customer dropdown
 2. Select "ABC Corporation"
 3. Verify customer details populate
 
 ### Step 4: Add Product via Quick Add
+
 1. Click "Quick Add" button
 2. Search for "SS-316-Bar-Bright-30mm-6000mm"
 3. Click to select product
 
 ### Step 5: Verify Stock Allocation Panel (CRITICAL)
+
 1. **Panel should auto-expand** ✅
 2. **Check stock numbers**:
    - Abu Dhabi: **5** (NOT 0) ✅
@@ -279,6 +288,7 @@ If automated tests fail, manually verify:
 4. **Check batch table**: Should show 4 batches ✅
 
 ### Step 6: Verify Network Request
+
 1. Open Browser DevTools → Network tab
 2. Find request to `/api/stock-batches?productId=308`
 3. Verify query parameters:
@@ -288,6 +298,7 @@ If automated tests fail, manually verify:
 4. Check response: Should return 4 batches
 
 ### Step 7: Verify Console
+
 1. Open Browser DevTools → Console tab
 2. Should have NO errors (ignore favicon errors)
 
@@ -295,11 +306,11 @@ If automated tests fail, manually verify:
 
 Expected test execution times:
 
-| Test Suite | Time |
-|------------|------|
-| Complete Cypress Suite | ~2-3 minutes |
+| Test Suite                 | Time           |
+| -------------------------- | -------------- |
+| Complete Cypress Suite     | ~2-3 minutes   |
 | Stock Allocation Test Only | ~30-45 seconds |
-| Manual Verification | ~5 minutes |
+| Manual Verification        | ~5 minutes     |
 
 ## Test Maintenance
 
@@ -329,11 +340,13 @@ Expected test execution times:
 ### Tests Pass Locally But Fail in CI
 
 **Possible Causes**:
+
 - Test data not seeded in CI database
 - Timing issues (CI slower than local)
 - Different backend URL
 
 **Solutions**:
+
 1. Add test data seeding to CI pipeline
 2. Increase timeouts in CI environment
 3. Use environment variables for URLs
@@ -341,19 +354,21 @@ Expected test execution times:
 ### Flaky Tests
 
 **Common Issues**:
+
 - Network requests timing out
 - React state updates not completing
 - DOM not fully rendered
 
 **Solutions**:
+
 ```javascript
 // Add longer waits
-cy.wait('@getBatches', { timeout: 10000 });
+cy.wait("@getBatches", { timeout: 10000 });
 
 // Wait for element to be stable
 cy.get('[data-testid="allocation-panel"]')
-  .should('be.visible')
-  .should('not.be.disabled');
+  .should("be.visible")
+  .should("not.be.disabled");
 ```
 
 ## Success Metrics
@@ -376,6 +391,7 @@ Test suite is healthy when:
 ## Support
 
 For issues:
+
 1. Check test execution logs
 2. Review DIAGNOSTIC_SUMMARY.md
 3. Verify both code fixes applied (lines 1627, 2388)

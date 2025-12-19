@@ -1,4 +1,4 @@
-import { apiClient } from "./api.js";
+import { apiClient } from './api.js';
 
 /**
  * Stock Movement Service
@@ -10,28 +10,28 @@ import { apiClient } from "./api.js";
 
 // Movement Types
 export const MOVEMENT_TYPES = {
-  IN: { value: "IN", label: "Stock In", color: "green" },
-  OUT: { value: "OUT", label: "Stock Out", color: "red" },
+  IN: { value: 'IN', label: 'Stock In', color: 'green' },
+  OUT: { value: 'OUT', label: 'Stock Out', color: 'red' },
   TRANSFER_OUT: {
-    value: "TRANSFER_OUT",
-    label: "Transfer Out",
-    color: "orange",
+    value: 'TRANSFER_OUT',
+    label: 'Transfer Out',
+    color: 'orange',
   },
-  TRANSFER_IN: { value: "TRANSFER_IN", label: "Transfer In", color: "blue" },
-  ADJUSTMENT: { value: "ADJUSTMENT", label: "Adjustment", color: "purple" },
-  RESERVATION: { value: "RESERVATION", label: "Reserved", color: "yellow" },
-  RELEASE: { value: "RELEASE", label: "Released", color: "teal" },
+  TRANSFER_IN: { value: 'TRANSFER_IN', label: 'Transfer In', color: 'blue' },
+  ADJUSTMENT: { value: 'ADJUSTMENT', label: 'Adjustment', color: 'purple' },
+  RESERVATION: { value: 'RESERVATION', label: 'Reserved', color: 'yellow' },
+  RELEASE: { value: 'RELEASE', label: 'Released', color: 'teal' },
 };
 
 // Reference Types
 export const REFERENCE_TYPES = {
-  INVOICE: { value: "INVOICE", label: "Invoice" },
-  PURCHASE_ORDER: { value: "PURCHASE_ORDER", label: "Purchase Order" },
-  TRANSFER: { value: "TRANSFER", label: "Transfer" },
-  ADJUSTMENT: { value: "ADJUSTMENT", label: "Adjustment" },
-  RETURN: { value: "RETURN", label: "Return" },
-  CREDIT_NOTE: { value: "CREDIT_NOTE", label: "Credit Note" },
-  INITIAL: { value: "INITIAL", label: "Initial Stock" },
+  INVOICE: { value: 'INVOICE', label: 'Invoice' },
+  PURCHASE_ORDER: { value: 'PURCHASE_ORDER', label: 'Purchase Order' },
+  TRANSFER: { value: 'TRANSFER', label: 'Transfer' },
+  ADJUSTMENT: { value: 'ADJUSTMENT', label: 'Adjustment' },
+  RETURN: { value: 'RETURN', label: 'Return' },
+  CREDIT_NOTE: { value: 'CREDIT_NOTE', label: 'Credit Note' },
+  INITIAL: { value: 'INITIAL', label: 'Initial Stock' },
 };
 
 /**
@@ -42,33 +42,33 @@ const fromServer = (movement = {}) => ({
   id: movement.id,
   companyId: movement.companyId,
   productId: movement.productId,
-  productName: movement.productName || "",
-  productUniqueName: movement.productUniqueName || movement.productName || "",
-  productDisplayName: movement.productDisplayName || movement.productName || "",
-  productSku: movement.productSku || "",
-  productType: movement.productType || "",
+  productName: movement.productName || '',
+  productUniqueName: movement.productUniqueName || movement.productName || '',
+  productDisplayName: movement.productDisplayName || movement.productName || '',
+  productSku: movement.productSku || '',
+  productType: movement.productType || '',
   warehouseId: movement.warehouseId,
-  warehouseName: movement.warehouseName || "",
-  warehouseCode: movement.warehouseCode || "",
-  movementType: movement.movementType || "",
+  warehouseName: movement.warehouseName || '',
+  warehouseCode: movement.warehouseCode || '',
+  movementType: movement.movementType || '',
   quantity: parseFloat(movement.quantity) || 0,
-  unit: movement.unit || "KG",
-  referenceType: movement.referenceType || "",
-  referenceNumber: movement.referenceNumber || "",
+  unit: movement.unit || 'KG',
+  referenceType: movement.referenceType || '',
+  referenceNumber: movement.referenceNumber || '',
   referenceId: movement.referenceId || null,
   destinationWarehouseId: movement.destinationWarehouseId || null,
-  destinationWarehouseName: movement.destinationWarehouseName || "",
+  destinationWarehouseName: movement.destinationWarehouseName || '',
   transferId: movement.transferId || null,
   reservationId: movement.reservationId || null,
-  notes: movement.notes || "",
+  notes: movement.notes || '',
   balanceAfter: parseFloat(movement.balanceAfter) || 0,
   unitCost: parseFloat(movement.unitCost) || 0,
   totalCost: parseFloat(movement.totalCost) || 0,
-  batchNumber: movement.batchNumber || "",
-  coilNumber: movement.coilNumber || "",
-  heatNumber: movement.heatNumber || "",
+  batchNumber: movement.batchNumber || '',
+  coilNumber: movement.coilNumber || '',
+  heatNumber: movement.heatNumber || '',
   createdBy: movement.createdBy,
-  createdByName: movement.createdByName || "",
+  createdByName: movement.createdByName || '',
   movementDate: movement.movementDate,
   createdAt: movement.createdAt,
   updatedAt: movement.updatedAt,
@@ -83,7 +83,7 @@ const toServer = (movement = {}) => ({
   warehouse_id: movement.warehouseId,
   movement_type: movement.movementType,
   quantity: movement.quantity?.toString(),
-  unit: movement.unit || "KG",
+  unit: movement.unit || 'KG',
   reference_type: movement.referenceType,
   reference_number: movement.referenceNumber,
   reference_id: movement.referenceId,
@@ -102,29 +102,29 @@ const toServer = (movement = {}) => ({
 const stockLevelFromServer = (level = {}) => ({
   id: level.id,
   productId: level.productId,
-  productName: level.productName || "",
-  productSku: level.productSku || "",
-  productType: level.productType || "",
+  productName: level.productName || '',
+  productSku: level.productSku || '',
+  productType: level.productType || '',
   warehouseId: level.warehouseId,
-  warehouseName: level.warehouseName || "",
-  warehouseCode: level.warehouseCode || "",
+  warehouseName: level.warehouseName || '',
+  warehouseCode: level.warehouseCode || '',
   quantityOnHand: parseFloat(level.quantityOnHand) || 0,
   quantityReserved: parseFloat(level.quantityReserved) || 0,
   quantityAvailable: parseFloat(level.quantityAvailable) || 0,
   minimumStock: parseFloat(level.minimumStock) || 0,
   maximumStock: parseFloat(level.maximumStock) || 0,
-  unit: level.unit || "KG",
+  unit: level.unit || 'KG',
   unitCost: parseFloat(level.unitCost) || 0,
   totalValue: parseFloat(level.totalValue) || 0,
   isLowStock: level.isLowStock || false,
   isOutOfStock: level.isOutOfStock || false,
-  lastMovementDate: level.lastMovementDate || "",
-  lastMovementType: level.lastMovementType || "",
+  lastMovementDate: level.lastMovementDate || '',
+  lastMovementType: level.lastMovementType || '',
 });
 
 class StockMovementService {
   constructor() {
-    this.endpoint = "/stock-movements";
+    this.endpoint = '/stock-movements';
   }
 
   // ============================================
@@ -297,7 +297,7 @@ class StockMovementService {
    */
   async getByReference(type, idOrNumber) {
     let response;
-    if (typeof idOrNumber === "number") {
+    if (typeof idOrNumber === 'number') {
       response = await apiClient.get(
         `${this.endpoint}/by-reference/${type}/${idOrNumber}`,
       );
@@ -356,22 +356,22 @@ class StockMovementService {
 
     return {
       productId: response.productId,
-      productName: response.productName || "",
-      productSku: response.productSku || "",
+      productName: response.productName || '',
+      productSku: response.productSku || '',
       warehouses: (response.warehouses || []).map((w) => ({
         warehouseId: w.warehouseId,
-        warehouseName: w.warehouseName || "",
-        warehouseCode: w.warehouseCode || "",
+        warehouseName: w.warehouseName || '',
+        warehouseCode: w.warehouseCode || '',
         quantityOnHand: parseFloat(w.quantityOnHand) || 0,
         quantityReserved: parseFloat(w.quantityReserved) || 0,
         quantityAvailable: parseFloat(w.quantityAvailable) || 0,
-        unit: w.unit || "KG",
-        lastMovementDate: w.lastMovementDate || "",
+        unit: w.unit || 'KG',
+        lastMovementDate: w.lastMovementDate || '',
       })),
       totalQuantity: parseFloat(response.totalQuantity) || 0,
       totalReserved: parseFloat(response.totalReserved) || 0,
       totalAvailable: parseFloat(response.totalAvailable) || 0,
-      unit: response.unit || "KG",
+      unit: response.unit || 'KG',
     };
   }
 
@@ -403,12 +403,12 @@ class StockMovementService {
       pagination: response.pagination || {},
       summary: response.summary
         ? {
-            totalProducts: response.summary.totalProducts || 0,
-            lowStockCount: response.summary.lowStockCount || 0,
-            outOfStockCount: response.summary.outOfStockCount || 0,
-            totalValue: parseFloat(response.summary.totalValue) || 0,
-            totalQuantity: parseFloat(response.summary.totalQuantity) || 0,
-          }
+          totalProducts: response.summary.totalProducts || 0,
+          lowStockCount: response.summary.lowStockCount || 0,
+          outOfStockCount: response.summary.outOfStockCount || 0,
+          totalValue: parseFloat(response.summary.totalValue) || 0,
+          totalQuantity: parseFloat(response.summary.totalQuantity) || 0,
+        }
         : null,
     };
   }
@@ -533,18 +533,18 @@ class StockMovementService {
     purchaseOrderId,
     warehouseId = null,
     items = null,
-    notes = "",
+    notes = '',
   ) {
     const payload = {
       purchase_order_id: purchaseOrderId,
       warehouse_id: warehouseId,
       items: items
         ? items.map((item) => ({
-            item_id: item.itemId || item.item_id,
-            product_id: item.productId || item.product_id,
-            received_quantity:
+          item_id: item.itemId || item.item_id,
+          product_id: item.productId || item.product_id,
+          received_quantity:
               item.receivedQuantity || item.received_quantity || item.quantity,
-          }))
+        }))
         : [],
       notes,
     };
@@ -640,7 +640,7 @@ class StockMovementService {
       items: (transferData.items || []).map((item) => ({
         product_id: item.productId,
         quantity: item.quantity?.toString(),
-        unit: item.unit || "KG",
+        unit: item.unit || 'KG',
         batch_number: item.batchNumber,
         notes: item.notes,
       })),
@@ -712,38 +712,38 @@ class StockMovementService {
     return {
       id: transfer.id,
       companyId: transfer.companyId,
-      transferNumber: transfer.transferNumber || "",
+      transferNumber: transfer.transferNumber || '',
       sourceWarehouseId: transfer.sourceWarehouseId,
-      sourceWarehouseName: transfer.sourceWarehouseName || "",
+      sourceWarehouseName: transfer.sourceWarehouseName || '',
       destinationWarehouseId: transfer.destinationWarehouseId,
-      destinationWarehouseName: transfer.destinationWarehouseName || "",
-      status: transfer.status || "DRAFT",
+      destinationWarehouseName: transfer.destinationWarehouseName || '',
+      status: transfer.status || 'DRAFT',
       items: (transfer.items || []).map((item) => ({
         id: item.id,
         transferId: item.transferId,
         productId: item.productId,
-        productName: item.productName || "",
-        productSku: item.productSku || "",
+        productName: item.productName || '',
+        productSku: item.productSku || '',
         quantityRequested: parseFloat(item.quantityRequested) || 0,
         quantityShipped: parseFloat(item.quantityShipped) || 0,
         quantityReceived: parseFloat(item.quantityReceived) || 0,
-        unit: item.unit || "KG",
-        batchNumber: item.batchNumber || "",
-        notes: item.notes || "",
-        conditionNotes: item.conditionNotes || "",
+        unit: item.unit || 'KG',
+        batchNumber: item.batchNumber || '',
+        notes: item.notes || '',
+        conditionNotes: item.conditionNotes || '',
       })),
-      notes: transfer.notes || "",
-      expectedDate: transfer.expectedDate || "",
-      shippedDate: transfer.shippedDate || "",
-      receivedDate: transfer.receivedDate || "",
-      trackingNumber: transfer.trackingNumber || "",
-      carrier: transfer.carrier || "",
+      notes: transfer.notes || '',
+      expectedDate: transfer.expectedDate || '',
+      shippedDate: transfer.shippedDate || '',
+      receivedDate: transfer.receivedDate || '',
+      trackingNumber: transfer.trackingNumber || '',
+      carrier: transfer.carrier || '',
       createdBy: transfer.createdBy,
-      createdByName: transfer.createdByName || "",
+      createdByName: transfer.createdByName || '',
       shippedBy: transfer.shippedBy,
-      shippedByName: transfer.shippedByName || "",
+      shippedByName: transfer.shippedByName || '',
       receivedBy: transfer.receivedBy,
-      receivedByName: transfer.receivedByName || "",
+      receivedByName: transfer.receivedByName || '',
       createdAt: transfer.createdAt,
       updatedAt: transfer.updatedAt,
     };
@@ -829,7 +829,7 @@ class StockMovementService {
   /**
    * Cancel a reservation
    */
-  async cancelReservation(id, reason = "") {
+  async cancelReservation(id, reason = '') {
     const response = await apiClient.post(
       `${this.endpoint}/reservations/${id}/cancel`,
       { reason },
@@ -844,24 +844,24 @@ class StockMovementService {
     return {
       id: reservation.id,
       companyId: reservation.companyId,
-      reservationNumber: reservation.reservationNumber || "",
+      reservationNumber: reservation.reservationNumber || '',
       productId: reservation.productId,
-      productName: reservation.productName || "",
-      productSku: reservation.productSku || "",
+      productName: reservation.productName || '',
+      productSku: reservation.productSku || '',
       warehouseId: reservation.warehouseId,
-      warehouseName: reservation.warehouseName || "",
+      warehouseName: reservation.warehouseName || '',
       quantityReserved: parseFloat(reservation.quantityReserved) || 0,
       quantityFulfilled: parseFloat(reservation.quantityFulfilled) || 0,
       quantityRemaining: parseFloat(reservation.quantityRemaining) || 0,
-      unit: reservation.unit || "KG",
-      status: reservation.status || "ACTIVE",
-      referenceType: reservation.referenceType || "",
+      unit: reservation.unit || 'KG',
+      status: reservation.status || 'ACTIVE',
+      referenceType: reservation.referenceType || '',
       referenceId: reservation.referenceId,
-      referenceNumber: reservation.referenceNumber || "",
+      referenceNumber: reservation.referenceNumber || '',
       expiryDate: reservation.expiryDate,
-      notes: reservation.notes || "",
+      notes: reservation.notes || '',
       createdBy: reservation.createdBy,
-      createdByName: reservation.createdByName || "",
+      createdByName: reservation.createdByName || '',
       createdAt: reservation.createdAt,
       updatedAt: reservation.updatedAt,
     };
@@ -884,18 +884,18 @@ class StockMovementService {
     );
     return {
       warehouseId: response.warehouseId || response.warehouse_id,
-      warehouseName: response.warehouseName || response.warehouse_name || "",
-      asOfDate: response.asOfDate || response.as_of_date || "",
+      warehouseName: response.warehouseName || response.warehouse_name || '',
+      asOfDate: response.asOfDate || response.as_of_date || '',
       items: (response.items || []).map((item) => ({
         productId: item.productId || item.product_id,
-        productName: item.productName || item.product_name || "",
-        productSku: item.productSku || item.product_sku || "",
+        productName: item.productName || item.product_name || '',
+        productSku: item.productSku || item.product_sku || '',
         systemQuantity:
           parseFloat(item.systemQuantity || item.system_quantity) || 0,
         lastPhysicalCount:
           parseFloat(item.lastPhysicalCount || item.last_physical_count) || 0,
         discrepancy: parseFloat(item.discrepancy) || 0,
-        lastCountDate: item.lastCountDate || item.last_count_date || "",
+        lastCountDate: item.lastCountDate || item.last_count_date || '',
       })),
       totalSystemValue:
         parseFloat(response.totalSystemValue || response.total_system_value) ||
@@ -930,22 +930,22 @@ class StockMovementService {
       entries: (response.entries || []).map((entry) => ({
         id: entry.id,
         timestamp: entry.timestamp,
-        action: entry.action || "",
+        action: entry.action || '',
         userId: entry.userId || entry.user_id,
-        userName: entry.userName || entry.user_name || "",
+        userName: entry.userName || entry.user_name || '',
         productId: entry.productId || entry.product_id,
-        productName: entry.productName || entry.product_name || "",
+        productName: entry.productName || entry.product_name || '',
         warehouseId: entry.warehouseId || entry.warehouse_id,
-        warehouseName: entry.warehouseName || entry.warehouse_name || "",
+        warehouseName: entry.warehouseName || entry.warehouse_name || '',
         quantityChange:
           parseFloat(entry.quantityChange || entry.quantity_change) || 0,
         balanceBefore:
           parseFloat(entry.balanceBefore || entry.balance_before) || 0,
         balanceAfter:
           parseFloat(entry.balanceAfter || entry.balance_after) || 0,
-        referenceType: entry.referenceType || entry.reference_type || "",
-        referenceNumber: entry.referenceNumber || entry.reference_number || "",
-        notes: entry.notes || "",
+        referenceType: entry.referenceType || entry.reference_type || '',
+        referenceNumber: entry.referenceNumber || entry.reference_number || '',
+        notes: entry.notes || '',
       })),
       pagination: response.pagination || {},
     };
@@ -954,36 +954,36 @@ class StockMovementService {
 
 // Transfer status constants
 export const TRANSFER_STATUSES = {
-  DRAFT: { value: "DRAFT", label: "Draft", color: "default" },
-  PENDING: { value: "PENDING", label: "Pending", color: "info" },
-  SHIPPED: { value: "SHIPPED", label: "Shipped", color: "warning" },
-  IN_TRANSIT: { value: "IN_TRANSIT", label: "In Transit", color: "primary" },
-  RECEIVED: { value: "RECEIVED", label: "Received", color: "success" },
-  CANCELLED: { value: "CANCELLED", label: "Cancelled", color: "error" },
+  DRAFT: { value: 'DRAFT', label: 'Draft', color: 'default' },
+  PENDING: { value: 'PENDING', label: 'Pending', color: 'info' },
+  SHIPPED: { value: 'SHIPPED', label: 'Shipped', color: 'warning' },
+  IN_TRANSIT: { value: 'IN_TRANSIT', label: 'In Transit', color: 'primary' },
+  RECEIVED: { value: 'RECEIVED', label: 'Received', color: 'success' },
+  CANCELLED: { value: 'CANCELLED', label: 'Cancelled', color: 'error' },
 };
 
 // Reservation status constants
 export const RESERVATION_STATUSES = {
-  ACTIVE: { value: "ACTIVE", label: "Active", color: "primary" },
+  ACTIVE: { value: 'ACTIVE', label: 'Active', color: 'primary' },
   PARTIALLY_FULFILLED: {
-    value: "PARTIALLY_FULFILLED",
-    label: "Partial",
-    color: "warning",
+    value: 'PARTIALLY_FULFILLED',
+    label: 'Partial',
+    color: 'warning',
   },
-  FULFILLED: { value: "FULFILLED", label: "Fulfilled", color: "success" },
-  EXPIRED: { value: "EXPIRED", label: "Expired", color: "default" },
-  CANCELLED: { value: "CANCELLED", label: "Cancelled", color: "error" },
+  FULFILLED: { value: 'FULFILLED', label: 'Fulfilled', color: 'success' },
+  EXPIRED: { value: 'EXPIRED', label: 'Expired', color: 'default' },
+  CANCELLED: { value: 'CANCELLED', label: 'Cancelled', color: 'error' },
 };
 
 // gRPC error code mapping for user-friendly messages
 export const GRPC_ERROR_CODES = {
-  FAILED_PRECONDITION: "Insufficient stock available",
-  INVALID_ARGUMENT: "Invalid input data",
-  NOT_FOUND: "Record not found",
-  PERMISSION_DENIED: "Access denied",
-  ALREADY_EXISTS: "Record already exists",
-  RESOURCE_EXHAUSTED: "Resource limit exceeded",
-  UNAVAILABLE: "Service temporarily unavailable",
+  FAILED_PRECONDITION: 'Insufficient stock available',
+  INVALID_ARGUMENT: 'Invalid input data',
+  NOT_FOUND: 'Record not found',
+  PERMISSION_DENIED: 'Access denied',
+  ALREADY_EXISTS: 'Record already exists',
+  RESOURCE_EXHAUSTED: 'Resource limit exceeded',
+  UNAVAILABLE: 'Service temporarily unavailable',
 };
 
 /**
@@ -994,21 +994,21 @@ export const GRPC_ERROR_CODES = {
 export const parseGrpcError = (error) => {
   const responseData = error?.response?.data;
   const message =
-    responseData?.message || error?.message || "An error occurred";
+    responseData?.message || error?.message || 'An error occurred';
 
   // Check for gRPC error codes in message or response
-  let code = responseData?.code || "";
+  let code = responseData?.code || '';
   let isGrpcError = false;
 
   // Extract gRPC status code if present in message
-  if (message.includes("Insufficient stock")) {
-    code = "FAILED_PRECONDITION";
+  if (message.includes('Insufficient stock')) {
+    code = 'FAILED_PRECONDITION';
     isGrpcError = true;
-  } else if (message.includes("not found")) {
-    code = "NOT_FOUND";
+  } else if (message.includes('not found')) {
+    code = 'NOT_FOUND';
     isGrpcError = true;
-  } else if (message.includes("required") || message.includes("invalid")) {
-    code = "INVALID_ARGUMENT";
+  } else if (message.includes('required') || message.includes('invalid')) {
+    code = 'INVALID_ARGUMENT';
     isGrpcError = true;
   }
 

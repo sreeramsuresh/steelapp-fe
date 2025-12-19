@@ -100,7 +100,7 @@ const FORBIDDEN_SNAKE_CASE_KEYS = [
 export function assertProductDomain(product) {
   if (!product || typeof product !== 'object') {
     const error = new Error(
-      '[ProductContract] Product is null or not an object'
+      '[ProductContract] Product is null or not an object',
     );
     handleContractViolation(error, { product });
     return;
@@ -113,18 +113,20 @@ export function assertProductDomain(product) {
     const value = product[fieldName];
 
     if (!spec.check(value)) {
-      violations.push(`${fieldName}: ${spec.description} (got: ${JSON.stringify(value)})`);
+      violations.push(
+        `${fieldName}: ${spec.description} (got: ${JSON.stringify(value)})`,
+      );
     }
   }
 
   // RULE 2: Detect normalization leaks (snake_case keys still present)
   const leakedKeys = FORBIDDEN_SNAKE_CASE_KEYS.filter(
-    (key) => product[key] !== undefined && product[key] !== null
+    (key) => product[key] !== undefined && product[key] !== null,
   );
 
   if (leakedKeys.length > 0) {
     violations.push(
-      `Normalization leak detected: snake_case keys still present: ${leakedKeys.join(', ')}`
+      `Normalization leak detected: snake_case keys still present: ${leakedKeys.join(', ')}`,
     );
   }
 
@@ -183,7 +185,7 @@ function handleContractViolation(error, context) {
     console.error('⚠️  PRODUCT CONTRACT VIOLATION (Production Mode)');
     console.error(error.message);
     console.error(
-      'Product data may be corrupt. Contact support if this error persists.'
+      'Product data may be corrupt. Contact support if this error persists.',
     );
 
     // Option 1: Throw (strict - prevents corrupt data from rendering)

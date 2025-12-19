@@ -19,6 +19,7 @@ npm run cypress
 ```
 
 Opens Cypress Test Runner UI where you can:
+
 - See tests in real-time
 - Time-travel through test steps
 - Debug failures easily
@@ -33,6 +34,7 @@ npm run cypress:headless
 ```
 
 Runs all tests in the background without GUI:
+
 - Faster execution
 - Generates screenshots on failures
 - Suitable for CI pipelines
@@ -61,6 +63,7 @@ Current smoke tests validate:
 5. **Logout** - User can logout successfully
 
 Error scenarios:
+
 - Invalid login credentials
 - 404 handling for non-existent invoices
 
@@ -94,50 +97,55 @@ VALUES ('test@steelapp.com', '<hashed_password>', 1, 'admin');
 ```javascript
 // Login
 cy.login();
-cy.login('custom@email.com', 'custompassword');
+cy.login("custom@email.com", "custompassword");
 
 // Navigate
-cy.navigateTo('invoices');
-cy.navigateTo('dashboard');
+cy.navigateTo("invoices");
+cy.navigateTo("dashboard");
 
 // Logout
 cy.logout();
 
 // Custom assertions
-cy.get('.element').shouldContainText('invoice');
+cy.get(".element").shouldContainText("invoice");
 ```
 
 ### Best Practices
 
 1. **Use data-testid attributes** for stable selectors:
+
    ```html
    <button data-testid="create-invoice-btn">Create</button>
    ```
+
    ```javascript
    cy.get('[data-testid="create-invoice-btn"]').click();
    ```
 
 2. **Avoid CSS class selectors** (they change frequently):
+
    ```javascript
    // ❌ Bad
-   cy.get('.btn-primary-large').click();
-   
+   cy.get(".btn-primary-large").click();
+
    // ✅ Good
    cy.get('[data-testid="submit-btn"]').click();
-   cy.contains('button', 'Submit').click();
+   cy.contains("button", "Submit").click();
    ```
 
 3. **Wait for elements properly**:
+
    ```javascript
-   cy.get('[data-testid="invoice-table"]', { timeout: 10000 })
-     .should('be.visible');
+   cy.get('[data-testid="invoice-table"]', { timeout: 10000 }).should(
+     "be.visible",
+   );
    ```
 
 4. **Use intercepts for API calls**:
    ```javascript
-   cy.intercept('GET', '/api/invoices').as('getInvoices');
-   cy.visit('/invoices');
-   cy.wait('@getInvoices');
+   cy.intercept("GET", "/api/invoices").as("getInvoices");
+   cy.visit("/invoices");
+   cy.wait("@getInvoices");
    ```
 
 ## 🐛 Debugging
@@ -145,6 +153,7 @@ cy.get('.element').shouldContainText('invoice');
 ### Screenshots
 
 Automatically captured on test failures:
+
 ```
 cypress/screenshots/<test-name>/<failure-step>.png
 ```
@@ -152,6 +161,7 @@ cypress/screenshots/<test-name>/<failure-step>.png
 ### Videos
 
 Enable in `cypress.config.js`:
+
 ```javascript
 video: true,  // Change from false to true
 ```
@@ -159,6 +169,7 @@ video: true,  // Change from false to true
 ### Browser DevTools
 
 In interactive mode:
+
 - Click on a command in the test runner
 - Open browser DevTools to inspect
 - Use time-travel debugging
@@ -166,8 +177,8 @@ In interactive mode:
 ### Logs
 
 ```javascript
-cy.log('Custom debug message');
-console.log('Will appear in browser console');
+cy.log("Custom debug message");
+console.log("Will appear in browser console");
 ```
 
 ## 🚦 CI/CD Integration
@@ -184,19 +195,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Start services
         run: |
           npm run dev &
           # Wait for services to be ready
           npx wait-on http://localhost:5173
-      
+
       - name: Run Cypress tests
         run: npm run test:e2e
-      
+
       - name: Upload screenshots
         if: failure()
         uses: actions/upload-artifact@v3
@@ -210,11 +221,13 @@ jobs:
 ### Mochawesome (Optional)
 
 Install reporter:
+
 ```bash
 npm install --save-dev mochawesome mochawesome-merge mochawesome-report-generator
 ```
 
 Update `cypress.config.js`:
+
 ```javascript
 reporter: 'mochawesome',
 reporterOptions: {

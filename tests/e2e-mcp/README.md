@@ -7,6 +7,7 @@ This directory contains comprehensive End-to-End tests for the Invoice Form, spe
 ### Bug Context
 
 When adding product "SS-316-Bar-Bright-30mm-6000mm" (ID: 308) via Quick Add, the allocation panel showed:
+
 - **Problem**: 0 stock for all warehouses
 - **Expected**: 17 units (Abu Dhabi: 5, Dubai: 5, Main: 7)
 - **Wrong Source Type**: "Local Drop Ship" instead of "Warehouse"
@@ -14,26 +15,28 @@ When adding product "SS-316-Bar-Bright-30mm-6000mm" (ID: 308) via Quick Add, the
 ### Root Causes (BOTH FIXED)
 
 #### Issue 1: Race Condition (Line 2388)
+
 ```javascript
 // BEFORE (WRONG):
-applyAutoAllocation(index, product.id, quantity);  // Missing await
+applyAutoAllocation(index, product.id, quantity); // Missing await
 
 // AFTER (FIXED):
-await applyAutoAllocation(index, product.id, quantity);  // Added await
+await applyAutoAllocation(index, product.id, quantity); // Added await
 ```
 
 **Impact**: Panel rendered before batch data loaded, showing 0 stock.
 
 #### Issue 2: API Parameter Mismatch (Line 1627)
+
 ```javascript
 // BEFORE (WRONG):
 const response = await stockBatchService.getBatches({
-  hasStock: true,  // Backend doesn't recognize this parameter
+  hasStock: true, // Backend doesn't recognize this parameter
 });
 
 // AFTER (FIXED):
 const response = await stockBatchService.getBatches({
-  activeOnly: true,  // Correct parameter backend expects
+  activeOnly: true, // Correct parameter backend expects
 });
 ```
 
@@ -42,9 +45,11 @@ const response = await stockBatchService.getBatches({
 ## Test Files
 
 ### 1. MCP-Based Test (Recommended)
+
 **File**: `invoice-stock-allocation.test.js`
 
 Uses the `erp-test-automation` MCP server for advanced testing capabilities:
+
 - Chrome DevTools integration
 - Network request monitoring
 - Console error detection
@@ -52,14 +57,16 @@ Uses the `erp-test-automation` MCP server for advanced testing capabilities:
 - Evidence capture on failures
 
 **Execution**:
+
 ```javascript
 // Via MCP client
-import { erpTestAutomation } from '@modelcontextprotocol/mcp-client';
+import { erpTestAutomation } from "@modelcontextprotocol/mcp-client";
 const client = await erpTestAutomation.connect();
 // Run tests...
 ```
 
 **Features**:
+
 - Verifies API parameter usage (`activeOnly=true`)
 - Captures network requests
 - Monitors console for errors
@@ -67,11 +74,13 @@ const client = await erpTestAutomation.connect();
 - Batch assertions
 
 ### 2. Cypress Test (Compatibility)
+
 **File**: `../cypress/e2e/invoice-stock-allocation.cy.js`
 
 Standard Cypress E2E test for integration with existing test suite.
 
 **Execution**:
+
 ```bash
 # Run all tests
 npm run test:e2e
@@ -87,30 +96,31 @@ npm run test:e2e:open
 
 ### Primary Tests (Bug Verification)
 
-| Test | Purpose | Verifies |
-|------|---------|----------|
-| **Stock Numbers** | Warehouse stock displays correctly | Race condition + API parameter fixes |
-| **Source Type** | Shows "Warehouse" not "Local Drop Ship" | Auto-allocation logic works |
-| **Batch Table** | 4 batches visible in FIFO order | Data fetched and rendered correctly |
-| **API Request** | Uses `activeOnly=true` parameter | API parameter fix applied |
+| Test              | Purpose                                 | Verifies                             |
+| ----------------- | --------------------------------------- | ------------------------------------ |
+| **Stock Numbers** | Warehouse stock displays correctly      | Race condition + API parameter fixes |
+| **Source Type**   | Shows "Warehouse" not "Local Drop Ship" | Auto-allocation logic works          |
+| **Batch Table**   | 4 batches visible in FIFO order         | Data fetched and rendered correctly  |
+| **API Request**   | Uses `activeOnly=true` parameter        | API parameter fix applied            |
 
 ### Supporting Tests
 
-| Test | Purpose |
-|------|---------|
-| Customer Selection | Customer details populate correctly |
-| Product Quick Add | Quick Add dropdown works |
-| Invoice Totals | Subtotal, VAT, Total calculate correctly |
-| Form Validation | Required fields validated |
-| Edge Cases | Zero-stock products show Local Drop Ship |
-| Console Errors | No JavaScript errors during operations |
-| Complete Flow | End-to-end invoice creation |
+| Test               | Purpose                                  |
+| ------------------ | ---------------------------------------- |
+| Customer Selection | Customer details populate correctly      |
+| Product Quick Add  | Quick Add dropdown works                 |
+| Invoice Totals     | Subtotal, VAT, Total calculate correctly |
+| Form Validation    | Required fields validated                |
+| Edge Cases         | Zero-stock products show Local Drop Ship |
+| Console Errors     | No JavaScript errors during operations   |
+| Complete Flow      | End-to-end invoice creation              |
 
 ## Expected Test Data
 
 ### Product: SS-316-Bar-Bright-30mm-6000mm (ID: 308)
 
 **Database Setup Required**:
+
 ```sql
 -- Batches for product 308
 INSERT INTO stock_batches (id, batch_number, product_id, warehouse_id, quantity_remaining, status, received_date) VALUES
@@ -121,12 +131,14 @@ INSERT INTO stock_batches (id, batch_number, product_id, warehouse_id, quantity_
 ```
 
 **Expected Stock by Warehouse**:
+
 - **Abu Dhabi (ID: 3)**: 5 units
 - **Dubai (ID: 2)**: 5 units
 - **Main (ID: 1)**: 7 units (2 + 5 from two batches)
 - **Total**: 17 units
 
 **Expected Batches** (FIFO order):
+
 1. BTH-001: Main WH, 2 units (oldest)
 2. BTH-003: Dubai, 5 units
 3. BTH-004: Abu Dhabi, 5 units
@@ -157,12 +169,14 @@ Test customer for invoice creation.
 ### Running Tests
 
 #### MCP-Based Tests
+
 ```bash
 # Requires MCP client setup
 # See MCP documentation for execution
 ```
 
 #### Cypress Tests
+
 ```bash
 # Headless mode (CI)
 npm run test:e2e
@@ -184,11 +198,13 @@ npx cypress run --spec "cypress/e2e/invoice-stock-allocation.cy.js" --browser ch
 #### 1. Stock Shows 0 Instead of 17
 
 **Possible Causes**:
+
 - Race condition fix not applied (missing `await` on line 2388)
 - API parameter fix not applied (using `hasStock` instead of `activeOnly`)
 - Test data missing in database
 
 **Debug Steps**:
+
 1. Check browser console for errors
 2. Verify API request in Network tab: should have `activeOnly=true`
 3. Check database: `SELECT * FROM stock_batches WHERE product_id = 308 AND status = 'ACTIVE'`
@@ -197,10 +213,12 @@ npx cypress run --spec "cypress/e2e/invoice-stock-allocation.cy.js" --browser ch
 #### 2. "Local Drop Ship" Shows Instead of Batch Table
 
 **Possible Causes**:
+
 - Race condition causing `totalStock === 0` check to fail
 - API returning empty batch array
 
 **Debug Steps**:
+
 1. Check Network tab: API should return 4 batches
 2. Check React DevTools: `productBatchData[308]` state
 3. Verify `applyAutoAllocation` is awaited
@@ -208,16 +226,20 @@ npx cypress run --spec "cypress/e2e/invoice-stock-allocation.cy.js" --browser ch
 #### 3. API Request Uses Wrong Parameter
 
 **Possible Causes**:
+
 - API parameter fix not applied
 
 **Debug Steps**:
+
 1. Network tab: Check query params, should have `activeOnly=true`, NOT `hasStock=true`
 2. Verify line 1627 in InvoiceForm.jsx
 
 ## Test Evidence Capture
 
 ### MCP Tests
+
 Automatically captures on failure:
+
 - Screenshot
 - Console logs
 - Network requests
@@ -226,22 +248,27 @@ Automatically captures on failure:
 **Evidence Location**: `./test-evidence/`
 
 ### Cypress Tests
+
 On failure:
+
 - Screenshot: `cypress/screenshots/`
 - Video (if enabled): `cypress/videos/`
 
 ## Related Files
 
 ### Source Code
+
 - `/mnt/d/Ultimate Steel/steelapp-fe/src/pages/InvoiceForm.jsx`
   - Line 1627: API parameter fix
   - Line 2388: Race condition fix
 
 ### Documentation
+
 - `/mnt/d/Ultimate Steel/DIAGNOSTIC_SUMMARY.md` - Complete bug analysis
 - `/mnt/d/Ultimate Steel/debug.txt` - Race condition details
 
 ### Backend
+
 - `/mnt/d/Ultimate Steel/steelapprnp/proto/steelapp/stock_batch.proto` - Proto definition
 - `/mnt/d/Ultimate Steel/steelapprnp/grpc/services/stockBatchService.js` - gRPC service
 - `/mnt/d/Ultimate Steel/steelapprnp/api-gateway/routes/stock-batches.js` - API endpoint
@@ -265,6 +292,7 @@ On failure:
 ### Best Practices
 
 1. **Use data-testid Attributes**:
+
    ```jsx
    <div data-testid="allocation-panel">...</div>
    <table data-testid="batch-table">...</table>
@@ -275,9 +303,10 @@ On failure:
    - ✅ `cy.get('[data-testid="allocation-panel"]')`
 
 3. **Wait for Async Operations**:
+
    ```javascript
-   cy.wait('@getBatches');  // Wait for API
-   cy.wait(1000);  // Wait for calculations
+   cy.wait("@getBatches"); // Wait for API
+   cy.wait(1000); // Wait for calculations
    ```
 
 4. **Capture Evidence**:
@@ -306,6 +335,7 @@ On failure:
 ## Success Criteria
 
 All tests should pass with:
+
 - ✅ Warehouse stock numbers display correctly (not 0)
 - ✅ Source type is "Warehouse"
 - ✅ Batch table visible with 4 batches
@@ -317,6 +347,7 @@ All tests should pass with:
 ## Support
 
 For test failures or questions:
+
 1. Check DIAGNOSTIC_SUMMARY.md for bug context
 2. Verify both code fixes are applied
 3. Check database test data

@@ -32,14 +32,18 @@ async function runTest() {
 
   const launchOptions = {
     headless: TEST_CONFIG.headless,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+    ],
     slowMo: TEST_CONFIG.slowMo,
   };
   if (CHROMIUM_PATH) launchOptions.executablePath = CHROMIUM_PATH;
 
   const browser = await puppeteer.launch(launchOptions);
 
-  let testResults = {
+  const testResults = {
     passed: [],
     failed: [],
     warnings: [],
@@ -88,14 +92,22 @@ async function runTest() {
         // Select source warehouse
         const sourceOptions = await page.evaluate((index) => {
           const select = document.querySelectorAll('select')[index];
-          return select ? Array.from(select.options).map(opt => opt.value).filter(v => v) : [];
+          return select
+            ? Array.from(select.options)
+              .map((opt) => opt.value)
+              .filter((v) => v)
+            : [];
         }, 0);
 
         if (sourceOptions.length > 0) {
-          await page.evaluate((index, value) => {
-            document.querySelectorAll('select')[index].value = value;
-            document.querySelectorAll('select')[index].dispatchEvent(new Event('change', { bubbles: true }));
-          }, 0, sourceOptions[0]);
+          await page.evaluate(
+            (index, value) => {
+              document.querySelectorAll('select')[index].value = value;
+              document.querySelectorAll('select')[index].dispatchEvent(new Event('change', { bubbles: true }));
+            },
+            0,
+            sourceOptions[0],
+          );
           testResults.passed.push('Source warehouse selected');
         }
 
@@ -103,18 +115,29 @@ async function runTest() {
         await page.waitForTimeout(300);
         const destOptions = await page.evaluate((index) => {
           const select = document.querySelectorAll('select')[index];
-          return select ? Array.from(select.options).map(opt => opt.value).filter(v => v) : [];
+          return select
+            ? Array.from(select.options)
+              .map((opt) => opt.value)
+              .filter((v) => v)
+            : [];
         }, 1);
 
         if (destOptions.length > 1) {
-          await page.evaluate((index, value) => {
-            document.querySelectorAll('select')[index].value = value;
-            document.querySelectorAll('select')[index].dispatchEvent(new Event('change', { bubbles: true }));
-          }, 1, destOptions[1]);
+          await page.evaluate(
+            (index, value) => {
+              document.querySelectorAll('select')[index].value = value;
+              document.querySelectorAll('select')[index].dispatchEvent(new Event('change', { bubbles: true }));
+            },
+            1,
+            destOptions[1],
+          );
           testResults.passed.push('Destination warehouse selected');
         }
 
-        const screenshotPath = join(SCREENSHOT_DIR, 'transfer-02-warehouses-selected.png');
+        const screenshotPath = join(
+          SCREENSHOT_DIR,
+          'transfer-02-warehouses-selected.png',
+        );
         await page.screenshot({ path: screenshotPath, fullPage: true });
         testResults.screenshots.push(screenshotPath);
       } else {
@@ -128,12 +151,14 @@ async function runTest() {
     // Test 3: Add Item Button
     console.log('✓ Test 3: Testing add item functionality...');
     try {
-      const addButton = await page.$('button:has-text("Add Item"), button[class*="add"]');
+      const addButton = await page.$(
+        'button:has-text("Add Item"), button[class*="add"]',
+      );
       if (!addButton) {
         // Try alternative selectors
         const buttons = await page.$$('button');
         for (const btn of buttons) {
-          const text = await page.evaluate(el => el.textContent, btn);
+          const text = await page.evaluate((el) => el.textContent, btn);
           if (text.includes('Add') || text.includes('+')) {
             await btn.click();
             await page.waitForTimeout(500);
@@ -163,11 +188,16 @@ async function runTest() {
         await tableInputs[0].type('SS-304');
         await page.waitForTimeout(500);
 
-        const dropdown = await page.$('[class*="dropdown"], [class*="product-options"], [class*="absolute"]');
+        const dropdown = await page.$(
+          '[class*="dropdown"], [class*="product-options"], [class*="absolute"]',
+        );
         if (dropdown) {
           testResults.passed.push('Table row autocomplete dropdown appears');
 
-          const screenshotPath = join(SCREENSHOT_DIR, 'transfer-04-table-autocomplete.png');
+          const screenshotPath = join(
+            SCREENSHOT_DIR,
+            'transfer-04-table-autocomplete.png',
+          );
           await page.screenshot({ path: screenshotPath, fullPage: true });
           testResults.screenshots.push(screenshotPath);
         } else {
@@ -190,7 +220,10 @@ async function runTest() {
         await quantityInputs[0].type(TEST_DATA.quantity);
         testResults.passed.push('Quantity entered in table');
 
-        const screenshotPath = join(SCREENSHOT_DIR, 'transfer-05-quantity-filled.png');
+        const screenshotPath = join(
+          SCREENSHOT_DIR,
+          'transfer-05-quantity-filled.png',
+        );
         await page.screenshot({ path: screenshotPath, fullPage: true });
         testResults.screenshots.push(screenshotPath);
       } else {
@@ -204,7 +237,9 @@ async function runTest() {
     // Test 6: Stock Availability Badges
     console.log('✓ Test 6: Checking stock availability badges...');
     try {
-      const badges = await page.$$('[class*="badge"], [class*="stock"], [class*="available"]');
+      const badges = await page.$$(
+        '[class*="badge"], [class*="stock"], [class*="available"]',
+      );
       if (badges.length > 0) {
         testResults.passed.push(`${badges.length} stock badges found`);
       } else {
@@ -218,13 +253,18 @@ async function runTest() {
     // Test 7: Remove Item Button
     console.log('✓ Test 7: Testing remove item button...');
     try {
-      const removeButton = await page.$('table button[class*="remove"], table button:has-text("Remove")');
+      const removeButton = await page.$(
+        'table button[class*="remove"], table button:has-text("Remove")',
+      );
       if (removeButton) {
         await removeButton.click();
         await page.waitForTimeout(500);
         testResults.passed.push('Remove item button works');
 
-        const screenshotPath = join(SCREENSHOT_DIR, 'transfer-06-item-removed.png');
+        const screenshotPath = join(
+          SCREENSHOT_DIR,
+          'transfer-06-item-removed.png',
+        );
         await page.screenshot({ path: screenshotPath, fullPage: true });
         testResults.screenshots.push(screenshotPath);
       } else {
@@ -258,8 +298,16 @@ async function runTest() {
           await page.waitForTimeout(500);
 
           const errorMessage = await page.evaluate(() => {
-            const errors = Array.from(document.querySelectorAll('.error, .text-red-500, [class*="error"]'));
-            return errors.find(el => el.textContent.toLowerCase().includes('same') || el.textContent.toLowerCase().includes('different'));
+            const errors = Array.from(
+              document.querySelectorAll(
+                '.error, .text-red-500, [class*="error"]',
+              ),
+            );
+            return errors.find(
+              (el) =>
+                el.textContent.toLowerCase().includes('same') ||
+                el.textContent.toLowerCase().includes('different'),
+            );
           });
 
           if (errorMessage) {
@@ -268,7 +316,10 @@ async function runTest() {
             testResults.warnings.push('Same warehouse validation not detected');
           }
 
-          const screenshotPath = join(SCREENSHOT_DIR, 'transfer-07-validation.png');
+          const screenshotPath = join(
+            SCREENSHOT_DIR,
+            'transfer-07-validation.png',
+          );
           await page.screenshot({ path: screenshotPath, fullPage: true });
           testResults.screenshots.push(screenshotPath);
         }
@@ -281,7 +332,7 @@ async function runTest() {
     // Console & Page Errors
     if (consoleErrors.length > 0) {
       testResults.warnings.push(`${consoleErrors.length} console errors`);
-      consoleErrors.forEach(err => console.log(`  ⚠ ${err}`));
+      consoleErrors.forEach((err) => console.log(`  ⚠ ${err}`));
     } else {
       testResults.passed.push('No console errors');
     }
@@ -291,7 +342,6 @@ async function runTest() {
     } else {
       testResults.passed.push('No page errors');
     }
-
   } catch (error) {
     console.error('❌ Test failed:', error);
     testResults.failed.push(`Test error: ${error.message}`);
@@ -304,32 +354,35 @@ async function runTest() {
 }
 
 function printSummary(results) {
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('TEST SUMMARY: Transfer Form');
   console.log('='.repeat(60));
 
   console.log(`\n✓ Passed: ${results.passed.length}`);
-  results.passed.forEach(test => console.log(`  - ${test}`));
+  results.passed.forEach((test) => console.log(`  - ${test}`));
 
   if (results.warnings.length > 0) {
     console.log(`\n⚠ Warnings: ${results.warnings.length}`);
-    results.warnings.forEach(w => console.log(`  - ${w}`));
+    results.warnings.forEach((w) => console.log(`  - ${w}`));
   }
 
   if (results.failed.length > 0) {
     console.log(`\n✗ Failed: ${results.failed.length}`);
-    results.failed.forEach(f => console.log(`  - ${f}`));
+    results.failed.forEach((f) => console.log(`  - ${f}`));
   }
 
   console.log(`\n📸 Screenshots: ${results.screenshots.length}`);
 
   const total = results.passed.length + results.failed.length;
-  const passRate = total > 0 ? ((results.passed.length / total) * 100).toFixed(1) : 0;
-  console.log(`\nOVERALL: ${results.passed.length}/${total} passed (${passRate}%)`);
-  console.log('='.repeat(60) + '\n');
+  const passRate =
+    total > 0 ? ((results.passed.length / total) * 100).toFixed(1) : 0;
+  console.log(
+    `\nOVERALL: ${results.passed.length}/${total} passed (${passRate}%)`,
+  );
+  console.log(`${'='.repeat(60)}\n`);
 }
 
-runTest().catch(error => {
+runTest().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

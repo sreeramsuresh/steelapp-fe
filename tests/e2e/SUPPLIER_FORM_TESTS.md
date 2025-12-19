@@ -17,6 +17,7 @@ Tests cover all 7 sections of the SupplierForm with 30+ fields:
 ## Prerequisites
 
 ### System Requirements
+
 - Node.js 16+ with npm
 - Frontend running: `http://localhost:5173`
 - Backend/API Gateway running: `http://localhost:3000`
@@ -36,6 +37,7 @@ npx @puppeteer/browsers install chromium@latest --platform=linux
 ```
 
 This installs Chrome at:
+
 ```
 /mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome
 ```
@@ -55,6 +57,7 @@ node tests/e2e/supplier-form.test.js
 ```
 
 ### What Happens
+
 1. Launches standalone Chrome instance (no port 9222 needed)
 2. Navigates to `http://localhost:5173/suppliers/new`
 3. Runs 7 test suites (see Test Suites section below)
@@ -104,12 +107,14 @@ Passed: 7 | Failed: 0 | Total: 7
 ### 1. Basic Supplier Creation
 
 **What It Tests:**
+
 - Form loads on `/suppliers/new`
 - User can fill basic required fields
 - Form submits successfully
 - User redirects to `/suppliers` list
 
 **Fields Used:**
+
 - Supplier Name (required)
 - Company
 - Email
@@ -122,6 +127,7 @@ Passed: 7 | Failed: 0 | Total: 7
 ### 2. Full Supplier Creation with All Fields
 
 **What It Tests:**
+
 - All 30+ fields can be filled
 - All sections can be expanded/collapsed
 - Multi-select fields (material grades, product forms) work
@@ -129,6 +135,7 @@ Passed: 7 | Failed: 0 | Total: 7
 - All validations pass with valid data
 
 **Sections Tested:**
+
 1. Basic Information (9 fields)
 2. Contact Person (3 fields, expanded)
 3. Tax & Compliance (8 fields including uploads)
@@ -138,6 +145,7 @@ Passed: 7 | Failed: 0 | Total: 7
 7. Additional Information (2 fields)
 
 **Sample Data Used:**
+
 ```javascript
 {
   name: "Advanced Steel Mills India",
@@ -168,11 +176,13 @@ Passed: 7 | Failed: 0 | Total: 7
 ### 3. VAT Number Validation
 
 **What It Tests:**
+
 - Invalid VAT (< 15 chars) shows error
 - Error clears when valid VAT entered
 - Valid VAT (15 alphanumeric) accepted
 
 **Test Sequence:**
+
 1. Enter supplier name (required)
 2. Enter invalid VAT: "SHORT"
 3. Submit and verify error message
@@ -188,12 +198,14 @@ Passed: 7 | Failed: 0 | Total: 7
 ### 4. TRN Number Validation
 
 **What It Tests:**
+
 - Invalid TRN (not 15 digits) shows error
 - Error clears when valid TRN entered
 - Valid TRN (15 digits) accepted
 - Uses TRNInput component
 
 **Test Sequence:**
+
 1. Enter supplier name (required)
 2. Enter invalid TRN: "123456"
 3. Submit and verify error message
@@ -209,11 +221,13 @@ Passed: 7 | Failed: 0 | Total: 7
 ### 5. Trade License Expiry Validation
 
 **What It Tests:**
+
 - Past date shows error "Trade license has expired"
 - Error clears when future date entered
 - Future date accepted without error
 
 **Test Sequence:**
+
 1. Enter supplier name (required)
 2. Set date to yesterday
 3. Submit and verify error
@@ -229,12 +243,14 @@ Passed: 7 | Failed: 0 | Total: 7
 ### 6. Supplier Location Change Behavior
 
 **What It Tests:**
+
 - Selecting "OVERSEAS" enables primaryCountry field (required)
 - Selecting "OVERSEAS" sets lead time to 45 days
 - Selecting "UAE_LOCAL" disables primaryCountry field
 - Selecting "UAE_LOCAL" sets lead time to 7 days
 
 **Test Sequence:**
+
 1. Select "OVERSEAS" location
 2. Verify primaryCountry is enabled/required
 3. Verify lead time = 45
@@ -249,17 +265,20 @@ Passed: 7 | Failed: 0 | Total: 7
 ### 7. Accordion Expand/Collapse
 
 **What It Tests:**
+
 - All collapsible sections toggle open/closed
 - Content shows/hides with animation
 - Can toggle multiple times without issues
 - Chevron icons change direction
 
 **Sections Tested:**
+
 - Contact Person (collapsed by default)
 - Steel Specifications (collapsed by default)
 - Financial Terms (collapsed by default)
 
 **Test Sequence:**
+
 1. Click section header
 2. Verify content becomes visible
 3. Click again to collapse
@@ -275,38 +294,50 @@ Passed: 7 | Failed: 0 | Total: 7
 ### Helper Functions
 
 #### `waitForElement(page, selector, timeout)`
+
 Waits for element to exist on page.
+
 ```javascript
 await waitForElement(page, 'input[placeholder="Enter supplier name"]');
 ```
 
 #### `fillInput(page, selector, value)`
+
 Fills a text input with given value.
+
 ```javascript
-await fillInput(page, 'input[placeholder="Email"]', 'test@example.com');
+await fillInput(page, 'input[placeholder="Email"]', "test@example.com");
 ```
 
 #### `selectDropdown(page, label, value)`
+
 Selects from Radix UI FormSelect component.
+
 ```javascript
-await selectDropdown(page, 'Supplier Location', 'Overseas');
+await selectDropdown(page, "Supplier Location", "Overseas");
 ```
 
 #### `checkCheckbox(page, selector)`
+
 Checks a checkbox if not already checked.
+
 ```javascript
 await checkCheckbox(page, 'input[value="mtc_requirement"]');
 ```
 
 #### `getValidationErrors(page)`
+
 Returns all visible validation error messages.
+
 ```javascript
 const errors = await getValidationErrors(page);
-if (errors.length > 0) console.log('Form has errors');
+if (errors.length > 0) console.log("Form has errors");
 ```
 
 #### `toggleSection(page, selector)`
+
 Expands/collapses an accordion section.
+
 ```javascript
 await toggleSection(page, 'button:has(h2:has-text("Contact Person"))');
 ```
@@ -322,6 +353,7 @@ await toggleSection(page, 'button:has(h2:has-text("Contact Person"))');
 ### Timeout Handling
 
 Each test has appropriate timeouts:
+
 - Page navigation: 10 seconds
 - DOM operations: 5 seconds
 - Element interactions: 300ms
@@ -333,23 +365,26 @@ If any timeout occurs, test fails with error message.
 ### Enable Verbose Output
 
 Edit the test file to add:
+
 ```javascript
-page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-page.on('error', err => console.log('PAGE ERROR:', err));
+page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
+page.on("error", (err) => console.log("PAGE ERROR:", err));
 ```
 
 ### Take Screenshots
 
 Add to test:
+
 ```javascript
-await page.screenshot({ path: '/tmp/debug-screenshot.png', fullPage: true });
+await page.screenshot({ path: "/tmp/debug-screenshot.png", fullPage: true });
 ```
 
 ### Check Network Requests
 
 Add to test:
+
 ```javascript
-page.on('response', response => {
+page.on("response", (response) => {
   console.log(`${response.status()} ${response.url()}`);
 });
 ```
@@ -364,23 +399,30 @@ console.log(content); // HTML of page
 ## Common Issues & Solutions
 
 ### Issue: "Chrome executable not found"
+
 **Solution:** Run chromium installer
+
 ```bash
 npx @puppeteer/browsers install chromium@latest --platform=linux
 ```
 
 ### Issue: "Cannot connect to localhost:5173"
+
 **Solution:** Start frontend dev server
+
 ```bash
 cd /mnt/d/Ultimate\ Steel/steelapp-fe
 npm run dev
 ```
 
 ### Issue: "Form validation errors persist"
+
 **Solution:** Check if API is returning proper error responses. Enable network logging in test.
 
 ### Issue: "Element not found: input[placeholder='...']"
+
 **Solution:** The placeholder text might be different. Inspect the actual form HTML:
+
 ```bash
 # In test, add:
 const html = await page.content();
@@ -388,7 +430,9 @@ console.log(html); // Find actual selectors
 ```
 
 ### Issue: "Dropdown selection not working"
+
 **Solution:** The Radix UI FormSelect might have different structure. Inspect:
+
 ```bash
 # In test, add:
 const buttons = await page.$$('button');
@@ -450,6 +494,7 @@ jobs:
 ## Performance Metrics
 
 Typical test execution time:
+
 - Single test: 2-5 seconds
 - All 7 test suites: 20-30 seconds
 - Chrome startup: 3 seconds
@@ -458,6 +503,7 @@ Typical test execution time:
 ## Future Enhancements
 
 Potential additions:
+
 1. File upload testing (mock files)
 2. Error handling edge cases
 3. Mobile responsive testing
@@ -470,6 +516,7 @@ Potential additions:
 ## Support
 
 For issues or questions about the tests:
+
 1. Check the debugging section above
 2. Review console output for specific error messages
 3. Check if all services (frontend, backend, DB) are running

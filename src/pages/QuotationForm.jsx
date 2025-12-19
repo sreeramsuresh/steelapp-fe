@@ -242,10 +242,13 @@ const QuotationForm = () => {
   // Steel industry feature states (STEEL-FORMS-PHASE1 Priority 2)
   const [batchesModalOpen, setBatchesModalOpen] = useState(false);
   const [selectedItemForBatches, setSelectedItemForBatches] = useState(null);
-  const [deliveryScheduleModalOpen, setDeliveryScheduleModalOpen] = useState(false);
+  const [deliveryScheduleModalOpen, setDeliveryScheduleModalOpen] =
+    useState(false);
   const [selectedItemForDelivery, setSelectedItemForDelivery] = useState(null);
-  const [alternativeProductsModalOpen, setAlternativeProductsModalOpen] = useState(false);
-  const [selectedItemForAlternatives, setSelectedItemForAlternatives] = useState(null);
+  const [alternativeProductsModalOpen, setAlternativeProductsModalOpen] =
+    useState(false);
+  const [selectedItemForAlternatives, setSelectedItemForAlternatives] =
+    useState(null);
   const [volumeDiscountModalOpen, setVolumeDiscountModalOpen] = useState(false);
 
   // Form preferences (with localStorage persistence)
@@ -526,12 +529,14 @@ const QuotationForm = () => {
               stockReserved: item.stockReserved || false,
               reservationExpiry: item.reservationExpiry || null,
               estimatedLeadTimeDays: item.estimatedLeadTimeDays || null,
-              deliverySchedule: typeof item.deliverySchedule === "string"
-                ? JSON.parse(item.deliverySchedule)
-                : (item.deliverySchedule || []),
-              alternativeProducts: typeof item.alternativeProducts === "string"
-                ? JSON.parse(item.alternativeProducts)
-                : (item.alternativeProducts || []),
+              deliverySchedule:
+                typeof item.deliverySchedule === "string"
+                  ? JSON.parse(item.deliverySchedule)
+                  : item.deliverySchedule || [],
+              alternativeProducts:
+                typeof item.alternativeProducts === "string"
+                  ? JSON.parse(item.alternativeProducts)
+                  : item.alternativeProducts || [],
             })),
             subtotal: response.subtotal || 0,
             vatAmount: response.vatAmount || 0,
@@ -549,9 +554,10 @@ const QuotationForm = () => {
             status: response.status || "draft",
             // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
             priceValidityCondition: response.priceValidityCondition || "",
-            volumeDiscountTiers: typeof response.volumeDiscountTiers === "string"
-              ? JSON.parse(response.volumeDiscountTiers)
-              : (response.volumeDiscountTiers || []),
+            volumeDiscountTiers:
+              typeof response.volumeDiscountTiers === "string"
+                ? JSON.parse(response.volumeDiscountTiers)
+                : response.volumeDiscountTiers || [],
           });
 
           // Set customer input value for autocomplete
@@ -1271,12 +1277,14 @@ const QuotationForm = () => {
           stock_reserved: item.stockReserved || false,
           reservation_expiry: item.reservationExpiry || null,
           estimated_lead_time_days: item.estimatedLeadTimeDays || null,
-          delivery_schedule: item.deliverySchedule?.length > 0
-            ? JSON.stringify(item.deliverySchedule)
-            : null,
-          alternative_products: item.alternativeProducts?.length > 0
-            ? JSON.stringify(item.alternativeProducts)
-            : null,
+          delivery_schedule:
+            item.deliverySchedule?.length > 0
+              ? JSON.stringify(item.deliverySchedule)
+              : null,
+          alternative_products:
+            item.alternativeProducts?.length > 0
+              ? JSON.stringify(item.alternativeProducts)
+              : null,
         })),
         subtotal: parseFloat(formData.subtotal) || 0,
         vat_amount: parseFloat(formData.vatAmount) || 0,
@@ -1294,9 +1302,10 @@ const QuotationForm = () => {
         status: formData.status || "draft",
         // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
         price_validity_condition: formData.priceValidityCondition || null,
-        volume_discount_tiers: formData.volumeDiscountTiers?.length > 0
-          ? JSON.stringify(formData.volumeDiscountTiers)
-          : null,
+        volume_discount_tiers:
+          formData.volumeDiscountTiers?.length > 0
+            ? JSON.stringify(formData.volumeDiscountTiers)
+            : null,
       };
 
       if (isEdit) {
@@ -2309,7 +2318,12 @@ const QuotationForm = () => {
                     </div>
 
                     {/* Steel Industry Action Buttons (STEEL-FORMS-PHASE1 Priority 2) */}
-                    <div className="flex flex-wrap items-center gap-2 mb-3 border-t border-b py-2 mt-2" style={{borderColor: isDarkMode ? '#37474F' : '#e5e7eb'}}>
+                    <div
+                      className="flex flex-wrap items-center gap-2 mb-3 border-t border-b py-2 mt-2"
+                      style={{
+                        borderColor: isDarkMode ? "#37474F" : "#e5e7eb",
+                      }}
+                    >
                       {/* Stock Reservation */}
                       <StockReservationToggle
                         item={item}
@@ -2344,7 +2358,9 @@ const QuotationForm = () => {
                         }`}
                       >
                         <Calendar className="h-4 w-4" />
-                        Schedule {item.deliverySchedule?.length > 0 && `(${item.deliverySchedule.length})`}
+                        Schedule{" "}
+                        {item.deliverySchedule?.length > 0 &&
+                          `(${item.deliverySchedule.length})`}
                       </button>
 
                       {/* Alternative Products */}
@@ -2358,7 +2374,9 @@ const QuotationForm = () => {
                         }`}
                       >
                         <Layers className="h-4 w-4" />
-                        Alternatives {item.alternativeProducts?.length > 0 && `(${item.alternativeProducts.length})`}
+                        Alternatives{" "}
+                        {item.alternativeProducts?.length > 0 &&
+                          `(${item.alternativeProducts.length})`}
                       </button>
 
                       {/* Lead Time Input */}
@@ -2853,7 +2871,11 @@ const QuotationForm = () => {
                   }`}
                 >
                   <Calculator className="h-4 w-4" />
-                  <span>Volume Discounts {formData.volumeDiscountTiers?.length > 0 && `(${formData.volumeDiscountTiers.length})`}</span>
+                  <span>
+                    Volume Discounts{" "}
+                    {formData.volumeDiscountTiers?.length > 0 &&
+                      `(${formData.volumeDiscountTiers.length})`}
+                  </span>
                 </button>
 
                 <button
@@ -3352,9 +3374,13 @@ const QuotationForm = () => {
             setDeliveryScheduleModalOpen(false);
             setSelectedItemForDelivery(null);
           }}
-          schedule={formData.items[selectedItemForDelivery]?.deliverySchedule || []}
+          schedule={
+            formData.items[selectedItemForDelivery]?.deliverySchedule || []
+          }
           lineQuantity={formData.items[selectedItemForDelivery]?.quantity || 0}
-          onSave={(schedule) => handleSaveDeliverySchedule(selectedItemForDelivery, schedule)}
+          onSave={(schedule) =>
+            handleSaveDeliverySchedule(selectedItemForDelivery, schedule)
+          }
         />
       )}
 
@@ -3365,9 +3391,19 @@ const QuotationForm = () => {
             setAlternativeProductsModalOpen(false);
             setSelectedItemForAlternatives(null);
           }}
-          alternatives={formData.items[selectedItemForAlternatives]?.alternativeProducts || []}
-          currentProductId={formData.items[selectedItemForAlternatives]?.productId}
-          onSave={(alternatives) => handleSaveAlternativeProducts(selectedItemForAlternatives, alternatives)}
+          alternatives={
+            formData.items[selectedItemForAlternatives]?.alternativeProducts ||
+            []
+          }
+          currentProductId={
+            formData.items[selectedItemForAlternatives]?.productId
+          }
+          onSave={(alternatives) =>
+            handleSaveAlternativeProducts(
+              selectedItemForAlternatives,
+              alternatives,
+            )
+          }
         />
       )}
     </div>

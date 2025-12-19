@@ -6,7 +6,7 @@
  * Migrated from Material-UI to Tailwind CSS
  */
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -17,17 +17,17 @@ import {
   Loader2,
   Package,
   ChevronDown,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { stockMovementService } from '../../services/stockMovementService';
-import { warehouseService } from '../../services/warehouseService';
-import { productService } from '../../services/dataService';
+} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { stockMovementService } from "../../services/stockMovementService";
+import { warehouseService } from "../../services/warehouseService";
+import { productService } from "../../services/dataService";
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = 'KG') => {
-  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = "KG") => {
+  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 const TransferForm = ({ onCancel, onSuccess }) => {
@@ -39,10 +39,10 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [_loadingProducts, setLoadingProducts] = useState(true);
 
-  const [sourceWarehouseId, setSourceWarehouseId] = useState('');
-  const [destinationWarehouseId, setDestinationWarehouseId] = useState('');
-  const [expectedDate, setExpectedDate] = useState('');
-  const [notes, setNotes] = useState('');
+  const [sourceWarehouseId, setSourceWarehouseId] = useState("");
+  const [destinationWarehouseId, setDestinationWarehouseId] = useState("");
+  const [expectedDate, setExpectedDate] = useState("");
+  const [notes, setNotes] = useState("");
   const [items, setItems] = useState([]);
 
   const [saving, setSaving] = useState(false);
@@ -62,8 +62,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error('Error loading warehouses:', err);
-        setError('Failed to load warehouses');
+        console.error("Error loading warehouses:", err);
+        setError("Failed to load warehouses");
       } finally {
         setLoadingWarehouses(false);
       }
@@ -79,8 +79,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         const result = await productService.getProducts({ limit: 1000 });
         setProducts(result.data || []);
       } catch (err) {
-        console.error('Error loading products:', err);
-        setError('Failed to load products');
+        console.error("Error loading products:", err);
+        setError("Failed to load products");
       } finally {
         setLoadingProducts(false);
       }
@@ -107,12 +107,12 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           levels[item.productId] = {
             quantityOnHand: parseFloat(item.quantityOnHand) || 0,
             quantityAvailable: parseFloat(item.quantityAvailable) || 0,
-            unit: item.unit || 'KG',
+            unit: item.unit || "KG",
           };
         });
         setStockLevels(levels);
       } catch (err) {
-        console.error('Error loading stock levels:', err);
+        console.error("Error loading stock levels:", err);
       }
     };
 
@@ -152,22 +152,22 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [activeItemId]);
 
   // Add new item
   const handleAddItem = () => {
     const newItem = {
       id: Date.now(),
-      productId: '',
+      productId: "",
       product: null,
-      quantity: '',
-      unit: 'KG',
-      notes: '',
+      quantity: "",
+      unit: "KG",
+      notes: "",
     };
     setItems([...items, newItem]);
-    setProductSearchTerms({ ...productSearchTerms, [newItem.id]: '' });
+    setProductSearchTerms({ ...productSearchTerms, [newItem.id]: "" });
   };
 
   // Remove item
@@ -179,68 +179,74 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   };
 
   // Update item
-  const handleItemChange = useCallback((itemId, field, value) => {
-    setItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.id !== itemId) return item;
+  const handleItemChange = useCallback(
+    (itemId, field, value) => {
+      setItems((prevItems) =>
+        prevItems.map((item) => {
+          if (item.id !== itemId) return item;
 
-        const updates = { [field]: value };
+          const updates = { [field]: value };
 
-        // If product changed, update productId and unit
-        if (field === 'product' && value) {
-          updates.productId = value.id;
-          updates.unit = stockLevels[value.id]?.unit || 'KG';
-        }
+          // If product changed, update productId and unit
+          if (field === "product" && value) {
+            updates.productId = value.id;
+            updates.unit = stockLevels[value.id]?.unit || "KG";
+          }
 
-        return { ...item, ...updates };
-      }),
-    );
-  }, [stockLevels]);
+          return { ...item, ...updates };
+        }),
+      );
+    },
+    [stockLevels],
+  );
 
   // Handle product select
-  const handleProductSelect = useCallback((itemId, product) => {
-    handleItemChange(itemId, 'product', product);
-    setProductSearchTerms((prev) => ({
-      ...prev,
-      [itemId]: `${product.name} (${product.sku || 'No SKU'})`,
-    }));
-    setActiveItemId(null);
-  }, [handleItemChange]);
+  const handleProductSelect = useCallback(
+    (itemId, product) => {
+      handleItemChange(itemId, "product", product);
+      setProductSearchTerms((prev) => ({
+        ...prev,
+        [itemId]: `${product.name} (${product.sku || "No SKU"})`,
+      }));
+      setActiveItemId(null);
+    },
+    [handleItemChange],
+  );
 
   // Validate form
   const validateForm = () => {
     if (!sourceWarehouseId) {
-      setError('Please select a source warehouse');
+      setError("Please select a source warehouse");
       return false;
     }
     if (!destinationWarehouseId) {
-      setError('Please select a destination warehouse');
+      setError("Please select a destination warehouse");
       return false;
     }
     if (sourceWarehouseId === destinationWarehouseId) {
-      setError('Source and destination warehouses must be different');
+      setError("Source and destination warehouses must be different");
       return false;
     }
     if (items.length === 0) {
-      setError('Please add at least one item to transfer');
+      setError("Please add at least one item to transfer");
       return false;
     }
 
     // Validate each item
     for (const item of items) {
       if (!item.productId) {
-        setError('Please select a product for all items');
+        setError("Please select a product for all items");
         return false;
       }
       const qty = parseFloat(item.quantity) || 0;
       if (qty <= 0) {
-        setError('Quantity must be greater than 0 for all items');
+        setError("Quantity must be greater than 0 for all items");
         return false;
       }
       const available = stockLevels[item.productId]?.quantityAvailable || 0;
       if (qty > available) {
         setError(
-          `Insufficient stock for ${item.product?.name || 'product'}. Available: ${formatQuantity(available, item.unit)}`,
+          `Insufficient stock for ${item.product?.name || "product"}. Available: ${formatQuantity(available, item.unit)}`,
         );
         return false;
       }
@@ -276,8 +282,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       const result = await stockMovementService.createTransfer(transferData);
       onSuccess?.(result);
     } catch (err) {
-      console.error('Error creating transfer:', err);
-      setError(err.message || 'Failed to create transfer');
+      console.error("Error creating transfer:", err);
+      setError(err.message || "Failed to create transfer");
     } finally {
       setSaving(false);
     }
@@ -285,7 +291,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
 
   // Performance: Memoize warehouse filtering to avoid recalculating on every render
   const sourceWarehouses = useMemo(() => {
-    return warehouses.filter((wh) => wh.id !== parseInt(destinationWarehouseId));
+    return warehouses.filter(
+      (wh) => wh.id !== parseInt(destinationWarehouseId),
+    );
   }, [warehouses, destinationWarehouseId]);
 
   const destinationWarehouses = useMemo(() => {
@@ -293,7 +301,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   }, [warehouses, sourceWarehouseId]);
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-[#0a0e12] text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div
+      className={`min-h-screen ${isDarkMode ? "bg-[#0a0e12] text-white" : "bg-gray-50 text-gray-900"}`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -304,8 +314,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           onClick={onCancel}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
             isDarkMode
-              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
           <ArrowLeft className="w-4 h-4" />
@@ -318,8 +328,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         <div
           className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
             isDarkMode
-              ? 'bg-red-900 bg-opacity-30 border border-red-700'
-              : 'bg-red-50 border border-red-200'
+              ? "bg-red-900 bg-opacity-30 border border-red-700"
+              : "bg-red-50 border border-red-200"
           }`}
         >
           <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -338,11 +348,15 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       {/* Transfer Details Card */}
       <div
         className={`p-6 rounded-lg shadow mb-6 ${
-          isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          isDarkMode
+            ? "bg-gray-800 border border-gray-700"
+            : "bg-white border border-gray-200"
         }`}
       >
         <h2 className="text-lg font-semibold mb-4">Transfer Details</h2>
-        <hr className={`mb-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+        <hr
+          className={`mb-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {/* Source Warehouse */}
@@ -350,7 +364,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             <label
               htmlFor="source-warehouse"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Source Warehouse *
@@ -363,16 +377,16 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 disabled={loadingWarehouses}
                 className={`w-full px-3 py-2 rounded-lg border appearance-none ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
+                  loadingWarehouses ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <option value="">Select source...</option>
                 {sourceWarehouses.map((wh) => (
                   <option key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ''}
+                    {wh.name} {wh.code ? `(${wh.code})` : ""}
                   </option>
                 ))}
               </select>
@@ -385,7 +399,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             <label
               htmlFor="destination-warehouse"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Destination Warehouse *
@@ -398,16 +412,16 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 disabled={loadingWarehouses}
                 className={`w-full px-3 py-2 rounded-lg border appearance-none ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
+                  loadingWarehouses ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <option value="">Select destination...</option>
                 {destinationWarehouses.map((wh) => (
                   <option key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ''}
+                    {wh.name} {wh.code ? `(${wh.code})` : ""}
                   </option>
                 ))}
               </select>
@@ -420,7 +434,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             <label
               htmlFor="expected-date"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Expected Arrival Date
@@ -432,8 +446,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
               onChange={(e) => setExpectedDate(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
@@ -443,7 +457,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           <label
             htmlFor="notes"
             className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              isDarkMode ? "text-gray-300" : "text-gray-700"
             }`}
           >
             Notes
@@ -456,8 +470,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             placeholder="Optional notes about this transfer..."
             className={`w-full px-3 py-2 rounded-lg border ${
               isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
         </div>
@@ -466,7 +480,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       {/* Items Card */}
       <div
         className={`p-6 rounded-lg shadow mb-6 ${
-          isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          isDarkMode
+            ? "bg-gray-800 border border-gray-700"
+            : "bg-white border border-gray-200"
         }`}
       >
         <div className="flex items-center justify-between mb-4">
@@ -476,20 +492,24 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             disabled={!sourceWarehouseId}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
               !sourceWarehouseId
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
             }`}
           >
             <Plus className="w-4 h-4" />
             Add Item
           </button>
         </div>
-        <hr className={`mb-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+        <hr
+          className={`mb-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        />
 
         {!sourceWarehouseId ? (
           <div
             className={`p-3 rounded-lg ${
-              isDarkMode ? 'bg-blue-900 bg-opacity-20 border border-blue-700' : 'bg-blue-50 border border-blue-200'
+              isDarkMode
+                ? "bg-blue-900 bg-opacity-20 border border-blue-700"
+                : "bg-blue-50 border border-blue-200"
             }`}
           >
             <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -499,11 +519,14 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         ) : items.length === 0 ? (
           <div
             className={`p-3 rounded-lg ${
-              isDarkMode ? 'bg-blue-900 bg-opacity-20 border border-blue-700' : 'bg-blue-50 border border-blue-200'
+              isDarkMode
+                ? "bg-blue-900 bg-opacity-20 border border-blue-700"
+                : "bg-blue-50 border border-blue-200"
             }`}
           >
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              No items added. Click &quot;Add Item&quot; to add products to this transfer.
+              No items added. Click &quot;Add Item&quot; to add products to this
+              transfer.
             </p>
           </div>
         ) : (
@@ -512,33 +535,47 @@ const TransferForm = ({ onCancel, onSuccess }) => {
               <thead>
                 <tr
                   className={`${
-                    isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
-                  } border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                    isDarkMode ? "bg-gray-900" : "bg-gray-50"
+                  } border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                 >
-                  <th className="px-4 py-3 text-left text-sm font-medium">Product</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium">Available</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium">Quantity</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Unit</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Notes</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">
+                    Product
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">
+                    Available
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">
+                    Quantity
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">
+                    Unit
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">
+                    Notes
+                  </th>
                   <th className="px-4 py-3 text-center text-sm font-medium w-16"></th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item) => {
-                  const available = stockLevels[item.productId]?.quantityAvailable || 0;
-                  const stockUnit = stockLevels[item.productId]?.unit || 'KG';
+                  const available =
+                    stockLevels[item.productId]?.quantityAvailable || 0;
+                  const stockUnit = stockLevels[item.productId]?.unit || "KG";
                   const filteredProducts = filteredProductsMap[item.id] || [];
 
                   return (
                     <tr
                       key={item.id}
-                      className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                      className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                     >
-                      <td className="px-4 py-3" style={{ minWidth: '300px' }}>
-                        <div className="relative" ref={(el) => (dropdownRefs.current[item.id] = el)}>
+                      <td className="px-4 py-3" style={{ minWidth: "300px" }}>
+                        <div
+                          className="relative"
+                          ref={(el) => (dropdownRefs.current[item.id] = el)}
+                        >
                           <input
                             type="text"
-                            value={productSearchTerms[item.id] || ''}
+                            value={productSearchTerms[item.id] || ""}
                             onChange={(e) => {
                               setProductSearchTerms({
                                 ...productSearchTerms,
@@ -550,35 +587,46 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                             placeholder="Select product..."
                             className={`w-full px-3 py-2 text-sm rounded border ${
                               isDarkMode
-                                ? 'bg-gray-700 border-gray-600 text-white'
-                                : 'bg-white border-gray-300 text-gray-900'
+                                ? "bg-gray-700 border-gray-600 text-white"
+                                : "bg-white border-gray-300 text-gray-900"
                             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                           />
-                          {activeItemId === item.id && filteredProducts.length > 0 && (
-                            <div
-                              className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg ${
-                                isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                              }`}
-                            >
-                              {filteredProducts.slice(0, 20).map((product) => (
-                                <button
-                                  key={product.id}
-                                  type="button"
-                                  onClick={() => handleProductSelect(item.id, product)}
-                                  className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-500 hover:text-white transition-colors ${
-                                    item.productId === product.id
-                                      ? 'bg-blue-500 text-white'
-                                      : isDarkMode
-                                        ? 'text-gray-200'
-                                        : 'text-gray-900'
-                                  }`}
-                                >
-                                  <div className="font-medium">{product.name}</div>
-                                  <div className="text-xs opacity-75">{product.sku || 'No SKU'}</div>
-                                </button>
-                              ))}
-                            </div>
-                          )}
+                          {activeItemId === item.id &&
+                            filteredProducts.length > 0 && (
+                              <div
+                                className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg ${
+                                  isDarkMode
+                                    ? "bg-gray-700 border-gray-600"
+                                    : "bg-white border-gray-300"
+                                }`}
+                              >
+                                {filteredProducts
+                                  .slice(0, 20)
+                                  .map((product) => (
+                                    <button
+                                      key={product.id}
+                                      type="button"
+                                      onClick={() =>
+                                        handleProductSelect(item.id, product)
+                                      }
+                                      className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-500 hover:text-white transition-colors ${
+                                        item.productId === product.id
+                                          ? "bg-blue-500 text-white"
+                                          : isDarkMode
+                                            ? "text-gray-200"
+                                            : "text-gray-900"
+                                      }`}
+                                    >
+                                      <div className="font-medium">
+                                        {product.name}
+                                      </div>
+                                      <div className="text-xs opacity-75">
+                                        {product.sku || "No SKU"}
+                                      </div>
+                                    </button>
+                                  ))}
+                              </div>
+                            )}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -587,11 +635,11 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                             className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
                               available > 0
                                 ? isDarkMode
-                                  ? 'bg-green-900 bg-opacity-30 border border-green-700 text-green-300'
-                                  : 'bg-green-100 border border-green-300 text-green-700'
+                                  ? "bg-green-900 bg-opacity-30 border border-green-700 text-green-300"
+                                  : "bg-green-100 border border-green-300 text-green-700"
                                 : isDarkMode
-                                  ? 'bg-red-900 bg-opacity-30 border border-red-700 text-red-300'
-                                  : 'bg-red-100 border border-red-300 text-red-700'
+                                  ? "bg-red-900 bg-opacity-30 border border-red-700 text-red-300"
+                                  : "bg-red-100 border border-red-300 text-red-700"
                             }`}
                           >
                             {formatQuantity(available, stockUnit)}
@@ -604,15 +652,22 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                         <input
                           type="number"
                           value={item.quantity}
-                          onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
+                          onChange={(e) =>
+                            handleItemChange(
+                              item.id,
+                              "quantity",
+                              e.target.value,
+                            )
+                          }
                           min="0"
                           step="0.01"
                           className={`w-28 px-3 py-2 text-sm rounded border text-right ${
-                            item.productId && parseFloat(item.quantity) > available
-                              ? 'border-red-500 focus:ring-red-500'
+                            item.productId &&
+                            parseFloat(item.quantity) > available
+                              ? "border-red-500 focus:ring-red-500"
                               : isDarkMode
-                                ? 'bg-gray-700 border-gray-600 text-white'
-                                : 'bg-white border-gray-300 text-gray-900'
+                                ? "bg-gray-700 border-gray-600 text-white"
+                                : "bg-white border-gray-300 text-gray-900"
                           } focus:outline-none focus:ring-2`}
                         />
                       </td>
@@ -623,12 +678,14 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                         <input
                           type="text"
                           value={item.notes}
-                          onChange={(e) => handleItemChange(item.id, 'notes', e.target.value)}
+                          onChange={(e) =>
+                            handleItemChange(item.id, "notes", e.target.value)
+                          }
                           placeholder="Optional..."
                           className={`w-full px-3 py-2 text-sm rounded border ${
                             isDarkMode
-                              ? 'bg-gray-700 border-gray-600 text-white'
-                              : 'bg-white border-gray-300 text-gray-900'
+                              ? "bg-gray-700 border-gray-600 text-white"
+                              : "bg-white border-gray-300 text-gray-900"
                           } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         />
                       </td>
@@ -656,9 +713,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           disabled={saving}
           className={`px-4 py-2 rounded-lg font-medium ${
             isDarkMode
-              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+              ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           Cancel
         </button>
@@ -667,8 +724,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           disabled={saving || items.length === 0}
           className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
             saving || items.length === 0
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 text-white'
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600 text-white"
           }`}
         >
           {saving ? (

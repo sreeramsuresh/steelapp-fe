@@ -3,6 +3,7 @@
 ## 30 Seconds to Running Tests
 
 ### Prerequisites Check
+
 ```bash
 cd /mnt/d/Ultimate\ Steel/steelapp-fe
 bash tests/e2e/verify-setup.sh
@@ -11,24 +12,28 @@ bash tests/e2e/verify-setup.sh
 If all green, skip to "Run Tests". If yellow warnings, follow the instructions.
 
 ### Install (One-Time)
+
 ```bash
 # Install Chromium if not done
 npx @puppeteer/browsers install chromium@latest --platform=linux
 ```
 
 ### Start Services (Terminal 1)
+
 ```bash
 cd /mnt/d/Ultimate\ Steel/steelapp-fe
 npm run dev
 ```
 
 ### Start Backend (Terminal 2)
+
 ```bash
 cd /mnt/d/Ultimate\ Steel/backend
 npm run dev
 ```
 
 ### Run Tests (Terminal 3)
+
 ```bash
 cd /mnt/d/Ultimate\ Steel/steelapp-fe
 node tests/e2e/supplier-form.test.js
@@ -61,25 +66,32 @@ Passed: 7 | Failed: 0 | Total: 7
 ## Troubleshooting
 
 ### "Chrome executable not found"
+
 ```bash
 npx @puppeteer/browsers install chromium@latest --platform=linux
 ```
 
 ### "Cannot connect to localhost:5173"
+
 Frontend not running - start it in Terminal 1:
+
 ```bash
 npm run dev
 ```
 
 ### "Cannot connect to localhost:3000"
+
 Backend not running - start it in Terminal 2:
+
 ```bash
 cd /mnt/d/Ultimate\ Steel/backend
 npm run dev
 ```
 
 ### "Form fields not found"
+
 Check browser console for errors:
+
 1. Take screenshot: Add to test file
 2. Enable logging: Check puppeteer-utils.js
 3. Compare selectors with actual form

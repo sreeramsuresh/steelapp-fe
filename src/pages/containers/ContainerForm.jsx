@@ -148,7 +148,9 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
     const tare = parseFloat(formData.tareWeight) || 0;
     const netWeight = gross - tare;
     const calculatedNetWeight = netWeight > 0 ? netWeight.toString() : "";
-    const currentNetWeight = formData.netWeight ? formData.netWeight.toString() : "";
+    const currentNetWeight = formData.netWeight
+      ? formData.netWeight.toString()
+      : "";
 
     if (calculatedNetWeight !== currentNetWeight) {
       setFormData((prev) => ({ ...prev, netWeight: calculatedNetWeight }));
@@ -161,35 +163,59 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
       const startDate = new Date(formData.demurrageStartDate);
       const today = new Date();
       const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-      const daysIncurred = Math.max(0, daysDiff - (parseInt(formData.freeDaysAtPort) || 0));
+      const daysIncurred = Math.max(
+        0,
+        daysDiff - (parseInt(formData.freeDaysAtPort) || 0),
+      );
       const calculatedDays = daysIncurred.toString();
-      const currentDays = formData.demurrageDaysIncurred ? formData.demurrageDaysIncurred.toString() : "0";
+      const currentDays = formData.demurrageDaysIncurred
+        ? formData.demurrageDaysIncurred.toString()
+        : "0";
 
       if (calculatedDays !== currentDays) {
-        setFormData((prev) => ({ ...prev, demurrageDaysIncurred: daysIncurred }));
+        setFormData((prev) => ({
+          ...prev,
+          demurrageDaysIncurred: daysIncurred,
+        }));
       }
     } else {
-      const currentDays = formData.demurrageDaysIncurred ? formData.demurrageDaysIncurred.toString() : "0";
+      const currentDays = formData.demurrageDaysIncurred
+        ? formData.demurrageDaysIncurred.toString()
+        : "0";
       if (currentDays !== "0") {
         setFormData((prev) => ({ ...prev, demurrageDaysIncurred: 0 }));
       }
     }
-  }, [formData.demurrageStartDate, formData.freeDaysAtPort, formData.demurrageDaysIncurred]);
+  }, [
+    formData.demurrageStartDate,
+    formData.freeDaysAtPort,
+    formData.demurrageDaysIncurred,
+  ]);
 
   // Auto-calculate detention days
   useEffect(() => {
     if (formData.detentionStartDate) {
       const startDate = new Date(formData.detentionStartDate);
       const today = new Date();
-      const daysIncurred = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)));
+      const daysIncurred = Math.max(
+        0,
+        Math.floor((today - startDate) / (1000 * 60 * 60 * 24)),
+      );
       const calculatedDays = daysIncurred.toString();
-      const currentDays = formData.detentionDaysIncurred ? formData.detentionDaysIncurred.toString() : "0";
+      const currentDays = formData.detentionDaysIncurred
+        ? formData.detentionDaysIncurred.toString()
+        : "0";
 
       if (calculatedDays !== currentDays) {
-        setFormData((prev) => ({ ...prev, detentionDaysIncurred: daysIncurred }));
+        setFormData((prev) => ({
+          ...prev,
+          detentionDaysIncurred: daysIncurred,
+        }));
       }
     } else {
-      const currentDays = formData.detentionDaysIncurred ? formData.detentionDaysIncurred.toString() : "0";
+      const currentDays = formData.detentionDaysIncurred
+        ? formData.detentionDaysIncurred.toString()
+        : "0";
       if (currentDays !== "0") {
         setFormData((prev) => ({ ...prev, detentionDaysIncurred: 0 }));
       }
@@ -236,7 +262,8 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         customsAgent: container.customsAgent || "",
         customsBrokerReference: container.customsBrokerReference || "",
         customsEntryNumber: container.customsEntryNumber || "",
-        customsClearanceDate: container.customsClearanceDate?.split("T")[0] || "",
+        customsClearanceDate:
+          container.customsClearanceDate?.split("T")[0] || "",
         preShipmentInspection: container.preShipmentInspection || false,
         psiCertificateNumber: container.psiCertificateNumber || "",
         psiDate: container.psiDate?.split("T")[0] || "",
@@ -324,7 +351,9 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         containerSize: formData.containerSize,
         isHighCube: formData.isHighCube,
         isReefer: formData.isReefer,
-        temperatureSetting: formData.isReefer ? formData.temperatureSetting : null,
+        temperatureSetting: formData.isReefer
+          ? formData.temperatureSetting
+          : null,
         carrierSealNumber: formData.carrierSealNumber.trim(),
         customsSealNumber: formData.customsSealNumber.trim(),
         shipperSealNumber: formData.shipperSealNumber.trim(),
@@ -343,7 +372,9 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         psiCertificateNumber: formData.preShipmentInspection
           ? formData.psiCertificateNumber.trim()
           : null,
-        psiDate: formData.preShipmentInspection ? formData.psiDate || null : null,
+        psiDate: formData.preShipmentInspection
+          ? formData.psiDate || null
+          : null,
         certificateOfOriginNumber: formData.certificateOfOriginNumber.trim(),
         phytosanitaryCertificate: formData.phytosanitaryCertificate.trim(),
         freeDaysAtPort: parseInt(formData.freeDaysAtPort) || 0,
@@ -354,7 +385,9 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         detentionDaysIncurred: parseInt(formData.detentionDaysIncurred) || 0,
         detentionCost: formData.detentionCost || "0",
         containerReleased: formData.containerReleased,
-        releaseDate: formData.containerReleased ? formData.releaseDate || null : null,
+        releaseDate: formData.containerReleased
+          ? formData.releaseDate || null
+          : null,
         releaseReference: formData.containerReleased
           ? formData.releaseReference.trim()
           : null,
@@ -707,7 +740,9 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Container Specifications Accordion */}
           <details open className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
                 Container Specifications
               </h3>
               <ChevronDown className="w-5 h-5" />
@@ -716,33 +751,63 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label className={labelClass}>Container Type</Label>
-                  <Select value={formData.containerType} onValueChange={(value) => handleChange("containerType", value)}>
-                    <SelectTrigger className={inputClass}><SelectValue /></SelectTrigger>
+                  <Select
+                    value={formData.containerType}
+                    onValueChange={(value) =>
+                      handleChange("containerType", value)
+                    }
+                  >
+                    <SelectTrigger className={inputClass}>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {CONTAINER_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label className={labelClass}>Container Size</Label>
-                  <Select value={formData.containerSize} onValueChange={(value) => handleChange("containerSize", value)}>
-                    <SelectTrigger className={inputClass}><SelectValue /></SelectTrigger>
+                  <Select
+                    value={formData.containerSize}
+                    onValueChange={(value) =>
+                      handleChange("containerSize", value)
+                    }
+                  >
+                    <SelectTrigger className={inputClass}>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {CONTAINER_SIZES.map((size) => (
-                        <SelectItem key={size.value} value={size.value}>{size.label}</SelectItem>
+                        <SelectItem key={size.value} value={size.value}>
+                          {size.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex items-center gap-4 pt-6">
                   <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={formData.isHighCube} onChange={(e) => handleChange("isHighCube", e.target.checked)} />
+                    <input
+                      type="checkbox"
+                      checked={formData.isHighCube}
+                      onChange={(e) =>
+                        handleChange("isHighCube", e.target.checked)
+                      }
+                    />
                     <span className="text-sm">High Cube</span>
                   </label>
                   <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={formData.isReefer} onChange={(e) => handleChange("isReefer", e.target.checked)} />
+                    <input
+                      type="checkbox"
+                      checked={formData.isReefer}
+                      onChange={(e) =>
+                        handleChange("isReefer", e.target.checked)
+                      }
+                    />
                     <span className="text-sm">Reefer</span>
                   </label>
                 </div>
@@ -750,7 +815,16 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
               {formData.isReefer && (
                 <div>
                   <Label className={labelClass}>Temperature Setting (°C)</Label>
-                  <Input type="number" step="0.1" value={formData.temperatureSetting} onChange={(e) => handleChange("temperatureSetting", e.target.value)} placeholder="-20" className={inputClass} />
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={formData.temperatureSetting}
+                    onChange={(e) =>
+                      handleChange("temperatureSetting", e.target.value)
+                    }
+                    placeholder="-20"
+                    className={inputClass}
+                  />
                 </div>
               )}
             </div>
@@ -759,14 +833,45 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Seal Numbers & Security Accordion */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Seal Numbers & Security</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Seal Numbers & Security
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>Carrier Seal Number</Label><Input value={formData.carrierSealNumber} onChange={(e) => handleChange("carrierSealNumber", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Customs Seal Number</Label><Input value={formData.customsSealNumber} onChange={(e) => handleChange("customsSealNumber", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Shipper Seal Number</Label><Input value={formData.shipperSealNumber} onChange={(e) => handleChange("shipperSealNumber", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>Carrier Seal Number</Label>
+                  <Input
+                    value={formData.carrierSealNumber}
+                    onChange={(e) =>
+                      handleChange("carrierSealNumber", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Customs Seal Number</Label>
+                  <Input
+                    value={formData.customsSealNumber}
+                    onChange={(e) =>
+                      handleChange("customsSealNumber", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Shipper Seal Number</Label>
+                  <Input
+                    value={formData.shipperSealNumber}
+                    onChange={(e) =>
+                      handleChange("shipperSealNumber", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
           </details>
@@ -774,19 +879,80 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Weight Measurements Accordion */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Weight Measurements</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Weight Measurements
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>Tare Weight (KG)</Label><Input type="number" step="0.01" value={formData.tareWeight} onChange={(e) => handleChange("tareWeight", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Gross Weight (KG)</Label><Input type="number" step="0.01" value={formData.grossWeight} onChange={(e) => handleChange("grossWeight", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Net Weight (KG)</Label><Input type="number" value={formData.netWeight} disabled className={inputClass} /><p className="text-xs text-gray-500 mt-1">Auto-calculated</p></div>
+                <div>
+                  <Label className={labelClass}>Tare Weight (KG)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.tareWeight}
+                    onChange={(e) => handleChange("tareWeight", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Gross Weight (KG)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.grossWeight}
+                    onChange={(e) =>
+                      handleChange("grossWeight", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Net Weight (KG)</Label>
+                  <Input
+                    type="number"
+                    value={formData.netWeight}
+                    disabled
+                    className={inputClass}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Auto-calculated</p>
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>VGM Weight (KG)</Label><Input type="number" step="0.01" value={formData.vgmWeight} onChange={(e) => handleChange("vgmWeight", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>VGM Certified By</Label><Input value={formData.vgmCertifiedBy} onChange={(e) => handleChange("vgmCertifiedBy", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>VGM Certified Date</Label><Input type="datetime-local" value={formData.vgmCertifiedAt} onChange={(e) => handleChange("vgmCertifiedAt", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>VGM Weight (KG)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.vgmWeight}
+                    onChange={(e) => handleChange("vgmWeight", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>VGM Certified By</Label>
+                  <Input
+                    value={formData.vgmCertifiedBy}
+                    onChange={(e) =>
+                      handleChange("vgmCertifiedBy", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>VGM Certified Date</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.vgmCertifiedAt}
+                    onChange={(e) =>
+                      handleChange("vgmCertifiedAt", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
           </details>
@@ -794,18 +960,78 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Customs Clearance Accordion */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Customs Clearance</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Customs Clearance
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><Label className={labelClass}>Clearance Status</Label><Select value={formData.customsClearanceStatus} onValueChange={(value) => handleChange("customsClearanceStatus", value)}><SelectTrigger className={inputClass}><SelectValue /></SelectTrigger><SelectContent>{CUSTOMS_STATUSES.map((status) => (<SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>))}</SelectContent></Select></div>
-                <div><Label className={labelClass}>Customs Agent</Label><Input value={formData.customsAgent} onChange={(e) => handleChange("customsAgent", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>Clearance Status</Label>
+                  <Select
+                    value={formData.customsClearanceStatus}
+                    onValueChange={(value) =>
+                      handleChange("customsClearanceStatus", value)
+                    }
+                  >
+                    <SelectTrigger className={inputClass}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CUSTOMS_STATUSES.map((status) => (
+                        <SelectItem key={status.value} value={status.value}>
+                          {status.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className={labelClass}>Customs Agent</Label>
+                  <Input
+                    value={formData.customsAgent}
+                    onChange={(e) =>
+                      handleChange("customsAgent", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>Broker Reference</Label><Input value={formData.customsBrokerReference} onChange={(e) => handleChange("customsBrokerReference", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Entry Number</Label><Input value={formData.customsEntryNumber} onChange={(e) => handleChange("customsEntryNumber", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Clearance Date</Label><Input type="date" value={formData.customsClearanceDate} onChange={(e) => handleChange("customsClearanceDate", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>Broker Reference</Label>
+                  <Input
+                    value={formData.customsBrokerReference}
+                    onChange={(e) =>
+                      handleChange("customsBrokerReference", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Entry Number</Label>
+                  <Input
+                    value={formData.customsEntryNumber}
+                    onChange={(e) =>
+                      handleChange("customsEntryNumber", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Clearance Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.customsClearanceDate}
+                    onChange={(e) =>
+                      handleChange("customsClearanceDate", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
           </details>
@@ -813,20 +1039,76 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Inspection & Certificates Accordion */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Inspection & Certificates</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Inspection & Certificates
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
-              <div><label className="flex items-center gap-2"><input type="checkbox" checked={formData.preShipmentInspection} onChange={(e) => handleChange("preShipmentInspection", e.target.checked)} /><span className="text-sm">Pre-Shipment Inspection Required</span></label></div>
+              <div>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.preShipmentInspection}
+                    onChange={(e) =>
+                      handleChange("preShipmentInspection", e.target.checked)
+                    }
+                  />
+                  <span className="text-sm">
+                    Pre-Shipment Inspection Required
+                  </span>
+                </label>
+              </div>
               {formData.preShipmentInspection && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><Label className={labelClass}>PSI Certificate Number</Label><Input value={formData.psiCertificateNumber} onChange={(e) => handleChange("psiCertificateNumber", e.target.value)} className={inputClass} /></div>
-                  <div><Label className={labelClass}>PSI Date</Label><Input type="date" value={formData.psiDate} onChange={(e) => handleChange("psiDate", e.target.value)} className={inputClass} /></div>
+                  <div>
+                    <Label className={labelClass}>PSI Certificate Number</Label>
+                    <Input
+                      value={formData.psiCertificateNumber}
+                      onChange={(e) =>
+                        handleChange("psiCertificateNumber", e.target.value)
+                      }
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <Label className={labelClass}>PSI Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.psiDate}
+                      onChange={(e) => handleChange("psiDate", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><Label className={labelClass}>Certificate of Origin Number</Label><Input value={formData.certificateOfOriginNumber} onChange={(e) => handleChange("certificateOfOriginNumber", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Phytosanitary Certificate</Label><Input value={formData.phytosanitaryCertificate} onChange={(e) => handleChange("phytosanitaryCertificate", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>
+                    Certificate of Origin Number
+                  </Label>
+                  <Input
+                    value={formData.certificateOfOriginNumber}
+                    onChange={(e) =>
+                      handleChange("certificateOfOriginNumber", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>
+                    Phytosanitary Certificate
+                  </Label>
+                  <Input
+                    value={formData.phytosanitaryCertificate}
+                    onChange={(e) =>
+                      handleChange("phytosanitaryCertificate", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
           </details>
@@ -834,20 +1116,95 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Demurrage & Detention Accordion */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Demurrage & Detention Tracking</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Demurrage & Detention Tracking
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
-              <div><Label className={labelClass}>Free Days at Port</Label><Input type="number" min="0" value={formData.freeDaysAtPort} onChange={(e) => handleChange("freeDaysAtPort", e.target.value)} className={inputClass} /></div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>Demurrage Start Date</Label><Input type="date" value={formData.demurrageStartDate} onChange={(e) => handleChange("demurrageStartDate", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Demurrage Days Incurred</Label><Input type="number" value={formData.demurrageDaysIncurred} disabled className={inputClass} /><p className="text-xs text-gray-500 mt-1">Auto-calculated</p></div>
-                <div><Label className={labelClass}>Demurrage Cost (AED)</Label><Input type="number" step="0.01" value={formData.demurrageCost} onChange={(e) => handleChange("demurrageCost", e.target.value)} className={inputClass} /></div>
+              <div>
+                <Label className={labelClass}>Free Days at Port</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={formData.freeDaysAtPort}
+                  onChange={(e) =>
+                    handleChange("freeDaysAtPort", e.target.value)
+                  }
+                  className={inputClass}
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>Detention Start Date</Label><Input type="date" value={formData.detentionStartDate} onChange={(e) => handleChange("detentionStartDate", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Detention Days Incurred</Label><Input type="number" value={formData.detentionDaysIncurred} disabled className={inputClass} /><p className="text-xs text-gray-500 mt-1">Auto-calculated</p></div>
-                <div><Label className={labelClass}>Detention Cost (AED)</Label><Input type="number" step="0.01" value={formData.detentionCost} onChange={(e) => handleChange("detentionCost", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>Demurrage Start Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.demurrageStartDate}
+                    onChange={(e) =>
+                      handleChange("demurrageStartDate", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Demurrage Days Incurred</Label>
+                  <Input
+                    type="number"
+                    value={formData.demurrageDaysIncurred}
+                    disabled
+                    className={inputClass}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Auto-calculated</p>
+                </div>
+                <div>
+                  <Label className={labelClass}>Demurrage Cost (AED)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.demurrageCost}
+                    onChange={(e) =>
+                      handleChange("demurrageCost", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label className={labelClass}>Detention Start Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.detentionStartDate}
+                    onChange={(e) =>
+                      handleChange("detentionStartDate", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Detention Days Incurred</Label>
+                  <Input
+                    type="number"
+                    value={formData.detentionDaysIncurred}
+                    disabled
+                    className={inputClass}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Auto-calculated</p>
+                </div>
+                <div>
+                  <Label className={labelClass}>Detention Cost (AED)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.detentionCost}
+                    onChange={(e) =>
+                      handleChange("detentionCost", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
           </details>
@@ -855,21 +1212,83 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Container Release & Delivery Accordion */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Container Release & Delivery</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Container Release & Delivery
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
-              <div><label className="flex items-center gap-2"><input type="checkbox" checked={formData.containerReleased} onChange={(e) => handleChange("containerReleased", e.target.checked)} /><span className="text-sm">Container Released</span></label></div>
+              <div>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.containerReleased}
+                    onChange={(e) =>
+                      handleChange("containerReleased", e.target.checked)
+                    }
+                  />
+                  <span className="text-sm">Container Released</span>
+                </label>
+              </div>
               {formData.containerReleased && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><Label className={labelClass}>Release Date</Label><Input type="date" value={formData.releaseDate} onChange={(e) => handleChange("releaseDate", e.target.value)} className={inputClass} /></div>
-                  <div><Label className={labelClass}>Release Reference</Label><Input value={formData.releaseReference} onChange={(e) => handleChange("releaseReference", e.target.value)} className={inputClass} /></div>
+                  <div>
+                    <Label className={labelClass}>Release Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.releaseDate}
+                      onChange={(e) =>
+                        handleChange("releaseDate", e.target.value)
+                      }
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <Label className={labelClass}>Release Reference</Label>
+                    <Input
+                      value={formData.releaseReference}
+                      onChange={(e) =>
+                        handleChange("releaseReference", e.target.value)
+                      }
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>Delivery Order Number</Label><Input value={formData.deliveryOrderNumber} onChange={(e) => handleChange("deliveryOrderNumber", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Empty Return Date</Label><Input type="date" value={formData.emptyReturnDate} onChange={(e) => handleChange("emptyReturnDate", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Empty Return Depot</Label><Input value={formData.emptyReturnDepot} onChange={(e) => handleChange("emptyReturnDepot", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>Delivery Order Number</Label>
+                  <Input
+                    value={formData.deliveryOrderNumber}
+                    onChange={(e) =>
+                      handleChange("deliveryOrderNumber", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Empty Return Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.emptyReturnDate}
+                    onChange={(e) =>
+                      handleChange("emptyReturnDate", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Empty Return Depot</Label>
+                  <Input
+                    value={formData.emptyReturnDepot}
+                    onChange={(e) =>
+                      handleChange("emptyReturnDepot", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
           </details>
@@ -877,27 +1296,76 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           {/* Additional Cost Breakdown Accordion */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Additional Cost Breakdown</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Additional Cost Breakdown
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><Label className={labelClass}>Port Charges (AED)</Label><Input type="number" step="0.01" value={formData.portCharges} onChange={(e) => handleChange("portCharges", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Storage Charges (AED)</Label><Input type="number" step="0.01" value={formData.storageCharges} onChange={(e) => handleChange("storageCharges", e.target.value)} className={inputClass} /></div>
-                <div><Label className={labelClass}>Documentation Fees (AED)</Label><Input type="number" step="0.01" value={formData.documentationFees} onChange={(e) => handleChange("documentationFees", e.target.value)} className={inputClass} /></div>
+                <div>
+                  <Label className={labelClass}>Port Charges (AED)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.portCharges}
+                    onChange={(e) =>
+                      handleChange("portCharges", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Storage Charges (AED)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.storageCharges}
+                    onChange={(e) =>
+                      handleChange("storageCharges", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <Label className={labelClass}>Documentation Fees (AED)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.documentationFees}
+                    onChange={(e) =>
+                      handleChange("documentationFees", e.target.value)
+                    }
+                    className={inputClass}
+                  />
+                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">These charges will be included in total landed cost calculation</p>
+              <p className="text-xs text-gray-500 mt-2">
+                These charges will be included in total landed cost calculation
+              </p>
             </div>
           </details>
 
           {/* Notes */}
           <details className="border rounded-lg overflow-hidden">
             <summary className="cursor-pointer p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Notes</h3>
+              <h3
+                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+              >
+                Notes
+              </h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
-              <Textarea value={formData.notes} onChange={(e) => handleChange("notes", e.target.value)} placeholder="Additional notes about this container..." rows={3} className={inputClass} />
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => handleChange("notes", e.target.value)}
+                placeholder="Additional notes about this container..."
+                rows={3}
+                className={inputClass}
+              />
             </div>
           </details>
 

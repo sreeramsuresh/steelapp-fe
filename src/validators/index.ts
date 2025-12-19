@@ -20,4 +20,4 @@ export {
 
   // Types
   type ValidationResult,
-} from "./schemas";
+} from './schemas';

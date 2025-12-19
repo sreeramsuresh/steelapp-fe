@@ -22,7 +22,8 @@
 
 import puppeteer from 'puppeteer';
 
-const CHROME_EXECUTABLE = '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome';
+const CHROME_EXECUTABLE =
+  '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome';
 const BASE_URL = 'http://localhost:5173';
 const SUPPLIER_URL = `${BASE_URL}/suppliers/new`;
 
@@ -239,10 +240,26 @@ async function testBasicSupplierCreation(browser) {
 
   try {
     // Fill basic fields
-    await fillInput(page, 'input[placeholder="Enter supplier name"]', 'Steel Supplies Ltd');
-    await fillInput(page, 'input[placeholder="Company / Trading name"]', 'Steel Trading Company');
-    await fillInput(page, 'input[placeholder="supplier@example.com"]', 'info@steelsupplies.com');
-    await fillInput(page, 'input[placeholder="+971 XX XXX XXXX"]', '+971 4 123 4567');
+    await fillInput(
+      page,
+      'input[placeholder="Enter supplier name"]',
+      'Steel Supplies Ltd',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="Company / Trading name"]',
+      'Steel Trading Company',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="supplier@example.com"]',
+      'info@steelsupplies.com',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="+971 XX XXX XXXX"]',
+      '+971 4 123 4567',
+    );
 
     log.info('Filled basic information fields');
 
@@ -282,17 +299,41 @@ async function testFullSupplierCreation(browser) {
 
   try {
     // SECTION 1: Basic Information
-    await fillInput(page, 'input[placeholder="Enter supplier name"]', 'Advanced Steel Mills India');
-    await fillInput(page, 'input[placeholder="Company / Trading name"]', 'ASMI Trading');
-    await fillInput(page, 'input[placeholder="supplier@example.com"]', 'sales@asmi.com');
-    await fillInput(page, 'input[placeholder="+971 XX XXX XXXX"]', '+971 4 555 6789');
+    await fillInput(
+      page,
+      'input[placeholder="Enter supplier name"]',
+      'Advanced Steel Mills India',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="Company / Trading name"]',
+      'ASMI Trading',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="supplier@example.com"]',
+      'sales@asmi.com',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="+971 XX XXX XXXX"]',
+      '+971 4 555 6789',
+    );
     await fillInput(
       page,
       'input[placeholder="Secondary contact number"]',
       '+971 4 555 6790',
     );
-    await fillInput(page, 'input[placeholder="https://example.com"]', 'https://asmi.com');
-    await fillInput(page, 'input[placeholder="Street address"]', '123 Industrial Zone, Mumbai');
+    await fillInput(
+      page,
+      'input[placeholder="https://example.com"]',
+      'https://asmi.com',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="Street address"]',
+      '123 Industrial Zone, Mumbai',
+    );
     await fillInput(page, 'input[placeholder="City"]', 'Mumbai');
     await fillInput(page, 'input[placeholder="Country"]', 'India');
 
@@ -302,16 +343,40 @@ async function testFullSupplierCreation(browser) {
     const contactToggle = 'button:has(h2:has(svg)):nth-child(2)';
     await toggleSection(page, contactToggle);
 
-    await fillInput(page, 'input[placeholder="Primary contact name"]', 'Rajesh Kumar');
-    await fillInput(page, 'input[placeholder="contact@example.com"]', 'rajesh@asmi.com');
-    await fillInput(page, 'input[placeholder="+971 XX XXX XXXX"]', '+91 22 1234 5678');
+    await fillInput(
+      page,
+      'input[placeholder="Primary contact name"]',
+      'Rajesh Kumar',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="contact@example.com"]',
+      'rajesh@asmi.com',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="+971 XX XXX XXXX"]',
+      '+91 22 1234 5678',
+    );
 
     log.info('Filled contact person details');
 
     // SECTION 3: Tax & Compliance - Should be expanded by default
-    await fillInput(page, 'input[placeholder="15 alphanumeric characters"]', 'AE123456789012345');
-    await fillInput(page, 'input[placeholder="Tax identification number"]', 'TIN123456');
-    await fillInput(page, 'input[placeholder="Trade license no."]', 'TL-2024-001');
+    await fillInput(
+      page,
+      'input[placeholder="15 alphanumeric characters"]',
+      'AE123456789012345',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="Tax identification number"]',
+      'TIN123456',
+    );
+    await fillInput(
+      page,
+      'input[placeholder="Trade license no."]',
+      'TL-2024-001',
+    );
 
     // Set trade license expiry to future date
     await page.click('input[type="date"]');
@@ -364,7 +429,11 @@ async function testFullSupplierCreation(browser) {
       log.info('Selected product forms');
     }
 
-    await fillInput(page, 'input[placeholder="e.g., 1 ton, 500 kg, 100 pcs"]', '5 tons');
+    await fillInput(
+      page,
+      'input[placeholder="e.g., 1 ton, 500 kg, 100 pcs"]',
+      '5 tons',
+    );
 
     // Check ISO certifications
     const isoCertCheckboxes = await page.$$('input[name="isocert"]');
@@ -373,7 +442,11 @@ async function testFullSupplierCreation(browser) {
       await isoCertCheckboxes[1].click(); // ISO 14001
     }
 
-    await fillInput(page, 'input[placeholder="e.g., ASME, PED, CE, etc."]', 'ASME, PED');
+    await fillInput(
+      page,
+      'input[placeholder="e.g., ASME, PED, CE, etc."]',
+      'ASME, PED',
+    );
 
     log.info('Filled steel specifications');
 
@@ -384,7 +457,11 @@ async function testFullSupplierCreation(browser) {
     await selectDropdown(page, 'Payment Terms', 'Net 30');
     await selectDropdown(page, 'Default Currency', 'USD');
     await fillInput(page, 'input[placeholder="0.00"]', '50000');
-    await fillInput(page, 'input[placeholder="Business license number"]', 'BL-2024-001');
+    await fillInput(
+      page,
+      'input[placeholder="Business license number"]',
+      'BL-2024-001',
+    );
 
     // Bank details
     await fillInput(page, 'input[placeholder="Account number"]', '1234567890');
@@ -395,8 +472,11 @@ async function testFullSupplierCreation(browser) {
     log.info('Filled financial terms');
 
     // SECTION 7: Additional Information
-    await fillInput(page, 'textarea[placeholder="Additional notes about this supplier..."]',
-      'Reliable supplier with good quality. Fast shipment from India.');
+    await fillInput(
+      page,
+      'textarea[placeholder="Additional notes about this supplier..."]',
+      'Reliable supplier with good quality. Fast shipment from India.',
+    );
 
     await checkCheckbox(page, 'input[value="is_active"]');
 
@@ -439,10 +519,18 @@ async function testVATValidation(browser) {
 
   try {
     // Required field first
-    await fillInput(page, 'input[placeholder="Enter supplier name"]', 'Test Company');
+    await fillInput(
+      page,
+      'input[placeholder="Enter supplier name"]',
+      'Test Company',
+    );
 
     // Fill invalid VAT (too short)
-    await fillInput(page, 'input[placeholder="15 alphanumeric characters"]', 'SHORT');
+    await fillInput(
+      page,
+      'input[placeholder="15 alphanumeric characters"]',
+      'SHORT',
+    );
     await submitForm(page);
     await page.waitForTimeout(300);
 
@@ -456,7 +544,10 @@ async function testVATValidation(browser) {
     // Clear and fill valid VAT
     await page.click('input[placeholder="15 alphanumeric characters"]');
     await page.keyboard.press('Control+A');
-    await page.type('input[placeholder="15 alphanumeric characters"]', 'AE123456789012345');
+    await page.type(
+      'input[placeholder="15 alphanumeric characters"]',
+      'AE123456789012345',
+    );
     await page.waitForTimeout(300);
 
     const newErrors = await getValidationErrors(page);
@@ -487,13 +578,18 @@ async function testTRNValidation(browser) {
 
   try {
     // Required field
-    await fillInput(page, 'input[placeholder="Enter supplier name"]', 'Test Company');
+    await fillInput(
+      page,
+      'input[placeholder="Enter supplier name"]',
+      'Test Company',
+    );
 
     // Find TRN input - look for the TRNInput component
     const trnInputs = await page.$$('input[type="text"]');
     const trnInput = trnInputs.find(
-      (inp) => inp && (inp.placeholder || '').includes('TRN') ||
-      (inp && (inp.value || '').match(/^\d+$/))
+      (inp) =>
+        (inp && (inp.placeholder || '').includes('TRN')) ||
+        (inp && (inp.value || '').match(/^\d+$/)),
     );
 
     if (trnInput) {
@@ -503,7 +599,11 @@ async function testTRNValidation(browser) {
       await page.waitForTimeout(300);
 
       const errors = await getValidationErrors(page);
-      if (errors.some((e) => e.includes('TRN') || e.includes('15') || e.includes('digits'))) {
+      if (
+        errors.some(
+          (e) => e.includes('TRN') || e.includes('15') || e.includes('digits'),
+        )
+      ) {
         log.success('Invalid TRN rejected');
       } else {
         log.warn('Expected TRN validation error not found');
@@ -545,7 +645,11 @@ async function testTradeLicenseExpiry(browser) {
 
   try {
     // Required field
-    await fillInput(page, 'input[placeholder="Enter supplier name"]', 'Test Company');
+    await fillInput(
+      page,
+      'input[placeholder="Enter supplier name"]',
+      'Test Company',
+    );
 
     // Set past date
     const dateInputs = await page.$$('input[type="date"]');
@@ -579,7 +683,9 @@ async function testTradeLicenseExpiry(browser) {
       await page.waitForTimeout(300);
 
       const newErrors = await getValidationErrors(page);
-      if (!newErrors.some((e) => e.includes('expired') || e.includes('Expiry'))) {
+      if (
+        !newErrors.some((e) => e.includes('expired') || e.includes('Expiry'))
+      ) {
         log.success('Future date accepted');
         await page.close();
         return true;
@@ -608,16 +714,25 @@ async function testSupplierLocationChange(browser) {
 
   try {
     // Fill required field
-    await fillInput(page, 'input[placeholder="Enter supplier name"]', 'Location Test Supplier');
+    await fillInput(
+      page,
+      'input[placeholder="Enter supplier name"]',
+      'Location Test Supplier',
+    );
 
     // Supplier Location should be expanded by default - select OVERSEAS
     await selectDropdown(page, 'Supplier Location', 'Overseas');
     await page.waitForTimeout(300);
 
     // Verify primaryCountry becomes required/enabled
-    const primaryCountryButton = await page.$('button:has-text("Primary Country")');
+    const primaryCountryButton = await page.$(
+      'button:has-text("Primary Country")',
+    );
     if (primaryCountryButton) {
-      const isDisabled = await page.evaluate((el) => el.getAttribute('disabled'), primaryCountryButton);
+      const isDisabled = await page.evaluate(
+        (el) => el.getAttribute('disabled'),
+        primaryCountryButton,
+      );
       if (isDisabled !== 'disabled') {
         log.success('Primary Country enabled for OVERSEAS');
       } else {
@@ -626,7 +741,9 @@ async function testSupplierLocationChange(browser) {
     }
 
     // Verify lead time auto-updates to 45
-    const leadTimeInput = await page.$('input[placeholder="Expected delivery days"]');
+    const leadTimeInput = await page.$(
+      'input[placeholder="Expected delivery days"]',
+    );
     if (leadTimeInput) {
       const value = await page.evaluate((el) => el.value, leadTimeInput);
       if (value === '45') {
@@ -641,9 +758,14 @@ async function testSupplierLocationChange(browser) {
     await page.waitForTimeout(300);
 
     // Verify primaryCountry becomes disabled
-    const primaryCountryButtonAfter = await page.$('button:has-text("Primary Country")');
+    const primaryCountryButtonAfter = await page.$(
+      'button:has-text("Primary Country")',
+    );
     if (primaryCountryButtonAfter) {
-      const isDisabled = await page.evaluate((el) => el.getAttribute('disabled'), primaryCountryButtonAfter);
+      const isDisabled = await page.evaluate(
+        (el) => el.getAttribute('disabled'),
+        primaryCountryButtonAfter,
+      );
       if (isDisabled === 'disabled' || isDisabled === '') {
         log.success('Primary Country disabled for UAE_LOCAL');
       } else {
@@ -652,7 +774,9 @@ async function testSupplierLocationChange(browser) {
     }
 
     // Verify lead time auto-updates to 7
-    const leadTimeInputAfter = await page.$('input[placeholder="Expected delivery days"]');
+    const leadTimeInputAfter = await page.$(
+      'input[placeholder="Expected delivery days"]',
+    );
     if (leadTimeInputAfter) {
       const value = await page.evaluate((el) => el.value, leadTimeInputAfter);
       if (value === '7') {
@@ -720,7 +844,9 @@ async function testAccordionBehavior(browser) {
       await page.close();
       return true;
     } else {
-      log.warn(`Toggle state unclear - expanded: ${expandedCount}, collapsed: ${collapsedCount}`);
+      log.warn(
+        `Toggle state unclear - expanded: ${expandedCount}, collapsed: ${collapsedCount}`,
+      );
       await page.close();
       return true; // Still pass, toggles might have worked
     }
@@ -735,10 +861,10 @@ async function testAccordionBehavior(browser) {
  * Main test runner
  */
 async function runTests() {
-  console.log('\n' + '═'.repeat(70));
+  console.log(`\n${'═'.repeat(70)}`);
   console.log('  SUPPLIER FORM E2E TEST SUITE');
   console.log('  Using Puppeteer Launch Mode (Standalone Chrome)');
-  console.log('═'.repeat(70) + '\n');
+  console.log(`${'═'.repeat(70)}\n`);
 
   let browser;
   const results = [];
@@ -752,15 +878,29 @@ async function runTests() {
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
       timeout: 30000,
     });
-    console.log(`${colors.green}✓${colors.reset} Chrome launched (PID: ${browser.process()?.pid})\n`);
+    console.log(
+      `${colors.green}✓${colors.reset} Chrome launched (PID: ${browser.process()?.pid})\n`,
+    );
 
     // Run test suites
-    results.push(['Basic Supplier Creation', await testBasicSupplierCreation(browser)]);
-    results.push(['Full Supplier Creation', await testFullSupplierCreation(browser)]);
+    results.push([
+      'Basic Supplier Creation',
+      await testBasicSupplierCreation(browser),
+    ]);
+    results.push([
+      'Full Supplier Creation',
+      await testFullSupplierCreation(browser),
+    ]);
     results.push(['VAT Number Validation', await testVATValidation(browser)]);
     results.push(['TRN Number Validation', await testTRNValidation(browser)]);
-    results.push(['Trade License Expiry', await testTradeLicenseExpiry(browser)]);
-    results.push(['Supplier Location Change', await testSupplierLocationChange(browser)]);
+    results.push([
+      'Trade License Expiry',
+      await testTradeLicenseExpiry(browser),
+    ]);
+    results.push([
+      'Supplier Location Change',
+      await testSupplierLocationChange(browser),
+    ]);
     results.push(['Accordion Behavior', await testAccordionBehavior(browser)]);
 
     // Close browser
@@ -770,21 +910,25 @@ async function runTests() {
     // Print summary
     console.log('═'.repeat(70));
     console.log('  TEST RESULTS SUMMARY');
-    console.log('═'.repeat(70) + '\n');
+    console.log(`${'═'.repeat(70)}\n`);
 
     let passed = 0;
     let failed = 0;
 
     results.forEach(([name, result]) => {
-      const status = result ? `${colors.green}PASS${colors.reset}` : `${colors.red}FAIL${colors.reset}`;
+      const status = result
+        ? `${colors.green}PASS${colors.reset}`
+        : `${colors.red}FAIL${colors.reset}`;
       console.log(`${status}  ${name}`);
       if (result) passed++;
       else failed++;
     });
 
-    console.log('\n' + '─'.repeat(70));
-    console.log(`${colors.green}Passed: ${passed}${colors.reset} | ${colors.red}Failed: ${failed}${colors.reset} | Total: ${results.length}`);
-    console.log('─'.repeat(70) + '\n');
+    console.log(`\n${'─'.repeat(70)}`);
+    console.log(
+      `${colors.green}Passed: ${passed}${colors.reset} | ${colors.red}Failed: ${failed}${colors.reset} | Total: ${results.length}`,
+    );
+    console.log(`${'─'.repeat(70)}\n`);
 
     // Exit with appropriate code
     process.exit(failed > 0 ? 1 : 0);

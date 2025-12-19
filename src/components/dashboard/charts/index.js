@@ -11,7 +11,7 @@ export {
   RadarChartWrapper,
   DonutChartWrapper,
   getThemeColors as getRechartsThemeColors,
-} from "./RechartsWrapper";
+} from './RechartsWrapper';
 
 // ECharts wrappers - for specialized chart types
 export {
@@ -22,7 +22,7 @@ export {
   FunnelChartWrapper,
   HeatmapChartWrapper,
   getThemeColors as getEChartsThemeColors,
-} from "./EChartsWrapper";
+} from './EChartsWrapper';
 
 // ============================================================================
 // CHART TYPE MAPPING

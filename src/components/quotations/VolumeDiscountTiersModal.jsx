@@ -2,7 +2,12 @@ import { useState } from "react";
 import { X, Plus, Trash2 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 
-export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSave }) {
+export default function VolumeDiscountTiersModal({
+  isOpen,
+  onClose,
+  tiers,
+  onSave,
+}) {
   const { isDarkMode } = useTheme();
   const [localTiers, setLocalTiers] = useState(tiers || []);
 
@@ -36,7 +41,10 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose} />
+        <div
+          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          onClick={onClose}
+        />
 
         <div
           className={`inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full ${
@@ -58,9 +66,11 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
               </button>
             </div>
 
-            <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-              Define pricing breaks based on order quantity. Customers will see these tiers on the
-              quotation.
+            <p
+              className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
+              Define pricing breaks based on order quantity. Customers will see
+              these tiers on the quotation.
             </p>
 
             <div className="space-y-3 mb-4">
@@ -68,7 +78,9 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
                 <div
                   key={index}
                   className={`flex gap-3 items-start p-3 rounded-lg border ${
-                    isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-200 bg-gray-50"
+                    isDarkMode
+                      ? "border-gray-600 bg-gray-700"
+                      : "border-gray-200 bg-gray-50"
                   }`}
                 >
                   <div className="flex-1 grid grid-cols-3 gap-3">
@@ -84,7 +96,11 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
                         type="number"
                         value={tier.minQuantity}
                         onChange={(e) =>
-                          updateTier(index, "minQuantity", parseFloat(e.target.value) || 0)
+                          updateTier(
+                            index,
+                            "minQuantity",
+                            parseFloat(e.target.value) || 0,
+                          )
                         }
                         className={`w-full px-2 py-1 text-sm rounded border ${
                           isDarkMode
@@ -107,7 +123,11 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
                         step="0.1"
                         value={tier.discountPercentage}
                         onChange={(e) =>
-                          updateTier(index, "discountPercentage", parseFloat(e.target.value) || 0)
+                          updateTier(
+                            index,
+                            "discountPercentage",
+                            parseFloat(e.target.value) || 0,
+                          )
                         }
                         className={`w-full px-2 py-1 text-sm rounded border ${
                           isDarkMode
@@ -128,7 +148,9 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
                       <input
                         type="text"
                         value={tier.description}
-                        onChange={(e) => updateTier(index, "description", e.target.value)}
+                        onChange={(e) =>
+                          updateTier(index, "description", e.target.value)
+                        }
                         className={`w-full px-2 py-1 text-sm rounded border ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white"
@@ -159,7 +181,9 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
 
           <div
             className={`px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t ${
-              isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
+              isDarkMode
+                ? "bg-gray-700 border-gray-600"
+                : "bg-gray-50 border-gray-200"
             }`}
           >
             <button

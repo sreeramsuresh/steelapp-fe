@@ -134,7 +134,7 @@ const AdvancePaymentForm = () => {
     applyToInvoiceId: null,
     // Phase 2c: Multi-Currency fields
     currency: "AED",
-    exchangeRate: 1.0000,
+    exchangeRate: 1.0,
     amountInBaseCurrency: null, // Auto-calculated by trigger, read-only
     // Phase 2c: Bank Details
     bankName: "",
@@ -814,7 +814,8 @@ const AdvancePaymentForm = () => {
                           setPayment((prev) => ({
                             ...prev,
                             currency: value,
-                            exchangeRate: value === "AED" ? 1.0 : prev.exchangeRate,
+                            exchangeRate:
+                              value === "AED" ? 1.0 : prev.exchangeRate,
                           }))
                         }
                         showValidation={false}
@@ -854,7 +855,9 @@ const AdvancePaymentForm = () => {
                     {payment.currency !== "AED" &&
                       payment.amountInBaseCurrency !== null && (
                         <div className="col-span-6">
-                          <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          <label
+                            className={`block text-xs ${textMuted} mb-1.5`}
+                          >
                             Amount in AED (Calculated)
                           </label>
                           <input
@@ -992,7 +995,9 @@ const AdvancePaymentForm = () => {
                     {payment.approvedBy && (
                       <>
                         <div className="col-span-6">
-                          <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          <label
+                            className={`block text-xs ${textMuted} mb-1.5`}
+                          >
                             Approved By
                           </label>
                           <input
@@ -1003,16 +1008,16 @@ const AdvancePaymentForm = () => {
                           />
                         </div>
                         <div className="col-span-6">
-                          <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          <label
+                            className={`block text-xs ${textMuted} mb-1.5`}
+                          >
                             Approved At
                           </label>
                           <input
                             type="text"
                             value={
                               payment.approvedAt
-                                ? new Date(
-                                    payment.approvedAt,
-                                  ).toLocaleString()
+                                ? new Date(payment.approvedAt).toLocaleString()
                                 : ""
                             }
                             readOnly
@@ -1365,7 +1370,8 @@ const AdvancePaymentForm = () => {
                             onChange={(e) =>
                               setPayment((prev) => ({
                                 ...prev,
-                                refundAmount: parseFloat(e.target.value) || null,
+                                refundAmount:
+                                  parseFloat(e.target.value) || null,
                               }))
                             }
                             placeholder="0.00"

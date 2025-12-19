@@ -56,12 +56,14 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
     });
 
     it('should fail validation if product is null', () => {
-      expect(() => assertProductDomain(null)).toThrow(/Product is null or not an object/);
+      expect(() => assertProductDomain(null)).toThrow(
+        /Product is null or not an object/,
+      );
     });
 
     it('should fail validation if product is not an object', () => {
       expect(() => assertProductDomain('not an object')).toThrow(
-        /Product is null or not an object/
+        /Product is null or not an object/,
       );
     });
 
@@ -72,7 +74,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unitWeightKg: 46.5,
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/Product ID is required/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /Product ID is required/,
+      );
     });
 
     it('should fail validation if name is missing or empty', () => {
@@ -82,7 +86,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unitWeightKg: 46.5,
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/name must be a non-empty string/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /name must be a non-empty string/,
+      );
     });
 
     it('should fail validation if name is not a string', () => {
@@ -92,7 +98,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unitWeightKg: 46.5,
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/name must be a non-empty string/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /name must be a non-empty string/,
+      );
     });
 
     it('should fail validation if unitWeightKg is not a number', () => {
@@ -102,7 +110,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unitWeightKg: '46.5', // String instead of number
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/unitWeightKg must be a finite/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /unitWeightKg must be a finite/,
+      );
     });
 
     it('should fail validation if unitWeightKg is NaN', () => {
@@ -112,7 +122,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unitWeightKg: NaN,
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/unitWeightKg must be a finite/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /unitWeightKg must be a finite/,
+      );
     });
 
     it('should fail validation if unitWeightKg is Infinity', () => {
@@ -122,7 +134,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unitWeightKg: Infinity,
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/unitWeightKg must be a finite/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /unitWeightKg must be a finite/,
+      );
     });
 
     it('should fail validation if unitWeightKg is negative', () => {
@@ -132,7 +146,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unitWeightKg: -46.5,
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/unitWeightKg must be a finite non-negative/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /unitWeightKg must be a finite non-negative/,
+      );
     });
 
     it('should fail validation if piecesPerMt is not positive', () => {
@@ -142,7 +158,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         piecesPerMt: 0, // Must be > 0
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/piecesPerMt must be a finite positive/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /piecesPerMt must be a finite positive/,
+      );
     });
 
     it('should fail validation if piecesPerMt is negative', () => {
@@ -152,7 +170,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         piecesPerMt: -21.51,
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/piecesPerMt must be a finite positive/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /piecesPerMt must be a finite positive/,
+      );
     });
 
     it('should pass validation if optional numeric fields are null', () => {
@@ -186,7 +206,9 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         primaryUom: 123, // Number instead of string
       };
 
-      expect(() => assertProductDomain(invalidProduct)).toThrow(/primaryUom must be a string/);
+      expect(() => assertProductDomain(invalidProduct)).toThrow(
+        /primaryUom must be a string/,
+      );
     });
 
     it('should pass validation if primaryUom is a string', () => {
@@ -209,8 +231,12 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unit_weight_kg: 46.5, // Normalization leak!
       };
 
-      expect(() => assertProductDomain(leakedProduct)).toThrow(/Normalization leak detected/);
-      expect(() => assertProductDomain(leakedProduct)).toThrow(/unit_weight_kg/);
+      expect(() => assertProductDomain(leakedProduct)).toThrow(
+        /Normalization leak detected/,
+      );
+      expect(() => assertProductDomain(leakedProduct)).toThrow(
+        /unit_weight_kg/,
+      );
     });
 
     it('should detect all forbidden snake_case keys', () => {
@@ -228,10 +254,16 @@ describe('Product Domain Contract Guard (GUARD #2)', () => {
         unique_name: 'Unique',
       };
 
-      expect(() => assertProductDomain(leakedProduct)).toThrow(/Normalization leak detected/);
-      expect(() => assertProductDomain(leakedProduct)).toThrow(/unit_weight_kg/);
+      expect(() => assertProductDomain(leakedProduct)).toThrow(
+        /Normalization leak detected/,
+      );
+      expect(() => assertProductDomain(leakedProduct)).toThrow(
+        /unit_weight_kg/,
+      );
       expect(() => assertProductDomain(leakedProduct)).toThrow(/pieces_per_mt/);
-      expect(() => assertProductDomain(leakedProduct)).toThrow(/product_category/);
+      expect(() => assertProductDomain(leakedProduct)).toThrow(
+        /product_category/,
+      );
     });
 
     it('should pass validation if only camelCase keys are present (no leak)', () => {

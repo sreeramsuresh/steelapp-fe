@@ -81,23 +81,27 @@ async function runAllTests() {
   const duration = ((endTime - startTime) / 1000).toFixed(2);
 
   // Print summary
-  console.log('\n' + '='.repeat(70));
+  console.log(`\n${'='.repeat(70)}`);
   console.log('FINAL SUMMARY - ALL FORM TESTS');
   console.log('='.repeat(70));
 
-  const passed = results.filter(r => r.success).length;
-  const failed = results.filter(r => !r.success).length;
+  const passed = results.filter((r) => r.success).length;
+  const failed = results.filter((r) => !r.success).length;
 
   console.log(`\n✓ Passed: ${passed}/${TESTS.length}`);
-  results.filter(r => r.success).forEach(r => {
-    console.log(`  ✓ ${r.name}`);
-  });
+  results
+    .filter((r) => r.success)
+    .forEach((r) => {
+      console.log(`  ✓ ${r.name}`);
+    });
 
   if (failed > 0) {
     console.log(`\n✗ Failed: ${failed}/${TESTS.length}`);
-    results.filter(r => !r.success).forEach(r => {
-      console.log(`  ✗ ${r.name} (Exit code: ${r.exitCode || 'N/A'})`);
-    });
+    results
+      .filter((r) => !r.success)
+      .forEach((r) => {
+        console.log(`  ✗ ${r.name} (Exit code: ${r.exitCode || 'N/A'})`);
+      });
   }
 
   console.log(`\n⏱ Total duration: ${duration}s`);
@@ -123,7 +127,7 @@ async function runAllTests() {
 }
 
 // Run all tests
-runAllTests().catch(error => {
+runAllTests().catch((error) => {
   console.error('Fatal error running test suite:', error);
   process.exit(1);
 });

@@ -18,6 +18,7 @@ tests/e2e/
 ### 1. Prerequisites
 
 Ensure services are running:
+
 - Frontend: `npm run dev` on `http://localhost:5173`
 - Backend: Running on `http://localhost:3000`
 - Database: PostgreSQL on `localhost:5432`
@@ -48,6 +49,7 @@ npm run test:e2e:puppeteer
 Comprehensive E2E test suite for the SupplierForm component.
 
 **Test Suites:**
+
 1. Basic Supplier Creation (5 fields)
 2. Full Supplier Creation (30+ fields)
 3. VAT Number Validation
@@ -65,6 +67,7 @@ Comprehensive E2E test suite for the SupplierForm component.
 ### puppeteer-utils.js
 
 Reusable utilities for writing E2E tests. Provides common functions for:
+
 - Form interaction (fill, select, check)
 - Validation (errors, success)
 - Navigation and loading
@@ -80,16 +83,18 @@ import {
   checkCheckbox,
   submitForm,
   getValidationErrors,
-  log
-} from './puppeteer-utils.js';
+  log,
+} from "./puppeteer-utils.js";
 
 async function myTest(browser) {
   const page = await browser.newPage();
-  await page.goto('http://localhost:5173/suppliers/new', { waitUntil: 'networkidle2' });
+  await page.goto("http://localhost:5173/suppliers/new", {
+    waitUntil: "networkidle2",
+  });
 
   // Fill form
-  await fillInput(page, 'input[placeholder="Name"]', 'My Supplier');
-  await selectDropdown(page, 'Category', 'Stainless Steel');
+  await fillInput(page, 'input[placeholder="Name"]', "My Supplier");
+  await selectDropdown(page, "Category", "Stainless Steel");
   await checkCheckbox(page, 'input[value="mtc"]');
 
   // Submit and check
@@ -97,9 +102,9 @@ async function myTest(browser) {
   const errors = await getValidationErrors(page);
 
   if (errors.length === 0) {
-    log.success('Form submitted successfully');
+    log.success("Form submitted successfully");
   } else {
-    log.error(`Validation errors: ${errors.join(', ')}`);
+    log.error(`Validation errors: ${errors.join(", ")}`);
   }
 
   await page.close();
@@ -109,6 +114,7 @@ async function myTest(browser) {
 ## Available Utilities
 
 ### Logging
+
 - `log.success(msg)` - Green checkmark
 - `log.error(msg)` - Red X
 - `log.info(msg)` - Blue info
@@ -117,6 +123,7 @@ async function myTest(browser) {
 - `log.debug(msg)` - Gray debug
 
 ### Form Interactions
+
 - `fillInput(page, selector, value, options)`
 - `fillInputs(page, fields)` - Fill multiple at once
 - `getInputValue(page, selector)`
@@ -130,12 +137,14 @@ async function myTest(browser) {
 - `uploadFile(page, selector, filePath)`
 
 ### Validation & Errors
+
 - `getValidationErrors(page)`
 - `hasError(page, errorPattern)`
 - `submitForm(page, waitAfter)`
 - `waitForNavigation(page, expectedPath, timeout)`
 
 ### UI Helpers
+
 - `waitForElement(page, selector, timeout)`
 - `waitForVisible(page, selector, timeout)`
 - `waitForText(page, text, timeout)`
@@ -145,6 +154,7 @@ async function myTest(browser) {
 - `findByText(page, text, selector)`
 
 ### Debugging
+
 - `takeScreenshot(page, path, fullPage)`
 - `getPageContent(page)`
 - `getElementBounds(page, selector)`
@@ -153,6 +163,7 @@ async function myTest(browser) {
 - `captureRequests(page, pattern)`
 
 ### Utilities
+
 - `delay(ms)` - Wait utility
 - `logTestResult(testName, passed, message)` - Formatted result output
 
@@ -163,7 +174,7 @@ async function myTest(browser) {
 ```javascript
 #!/usr/bin/env node
 
-import puppeteer from 'puppeteer';
+import puppeteer from "puppeteer";
 import {
   log,
   fillInput,
@@ -171,30 +182,34 @@ import {
   submitForm,
   getValidationErrors,
   takeScreenshot,
-} from './puppeteer-utils.js';
+} from "./puppeteer-utils.js";
 
-const CHROME_EXECUTABLE = '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome';
-const BASE_URL = 'http://localhost:5173';
+const CHROME_EXECUTABLE =
+  "/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome";
+const BASE_URL = "http://localhost:5173";
 
 async function testMyFeature(browser) {
-  log.test('MY FEATURE TEST');
+  log.test("MY FEATURE TEST");
 
   const page = await browser.newPage();
-  await page.goto(`${BASE_URL}/my-page`, { waitUntil: 'networkidle2', timeout: 10000 });
+  await page.goto(`${BASE_URL}/my-page`, {
+    waitUntil: "networkidle2",
+    timeout: 10000,
+  });
 
   try {
     // Test logic here
-    await fillInput(page, 'input[name="field"]', 'value');
+    await fillInput(page, 'input[name="field"]', "value");
     await submitForm(page);
 
     const errors = await getValidationErrors(page);
     if (errors.length === 0) {
-      log.success('Test passed');
+      log.success("Test passed");
       await page.close();
       return true;
     } else {
-      log.error(`Test failed: ${errors.join(', ')}`);
-      await takeScreenshot(page, '/tmp/failure.png');
+      log.error(`Test failed: ${errors.join(", ")}`);
+      await takeScreenshot(page, "/tmp/failure.png");
       await page.close();
       return false;
     }
@@ -210,28 +225,28 @@ async function runTests() {
   let browser;
 
   try {
-    console.log('\n' + '═'.repeat(70));
-    console.log('  MY TEST SUITE');
-    console.log('═'.repeat(70) + '\n');
+    console.log("\n" + "═".repeat(70));
+    console.log("  MY TEST SUITE");
+    console.log("═".repeat(70) + "\n");
 
     browser = await puppeteer.launch({
       headless: true,
       executablePath: CHROME_EXECUTABLE,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
-    results.push(['My Feature', await testMyFeature(browser)]);
+    results.push(["My Feature", await testMyFeature(browser)]);
 
     await browser.close();
 
     // Print summary
-    console.log('\n' + '═'.repeat(70));
-    console.log('  SUMMARY');
-    console.log('═'.repeat(70) + '\n');
+    console.log("\n" + "═".repeat(70));
+    console.log("  SUMMARY");
+    console.log("═".repeat(70) + "\n");
 
     let passed = 0;
     results.forEach(([name, result]) => {
-      const status = result ? '✓ PASS' : '✗ FAIL';
+      const status = result ? "✓ PASS" : "✗ FAIL";
       console.log(`${status}  ${name}`);
       if (result) passed++;
     });
@@ -256,19 +271,22 @@ runTests();
    - etc.
 
 2. **Use descriptive test names**
+
    ```javascript
-   log.test('SUPPLIER FORM - BASIC CREATION WITH VALIDATION');
+   log.test("SUPPLIER FORM - BASIC CREATION WITH VALIDATION");
    ```
 
 3. **Fail fast, report clearly**
+
    ```javascript
-   if (!await fillInput(page, selector, value)) {
-     log.error('Failed to fill field, stopping test');
+   if (!(await fillInput(page, selector, value))) {
+     log.error("Failed to fill field, stopping test");
      return false;
    }
    ```
 
 4. **Always close pages**
+
    ```javascript
    try {
      // Test code
@@ -278,6 +296,7 @@ runTests();
    ```
 
 5. **Use helper functions**
+
    ```javascript
    // Good
    await fillInput(page, selector, value);
@@ -290,7 +309,7 @@ runTests();
 6. **Provide context on failure**
    ```javascript
    const errors = await getValidationErrors(page);
-   log.error(`Validation failed: ${errors.join(', ')}`);
+   log.error(`Validation failed: ${errors.join(", ")}`);
    await takeScreenshot(page, `/tmp/debug-${Date.now()}.png`);
    ```
 
@@ -299,8 +318,8 @@ runTests();
 ### Enable Verbose Logging
 
 ```javascript
-page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-page.on('error', err => console.log('PAGE ERROR:', err));
+page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
+page.on("error", (err) => console.log("PAGE ERROR:", err));
 ```
 
 ### Take Debugging Screenshots
@@ -319,7 +338,7 @@ console.log(content);
 ### Check Network Requests
 
 ```javascript
-page.on('response', response => {
+page.on("response", (response) => {
   if (response.status() >= 400) {
     console.log(`ERROR ${response.status()}: ${response.url()}`);
   }
@@ -329,9 +348,10 @@ page.on('response', response => {
 ### Use Interactive Browser
 
 Convert a test to use `connect` mode to debug manually:
+
 ```javascript
 const browser = await puppeteer.connect({
-  browserURL: 'http://localhost:9222'
+  browserURL: "http://localhost:9222",
 });
 // Now test in real-time in your Chrome browser
 ```
@@ -350,6 +370,7 @@ Add to `package.json`:
 ```
 
 Then run:
+
 ```bash
 npm run test:e2e:puppeteer
 ```
@@ -357,40 +378,49 @@ npm run test:e2e:puppeteer
 ## Troubleshooting
 
 ### "Chrome executable not found"
+
 ```bash
 npx @puppeteer/browsers install chromium@latest --platform=linux
 ```
 
 ### "Cannot connect to localhost:5173"
+
 Start the frontend dev server:
+
 ```bash
 npm run dev
 ```
 
 ### "Form fields not found"
+
 1. Check if selectors match actual form HTML
 2. Inspect the page with DevTools
 3. Update selectors in test
 
 ### "Element not visible"
+
 Use `waitForVisible` instead of `waitForElement`:
+
 ```javascript
 await waitForVisible(page, selector);
 ```
 
 ### "Dropdown not working"
+
 The dropdown might be using different HTML structure. Inspect it:
+
 ```javascript
-const buttons = await page.$$('button');
+const buttons = await page.$$("button");
 for (const btn of buttons) {
-  const text = await page.evaluate(el => el.textContent, btn);
-  console.log('Button:', text);
+  const text = await page.evaluate((el) => el.textContent, btn);
+  console.log("Button:", text);
 }
 ```
 
 ## Performance
 
 Typical execution times:
+
 - Chrome startup: 3 seconds
 - Page navigation: 1-2 seconds
 - Form operations: 0.5 seconds per field
@@ -406,6 +436,7 @@ See `SUPPLIER_FORM_TESTS.md` for GitHub Actions example.
 ## Future Tests
 
 Planned test suites:
+
 - [ ] Invoice creation and validation
 - [ ] GRN (Goods Received Note) workflow
 - [ ] Stock transfers between warehouses
@@ -418,6 +449,7 @@ Planned test suites:
 ## Support
 
 For help:
+
 1. Check test file documentation
 2. Review puppeteer-utils.js source
 3. Check Puppeteer official docs: https://pptr.dev

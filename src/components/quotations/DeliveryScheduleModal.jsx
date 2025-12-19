@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { X, Plus, Trash2, Calendar, AlertCircle } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 
-export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQuantity, onSave }) {
+export default function DeliveryScheduleModal({
+  isOpen,
+  onClose,
+  schedule,
+  lineQuantity,
+  onSave,
+}) {
   const { isDarkMode } = useTheme();
   const [localSchedule, setLocalSchedule] = useState(schedule || []);
   const [validationError, setValidationError] = useState("");
@@ -15,10 +21,7 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
   }, [isOpen, schedule]);
 
   const addScheduleEntry = () => {
-    setLocalSchedule([
-      ...localSchedule,
-      { date: "", quantity: 0, notes: "" },
-    ]);
+    setLocalSchedule([...localSchedule, { date: "", quantity: 0, notes: "" }]);
   };
 
   const removeScheduleEntry = (index) => {
@@ -38,12 +41,12 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
 
     const totalScheduledQty = localSchedule.reduce(
       (sum, entry) => sum + (parseFloat(entry.quantity) || 0),
-      0
+      0,
     );
 
     if (Math.abs(totalScheduledQty - lineQuantity) > 0.01) {
       setValidationError(
-        `Total scheduled quantity (${totalScheduledQty.toFixed(2)}) must match line quantity (${lineQuantity.toFixed(2)})`
+        `Total scheduled quantity (${totalScheduledQty.toFixed(2)}) must match line quantity (${lineQuantity.toFixed(2)})`,
       );
       return false;
     }
@@ -73,7 +76,7 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
 
   const totalScheduledQty = localSchedule.reduce(
     (sum, entry) => sum + (parseFloat(entry.quantity) || 0),
-    0
+    0,
   );
   const remainingQty = lineQuantity - totalScheduledQty;
 
@@ -82,7 +85,10 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose} />
+        <div
+          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          onClick={onClose}
+        />
 
         <div
           className={`inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full ${
@@ -101,8 +107,11 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                   >
                     Delivery Schedule
                   </h3>
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    Plan phased deliveries for line quantity: {lineQuantity} units
+                  <p
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Plan phased deliveries for line quantity: {lineQuantity}{" "}
+                    units
                   </p>
                 </div>
               </div>
@@ -121,15 +130,21 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
               </div>
             )}
 
-            <div className={`p-3 mb-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-blue-50"}`}>
+            <div
+              className={`p-3 mb-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-blue-50"}`}
+            >
               <div className="flex justify-between items-center text-sm">
-                <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+                <span
+                  className={isDarkMode ? "text-gray-300" : "text-gray-700"}
+                >
                   Line Quantity:
                 </span>
                 <span className="font-semibold">{lineQuantity} units</span>
               </div>
               <div className="flex justify-between items-center text-sm mt-1">
-                <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+                <span
+                  className={isDarkMode ? "text-gray-300" : "text-gray-700"}
+                >
                   Total Scheduled:
                 </span>
                 <span
@@ -143,7 +158,11 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm mt-1">
-                <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>Remaining:</span>
+                <span
+                  className={isDarkMode ? "text-gray-300" : "text-gray-700"}
+                >
+                  Remaining:
+                </span>
                 <span
                   className={`font-semibold ${
                     Math.abs(remainingQty) < 0.01
@@ -163,7 +182,9 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                 <div
                   key={index}
                   className={`p-3 rounded-lg border ${
-                    isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-200 bg-gray-50"
+                    isDarkMode
+                      ? "border-gray-600 bg-gray-700"
+                      : "border-gray-200 bg-gray-50"
                   }`}
                 >
                   <div className="flex gap-3">
@@ -179,7 +200,9 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                         <input
                           type="date"
                           value={entry.date}
-                          onChange={(e) => updateScheduleEntry(index, "date", e.target.value)}
+                          onChange={(e) =>
+                            updateScheduleEntry(index, "date", e.target.value)
+                          }
                           className={`w-full px-2 py-1.5 text-sm rounded border ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
@@ -200,7 +223,11 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                           step="0.01"
                           value={entry.quantity}
                           onChange={(e) =>
-                            updateScheduleEntry(index, "quantity", parseFloat(e.target.value) || 0)
+                            updateScheduleEntry(
+                              index,
+                              "quantity",
+                              parseFloat(e.target.value) || 0,
+                            )
                           }
                           className={`w-full px-2 py-1.5 text-sm rounded border ${
                             isDarkMode
@@ -221,7 +248,9 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                         <input
                           type="text"
                           value={entry.notes}
-                          onChange={(e) => updateScheduleEntry(index, "notes", e.target.value)}
+                          onChange={(e) =>
+                            updateScheduleEntry(index, "notes", e.target.value)
+                          }
                           className={`w-full px-2 py-1.5 text-sm rounded border ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
@@ -253,7 +282,9 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
 
           <div
             className={`px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t ${
-              isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
+              isDarkMode
+                ? "bg-gray-700 border-gray-600"
+                : "bg-gray-50 border-gray-200"
             }`}
           >
             <button

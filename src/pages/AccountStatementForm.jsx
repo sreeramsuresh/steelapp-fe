@@ -211,7 +211,9 @@ const AccountStatementForm = () => {
               placeholder="Select format"
             >
               <SelectItem value="SUMMARY">Summary (Totals Only)</SelectItem>
-              <SelectItem value="DETAILED">Detailed (All Transactions)</SelectItem>
+              <SelectItem value="DETAILED">
+                Detailed (All Transactions)
+              </SelectItem>
               <SelectItem value="AGED">Aged (Aging Buckets)</SelectItem>
             </FormSelect>
           </div>

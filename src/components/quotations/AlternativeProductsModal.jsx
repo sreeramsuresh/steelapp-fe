@@ -3,9 +3,17 @@ import { X, Plus, Trash2, Search, AlertCircle } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { productsAPI } from "../../services/api";
 
-export default function AlternativeProductsModal({ isOpen, onClose, alternatives, onSave, currentProductId }) {
+export default function AlternativeProductsModal({
+  isOpen,
+  onClose,
+  alternatives,
+  onSave,
+  currentProductId,
+}) {
   const { isDarkMode } = useTheme();
-  const [localAlternatives, setLocalAlternatives] = useState(alternatives || []);
+  const [localAlternatives, setLocalAlternatives] = useState(
+    alternatives || [],
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -25,10 +33,15 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
 
     setSearching(true);
     try {
-      const response = await productsAPI.list({ search: searchQuery, limit: 20 });
+      const response = await productsAPI.list({
+        search: searchQuery,
+        limit: 20,
+      });
       // Filter out current product and already added alternatives
       const filtered = (response.data.products || []).filter(
-        (p) => p.id !== currentProductId && !localAlternatives.some((alt) => alt.productId === p.id)
+        (p) =>
+          p.id !== currentProductId &&
+          !localAlternatives.some((alt) => alt.productId === p.id),
       );
       setSearchResults(filtered);
     } catch (err) {
@@ -79,7 +92,10 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose} />
+        <div
+          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          onClick={onClose}
+        />
 
         <div
           className={`inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full ${
@@ -94,7 +110,9 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                 >
                   Alternative Products
                 </h3>
-                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <p
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   Add up to 3 substitute products if primary is unavailable
                 </p>
               </div>
@@ -151,7 +169,9 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                 {searchResults.length > 0 && (
                   <div
                     className={`mt-2 max-h-48 overflow-y-auto rounded-lg border ${
-                      isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-200 bg-white"
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700"
+                        : "border-gray-200 bg-white"
                     }`}
                   >
                     {searchResults.map((product) => (
@@ -162,10 +182,14 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                           isDarkMode ? "hover:bg-gray-600" : ""
                         } border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"} last:border-0`}
                       >
-                        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        <div
+                          className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        >
                           {product.name}
                         </div>
-                        <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        <div
+                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        >
                           {product.specifications}
                         </div>
                       </button>
@@ -181,7 +205,9 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                 <div
                   key={index}
                   className={`p-3 rounded-lg border ${
-                    isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-200 bg-gray-50"
+                    isDarkMode
+                      ? "border-gray-600 bg-gray-700"
+                      : "border-gray-200 bg-gray-50"
                   }`}
                 >
                   <div className="flex gap-3">
@@ -219,7 +245,11 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                             step="0.1"
                             value={alt.priceDifference}
                             onChange={(e) =>
-                              updateAlternative(index, "priceDifference", parseFloat(e.target.value) || 0)
+                              updateAlternative(
+                                index,
+                                "priceDifference",
+                                parseFloat(e.target.value) || 0,
+                              )
                             }
                             className={`w-full px-2 py-1.5 text-sm rounded border ${
                               isDarkMode
@@ -228,7 +258,9 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                             }`}
                             placeholder="0"
                           />
-                          <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <p
+                            className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
                             {alt.priceDifference > 0 ? "+" : ""}
                             {alt.priceDifference}% vs. primary
                           </p>
@@ -244,7 +276,9 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                           <input
                             type="text"
                             value={alt.notes}
-                            onChange={(e) => updateAlternative(index, "notes", e.target.value)}
+                            onChange={(e) =>
+                              updateAlternative(index, "notes", e.target.value)
+                            }
                             className={`w-full px-2 py-1.5 text-sm rounded border ${
                               isDarkMode
                                 ? "bg-gray-800 border-gray-600 text-white"
@@ -267,8 +301,11 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
 
               {localAlternatives.length === 0 && (
                 <div className="text-center py-8">
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    No alternative products added yet. Search and add up to 3 alternatives.
+                  <p
+                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    No alternative products added yet. Search and add up to 3
+                    alternatives.
                   </p>
                 </div>
               )}
@@ -277,7 +314,9 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
 
           <div
             className={`px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t ${
-              isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
+              isDarkMode
+                ? "bg-gray-700 border-gray-600"
+                : "bg-gray-50 border-gray-200"
             }`}
           >
             <button

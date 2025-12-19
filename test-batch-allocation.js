@@ -7,7 +7,7 @@
 import puppeteer from 'puppeteer';
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function runTest() {
@@ -17,7 +17,8 @@ async function runTest() {
   // Launch Chrome - NO port 9222 needed!
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
+    executablePath:
+      '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
@@ -30,20 +31,25 @@ async function runTest() {
   try {
     // Navigate to invoice form
     console.log('\n📋 Step 1: Navigate to invoice form');
-    await page.goto('http://localhost:5173/create-invoice', { waitUntil: 'networkidle2' });
+    await page.goto('http://localhost:5173/create-invoice', {
+      waitUntil: 'networkidle2',
+    });
     console.log('✓ Page loaded');
 
     // Fill customer
     console.log('\n👤 Step 2: Select customer ABC Corporation');
     await page.waitForSelector('input[placeholder*="Search customers"]');
-    await page.type('input[placeholder*="Search customers"]', 'ABC Corporation');
+    await page.type(
+      'input[placeholder*="Search customers"]',
+      'ABC Corporation',
+    );
     await sleep(1000);
 
     // Click on customer option
     await page.evaluate(() => {
-      const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('Abc Corporation'),
-      );
+      const option = Array.from(
+        document.querySelectorAll('[role="option"]'),
+      ).find((el) => el.textContent.includes('Abc Corporation'));
       if (option) option.click();
     });
     await sleep(1000);
@@ -55,7 +61,9 @@ async function runTest() {
       const select = document.querySelector('select[id*="select"]');
       if (select) {
         const options = Array.from(select.options);
-        const finalTaxOption = options.find(opt => opt.textContent.includes('Final Tax Invoice'));
+        const finalTaxOption = options.find((opt) =>
+          opt.textContent.includes('Final Tax Invoice'),
+        );
         if (finalTaxOption) {
           select.value = finalTaxOption.value;
           select.dispatchEvent(new Event('change', { bubbles: true }));
@@ -66,7 +74,9 @@ async function runTest() {
     console.log('✓ Invoice status set');
 
     // Search for product in drawer
-    console.log('\n🔍 Step 4: Search for product SS-304-Bar-BRIGHT-25mm-6000mm');
+    console.log(
+      '\n🔍 Step 4: Search for product SS-304-Bar-BRIGHT-25mm-6000mm',
+    );
     await page.waitForSelector('#product-search');
     await page.type('#product-search', 'SS-304-Bar-BRIGHT');
     await sleep(1500);
@@ -75,21 +85,29 @@ async function runTest() {
     // Select product
     console.log('\n✅ Step 5: Select product from dropdown');
     await page.evaluate(() => {
-      const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm'),
-      );
+      const option = Array.from(
+        document.querySelectorAll('[role="option"]'),
+      ).find((el) => el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm'));
       if (option) option.click();
     });
     await sleep(2000);
     console.log('✓ Product selected');
 
     // CHECK 1: Look for stale error after product selection
-    console.log('\n🧪 TEST 1: Check for stale reservation error (should NOT appear)');
+    console.log(
+      '\n🧪 TEST 1: Check for stale reservation error (should NOT appear)',
+    );
     const errorAfterFirstProduct = await page.evaluate(() => {
-      const errorDivs = Array.from(document.querySelectorAll('.drawer-error, .panel-error, [class*="error"]'));
+      const errorDivs = Array.from(
+        document.querySelectorAll(
+          '.drawer-error, .panel-error, [class*="error"]',
+        ),
+      );
       const errors = errorDivs
-        .map(div => div.textContent.trim())
-        .filter(text => text.includes('required') || text.includes('Missing'));
+        .map((div) => div.textContent.trim())
+        .filter(
+          (text) => text.includes('required') || text.includes('Missing'),
+        );
       return errors.length > 0 ? errors : null;
     });
 
@@ -117,21 +135,29 @@ async function runTest() {
     await sleep(1500);
 
     await page.evaluate(() => {
-      const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('SS-316L'),
-      );
+      const option = Array.from(
+        document.querySelectorAll('[role="option"]'),
+      ).find((el) => el.textContent.includes('SS-316L'));
       if (option) option.click();
     });
     await sleep(2000);
     console.log('✓ Product changed');
 
     // CHECK 2: Verify error is still cleared after product change
-    console.log('\n🧪 TEST 2: Check for stale error after product change (should still be cleared)');
+    console.log(
+      '\n🧪 TEST 2: Check for stale error after product change (should still be cleared)',
+    );
     const errorAfterProductChange = await page.evaluate(() => {
-      const errorDivs = Array.from(document.querySelectorAll('.drawer-error, .panel-error, [class*="error"]'));
+      const errorDivs = Array.from(
+        document.querySelectorAll(
+          '.drawer-error, .panel-error, [class*="error"]',
+        ),
+      );
       const errors = errorDivs
-        .map(div => div.textContent.trim())
-        .filter(text => text.includes('required') || text.includes('Missing'));
+        .map((div) => div.textContent.trim())
+        .filter(
+          (text) => text.includes('required') || text.includes('Missing'),
+        );
       return errors.length > 0 ? errors : null;
     });
 
@@ -143,7 +169,9 @@ async function runTest() {
     }
 
     // Go back to first product for Auto-FIFO test
-    console.log('\n↩️  Step 7: Return to SS-304-Bar-BRIGHT-25mm-6000mm for Auto-FIFO test');
+    console.log(
+      '\n↩️  Step 7: Return to SS-304-Bar-BRIGHT-25mm-6000mm for Auto-FIFO test',
+    );
     await page.evaluate(() => {
       const input = document.querySelector('#product-search');
       if (input) {
@@ -156,9 +184,9 @@ async function runTest() {
     await sleep(1500);
 
     await page.evaluate(() => {
-      const option = Array.from(document.querySelectorAll('[role="option"]')).find(el =>
-        el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm'),
-      );
+      const option = Array.from(
+        document.querySelectorAll('[role="option"]'),
+      ).find((el) => el.textContent.includes('SS-304-Bar-BRIGHT-25mm-6000mm'));
       if (option) option.click();
     });
     await sleep(2000);
@@ -177,10 +205,14 @@ async function runTest() {
     console.log('✓ Quantity entered');
 
     // TEST 3: Click Auto-FIFO without price to test validation
-    console.log('\n🧪 TEST 3: Click Auto-Fill FIFO without unit price (should show validation)');
+    console.log(
+      '\n🧪 TEST 3: Click Auto-Fill FIFO without unit price (should show validation)',
+    );
     const autoFifoButton = await page.evaluate(() => {
-      const button = Array.from(document.querySelectorAll('button')).find(btn =>
-        btn.textContent.includes('Auto-Fill FIFO') || btn.textContent.includes('Auto-FIFO'),
+      const button = Array.from(document.querySelectorAll('button')).find(
+        (btn) =>
+          btn.textContent.includes('Auto-Fill FIFO') ||
+          btn.textContent.includes('Auto-FIFO'),
       );
       if (button) {
         button.click();
@@ -195,8 +227,14 @@ async function runTest() {
       await sleep(1000);
 
       const validationMessage = await page.evaluate(() => {
-        const errorDivs = Array.from(document.querySelectorAll('.drawer-error, .panel-error, [class*="error"]'));
-        const errors = errorDivs.map(div => div.textContent.trim()).filter(t => t.length > 0);
+        const errorDivs = Array.from(
+          document.querySelectorAll(
+            '.drawer-error, .panel-error, [class*="error"]',
+          ),
+        );
+        const errors = errorDivs
+          .map((div) => div.textContent.trim())
+          .filter((t) => t.length > 0);
         return errors.length > 0 ? errors[0] : null;
       });
 
@@ -211,7 +249,9 @@ async function runTest() {
     // Enter unit price
     console.log('\n💰 Step 9: Enter unit price = 100');
     await page.evaluate(() => {
-      const priceInput = document.querySelector('input#unitPrice, input[type="text"]');
+      const priceInput = document.querySelector(
+        'input#unitPrice, input[type="text"]',
+      );
       if (priceInput) {
         priceInput.value = '100';
         priceInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -222,10 +262,14 @@ async function runTest() {
     console.log('✓ Unit price entered');
 
     // TEST 4: Click Auto-FIFO with all required fields
-    console.log('\n🧪 TEST 4: Click Auto-Fill FIFO with all fields (should allocate)');
+    console.log(
+      '\n🧪 TEST 4: Click Auto-Fill FIFO with all fields (should allocate)',
+    );
     await page.evaluate(() => {
-      const button = Array.from(document.querySelectorAll('button')).find(btn =>
-        btn.textContent.includes('Auto-Fill FIFO') || btn.textContent.includes('Auto-FIFO'),
+      const button = Array.from(document.querySelectorAll('button')).find(
+        (btn) =>
+          btn.textContent.includes('Auto-Fill FIFO') ||
+          btn.textContent.includes('Auto-FIFO'),
       );
       if (button) button.click();
     });
@@ -233,14 +277,20 @@ async function runTest() {
 
     const allocationResult = await page.evaluate(() => {
       // Check for allocation success
-      const allocatedRows = document.querySelectorAll('.allocated-row, tr.allocated-row');
-      const allocationSummary = document.querySelector('.allocation-summary, .allocation-totals');
+      const allocatedRows = document.querySelectorAll(
+        '.allocated-row, tr.allocated-row',
+      );
+      const allocationSummary = document.querySelector(
+        '.allocation-summary, .allocation-totals',
+      );
       const errorDiv = document.querySelector('.drawer-error, .panel-error');
 
       return {
         allocatedCount: allocatedRows.length,
         hasSummary: !!allocationSummary,
-        summaryText: allocationSummary ? allocationSummary.textContent.trim() : null,
+        summaryText: allocationSummary
+          ? allocationSummary.textContent.trim()
+          : null,
         error: errorDiv ? errorDiv.textContent.trim() : null,
       };
     });
@@ -249,32 +299,55 @@ async function runTest() {
       console.log('✓ PASS: Allocation succeeded');
       console.log('   Allocated batches:', allocationResult.allocatedCount);
       if (allocationResult.summaryText) {
-        console.log('   Summary:', allocationResult.summaryText.substring(0, 150));
+        console.log(
+          '   Summary:',
+          allocationResult.summaryText.substring(0, 150),
+        );
       }
     } else if (allocationResult.error) {
-      console.log('⚠️  WARNING: Allocation error:', allocationResult.error.substring(0, 200));
+      console.log(
+        '⚠️  WARNING: Allocation error:',
+        allocationResult.error.substring(0, 200),
+      );
     } else {
       console.log('❌ FAIL: Allocation did not complete');
     }
 
     // Take screenshot
-    await page.screenshot({ path: '/mnt/d/Ultimate Steel/test-result.png', fullPage: true });
+    await page.screenshot({
+      path: '/mnt/d/Ultimate Steel/test-result.png',
+      fullPage: true,
+    });
     console.log('\n📸 Screenshot saved to test-result.png');
 
     // Final summary
-    console.log(`\n${  '='.repeat(60)}`);
+    console.log(`\n${'='.repeat(60)}`);
     console.log('TEST SUMMARY');
     console.log('='.repeat(60));
-    console.log('✓ Stale error fix: ', errorAfterFirstProduct ? 'FAILED' : 'PASSED');
-    console.log('✓ Error clearing on product change: ', errorAfterProductChange ? 'FAILED' : 'PASSED');
-    console.log('✓ Auto-FIFO validation: ', autoFifoButton ? 'TESTED' : 'NOT FOUND');
-    console.log('✓ Auto-FIFO allocation: ', allocationResult.allocatedCount > 0 ? 'SUCCEEDED' : 'INCOMPLETE');
+    console.log(
+      '✓ Stale error fix: ',
+      errorAfterFirstProduct ? 'FAILED' : 'PASSED',
+    );
+    console.log(
+      '✓ Error clearing on product change: ',
+      errorAfterProductChange ? 'FAILED' : 'PASSED',
+    );
+    console.log(
+      '✓ Auto-FIFO validation: ',
+      autoFifoButton ? 'TESTED' : 'NOT FOUND',
+    );
+    console.log(
+      '✓ Auto-FIFO allocation: ',
+      allocationResult.allocatedCount > 0 ? 'SUCCEEDED' : 'INCOMPLETE',
+    );
     console.log('='.repeat(60));
-
   } catch (error) {
     console.error('\n❌ Test failed with error:');
     console.error(error);
-    await page.screenshot({ path: '/mnt/d/Ultimate Steel/test-error.png', fullPage: true });
+    await page.screenshot({
+      path: '/mnt/d/Ultimate Steel/test-error.png',
+      fullPage: true,
+    });
     console.log('📸 Error screenshot saved to test-error.png');
   } finally {
     await browser.close();

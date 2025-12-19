@@ -17,7 +17,7 @@ Reusable autocomplete/combobox component with debounced search, keyboard navigat
 ## Basic Usage
 
 ```jsx
-import AutocompleteInput from './components/ui/AutocompleteInput';
+import AutocompleteInput from "./components/ui/AutocompleteInput";
 
 function MyForm() {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -25,7 +25,7 @@ function MyForm() {
 
   return (
     <AutocompleteInput
-      value={selectedProduct ? selectedProduct.name : ''}
+      value={selectedProduct ? selectedProduct.name : ""}
       items={products}
       placeholder="Search products..."
       onSelect={(product) => setSelectedProduct(product)}
@@ -51,7 +51,7 @@ function ProductSearch() {
       const results = await productService.search({ query: searchTerm });
       setSearchResults(results.data);
     } catch (error) {
-      console.error('Search failed:', error);
+      console.error("Search failed:", error);
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ function ProductSearch() {
     <AutocompleteInput
       items={searchResults}
       onSearch={handleSearch}
-      onSelect={(product) => console.log('Selected:', product)}
+      onSelect={(product) => console.log("Selected:", product)}
       loading={loading}
       debounceMs={500}
       minSearchLength={2}
@@ -95,29 +95,29 @@ function ProductSearch() {
 
 ## Props Reference
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `string` | `''` | Current input value |
-| `items` | `Array` | `[]` | Items to display in dropdown |
-| `placeholder` | `string` | `'Search...'` | Input placeholder text |
-| `displayValue` | `(item) => string` | `null` | Function to get display text from selected item |
-| `onSearch` | `(searchTerm) => void` | `null` | Called on debounced search (for async) |
-| `onSelect` | `(item) => void` | `null` | Called when item is selected |
-| `onChange` | `(searchTerm) => void` | `null` | Called on immediate input change |
-| `filterFn` | `(item, searchTerm) => boolean` | Default label filter | Custom filter function for sync filtering |
-| `renderItem` | `(item, isSelected, isHighlighted) => ReactNode` | Default renderer | Custom item rendering |
-| `getItemKey` | `(item) => any` | `item => item.id` | Get unique key for item |
-| `getItemLabel` | `(item) => string` | `item => item.name \|\| item.label` | Get display label for item |
-| `debounceMs` | `number` | `300` | Debounce delay in milliseconds |
-| `minSearchLength` | `number` | `0` | Minimum characters before search |
-| `maxResults` | `number` | `20` | Maximum results to display |
-| `clearOnSelect` | `boolean` | `false` | Clear input after selection |
-| `loading` | `boolean` | `false` | Show loading state |
-| `error` | `string` | `null` | Error message to display |
-| `disabled` | `boolean` | `false` | Disable input |
-| `className` | `string` | `''` | Container CSS classes |
-| `inputClassName` | `string` | `''` | Input CSS classes |
-| `dropdownClassName` | `string` | `''` | Dropdown CSS classes |
+| Prop                | Type                                             | Default                             | Description                                     |
+| ------------------- | ------------------------------------------------ | ----------------------------------- | ----------------------------------------------- |
+| `value`             | `string`                                         | `''`                                | Current input value                             |
+| `items`             | `Array`                                          | `[]`                                | Items to display in dropdown                    |
+| `placeholder`       | `string`                                         | `'Search...'`                       | Input placeholder text                          |
+| `displayValue`      | `(item) => string`                               | `null`                              | Function to get display text from selected item |
+| `onSearch`          | `(searchTerm) => void`                           | `null`                              | Called on debounced search (for async)          |
+| `onSelect`          | `(item) => void`                                 | `null`                              | Called when item is selected                    |
+| `onChange`          | `(searchTerm) => void`                           | `null`                              | Called on immediate input change                |
+| `filterFn`          | `(item, searchTerm) => boolean`                  | Default label filter                | Custom filter function for sync filtering       |
+| `renderItem`        | `(item, isSelected, isHighlighted) => ReactNode` | Default renderer                    | Custom item rendering                           |
+| `getItemKey`        | `(item) => any`                                  | `item => item.id`                   | Get unique key for item                         |
+| `getItemLabel`      | `(item) => string`                               | `item => item.name \|\| item.label` | Get display label for item                      |
+| `debounceMs`        | `number`                                         | `300`                               | Debounce delay in milliseconds                  |
+| `minSearchLength`   | `number`                                         | `0`                                 | Minimum characters before search                |
+| `maxResults`        | `number`                                         | `20`                                | Maximum results to display                      |
+| `clearOnSelect`     | `boolean`                                        | `false`                             | Clear input after selection                     |
+| `loading`           | `boolean`                                        | `false`                             | Show loading state                              |
+| `error`             | `string`                                         | `null`                              | Error message to display                        |
+| `disabled`          | `boolean`                                        | `false`                             | Disable input                                   |
+| `className`         | `string`                                         | `''`                                | Container CSS classes                           |
+| `inputClassName`    | `string`                                         | `''`                                | Input CSS classes                               |
+| `dropdownClassName` | `string`                                         | `''`                                | Dropdown CSS classes                            |
 
 ## Keyboard Navigation
 
@@ -129,6 +129,7 @@ function ProductSearch() {
 ## Sync vs Async Filtering
 
 ### Sync Filtering (Local)
+
 Use when you have all items loaded:
 
 ```jsx
@@ -140,6 +141,7 @@ Use when you have all items loaded:
 ```
 
 ### Async Filtering (Server-side)
+
 Use with `onSearch` for server-side filtering:
 
 ```jsx
@@ -155,6 +157,7 @@ Use with `onSearch` for server-side filtering:
 ## Migration from Existing Forms
 
 ### Before (TransferForm pattern):
+
 ```jsx
 const [activeItemId, setActiveItemId] = useState(null);
 const [productSearchTerms, setProductSearchTerms] = useState({});
@@ -166,17 +169,20 @@ useEffect(() => {
 
 <input
   type="text"
-  value={productSearchTerms[item.id] || ''}
-  onChange={(e) => setProductSearchTerms({...productSearchTerms, [item.id]: e.target.value})}
-/>
+  value={productSearchTerms[item.id] || ""}
+  onChange={(e) =>
+    setProductSearchTerms({ ...productSearchTerms, [item.id]: e.target.value })
+  }
+/>;
 ```
 
 ### After (AutocompleteInput):
+
 ```jsx
 <AutocompleteInput
-  value={item.productName || ''}
+  value={item.productName || ""}
   items={products}
-  onSelect={(product) => handleItemChange(item.id, 'product', product)}
+  onSelect={(product) => handleItemChange(item.id, "product", product)}
   getItemLabel={(p) => p.name}
 />
 ```

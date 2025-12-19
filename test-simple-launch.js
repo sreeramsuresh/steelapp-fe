@@ -20,7 +20,8 @@ async function testPuppeteerLaunch() {
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
+      executablePath:
+        '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
@@ -31,19 +32,25 @@ async function testPuppeteerLaunch() {
     // STEP 2: Use Chrome (test with local app)
     console.log('📄 Step 2: Opening your invoice page...');
     const page = await browser.newPage();
-    await page.goto('http://localhost:5173/create-invoice', { waitUntil: 'networkidle2', timeout: 10000 });
+    await page.goto('http://localhost:5173/create-invoice', {
+      waitUntil: 'networkidle2',
+      timeout: 10000,
+    });
 
     const title = await page.title();
     console.log('✅ Page loaded:', title);
     console.log('   URL:', page.url(), '\n');
 
     // Take screenshot as proof
-    await page.screenshot({ path: '/mnt/d/Ultimate Steel/puppeteer-demo.png', fullPage: false });
+    await page.screenshot({
+      path: '/mnt/d/Ultimate Steel/puppeteer-demo.png',
+      fullPage: false,
+    });
     console.log('📸 Screenshot saved: puppeteer-demo.png\n');
 
     // Interact with page to prove it works
     console.log('🧪 Step 2.5: Testing page interaction...');
-    const h1Text = await page.$eval('h1', el => el.textContent);
+    const h1Text = await page.$eval('h1', (el) => el.textContent);
     console.log('   Found heading:', h1Text);
     console.log('   Page is fully interactive!\n');
 
@@ -56,7 +63,6 @@ async function testPuppeteerLaunch() {
     console.log('  SUCCESS: Complete lifecycle demonstrated');
     console.log('  Launch → Use → Close (all automated)');
     console.log('═══════════════════════════════════════════════════════');
-
   } catch (error) {
     console.error('\n❌ Error:', error.message);
     console.error('\nThis is likely due to WSL2 cross-platform limitations.');
@@ -65,7 +71,9 @@ async function testPuppeteerLaunch() {
     console.log('💡 Alternative for WSL2:');
     console.log('   Option 1: Use Docker (native Linux environment)');
     console.log('   Option 2: Run tests in native Windows PowerShell');
-    console.log('   Option 3: Use connect mode with Chrome on port 9222 (temporary)');
+    console.log(
+      '   Option 3: Use connect mode with Chrome on port 9222 (temporary)',
+    );
   }
 }
 

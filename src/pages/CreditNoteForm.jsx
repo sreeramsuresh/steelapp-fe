@@ -2187,7 +2187,8 @@ const CreditNoteForm = () => {
                   <p
                     className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                   >
-                    Detailed classification and quality tracking for returned steel materials.
+                    Detailed classification and quality tracking for returned
+                    steel materials.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Return Reason Category */}
@@ -2222,13 +2223,27 @@ const CreditNoteForm = () => {
                           <SelectValue placeholder="Select category..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">Select category...</SelectItem>
-                          <SelectItem value="MATERIAL_DEFECT">Material Defect</SelectItem>
-                          <SelectItem value="WRONG_DELIVERY">Wrong Delivery</SelectItem>
-                          <SelectItem value="DAMAGE_IN_TRANSIT">Damage in Transit</SelectItem>
-                          <SelectItem value="WRONG_GRADE">Wrong Grade</SelectItem>
-                          <SelectItem value="WRONG_DIMENSIONS">Wrong Dimensions</SelectItem>
-                          <SelectItem value="CUSTOMER_CHANGED_MIND">Customer Changed Mind</SelectItem>
+                          <SelectItem value="none">
+                            Select category...
+                          </SelectItem>
+                          <SelectItem value="MATERIAL_DEFECT">
+                            Material Defect
+                          </SelectItem>
+                          <SelectItem value="WRONG_DELIVERY">
+                            Wrong Delivery
+                          </SelectItem>
+                          <SelectItem value="DAMAGE_IN_TRANSIT">
+                            Damage in Transit
+                          </SelectItem>
+                          <SelectItem value="WRONG_GRADE">
+                            Wrong Grade
+                          </SelectItem>
+                          <SelectItem value="WRONG_DIMENSIONS">
+                            Wrong Dimensions
+                          </SelectItem>
+                          <SelectItem value="CUSTOMER_CHANGED_MIND">
+                            Customer Changed Mind
+                          </SelectItem>
                           <SelectItem value="OTHER">Other</SelectItem>
                         </SelectContent>
                       </Select>
@@ -2266,12 +2281,22 @@ const CreditNoteForm = () => {
                           <SelectValue placeholder="Select disposition..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">Select disposition...</SelectItem>
-                          <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
-                          <SelectItem value="RESTOCK_AS_NEW">Restock as New</SelectItem>
-                          <SelectItem value="RESTOCK_AS_SECOND_GRADE">Restock as Second Grade</SelectItem>
+                          <SelectItem value="none">
+                            Select disposition...
+                          </SelectItem>
+                          <SelectItem value="UNDER_REVIEW">
+                            Under Review
+                          </SelectItem>
+                          <SelectItem value="RESTOCK_AS_NEW">
+                            Restock as New
+                          </SelectItem>
+                          <SelectItem value="RESTOCK_AS_SECOND_GRADE">
+                            Restock as Second Grade
+                          </SelectItem>
                           <SelectItem value="SCRAP">Scrap</SelectItem>
-                          <SelectItem value="RETURN_TO_SUPPLIER">Return to Supplier</SelectItem>
+                          <SelectItem value="RETURN_TO_SUPPLIER">
+                            Return to Supplier
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -2341,7 +2366,8 @@ const CreditNoteForm = () => {
                               ...prev,
                               heatNumberMatch: {
                                 ...prev.heatNumberMatch,
-                                matches: value === "unknown" ? null : value === "yes",
+                                matches:
+                                  value === "unknown" ? null : value === "yes",
                               },
                             }))
                           }
@@ -2434,9 +2460,13 @@ const CreditNoteForm = () => {
                             }))
                           }
                           placeholder="Verified Grade"
-                          disabled={!isEditable || !creditNote.gradeVerification.pmiTestDone}
+                          disabled={
+                            !isEditable ||
+                            !creditNote.gradeVerification.pmiTestDone
+                          }
                           className={`px-3 py-2 rounded-lg border ${
-                            !isEditable || !creditNote.gradeVerification.pmiTestDone
+                            !isEditable ||
+                            !creditNote.gradeVerification.pmiTestDone
                               ? "cursor-not-allowed opacity-60"
                               : ""
                           } ${
@@ -2460,7 +2490,9 @@ const CreditNoteForm = () => {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                           <input
                             type="text"
-                            value={creditNote.qualityFailureDetails.testParameter}
+                            value={
+                              creditNote.qualityFailureDetails.testParameter
+                            }
                             onChange={(e) =>
                               setCreditNote((prev) => ({
                                 ...prev,
@@ -2482,7 +2514,9 @@ const CreditNoteForm = () => {
                           />
                           <input
                             type="text"
-                            value={creditNote.qualityFailureDetails.measuredValue}
+                            value={
+                              creditNote.qualityFailureDetails.measuredValue
+                            }
                             onChange={(e) =>
                               setCreditNote((prev) => ({
                                 ...prev,
@@ -2574,7 +2608,9 @@ const CreditNoteForm = () => {
                           >
                             <SelectTrigger
                               className={`px-3 py-2 rounded-lg border ${
-                                !isEditable ? "cursor-not-allowed opacity-60" : ""
+                                !isEditable
+                                  ? "cursor-not-allowed opacity-60"
+                                  : ""
                               } ${
                                 isDarkMode
                                   ? "border-gray-600 bg-gray-700 text-white"
@@ -2585,7 +2621,9 @@ const CreditNoteForm = () => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="PENDING">Pending</SelectItem>
-                              <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                              <SelectItem value="SUBMITTED">
+                                Submitted
+                              </SelectItem>
                               <SelectItem value="APPROVED">Approved</SelectItem>
                               <SelectItem value="REJECTED">Rejected</SelectItem>
                               <SelectItem value="SETTLED">Settled</SelectItem>
@@ -2621,7 +2659,8 @@ const CreditNoteForm = () => {
                                 ...prev,
                                 vendorClaim: {
                                   ...prev.vendorClaim,
-                                  settlementAmount: parseFloat(e.target.value) || 0,
+                                  settlementAmount:
+                                    parseFloat(e.target.value) || 0,
                                 },
                               }))
                             }
@@ -2671,7 +2710,9 @@ const CreditNoteForm = () => {
                         </label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div>
-                            <label className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            <label
+                              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            >
                               RMA Number
                             </label>
                             <div
@@ -2685,7 +2726,9 @@ const CreditNoteForm = () => {
                             </div>
                           </div>
                           <div>
-                            <label className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            <label
+                              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            >
                               Valid Until
                             </label>
                             <div
@@ -2696,12 +2739,16 @@ const CreditNoteForm = () => {
                               }`}
                             >
                               {creditNote.rmaValidityDate
-                                ? new Date(creditNote.rmaValidityDate).toLocaleDateString()
+                                ? new Date(
+                                    creditNote.rmaValidityDate,
+                                  ).toLocaleDateString()
                                 : "N/A"}
                             </div>
                           </div>
                           <div>
-                            <label className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            <label
+                              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            >
                               RMA Status
                             </label>
                             <div
@@ -2723,29 +2770,42 @@ const CreditNoteForm = () => {
                     )}
 
                     {/* Approval Workflow Display */}
-                    {creditNote.totalCredit > creditNote.approvalThresholdAmount && (
+                    {creditNote.totalCredit >
+                      creditNote.approvalThresholdAmount && (
                       <div className="md:col-span-2 border-t pt-4 mt-2">
                         <div
                           className={`p-3 rounded-lg ${
-                            isDarkMode ? "bg-yellow-900/20 border border-yellow-700" : "bg-yellow-50 border border-yellow-200"
+                            isDarkMode
+                              ? "bg-yellow-900/20 border border-yellow-700"
+                              : "bg-yellow-50 border border-yellow-200"
                           }`}
                         >
                           <div className="flex items-center gap-2 mb-2">
                             <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                            <span className={`font-medium ${isDarkMode ? "text-yellow-400" : "text-yellow-800"}`}>
+                            <span
+                              className={`font-medium ${isDarkMode ? "text-yellow-400" : "text-yellow-800"}`}
+                            >
                               Approval Required
                             </span>
                           </div>
-                          <p className={`text-sm ${isDarkMode ? "text-yellow-300" : "text-yellow-700"}`}>
-                            Credit amount {formatCurrency(creditNote.totalCredit)} exceeds approval threshold of{" "}
-                            {formatCurrency(creditNote.approvalThresholdAmount)}. Manager approval is required before
-                            processing.
+                          <p
+                            className={`text-sm ${isDarkMode ? "text-yellow-300" : "text-yellow-700"}`}
+                          >
+                            Credit amount{" "}
+                            {formatCurrency(creditNote.totalCredit)} exceeds
+                            approval threshold of{" "}
+                            {formatCurrency(creditNote.approvalThresholdAmount)}
+                            . Manager approval is required before processing.
                           </p>
                           {creditNote.approverName && (
-                            <p className={`text-xs mt-2 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}>
+                            <p
+                              className={`text-xs mt-2 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
+                            >
                               Approved by: {creditNote.approverName} on{" "}
                               {creditNote.approvalTimestamp
-                                ? new Date(creditNote.approvalTimestamp).toLocaleString()
+                                ? new Date(
+                                    creditNote.approvalTimestamp,
+                                  ).toLocaleString()
                                 : "N/A"}
                             </p>
                           )}

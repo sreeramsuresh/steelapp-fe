@@ -22,8 +22,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { productsAPI } from '../api.js';
-import { apiClient } from '../api.js';
+import { productsAPI, apiClient } from '../api.js';
 
 // Mock apiClient to simulate backend responses
 vi.mock('../api.js', async () => {
@@ -257,7 +256,9 @@ describe('Products API Service Layer - Contract Integration (GUARD #2)', () => {
       apiClient.get.mockResolvedValue(mockResponse);
 
       // Should throw because name is required
-      await expect(productsAPI.getById(1)).rejects.toThrow(/name must be a non-empty string/);
+      await expect(productsAPI.getById(1)).rejects.toThrow(
+        /name must be a non-empty string/,
+      );
     });
   });
 

@@ -42,7 +42,11 @@ export default defineConfig({
           // Vendor chunks - separate large libraries for better caching
           if (id.includes('node_modules')) {
             // React ecosystem - core runtime (kept together for compatibility)
-            if (id.includes('react-dom') || id.includes('/react/') || id.includes('scheduler')) {
+            if (
+              id.includes('react-dom') ||
+              id.includes('/react/') ||
+              id.includes('scheduler')
+            ) {
               return 'vendor-react';
             }
             // React Router - separate chunk for routing
@@ -99,7 +103,10 @@ export default defineConfig({
           }
 
           // API/Services layer - shared across app, load early
-          if (id.includes('/services/axiosApi') || id.includes('/services/api.js')) {
+          if (
+            id.includes('/services/axiosApi') ||
+            id.includes('/services/api.js')
+          ) {
             return 'services-core';
           }
           if (id.includes('/services/')) {
@@ -133,10 +140,16 @@ export default defineConfig({
           }
 
           // Feature chunks - lazy load heavy pages
-          if (id.includes('/pages/InvoiceForm') || id.includes('/pages/InvoiceList')) {
+          if (
+            id.includes('/pages/InvoiceForm') ||
+            id.includes('/pages/InvoiceList')
+          ) {
             return 'feature-invoices';
           }
-          if (id.includes('/pages/QuotationForm') || id.includes('/pages/QuotationList')) {
+          if (
+            id.includes('/pages/QuotationForm') ||
+            id.includes('/pages/QuotationList')
+          ) {
             return 'feature-quotations';
           }
           if (id.includes('/pages/PurchaseOrder')) {
@@ -154,7 +167,11 @@ export default defineConfig({
           if (id.includes('/pages/Stock') || id.includes('/stock-movement/')) {
             return 'feature-stock';
           }
-          if (id.includes('/pages/Report') || id.includes('/pages/ProfitAnalysis') || id.includes('/pages/PriceHistory')) {
+          if (
+            id.includes('/pages/Report') ||
+            id.includes('/pages/ProfitAnalysis') ||
+            id.includes('/pages/PriceHistory')
+          ) {
             return 'feature-reports';
           }
 

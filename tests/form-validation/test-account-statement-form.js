@@ -41,7 +41,11 @@ async function runTest() {
 
   const launchOptions = {
     headless: TEST_CONFIG.headless,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+    ],
     slowMo: TEST_CONFIG.slowMo,
   };
 
@@ -52,7 +56,7 @@ async function runTest() {
 
   const browser = await puppeteer.launch(launchOptions);
 
-  let testResults = {
+  const testResults = {
     passed: [],
     failed: [],
     warnings: [],
@@ -119,7 +123,7 @@ async function runTest() {
       ];
 
       for (const field of fields) {
-        const exists = await page.$(field.selector) !== null;
+        const exists = (await page.$(field.selector)) !== null;
         if (exists) {
           testResults.passed.push(`${field.name} field exists`);
         } else {
@@ -165,7 +169,9 @@ async function runTest() {
     // Test 4: Dark Mode Toggle (if exists)
     console.log('✓ Test 4: Testing dark mode...');
     try {
-      const darkModeButton = await page.$('button[aria-label*="theme"], button[aria-label*="dark"]');
+      const darkModeButton = await page.$(
+        'button[aria-label*="theme"], button[aria-label*="dark"]',
+      );
       if (darkModeButton) {
         await darkModeButton.click();
         await page.waitForTimeout(500);
@@ -191,7 +197,7 @@ async function runTest() {
         const form = document.querySelector('form');
         if (form) {
           const inputs = form.querySelectorAll('input, select, textarea');
-          inputs.forEach(input => {
+          inputs.forEach((input) => {
             if (input.type !== 'submit') {
               input.value = '';
             }
@@ -206,12 +212,18 @@ async function runTest() {
 
         // Check for error messages
         const errorMessages = await page.evaluate(() => {
-          const errors = Array.from(document.querySelectorAll('.error, .text-red-500, [class*="error"]'));
-          return errors.map(el => el.textContent);
+          const errors = Array.from(
+            document.querySelectorAll(
+              '.error, .text-red-500, [class*="error"]',
+            ),
+          );
+          return errors.map((el) => el.textContent);
         });
 
         if (errorMessages.length > 0) {
-          testResults.passed.push('Form validation triggers errors for empty fields');
+          testResults.passed.push(
+            'Form validation triggers errors for empty fields',
+          );
           console.log(`  ✓ Validation errors found: ${errorMessages.length}\n`);
         } else {
           testResults.warnings.push('No validation errors displayed');
@@ -229,7 +241,7 @@ async function runTest() {
 
     // Test 6: Console Errors Check
     console.log('✓ Test 6: Checking console errors...');
-    const consoleErrors = consoleMessages.filter(msg => msg.type === 'error');
+    const consoleErrors = consoleMessages.filter((msg) => msg.type === 'error');
     if (consoleErrors.length > 0) {
       testResults.warnings.push(`${consoleErrors.length} console errors found`);
       consoleErrors.forEach((err, idx) => {
@@ -251,7 +263,6 @@ async function runTest() {
       testResults.passed.push('No page errors');
       console.log('  ✓ No page errors\n');
     }
-
   } catch (error) {
     console.error('❌ Test execution failed:', error);
     testResults.failed.push(`Test execution error: ${error.message}`);
@@ -270,36 +281,41 @@ async function runTest() {
  * Print test results summary
  */
 function printSummary(results) {
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('TEST SUMMARY: Account Statement Form');
   console.log('='.repeat(60));
 
   console.log(`\n✓ Passed: ${results.passed.length}`);
-  results.passed.forEach(test => console.log(`  - ${test}`));
+  results.passed.forEach((test) => console.log(`  - ${test}`));
 
   if (results.warnings.length > 0) {
     console.log(`\n⚠ Warnings: ${results.warnings.length}`);
-    results.warnings.forEach(warning => console.log(`  - ${warning}`));
+    results.warnings.forEach((warning) => console.log(`  - ${warning}`));
   }
 
   if (results.failed.length > 0) {
     console.log(`\n✗ Failed: ${results.failed.length}`);
-    results.failed.forEach(failure => console.log(`  - ${failure}`));
+    results.failed.forEach((failure) => console.log(`  - ${failure}`));
   }
 
   console.log(`\n📸 Screenshots: ${results.screenshots.length}`);
-  results.screenshots.forEach(path => console.log(`  - ${path}`));
+  results.screenshots.forEach((path) => console.log(`  - ${path}`));
 
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
 
   const totalTests = results.passed.length + results.failed.length;
-  const passRate = totalTests > 0 ? ((results.passed.length / totalTests) * 100).toFixed(1) : 0;
-  console.log(`OVERALL: ${results.passed.length}/${totalTests} passed (${passRate}%)`);
-  console.log('='.repeat(60) + '\n');
+  const passRate =
+    totalTests > 0
+      ? ((results.passed.length / totalTests) * 100).toFixed(1)
+      : 0;
+  console.log(
+    `OVERALL: ${results.passed.length}/${totalTests} passed (${passRate}%)`,
+  );
+  console.log(`${'='.repeat(60)}\n`);
 }
 
 // Run the test
-runTest().catch(error => {
+runTest().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

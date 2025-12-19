@@ -34,14 +34,18 @@ async function runTest() {
 
   const launchOptions = {
     headless: TEST_CONFIG.headless,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+    ],
     slowMo: TEST_CONFIG.slowMo,
   };
   if (CHROMIUM_PATH) launchOptions.executablePath = CHROMIUM_PATH;
 
   const browser = await puppeteer.launch(launchOptions);
 
-  let testResults = {
+  const testResults = {
     passed: [],
     failed: [],
     warnings: [],
@@ -85,16 +89,23 @@ async function runTest() {
     // Test 2: Product Autocomplete
     console.log('✓ Test 2: Testing product autocomplete...');
     try {
-      const productInput = await page.$('input[placeholder*="Search product"], input[placeholder*="product"]');
+      const productInput = await page.$(
+        'input[placeholder*="Search product"], input[placeholder*="product"]',
+      );
       if (productInput) {
         await productInput.type('SS-304');
         await page.waitForTimeout(500);
 
-        const dropdown = await page.$('[class*="dropdown"], [class*="product-options"]');
+        const dropdown = await page.$(
+          '[class*="dropdown"], [class*="product-options"]',
+        );
         if (dropdown) {
           testResults.passed.push('Product autocomplete dropdown appears');
 
-          const screenshotPath = join(SCREENSHOT_DIR, 'reservation-02-product-autocomplete.png');
+          const screenshotPath = join(
+            SCREENSHOT_DIR,
+            'reservation-02-product-autocomplete.png',
+          );
           await page.screenshot({ path: screenshotPath, fullPage: true });
           testResults.screenshots.push(screenshotPath);
         } else {
@@ -105,7 +116,9 @@ async function runTest() {
       }
       console.log('  ✓ Product autocomplete tested\n');
     } catch (error) {
-      testResults.warnings.push(`Product autocomplete failed: ${error.message}`);
+      testResults.warnings.push(
+        `Product autocomplete failed: ${error.message}`,
+      );
     }
 
     // Test 3: Warehouse Selection
@@ -115,7 +128,11 @@ async function runTest() {
       if (warehouseSelect) {
         const options = await page.evaluate((sel) => {
           const select = document.querySelector(sel);
-          return select ? Array.from(select.options).map(opt => opt.value).filter(v => v) : [];
+          return select
+            ? Array.from(select.options)
+              .map((opt) => opt.value)
+              .filter((v) => v)
+            : [];
         }, 'select[name*="warehouse"], select');
 
         if (options.length > 0) {
@@ -135,13 +152,18 @@ async function runTest() {
     // Test 4: Quantity Input
     console.log('✓ Test 4: Testing quantity input...');
     try {
-      const quantityInput = await page.$('input[type="number"][name*="quantity"], input[name*="quantity"]');
+      const quantityInput = await page.$(
+        'input[type="number"][name*="quantity"], input[name*="quantity"]',
+      );
       if (quantityInput) {
         await quantityInput.click({ clickCount: 3 });
         await quantityInput.type(TEST_DATA.quantity);
         testResults.passed.push('Quantity entered');
 
-        const screenshotPath = join(SCREENSHOT_DIR, 'reservation-03-quantity-filled.png');
+        const screenshotPath = join(
+          SCREENSHOT_DIR,
+          'reservation-03-quantity-filled.png',
+        );
         await page.screenshot({ path: screenshotPath, fullPage: true });
         testResults.screenshots.push(screenshotPath);
       } else {
@@ -155,16 +177,25 @@ async function runTest() {
     // Test 5: Stock Availability Display
     console.log('✓ Test 5: Checking stock availability display...');
     try {
-      const availabilityElement = await page.$('[class*="stock"], [class*="available"], [class*="availability"]');
+      const availabilityElement = await page.$(
+        '[class*="stock"], [class*="available"], [class*="availability"]',
+      );
       if (availabilityElement) {
-        const availabilityText = await page.evaluate(el => el.textContent, availabilityElement);
-        testResults.passed.push(`Stock availability displayed: ${availabilityText.substring(0, 50)}`);
+        const availabilityText = await page.evaluate(
+          (el) => el.textContent,
+          availabilityElement,
+        );
+        testResults.passed.push(
+          `Stock availability displayed: ${availabilityText.substring(0, 50)}`,
+        );
       } else {
         testResults.warnings.push('Stock availability display not found');
       }
       console.log('  ✓ Stock availability checked\n');
     } catch (error) {
-      testResults.warnings.push(`Stock availability check failed: ${error.message}`);
+      testResults.warnings.push(
+        `Stock availability check failed: ${error.message}`,
+      );
     }
 
     // Test 6: Validation
@@ -172,7 +203,7 @@ async function runTest() {
     try {
       await page.evaluate(() => {
         const inputs = document.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
+        inputs.forEach((input) => {
           if (input.type !== 'submit' && input.type !== 'button') {
             input.value = '';
           }
@@ -185,17 +216,28 @@ async function runTest() {
         await page.waitForTimeout(1000);
 
         const errorMessages = await page.evaluate(() => {
-          const errors = Array.from(document.querySelectorAll('.error, .text-red-500, [class*="error"]'));
-          return errors.map(el => el.textContent).filter(text => text.trim());
+          const errors = Array.from(
+            document.querySelectorAll(
+              '.error, .text-red-500, [class*="error"]',
+            ),
+          );
+          return errors
+            .map((el) => el.textContent)
+            .filter((text) => text.trim());
         });
 
         if (errorMessages.length > 0) {
-          testResults.passed.push(`Validation shows ${errorMessages.length} errors`);
+          testResults.passed.push(
+            `Validation shows ${errorMessages.length} errors`,
+          );
         } else {
           testResults.warnings.push('No validation errors displayed');
         }
 
-        const screenshotPath = join(SCREENSHOT_DIR, 'reservation-04-validation.png');
+        const screenshotPath = join(
+          SCREENSHOT_DIR,
+          'reservation-04-validation.png',
+        );
         await page.screenshot({ path: screenshotPath, fullPage: true });
         testResults.screenshots.push(screenshotPath);
       }
@@ -207,7 +249,7 @@ async function runTest() {
     // Console & Page Errors
     if (consoleErrors.length > 0) {
       testResults.warnings.push(`${consoleErrors.length} console errors`);
-      consoleErrors.forEach(err => console.log(`  ⚠ ${err}`));
+      consoleErrors.forEach((err) => console.log(`  ⚠ ${err}`));
     } else {
       testResults.passed.push('No console errors');
     }
@@ -217,7 +259,6 @@ async function runTest() {
     } else {
       testResults.passed.push('No page errors');
     }
-
   } catch (error) {
     console.error('❌ Test failed:', error);
     testResults.failed.push(`Test error: ${error.message}`);
@@ -230,32 +271,35 @@ async function runTest() {
 }
 
 function printSummary(results) {
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('TEST SUMMARY: Reservation Form');
   console.log('='.repeat(60));
 
   console.log(`\n✓ Passed: ${results.passed.length}`);
-  results.passed.forEach(test => console.log(`  - ${test}`));
+  results.passed.forEach((test) => console.log(`  - ${test}`));
 
   if (results.warnings.length > 0) {
     console.log(`\n⚠ Warnings: ${results.warnings.length}`);
-    results.warnings.forEach(w => console.log(`  - ${w}`));
+    results.warnings.forEach((w) => console.log(`  - ${w}`));
   }
 
   if (results.failed.length > 0) {
     console.log(`\n✗ Failed: ${results.failed.length}`);
-    results.failed.forEach(f => console.log(`  - ${f}`));
+    results.failed.forEach((f) => console.log(`  - ${f}`));
   }
 
   console.log(`\n📸 Screenshots: ${results.screenshots.length}`);
 
   const total = results.passed.length + results.failed.length;
-  const passRate = total > 0 ? ((results.passed.length / total) * 100).toFixed(1) : 0;
-  console.log(`\nOVERALL: ${results.passed.length}/${total} passed (${passRate}%)`);
-  console.log('='.repeat(60) + '\n');
+  const passRate =
+    total > 0 ? ((results.passed.length / total) * 100).toFixed(1) : 0;
+  console.log(
+    `\nOVERALL: ${results.passed.length}/${total} passed (${passRate}%)`,
+  );
+  console.log(`${'='.repeat(60)}\n`);
 }
 
-runTest().catch(error => {
+runTest().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

@@ -863,7 +863,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/containers/new"
           element={
-            <ProtectedRoute user={user} requiredPermission="import_orders.create">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="import_orders.create"
+            >
               <ContainerForm />
             </ProtectedRoute>
           }
@@ -879,7 +882,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         <Route
           path="/containers/:id/edit"
           element={
-            <ProtectedRoute user={user} requiredPermission="import_orders.update">
+            <ProtectedRoute
+              user={user}
+              requiredPermission="import_orders.update"
+            >
               <ContainerForm />
             </ProtectedRoute>
           }

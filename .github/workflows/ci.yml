@@ -3,7 +3,7 @@ name: CI - Build & Test
 on:
   pull_request:
     branches:
-      - '**'  # Run on PRs to any branch
+      - "**" # Run on PRs to any branch
   push:
     branches:
       - dev

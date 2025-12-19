@@ -7,14 +7,17 @@
 ## File Directory
 
 ### 1. QUICKSTART.md (2.3 KB)
+
 **Start here if you're in a hurry**
 
 Quick 30-second setup and run instructions. Perfect for:
+
 - First-time runners
 - Quick reference
 - Troubleshooting quick fixes
 
 **Contains:**
+
 - Prerequisites check (1 command)
 - Installation steps
 - How to start services
@@ -26,15 +29,18 @@ Quick 30-second setup and run instructions. Perfect for:
 ---
 
 ### 2. README.md (10 KB)
+
 **Directory overview and testing framework guide**
 
 Comprehensive reference for the E2E testing framework. Perfect for:
+
 - Understanding test structure
 - Writing new tests
 - Learning helper utilities
 - Debugging strategies
 
 **Contains:**
+
 - Directory structure
 - Quick start guide
 - Test file descriptions
@@ -49,15 +55,18 @@ Comprehensive reference for the E2E testing framework. Perfect for:
 ---
 
 ### 3. SUPPLIER_FORM_TESTS.md (13 KB)
+
 **Detailed supplier form test documentation**
 
 Deep dive into the supplier form tests specifically. Perfect for:
+
 - Understanding what each test does
 - Field mapping and validation rules
 - Running individual tests
 - Advanced debugging
 
 **Contains:**
+
 - Overview of 7 form sections
 - Setup and prerequisites
 - Running tests with output examples
@@ -74,15 +83,18 @@ Deep dive into the supplier form tests specifically. Perfect for:
 ---
 
 ### 4. IMPLEMENTATION_SUMMARY.md (16 KB)
+
 **Architecture overview and technical documentation**
 
 Complete technical reference. Perfect for:
+
 - Understanding overall design
 - Architecture and flow diagrams
 - Performance metrics
 - Future roadmap
 
 **Contains:**
+
 - Overview of all files created
 - Detailed file descriptions
 - System architecture diagram
@@ -103,11 +115,13 @@ Complete technical reference. Perfect for:
 ---
 
 ### 5. supplier-form.test.js (25 KB, 800 lines)
+
 **Main test file - 7 complete test suites**
 
 The actual executable test code. Contains:
 
 **7 Test Functions:**
+
 1. `testBasicSupplierCreation()` - 5 fields, submission
 2. `testFullSupplierCreation()` - All 30+ fields
 3. `testVATValidation()` - Format checking
@@ -117,6 +131,7 @@ The actual executable test code. Contains:
 7. `testAccordionBehavior()` - UI collapse/expand
 
 **Helper Functions:**
+
 - `fillInput()` - Fill text fields
 - `selectDropdown()` - Select from dropdowns
 - `checkCheckbox()` / `uncheckCheckbox()` - Checkbox control
@@ -127,6 +142,7 @@ The actual executable test code. Contains:
 - `getInputValue()` - Read input value
 
 **Logging:**
+
 - Color-coded console output
 - Test progress indicators
 - Summary report with pass/fail
@@ -136,54 +152,68 @@ The actual executable test code. Contains:
 ---
 
 ### 6. puppeteer-utils.js (19 KB, 630 lines)
+
 **Reusable helper library - 40+ utility functions**
 
 Modular utilities for any Puppeteer test. Includes:
 
 **Logging Functions (6):**
+
 - `log.success()`, `log.error()`, `log.info()`, `log.warn()`, `log.test()`, `log.debug()`
 
 **Form Interactions (8):**
+
 - `fillInput()`, `fillInputs()`, `getInputValue()`, `getInputValues()`
 - `selectDropdown()`, `typeText()`, `uploadFile()`
 
 **Checkbox Operations (3):**
+
 - `checkCheckbox()`, `uncheckCheckbox()`, `isCheckboxChecked()`
 
 **Section Control (1):**
+
 - `toggleSection()` - Accordion toggle
 
 **Validation (2):**
+
 - `getValidationErrors()`, `hasError()`
 
 **Form Submit (2):**
+
 - `submitForm()`, `waitForNavigation()`
 
 **UI Navigation (5):**
+
 - `waitForElement()`, `waitForVisible()`, `waitForText()`
 - `clickByText()`, `findByText()`
 
 **Notifications (1):**
+
 - `waitForNotification()` - Success/error toast
 
 **Debugging (6):**
+
 - `takeScreenshot()`, `getPageContent()`, `getElementBounds()`
 - `scrollIntoView()`, `isInViewport()`, `captureRequests()`
 
 **Utilities (3):**
+
 - `waitForLoadingDone()`, `logTestResult()`, `delay()`
 
 **Usage:** Import functions into test files
+
 ```javascript
-import { fillInput, selectDropdown, log } from './puppeteer-utils.js';
+import { fillInput, selectDropdown, log } from "./puppeteer-utils.js";
 ```
 
 ---
 
 ### 7. verify-setup.sh (7.5 KB, 190 lines)
+
 **Setup verification script - Executable bash**
 
 Automated prerequisite checker. Verifies:
+
 - Node.js installation
 - npm availability
 - Puppeteer npm package
@@ -196,6 +226,7 @@ Automated prerequisite checker. Verifies:
 **Run:** `bash tests/e2e/verify-setup.sh`
 
 **Output:**
+
 - Color-coded status (green = OK, yellow = warning, red = error)
 - Clear instructions for fixes
 - Exit codes for CI/CD
@@ -203,6 +234,7 @@ Automated prerequisite checker. Verifies:
 ---
 
 ### 8. INDEX.md (This File)
+
 **File directory and quick reference**
 
 This file! Complete reference to all files created.
@@ -241,22 +273,23 @@ This file! Complete reference to all files created.
 
 ## File Statistics
 
-| File | Type | Size | Lines | Purpose |
-|---|---|---|---|---|
-| supplier-form.test.js | JS | 25 KB | 800 | Main test suite |
-| puppeteer-utils.js | JS | 19 KB | 630 | Helper library |
-| SUPPLIER_FORM_TESTS.md | MD | 13 KB | 420 | Test guide |
-| IMPLEMENTATION_SUMMARY.md | MD | 16 KB | 550 | Architecture docs |
-| README.md | MD | 10 KB | 340 | Framework guide |
-| QUICKSTART.md | MD | 2.3 KB | 45 | Quick reference |
-| verify-setup.sh | SH | 7.5 KB | 190 | Setup checker |
-| **TOTAL** | - | **104 KB** | **3,292** | - |
+| File                      | Type | Size       | Lines     | Purpose           |
+| ------------------------- | ---- | ---------- | --------- | ----------------- |
+| supplier-form.test.js     | JS   | 25 KB      | 800       | Main test suite   |
+| puppeteer-utils.js        | JS   | 19 KB      | 630       | Helper library    |
+| SUPPLIER_FORM_TESTS.md    | MD   | 13 KB      | 420       | Test guide        |
+| IMPLEMENTATION_SUMMARY.md | MD   | 16 KB      | 550       | Architecture docs |
+| README.md                 | MD   | 10 KB      | 340       | Framework guide   |
+| QUICKSTART.md             | MD   | 2.3 KB     | 45        | Quick reference   |
+| verify-setup.sh           | SH   | 7.5 KB     | 190       | Setup checker     |
+| **TOTAL**                 | -    | **104 KB** | **3,292** | -                 |
 
 ---
 
 ## Test Coverage
 
 ### Form Sections Tested: 7/7
+
 - [x] Basic Information (9 fields)
 - [x] Contact Person (3 fields)
 - [x] Tax & Compliance (8 fields)
@@ -266,6 +299,7 @@ This file! Complete reference to all files created.
 - [x] Additional Information (2 fields)
 
 ### Test Cases: 7
+
 1. Basic Supplier Creation
 2. Full Supplier Creation (All 30+ fields)
 3. VAT Number Validation
@@ -275,6 +309,7 @@ This file! Complete reference to all files created.
 7. Accordion Expand/Collapse
 
 ### Total Fields Tested: 30+
+
 - Text inputs: 15+
 - Dropdowns: 4
 - Checkboxes: 6+
@@ -287,11 +322,13 @@ This file! Complete reference to all files created.
 ## Getting Started - 3 Steps
 
 ### Step 1: Verify Setup (30 seconds)
+
 ```bash
 bash tests/e2e/verify-setup.sh
 ```
 
 ### Step 2: Start Services (if needed)
+
 ```bash
 # Terminal 1: Frontend
 npm run dev
@@ -301,6 +338,7 @@ cd ../backend && npm run dev
 ```
 
 ### Step 3: Run Tests (20-30 seconds)
+
 ```bash
 node tests/e2e/supplier-form.test.js
 ```
@@ -331,17 +369,20 @@ cat tests/e2e/IMPLEMENTATION_SUMMARY.md # 20 min read
 ## Documentation Reading Order
 
 **For First-Time Users:**
+
 1. QUICKSTART.md (2 min) - Get running
 2. README.md (10 min) - Understand framework
 3. SUPPLIER_FORM_TESTS.md (15 min) - Learn details
 
 **For Developers:**
+
 1. README.md (10 min) - Framework overview
 2. puppeteer-utils.js (20 min) - Read source code
 3. supplier-form.test.js (30 min) - Study test code
 4. IMPLEMENTATION_SUMMARY.md (20 min) - Architecture
 
 **For Debugging:**
+
 1. SUPPLIER_FORM_TESTS.md → Debugging section
 2. README.md → Debugging section
 3. Enable debug logging in test file
@@ -374,14 +415,14 @@ cat tests/e2e/IMPLEMENTATION_SUMMARY.md # 20 min read
 
 ## Performance
 
-| Metric | Time |
-|---|---|
-| Chrome startup | ~3 seconds |
-| Page load | ~2 seconds |
-| Per field interaction | ~100-200 ms |
-| Per test (avg) | ~3-4 seconds |
-| All 7 tests | ~20-30 seconds |
-| Test run total | ~35-40 seconds |
+| Metric                | Time           |
+| --------------------- | -------------- |
+| Chrome startup        | ~3 seconds     |
+| Page load             | ~2 seconds     |
+| Per field interaction | ~100-200 ms    |
+| Per test (avg)        | ~3-4 seconds   |
+| All 7 tests           | ~20-30 seconds |
+| Test run total        | ~35-40 seconds |
 
 ---
 
@@ -413,12 +454,14 @@ tests/e2e/
 ## Support
 
 **Problems?**
+
 1. Run `bash tests/e2e/verify-setup.sh`
 2. Check QUICKSTART.md troubleshooting
 3. Review SUPPLIER_FORM_TESTS.md debugging section
 4. Enable debug logging in test file
 
 **Questions?**
+
 1. Check README.md FAQ/Troubleshooting
 2. Read IMPLEMENTATION_SUMMARY.md architecture
 3. Study source code comments
@@ -428,6 +471,7 @@ tests/e2e/
 ## Summary
 
 This comprehensive E2E test suite provides:
+
 - **Complete coverage** of supplier form functionality
 - **Reusable utilities** for testing other forms
 - **Excellent documentation** for users and developers

@@ -1,17 +1,17 @@
-import { apiClient } from "./api";
-import { apiService } from "./axiosApi";
-import { uuid } from "../utils/uuid";
-import { PAYMENT_MODES } from "../utils/paymentUtils";
+import { apiClient } from './api';
+import { apiService } from './axiosApi';
+import { uuid } from '../utils/uuid';
+import { PAYMENT_MODES } from '../utils/paymentUtils';
 
 // Re-export PAYMENT_MODES for convenience
 export { PAYMENT_MODES };
 
 // Helpers
-const LS_KEYS = { inv: "payables:inv:payments", po: "payables:po:payments" };
+const LS_KEYS = { inv: 'payables:inv:payments', po: 'payables:po:payments' };
 const ls = {
   getAll(scope) {
     try {
-      return JSON.parse(localStorage.getItem(LS_KEYS[scope]) || "{}");
+      return JSON.parse(localStorage.getItem(LS_KEYS[scope]) || '{}');
     } catch {
       return {};
     }
@@ -64,12 +64,12 @@ const computeInvoiceDerived = (inv) => {
   const outstanding = Math.max(0, +(total - received).toFixed(2));
   const today = new Date().toISOString().slice(0, 10);
   const dueDate = inv.dueDate || inv.due_date || today;
-  let status = "unpaid";
-  if (outstanding === 0 && total > 0) status = "paid";
-  else if (outstanding < total && outstanding > 0) status = "partially_paid";
-  else status = "unpaid";
+  let status = 'unpaid';
+  if (outstanding === 0 && total > 0) status = 'paid';
+  else if (outstanding < total && outstanding > 0) status = 'partially_paid';
+  else status = 'unpaid';
   const overdue = dueDate < today && outstanding > 0;
-  if (overdue) status = "overdue";
+  if (overdue) status = 'overdue';
   return { received, outstanding, status, invoiceAmount: total };
 };
 
@@ -81,12 +81,12 @@ const computePODerived = (po) => {
   const balance = Math.max(0, +(total - paid).toFixed(2));
   const today = new Date().toISOString().slice(0, 10);
   const dueDate = po.dueDate || po.due_date || today;
-  let status = "unpaid";
-  if (balance === 0 && total > 0) status = "paid";
-  else if (balance < total && balance > 0) status = "partially_paid";
-  else status = "unpaid";
+  let status = 'unpaid';
+  if (balance === 0 && total > 0) status = 'paid';
+  else if (balance < total && balance > 0) status = 'partially_paid';
+  else status = 'unpaid';
   const overdue = dueDate < today && balance > 0;
-  if (overdue) status = "overdue";
+  if (overdue) status = 'overdue';
   return { paid, balance, status };
 };
 
@@ -94,7 +94,7 @@ export const payablesService = {
   // Invoices (Customer Receivables)
   async getInvoices(params = {}) {
     try {
-      const response = await apiClient.get("/payables/invoices", params);
+      const response = await apiClient.get('/payables/invoices', params);
       const list = response.items || response.invoices || response;
       const aggregates = response.aggregates || {};
 
@@ -108,14 +108,14 @@ export const payablesService = {
 
       return { items, aggregates };
     } catch (e) {
-      console.error("Error fetching invoices:", e);
+      console.error('Error fetching invoices:', e);
       return { items: [], aggregates: {} };
     }
   },
 
   async getInvoice(id) {
     const data = await apiClient.get(`/payables/invoices/${id}`);
-    const local = ls.get("inv", id);
+    const local = ls.get('inv', id);
     const payments =
       Array.isArray(data.payments) && data.payments.length
         ? data.payments
@@ -139,7 +139,7 @@ export const payablesService = {
         created_at: new Date().toISOString(),
         ...payload,
       };
-      const current = ls.add("inv", id, localPayment);
+      const current = ls.add('inv', id, localPayment);
       const merged = { id, payments: current };
       return {
         ...merged,
@@ -156,7 +156,7 @@ export const payablesService = {
       );
       return { ...saved, ...computeInvoiceDerived(saved) };
     } catch (e) {
-      const current = ls.void("inv", id, paymentId);
+      const current = ls.void('inv', id, paymentId);
       const merged = { id, payments: current };
       return {
         ...merged,
@@ -168,7 +168,7 @@ export const payablesService = {
   // POs (Vendor Payables)
   async getPOs(params = {}) {
     try {
-      const response = await apiClient.get("/payables/pos", params);
+      const response = await apiClient.get('/payables/pos', params);
       const list = response.items || response.pos || response;
       const aggregates = response.aggregates || {};
 
@@ -182,14 +182,14 @@ export const payablesService = {
 
       return { items, aggregates };
     } catch (e) {
-      console.error("Error fetching POs:", e);
+      console.error('Error fetching POs:', e);
       return { items: [], aggregates: {} };
     }
   },
 
   async getPO(id) {
     const data = await apiClient.get(`/payables/pos/${id}`);
-    const local = ls.get("po", id);
+    const local = ls.get('po', id);
     const payments =
       Array.isArray(data.payments) && data.payments.length
         ? data.payments
@@ -211,7 +211,7 @@ export const payablesService = {
         created_at: new Date().toISOString(),
         ...payload,
       };
-      const current = ls.add("po", id, localPayment);
+      const current = ls.add('po', id, localPayment);
       const merged = { id, payments: current };
       return { ...merged, ...computePODerived({ po_value: 0, ...merged }) };
     }
@@ -225,25 +225,25 @@ export const payablesService = {
       );
       return { ...saved, ...computePODerived(saved) };
     } catch (e) {
-      const current = ls.void("po", id, paymentId);
+      const current = ls.void('po', id, paymentId);
       const merged = { id, payments: current };
       return { ...merged, ...computePODerived({ po_value: 0, ...merged }) };
     }
   },
 
   // Export CSV/XLSX back-end if available
-  async export(scope = "invoices", params = {}) {
-    return apiClient.get("/payables/exports", { scope, ...params });
+  async export(scope = 'invoices', params = {}) {
+    return apiClient.get('/payables/exports', { scope, ...params });
   },
 
   // Export and download as blob (csv or xlsx)
-  async exportDownload(scope = "invoices", params = {}, format = "csv") {
+  async exportDownload(scope = 'invoices', params = {}, format = 'csv') {
     const query = apiService.cleanParams({ scope, format, ...params });
     const qs = new URLSearchParams(query).toString();
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/payables/exports?${qs}`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     return blob; // Caller handles filename
   },
@@ -251,7 +251,7 @@ export const payablesService = {
   // Receipts/Vouchers: download/email
   async downloadInvoiceReceipt(invoiceId, paymentId) {
     const url = `/payables/invoices/${invoiceId}/payments/${paymentId}/receipt`;
-    return apiService.request({ method: "GET", url, responseType: "blob" });
+    return apiService.request({ method: 'GET', url, responseType: 'blob' });
   },
   async emailInvoiceReceipt(invoiceId, paymentId) {
     const url = `/payables/invoices/${invoiceId}/payments/${paymentId}/email`;
@@ -259,7 +259,7 @@ export const payablesService = {
   },
   async downloadPOVoucher(poId, paymentId) {
     const url = `/payables/pos/${poId}/payments/${paymentId}/voucher`;
-    return apiService.request({ method: "GET", url, responseType: "blob" });
+    return apiService.request({ method: 'GET', url, responseType: 'blob' });
   },
   async emailPOVoucher(poId, paymentId) {
     const url = `/payables/pos/${poId}/payments/${paymentId}/email`;

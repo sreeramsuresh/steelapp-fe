@@ -6,7 +6,7 @@
  * Migrated from Material-UI to Tailwind CSS
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   X,
   Bookmark,
@@ -14,17 +14,17 @@ import {
   Loader2,
   ChevronDown,
   Package,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { stockMovementService } from '../../services/stockMovementService';
-import { warehouseService } from '../../services/warehouseService';
-import { productService } from '../../services/dataService';
+} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { stockMovementService } from "../../services/stockMovementService";
+import { warehouseService } from "../../services/warehouseService";
+import { productService } from "../../services/dataService";
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = 'KG') => {
-  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = "KG") => {
+  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 const ReservationForm = ({ open, onClose, onSuccess }) => {
@@ -37,11 +37,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   const [loadingProducts, setLoadingProducts] = useState(true);
 
   // Form fields
-  const [warehouseId, setWarehouseId] = useState('');
-  const [productId, setProductId] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [notes, setNotes] = useState('');
+  const [warehouseId, setWarehouseId] = useState("");
+  const [productId, setProductId] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [notes, setNotes] = useState("");
 
   // Stock info
   const [availableStock, setAvailableStock] = useState(null);
@@ -51,7 +51,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
-  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [productSearchTerm, setProductSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   // Refs
@@ -71,7 +71,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           setWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error('Error loading warehouses:', err);
+        console.error("Error loading warehouses:", err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -91,7 +91,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         setProducts(result.data || []);
         setFilteredProducts(result.data || []);
       } catch (err) {
-        console.error('Error loading products:', err);
+        console.error("Error loading products:", err);
       } finally {
         setLoadingProducts(false);
       }
@@ -138,10 +138,10 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         setAvailableStock({
           quantityOnHand: parseFloat(warehouse?.quantityOnHand) || 0,
           quantityAvailable: parseFloat(warehouse?.quantityAvailable) || 0,
-          unit: warehouse?.unit || 'KG',
+          unit: warehouse?.unit || "KG",
         });
       } catch (err) {
-        console.error('Error loading stock:', err);
+        console.error("Error loading stock:", err);
         setAvailableStock(null);
       } finally {
         setLoadingStock(false);
@@ -154,11 +154,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   // Reset form when opened
   useEffect(() => {
     if (open) {
-      setProductId('');
-      setProductSearchTerm('');
-      setQuantity('');
-      setExpiryDate('');
-      setNotes('');
+      setProductId("");
+      setProductSearchTerm("");
+      setQuantity("");
+      setExpiryDate("");
+      setNotes("");
       setError(null);
       setShowProductDropdown(false);
     }
@@ -176,30 +176,30 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Handle product selection
   const handleProductSelect = useCallback((product) => {
     setProductId(product.id);
-    setProductSearchTerm(`${product.name} (${product.sku || 'No SKU'})`);
+    setProductSearchTerm(`${product.name} (${product.sku || "No SKU"})`);
     setShowProductDropdown(false);
   }, []);
 
   // Validate form
   const validateForm = () => {
     if (!warehouseId) {
-      setError('Please select a warehouse');
+      setError("Please select a warehouse");
       return false;
     }
     if (!productId) {
-      setError('Please select a product');
+      setError("Please select a product");
       return false;
     }
     const qty = parseFloat(quantity) || 0;
     if (qty <= 0) {
-      setError('Quantity must be greater than 0');
+      setError("Quantity must be greater than 0");
       return false;
     }
     if (availableStock && qty > availableStock.quantityAvailable) {
@@ -235,8 +235,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       onSuccess?.(result);
       onClose();
     } catch (err) {
-      console.error('Error creating reservation:', err);
-      setError(err.message || 'Failed to create reservation');
+      console.error("Error creating reservation:", err);
+      setError(err.message || "Failed to create reservation");
     } finally {
       setSaving(false);
     }
@@ -248,7 +248,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`max-w-lg w-full mx-4 p-6 rounded-lg shadow-xl ${
-          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
         }`}
       >
         {/* Header */}
@@ -261,7 +261,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             onClick={onClose}
             disabled={saving}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              saving ? 'opacity-50 cursor-not-allowed' : ''
+              saving ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <X className="w-5 h-5" />
@@ -273,8 +273,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <div
             className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
               isDarkMode
-                ? 'bg-red-900 bg-opacity-30 border border-red-700'
-                : 'bg-red-50 border border-red-200'
+                ? "bg-red-900 bg-opacity-30 border border-red-700"
+                : "bg-red-50 border border-red-200"
             }`}
           >
             <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -297,7 +297,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <label
               htmlFor="warehouse-select"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Warehouse *
@@ -310,16 +310,16 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 disabled={loadingWarehouses}
                 className={`w-full px-3 py-2 rounded-lg border appearance-none ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
+                  loadingWarehouses ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <option value="">Select warehouse...</option>
                 {warehouses.map((wh) => (
                   <option key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ''}
+                    {wh.name} {wh.code ? `(${wh.code})` : ""}
                   </option>
                 ))}
               </select>
@@ -332,7 +332,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <label
               htmlFor="product-search"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Product *
@@ -352,8 +352,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   placeholder="Select product..."
                   className={`w-full px-3 py-2 pl-10 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
                 <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -368,8 +368,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   ref={productDropdownRef}
                   className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600'
-                      : 'bg-white border-gray-300'
+                      ? "bg-gray-700 border-gray-600"
+                      : "bg-white border-gray-300"
                   }`}
                 >
                   {filteredProducts.slice(0, 20).map((product) => (
@@ -379,15 +379,15 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                       onClick={() => handleProductSelect(product)}
                       className={`w-full text-left px-3 py-2 hover:bg-blue-500 hover:text-white transition-colors ${
                         productId === product.id
-                          ? 'bg-blue-500 text-white'
+                          ? "bg-blue-500 text-white"
                           : isDarkMode
-                            ? 'text-gray-200'
-                            : 'text-gray-900'
+                            ? "text-gray-200"
+                            : "text-gray-900"
                       }`}
                     >
                       <div className="font-medium">{product.name}</div>
                       <div className="text-sm opacity-75">
-                        {product.sku || 'No SKU'}
+                        {product.sku || "No SKU"}
                       </div>
                     </button>
                   ))}
@@ -402,11 +402,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-gray-300'
-                    : 'bg-gray-100 border-gray-300 text-gray-700'
+                    ? "bg-gray-700 border-gray-600 text-gray-300"
+                    : "bg-gray-100 border-gray-300 text-gray-700"
                 }`}
               >
-                On Hand:{' '}
+                On Hand:{" "}
                 {formatQuantity(
                   availableStock.quantityOnHand,
                   availableStock.unit,
@@ -416,14 +416,14 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
                   availableStock.quantityAvailable > 0
                     ? isDarkMode
-                      ? 'bg-green-900 bg-opacity-30 border-green-700 text-green-300'
-                      : 'bg-green-100 border-green-300 text-green-700'
+                      ? "bg-green-900 bg-opacity-30 border-green-700 text-green-300"
+                      : "bg-green-100 border-green-300 text-green-700"
                     : isDarkMode
-                      ? 'bg-red-900 bg-opacity-30 border-red-700 text-red-300'
-                      : 'bg-red-100 border-red-300 text-red-700'
+                      ? "bg-red-900 bg-opacity-30 border-red-700 text-red-300"
+                      : "bg-red-100 border-red-300 text-red-700"
                 }`}
               >
-                Available:{' '}
+                Available:{" "}
                 {formatQuantity(
                   availableStock.quantityAvailable,
                   availableStock.unit,
@@ -443,7 +443,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <label
               htmlFor="quantity-input"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Quantity to Reserve *
@@ -458,10 +458,10 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               className={`w-full px-3 py-2 rounded-lg border ${
                 availableStock &&
                 parseFloat(quantity) > availableStock.quantityAvailable
-                  ? 'border-red-500 focus:ring-red-500'
+                  ? "border-red-500 focus:ring-red-500"
                   : isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             {availableStock && (
@@ -476,7 +476,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <label
               htmlFor="expiry-date"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Expiry Date (Optional)
@@ -488,8 +488,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               onChange={(e) => setExpiryDate(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             <p className="mt-1 text-sm text-gray-500">
@@ -502,7 +502,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <label
               htmlFor="notes-textarea"
               className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
               Notes
@@ -515,8 +515,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               placeholder="Optional notes about this reservation..."
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
@@ -529,9 +529,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             disabled={saving}
             className={`px-4 py-2 rounded-lg font-medium ${
               isDarkMode
-                ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Cancel
           </button>
@@ -540,12 +540,12 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             disabled={saving || !productId || !quantity}
             className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
               saving || !productId || !quantity
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
             }`}
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {saving ? 'Creating...' : 'Create Reservation'}
+            {saving ? "Creating..." : "Create Reservation"}
           </button>
         </div>
       </div>

@@ -4,5 +4,5 @@
  */
 
 module.exports = {
-  'no-snakecase-props': require('./eslint-rules/no-snakecase-props.cjs'),
+  "no-snakecase-props": require("./eslint-rules/no-snakecase-props.cjs"),
 };

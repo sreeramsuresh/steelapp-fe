@@ -77,7 +77,7 @@ export async function fillInput(page, selector, value, options = {}) {
   try {
     const { clear = true, delay = 50 } = options;
 
-    if (!await waitForElement(page, selector)) {
+    if (!(await waitForElement(page, selector))) {
       return false;
     }
 
@@ -208,7 +208,7 @@ export async function selectDropdown(page, label, value, timeout = 3000) {
  */
 export async function checkCheckbox(page, selector) {
   try {
-    if (!await waitForElement(page, selector)) {
+    if (!(await waitForElement(page, selector))) {
       return false;
     }
 
@@ -233,7 +233,7 @@ export async function checkCheckbox(page, selector) {
  */
 export async function uncheckCheckbox(page, selector) {
   try {
-    if (!await waitForElement(page, selector)) {
+    if (!(await waitForElement(page, selector))) {
       return false;
     }
 
@@ -258,7 +258,7 @@ export async function uncheckCheckbox(page, selector) {
  */
 export async function isCheckboxChecked(page, selector) {
   try {
-    if (!await waitForElement(page, selector)) {
+    if (!(await waitForElement(page, selector))) {
       return null;
     }
 
@@ -299,12 +299,10 @@ export async function toggleSection(page, selector) {
  */
 export async function getValidationErrors(page) {
   try {
-    const errors = await page.$$eval(
-      '.text-red-500',
-      (els) =>
-        els
-          .map((el) => el.textContent)
-          .filter((text) => text && text.trim().length > 0),
+    const errors = await page.$$eval('.text-red-500', (els) =>
+      els
+        .map((el) => el.textContent)
+        .filter((text) => text && text.trim().length > 0),
     );
     return errors;
   } catch (err) {
@@ -387,7 +385,11 @@ export async function waitForNavigation(page, expectedPath, timeout = 5000) {
  * @param {number} timeout - Timeout in ms
  * @returns {boolean} - True if notification appeared
  */
-export async function waitForNotification(page, type = 'success', timeout = 5000) {
+export async function waitForNotification(
+  page,
+  type = 'success',
+  timeout = 5000,
+) {
   try {
     const selectors = [
       `.toast-${type}`,
@@ -524,7 +526,7 @@ export async function waitForText(page, text, timeout = 5000) {
  */
 export async function typeText(page, selector, text, delay = 50) {
   try {
-    if (!await waitForElement(page, selector)) {
+    if (!(await waitForElement(page, selector))) {
       return false;
     }
 
@@ -659,7 +661,11 @@ export async function isInViewport(page, selector) {
  * @param {number} timeout - Timeout in ms
  * @returns {boolean} - True if loading disappeared
  */
-export async function waitForLoadingDone(page, selector = '.spinner, [role="progressbar"], .loader', timeout = 10000) {
+export async function waitForLoadingDone(
+  page,
+  selector = '.spinner, [role="progressbar"], .loader',
+  timeout = 10000,
+) {
   try {
     // Wait for element to appear first
     await page.waitForSelector(selector, { timeout: 1000 });
@@ -685,7 +691,9 @@ export async function waitForLoadingDone(page, selector = '.spinner, [role="prog
  * @param {string} message - Optional message
  */
 export function logTestResult(testName, passed, message = '') {
-  const status = passed ? `${colors.green}PASS${colors.reset}` : `${colors.red}FAIL${colors.reset}`;
+  const status = passed
+    ? `${colors.green}PASS${colors.reset}`
+    : `${colors.red}FAIL${colors.reset}`;
   const msg = message ? ` - ${message}` : '';
   console.log(`${status}  ${testName}${msg}`);
 }

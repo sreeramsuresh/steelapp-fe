@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { Lock, Unlock, Clock, AlertCircle } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 
-export default function StockReservationToggle({ item, index, onToggleReservation }) {
+export default function StockReservationToggle({
+  item,
+  index,
+  onToggleReservation,
+}) {
   const { isDarkMode } = useTheme();
   const [timeRemaining, setTimeRemaining] = useState("");
 
@@ -60,7 +64,9 @@ export default function StockReservationToggle({ item, index, onToggleReservatio
               ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
-        title={item.stockReserved ? "Release reservation" : "Reserve stock (2 hours)"}
+        title={
+          item.stockReserved ? "Release reservation" : "Reserve stock (2 hours)"
+        }
       >
         {item.stockReserved ? (
           <>

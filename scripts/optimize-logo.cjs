@@ -1,16 +1,22 @@
-const sharp = require('sharp');
-const fs = require('fs');
+const sharp = require("sharp");
+const fs = require("fs");
 
-const inputPath = '/mnt/d/Chrome Downloads/brand logo.jpeg';
-const outputPath = '/mnt/d/Chrome Downloads/brand-logo-transparent.png';
+const inputPath = "/mnt/d/Chrome Downloads/brand logo.jpeg";
+const outputPath = "/mnt/d/Chrome Downloads/brand-logo-transparent.png";
 
 async function optimizeLogo() {
   try {
-    console.log('Processing logo with white background removal...');
+    console.log("Processing logo with white background removal...");
 
     const image = sharp(inputPath);
     const metadata = await image.metadata();
-    console.log('Original:', metadata.width, 'x', metadata.height, metadata.format);
+    console.log(
+      "Original:",
+      metadata.width,
+      "x",
+      metadata.height,
+      metadata.format,
+    );
 
     // Get raw pixel data
     const { data, info } = await image
@@ -37,20 +43,19 @@ async function optimizeLogo() {
       raw: {
         width: info.width,
         height: info.height,
-        channels: 4
-      }
+        channels: 4,
+      },
     })
       .png({ compressionLevel: 9 })
       .toFile(outputPath);
 
     const stats = fs.statSync(outputPath);
-    console.log('Done! Transparent PNG created');
-    console.log('Size:', info.width, 'x', info.height);
-    console.log('File size:', Math.round(stats.size / 1024), 'KB');
-    console.log('Saved to:', outputPath);
-
+    console.log("Done! Transparent PNG created");
+    console.log("Size:", info.width, "x", info.height);
+    console.log("File size:", Math.round(stats.size / 1024), "KB");
+    console.log("Saved to:", outputPath);
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error("Error:", error.message);
   }
 }
 

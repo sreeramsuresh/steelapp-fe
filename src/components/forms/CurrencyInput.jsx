@@ -136,12 +136,11 @@ const CurrencyInput = ({
             placeholder="e.g., 3.6725 for USD"
             required={required && isForeignCurrency}
           />
-          {required &&
-            (!exchangeRate || parseFloat(exchangeRate) <= 0) && (
-              <div className="text-xs text-red-600 mt-1">
-                Exchange rate is required for {currency} payments
-              </div>
-            )}
+          {required && (!exchangeRate || parseFloat(exchangeRate) <= 0) && (
+            <div className="text-xs text-red-600 mt-1">
+              Exchange rate is required for {currency} payments
+            </div>
+          )}
         </div>
       )}
 

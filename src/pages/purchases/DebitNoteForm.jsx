@@ -1065,7 +1065,8 @@ const DebitNoteForm = () => {
                         }`}
                       />
                       <div className={`text-xs ${textMuted} mt-1`}>
-                        Auto-calculated: {debitNote.totalDebit} × {debitNote.exchangeRate}
+                        Auto-calculated: {debitNote.totalDebit} ×{" "}
+                        {debitNote.exchangeRate}
                       </div>
                     </div>
                   </div>
@@ -1165,7 +1166,9 @@ const DebitNoteForm = () => {
                             setDebitNote((prev) => ({
                               ...prev,
                               stockImpact: e.target.checked,
-                              warehouseId: e.target.checked ? prev.warehouseId : null,
+                              warehouseId: e.target.checked
+                                ? prev.warehouseId
+                                : null,
                             }))
                           }
                           className="w-4 h-4 rounded"
@@ -1257,7 +1260,10 @@ const DebitNoteForm = () => {
 
                     <div className="col-span-12 md:col-span-12">
                       <label className={`block text-xs ${textMuted} mb-1.5`}>
-                        Modification Reason {debitNote.version > 1 && <span className="text-red-500">*</span>}
+                        Modification Reason{" "}
+                        {debitNote.version > 1 && (
+                          <span className="text-red-500">*</span>
+                        )}
                       </label>
                       <textarea
                         value={debitNote.modificationReason}
@@ -1275,7 +1281,9 @@ const DebitNoteForm = () => {
                             : "Version 1 - no modification reason required"
                         }
                         className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${
-                          debitNote.version === 1 ? "opacity-60 cursor-not-allowed" : ""
+                          debitNote.version === 1
+                            ? "opacity-60 cursor-not-allowed"
+                            : ""
                         }`}
                       />
                     </div>

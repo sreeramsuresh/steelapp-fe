@@ -12,8 +12,12 @@ export default function LeadTimeInput({ item, index, onUpdate }) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex items-center gap-1.5">
-        <Truck className={`h-4 w-4 ${isDarkMode ? "text-orange-400" : "text-orange-600"}`} />
-        <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+        <Truck
+          className={`h-4 w-4 ${isDarkMode ? "text-orange-400" : "text-orange-600"}`}
+        />
+        <span
+          className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+        >
           Lead Time:
         </span>
       </div>
@@ -33,7 +37,11 @@ export default function LeadTimeInput({ item, index, onUpdate }) {
               : "bg-white border-gray-300 text-gray-900"
           } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
         />
-        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>days</span>
+        <span
+          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+        >
+          days
+        </span>
       </div>
       {item.estimatedLeadTimeDays && (
         <span

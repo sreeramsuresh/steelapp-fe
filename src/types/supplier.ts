@@ -31,7 +31,7 @@ export interface Supplier {
  * Type guard to check if object is a valid Supplier
  */
 export function isSupplier(obj: unknown): obj is Supplier {
-  if (!obj || typeof obj !== "object") return false;
+  if (!obj || typeof obj !== 'object') return false;
   const record = obj as Record<string, unknown>;
-  return typeof record.id === "number" && typeof record.name === "string";
+  return typeof record.id === 'number' && typeof record.name === 'string';
 }

@@ -15,9 +15,9 @@
  * The actual server save is still done via the existing handleSave function.
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-const STORAGE_KEY_PREFIX = "invoice_draft_";
+const STORAGE_KEY_PREFIX = 'invoice_draft_';
 const DEFAULT_DEBOUNCE_MS = 30000; // 30 seconds
 const MIN_DEBOUNCE_MS = 5000; // Minimum 5 seconds to prevent too frequent saves
 
@@ -26,7 +26,7 @@ const MIN_DEBOUNCE_MS = 5000; // Minimum 5 seconds to prevent too frequent saves
  * @param {string|number|null} invoiceId - Invoice ID or null for new invoice
  */
 const getStorageKey = (invoiceId) => {
-  return `${STORAGE_KEY_PREFIX}${invoiceId || "new"}`;
+  return `${STORAGE_KEY_PREFIX}${invoiceId || 'new'}`;
 };
 
 /**
@@ -45,7 +45,7 @@ const safeJsonParse = (str, fallback = null) => {
  * @param {number} timestamp - Unix timestamp in milliseconds
  */
 export const formatRelativeTime = (timestamp) => {
-  if (!timestamp) return "";
+  if (!timestamp) return '';
 
   const now = Date.now();
   const diff = now - timestamp;
@@ -54,7 +54,7 @@ export const formatRelativeTime = (timestamp) => {
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
 
-  if (seconds < 10) return "just now";
+  if (seconds < 10) return 'just now';
   if (seconds < 60) return `${seconds}s ago`;
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
@@ -79,7 +79,7 @@ const useAutoSave = (
   { enabled = true, debounceMs = DEFAULT_DEBOUNCE_MS, onRecover = null } = {},
 ) => {
   // State
-  const [status, setStatus] = useState("saved"); // 'saved' | 'saving' | 'unsaved' | 'recovered'
+  const [status, setStatus] = useState('saved'); // 'saved' | 'saving' | 'unsaved' | 'recovered'
   const [lastSaved, setLastSaved] = useState(null);
   const [hasLocalDraft, setHasLocalDraft] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -106,11 +106,11 @@ const useAutoSave = (
         localStorage.setItem(storageKey, JSON.stringify(saveData));
         setLastSaved(saveData.timestamp);
         setHasLocalDraft(true);
-        setStatus("saved");
+        setStatus('saved');
         setIsDirty(false);
       } catch (error) {
-        console.error("useAutoSave: Failed to save to localStorage", error);
-        setStatus("unsaved");
+        console.error('useAutoSave: Failed to save to localStorage', error);
+        setStatus('unsaved');
       }
     },
     [enabled, storageKey, invoiceId],
@@ -132,7 +132,7 @@ const useAutoSave = (
       }
       return null;
     } catch (error) {
-      console.error("useAutoSave: Failed to load from localStorage", error);
+      console.error('useAutoSave: Failed to load from localStorage', error);
       return null;
     }
   }, [storageKey]);
@@ -146,9 +146,9 @@ const useAutoSave = (
       setHasLocalDraft(false);
       setLastSaved(null);
       setIsDirty(false);
-      setStatus("saved");
+      setStatus('saved');
     } catch (error) {
-      console.error("useAutoSave: Failed to clear localStorage", error);
+      console.error('useAutoSave: Failed to clear localStorage', error);
     }
   }, [storageKey]);
 
@@ -158,7 +158,7 @@ const useAutoSave = (
   const checkForRecoverableDraft = useCallback(() => {
     const stored = loadFromLocal();
     if (stored && stored.data) {
-      setStatus("recovered");
+      setStatus('recovered');
       return stored;
     }
     return null;
@@ -199,7 +199,7 @@ const useAutoSave = (
 
     // Mark as dirty immediately
     setIsDirty(true);
-    setStatus("unsaved");
+    setStatus('unsaved');
 
     // Clear existing timer
     if (debounceTimerRef.current) {
@@ -209,7 +209,7 @@ const useAutoSave = (
     // Set new debounce timer
     const actualDebounce = Math.max(debounceMs, MIN_DEBOUNCE_MS);
     debounceTimerRef.current = setTimeout(() => {
-      setStatus("saving");
+      setStatus('saving');
       // Small delay to show "saving" state
       setTimeout(() => {
         saveToLocal(data);
@@ -235,14 +235,14 @@ const useAutoSave = (
 
         // Show browser's "unsaved changes" dialog
         event.preventDefault();
-        event.returnValue = "";
-        return "";
+        event.returnValue = '';
+        return '';
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [enabled, isDirty, data, saveToLocal]);
 
@@ -277,37 +277,37 @@ const useAutoSave = (
  */
 export const getAutoSaveStatusDisplay = (status, lastSavedFormatted) => {
   switch (status) {
-    case "saved":
+    case 'saved':
       return {
         text: lastSavedFormatted
           ? `Draft saved ${lastSavedFormatted}`
-          : "Draft saved",
-        color: "text-green-500",
-        icon: "✓",
+          : 'Draft saved',
+        color: 'text-green-500',
+        icon: '✓',
       };
-    case "saving":
+    case 'saving':
       return {
-        text: "Saving draft...",
-        color: "text-yellow-500",
-        icon: "⏳",
+        text: 'Saving draft...',
+        color: 'text-yellow-500',
+        icon: '⏳',
       };
-    case "unsaved":
+    case 'unsaved':
       return {
-        text: "Unsaved changes",
-        color: "text-orange-500",
-        icon: "●",
+        text: 'Unsaved changes',
+        color: 'text-orange-500',
+        icon: '●',
       };
-    case "recovered":
+    case 'recovered':
       return {
-        text: "Draft recovered",
-        color: "text-blue-500",
-        icon: "↺",
+        text: 'Draft recovered',
+        color: 'text-blue-500',
+        icon: '↺',
       };
     default:
       return {
-        text: "",
-        color: "text-gray-500",
-        icon: "",
+        text: '',
+        color: 'text-gray-500',
+        icon: '',
       };
   }
 };

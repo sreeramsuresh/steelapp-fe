@@ -28,12 +28,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": [
-    "src/types/**/*.ts",
-    "src/validators/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/types/**/*.ts", "src/validators/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

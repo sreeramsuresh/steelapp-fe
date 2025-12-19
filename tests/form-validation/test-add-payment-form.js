@@ -34,14 +34,18 @@ async function runTest() {
 
   const launchOptions = {
     headless: TEST_CONFIG.headless,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+    ],
     slowMo: TEST_CONFIG.slowMo,
   };
   if (CHROMIUM_PATH) launchOptions.executablePath = CHROMIUM_PATH;
 
   const browser = await puppeteer.launch(launchOptions);
 
-  let testResults = {
+  const testResults = {
     passed: [],
     failed: [],
     warnings: [],
@@ -86,14 +90,17 @@ async function runTest() {
     console.log('✓ Test 2: Checking payment form fields...');
     try {
       const fields = [
-        { selector: 'input[type="number"], input[name*="amount"]', name: 'Amount field' },
+        {
+          selector: 'input[type="number"], input[name*="amount"]',
+          name: 'Amount field',
+        },
         { selector: 'input[type="date"]', name: 'Payment date' },
         { selector: 'select, input[name*="method"]', name: 'Payment method' },
         { selector: 'input[name*="reference"]', name: 'Reference field' },
       ];
 
       for (const field of fields) {
-        const exists = await page.$(field.selector) !== null;
+        const exists = (await page.$(field.selector)) !== null;
         if (exists) {
           testResults.passed.push(`${field.name} exists`);
         } else {
@@ -108,13 +115,18 @@ async function runTest() {
     // Test 3: Fill Amount Field
     console.log('✓ Test 3: Testing amount input...');
     try {
-      const amountInput = await page.$('input[type="number"], input[name*="amount"]');
+      const amountInput = await page.$(
+        'input[type="number"], input[name*="amount"]',
+      );
       if (amountInput) {
         await amountInput.click({ clickCount: 3 }); // Select all
         await amountInput.type(TEST_DATA.amount);
         testResults.passed.push('Amount field filled');
 
-        const screenshotPath = join(SCREENSHOT_DIR, 'payment-02-amount-filled.png');
+        const screenshotPath = join(
+          SCREENSHOT_DIR,
+          'payment-02-amount-filled.png',
+        );
         await page.screenshot({ path: screenshotPath, fullPage: true });
         testResults.screenshots.push(screenshotPath);
       } else {
@@ -128,16 +140,23 @@ async function runTest() {
     // Test 4: Invoice Autocomplete (if exists)
     console.log('✓ Test 4: Testing invoice autocomplete...');
     try {
-      const autocompleteInput = await page.$('input[placeholder*="Search"], input[placeholder*="invoice"]');
+      const autocompleteInput = await page.$(
+        'input[placeholder*="Search"], input[placeholder*="invoice"]',
+      );
       if (autocompleteInput) {
         await autocompleteInput.type('INV');
         await page.waitForTimeout(500);
 
-        const dropdown = await page.$('[class*="dropdown"], [class*="suggestions"], [class*="options"]');
+        const dropdown = await page.$(
+          '[class*="dropdown"], [class*="suggestions"], [class*="options"]',
+        );
         if (dropdown) {
           testResults.passed.push('Autocomplete dropdown appears');
 
-          const screenshotPath = join(SCREENSHOT_DIR, 'payment-03-autocomplete.png');
+          const screenshotPath = join(
+            SCREENSHOT_DIR,
+            'payment-03-autocomplete.png',
+          );
           await page.screenshot({ path: screenshotPath, fullPage: true });
           testResults.screenshots.push(screenshotPath);
         } else {
@@ -157,7 +176,7 @@ async function runTest() {
       // Clear form
       await page.evaluate(() => {
         const inputs = document.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
+        inputs.forEach((input) => {
           if (input.type !== 'submit' && input.type !== 'button') {
             input.value = '';
           }
@@ -170,17 +189,28 @@ async function runTest() {
         await page.waitForTimeout(1000);
 
         const errorMessages = await page.evaluate(() => {
-          const errors = Array.from(document.querySelectorAll('.error, .text-red-500, [class*="error"]'));
-          return errors.map(el => el.textContent).filter(text => text.trim());
+          const errors = Array.from(
+            document.querySelectorAll(
+              '.error, .text-red-500, [class*="error"]',
+            ),
+          );
+          return errors
+            .map((el) => el.textContent)
+            .filter((text) => text.trim());
         });
 
         if (errorMessages.length > 0) {
-          testResults.passed.push(`Validation shows ${errorMessages.length} errors`);
+          testResults.passed.push(
+            `Validation shows ${errorMessages.length} errors`,
+          );
         } else {
           testResults.warnings.push('No validation errors displayed');
         }
 
-        const screenshotPath = join(SCREENSHOT_DIR, 'payment-04-validation.png');
+        const screenshotPath = join(
+          SCREENSHOT_DIR,
+          'payment-04-validation.png',
+        );
         await page.screenshot({ path: screenshotPath, fullPage: true });
         testResults.screenshots.push(screenshotPath);
       }
@@ -192,7 +222,7 @@ async function runTest() {
     // Console & Page Errors
     if (consoleErrors.length > 0) {
       testResults.warnings.push(`${consoleErrors.length} console errors`);
-      consoleErrors.forEach(err => console.log(`  ⚠ ${err}`));
+      consoleErrors.forEach((err) => console.log(`  ⚠ ${err}`));
     } else {
       testResults.passed.push('No console errors');
     }
@@ -202,7 +232,6 @@ async function runTest() {
     } else {
       testResults.passed.push('No page errors');
     }
-
   } catch (error) {
     console.error('❌ Test failed:', error);
     testResults.failed.push(`Test error: ${error.message}`);
@@ -215,32 +244,35 @@ async function runTest() {
 }
 
 function printSummary(results) {
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('TEST SUMMARY: Add Payment Form');
   console.log('='.repeat(60));
 
   console.log(`\n✓ Passed: ${results.passed.length}`);
-  results.passed.forEach(test => console.log(`  - ${test}`));
+  results.passed.forEach((test) => console.log(`  - ${test}`));
 
   if (results.warnings.length > 0) {
     console.log(`\n⚠ Warnings: ${results.warnings.length}`);
-    results.warnings.forEach(w => console.log(`  - ${w}`));
+    results.warnings.forEach((w) => console.log(`  - ${w}`));
   }
 
   if (results.failed.length > 0) {
     console.log(`\n✗ Failed: ${results.failed.length}`);
-    results.failed.forEach(f => console.log(`  - ${f}`));
+    results.failed.forEach((f) => console.log(`  - ${f}`));
   }
 
   console.log(`\n📸 Screenshots: ${results.screenshots.length}`);
 
   const total = results.passed.length + results.failed.length;
-  const passRate = total > 0 ? ((results.passed.length / total) * 100).toFixed(1) : 0;
-  console.log(`\nOVERALL: ${results.passed.length}/${total} passed (${passRate}%)`);
-  console.log('='.repeat(60) + '\n');
+  const passRate =
+    total > 0 ? ((results.passed.length / total) * 100).toFixed(1) : 0;
+  console.log(
+    `\nOVERALL: ${results.passed.length}/${total} passed (${passRate}%)`,
+  );
+  console.log(`${'='.repeat(60)}\n`);
 }
 
-runTest().catch(error => {
+runTest().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

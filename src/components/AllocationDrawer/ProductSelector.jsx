@@ -82,7 +82,10 @@ const ProductSelector = ({
 
       onSelectProduct(normalized);
       setSearchTerm(
-        normalized.displayName || normalized.uniqueName || normalized.name || "",
+        normalized.displayName ||
+          normalized.uniqueName ||
+          normalized.name ||
+          "",
       );
       setShowDropdown(false);
       setProducts([]);
