@@ -19,7 +19,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/axiosAuthService";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
-import { purchaseOrdersAPI } from "../services/api";
+import { purchaseOrderService } from "../services/purchaseOrderService";
 import { companyService } from "../services";
 import { useApiData } from "../hooks/useApi";
 import { notificationService } from "../services/notificationService";
@@ -144,7 +144,7 @@ const PurchaseOrderList = () => {
         status: statusFilter !== "all" ? statusFilter : undefined,
       };
 
-      const response = await purchaseOrdersAPI.getAll(params);
+      const response = await purchaseOrderService.getAll(params);
 
       // Handle different response formats
       let orders = [];
@@ -211,7 +211,7 @@ const PurchaseOrderList = () => {
 
     try {
       // Use backend PDF generation only (per PDF_WORKFLOW.md)
-      await purchaseOrdersAPI.downloadPDF(po.id);
+      await purchaseOrderService.downloadPDF(po.id);
       notificationService.success("PDF downloaded successfully");
     } catch (err) {
       notificationService.error("Failed to download PDF");
@@ -235,7 +235,7 @@ const PurchaseOrderList = () => {
 
     if (confirmed) {
       try {
-        await purchaseOrdersAPI.delete(id);
+        await purchaseOrderService.delete(id);
         notificationService.success("Purchase order deleted successfully");
         fetchPurchaseOrders();
       } catch (err) {
