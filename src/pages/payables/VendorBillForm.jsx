@@ -3,7 +3,8 @@ import PropTypes from "prop-types";
 import { X, Loader2, Save, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import vendorBillService from "../../services/vendorBillService";
-import { suppliersAPI, purchaseOrdersAPI } from "../../services/api";
+import { suppliersAPI } from '../../services/api';
+import { purchaseOrderService } from "../../services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -155,7 +156,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
       try {
         const [suppliersRes, posRes] = await Promise.all([
           suppliersAPI.getAll(),
-          purchaseOrdersAPI.getAll({ companyId }),
+          purchaseOrderService.getAll({ companyId }),
         ]);
         setSuppliers(Array.isArray(suppliersRes) ? suppliersRes : []);
         const poArray = posRes?.purchaseOrders || posRes;

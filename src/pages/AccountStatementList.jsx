@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { accountStatementsAPI, customersAPI } from "../services/api";
+import { accountStatementService, customersAPI } from "../services/api";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import GenerateStatementModal from "../components/GenerateStatementModal";
 import AccountStatementPreview from "../components/account-statements/AccountStatementPreview";
@@ -66,7 +66,7 @@ const AccountStatementList = ({
   const fetchStatements = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await accountStatementsAPI.getAll({
+      const response = await accountStatementService.getAll({
         page,
         limit: 10,
         search: searchTerm || undefined,
@@ -161,7 +161,7 @@ const AccountStatementList = ({
   const handlePreview = async (statement) => {
     try {
       setPreviewLoading(true);
-      const fullStatement = await accountStatementsAPI.getById(statement.id);
+      const fullStatement = await accountStatementService.getById(statement.id);
       setPreviewStatement(fullStatement);
     } catch (err) {
       console.error("Error fetching statement for preview:", err);
@@ -185,7 +185,7 @@ const AccountStatementList = ({
     }
 
     try {
-      await accountStatementsAPI.downloadPDF(statement.id);
+      await accountStatementService.downloadPDF(statement.id);
       setSuccess("PDF downloaded successfully");
     } catch (err) {
       setError("Failed to download PDF");
@@ -196,7 +196,7 @@ const AccountStatementList = ({
   const handleForceDownload = async () => {
     if (!downloadWarning.statement) return;
     try {
-      await accountStatementsAPI.downloadPDF(downloadWarning.statement.id);
+      await accountStatementService.downloadPDF(downloadWarning.statement.id);
       setSuccess("PDF downloaded successfully");
     } catch (err) {
       setError("Failed to download PDF");
@@ -207,7 +207,7 @@ const AccountStatementList = ({
 
   const handleDelete = async () => {
     try {
-      await accountStatementsAPI.delete(deleteDialog.id);
+      await accountStatementService.delete(deleteDialog.id);
       setSuccess("Account statement archived successfully");
       setDeleteDialog({ open: false, id: null, number: "" });
       fetchStatements();

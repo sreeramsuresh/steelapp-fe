@@ -105,16 +105,17 @@ const DeliveryNoteDetails = () => {
       // If marked completed, try to update related purchase order transit status
       if (newStatus === "completed" && deliveryNote?.purchaseOrderId) {
         try {
-          const { purchaseOrdersAPI } = await import("../services/api");
+          const { purchaseOrderService } =
+            await import("../services/purchaseOrderService");
           const { stockMovementService } =
             await import("../services/stockMovementService");
           // Update PO status to received
-          await purchaseOrdersAPI.updateStatus(
+          await purchaseOrderService.updateStatus(
             deliveryNote.purchaseOrderId,
             "received",
           );
           // Create IN stock movements for each PO item
-          const po = await purchaseOrdersAPI.getById(
+          const po = await purchaseOrderService.getById(
             deliveryNote.purchaseOrderId,
           );
           const items = Array.isArray(po?.items) ? po.items : [];

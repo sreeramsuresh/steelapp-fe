@@ -10,7 +10,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
-import { accountStatementsAPI } from "../services/api";
+import { accountStatementService } from '../services/accountStatementService';
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 
 const AccountStatementDetails = () => {
@@ -25,7 +25,7 @@ const AccountStatementDetails = () => {
     const fetchStatement = async () => {
       try {
         setLoading(true);
-        const response = await accountStatementsAPI.getById(id);
+        const response = await accountStatementService.getById(id);
         setStatement(response);
       } catch (err) {
         console.error("Error fetching statement:", err);
@@ -40,7 +40,7 @@ const AccountStatementDetails = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      await accountStatementsAPI.downloadPDF(id);
+      await accountStatementService.downloadPDF(id);
     } catch (err) {
       setError("Failed to download PDF");
     }

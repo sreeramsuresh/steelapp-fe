@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, FileText, ChevronDown } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
-import { accountStatementsAPI, apiClient } from "../services/api";
+import { accountStatementService, apiClient } from "../services/api";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 
@@ -56,7 +56,7 @@ const AccountStatementForm = () => {
       setLoading(true);
       setError("");
 
-      const response = await accountStatementsAPI.create(formData);
+      const response = await accountStatementService.create(formData);
       navigate(`/account-statements/${response.id}`);
     } catch (err) {
       setError("Failed to create account statement");

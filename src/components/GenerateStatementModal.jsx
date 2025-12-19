@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Calendar, FileText, Download, AlertCircle } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
-import { accountStatementsAPI } from "../services/api";
+import { accountStatementService } from '../services/accountStatementService';
 import { formatDate } from "../utils/invoiceUtils";
 
 const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
@@ -61,7 +61,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
       };
 
       // Always generate and save statement (best practice)
-      await accountStatementsAPI.generateOnTheFly(statementData);
+      await accountStatementService.generateOnTheFly(statementData);
       onGenerated && onGenerated();
 
       onClose();

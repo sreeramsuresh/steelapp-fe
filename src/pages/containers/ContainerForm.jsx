@@ -3,7 +3,8 @@ import PropTypes from "prop-types";
 import { X, Loader2, Save, ChevronDown } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { importContainerService } from "../../services/importContainerService";
-import { suppliersAPI, purchaseOrdersAPI } from "../../services/api";
+import { suppliersAPI } from '../../services/api';
+import { purchaseOrderService } from "../../services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -123,7 +124,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
       try {
         const [suppliersRes, posRes] = await Promise.all([
           suppliersAPI.getAll(),
-          purchaseOrdersAPI.getAll({ companyId, status: "CONFIRMED" }),
+          purchaseOrderService.getAll({ companyId, status: "CONFIRMED" }),
         ]);
         // Ensure suppliers is always an array
         setSuppliers(Array.isArray(suppliersRes) ? suppliersRes : []);

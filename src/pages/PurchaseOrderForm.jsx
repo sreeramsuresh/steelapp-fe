@@ -81,7 +81,7 @@ import {
   generatePONumber,
   formatAddress,
 } from "../utils/invoiceUtils";
-import { purchaseOrdersAPI } from "../services/api";
+import { purchaseOrderService } from '../services/purchaseOrderService';
 import { productService, payablesService } from "../services/dataService";
 import { PRODUCT_TYPES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";
@@ -1012,7 +1012,7 @@ const PurchaseOrderForm = () => {
       if (!id) return;
       setLoading(true);
       try {
-        const data = await purchaseOrdersAPI.getById(id);
+        const data = await purchaseOrderService.getById(id);
         // Map backend fields to form model
         setPurchaseOrder((prev) => ({
           ...prev,
@@ -1107,7 +1107,7 @@ const PurchaseOrderForm = () => {
   const fetchWarehouses = async () => {
     try {
       // Try to fetch real warehouses from API first
-      const response = await purchaseOrdersAPI.getWarehouses();
+      const response = await purchaseOrderService.getWarehouses();
       const apiWarehouses = response?.warehouses || response?.data || response;
 
       if (
@@ -1121,7 +1121,7 @@ const PurchaseOrderForm = () => {
     } catch (error) {
       // Try to seed warehouses if they don&apos;t exist
       try {
-        await purchaseOrdersAPI.seedWarehouses();
+        await purchaseOrderService.seedWarehouses();
         notificationService.success(
           "Warehouses initialized successfully. Please try again.",
         );
@@ -1177,7 +1177,7 @@ const PurchaseOrderForm = () => {
 
   // Get next PO number from server (only for new purchase orders)
   const { data: nextPOData } = useApiData(
-    () => purchaseOrdersAPI.getNextNumber(),
+    () => purchaseOrderService.getNextNumber(),
     [],
     !id, // Only fetch when creating new PO (not editing)
   );
@@ -1848,10 +1848,10 @@ const PurchaseOrderForm = () => {
       let savedPO;
       if (id) {
         // Update existing purchase order
-        savedPO = await purchaseOrdersAPI.update(id, transformedData);
+        savedPO = await purchaseOrderService.update(id, transformedData);
       } else {
         // Create new purchase order
-        savedPO = await purchaseOrdersAPI.create(transformedData);
+        savedPO = await purchaseOrderService.create(transformedData);
       }
 
       // If stock status is received, trigger inventory creation via the stock-status endpoint

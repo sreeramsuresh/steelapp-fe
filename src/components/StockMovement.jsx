@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { stockMovementService } from "../services/stockMovementService";
-import { purchaseOrdersAPI } from "../services/api";
+import { purchaseOrderService } from '../services/purchaseOrderService';
 import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
 import { productService } from "../services/productService";
 import {
@@ -55,7 +55,7 @@ const StockMovement = () => {
       const stockMovements = response.data || [];
 
       // Fetch all purchase orders and filter for in-transit ones
-      const poResponse = await purchaseOrdersAPI.getAll();
+      const poResponse = await purchaseOrderService.getAll();
       let allPOs = [];
 
       // Handle different response formats
