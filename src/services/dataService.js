@@ -15,7 +15,7 @@ import {
   payablesService as realPayablesService,
   PAYMENT_MODES as realPaymentModes,
 } from './payablesService';
-import { quotationsAPI } from './api';
+import { quotationService as realQuotationService } from './quotationService';
 
 /**
  * Invoice Service
@@ -40,7 +40,7 @@ export const companyService = realCompanyService.companyService;
 /**
  * Quotation Service
  */
-export const quotationService = quotationsAPI;
+export const quotationService = realQuotationService;
 
 /**
  * Payables Service

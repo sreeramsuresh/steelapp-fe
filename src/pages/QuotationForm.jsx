@@ -20,7 +20,8 @@ import {
   Layers,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
-import { quotationsAPI, productsAPI, apiClient } from "../services/api";
+import { quotationService } from "../services/quotationService";
+import { productsAPI, apiClient } from "../services/api";
 import { customerService } from "../services/customerService";
 import pricelistService from "../services/pricelistService";
 import { formatCurrency, calculateItemAmount } from "../utils/invoiceUtils";
@@ -438,7 +439,7 @@ const QuotationForm = () => {
 
         if (!isEdit) {
           // Get next quotation number
-          const nextNumberResponse = await quotationsAPI.getNextNumber();
+          const nextNumberResponse = await quotationService.getNextNumber();
           setFormData((prev) => ({
             ...prev,
             quotationNumber: nextNumberResponse.nextQuotationNumber,
@@ -460,7 +461,7 @@ const QuotationForm = () => {
       const fetchQuotation = async () => {
         try {
           setLoading(true);
-          const response = await quotationsAPI.getById(id);
+          const response = await quotationService.getById(id);
 
           // Transform snake_case to camelCase
           setFormData({
@@ -575,7 +576,7 @@ const QuotationForm = () => {
       fetchQuotation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, id]); // quotationsAPI and setState functions are stable
+  }, [isEdit, id]); // quotationService and setState functions are stable
 
   // Run field validation when key fields change
   useEffect(() => {
@@ -1309,10 +1310,10 @@ const QuotationForm = () => {
       };
 
       if (isEdit) {
-        await quotationsAPI.update(id, dataToSubmit);
+        await quotationService.update(id, dataToSubmit);
         setSuccess("Quotation updated successfully");
       } else {
-        await quotationsAPI.create(dataToSubmit);
+        await quotationService.create(dataToSubmit);
         setSuccess("Quotation created successfully");
       }
 

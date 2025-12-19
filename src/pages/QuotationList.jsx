@@ -26,7 +26,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/axiosAuthService";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
-import { quotationsAPI } from "../services/api";
+import { quotationService } from "../services/quotationService";
 import { useApiData } from "../hooks/useApi";
 import { companyService } from "../services";
 import { NewBadge } from "../components/shared";
@@ -118,7 +118,7 @@ const QuotationList = () => {
       if (searchTerm) params.search = searchTerm;
       if (statusFilter !== "all") params.status = statusFilter;
 
-      const response = await quotationsAPI.getAll(params);
+      const response = await quotationService.getAll(params);
 
       if (response?.quotations) {
         setQuotations(response.quotations);
@@ -144,7 +144,7 @@ const QuotationList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await quotationsAPI.delete(id);
+      await quotationService.delete(id);
       setSuccess("Quotation deleted successfully");
       setDeleteConfirm(null);
       fetchQuotations();
@@ -158,7 +158,7 @@ const QuotationList = () => {
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
-      await quotationsAPI.updateStatus(id, newStatus);
+      await quotationService.updateStatus(id, newStatus);
       setSuccess(`Quotation status updated to ${newStatus}`);
       fetchQuotations();
       setTimeout(() => setSuccess(""), 3000);
@@ -171,7 +171,7 @@ const QuotationList = () => {
 
   const handleConvertToInvoice = async (id) => {
     try {
-      const response = await quotationsAPI.convertToInvoice(id);
+      const response = await quotationService.convertToInvoice(id);
       setSuccess(`Quotation converted to invoice ${response.invoiceNumber}`);
       fetchQuotations();
       setTimeout(() => setSuccess(""), 3000);
@@ -204,7 +204,7 @@ const QuotationList = () => {
 
     try {
       // Use backend PDF generation only (per PDF_WORKFLOW.md)
-      await quotationsAPI.downloadPDF(quotation.id);
+      await quotationService.downloadPDF(quotation.id);
       notificationService.success("PDF downloaded successfully");
     } catch (err) {
       console.error("Error downloading PDF:", err);
