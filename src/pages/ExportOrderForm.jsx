@@ -1137,6 +1137,7 @@ const createEmptyOrder = () => ({
   // Customer VAT Details (for GCC exports)
   customer_vat_id: "", // Customer's VAT registration number
   customer_gcc_vat_id: "", // GCC-specific VAT ID
+  customer_trn: "", // UAE customer TRN (for UAE/GCC exports, Form 201 compliance)
 
   // Destination Details
   destination_country: "",
@@ -1172,6 +1173,7 @@ const createEmptyOrder = () => ({
   freight_cost: 0,
   insurance_cost: 0,
   other_charges: 0,
+  vat_rate: 0, // Auto-calculated based on destination/designated zone
   vat_amount: 0, // Should be 0 for exports
   total: 0,
 
@@ -1200,6 +1202,11 @@ const createEmptyOrder = () => ({
   certificate_of_origin_date: "",
   commercial_invoice_number: "",
   packing_list_number: "",
+
+  // COO Requirement Tracking (Epic 9 - EXPO-007)
+  requires_coo: true, // Auto-determined based on destination
+  coo_exemption_reason: "", // If COO not required, state why
+  coo_document_status: "", // pending | uploaded | verified
 
   // Form 201 VAT Return Mapping
   form_201_box: "box_2", // Zero-rated supplies (Box 2)
@@ -1350,11 +1357,13 @@ const ExportOrderForm = () => {
     // Total value before VAT
     const totalValue = subtotal + freight + insurance + otherCharges;
 
-    // VAT is ALWAYS 0 for exports (Article 45 UAE VAT Law)
-    const vatAmount = 0;
+    // VAT calculation based on auto-determined rate
+    // For exports: usually 0% (zero-rated), but 5% for UAE domestic sales
+    const vatRate = parseFloat(order.vat_rate) || 0;
+    const vatAmount = (totalValue * vatRate) / 100;
 
-    // Total = Subtotal + charges (no VAT for exports)
-    const total = totalValue;
+    // Total = Subtotal + charges + VAT
+    const total = totalValue + vatAmount;
 
     // Value in AED for Form 201 reporting
     const totalInAED = total * exchangeRate;
@@ -1389,6 +1398,7 @@ const ExportOrderForm = () => {
     order.insurance_cost,
     order.other_charges,
     order.exchange_rate,
+    order.vat_rate,
     order.export_vat_treatment,
     calculateItemTotal,
   ]);
@@ -1403,6 +1413,44 @@ const ExportOrderForm = () => {
       zero_rated_export_value: calculations.zeroRatedExportValue,
     }));
   }, [calculations]);
+
+  // Auto-calculate VAT rate based on destination and designated zone
+  useEffect(() => {
+    let autoVatRate = 0; // Default for exports
+
+    // Determine if customer is UAE-based
+    const isUAECustomer =
+      order.customer_country === "UAE" ||
+      order.customer_country === "United Arab Emirates" ||
+      order.destination_country === "UAE" ||
+      order.destination_country === "United Arab Emirates";
+
+    // VAT Rate Logic:
+    // 1. Designated Zone exports → 0% (zero-rated)
+    // 2. UAE customers (non-DZ) → 5% (standard rate)
+    // 3. Non-UAE exports → 0% (zero-rated)
+    if (order.is_designated_zone_export || order.export_type === "dz_export") {
+      autoVatRate = 0; // Designated zone = zero-rated
+    } else if (isUAECustomer) {
+      autoVatRate = 5; // UAE domestic = 5% VAT
+    } else {
+      autoVatRate = 0; // International export = zero-rated
+    }
+
+    // Update VAT rate if it changed
+    if (order.vat_rate !== autoVatRate) {
+      setOrder((prev) => ({
+        ...prev,
+        vat_rate: autoVatRate,
+      }));
+    }
+  }, [
+    order.customer_country,
+    order.destination_country,
+    order.is_designated_zone_export,
+    order.export_type,
+    order.vat_rate,
+  ]);
 
   // ============================================================
   // FORM HANDLERS
@@ -1466,6 +1514,25 @@ const ExportOrderForm = () => {
               updated.export_type = "direct_export";
             }
           }
+
+          // Epic 9 - EXPO-007: Auto-determine COO requirement
+          // COO required when:
+          // - destination is NOT UAE AND
+          // - NOT a designated zone export AND
+          // - customer country is NOT UAE
+          const isUAE = value === "AE" || value === "UAE" || value.toLowerCase() === "united arab emirates";
+          updated.requires_coo = !isUAE && !updated.is_designated_zone_export;
+
+          // Set exemption reason if COO not required
+          if (!updated.requires_coo) {
+            if (isUAE) {
+              updated.coo_exemption_reason = "Domestic UAE transaction";
+            } else if (updated.is_designated_zone_export) {
+              updated.coo_exemption_reason = "Designated zone export (Article 51)";
+            }
+          } else {
+            updated.coo_exemption_reason = "";
+          }
         }
 
         // Auto-set Form 201 box based on VAT treatment
@@ -1515,6 +1582,7 @@ const ExportOrderForm = () => {
           customer_contact_phone:
             customer.contact_phone || customer.phone || "",
           customer_vat_id: customer.vat_number || customer.trn_number || "",
+          customer_trn: customer.trn_number || customer.vat_number || "",
           destination_country: customer.country || "",
         }));
         setShowCustomerDropdown(false);
@@ -1774,6 +1842,38 @@ const ExportOrderForm = () => {
       if (!order.designated_zone_origin) {
         newErrors.designated_zone_origin = "Designated Zone origin required";
       }
+    }
+
+    // UAE Customer TRN validation (for UAE/GCC customers)
+    if (order.status !== "draft") {
+      const isUAECustomer = order.customer_country === "UAE" ||
+                           order.customer_country === "United Arab Emirates" ||
+                           order.destination_country === "UAE" ||
+                           order.destination_country === "United Arab Emirates";
+
+      const isGCCCustomer = order.is_gcc_export ||
+                           GCC_COUNTRIES.some(gcc =>
+                             gcc.code === order.destination_country ||
+                             gcc.name === order.customer_country
+                           );
+
+      if ((isUAECustomer || isGCCCustomer) && order.customer_trn) {
+        // Validate TRN format if provided
+        const customerTrnValidation = validateTRN(order.customer_trn);
+        if (!customerTrnValidation.valid) {
+          newErrors.customer_trn = customerTrnValidation.message;
+        }
+      }
+    }
+
+    // Epic 9 - EXPO-007: COO requirement validation
+    if (order.requires_coo && !order.certificate_of_origin) {
+      newErrors.certificate_of_origin = "Certificate of Origin required for this destination";
+    }
+
+    // If COO not required, exemption reason must be provided
+    if (!order.requires_coo && !order.coo_exemption_reason) {
+      newErrors.coo_exemption_reason = "Provide exemption reason when COO not required";
     }
 
     setErrors(newErrors);
@@ -2169,6 +2269,28 @@ const ExportOrderForm = () => {
                   : "Optional"
               }
             />
+          </div>
+
+          {/* Customer TRN field for UAE/GCC customers */}
+          <div className="grid grid-cols-1 gap-4 mt-4">
+            <Input
+              label="Customer TRN (UAE/GCC)"
+              value={order.customer_trn}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "").slice(0, 15);
+                handleFieldChange("customer_trn", value);
+              }}
+              placeholder="300XXXXXXXXX5 (15 digits)"
+              error={errors.customer_trn}
+              helperText="Required for UAE/GCC customer VAT compliance"
+            />
+            {order.customer_trn && order.customer_trn.length > 0 && (
+              <div
+                className={`text-xs mt-1 ${validateTRN(order.customer_trn).valid ? "text-green-500" : "text-amber-500"}`}
+              >
+                {validateTRN(order.customer_trn).message}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -2718,17 +2840,38 @@ const ExportOrderForm = () => {
                   <p
                     className={`text-xs font-medium ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`}
                   >
+                    VAT Rate (Auto-calculated)
+                  </p>
+                  <p
+                    className={`text-lg font-bold ${order.vat_rate > 0 ? (isDarkMode ? "text-amber-400" : "text-amber-600") : (isDarkMode ? "text-green-400" : "text-green-600")}`}
+                  >
+                    {order.vat_rate}%
+                  </p>
+                  <p
+                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    {order.vat_rate === 0
+                      ? "Zero-rated export"
+                      : order.vat_rate === 5
+                        ? "UAE domestic sale (5%)"
+                        : `Custom rate: ${order.vat_rate}%`}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className={`text-xs font-medium ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`}
+                  >
                     VAT Amount (Output)
                   </p>
                   <p
                     className={`text-lg font-bold ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                   >
-                    AED 0.00
+                    {formatAED(calculations.vatAmount * calculations.exchangeRate)}
                   </p>
                   <p
                     className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
-                    No output VAT on exports
+                    {order.currency} {calculations.vatAmount.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -3348,6 +3491,83 @@ const ExportOrderForm = () => {
 
         {/* Export Documentation Section */}
         <Card title="Export Documentation" icon={FileText}>
+          {/* COO Requirement Indicator (Epic 9 - EXPO-007) */}
+          {order.destination_country && (
+            <div className="mb-4">
+              {order.requires_coo ? (
+                <div
+                  className={`px-4 py-3 rounded-lg border-2 flex items-start gap-3 ${
+                    isDarkMode
+                      ? "bg-red-900/20 border-red-600/40"
+                      : "bg-red-50 border-red-300"
+                  }`}
+                >
+                  <AlertCircle
+                    size={20}
+                    className={isDarkMode ? "text-red-400 mt-0.5" : "text-red-600 mt-0.5"}
+                  />
+                  <div className="flex-1">
+                    <div
+                      className={`text-sm font-semibold ${isDarkMode ? "text-red-400" : "text-red-800"}`}
+                    >
+                      Certificate of Origin REQUIRED
+                    </div>
+                    <div
+                      className={`text-xs mt-1 ${isDarkMode ? "text-red-300" : "text-red-700"}`}
+                    >
+                      Destination: {order.destination_country} | Export to non-UAE requires COO documentation
+                    </div>
+                    {order.certificate_of_origin ? (
+                      <div className="flex items-center gap-2 mt-2">
+                        <CheckCircle size={16} className="text-green-500" />
+                        <span className={`text-xs ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
+                          COO Document: {order.certificate_of_origin}
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        className={`text-xs mt-2 font-medium ${isDarkMode ? "text-red-400" : "text-red-800"}`}
+                      >
+                        Status: Missing COO document
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`px-4 py-3 rounded-lg border flex items-start gap-3 ${
+                    isDarkMode
+                      ? "bg-green-900/20 border-green-600/40"
+                      : "bg-green-50 border-green-300"
+                  }`}
+                >
+                  <CheckCircle
+                    size={20}
+                    className={isDarkMode ? "text-green-400 mt-0.5" : "text-green-600 mt-0.5"}
+                  />
+                  <div className="flex-1">
+                    <div
+                      className={`text-sm font-semibold ${isDarkMode ? "text-green-400" : "text-green-800"}`}
+                    >
+                      COO Not Required
+                    </div>
+                    {order.coo_exemption_reason && (
+                      <div
+                        className={`text-xs mt-1 px-2 py-1 rounded inline-block ${
+                          isDarkMode
+                            ? "bg-amber-900/30 text-amber-300"
+                            : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
+                        Reason: {order.coo_exemption_reason}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
               label="Export Declaration Number"
@@ -3376,6 +3596,8 @@ const ExportOrderForm = () => {
                 handleFieldChange("certificate_of_origin", e.target.value)
               }
               placeholder="COO number"
+              required={order.requires_coo}
+              error={order.requires_coo && !order.certificate_of_origin ? "COO required" : ""}
             />
             <Input
               label="COO Date"

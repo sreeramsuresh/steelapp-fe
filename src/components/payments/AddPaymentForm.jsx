@@ -22,6 +22,7 @@ import { customerCreditService } from "../../services/customerCreditService";
  * @param {string} entityType - 'invoice' | 'po' for context-aware labels (optional, default: 'invoice')
  * @param {string} defaultCurrency - Default currency code (optional, default: 'AED')
  * @param {number} customerId - Customer ID for credit limit check (optional)
+ * @param {number} invoiceVatAmount - Invoice VAT amount for auto-population (optional)
  */
 const AddPaymentForm = ({
   outstanding = 0,
@@ -31,6 +32,7 @@ const AddPaymentForm = ({
   entityType = "invoice",
   defaultCurrency = "AED",
   customerId = null,
+  invoiceVatAmount = null,
 }) => {
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
@@ -42,6 +44,10 @@ const AddPaymentForm = ({
   // Multi-currency fields (Phase 1 Enhancement)
   const [currency, setCurrency] = useState(defaultCurrency);
   const [exchangeRate, setExchangeRate] = useState("1.0000");
+
+  // VAT tracking fields (Epic 9 - PAYM-003)
+  const [vatRate, setVatRate] = useState("5");
+  const [reverseCharge, setReverseCharge] = useState(false);
 
   // Credit limit state (Epic 2 - PAYM-001)
   const [creditSummary, setCreditSummary] = useState(null);
@@ -87,11 +93,17 @@ const AddPaymentForm = ({
     ? (Number(amount) || 0) * (parseFloat(exchangeRate) || 1)
     : Number(amount) || 0;
 
+  // VAT calculations (Epic 9 - PAYM-003)
+  const paymentAmount = Number(amount) || 0;
+  const calculatedVatAmount = reverseCharge
+    ? 0
+    : (paymentAmount * (parseFloat(vatRate) || 0)) / (100 + (parseFloat(vatRate) || 0));
+  const taxableAmount = paymentAmount - calculatedVatAmount;
+
   // Credit limit calculations (Epic 2 - PAYM-001)
   const creditLimit = creditSummary?.creditLimit || 0;
   const currentUsage = creditSummary?.currentCredit || 0;
   const availableCredit = creditLimit - currentUsage;
-  const paymentAmount = Number(amount) || 0;
 
   // After payment, what would the new usage be?
   // Payment REDUCES usage (receivable goes down)
@@ -122,6 +134,7 @@ const AddPaymentForm = ({
 
     // Output standardized camelCase format (API Gateway converts to snake_case)
     // Phase 1: Include multi-currency fields for FX tracking
+    // Epic 9: Include VAT tracking fields (PAYM-003)
     const paymentData = {
       amount: Number(amount),
       method, // Keep 'method' for backward compatibility
@@ -134,6 +147,11 @@ const AddPaymentForm = ({
       currency,
       exchangeRate: isForeignCurrency ? parseFloat(exchangeRate) : 1.0,
       amountInAed,
+      // VAT tracking fields (Epic 9 - PAYM-003)
+      vatRate: parseFloat(vatRate),
+      vatAmount: calculatedVatAmount,
+      taxableAmount,
+      reverseCharge,
     };
 
     onSave(paymentData);
@@ -146,6 +164,8 @@ const AddPaymentForm = ({
     setNotes("");
     setCurrency(defaultCurrency);
     setExchangeRate("1.0000");
+    setVatRate("5");
+    setReverseCharge(false);
   };
 
   const balanceLabel = entityType === "po" ? "Balance" : "Outstanding Balance";
@@ -320,6 +340,47 @@ const AddPaymentForm = ({
           />
         </div>
       </div>
+
+      {/* VAT Breakdown Section (Epic 9 - PAYM-003) */}
+      {paymentAmount > 0 && (
+        <div className="mt-4 px-3 py-3 bg-purple-50 border border-purple-200 rounded-lg">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-xs font-semibold text-purple-900">UAE VAT Breakdown (Form 201 Reference)</div>
+            <label className="flex items-center gap-2 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={reverseCharge}
+                onChange={(e) => setReverseCharge(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-purple-800">Apply Reverse Charge</span>
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-purple-700">Taxable Amount:</span>
+              <span className="font-bold text-purple-900">{formatCurrency(taxableAmount)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-purple-700">VAT Rate:</span>
+              <span className="font-bold text-purple-900">{reverseCharge ? "0%" : `${vatRate}%`}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-purple-700">VAT Amount:</span>
+              <span className="font-bold text-purple-900">{formatCurrency(calculatedVatAmount)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-purple-700">Total Payment:</span>
+              <span className="font-bold text-purple-900">{formatCurrency(paymentAmount)}</span>
+            </div>
+          </div>
+          {reverseCharge && (
+            <div className="mt-2 text-xs text-purple-800 bg-purple-100 px-2 py-1 rounded">
+              <strong>Note:</strong> Reverse charge applied. VAT = 0% for import/reverse charge scenarios.
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-4 flex justify-end gap-3">
         {onCancel && (
