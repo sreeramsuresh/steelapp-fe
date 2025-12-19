@@ -81,7 +81,7 @@ import {
   generatePONumber,
   formatAddress,
 } from "../utils/invoiceUtils";
-import { purchaseOrderService } from '../services/purchaseOrderService';
+import { purchaseOrderService } from "../services/purchaseOrderService";
 import { productService, payablesService } from "../services/dataService";
 import { PRODUCT_TYPES, FINISHES } from "../types";
 import { useApiData } from "../hooks/useApi";

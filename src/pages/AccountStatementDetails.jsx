@@ -10,7 +10,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
-import { accountStatementService } from '../services/accountStatementService';
+import { accountStatementService } from "../services/accountStatementService";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 
 const AccountStatementDetails = () => {
