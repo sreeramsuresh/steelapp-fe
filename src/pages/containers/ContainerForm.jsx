@@ -4,7 +4,7 @@ import { X, Loader2, Save, ChevronDown } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { importContainerService } from "../../services/importContainerService";
 import { suppliersAPI } from '../../services/api';
-import { purchaseOrderService } from "../../services/api";
+import { purchaseOrderService } from '../../services/purchaseOrderService';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
