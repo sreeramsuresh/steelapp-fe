@@ -27,7 +27,7 @@ import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import { invoiceService } from "../services/dataService";
 import { companyService } from "../services";
 import { PAYMENT_MODES } from "../utils/paymentUtils";
-import { deliveryNotesAPI } from "../services/api";
+import { deliveryNoteService } from "../services/deliveryNoteService";
 import { notificationService } from "../services/notificationService";
 import { authService } from "../services/axiosAuthService";
 import { uuid } from "../utils/uuid";
@@ -1648,7 +1648,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       const msg = error?.response?.data?.error || error?.message || "";
       if (String(msg).toLowerCase().includes("already exists")) {
         try {
-          const list = await deliveryNotesAPI.getAll({
+          const list = await deliveryNoteService.getAll({
             invoice_id: invoice.id,
             limit: 1,
             page: 1,

@@ -19,7 +19,7 @@ import {
   XCircle,
   FileText as DetailsIcon,
 } from "lucide-react";
-import { deliveryNoteService } from "../services/deliveryNoteService"";
+import { deliveryNoteService } from "../services/deliveryNoteService";
 import { authService } from "../services/axiosAuthService";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";

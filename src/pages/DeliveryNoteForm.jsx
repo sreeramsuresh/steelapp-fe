@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { deliveryNoteService } from "../services/deliveryNoteService"";
+import { deliveryNoteService } from "../services/deliveryNoteService";
 import {
   formatDateForInput,
   validateWeightTolerance,
