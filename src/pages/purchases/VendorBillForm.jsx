@@ -89,6 +89,29 @@ const BLOCKED_VAT_REASONS = [
   { value: "other", label: "Other (specify in notes)" },
 ];
 
+// Document types (Phase 2c)
+const DOCUMENT_TYPES = [
+  { value: "INVOICE", label: "Invoice" },
+  { value: "CREDIT_NOTE", label: "Credit Note" },
+  { value: "DEBIT_NOTE", label: "Debit Note" },
+  { value: "PROFORMA", label: "Proforma Invoice" },
+];
+
+// Approval statuses (Phase 2c)
+const APPROVAL_STATUSES = [
+  { value: "PENDING", label: "Pending" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
+];
+
+// Inspection statuses (Phase 2c)
+const INSPECTION_STATUSES = [
+  { value: "PENDING", label: "Pending" },
+  { value: "PASSED", label: "Passed" },
+  { value: "FAILED", label: "Failed" },
+  { value: "WAIVED", label: "Waived" },
+];
+
 // Empty line item template
 const createEmptyItem = () => ({
   id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -549,6 +572,35 @@ const VendorBillForm = () => {
     landedCostPerUnit: 0, // For allocation to inventory
     // Batch Creation Control
     triggerBatchCreation: true, // On approval, create/update stock batches
+    // Phase 2c: Document Management
+    supplierInvoiceDate: "",
+    attachmentUrls: [],
+    documentType: "INVOICE",
+    // Phase 2c: Approval Workflow
+    approvalStatus: "PENDING",
+    approvedBy: null,
+    approvedAt: null,
+    rejectionReason: "",
+    // Phase 2c: Payment Tracking (auto-calculated by triggers)
+    paymentStatus: "UNPAID",
+    lastPaymentDate: null,
+    paymentCount: 0,
+    // Phase 2c: Accounting
+    costCenter: "",
+    department: "",
+    projectCode: "",
+    // Phase 2c: Import Details
+    portOfEntry: "",
+    arrivalDate: null,
+    billOfLading: "",
+    // Phase 2c: Quality Inspection
+    inspectionRequired: false,
+    inspectionDate: null,
+    inspectionStatus: null,
+    // Phase 2c: Retention
+    retentionPercentage: 0,
+    retentionAmount: 0, // auto-calculated by trigger
+    retentionReleaseDate: null,
   });
 
   // GRN/Import Container selection state
@@ -1686,6 +1738,576 @@ const VendorBillForm = () => {
                     </p>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Document Management (Phase 2c) */}
+            <div
+              className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+            >
+              <h2
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              >
+                <FileText className="h-5 w-5" />
+                Document Management
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Document Type */}
+                <div>
+                  <FormSelect
+                    label="Document Type"
+                    value={bill.documentType}
+                    onValueChange={(value) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        documentType: value,
+                      }))
+                    }
+                    showValidation={false}
+                  >
+                    {DOCUMENT_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </FormSelect>
+                </div>
+
+                {/* Supplier Invoice Date */}
+                <div>
+                  <label
+                    htmlFor="supplier-invoice-date"
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Supplier Invoice Date
+                  </label>
+                  <input
+                    id="supplier-invoice-date"
+                    type="date"
+                    value={bill.supplierInvoiceDate}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        supplierInvoiceDate: e.target.value,
+                      }))
+                    }
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-white"
+                        : "border-gray-300 bg-white text-gray-900"
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                  <p
+                    className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    Date on the supplier's original invoice
+                  </p>
+                </div>
+
+                {/* Attachment URLs - For now as text input */}
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="attachment-urls"
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Attachment URLs
+                  </label>
+                  <input
+                    id="attachment-urls"
+                    type="text"
+                    value={bill.attachmentUrls.join(", ")}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        attachmentUrls: e.target.value
+                          .split(",")
+                          .map((url) => url.trim())
+                          .filter(Boolean),
+                      }))
+                    }
+                    placeholder="Enter URLs separated by commas"
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                  <p
+                    className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    Upload feature coming soon
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Approval Workflow (Phase 2c) */}
+            <div
+              className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+            >
+              <h2
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              >
+                <Settings className="h-5 w-5" />
+                Approval & Status
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Approval Status */}
+                <div>
+                  <FormSelect
+                    label="Approval Status"
+                    value={bill.approvalStatus}
+                    onValueChange={(value) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        approvalStatus: value,
+                      }))
+                    }
+                    showValidation={false}
+                  >
+                    {APPROVAL_STATUSES.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </FormSelect>
+                </div>
+
+                {/* Rejection Reason - shown when rejected */}
+                {bill.approvalStatus === "REJECTED" && (
+                  <div className="md:col-span-2">
+                    <label
+                      htmlFor="rejection-reason"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      Rejection Reason
+                    </label>
+                    <textarea
+                      id="rejection-reason"
+                      rows={3}
+                      value={bill.rejectionReason}
+                      onChange={(e) =>
+                        setBill((prev) => ({
+                          ...prev,
+                          rejectionReason: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter reason for rejection..."
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                  </div>
+                )}
+
+                {/* Approved By and At - read-only display */}
+                {bill.approvedBy && (
+                  <>
+                    <div>
+                      <label
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      >
+                        Approved By
+                      </label>
+                      <div
+                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
+                      >
+                        User ID: {bill.approvedBy}
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      >
+                        Approved At
+                      </label>
+                      <div
+                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
+                      >
+                        {bill.approvedAt
+                          ? new Date(bill.approvedAt).toLocaleString()
+                          : "—"}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Accounting Details (Phase 2c) */}
+            <div
+              className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+            >
+              <h2
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              >
+                <Building2 className="h-5 w-5" />
+                Accounting
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Cost Center */}
+                <div>
+                  <label
+                    htmlFor="cost-center"
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Cost Center
+                  </label>
+                  <input
+                    id="cost-center"
+                    type="text"
+                    value={bill.costCenter}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        costCenter: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., CC-001"
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                </div>
+
+                {/* Department */}
+                <div>
+                  <label
+                    htmlFor="department"
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Department
+                  </label>
+                  <input
+                    id="department"
+                    type="text"
+                    value={bill.department}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        department: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., Purchasing"
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                </div>
+
+                {/* Project Code */}
+                <div>
+                  <label
+                    htmlFor="project-code"
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Project Code
+                  </label>
+                  <input
+                    id="project-code"
+                    type="text"
+                    value={bill.projectCode}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        projectCode: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., PRJ-2024-001"
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Import Details - shown only for imported goods (Phase 2c) */}
+            {bill.procurementChannel === "IMPORTED" && (
+              <div
+                className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+              >
+                <h2
+                  className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                >
+                  <Ship className="h-5 w-5" />
+                  Import Details
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Port of Entry */}
+                  <div>
+                    <label
+                      htmlFor="port-of-entry"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      Port of Entry
+                    </label>
+                    <input
+                      id="port-of-entry"
+                      type="text"
+                      value={bill.portOfEntry}
+                      onChange={(e) =>
+                        setBill((prev) => ({
+                          ...prev,
+                          portOfEntry: e.target.value,
+                        }))
+                      }
+                      placeholder="e.g., Jebel Ali, Dubai"
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                  </div>
+
+                  {/* Arrival Date */}
+                  <div>
+                    <label
+                      htmlFor="arrival-date"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      Arrival Date
+                    </label>
+                    <input
+                      id="arrival-date"
+                      type="date"
+                      value={bill.arrivalDate || ""}
+                      onChange={(e) =>
+                        setBill((prev) => ({
+                          ...prev,
+                          arrivalDate: e.target.value || null,
+                        }))
+                      }
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? "border-gray-600 bg-gray-700 text-white"
+                          : "border-gray-300 bg-white text-gray-900"
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                  </div>
+
+                  {/* Bill of Lading */}
+                  <div>
+                    <label
+                      htmlFor="bill-of-lading"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      Bill of Lading
+                    </label>
+                    <input
+                      id="bill-of-lading"
+                      type="text"
+                      value={bill.billOfLading}
+                      onChange={(e) =>
+                        setBill((prev) => ({
+                          ...prev,
+                          billOfLading: e.target.value,
+                        }))
+                      }
+                      placeholder="B/L number"
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quality Inspection (Phase 2c) */}
+            <div
+              className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+            >
+              <h2
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              >
+                <Package className="h-5 w-5" />
+                Quality Inspection
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Inspection Required Checkbox */}
+                <div className="flex items-center gap-3 md:col-span-3">
+                  <input
+                    id="inspection-required"
+                    type="checkbox"
+                    checked={bill.inspectionRequired}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        inspectionRequired: e.target.checked,
+                      }))
+                    }
+                    className={`w-5 h-5 rounded border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500"
+                        : "border-gray-300 bg-white text-teal-600 focus:ring-teal-500"
+                    } focus:ring-2`}
+                  />
+                  <label
+                    htmlFor="inspection-required"
+                    className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Quality inspection required
+                  </label>
+                </div>
+
+                {/* Inspection fields - shown when inspection required */}
+                {bill.inspectionRequired && (
+                  <>
+                    {/* Inspection Date */}
+                    <div>
+                      <label
+                        htmlFor="inspection-date"
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                      >
+                        Inspection Date
+                      </label>
+                      <input
+                        id="inspection-date"
+                        type="date"
+                        value={bill.inspectionDate || ""}
+                        onChange={(e) =>
+                          setBill((prev) => ({
+                            ...prev,
+                            inspectionDate: e.target.value || null,
+                          }))
+                        }
+                        className={`w-full px-4 py-2 rounded-lg border ${
+                          isDarkMode
+                            ? "border-gray-600 bg-gray-700 text-white"
+                            : "border-gray-300 bg-white text-gray-900"
+                        } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      />
+                    </div>
+
+                    {/* Inspection Status */}
+                    <div>
+                      <FormSelect
+                        label="Inspection Status"
+                        value={bill.inspectionStatus || "none"}
+                        onValueChange={(value) =>
+                          setBill((prev) => ({
+                            ...prev,
+                            inspectionStatus: value === "none" ? null : value,
+                          }))
+                        }
+                        showValidation={false}
+                        placeholder="Select status..."
+                      >
+                        <SelectItem value="none">Select status...</SelectItem>
+                        {INSPECTION_STATUSES.map((status) => (
+                          <SelectItem key={status.value} value={status.value}>
+                            {status.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Retention (Phase 2c) */}
+            <div
+              className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}
+            >
+              <h2
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              >
+                <Scale className="h-5 w-5" />
+                Retention
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Retention Percentage */}
+                <div>
+                  <label
+                    htmlFor="retention-percentage"
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Retention %
+                  </label>
+                  <input
+                    id="retention-percentage"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={bill.retentionPercentage}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        retentionPercentage: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    placeholder="e.g., 5.00"
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                  <p
+                    className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    Percentage withheld
+                  </p>
+                </div>
+
+                {/* Retention Release Date */}
+                <div>
+                  <label
+                    htmlFor="retention-release-date"
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Release Date
+                  </label>
+                  <input
+                    id="retention-release-date"
+                    type="date"
+                    value={bill.retentionReleaseDate || ""}
+                    onChange={(e) =>
+                      setBill((prev) => ({
+                        ...prev,
+                        retentionReleaseDate: e.target.value || null,
+                      }))
+                    }
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-white"
+                        : "border-gray-300 bg-white text-gray-900"
+                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  />
+                </div>
+
+                {/* Retention Amount - read-only, auto-calculated by trigger */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Retention Amount
+                  </label>
+                  <div
+                    className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
+                  >
+                    {formatCurrency(bill.retentionAmount)}
+                  </div>
+                  <p
+                    className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    Auto-calculated
+                  </p>
+                </div>
               </div>
             </div>
 

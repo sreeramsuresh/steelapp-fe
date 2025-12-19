@@ -73,13 +73,13 @@ const transformAdvancePaymentFromServer = (serverData) => {
       serverData.customerName || serverData.customerDetails?.name || "",
     customerTrn:
       serverData.customerTrn || serverData.customerDetails?.trn || "",
-    receiptNumber: serverData.receiptNumber || "",
+    receiptNumber: serverData.receiptNumber || serverData.advanceNumber || "", // Proto uses advance_number → advanceNumber
     paymentDate: serverData.paymentDate || null,
     // Amount fields
     amount: parseFloat(serverData.amount || 0),
     vatRate: parseFloat(serverData.vatRate || 5),
     vatAmount: parseFloat(serverData.vatAmount || 0),
-    totalAmount: parseFloat(serverData.totalAmount || 0),
+    totalAmount: parseFloat(serverData.totalAmount || serverData.totalReceived || 0), // Proto uses total_received → totalReceived
     // VAT tracking
     vatCategory: serverData.vatCategory || "STANDARD",
     isVatInclusive: serverData.isVatInclusive !== false,
@@ -89,7 +89,7 @@ const transformAdvancePaymentFromServer = (serverData) => {
     amountRefunded: parseFloat(serverData.amountRefunded || 0),
     // Payment details
     paymentMethod: serverData.paymentMethod || "bank_transfer",
-    referenceNumber: serverData.referenceNumber || "",
+    referenceNumber: serverData.referenceNumber || serverData.paymentReference || "", // Proto uses payment_reference → paymentReference
     bankAccount: serverData.bankAccount || "",
     // Status
     status: serverData.status || "received",
@@ -113,10 +113,10 @@ const transformAdvancePaymentFromServer = (serverData) => {
     })),
     // Refunds
     refunds: serverData.refunds || [],
-    // Timestamps
-    createdAt: serverData.createdAt || null,
-    updatedAt: serverData.updatedAt || null,
-    receivedBy: serverData.receivedBy || null,
+    // Timestamps - Proto sends nested audit.created_at/updated_at, frontend expects flat
+    createdAt: serverData.createdAt || serverData.audit?.createdAt || null,
+    updatedAt: serverData.updatedAt || serverData.audit?.updatedAt || null,
+    receivedBy: serverData.receivedBy || serverData.audit?.createdBy || null,
   };
 };
 

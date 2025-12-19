@@ -166,7 +166,7 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                           {product.name}
                         </div>
                         <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {product.specification}
+                          {product.specifications}
                         </div>
                       </button>
                     ))}

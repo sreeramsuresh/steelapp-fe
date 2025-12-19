@@ -79,46 +79,81 @@ const transformInvoiceForServer = (invoiceData) => {
 const transformInvoiceFromServer = (serverData) => {
   return {
     ...serverData,
-    // Date field mapping: invoiceDate -> date (legacy alias used by form)
-    date: serverData.invoiceDate || serverData.date || null,
-    // Ensure customer_details is parsed if it's a string
+
+    // ========================================
+    // Date Fields - Proto has snake_case, API Gateway converts to camelCase
+    // ========================================
+    // proto: invoice_date (line 250) → API: invoiceDate → frontend: date (legacy alias)
+    date: serverData.date || serverData.invoiceDate || null,
+
+    // proto: supply_date (line 357) → API: supplyDate
+    supplyDate: serverData.supplyDate || serverData.supply_date || "",
+
+    // proto: exchange_rate_date (line 360) → API: exchangeRateDate
+    exchangeRateDate: serverData.exchangeRateDate || serverData.exchange_rate_date || "",
+
+    // proto: expires_at (line 437) → API: expiresAt - Batch reservation expiration
+    expiresAt: serverData.expiresAt || serverData.expires_at || null,
+
+    // ========================================
+    // Customer/Reference Fields
+    // ========================================
+    // proto: customer_details (line 247) → API: customerDetails → frontend: customer
     customer:
       typeof serverData.customerDetails === "string"
         ? JSON.parse(serverData.customerDetails)
         : serverData.customerDetails || serverData.customer || {},
-    // Payment mode mapping
-    modeOfPayment:
-      serverData.modeOfPayment || serverData.mode_of_payment || null,
-    // Warehouse mapping
+
+    // proto: mode_of_payment (line 257) → API: modeOfPayment
+    modeOfPayment: serverData.modeOfPayment || serverData.mode_of_payment || null,
+
+    // ========================================
+    // Warehouse Fields - FRONTEND-ONLY (NOT in Invoice proto)
+    // These are computed/aggregated from items array, not in proto
+    // ========================================
     warehouseId: serverData.warehouseId || serverData.warehouse_id || null,
     warehouseName: serverData.warehouseName || serverData.warehouse_name || "",
-    // Ensure numeric fields are numbers
-    received:
-      serverData.received !== undefined ? Number(serverData.received) : 0,
-    outstanding:
-      serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
-    subtotal:
-      serverData.subtotal !== undefined ? Number(serverData.subtotal) : 0,
-    vatAmount:
-      serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
+
+    // ========================================
+    // Financial Fields - Proto has these, API Gateway converts to camelCase
+    // ========================================
+    // proto: received (line 289) → API: received - Already correct
+    received: serverData.received !== undefined ? Number(serverData.received) : 0,
+
+    // proto: outstanding (line 290) → API: outstanding - Already correct
+    outstanding: serverData.outstanding !== undefined ? Number(serverData.outstanding) : 0,
+
+    // proto: subtotal (line 267) → API: subtotal - Already correct
+    subtotal: serverData.subtotal !== undefined ? Number(serverData.subtotal) : 0,
+
+    // proto: vat_amount (line 268) → API: vatAmount
+    vatAmount: serverData.vatAmount !== undefined ? Number(serverData.vatAmount) : 0,
+
+    // proto: total (line 269) → API: total - Already correct
     total: serverData.total !== undefined ? Number(serverData.total) : 0,
-    // Ensure items is an array
+
+    // ========================================
+    // Items Array
+    // ========================================
+    // proto: items (line 332) → API: items - InvoiceItemResponse[] - Already correct
     items: Array.isArray(serverData.items) ? serverData.items : [],
+
+    // ========================================
     // UAE VAT Compliance Fields
+    // ========================================
+    // proto: place_of_supply (line 356) → API: placeOfSupply
     placeOfSupply: serverData.placeOfSupply || serverData.place_of_supply || "",
-    supplyDate: serverData.supplyDate || serverData.supply_date || "",
-    isReverseCharge:
-      serverData.isReverseCharge || serverData.is_reverse_charge || false,
+
+    // proto: is_reverse_charge (line 358) → API: isReverseCharge
+    isReverseCharge: serverData.isReverseCharge || serverData.is_reverse_charge || false,
+
+    // proto: reverse_charge_amount (line 359) → API: reverseChargeAmount
     reverseChargeAmount:
       serverData.reverseChargeAmount !== undefined
         ? Number(serverData.reverseChargeAmount)
         : serverData.reverse_charge_amount !== undefined
           ? Number(serverData.reverse_charge_amount)
           : 0,
-    exchangeRateDate:
-      serverData.exchangeRateDate || serverData.exchange_rate_date || "",
-    // Batch allocation confirmation fields
-    expiresAt: serverData.expiresAt || serverData.expires_at || null,
   };
 };
 

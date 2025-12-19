@@ -61,11 +61,22 @@ const transformCreditNoteFromServer = (serverData) => {
 
   return {
     id: serverData.id,
+    // BUG #1: creditNoteNumber - frontend expects creditNoteNumber, proto sends credit_note_number
     creditNoteNumber:
       serverData.creditNoteNumber || serverData.credit_note_number || "",
-    invoiceId: serverData.invoiceId || serverData.invoice_id,
+    // BUG #2: credit_note_number - frontend expects credit_note_number, proto sends credit_note_number
+    credit_note_number:
+      serverData.credit_note_number || serverData.creditNoteNumber || "",
+    // BUG #3: invoiceId - frontend expects invoiceId, proto sends invoice_id
+    invoiceId: serverData.invoiceId || serverData.invoice_id || null,
+    // BUG #4: invoice_id - frontend expects invoice_id, proto sends invoice_id
+    invoice_id: serverData.invoice_id || serverData.invoiceId || null,
     invoiceNumber: serverData.invoiceNumber || serverData.invoice_number || "",
+    // BUG #5: customer_id - frontend expects customer_id, proto sends customer_id
+    customer_id: serverData.customer_id || serverData.customerId || null,
     customerId: serverData.customerId || serverData.customer_id,
+    // BUG #6: customer_name - frontend expects customer_name, proto sends customer_name
+    customer_name: serverData.customer_name || serverData.customerName || "",
     customerName: serverData.customerName || serverData.customer_name || "",
     customer: {
       id: serverData.customerId || serverData.customer_id,
@@ -84,20 +95,39 @@ const transformCreditNoteFromServer = (serverData) => {
       serverData.creditNoteType ||
       serverData.credit_note_type ||
       "RETURN_WITH_QC",
+    // BUG #10: credit_note_type - frontend expects credit_note_type, proto sends credit_note_type
+    credit_note_type:
+      serverData.credit_note_type || serverData.creditNoteType || "RETURN_WITH_QC",
     reasonForReturn:
       serverData.reasonForReturn || serverData.reason_for_return || "",
+    // BUG #7: adjustment_type - frontend expects adjustment_type (mapped from reason_for_return)
+    adjustment_type:
+      serverData.adjustment_type || serverData.adjustmentType || serverData.reason_for_return || "",
+    // BUG #8: reason_category - frontend expects reason_category, proto sends return_reason_category
+    reason_category:
+      serverData.reason_category || serverData.reasonCategory || serverData.return_reason_category || "",
+    // BUG #9: reasonCat - frontend expects reasonCat (short alias for reason_category)
+    reasonCat:
+      serverData.reasonCat || serverData.reasonCategory || serverData.return_reason_category || "",
     items,
     subtotal: parseFloat(serverData.subtotal || serverData.sub_total || 0),
     vatAmount: parseFloat(serverData.vatAmount || serverData.vat_amount || 0),
+    // BUG #11: vat_amount - frontend expects vat_amount, proto sends vat_amount
+    vat_amount: parseFloat(serverData.vat_amount || serverData.vatAmount || 0),
     totalCredit: parseFloat(
       serverData.totalCredit || serverData.total_credit || 0,
     ),
+    // BUG #12: manualCreditAmount - frontend expects manualCreditAmount, proto sends manual_credit_amount
     manualCreditAmount: parseFloat(
       serverData.manualCreditAmount || serverData.manual_credit_amount || 0,
     ),
+    // BUG #13: manual_credit_amount - frontend expects manual_credit_amount, proto sends manual_credit_amount
+    manual_credit_amount: parseFloat(
+      serverData.manual_credit_amount || serverData.manualCreditAmount || 0,
+    ),
     notes: serverData.notes || "",
-    createdAt: serverData.createdAt || serverData.created_at,
-    updatedAt: serverData.updatedAt || serverData.updated_at,
+    createdAt: serverData.createdAt || serverData.created_at || serverData.audit?.createdAt || null,
+    updatedAt: serverData.updatedAt || serverData.updated_at || serverData.audit?.updatedAt || null,
   };
 };
 

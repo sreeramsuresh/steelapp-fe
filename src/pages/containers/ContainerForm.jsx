@@ -125,10 +125,16 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
           suppliersAPI.getAll(),
           purchaseOrdersAPI.getAll({ companyId, status: "CONFIRMED" }),
         ]);
-        setSuppliers(suppliersRes || []);
-        setPurchaseOrders(posRes?.purchaseOrders || posRes || []);
+        // Ensure suppliers is always an array
+        setSuppliers(Array.isArray(suppliersRes) ? suppliersRes : []);
+        // Ensure purchase orders is always an array
+        const poArray = posRes?.purchaseOrders || posRes;
+        setPurchaseOrders(Array.isArray(poArray) ? poArray : []);
       } catch (err) {
         console.error("Failed to load form data:", err);
+        // Ensure state is reset to safe defaults on error
+        setSuppliers([]);
+        setPurchaseOrders([]);
       } finally {
         setLoading(false);
       }
@@ -494,7 +500,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                     <SelectValue placeholder="Select supplier" />
                   </SelectTrigger>
                   <SelectContent>
-                    {suppliers.map((supplier) => (
+                    {suppliers?.map((supplier) => (
                       <SelectItem
                         key={supplier.id}
                         value={supplier.id.toString()}
@@ -517,7 +523,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                     <SelectValue placeholder="Select PO (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    {purchaseOrders.map((po) => (
+                    {purchaseOrders?.map((po) => (
                       <SelectItem key={po.id} value={po.id.toString()}>
                         {po.poNumber || po.po_number} -{" "}
                         {po.supplierName || po.supplier_name}

@@ -9,6 +9,8 @@
  *   const name = getProductDisplayName(product);
  */
 
+import { assertProductDomain } from "./productContract.js";
+
 /**
  * Convert camelCase to snake_case
  * @param {string} str - camelCase string
@@ -171,7 +173,9 @@ export const getInvoiceFields = (invoice) => {
  */
 export const normalizeProduct = (product) => {
   if (!product) return null;
-  return {
+
+  // Step 1: Normalize snake_case → camelCase
+  const normalized = {
     ...product,
     // Name fields
     displayName: product.displayName || product.display_name || "",
@@ -188,7 +192,41 @@ export const normalizeProduct = (product) => {
     sizeInch: product.sizeInch || product.size_inch || "",
     // Origin
     origin: product.origin || "UAE",
+    // BUGFIX: Critical fields for unit conversion & auto-pricing
+    unitWeightKg: product.unitWeightKg ?? product.unit_weight_kg ?? null,
+    piecesPerMt: product.piecesPerMt ?? product.pieces_per_mt ?? null,
+    productCategory: product.productCategory || product.product_category || "",
+    pricingBasis: product.pricingBasis ?? product.pricing_basis ?? null,
+    primaryUom: product.primaryUom ?? product.primary_uom ?? null,
+    form: product.form || "",
+    // Additional dimension fields
+    thickness: product.thickness || "",
+    width: product.width || "",
+    length: product.length || "",
+    diameter: product.diameter || "",
   };
+
+  // Step 2: Remove snake_case keys to prevent normalization leaks
+  // This ensures the assertion won't fail on snake_case key presence
+  delete normalized.unit_weight_kg;
+  delete normalized.pieces_per_mt;
+  delete normalized.product_category;
+  delete normalized.pricing_basis;
+  delete normalized.primary_uom;
+  delete normalized.display_name;
+  delete normalized.full_name;
+  delete normalized.unique_name;
+  delete normalized.selling_price;
+  delete normalized.cost_price;
+  delete normalized.current_stock;
+  delete normalized.min_stock;
+  delete normalized.max_stock;
+
+  // Step 3: Assert domain contract (GUARD #2 - SUSPENDERS)
+  // This prevents corrupt product data from reaching UI components
+  assertProductDomain(normalized);
+
+  return normalized;
 };
 
 export default {

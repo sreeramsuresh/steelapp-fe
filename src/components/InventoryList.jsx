@@ -326,7 +326,7 @@ const InventoryList = () => {
       commodity: product.commodity || prev.commodity || "SS",
       // Description from product
       description:
-        product.specification || product.description || prev.description,
+        product.specifications || product.description || prev.description,
       // Pricing information
       pricePurchased:
         product.purchasePrice || product.costPrice || prev.pricePurchased,

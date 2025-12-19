@@ -1,4 +1,5 @@
 import { apiService } from "./axiosApi";
+import { normalizeProduct } from "../utils/fieldAccessors.js";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -463,13 +464,23 @@ export const customersAPI = {
 // Products API methods
 export const productsAPI = {
   // Get all products with pagination and filters
-  getAll: (params = {}) => {
-    return apiClient.get("/products", params);
+  // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
+  getAll: async (params = {}) => {
+    const response = await apiClient.get("/products", params);
+    if (response.data?.products) {
+      response.data.products = response.data.products.map(normalizeProduct);
+    }
+    return response;
   },
 
   // Get product by ID
-  getById: (id) => {
-    return apiClient.get(`/products/${id}`);
+  // GUARD #2: Automatically normalizes product (camelCase + contract assertion)
+  getById: async (id) => {
+    const response = await apiClient.get(`/products/${id}`);
+    if (response.data) {
+      response.data = normalizeProduct(response.data);
+    }
+    return response;
   },
 
   // Create product
@@ -488,8 +499,13 @@ export const productsAPI = {
   },
 
   // Search products
-  search: (query) => {
-    return apiClient.get("/products/search", { query });
+  // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
+  search: async (query) => {
+    const response = await apiClient.get("/products/search", { query });
+    if (response.data?.products) {
+      response.data.products = response.data.products.map(normalizeProduct);
+    }
+    return response;
   },
 
   // Get product categories
@@ -498,8 +514,13 @@ export const productsAPI = {
   },
 
   // Get products by category
-  getByCategory: (category) => {
-    return apiClient.get(`/products/category/${category}`);
+  // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
+  getByCategory: async (category) => {
+    const response = await apiClient.get(`/products/category/${category}`);
+    if (response.data?.products) {
+      response.data.products = response.data.products.map(normalizeProduct);
+    }
+    return response;
   },
 };
 

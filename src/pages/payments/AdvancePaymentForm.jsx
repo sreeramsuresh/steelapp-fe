@@ -58,6 +58,38 @@ const PAYMENT_METHODS = [
 // VAT rate for advance payments (UAE standard rate)
 const VAT_RATE = 5;
 
+// Currencies supported
+const CURRENCIES = [
+  { value: "AED", label: "AED - UAE Dirham" },
+  { value: "USD", label: "USD - US Dollar" },
+  { value: "EUR", label: "EUR - Euro" },
+  { value: "GBP", label: "GBP - British Pound" },
+  { value: "SAR", label: "SAR - Saudi Riyal" },
+  { value: "INR", label: "INR - Indian Rupee" },
+  { value: "CNY", label: "CNY - Chinese Yuan" },
+];
+
+// Approval statuses
+const APPROVAL_STATUSES = [
+  { value: "PENDING", label: "Pending Approval" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
+];
+
+// Settlement types
+const SETTLEMENT_TYPES = [
+  { value: "INVOICE_OFFSET", label: "Invoice Offset" },
+  { value: "CASH_REFUND", label: "Cash Refund" },
+  { value: "CREDIT_NOTE", label: "Credit Note" },
+];
+
+// Expiry actions
+const EXPIRY_ACTIONS = [
+  { value: "REFUND", label: "Refund to Customer" },
+  { value: "CONVERT_TO_CREDIT", label: "Convert to Credit" },
+  { value: "FORFEIT", label: "Forfeit" },
+];
+
 const AdvancePaymentForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -100,6 +132,37 @@ const AdvancePaymentForm = () => {
     purpose: "",
     notes: "",
     applyToInvoiceId: null,
+    // Phase 2c: Multi-Currency fields
+    currency: "AED",
+    exchangeRate: 1.0000,
+    amountInBaseCurrency: null, // Auto-calculated by trigger, read-only
+    // Phase 2c: Bank Details
+    bankName: "",
+    chequeNumber: "",
+    transactionId: "",
+    // Phase 2c: Approval fields
+    approvalStatus: "PENDING",
+    approvedBy: null, // User ID who approved - read-only
+    approvedAt: null, // Timestamp of approval - read-only
+    // Phase 2c: Allocation fields
+    allocatedAmount: 0, // Amount already allocated - read-only
+    unallocatedAmount: null, // Remaining available - auto-calculated, read-only
+    // Phase 2c: Document Management
+    attachmentUrls: [], // Array of document URLs
+    receiptNumberOfficial: "", // Official receipt number issued to customer
+    // Phase 2c: Project & Accounting
+    projectId: null,
+    costCenter: "",
+    salesPersonId: null,
+    // Phase 2c: Settlement
+    settlementType: "INVOICE_OFFSET",
+    settlementDate: null, // Auto-set by trigger when fully settled, read-only
+    validUntil: null, // Expiry date for this advance
+    expiryAction: "REFUND",
+    // Phase 2c: Refund
+    refundAmount: null,
+    refundMethod: null,
+    refundReference: "",
   });
 
   // Load initial data
@@ -723,7 +786,637 @@ const AdvancePaymentForm = () => {
                 </div>
               </div>
 
-              {/* Section 3: Notes Accordion */}
+              {/* Section 3: Multi-Currency (Accordion) */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Multi-Currency
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Payment in foreign currency (optional)
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Currency */}
+                    <div className="col-span-6">
+                      <FormSelect
+                        label="Currency"
+                        value={payment.currency}
+                        onValueChange={(value) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            currency: value,
+                            exchangeRate: value === "AED" ? 1.0 : prev.exchangeRate,
+                          }))
+                        }
+                        showValidation={false}
+                      >
+                        {CURRENCIES.map((curr) => (
+                          <SelectItem key={curr.value} value={curr.value}>
+                            {curr.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+
+                    {/* Exchange Rate - show only if not AED */}
+                    {payment.currency !== "AED" && (
+                      <div className="col-span-6">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          Exchange Rate (to AED)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.0001"
+                          value={payment.exchangeRate || ""}
+                          onChange={(e) =>
+                            setPayment((prev) => ({
+                              ...prev,
+                              exchangeRate: parseFloat(e.target.value) || 1.0,
+                            }))
+                          }
+                          placeholder="1.0000"
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                        />
+                      </div>
+                    )}
+
+                    {/* Amount in Base Currency - read-only calculated */}
+                    {payment.currency !== "AED" &&
+                      payment.amountInBaseCurrency !== null && (
+                        <div className="col-span-6">
+                          <label className={`block text-xs ${textMuted} mb-1.5`}>
+                            Amount in AED (Calculated)
+                          </label>
+                          <input
+                            type="text"
+                            value={formatCurrency(payment.amountInBaseCurrency)}
+                            readOnly
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
+                          />
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 4: Bank Details (Accordion) */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Bank Details
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Bank information for this payment
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Bank Name */}
+                    <div className="col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Bank Name
+                      </label>
+                      <input
+                        type="text"
+                        value={payment.bankName}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            bankName: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g., Emirates NBD"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    {/* Cheque Number */}
+                    <div className="col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Cheque Number
+                      </label>
+                      <input
+                        type="text"
+                        value={payment.chequeNumber}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            chequeNumber: e.target.value,
+                          }))
+                        }
+                        placeholder="If payment by cheque"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    {/* Transaction ID */}
+                    <div className="col-span-12">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Transaction ID
+                      </label>
+                      <input
+                        type="text"
+                        value={payment.transactionId}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            transactionId: e.target.value,
+                          }))
+                        }
+                        placeholder="Bank transaction or reference ID"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 5: Approval (Accordion) */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Approval Status
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Approval workflow for this payment
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Approval Status */}
+                    <div className="col-span-6">
+                      <FormSelect
+                        label="Approval Status"
+                        value={payment.approvalStatus}
+                        onValueChange={(value) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            approvalStatus: value,
+                          }))
+                        }
+                        showValidation={false}
+                      >
+                        {APPROVAL_STATUSES.map((status) => (
+                          <SelectItem key={status.value} value={status.value}>
+                            {status.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+
+                    {/* Approved By - read-only display */}
+                    {payment.approvedBy && (
+                      <>
+                        <div className="col-span-6">
+                          <label className={`block text-xs ${textMuted} mb-1.5`}>
+                            Approved By
+                          </label>
+                          <input
+                            type="text"
+                            value={payment.approvedBy || ""}
+                            readOnly
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
+                          />
+                        </div>
+                        <div className="col-span-6">
+                          <label className={`block text-xs ${textMuted} mb-1.5`}>
+                            Approved At
+                          </label>
+                          <input
+                            type="text"
+                            value={
+                              payment.approvedAt
+                                ? new Date(
+                                    payment.approvedAt,
+                                  ).toLocaleString()
+                                : ""
+                            }
+                            readOnly
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 6: Allocation (Accordion) */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Allocation Summary
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Track how much has been applied to invoices
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Allocated Amount - read-only */}
+                    <div className="col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Allocated Amount
+                      </label>
+                      <input
+                        type="text"
+                        value={formatCurrency(payment.allocatedAmount)}
+                        readOnly
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
+                      />
+                    </div>
+
+                    {/* Unallocated Amount - read-only */}
+                    <div className="col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Unallocated Amount
+                      </label>
+                      <input
+                        type="text"
+                        value={
+                          payment.unallocatedAmount !== null
+                            ? formatCurrency(payment.unallocatedAmount)
+                            : formatCurrency(payment.totalAmount)
+                        }
+                        readOnly
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 7: Document Management (Accordion) */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Document Management
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Attachments and receipt information
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Official Receipt Number */}
+                    <div className="col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Official Receipt Number
+                      </label>
+                      <input
+                        type="text"
+                        value={payment.receiptNumberOfficial}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            receiptNumberOfficial: e.target.value,
+                          }))
+                        }
+                        placeholder="Receipt # issued to customer"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    {/* Attachment URLs - text input for now */}
+                    <div className="col-span-12">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Attachment URLs (comma-separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={
+                          Array.isArray(payment.attachmentUrls)
+                            ? payment.attachmentUrls.join(", ")
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            attachmentUrls: e.target.value
+                              .split(",")
+                              .map((url) => url.trim())
+                              .filter(Boolean),
+                          }))
+                        }
+                        placeholder="https://example.com/doc1.pdf, https://example.com/doc2.pdf"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 8: Project & Accounting (Accordion) */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Project & Accounting
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      Link to project, cost center, and sales person
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Project ID */}
+                    <div className="col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Project ID
+                      </label>
+                      <input
+                        type="text"
+                        value={payment.projectId || ""}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            projectId: e.target.value || null,
+                          }))
+                        }
+                        placeholder="Optional"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    {/* Cost Center */}
+                    <div className="col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Cost Center
+                      </label>
+                      <input
+                        type="text"
+                        value={payment.costCenter}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            costCenter: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g., CC-001"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    {/* Sales Person ID */}
+                    <div className="col-span-4">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Sales Person ID
+                      </label>
+                      <input
+                        type="text"
+                        value={payment.salesPersonId || ""}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            salesPersonId: e.target.value || null,
+                          }))
+                        }
+                        placeholder="Optional"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 9: Settlement (Accordion) */}
+              <details
+                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+              >
+                <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                  <div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>
+                      Settlement Options
+                    </div>
+                    <div className={`text-xs ${textMuted}`}>
+                      How this advance will be settled
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                  />
+                </summary>
+                <div className={`p-3 border-t ${cardBorder}`}>
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Settlement Type */}
+                    <div className="col-span-6">
+                      <FormSelect
+                        label="Settlement Type"
+                        value={payment.settlementType}
+                        onValueChange={(value) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            settlementType: value,
+                          }))
+                        }
+                        showValidation={false}
+                      >
+                        {SETTLEMENT_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+
+                    {/* Settlement Date - read-only */}
+                    {payment.settlementDate && (
+                      <div className="col-span-6">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          Settlement Date
+                        </label>
+                        <input
+                          type="text"
+                          value={
+                            payment.settlementDate
+                              ? new Date(
+                                  payment.settlementDate,
+                                ).toLocaleDateString()
+                              : ""
+                          }
+                          readOnly
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
+                        />
+                      </div>
+                    )}
+
+                    {/* Valid Until */}
+                    <div className="col-span-6">
+                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        Valid Until (Expiry Date)
+                      </label>
+                      <input
+                        type="date"
+                        value={payment.validUntil || ""}
+                        onChange={(e) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            validUntil: e.target.value || null,
+                          }))
+                        }
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      />
+                    </div>
+
+                    {/* Expiry Action */}
+                    <div className="col-span-6">
+                      <FormSelect
+                        label="Expiry Action"
+                        value={payment.expiryAction}
+                        onValueChange={(value) =>
+                          setPayment((prev) => ({
+                            ...prev,
+                            expiryAction: value,
+                          }))
+                        }
+                        showValidation={false}
+                      >
+                        {EXPIRY_ACTIONS.map((action) => (
+                          <SelectItem key={action.value} value={action.value}>
+                            {action.label}
+                          </SelectItem>
+                        ))}
+                      </FormSelect>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* Section 10: Refund (Accordion) - Conditional */}
+              {payment.settlementType === "CASH_REFUND" && (
+                <details
+                  className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+                >
+                  <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
+                    <div>
+                      <div className={`text-sm font-bold ${textPrimary}`}>
+                        Refund Details
+                      </div>
+                      <div className={`text-xs ${textMuted}`}>
+                        Information about cash refund
+                      </div>
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
+                    />
+                  </summary>
+                  <div className={`p-3 border-t ${cardBorder}`}>
+                    <div className="grid grid-cols-12 gap-3">
+                      {/* Refund Amount */}
+                      <div className="col-span-4">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          Refund Amount
+                        </label>
+                        <div className="relative">
+                          <span
+                            className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-xs ${textMuted}`}
+                          >
+                            AED
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={payment.refundAmount || ""}
+                            onChange={(e) =>
+                              setPayment((prev) => ({
+                                ...prev,
+                                refundAmount: parseFloat(e.target.value) || null,
+                              }))
+                            }
+                            placeholder="0.00"
+                            className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Refund Method */}
+                      <div className="col-span-4">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          Refund Method
+                        </label>
+                        <input
+                          type="text"
+                          value={payment.refundMethod || ""}
+                          onChange={(e) =>
+                            setPayment((prev) => ({
+                              ...prev,
+                              refundMethod: e.target.value || null,
+                            }))
+                          }
+                          placeholder="e.g., Bank transfer"
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                        />
+                      </div>
+
+                      {/* Refund Reference */}
+                      <div className="col-span-4">
+                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                          Refund Reference
+                        </label>
+                        <input
+                          type="text"
+                          value={payment.refundReference}
+                          onChange={(e) =>
+                            setPayment((prev) => ({
+                              ...prev,
+                              refundReference: e.target.value,
+                            }))
+                          }
+                          placeholder="Transaction ref"
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              )}
+
+              {/* Section 11: Notes Accordion */}
               <details
                 className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
               >

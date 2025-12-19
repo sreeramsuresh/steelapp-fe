@@ -535,7 +535,7 @@ const AdvancePaymentList = () => {
   };
 
   const handleApplyToInvoice = (payment) => {
-    navigate(`/payments/advance/${payment.id}/apply`);
+    navigate(`/payments/advance-payments/${payment.id}/apply`);
   };
 
   const handleRefund = async (payment) => {
@@ -645,7 +645,7 @@ const AdvancePaymentList = () => {
             </p>
           </div>
           <button
-            onClick={() => navigate("/payments/advance/new")}
+            onClick={() => navigate("/payments/advance-payments/new")}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -1018,7 +1018,7 @@ const AdvancePaymentList = () => {
                       key={payment.id}
                       className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors cursor-pointer`}
                       onClick={() =>
-                        navigate(`/payments/advance/${payment.id}`)
+                        navigate(`/payments/advance-payments/${payment.id}`)
                       }
                     >
                       <td
@@ -1095,7 +1095,7 @@ const AdvancePaymentList = () => {
                           {/* View */}
                           <button
                             onClick={() =>
-                              navigate(`/payments/advance/${payment.id}`)
+                              navigate(`/payments/advance-payments/${payment.id}`)
                             }
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"

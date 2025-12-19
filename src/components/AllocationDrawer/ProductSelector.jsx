@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { productsAPI } from "../../services/api";
+import { normalizeProduct } from "../../utils/fieldAccessors";
 
 /**
  * ProductSelector Component
@@ -75,9 +76,13 @@ const ProductSelector = ({
         return;
       }
 
-      onSelectProduct(product);
+      // BUGFIX: Normalize product to camelCase before passing to parent
+      // This ensures unitWeightKg, productCategory, etc. are available
+      const normalized = normalizeProduct(product);
+
+      onSelectProduct(normalized);
       setSearchTerm(
-        product.displayName || product.uniqueName || product.name || "",
+        normalized.displayName || normalized.uniqueName || normalized.name || "",
       );
       setShowDropdown(false);
       setProducts([]);
