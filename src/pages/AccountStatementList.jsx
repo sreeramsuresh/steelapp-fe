@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { accountStatementService, customersAPI } from "../services/api";
+import { accountStatementService } from '../services/accountStatementService';
+import { customersAPI } from '../services/api';
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 import GenerateStatementModal from "../components/GenerateStatementModal";
 import AccountStatementPreview from "../components/account-statements/AccountStatementPreview";
