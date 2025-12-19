@@ -162,9 +162,9 @@ const transformGRNFromServer = (serverData) => {
       rejectionReason: item.rejectionReason || item.rejection_reason || "",
       storageLocation: item.storageLocation || item.storage_location || "",
     })),
-    // Timestamps
-    createdAt: serverData.createdAt || serverData.created_at || null,
-    updatedAt: serverData.updatedAt || serverData.updated_at || null,
+    // Timestamps - FIXED: prioritize snake_case (proto sends these)
+    created_at: serverData.created_at || serverData.createdAt || null,
+    updated_at: serverData.updated_at || serverData.updatedAt || null,
   };
 };
 
