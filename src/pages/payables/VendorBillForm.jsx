@@ -535,6 +535,8 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     <span className="text-red-500">*</span>
                   </Label>
                   <Input
+                    name="vendorInvoiceNumber"
+                    data-testid="vendor-invoice-number"
                     value={formData.vendorInvoiceNumber}
                     onChange={(e) =>
                       handleChange('vendorInvoiceNumber', e.target.value)
@@ -674,6 +676,8 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     Bill Date <span className="text-red-500">*</span>
                   </Label>
                   <Input
+                    name="billDate"
+                    data-testid="bill-date"
                     type="date"
                     value={formData.billDate}
                     onChange={(e) => handleChange('billDate', e.target.value)}
@@ -690,6 +694,8 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     Due Date <span className="text-red-500">*</span>
                   </Label>
                   <Input
+                    name="dueDate"
+                    data-testid="due-date"
                     type="date"
                     value={formData.dueDate}
                     onChange={(e) => handleChange('dueDate', e.target.value)}
@@ -1084,6 +1090,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                 <div>
                   <Label className={labelClass}>Subtotal (readonly)</Label>
                   <Input
+                    data-testid="subtotal"
                     value={formData.subtotal.toFixed(2)}
                     disabled
                     className={inputClass}
@@ -1092,6 +1099,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                 <div>
                   <Label className={labelClass}>Total VAT (readonly)</Label>
                   <Input
+                    data-testid="vat-amount"
                     value={formData.vatAmount.toFixed(2)}
                     disabled
                     className={inputClass}
@@ -1100,6 +1108,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                 <div>
                   <Label className={labelClass}>Total (readonly)</Label>
                   <Input
+                    data-testid="total"
                     value={formData.total.toFixed(2)}
                     disabled
                     className={inputClass}
