@@ -354,16 +354,21 @@ const ProductDetailDrawer = ({
                   <p
                     className={`text-sm font-bold font-mono ${
                       ((product.sellingPrice - product.costPrice) /
-                        product.sellingPrice) *
+                        product.costPrice) *
                         100 >
-                      20
+                      8
                         ? "text-[#2ecc71]"
-                        : "text-[#f39c12]"
+                        : ((product.sellingPrice - product.costPrice) /
+                            product.costPrice) *
+                            100 >=
+                          5
+                          ? "text-[#f39c12]"
+                          : "text-[#e74c3c]"
                     }`}
                   >
                     {(
                       ((product.sellingPrice - product.costPrice) /
-                        product.sellingPrice) *
+                        product.costPrice) *
                       100
                     ).toFixed(1)}
                     %
@@ -526,6 +531,7 @@ export default function PriceListForm() {
     isDefault: false,
     effectiveFrom: "",
     effectiveTo: "",
+    pricingUnit: "WEIGHT_BASED", // Default pricing unit
     items: [],
   });
 
@@ -566,6 +572,7 @@ export default function PriceListForm() {
         isDefault: pricelist.isDefault,
         effectiveFrom: pricelist.effectiveFrom || "",
         effectiveTo: pricelist.effectiveTo || "",
+        pricingUnit: pricelist.pricingUnit || "WEIGHT_BASED",
         items,
       });
     } catch (error) {
@@ -591,6 +598,7 @@ export default function PriceListForm() {
         isDefault: false,
         effectiveFrom: "",
         effectiveTo: "",
+        pricingUnit: source.pricingUnit || "WEIGHT_BASED",
         items,
       });
     } catch (error) {
@@ -666,6 +674,18 @@ export default function PriceListForm() {
 
   const handleBulkApply = () => {
     const { type, percentage } = bulkOperation;
+
+    // Validate adjustment cap at ±20%
+    if (percentage > 20) {
+      notificationService.error("Bulk adjustments are capped at ±20%. Please enter a value between 0 and 20.");
+      return;
+    }
+
+    if (percentage <= 0) {
+      notificationService.error("Adjustment percentage must be greater than 0.");
+      return;
+    }
+
     const multiplier =
       type === "increase" ? 1 + percentage / 100 : 1 - percentage / 100;
 
@@ -785,8 +805,30 @@ export default function PriceListForm() {
   };
 
   const calculateMargin = (sellingPrice, costPrice) => {
-    if (!sellingPrice || !costPrice || sellingPrice === 0) return null;
-    return (((sellingPrice - costPrice) / sellingPrice) * 100).toFixed(1);
+    if (!sellingPrice || !costPrice || costPrice === 0) return null;
+    // Industry standard: markup on cost = ((selling - cost) / cost) × 100
+    return (((sellingPrice - costPrice) / costPrice) * 100).toFixed(1);
+  };
+
+  const getMarginColor = (marginPercent) => {
+    if (marginPercent === null) return "";
+    const margin = parseFloat(marginPercent);
+    if (margin < 5) return COLORS.bad; // Red for <5%
+    if (margin < 8) return COLORS.warn; // Amber for 5-8%
+    return COLORS.good; // Green for >8%
+  };
+
+  const getPricingUnitLabel = () => {
+    switch (formData.pricingUnit) {
+      case "WEIGHT_BASED":
+        return "per kg";
+      case "PIECE_BASED":
+        return "per unit";
+      case "AREA_BASED":
+        return "per m²";
+      default:
+        return "";
+    }
   };
 
   const getPriceDiff = (productId) => {
@@ -991,8 +1033,22 @@ export default function PriceListForm() {
                     </FormSelect>
                   </div>
 
+                  {/* Pricing Unit */}
+                  <div className="col-span-6 sm:col-span-3">
+                    <FormSelect
+                      label="Pricing Unit"
+                      value={formData.pricingUnit}
+                      onValueChange={(value) => handleChange("pricingUnit", value)}
+                      showValidation={false}
+                    >
+                      <SelectItem value="WEIGHT_BASED">Per Kg (Weight)</SelectItem>
+                      <SelectItem value="PIECE_BASED">Per Unit (Piece)</SelectItem>
+                      <SelectItem value="AREA_BASED">Per m² (Area)</SelectItem>
+                    </FormSelect>
+                  </div>
+
                   {/* Toggles */}
-                  <div className="col-span-6 sm:col-span-3 flex items-end gap-4 pb-1">
+                  <div className="col-span-12 sm:col-span-6 flex items-end gap-4 pb-1">
                     <Toggle
                       checked={formData.isActive}
                       onChange={(val) => handleChange("isActive", val)}
@@ -1166,7 +1222,7 @@ export default function PriceListForm() {
                             <th
                               className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
                             >
-                              New Price
+                              New Price <span className="opacity-60">({getPricingUnitLabel()})</span>
                             </th>
                             <th
                               className={`text-right py-2.5 px-4 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
@@ -1261,15 +1317,11 @@ export default function PriceListForm() {
                                   </div>
                                   {margin !== null && (
                                     <div
-                                      className={`text-[11px] text-right mt-1 font-bold font-mono ${
-                                        isNegativeMargin
-                                          ? "text-[#e74c3c]"
-                                          : parseFloat(margin) < 10
-                                            ? "text-[#f39c12]"
-                                            : "text-[#2ecc71]"
-                                      }`}
+                                      className={`text-[11px] text-right mt-1 font-bold font-mono`}
+                                      style={{ color: getMarginColor(margin) }}
                                     >
-                                      {margin}%{isNegativeMargin && " !"}
+                                      {margin}% margin
+                                      {parseFloat(margin) < 5 && " ⚠"}
                                     </div>
                                   )}
                                 </td>
@@ -1549,10 +1601,13 @@ export default function PriceListForm() {
 
               <div>
                 <label className={LABEL_CLASSES(isDarkMode)}>
-                  Percentage (%)
+                  Percentage (%) - Max: 20%
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  max="20"
+                  step="0.1"
                   value={bulkOperation.percentage}
                   onChange={(e) =>
                     setBulkOperation({
@@ -1563,6 +1618,18 @@ export default function PriceListForm() {
                   placeholder="e.g., 10"
                   className={INPUT_CLASSES(isDarkMode)}
                 />
+                {bulkOperation.percentage > 20 && (
+                  <div className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                    <span>⚠</span>
+                    <span>Bulk adjustments are capped at ±20% for safety</span>
+                  </div>
+                )}
+                {bulkOperation.percentage > 15 && bulkOperation.percentage <= 20 && (
+                  <div className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                    <span>⚠</span>
+                    <span>Large adjustment - please review carefully</span>
+                  </div>
+                )}
               </div>
 
               {/* Preview */}

@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Banknote } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Banknote, AlertTriangle, CheckCircle } from "lucide-react";
 import { PAYMENT_MODES } from "../../services/dataService";
 import { formatCurrency } from "../../utils/invoiceUtils";
 import { toUAEDateForInput } from "../../utils/timezone";
 import CurrencyInput from "../forms/CurrencyInput";
+import { customerCreditService } from "../../services/customerCreditService";
 
 /**
  * AddPaymentForm - Unified payment form component with multi-currency support
@@ -20,6 +21,7 @@ import CurrencyInput from "../forms/CurrencyInput";
  * @param {function} onCancel - Cancel callback (optional)
  * @param {string} entityType - 'invoice' | 'po' for context-aware labels (optional, default: 'invoice')
  * @param {string} defaultCurrency - Default currency code (optional, default: 'AED')
+ * @param {number} customerId - Customer ID for credit limit check (optional)
  */
 const AddPaymentForm = ({
   outstanding = 0,
@@ -28,6 +30,7 @@ const AddPaymentForm = ({
   onCancel,
   entityType = "invoice",
   defaultCurrency = "AED",
+  customerId = null,
 }) => {
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
@@ -39,6 +42,36 @@ const AddPaymentForm = ({
   // Multi-currency fields (Phase 1 Enhancement)
   const [currency, setCurrency] = useState(defaultCurrency);
   const [exchangeRate, setExchangeRate] = useState("1.0000");
+
+  // Credit limit state (Epic 2 - PAYM-001)
+  const [creditSummary, setCreditSummary] = useState(null);
+  const [loadingCredit, setLoadingCredit] = useState(false);
+  const [creditError, setCreditError] = useState(null);
+
+  // Fetch customer credit summary when customerId is provided
+  useEffect(() => {
+    if (!customerId) {
+      setCreditSummary(null);
+      return;
+    }
+
+    const fetchCreditSummary = async () => {
+      try {
+        setLoadingCredit(true);
+        setCreditError(null);
+        const summary = await customerCreditService.getCustomerCreditSummary(customerId);
+        setCreditSummary(summary);
+      } catch (error) {
+        console.error("Error fetching customer credit summary:", error);
+        setCreditError("Unable to load credit information");
+        setCreditSummary(null);
+      } finally {
+        setLoadingCredit(false);
+      }
+    };
+
+    fetchCreditSummary();
+  }, [customerId]);
 
   // Get current payment mode config
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
@@ -53,6 +86,27 @@ const AddPaymentForm = ({
   const amountInAed = isForeignCurrency
     ? (Number(amount) || 0) * (parseFloat(exchangeRate) || 1)
     : Number(amount) || 0;
+
+  // Credit limit calculations (Epic 2 - PAYM-001)
+  const creditLimit = creditSummary?.creditLimit || 0;
+  const currentUsage = creditSummary?.currentCredit || 0;
+  const availableCredit = creditLimit - currentUsage;
+  const paymentAmount = Number(amount) || 0;
+
+  // After payment, what would the new usage be?
+  // Payment REDUCES usage (receivable goes down)
+  const newUsageAfterPayment = currentUsage - paymentAmount;
+  const newAvailableCredit = creditLimit - newUsageAfterPayment;
+
+  // Check if payment would improve or worsen credit position
+  const creditImpactPositive = paymentAmount > 0; // Payment always improves credit
+  const creditUtilizationAfterPayment = creditLimit > 0
+    ? ((newUsageAfterPayment / creditLimit) * 100).toFixed(1)
+    : 0;
+
+  // Warning threshold: if available credit after payment falls below 10% of limit
+  const creditWarningThreshold = creditLimit * 0.1;
+  const showCreditWarning = customerId && creditSummary && newAvailableCredit < creditWarningThreshold && newAvailableCredit > 0;
 
   // Validation: amount must be > 0, <= outstanding, reference required for non-cash,
   // exchange rate required for foreign currency, and not already saving
@@ -119,6 +173,67 @@ const AddPaymentForm = ({
               </span>
             </button>
           </div>
+
+          {/* Customer Credit Limit Display (Epic 2 - PAYM-001) */}
+          {customerId && (
+            <div className="mb-3">
+              {loadingCredit ? (
+                <div className="px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-600">
+                  Loading credit information...
+                </div>
+              ) : creditError ? (
+                <div className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
+                  <AlertTriangle size={16} />
+                  <span>{creditError}</span>
+                </div>
+              ) : creditSummary ? (
+                <div className="px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="text-xs font-semibold text-green-900 mb-2 flex items-center gap-1">
+                    <CheckCircle size={14} />
+                    Customer Credit Status
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <div className="text-gray-600">Credit Limit</div>
+                      <div className="font-bold text-green-900">{formatCurrency(creditLimit)}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Current Usage</div>
+                      <div className="font-bold text-green-900">{formatCurrency(currentUsage)}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Available</div>
+                      <div className="font-bold text-green-900">{formatCurrency(availableCredit)}</div>
+                    </div>
+                  </div>
+                  {paymentAmount > 0 && (
+                    <div className="mt-2 pt-2 border-t border-green-200 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">After This Payment:</span>
+                        <span className="font-bold text-green-700">
+                          {formatCurrency(newAvailableCredit)} available ({creditUtilizationAfterPayment}% used)
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* Credit Warning (Epic 2 - PAYM-001) */}
+          {showCreditWarning && (
+            <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="text-xs text-amber-800 flex items-start gap-2">
+                <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
+                <div>
+                  <strong>Low Credit Warning:</strong> This payment will leave the customer with only{" "}
+                  {formatCurrency(newAvailableCredit)} available credit ({((newAvailableCredit / creditLimit) * 100).toFixed(1)}% of limit).
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="text-xs text-amber-800">
               <strong>Note:</strong> All payment details are required for proper
