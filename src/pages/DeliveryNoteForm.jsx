@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { deliveryNotesAPI, invoicesAPI } from "../services/api";
+import { deliveryNoteService } from "../services/deliveryNoteService"";
 import {
   formatDateForInput,
   validateWeightTolerance,
@@ -233,7 +233,7 @@ const DeliveryNoteForm = () => {
   const loadDeliveryNote = useCallback(async () => {
     try {
       setLoading(true);
-      const deliveryNote = await deliveryNotesAPI.getById(id);
+      const deliveryNote = await deliveryNoteService.getById(id);
 
       // Parse delivery address if it's a string
       let parsedAddress =
@@ -361,7 +361,7 @@ const DeliveryNoteForm = () => {
 
   const generateDeliveryNoteNumber = async () => {
     try {
-      const response = await deliveryNotesAPI.getNextNumber();
+      const response = await deliveryNoteService.getNextNumber();
       setFormData((prev) => ({
         ...prev,
         deliveryNoteNumber:
@@ -630,10 +630,10 @@ const DeliveryNoteForm = () => {
       };
 
       if (isEdit) {
-        await deliveryNotesAPI.update(id, submitData);
+        await deliveryNoteService.update(id, submitData);
         setSuccess("Delivery note updated successfully");
       } else {
-        await deliveryNotesAPI.create(submitData);
+        await deliveryNoteService.create(submitData);
         setSuccess("Delivery note created successfully");
       }
 

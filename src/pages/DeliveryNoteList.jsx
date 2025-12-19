@@ -19,7 +19,7 @@ import {
   XCircle,
   FileText as DetailsIcon,
 } from "lucide-react";
-import { deliveryNotesAPI } from "../services/api";
+import { deliveryNoteService } from "../services/deliveryNoteService"";
 import { authService } from "../services/axiosAuthService";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -138,7 +138,7 @@ const DeliveryNoteList = () => {
         invoiceId: invoiceIdFromUrl || undefined,
       };
 
-      const response = await deliveryNotesAPI.getAll(params);
+      const response = await deliveryNoteService.getAll(params);
 
       // Handle different response formats (camelCase from API Gateway auto-conversion)
       const notes =
@@ -208,7 +208,7 @@ const DeliveryNoteList = () => {
     }
 
     try {
-      await deliveryNotesAPI.downloadPDF(deliveryNote.id);
+      await deliveryNoteService.downloadPDF(deliveryNote.id);
       setSuccess("PDF downloaded successfully");
     } catch (err) {
       setError(`Failed to download PDF: ${err.message}`);
@@ -219,7 +219,7 @@ const DeliveryNoteList = () => {
   const handleForceDownload = async () => {
     if (!downloadWarning.deliveryNote) return;
     try {
-      await deliveryNotesAPI.downloadPDF(downloadWarning.deliveryNote.id);
+      await deliveryNoteService.downloadPDF(downloadWarning.deliveryNote.id);
       setSuccess("PDF downloaded successfully");
     } catch (err) {
       setError(`Failed to download PDF: ${err.message}`);
@@ -230,7 +230,7 @@ const DeliveryNoteList = () => {
 
   const handleDelete = async () => {
     try {
-      await deliveryNotesAPI.delete(deleteDialog.id);
+      await deliveryNoteService.delete(deleteDialog.id);
       setSuccess("Delivery note deleted successfully");
       setDeleteDialog({ open: false, id: null, number: "" });
       fetchDeliveryNotes();

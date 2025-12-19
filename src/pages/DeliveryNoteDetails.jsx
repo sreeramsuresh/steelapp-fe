@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { deliveryNotesAPI } from "../services/api";
+import { deliveryNoteService } from "../services/deliveryNoteService"";
 import { formatDate } from "../utils/invoiceUtils";
 import { useApiData } from "../hooks/useApi";
 import { companyService } from "../services";
@@ -52,7 +52,7 @@ const DeliveryNoteDetails = () => {
   const loadDeliveryNote = async () => {
     try {
       setLoading(true);
-      const data = await deliveryNotesAPI.getById(id);
+      const data = await deliveryNoteService.getById(id);
       setDeliveryNote(data);
     } catch (err) {
       setError(`Failed to load delivery note: ${err.message}`);
@@ -64,7 +64,7 @@ const DeliveryNoteDetails = () => {
   const handleDownloadPDF = async () => {
     try {
       // Use backend PDF generation only (per PDF_WORKFLOW.md)
-      await deliveryNotesAPI.downloadPDF(id);
+      await deliveryNoteService.downloadPDF(id);
       setSuccess("PDF downloaded successfully");
     } catch (err) {
       console.error("Error downloading PDF:", err);
@@ -85,7 +85,7 @@ const DeliveryNoteDetails = () => {
         return;
       }
 
-      await deliveryNotesAPI.updateDelivery(id, partialDialog.item.id, {
+      await deliveryNoteService.updateDelivery(id, partialDialog.item.id, {
         quantity_delivered: quantity,
         notes: `Additional delivery of ${quantity} ${partialDialog.item.unit}`,
       });
@@ -100,7 +100,7 @@ const DeliveryNoteDetails = () => {
 
   const handleStatusUpdate = async (newStatus) => {
     try {
-      await deliveryNotesAPI.updateStatus(id, newStatus);
+      await deliveryNoteService.updateStatus(id, newStatus);
       setSuccess(`Status updated to ${statusLabels[newStatus]}`);
       // If marked completed, try to update related purchase order transit status
       if (newStatus === "completed" && deliveryNote?.purchaseOrderId) {

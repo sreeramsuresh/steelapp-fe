@@ -16,6 +16,7 @@ import {
   PAYMENT_MODES as realPaymentModes,
 } from './payablesService';
 import { quotationService as realQuotationService } from './quotationService';
+import { deliveryNoteService as realDeliveryNoteService } from './deliveryNoteService';
 
 /**
  * Invoice Service
@@ -41,6 +42,11 @@ export const companyService = realCompanyService.companyService;
  * Quotation Service
  */
 export const quotationService = realQuotationService;
+
+/**
+ * Delivery Note Service
+ */
+export const deliveryNoteService = realDeliveryNoteService;
 
 /**
  * Payables Service
@@ -71,6 +77,7 @@ export default {
   productService,
   companyService,
   quotationService,
+  deliveryNoteService,
   payablesService,
   PAYMENT_MODES,
 };
