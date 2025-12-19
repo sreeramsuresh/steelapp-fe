@@ -22,6 +22,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 import { productService } from "../../services/dataService";
+import { validateSsotPattern } from "../../utils/productSsotValidation";
 
 /**
  * Format quantity with unit
@@ -203,12 +204,22 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   // Handle product select
   const handleProductSelect = useCallback(
     (itemId, product) => {
+      const uniqueName = product.uniqueName || product.unique_name || product.name || "";
+
+      // SSOT validation (Epic 5 - TRAN-002)
+      const ssotValidation = validateSsotPattern(uniqueName);
+      if (!ssotValidation.isValid) {
+        setError(`Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`);
+        return;
+      }
+
       handleItemChange(itemId, "product", product);
       setProductSearchTerms((prev) => ({
         ...prev,
-        [itemId]: `${product.name} (${product.sku || "No SKU"})`,
+        [itemId]: `${uniqueName} (${product.sku || "No SKU"})`,
       }));
       setActiveItemId(null);
+      setError(null); // Clear any previous errors
     },
     [handleItemChange],
   );
@@ -618,7 +629,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                                       }`}
                                     >
                                       <div className="font-medium">
-                                        {product.name}
+                                        {product.uniqueName || product.unique_name || product.name}
                                       </div>
                                       <div className="text-xs opacity-75">
                                         {product.sku || "No SKU"}

@@ -56,6 +56,7 @@ module.exports = {
     "react-hooks",
     // 'import', // Disabled - causing performance issues
     "jsx-a11y",
+    "local-rules",
   ],
   rules: {
     // ============================================
@@ -131,6 +132,10 @@ module.exports = {
     "jsx-a11y/no-static-element-interactions": "warn",
     "jsx-a11y/role-supports-aria-props": "warn",
     "jsx-a11y/no-autofocus": "warn", // Autofocus on inputs is intentional for UX
+
+    // Custom Local Rules
+    "local-rules/no-snakecase-props": "error",
+    "local-rules/no-dead-button": "warn", // Start with warn, escalate to error after tuning
   },
   overrides: [
     // TypeScript files

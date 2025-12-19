@@ -19,6 +19,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 import { productService } from "../../services/dataService";
+import { validateSsotPattern } from "../../utils/productSsotValidation";
 
 /**
  * Format quantity with unit
@@ -182,9 +183,19 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
   // Handle product selection
   const handleProductSelect = useCallback((product) => {
+    const uniqueName = product.uniqueName || product.unique_name || product.name || "";
+
+    // SSOT validation (Epic 5 - RESV-002)
+    const ssotValidation = validateSsotPattern(uniqueName);
+    if (!ssotValidation.isValid) {
+      setError(`Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`);
+      return;
+    }
+
     setProductId(product.id);
-    setProductSearchTerm(`${product.name} (${product.sku || "No SKU"})`);
+    setProductSearchTerm(`${uniqueName} (${product.sku || "No SKU"})`);
     setShowProductDropdown(false);
+    setError(null); // Clear any previous errors
   }, []);
 
   // Validate form
@@ -336,6 +347,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               }`}
             >
               Product *
+              <span className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                (Pattern: SS-Grade-Form-Finish-Width-Thickness-Length)
+              </span>
             </label>
             <div className="relative">
               <div className="relative">
@@ -385,7 +399,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                             : "text-gray-900"
                       }`}
                     >
-                      <div className="font-medium">{product.name}</div>
+                      <div className="font-medium">
+                        {product.uniqueName || product.unique_name || product.name}
+                      </div>
                       <div className="text-sm opacity-75">
                         {product.sku || "No SKU"}
                       </div>

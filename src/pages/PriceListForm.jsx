@@ -29,6 +29,15 @@ import { notificationService } from "../services/notificationService";
 import PriceHistoryTab from "../components/pricelist/PriceHistoryTab";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
+import {
+  PRODUCT_CATEGORIES,
+  PROCUREMENT_CHANNELS,
+  getPricingUnitForCategory,
+  validateCategoryPricingUnit,
+  getMarginColor as getMarginColorByChannel,
+  getMarginStatusMessage,
+  PRICING_UNIT_LABELS,
+} from "../utils/pricingStrategyMatrix";
 
 // ==================== DESIGN TOKENS ====================
 const COLORS = {
@@ -678,6 +687,11 @@ export default function PriceListForm() {
         return { ...prev, items: updatedItems };
       } else {
         const product = products.find((p) => p.id === productId);
+        // Epic 8 - PRICE-003: Auto-determine pricing unit from category
+        const category = product?.category || '';
+        const procurementChannel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
+        const pricingUnit = getPricingUnitForCategory(category) || 'WEIGHT';
+
         return {
           ...prev,
           items: [
@@ -685,6 +699,9 @@ export default function PriceListForm() {
             {
               productId,
               productName: product?.displayName || product?.name,
+              category,
+              procurementChannel,
+              pricingUnit, // Auto-determined from category
               sellingPrice: parseFloat(newPrice) || 0,
               minQuantity: 1,
             },
@@ -725,12 +742,21 @@ export default function PriceListForm() {
 
   const handleResetToDefaults = () => {
     // Reset ALL products to their default selling prices
-    const allItems = products.map((product) => ({
-      productId: product.id,
-      productName: product.displayName || product.name,
-      sellingPrice: product.sellingPrice || 0,
-      minQuantity: 1,
-    }));
+    const allItems = products.map((product) => {
+      const category = product?.category || '';
+      const procurementChannel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
+      const pricingUnit = getPricingUnitForCategory(category) || 'WEIGHT';
+
+      return {
+        productId: product.id,
+        productName: product.displayName || product.name,
+        category,
+        procurementChannel,
+        pricingUnit, // Auto-determined from category
+        sellingPrice: product.sellingPrice || 0,
+        minQuantity: 1,
+      };
+    });
     setFormData((prev) => ({
       ...prev,
       items: allItems,
@@ -869,6 +895,22 @@ export default function PriceListForm() {
     return (((sellingPrice - costPrice) / costPrice) * 100).toFixed(1);
   };
 
+  // Epic 8 - PRICE-005: Channel-specific margin color coding
+  const getMarginColorForProduct = (marginPercent, productId) => {
+    if (marginPercent === null) return "";
+
+    const margin = parseFloat(marginPercent);
+    const product = products.find((p) => p.id === productId);
+    const channel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
+
+    const colorStatus = getMarginColorByChannel(margin, channel);
+
+    if (colorStatus === 'red') return COLORS.bad;
+    if (colorStatus === 'amber') return COLORS.warn;
+    return COLORS.good;
+  };
+
+  // Legacy function for backwards compatibility (non-channel-specific)
   const getMarginColor = (marginPercent) => {
     if (marginPercent === null) return "";
     const margin = parseFloat(marginPercent);
@@ -1426,6 +1468,12 @@ export default function PriceListForm() {
                                       ? `Imported - ${product.countryOfOrigin || product.country_of_origin || product.origin_country || "Unknown"}`
                                       : "Local"}
                                   </p>
+                                  {/* Epic 8 - PRICE-003: Show category and pricing unit */}
+                                  {product.category && (
+                                    <p className={`text-[10px] mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-400"}`}>
+                                      {product.category} • {PRICING_UNIT_LABELS[getPricingUnitForCategory(product.category)] || 'Weight-based'}
+                                    </p>
+                                  )}
                                 </td>
                                 <td className={`py-2.5 px-3 text-right`}>
                                   <div
@@ -1472,10 +1520,17 @@ export default function PriceListForm() {
                                   {margin !== null && (
                                     <div
                                       className={`text-[11px] text-right mt-1 font-bold font-mono`}
-                                      style={{ color: getMarginColor(margin) }}
+                                      style={{ color: getMarginColorForProduct(margin, product.id) }}
                                     >
                                       {margin}% margin
-                                      {parseFloat(margin) < 5 && " ⚠"}
+                                      {/* Epic 8 - PRICE-005: Channel-specific warning thresholds */}
+                                      {(() => {
+                                        const channel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
+                                        const colorStatus = getMarginColorByChannel(margin, channel);
+                                        if (colorStatus === 'red') return " ⚠️";
+                                        if (colorStatus === 'amber') return " ⚠";
+                                        return "";
+                                      })()}
                                     </div>
                                   )}
                                 </td>

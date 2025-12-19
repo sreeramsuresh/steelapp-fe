@@ -33,6 +33,7 @@ import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem, SelectGroup, SelectLabel } from "../components/ui/select";
+import { validateSsotPattern, getSsotErrorMessage } from "../utils/productSsotValidation";
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -1096,7 +1097,7 @@ const EXCHANGE_RATE_SOURCE_OPTIONS = [
 const createEmptyLineItem = () => ({
   id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   product_id: "",
-  product_name: "",
+  unique_name: "", // SSOT product naming
   description: "",
   grade: "",
   finish: "",
@@ -1685,11 +1686,11 @@ const ExportOrderForm = () => {
           newItems[index] = {
             ...newItems[index],
             product_id: productId,
-            product_name:
-              product.displayName ||
-              product.display_name ||
+            unique_name:
               product.uniqueName ||
               product.unique_name ||
+              product.displayName ||
+              product.display_name ||
               "",
             description: product.description || "",
             grade: product.grade || "",
@@ -1760,7 +1761,7 @@ const ExportOrderForm = () => {
     // Validate line items
     const hasValidItem = order.items.some(
       (item) =>
-        item.product_name &&
+        item.unique_name &&
         parseFloat(item.quantity) > 0 &&
         parseFloat(item.unit_price) > 0,
     );
@@ -1771,8 +1772,16 @@ const ExportOrderForm = () => {
 
     // HS Code validation for each item (required for exports)
     order.items.forEach((item, index) => {
-      if (item.product_name && !item.hs_code) {
+      if (item.unique_name && !item.hs_code) {
         newErrors[`item_${index}_hs_code`] = "HS Code required for exports";
+      }
+
+      // SSOT product naming validation (Epic 5 - EXPO-001)
+      if (item.unique_name) {
+        const ssotValidation = validateSsotPattern(item.unique_name);
+        if (!ssotValidation.isValid) {
+          newErrors[`item_${index}_unique_name`] = ssotValidation.error;
+        }
       }
     });
 
@@ -1917,7 +1926,7 @@ const ExportOrderForm = () => {
               unit_price: parseFloat(item.unit_price) || 0,
               total_price: calculateItemTotal(item),
             }))
-            .filter((item) => item.product_name && item.quantity > 0),
+            .filter((item) => item.unique_name && item.quantity > 0),
         };
 
         let _response;
@@ -3051,31 +3060,38 @@ const ExportOrderForm = () => {
                           <option value="">Select Product</option>
                           {products.map((product) => (
                             <option key={product.id} value={product.id}>
-                              {product.displayName ||
-                                product.display_name ||
-                                product.uniqueName ||
+                              {product.uniqueName ||
                                 product.unique_name ||
+                                product.displayName ||
+                                product.display_name ||
                                 "N/A"}
                             </option>
                           ))}
                         </Select>
                         <input
                           type="text"
-                          value={item.product_name}
+                          value={item.unique_name}
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              "product_name",
+                              "unique_name",
                               e.target.value,
                             )
                           }
-                          placeholder="Or enter name"
+                          placeholder="SS-304-SHEET-2B-1250mm-2.0mm-2500mm"
                           className={`w-full px-2 py-1 text-xs border rounded ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
+                            errors[`item_${index}_unique_name`]
+                              ? "border-red-500"
+                              : isDarkMode
+                                ? "border-gray-600 bg-gray-800 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
                           }`}
                         />
+                        {errors[`item_${index}_unique_name`] && (
+                          <p className="text-xs text-red-500 mt-1">
+                            {errors[`item_${index}_unique_name`]}
+                          </p>
+                        )}
                       </div>
                     </td>
                     <td className="py-2 pr-2">

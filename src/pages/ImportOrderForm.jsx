@@ -28,6 +28,7 @@ import { productService } from "../services/productService";
 import { notificationService } from "../services/notificationService";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
+import { validateSsotPattern } from "../utils/productSsotValidation";
 
 // ==================== DESIGN TOKENS ====================
 // eslint-disable-next-line no-unused-vars
@@ -495,7 +496,8 @@ const COMMON_PORTS = [
 const createEmptyLineItem = () => ({
   id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   product_id: "",
-  product_name: "",
+  unique_name: "", // SSOT product naming
+  ssot_override: false, // Allow manager override for import products
   description: "",
   grade: "",
   finish: "",
@@ -575,6 +577,11 @@ const createEmptyOrder = () => ({
   import_declaration_number: "", // BOE number for VAT return reference
   customs_assessment_date: "", // Tax point determination
   vat_return_period: "", // YYYY-MM format for VAT return filing
+
+  // Customs Clearance Documentation (Critical for BOE processing)
+  boe_number: "", // Bill of Entry number (customs declaration)
+  certificate_of_origin: "", // COO number/reference
+  certificate_of_origin_date: "", // COO issue date
 
   // Notes & Documents
   notes: "",
@@ -881,17 +888,30 @@ const ImportOrderForm = () => {
         (p) => p.id === productId || p.id === parseInt(productId),
       );
       if (product) {
+        const uniqueName = product.uniqueName || product.unique_name || product.displayName || product.display_name || "";
+
+        // SSOT validation (Epic 5 - IMPO-009)
+        // Show warning if product doesn't follow SSOT pattern
+        const ssotValidation = validateSsotPattern(uniqueName);
+        let ssotOverride = false;
+        if (!ssotValidation.isValid) {
+          // Show warning but allow with override for import products
+          notificationService.warning(
+            `Product "${uniqueName}" does not follow SSOT naming pattern.\n` +
+            `Expected: ${ssotValidation.pattern}\n` +
+            `Error: ${ssotValidation.error}\n\n` +
+            `Product added with manager override flag. Please update product naming.`
+          );
+          ssotOverride = true;
+        }
+
         setOrder((prev) => {
           const newItems = [...prev.items];
           newItems[index] = {
             ...newItems[index],
             product_id: productId,
-            product_name:
-              product.displayName ||
-              product.display_name ||
-              product.uniqueName ||
-              product.unique_name ||
-              "",
+            unique_name: uniqueName,
+            ssot_override: ssotOverride,
             description: product.description || "",
             grade: product.grade || "",
             finish: product.finish || "",
@@ -949,7 +969,7 @@ const ImportOrderForm = () => {
     // Validate line items
     const hasValidItem = order.items.some(
       (item) =>
-        item.product_name &&
+        item.unique_name &&
         parseFloat(item.quantity) > 0 &&
         parseFloat(item.unit_price) > 0,
     );
@@ -1017,6 +1037,22 @@ const ImportOrderForm = () => {
         newErrors.customs_assessment_date =
           "Customs assessment date required for VAT tax point determination (UAE VAT Law Article 25)";
       }
+
+      // Customs documentation validation (required for customs clearance)
+      if (order.status === "customs" || order.status === "completed") {
+        if (!order.boe_number) {
+          newErrors.boe_number =
+            "Bill of Entry number required for customs clearance";
+        }
+        if (!order.certificate_of_origin) {
+          newErrors.certificate_of_origin =
+            "Certificate of Origin required for customs clearance";
+        }
+        if (!order.certificate_of_origin_date) {
+          newErrors.certificate_of_origin_date =
+            "COO issue date required for customs clearance";
+        }
+      }
     }
 
     setErrors(newErrors);
@@ -1062,7 +1098,7 @@ const ImportOrderForm = () => {
               unit_price: parseFloat(item.unit_price) || 0,
               total_price: calculateItemTotal(item),
             }))
-            .filter((item) => item.product_name && item.quantity > 0),
+            .filter((item) => item.unique_name && item.quantity > 0),
         };
 
         let _response;
@@ -1570,31 +1606,37 @@ const ImportOrderForm = () => {
                               <option value="">Select Product</option>
                               {products.map((product) => (
                                 <option key={product.id} value={product.id}>
-                                  {product.displayName ||
-                                    product.display_name ||
-                                    product.uniqueName ||
+                                  {product.uniqueName ||
                                     product.unique_name ||
+                                    product.displayName ||
+                                    product.display_name ||
                                     "N/A"}
                                 </option>
                               ))}
                             </Select>
                             <input
                               type="text"
-                              value={item.product_name}
+                              value={item.unique_name}
                               onChange={(e) =>
                                 handleItemChange(
                                   index,
-                                  "product_name",
+                                  "unique_name",
                                   e.target.value,
                                 )
                               }
-                              placeholder="Or enter name"
+                              placeholder="SS-304-SHEET-2B-1250mm-2.0mm-2500mm"
                               className={`w-full px-2 py-1 text-xs border rounded ${
                                 isDarkMode
                                   ? "border-gray-600 bg-gray-800 text-white"
                                   : "border-gray-300 bg-white text-gray-900"
                               }`}
                             />
+                            {item.ssot_override && (
+                              <p className="text-xs text-amber-500 mt-1 flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" />
+                                SSOT override - requires manager approval
+                              </p>
+                            )}
                           </div>
                         </td>
                         <td className="py-2 pr-2">
@@ -2214,6 +2256,48 @@ const ImportOrderForm = () => {
                   type="date"
                   value={order.eta}
                   onChange={(e) => handleFieldChange("eta", e.target.value)}
+                />
+              </div>
+
+              {/* Customs Clearance Documentation */}
+              <div
+                className={`mt-4 pt-4 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}
+              >
+                <h4
+                  className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+                >
+                  Customs Clearance Documents
+                </h4>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    label="Bill of Entry (BOE) Number"
+                    value={order.boe_number}
+                    onChange={(e) =>
+                      handleFieldChange("boe_number", e.target.value)
+                    }
+                    placeholder="BOE customs declaration #"
+                    error={errors.boe_number}
+                  />
+                  <Input
+                    label="Certificate of Origin"
+                    value={order.certificate_of_origin}
+                    onChange={(e) =>
+                      handleFieldChange("certificate_of_origin", e.target.value)
+                    }
+                    placeholder="COO number/reference"
+                    error={errors.certificate_of_origin}
+                  />
+                </div>
+
+                <Input
+                  label="COO Issue Date"
+                  type="date"
+                  value={order.certificate_of_origin_date}
+                  onChange={(e) =>
+                    handleFieldChange("certificate_of_origin_date", e.target.value)
+                  }
+                  error={errors.certificate_of_origin_date}
                 />
               </div>
 
