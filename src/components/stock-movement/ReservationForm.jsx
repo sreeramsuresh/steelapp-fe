@@ -589,11 +589,27 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   })}
                 </select>
               )}
-              {batchId && batches.length > 0 && (
-                <p className="mt-1 text-xs text-gray-500">
-                  Selected: {batches.find(b => (b.id || b.batchId).toString() === batchId.toString())?.batchNumber || batchId}
-                </p>
-              )}
+              {batchId && batches.length > 0 && (() => {
+                const selectedBatch = batches.find(b => (b.id || b.batchId).toString() === batchId.toString());
+                const channel = selectedBatch?.procurementChannel || selectedBatch?.procurement_channel || "UNKNOWN";
+                return (
+                  <div className="mt-2 flex items-center gap-2">
+                    <p className="text-xs text-gray-500">
+                      Selected: {selectedBatch?.batchNumber || selectedBatch?.batch_number || batchId}
+                    </p>
+                    {/* Epic 10: RESV-005 - Procurement Channel Badge */}
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      channel === "LOCAL"
+                        ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                        : channel === "IMPORTED"
+                        ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                        : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                    }`}>
+                      {channel === "LOCAL" ? "🔵 LOCAL" : channel === "IMPORTED" ? "🟠 IMPORTED" : "❓ UNKNOWN"}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
           )}
 

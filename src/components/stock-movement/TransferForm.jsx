@@ -50,6 +50,17 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   const [items, setItems] = useState([]);
   const [transferType, setTransferType] = useState("REGULAR"); // Epic 7: Transfer type
 
+  // Epic 10: TRAN-003 - Transfer approval workflow
+  const [transferStatus, setTransferStatus] = useState("DRAFT");
+
+  // Epic 10: TRAN-005 - Transporter details
+  const [driverId, setDriverId] = useState("");
+  const [driverName, setDriverName] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [vehiclePlate, setVehiclePlate] = useState("");
+  const [departureTime, setDepartureTime] = useState("");
+  const [expectedArrivalTime, setExpectedArrivalTime] = useState("");
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -290,6 +301,14 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         destinationWarehouseId: parseInt(destinationWarehouseId),
         expectedDate: expectedDate || null,
         transferType, // Epic 7: Include transfer type
+        transferStatus, // Epic 10: TRAN-003
+        // Epic 10: TRAN-005 - Transporter details
+        driverId: driverId || null,
+        driverName: driverName || null,
+        vehicleNumber: vehicleNumber || null,
+        vehiclePlate: vehiclePlate || null,
+        departureTime: departureTime || null,
+        expectedArrivalTime: expectedArrivalTime || null,
         notes,
         items: items.map((item) => ({
           productId: item.productId,
