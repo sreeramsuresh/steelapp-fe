@@ -22,6 +22,9 @@ import {
   CheckCircle,
   Warehouse,
   ChevronDown,
+  FileText,
+  Shield,
+  AlertCircle,
 } from "lucide-react";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
@@ -89,6 +92,23 @@ const StockReceiptForm = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  // GRN State (Epic 3 - RECV-001)
+  const [grnNumber, setGrnNumber] = useState("");
+  const [grnStatus, setGrnStatus] = useState("draft"); // draft, pending_approval, approved
+  const [grnDate, setGrnDate] = useState(new Date().toISOString().split("T")[0]);
+  const [approvedBy, setApprovedBy] = useState("");
+  const [approvalDate, setApprovalDate] = useState("");
+
+  // Weight Variance State (Epic 3 - RECV-002)
+  const [expectedWeights, setExpectedWeights] = useState({});
+  const [actualWeights, setActualWeights] = useState({});
+  const [varianceReasons, setVarianceReasons] = useState({});
+
+  // Batch Association State (Epic 6 - RECV-003)
+  const [batchNumbers, setBatchNumbers] = useState({});
+  const [supplierBatchRefs, setSupplierBatchRefs] = useState({});
+  const [mfgDates, setMfgDates] = useState({});
+
   // Load warehouses on mount
   useEffect(() => {
     const fetchWarehouses = async () => {
@@ -121,6 +141,13 @@ const StockReceiptForm = ({
     if (poItems && poItems.length > 0) {
       const initialSelected = {};
       const initialQuantities = {};
+      const initialExpectedWeights = {};
+      const initialActualWeights = {};
+      const initialBatchNumbers = {};
+      const initialSupplierBatchRefs = {};
+      const initialMfgDates = {};
+
+      const today = new Date().toISOString().split("T")[0];
 
       poItems.forEach((item) => {
         const pending =
@@ -131,13 +158,38 @@ const StockReceiptForm = ({
         if (pending > 0) {
           initialSelected[item.id] = true;
           initialQuantities[item.id] = pending;
+          // Initialize expected weight from order quantity
+          initialExpectedWeights[item.id] = pending;
+          initialActualWeights[item.id] = pending;
+          // Auto-generate batch number (Epic 6 - RECV-003)
+          const timestamp = Date.now();
+          const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+          initialBatchNumbers[item.id] = `IMP-${purchaseOrderId || "PO"}-${item.id}-${randomSuffix}`;
+          initialSupplierBatchRefs[item.id] = "";
+          initialMfgDates[item.id] = today;
         }
       });
 
       setSelectedItems(initialSelected);
       setQuantities(initialQuantities);
+      setExpectedWeights(initialExpectedWeights);
+      setActualWeights(initialActualWeights);
+      setBatchNumbers(initialBatchNumbers);
+      setSupplierBatchRefs(initialSupplierBatchRefs);
+      setMfgDates(initialMfgDates);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [poItems]);
+
+  // Generate GRN number on mount (Epic 3 - RECV-001)
+  useEffect(() => {
+    if (open && !grnNumber) {
+      const timestamp = new Date().getTime();
+      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      setGrnNumber(`GRN-${timestamp}-${randomSuffix}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Handle escape key
   useEffect(() => {
@@ -234,12 +286,53 @@ const StockReceiptForm = ({
     }));
   };
 
+  // Handle actual weight change (Epic 3 - RECV-002)
+  const handleActualWeightChange = (itemId, value) => {
+    const numValue = parseFloat(value) || 0;
+    setActualWeights((prev) => ({
+      ...prev,
+      [itemId]: numValue,
+    }));
+  };
+
+  // Handle variance reason change (Epic 3 - RECV-002)
+  const handleVarianceReasonChange = (itemId, reason) => {
+    setVarianceReasons((prev) => ({
+      ...prev,
+      [itemId]: reason,
+    }));
+  };
+
+  // Calculate weight variance for an item (Epic 3 - RECV-002)
+  const calculateWeightVariance = (itemId) => {
+    const expected = parseFloat(expectedWeights[itemId]) || 0;
+    const actual = parseFloat(actualWeights[itemId]) || 0;
+    if (expected === 0) return { variance: 0, percentage: 0 };
+    const variance = actual - expected;
+    const percentage = (variance / expected) * 100;
+    return { variance, percentage };
+  };
+
+  // Handle GRN approval (Epic 3 - RECV-001)
+  const handleApproveGRN = () => {
+    setGrnStatus("approved");
+    setApprovedBy("Current User"); // TODO: Get from auth context
+    setApprovalDate(new Date().toISOString().split("T")[0]);
+  };
+
   // Handle submit
   const handleSubmit = async () => {
     try {
       setError(null);
       setSuccess(null);
       setLoading(true);
+
+      // Validate GRN approval (Epic 3 - RECV-001)
+      if (grnStatus !== "approved") {
+        setError("GRN must be approved before receiving stock");
+        setLoading(false);
+        return;
+      }
 
       // Validate
       if (!selectedWarehouseId) {
@@ -256,10 +349,21 @@ const StockReceiptForm = ({
           if (qty > 0) {
             const item = receivableItems.find((i) => i.id === parseInt(itemId));
             if (item) {
+              const { variance, percentage } = calculateWeightVariance(parseInt(itemId));
               itemsToReceive.push({
                 itemId: parseInt(itemId),
                 productId: item.productId || item.product_id,
                 receivedQuantity: qty,
+                // Weight variance data (Epic 3 - RECV-002)
+                expectedWeight: parseFloat(expectedWeights[itemId]) || qty,
+                actualWeight: parseFloat(actualWeights[itemId]) || qty,
+                weightVariance: variance,
+                variancePercentage: percentage,
+                varianceReason: varianceReasons[itemId] || "accepted_tolerance",
+                // Batch data (Epic 6 - RECV-003)
+                batchNumber: batchNumbers[itemId] || "",
+                supplierBatchRef: supplierBatchRefs[itemId] || "",
+                mfgDate: mfgDates[itemId] || "",
               });
             }
           }
@@ -272,12 +376,19 @@ const StockReceiptForm = ({
         return;
       }
 
-      // Call API
+      // Call API with GRN data (Epic 3 - RECV-001)
       const result = await stockMovementService.createFromPurchaseOrder(
         purchaseOrderId,
         selectedWarehouseId,
         itemsToReceive,
         notes,
+        {
+          grnNumber,
+          grnStatus,
+          grnDate,
+          approvedBy,
+          approvalDate,
+        },
       );
 
       if (result.success || result.totalCreated > 0) {
@@ -381,6 +492,92 @@ const StockReceiptForm = ({
                 <p className="text-sm text-green-400">{success}</p>
               </div>
             )}
+
+            {/* GRN Section (Epic 3 - RECV-001) */}
+            <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+              <div className="flex items-center justify-between mb-3">
+                <label
+                  className={`text-xs font-medium ${textMuted} flex items-center gap-2`}
+                >
+                  <FileText className="w-4 h-4" />
+                  Goods Receipt Note (GRN)
+                </label>
+                {grnStatus === "draft" && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500 text-white">
+                    Draft
+                  </span>
+                )}
+                {grnStatus === "pending_approval" && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500 text-white">
+                    Pending Approval
+                  </span>
+                )}
+                {grnStatus === "approved" && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Approved
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className={`text-xs ${textMuted} mb-1 block`}>
+                    GRN Number
+                  </label>
+                  <input
+                    type="text"
+                    value={grnNumber}
+                    disabled
+                    className={`w-full ${inputBg} border ${inputBorder} rounded-lg py-2 px-3 text-sm ${textPrimary} disabled:opacity-70`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs ${textMuted} mb-1 block`}>
+                    GRN Date
+                  </label>
+                  <input
+                    type="date"
+                    value={grnDate}
+                    onChange={(e) => setGrnDate(e.target.value)}
+                    disabled={grnStatus === "approved"}
+                    className={`w-full ${inputBg} border ${inputBorder} rounded-lg py-2 px-3 text-sm ${textPrimary} ${inputFocus} outline-none disabled:opacity-70`}
+                  />
+                </div>
+              </div>
+
+              {grnStatus === "approved" && approvedBy && (
+                <div className={`p-3 ${isDarkMode ? "bg-green-900/20" : "bg-green-50"} border ${isDarkMode ? "border-green-700/30" : "border-green-200"} rounded-lg flex items-center gap-2`}>
+                  <Shield className="w-4 h-4 text-green-500" />
+                  <div className="flex-1">
+                    <p className={`text-xs ${textPrimary} font-medium`}>
+                      Approved by {approvedBy} on {approvalDate}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {grnStatus !== "approved" && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleApproveGRN}
+                    className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Approve GRN
+                  </button>
+                </div>
+              )}
+
+              {grnStatus !== "approved" && (
+                <div className={`mt-3 p-2.5 ${isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50"} border ${isDarkMode ? "border-yellow-700/30" : "border-yellow-200"} rounded-lg flex items-start gap-2`}>
+                  <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                    GRN must be approved before stock can be received.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Warehouse Selection */}
             <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
@@ -517,6 +714,21 @@ const StockReceiptForm = ({
                           >
                             Qty to Receive
                           </th>
+                          <th
+                            className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium min-w-[120px]`}
+                          >
+                            Actual Weight (MT)
+                          </th>
+                          <th
+                            className={`p-3 border-b ${tableBorder} text-center ${textMuted} font-medium min-w-[100px]`}
+                          >
+                            Variance %
+                          </th>
+                          <th
+                            className={`p-3 border-b ${tableBorder} text-left ${textMuted} font-medium min-w-[150px]`}
+                          >
+                            Reason
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -624,6 +836,86 @@ const StockReceiptForm = ({
                                       <Package className="w-4 h-4" />
                                     </button>
                                   </div>
+                                ) : (
+                                  <span
+                                    className={`text-center block ${textMuted}`}
+                                  >
+                                    -
+                                  </span>
+                                )}
+                              </td>
+                              {/* Weight Variance Columns (Epic 3 - RECV-002) */}
+                              <td className={`p-3 border-b ${tableBorder}`}>
+                                {!isComplete && isSelected ? (
+                                  <input
+                                    type="number"
+                                    value={actualWeights[item.id] || ""}
+                                    onChange={(e) =>
+                                      handleActualWeightChange(
+                                        item.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    min={0}
+                                    step={0.01}
+                                    className={`w-28 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none`}
+                                  />
+                                ) : (
+                                  <span
+                                    className={`text-center block ${textMuted}`}
+                                  >
+                                    -
+                                  </span>
+                                )}
+                              </td>
+                              <td
+                                className={`p-3 border-b ${tableBorder} text-center`}
+                              >
+                                {!isComplete && isSelected ? (
+                                  (() => {
+                                    const { percentage } =
+                                      calculateWeightVariance(item.id);
+                                    const isHighVariance =
+                                      Math.abs(percentage) > 5;
+                                    return (
+                                      <span
+                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${isHighVariance ? "bg-red-500/15 text-red-400" : percentage === 0 ? "bg-gray-500/15 text-gray-400" : "bg-blue-500/15 text-blue-400"}`}
+                                      >
+                                        {isHighVariance && (
+                                          <AlertTriangle className="w-3 h-3" />
+                                        )}
+                                        {percentage > 0 ? "+" : ""}
+                                        {percentage.toFixed(2)}%
+                                      </span>
+                                    );
+                                  })()
+                                ) : (
+                                  <span className={textMuted}>-</span>
+                                )}
+                              </td>
+                              <td className={`p-3 border-b ${tableBorder}`}>
+                                {!isComplete && isSelected ? (
+                                  <select
+                                    value={varianceReasons[item.id] || "accepted_tolerance"}
+                                    onChange={(e) =>
+                                      handleVarianceReasonChange(
+                                        item.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-xs ${textPrimary} ${inputFocus} outline-none`}
+                                  >
+                                    <option value="accepted_tolerance">
+                                      Accepted Tolerance
+                                    </option>
+                                    <option value="shortage">Shortage</option>
+                                    <option value="damage_weight_loss">
+                                      Damage/Weight Loss
+                                    </option>
+                                    <option value="measurement_difference">
+                                      Measurement Difference
+                                    </option>
+                                  </select>
                                 ) : (
                                   <span
                                     className={`text-center block ${textMuted}`}

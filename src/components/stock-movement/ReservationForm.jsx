@@ -30,6 +30,20 @@ const formatQuantity = (qty, unit = "KG") => {
   return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
+/**
+ * Calculate days until expiry - Epic 10: RESV-004
+ */
+const getDaysUntilExpiry = (expiryDate) => {
+  if (!expiryDate) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(expiryDate);
+  expiry.setHours(0, 0, 0, 0);
+  const diffTime = expiry - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
 const ReservationForm = ({ open, onClose, onSuccess }) => {
   const { isDarkMode } = useTheme();
 
@@ -46,6 +60,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   const [expiryDate, setExpiryDate] = useState("");
   const [notes, setNotes] = useState("");
   const [batchId, setBatchId] = useState(""); // Epic 4: Batch selection
+  const [reservationReason, setReservationReason] = useState(""); // Epic 10: RESV-003
+  const [customReason, setCustomReason] = useState(""); // Epic 10: RESV-003 - for OTHER option
+  const [autoExpire, setAutoExpire] = useState(true); // Epic 10: RESV-004 - auto-expiry enabled by default
 
   // Stock info
   const [availableStock, setAvailableStock] = useState(null);
@@ -209,6 +226,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       setExpiryDate("");
       setNotes("");
       setBatchId("");
+      setReservationReason("");
+      setCustomReason("");
+      setAutoExpire(true);
       setError(null);
       setShowProductDropdown(false);
     }
@@ -262,6 +282,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       setError("Please select a batch");
       return false;
     }
+    // Epic 10: RESV-003 - Custom reason validation
+    if (reservationReason === "OTHER" && !customReason.trim()) {
+      setError("Please specify custom reason when 'Other' is selected");
+      return false;
+    }
     const qty = parseFloat(quantity) || 0;
     if (qty <= 0) {
       setError("Quantity must be greater than 0");
@@ -293,6 +318,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         quantity: parseFloat(quantity),
         batchId: parseInt(batchId), // Epic 4: Include batch ID
         expiryDate: expiryDate || null,
+        autoExpire, // Epic 10: RESV-004
+        reservationReason: reservationReason || null, // Epic 10: RESV-003
+        customReason: reservationReason === "OTHER" ? customReason : null, // Epic 10: RESV-003
         notes,
       };
 
@@ -602,7 +630,61 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             )}
           </div>
 
-          {/* Expiry Date */}
+          {/* Reservation Reason - Epic 10: RESV-003 */}
+          <div>
+            <label
+              htmlFor="reservation-reason"
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Reservation Reason
+            </label>
+            <select
+              id="reservation-reason"
+              value={reservationReason}
+              onChange={(e) => setReservationReason(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            >
+              <option value="">Select reason...</option>
+              <option value="SALES_ORDER">Reserved for customer order</option>
+              <option value="PRODUCTION">Reserved for manufacturing</option>
+              <option value="MAINTENANCE">Reserved for maintenance/internal use</option>
+              <option value="OTHER">Other (please specify)</option>
+            </select>
+          </div>
+
+          {/* Custom Reason - shown when OTHER selected */}
+          {reservationReason === "OTHER" && (
+            <div>
+              <label
+                htmlFor="custom-reason"
+                className={`block text-sm font-medium mb-1 ${
+                  isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Custom Reason *
+              </label>
+              <input
+                id="custom-reason"
+                type="text"
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                placeholder="Specify custom reason..."
+                className={`w-full px-3 py-2 rounded-lg border ${
+                  isDarkMode
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              />
+            </div>
+          )}
+
+          {/* Expiry Date - Epic 10: RESV-004 */}
           <div>
             <label
               htmlFor="expiry-date"
@@ -617,16 +699,57 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               type="date"
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white"
                   : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
-            <p className="mt-1 text-sm text-gray-500">
-              Leave empty for no expiry
-            </p>
+            {expiryDate && (() => {
+              const daysUntilExpiry = getDaysUntilExpiry(expiryDate);
+              const isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+              const isExpired = daysUntilExpiry < 0;
+              return (
+                <p className={`mt-1 text-sm font-medium ${
+                  isExpired ? 'text-red-500' :
+                  isExpiringSoon ? 'text-orange-500' :
+                  'text-gray-500'
+                }`}>
+                  {isExpired ? `⚠ Expired ${Math.abs(daysUntilExpiry)} days ago` :
+                   daysUntilExpiry === 0 ? '⚠ Expires today' :
+                   isExpiringSoon ? `⚠ Expires in ${daysUntilExpiry} days` :
+                   `Expires in ${daysUntilExpiry} days`}
+                </p>
+              );
+            })()}
+            {!expiryDate && (
+              <p className="mt-1 text-sm text-gray-500">
+                Leave empty for no expiry
+              </p>
+            )}
           </div>
+
+          {/* Auto-Expire Checkbox - Epic 10: RESV-004 */}
+          {expiryDate && (
+            <div className="flex items-center gap-2">
+              <input
+                id="auto-expire"
+                type="checkbox"
+                checked={autoExpire}
+                onChange={(e) => setAutoExpire(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-2 focus:ring-blue-500"
+              />
+              <label
+                htmlFor="auto-expire"
+                className={`text-sm cursor-pointer ${
+                  isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Auto-release reservation when expiry date passes
+              </label>
+            </div>
+          )}
 
           {/* Notes */}
           <div>

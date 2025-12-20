@@ -513,6 +513,14 @@ const createEmptyLineItem = () => ({
   mill_name: "",
   heat_number: "",
   country_of_origin: "",
+  // Landed Cost Fields (Epic 6 - IMPO-006)
+  fob_value: 0, // FOB value for this line
+  allocated_freight: 0, // Proportional freight cost
+  allocated_insurance: 0, // Proportional insurance cost
+  allocated_duty: 0, // Proportional customs duty
+  other_allocated_charges: 0, // Proportional other charges
+  landed_cost_total: 0, // Total landed cost for this line
+  unit_landed_cost: 0, // Landed cost per unit
 });
 
 const createEmptyOrder = () => ({
@@ -551,6 +559,19 @@ const createEmptyOrder = () => ({
 
   // Line Items
   items: [createEmptyLineItem()],
+
+  // GRN Fields (Epic 3 - IMPO-005)
+  grnId: null,
+  grnNumber: "",
+  grnStatus: "not_created", // not_created, draft, pending_approval, approved
+  grnDate: "",
+  auto_create_grn: true, // Auto-create GRN on save
+
+  // Batch Creation Fields (Epic 6 - IMPO-008)
+  auto_create_batch: true, // Auto-create batch on receipt
+  supplier_batch_ref: "", // Supplier's batch reference
+  mfg_date: "", // Manufacturing date
+  shelf_life_days: 1825, // Default 5 years for steel
 
   // Cost Breakdown
   currency: "USD",
@@ -769,10 +790,53 @@ const ImportOrderForm = () => {
     calculateItemTotal,
   ]);
 
-  // Update order with calculated values including Form 201 fields
+  // Calculate landed cost allocation per item (Epic 6 - IMPO-006)
+  const itemsWithLandedCost = useMemo(() => {
+    const subtotal = calculations.subtotal;
+    if (subtotal === 0) return order.items;
+
+    const freight = parseFloat(order.freight_cost) || 0;
+    const insurance = parseFloat(order.insurance_cost) || 0;
+    const customsDuty = calculations.customsDuty;
+    const otherCharges = parseFloat(order.other_charges) || 0;
+
+    return order.items.map((item) => {
+      const fobValue = calculateItemTotal(item);
+      const proportion = subtotal > 0 ? fobValue / subtotal : 0;
+
+      const allocatedFreight = freight * proportion;
+      const allocatedInsurance = insurance * proportion;
+      const allocatedDuty = customsDuty * proportion;
+      const otherAllocatedCharges = otherCharges * proportion;
+
+      const landedCostTotal =
+        fobValue +
+        allocatedFreight +
+        allocatedInsurance +
+        allocatedDuty +
+        otherAllocatedCharges;
+
+      const quantity = parseFloat(item.quantity) || 0;
+      const unitLandedCost = quantity > 0 ? landedCostTotal / quantity : 0;
+
+      return {
+        ...item,
+        fob_value: fobValue,
+        allocated_freight: allocatedFreight,
+        allocated_insurance: allocatedInsurance,
+        allocated_duty: allocatedDuty,
+        other_allocated_charges: otherAllocatedCharges,
+        landed_cost_total: landedCostTotal,
+        unit_landed_cost: unitLandedCost,
+      };
+    });
+  }, [order.items, order.freight_cost, order.insurance_cost, order.other_charges, calculations.subtotal, calculations.customsDuty, calculateItemTotal]);
+
+  // Update order with calculated values including Form 201 fields and landed costs
   useEffect(() => {
     setOrder((prev) => ({
       ...prev,
+      items: itemsWithLandedCost,
       subtotal: calculations.subtotal,
       cif_value: calculations.cifValue,
       customs_duty: calculations.customsDuty,
@@ -783,7 +847,8 @@ const ImportOrderForm = () => {
       reverse_charge_input: calculations.reverseChargeInput,
       goods_imported_value: calculations.goodsImportedValue,
     }));
-  }, [calculations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calculations, itemsWithLandedCost.length]);
 
   // ============================================================
   // FORM HANDLERS
@@ -1333,6 +1398,68 @@ const ImportOrderForm = () => {
               </div>
             </Card>
 
+            {/* GRN Status Section (Epic 3 - IMPO-005) */}
+            {isEditMode && (
+              <Card title="Goods Receipt Note (GRN)" icon={Package}>
+                <div className="grid grid-cols-12 gap-3">
+                  <div className="col-span-6 sm:col-span-3">
+                    <label
+                      className={`block text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-1.5`}
+                    >
+                      GRN Number
+                    </label>
+                    <div
+                      className={`px-3 py-2.5 rounded-lg text-sm font-mono ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"}`}
+                    >
+                      {order.grnNumber || "Not Created"}
+                    </div>
+                  </div>
+                  <div className="col-span-6 sm:col-span-3">
+                    <label
+                      className={`block text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-1.5`}
+                    >
+                      GRN Status
+                    </label>
+                    <div>
+                      {order.grnStatus === "not_created" && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500 text-white">
+                          Not Created
+                        </span>
+                      )}
+                      {order.grnStatus === "draft" && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
+                          Draft
+                        </span>
+                      )}
+                      {order.grnStatus === "pending_approval" && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500 text-white">
+                          Pending Approval
+                        </span>
+                      )}
+                      {order.grnStatus === "approved" && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white">
+                          Approved
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-span-12 sm:col-span-6">
+                    <div
+                      className={`p-3 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-700/30" : "bg-blue-50 border border-blue-200"}`}
+                    >
+                      <p
+                        className={`text-xs ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}
+                      >
+                        <Info className="w-3 h-3 inline mr-1" />
+                        GRN will be created automatically when stock is received
+                        via the Stock Receipt workflow.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             {/* Supplier & Trade Terms Section */}
             <Card title="Supplier & Trade Terms" icon={Building2}>
               <div className="grid grid-cols-12 gap-3">
@@ -1575,7 +1702,9 @@ const ImportOrderForm = () => {
                       <th className="text-left pb-2 pr-2 w-24">HS Code</th>
                       <th className="text-left pb-2 pr-2 w-24">Mill</th>
                       <th className="text-left pb-2 pr-2 w-24">Heat #</th>
-                      <th className="text-right pb-2 pr-2 w-28">Total</th>
+                      <th className="text-right pb-2 pr-2 w-28">FOB Total</th>
+                      <th className="text-right pb-2 pr-2 w-28">Landed Cost</th>
+                      <th className="text-right pb-2 pr-2 w-28">Unit L/C</th>
                       <th className="w-10"></th>
                     </tr>
                   </thead>
@@ -1844,6 +1973,22 @@ const ImportOrderForm = () => {
                             className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {formatCurrency(calculateItemTotal(item))}
+                          </span>
+                        </td>
+                        {/* Landed Cost Columns (Epic 6 - IMPO-006) */}
+                        <td className="py-2 pr-2 text-right">
+                          <span
+                            className={`text-sm font-semibold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                            title={`FOB: ${formatCurrency(item.fob_value || 0)} + Freight: ${formatCurrency(item.allocated_freight || 0)} + Insurance: ${formatCurrency(item.allocated_insurance || 0)} + Duty: ${formatCurrency(item.allocated_duty || 0)} + Other: ${formatCurrency(item.other_allocated_charges || 0)}`}
+                          >
+                            {formatCurrency(item.landed_cost_total || 0)}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-2 text-right">
+                          <span
+                            className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          >
+                            {formatCurrency(item.unit_landed_cost || 0)}
                           </span>
                         </td>
                         <td className="py-2">
