@@ -24,6 +24,8 @@ import {
   CreditCard,
   Truck,
   Plane,
+  Layers,
+  User,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { exportOrderService } from "../services/exportOrderService";
@@ -31,9 +33,11 @@ import { customerService } from "../services/customerService";
 import { productService } from "../services/productService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
+import { supplierService } from "../services/supplierService";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem, SelectGroup, SelectLabel } from "../components/ui/select";
 import { validateSsotPattern, getSsotErrorMessage } from "../utils/productSsotValidation";
+import BatchAllocator from "../components/batch/BatchAllocator";
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -1116,6 +1120,11 @@ const createEmptyLineItem = () => ({
   // Re-export item tracking
   original_import_item_id: "",
   original_import_boe: "",
+  // Epic 4: Batch allocation
+  batchAllocations: [], // Array of {batchId, batchNumber, quantity, unitCost, supplier, procurementDate}
+  // Epic 7: Drop-ship handling
+  shipmentType: "WAREHOUSE", // "WAREHOUSE" | "DROP_SHIP"
+  supplierDropShip: "", // Supplier ID for drop-ship items
 });
 
 const createEmptyOrder = () => ({
@@ -1250,6 +1259,7 @@ const ExportOrderForm = () => {
   // Reference Data
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [_loadingCustomers, setLoadingCustomers] = useState(false);
   const [_loadingProducts, setLoadingProducts] = useState(false);
 
@@ -1260,6 +1270,10 @@ const ExportOrderForm = () => {
   // Search States
   const [customerSearchTerm, setCustomerSearchTerm] = useState("");
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+
+  // Epic 4 & 7: Batch allocation and drop-ship
+  const [batchAllocatorOpen, setBatchAllocatorOpen] = useState(false);
+  const [batchAllocatorLineIndex, setBatchAllocatorLineIndex] = useState(null);
 
   // ============================================================
   // DATA FETCHING
@@ -1304,6 +1318,20 @@ const ExportOrderForm = () => {
       }
     };
     fetchProducts();
+  }, []);
+
+  // Fetch suppliers for drop-ship
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await supplierService.getSuppliers();
+        const supplierList = response.suppliers || response.data || [];
+        setSuppliers(Array.isArray(supplierList) ? supplierList : []);
+      } catch (error) {
+        console.error("Failed to fetch suppliers:", error);
+      }
+    };
+    fetchSuppliers();
   }, []);
 
   // Fetch existing order for edit mode
@@ -1726,6 +1754,40 @@ const ExportOrderForm = () => {
     });
   }, []);
 
+  // Epic 4: Batch allocation handlers
+  const handleOpenBatchAllocator = useCallback((lineIndex) => {
+    setBatchAllocatorLineIndex(lineIndex);
+    setBatchAllocatorOpen(true);
+  }, []);
+
+  const handleBatchAllocation = useCallback((allocations) => {
+    if (batchAllocatorLineIndex === null) return;
+
+    setOrder((prev) => {
+      const newItems = [...prev.items];
+      const item = newItems[batchAllocatorLineIndex];
+
+      // Update batch allocations
+      item.batchAllocations = allocations;
+
+      // Calculate weighted average cost as unit price
+      if (allocations.length > 0) {
+        const totalCost = allocations.reduce(
+          (sum, a) => sum + a.quantity * a.unitCost,
+          0
+        );
+        const totalQty = allocations.reduce((sum, a) => sum + a.quantity, 0);
+        if (totalQty > 0) {
+          item.unit_price = totalCost / totalQty;
+          item.quantity = totalQty;
+          item.total_price = totalCost;
+        }
+      }
+
+      return { ...prev, items: newItems };
+    });
+  }, [batchAllocatorLineIndex]);
+
   // ============================================================
   // VALIDATION
   // ============================================================
@@ -1782,6 +1844,18 @@ const ExportOrderForm = () => {
         if (!ssotValidation.isValid) {
           newErrors[`item_${index}_unique_name`] = ssotValidation.error;
         }
+      }
+
+      // Epic 4: Batch allocation validation for WAREHOUSE items
+      if (item.shipmentType === "WAREHOUSE" && item.quantity > 0) {
+        if (!item.batchAllocations || item.batchAllocations.length === 0) {
+          newErrors[`item_${index}_batch`] = "Batch allocation required";
+        }
+      }
+
+      // Epic 7: Drop-ship supplier validation
+      if (item.shipmentType === "DROP_SHIP" && !item.supplierDropShip) {
+        newErrors[`item_${index}_supplier`] = "Supplier required for drop-ship";
       }
     });
 
@@ -3024,6 +3098,7 @@ const ExportOrderForm = () => {
                   <th className="text-left pb-2 pr-2 w-20">Grade</th>
                   <th className="text-left pb-2 pr-2 w-20">Finish</th>
                   <th className="text-left pb-2 pr-2 w-28">Dimensions</th>
+                  <th className="text-left pb-2 pr-2 w-32">Shipment</th>
                   <th className="text-right pb-2 pr-2 w-20">Qty</th>
                   <th className="text-left pb-2 pr-2 w-16">Unit</th>
                   <th className="text-right pb-2 pr-2 w-24">Unit Price</th>
@@ -3172,6 +3247,73 @@ const ExportOrderForm = () => {
                               : "border-gray-300 bg-white text-gray-900"
                           }`}
                         />
+                      </div>
+                    </td>
+                    {/* Epic 7: Shipment Type Column */}
+                    <td className="py-2 pr-2">
+                      <div className="space-y-1">
+                        <select
+                          value={item.shipmentType || "WAREHOUSE"}
+                          onChange={(e) =>
+                            handleItemChange(index, "shipmentType", e.target.value)
+                          }
+                          className={`w-full px-2 py-1 text-xs border rounded ${
+                            isDarkMode
+                              ? "border-gray-600 bg-gray-800 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          }`}
+                        >
+                          <option value="WAREHOUSE">Warehouse</option>
+                          <option value="DROP_SHIP">Drop-Ship</option>
+                        </select>
+                        {/* Show batch allocator button for WAREHOUSE items */}
+                        {item.shipmentType === "WAREHOUSE" && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenBatchAllocator(index)}
+                            className={`w-full flex items-center justify-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
+                              item.batchAllocations?.length > 0
+                                ? "bg-teal-600 text-white hover:bg-teal-500"
+                                : isDarkMode
+                                ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                            }`}
+                          >
+                            <Layers className="w-3 h-3" />
+                            {item.batchAllocations?.length > 0
+                              ? `${item.batchAllocations.length} batch${item.batchAllocations.length !== 1 ? "es" : ""}`
+                              : "Allocate"}
+                          </button>
+                        )}
+                        {/* Show supplier selector for DROP_SHIP items */}
+                        {item.shipmentType === "DROP_SHIP" && (
+                          <select
+                            value={item.supplierDropShip || ""}
+                            onChange={(e) =>
+                              handleItemChange(index, "supplierDropShip", e.target.value)
+                            }
+                            className={`w-full px-2 py-1 text-xs border rounded ${
+                              errors[`item_${index}_supplier`]
+                                ? "border-red-500"
+                                : isDarkMode
+                                ? "border-gray-600 bg-gray-800 text-white"
+                                : "border-gray-300 bg-white text-gray-900"
+                            }`}
+                          >
+                            <option value="">Select Supplier</option>
+                            {suppliers.map((sup) => (
+                              <option key={sup.id} value={sup.id}>
+                                {sup.name || sup.supplierName || `Supplier ${sup.id}`}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                        {errors[`item_${index}_batch`] && item.shipmentType === "WAREHOUSE" && (
+                          <p className="text-xs text-red-500">{errors[`item_${index}_batch`]}</p>
+                        )}
+                        {errors[`item_${index}_supplier`] && item.shipmentType === "DROP_SHIP" && (
+                          <p className="text-xs text-red-500">{errors[`item_${index}_supplier`]}</p>
+                        )}
                       </div>
                     </td>
                     <td className="py-2 pr-2">
@@ -3803,6 +3945,24 @@ const ExportOrderForm = () => {
           </div>
         </div>
       </div>
+
+      {/* Epic 4: Batch Allocator Modal */}
+      {batchAllocatorOpen && batchAllocatorLineIndex !== null && (
+        <BatchAllocator
+          open={batchAllocatorOpen}
+          onClose={() => {
+            setBatchAllocatorOpen(false);
+            setBatchAllocatorLineIndex(null);
+          }}
+          productId={order.items[batchAllocatorLineIndex]?.product_id}
+          warehouseId={null} // TODO: Add warehouse selection if needed
+          requiredQuantity={order.items[batchAllocatorLineIndex]?.quantity || 0}
+          currentAllocations={order.items[batchAllocatorLineIndex]?.batchAllocations || []}
+          onAllocate={handleBatchAllocation}
+          mode="export"
+          draftInvoiceId={null}
+        />
+      )}
     </div>
   );
 };

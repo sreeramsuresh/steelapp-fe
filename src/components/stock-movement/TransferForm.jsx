@@ -17,12 +17,15 @@ import {
   Loader2,
   Package,
   ChevronDown,
+  Layers,
+  Circle,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 import { productService } from "../../services/dataService";
 import { validateSsotPattern } from "../../utils/productSsotValidation";
+import { batchReservationService } from "../../services/batchReservationService";
 
 /**
  * Format quantity with unit
@@ -45,9 +48,13 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   const [expectedDate, setExpectedDate] = useState("");
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState([]);
+  const [transferType, setTransferType] = useState("REGULAR"); // Epic 7: Transfer type
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  // Epic 4: Batch allocation state
+  const [batchesPerItem, setBatchesPerItem] = useState({}); // Map of itemId -> batches[]
 
   // Product autocomplete state
   const [activeItemId, setActiveItemId] = useState(null);
@@ -166,6 +173,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       quantity: "",
       unit: "KG",
       notes: "",
+      batchId: "", // Epic 4: Batch allocation
     };
     setItems([...items, newItem]);
     setProductSearchTerms({ ...productSearchTerms, [newItem.id]: "" });
@@ -281,11 +289,13 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         sourceWarehouseId: parseInt(sourceWarehouseId),
         destinationWarehouseId: parseInt(destinationWarehouseId),
         expectedDate: expectedDate || null,
+        transferType, // Epic 7: Include transfer type
         notes,
         items: items.map((item) => ({
           productId: item.productId,
           quantity: parseFloat(item.quantity),
           unit: item.unit,
+          batchId: item.batchId ? parseInt(item.batchId) : null, // Epic 4: Include batch ID
           notes: item.notes,
         })),
       };
@@ -461,6 +471,39 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                   : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
+          </div>
+
+          {/* Epic 7: Transfer Type */}
+          <div>
+            <label
+              htmlFor="transfer-type"
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Transfer Type
+            </label>
+            <select
+              id="transfer-type"
+              value={transferType}
+              onChange={(e) => setTransferType(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            >
+              <option value="REGULAR">🟢 Regular - Normal inter-warehouse transfer</option>
+              <option value="URGENT">🔴 Urgent - Priority handling & expedited processing</option>
+              <option value="QUALITY_HOLD">🟡 Quality Hold - Stock quarantined pending inspection</option>
+              <option value="REPAIR">⚪ Repair - Stock sent for repair/refurbishment</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              {transferType === "URGENT" && "Priority handling with expedited processing"}
+              {transferType === "QUALITY_HOLD" && "Stock quarantined pending quality inspection"}
+              {transferType === "REPAIR" && "Stock sent for repair or refurbishment"}
+              {transferType === "REGULAR" && "Standard inter-warehouse transfer"}
+            </p>
           </div>
         </div>
 

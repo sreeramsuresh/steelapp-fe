@@ -14,12 +14,14 @@ import {
   Loader2,
   ChevronDown,
   Package,
+  Layers,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 import { productService } from "../../services/dataService";
 import { validateSsotPattern } from "../../utils/productSsotValidation";
+import { batchReservationService } from "../../services/batchReservationService";
 
 /**
  * Format quantity with unit
@@ -43,10 +45,15 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   const [quantity, setQuantity] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [batchId, setBatchId] = useState(""); // Epic 4: Batch selection
 
   // Stock info
   const [availableStock, setAvailableStock] = useState(null);
   const [loadingStock, setLoadingStock] = useState(false);
+
+  // Epic 4: Batch data
+  const [batches, setBatches] = useState([]);
+  const [loadingBatches, setLoadingBatches] = useState(false);
 
   // UI state
   const [saving, setSaving] = useState(false);
@@ -152,6 +159,47 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
     loadStock();
   }, [warehouseId, productId]);
 
+  // Epic 4: Load available batches when product/warehouse changes
+  useEffect(() => {
+    const loadBatches = async () => {
+      if (!warehouseId || !productId) {
+        setBatches([]);
+        setBatchId("");
+        return;
+      }
+
+      try {
+        setLoadingBatches(true);
+        const response = await batchReservationService.getAvailableBatches({
+          productId,
+          warehouseId,
+        });
+
+        const availableBatches = response.batches || [];
+        // Sort by FIFO (oldest first)
+        availableBatches.sort(
+          (a, b) =>
+            new Date(a.created_at || a.procurementDate) -
+            new Date(b.created_at || b.procurementDate)
+        );
+
+        setBatches(availableBatches);
+
+        // Auto-select first (oldest) batch for FIFO
+        if (availableBatches.length > 0) {
+          setBatchId(availableBatches[0].id || availableBatches[0].batchId);
+        }
+      } catch (err) {
+        console.error("Error loading batches:", err);
+        setBatches([]);
+      } finally {
+        setLoadingBatches(false);
+      }
+    };
+
+    loadBatches();
+  }, [warehouseId, productId]);
+
   // Reset form when opened
   useEffect(() => {
     if (open) {
@@ -160,6 +208,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       setQuantity("");
       setExpiryDate("");
       setNotes("");
+      setBatchId("");
       setError(null);
       setShowProductDropdown(false);
     }
@@ -208,6 +257,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       setError("Please select a product");
       return false;
     }
+    // Epic 4: Batch validation
+    if (!batchId) {
+      setError("Please select a batch");
+      return false;
+    }
     const qty = parseFloat(quantity) || 0;
     if (qty <= 0) {
       setError("Quantity must be greater than 0");
@@ -237,6 +291,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         productId,
         warehouseId: parseInt(warehouseId),
         quantity: parseFloat(quantity),
+        batchId: parseInt(batchId), // Epic 4: Include batch ID
         expiryDate: expiryDate || null,
         notes,
       };
@@ -451,6 +506,66 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Loading stock levels...</span>
+            </div>
+          )}
+
+          {/* Epic 4: Batch Selection */}
+          {productId && warehouseId && (
+            <div>
+              <label
+                htmlFor="batch-selector"
+                className={`block text-sm font-medium mb-1 ${
+                  isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4" />
+                  Batch * (FIFO - Oldest First)
+                </div>
+              </label>
+              {loadingBatches ? (
+                <div className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading batches...
+                </div>
+              ) : batches.length === 0 ? (
+                <div className="px-3 py-2 text-sm text-orange-500 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                  <AlertTriangle className="w-4 h-4 inline mr-1" />
+                  No batches available for this product/warehouse
+                </div>
+              ) : (
+                <select
+                  id="batch-selector"
+                  value={batchId}
+                  onChange={(e) => setBatchId(e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border ${
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300 text-gray-900"
+                  } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                >
+                  <option value="">Select Batch</option>
+                  {batches.map((batch, idx) => {
+                    const bId = batch.id || batch.batchId;
+                    const bNum = batch.batchNumber || batch.batch_number || `BATCH-${bId}`;
+                    const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
+                    const supplier = batch.supplier || batch.supplierName || "N/A";
+                    const date = new Date(batch.created_at || batch.procurementDate).toLocaleDateString();
+
+                    return (
+                      <option key={bId} value={bId}>
+                        {idx === 0 ? "🔹 " : ""}{bNum} | {available.toFixed(2)} KG | {supplier} | {date}
+                        {idx === 0 ? " (FIFO - Oldest)" : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+              )}
+              {batchId && batches.length > 0 && (
+                <p className="mt-1 text-xs text-gray-500">
+                  Selected: {batches.find(b => (b.id || b.batchId).toString() === batchId.toString())?.batchNumber || batchId}
+                </p>
+              )}
             </div>
           )}
 
