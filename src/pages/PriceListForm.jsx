@@ -21,11 +21,15 @@ import {
   RotateCcw,
   Copy,
   History,
+  Calendar,
+  AlertCircle,
+  DollarSign,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import pricelistService from "../services/pricelistService";
 import { productService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
+import exchangeRateService from "../services/exchangeRateService";
 import PriceHistoryTab from "../components/pricelist/PriceHistoryTab";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
@@ -182,6 +186,286 @@ const Toggle = ({ checked, onChange, label, isDarkMode }) => {
         {label}
       </span>
     </label>
+  );
+};
+
+// Epic 14 - PRICE-007: Currency Conversion Modal
+const CurrencyConversionModal = ({
+  isOpen,
+  onClose,
+  product,
+  sellingPrice,
+  conversionData,
+  isDarkMode,
+  onRateOverride,
+}) => {
+  const [overrideRate, setOverrideRate] = useState("");
+  const [showOverride, setShowOverride] = useState(false);
+
+  if (!isOpen || !product || !conversionData) return null;
+
+  const handleApplyOverride = () => {
+    if (!overrideRate || parseFloat(overrideRate) <= 0) {
+      notificationService.error("Please enter a valid exchange rate");
+      return;
+    }
+    onRateOverride(product.id, {
+      rate: parseFloat(overrideRate),
+      date: new Date().toISOString(),
+      source: "Manual Override",
+    });
+    setShowOverride(false);
+    setOverrideRate("");
+    onClose();
+  };
+
+  const rateAge = conversionData.rateDate
+    ? Math.ceil(
+        Math.abs(new Date() - new Date(conversionData.rateDate)) /
+          (1000 * 60 * 60 * 24)
+      )
+    : 0;
+  const isOld = rateAge > 7;
+
+  const margin =
+    sellingPrice && conversionData.convertedCost
+      ? (
+          ((sellingPrice - conversionData.convertedCost) /
+            conversionData.convertedCost) *
+          100
+        ).toFixed(1)
+      : null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Overlay */}
+      <div
+        className="absolute inset-0 bg-black/55"
+        onClick={onClose}
+      />
+      {/* Modal */}
+      <div
+        className={`relative z-10 w-full max-w-lg rounded-2xl p-4 ${
+          isDarkMode
+            ? "bg-[#141a20] border border-[#2a3640]"
+            : "bg-white border border-gray-200"
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <DollarSign size={18} className="text-[#4aa3ff]" />
+              <h3
+                className={`text-sm font-extrabold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+              >
+                Currency Conversion Details
+              </h3>
+            </div>
+            <p
+              className={`text-xs mt-0.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+            >
+              {product.uniqueName || product.unique_name}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="space-y-3">
+          {/* Original Cost */}
+          <div
+            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+          >
+            <p
+              className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+            >
+              Original Cost
+            </p>
+            <p
+              className={`text-lg font-extrabold font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+            >
+              {conversionData.originalCost?.toFixed(2)}{" "}
+              {conversionData.originalCurrency}
+            </p>
+          </div>
+
+          {/* Exchange Rate */}
+          <div
+            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <p
+                className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              >
+                Exchange Rate
+              </p>
+              {isOld && (
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full ${
+                    isDarkMode
+                      ? "bg-amber-900/20 text-amber-400"
+                      : "bg-amber-50 text-amber-700"
+                  }`}
+                >
+                  ⚠ {rateAge} days old
+                </span>
+              )}
+            </div>
+            <p
+              className={`text-sm font-extrabold font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`}
+            >
+              1 {conversionData.originalCurrency} ={" "}
+              {conversionData.exchangeRate?.toFixed(4)}{" "}
+              {conversionData.baseCurrency}
+            </p>
+            <div className="mt-2 flex items-center justify-between">
+              <p
+                className={`text-[10px] ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
+              >
+                Source: {conversionData.rateSource}
+              </p>
+              <p
+                className={`text-[10px] ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
+              >
+                {new Date(conversionData.rateDate).toLocaleDateString()}
+              </p>
+            </div>
+            {isOld && (
+              <p
+                className={`text-[10px] mt-2 ${isDarkMode ? "text-amber-400/80" : "text-amber-600"}`}
+              >
+                ⚠ Exchange rate dated{" "}
+                {new Date(conversionData.rateDate).toLocaleDateString()},
+                consider updating
+              </p>
+            )}
+          </div>
+
+          {/* Converted Cost */}
+          <div
+            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+          >
+            <p
+              className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+            >
+              Converted Cost (Normalized to AED)
+            </p>
+            <p
+              className={`text-lg font-extrabold font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+            >
+              {conversionData.convertedCost?.toFixed(2)}{" "}
+              {conversionData.baseCurrency}
+            </p>
+          </div>
+
+          {/* Margin Calculation */}
+          {sellingPrice && margin !== null && (
+            <div
+              className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+            >
+              <p
+                className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              >
+                Margin (Normalized to AED)
+              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-sm font-mono">
+                  <span
+                    className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}
+                  >
+                    Selling:
+                  </span>{" "}
+                  <span
+                    className={`font-bold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                  >
+                    {sellingPrice.toFixed(2)} AED
+                  </span>
+                </p>
+                <p
+                  className={`text-lg font-extrabold font-mono ${
+                    parseFloat(margin) < 5
+                      ? "text-[#e74c3c]"
+                      : parseFloat(margin) < 8
+                        ? "text-[#f39c12]"
+                        : "text-[#2ecc71]"
+                  }`}
+                >
+                  {margin}%
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Override Section */}
+          {!showOverride && (
+            <button
+              type="button"
+              onClick={() => setShowOverride(true)}
+              className={`w-full text-xs ${isDarkMode ? "text-[#4aa3ff] hover:text-[#5bb2ff]" : "text-blue-600 hover:text-blue-700"} transition-colors`}
+            >
+              Override Exchange Rate (Manager Only)
+            </button>
+          )}
+
+          {showOverride && (
+            <div
+              className={`rounded-[14px] p-3 border ${
+                isDarkMode
+                  ? "bg-amber-900/10 border-amber-500/35"
+                  : "bg-amber-50 border-amber-300"
+              }`}
+            >
+              <p
+                className={`text-xs font-semibold mb-2 ${isDarkMode ? "text-amber-400" : "text-amber-800"}`}
+              >
+                Manager Override
+              </p>
+              <input
+                type="number"
+                step="0.0001"
+                value={overrideRate}
+                onChange={(e) => setOverrideRate(e.target.value)}
+                placeholder="Enter new rate"
+                className={`w-full px-3 py-2 text-sm border rounded-xl ${
+                  isDarkMode
+                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+              />
+              <div className="flex gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOverride(false);
+                    setOverrideRate("");
+                  }}
+                  className={`flex-1 px-3 py-2 text-xs rounded-xl ${
+                    isDarkMode
+                      ? "bg-[#0f151b] border border-[#2a3640] text-[#e6edf3]"
+                      : "bg-white border border-gray-300 text-gray-900"
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApplyOverride}
+                  className="flex-1 px-3 py-2 text-xs rounded-xl bg-[#4aa3ff] text-[#001018] font-bold"
+                >
+                  Apply Override
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -532,6 +816,19 @@ export default function PriceListForm() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeTab, setActiveTab] = useState("prices"); // 'prices' or 'history'
 
+  // Epic 14 - PRICE-006: Date overlap detection
+  const [overlappingPricelists, setOverlappingPricelists] = useState([]);
+  const [showDateWarning, setShowDateWarning] = useState(false);
+  const [dateValidationError, setDateValidationError] = useState("");
+
+  // Epic 14 - PRICE-007: Currency conversion
+  const [exchangeRates, setExchangeRates] = useState({});
+  const [rateMetadata, setRateMetadata] = useState({});
+  const [showCurrencySection, setShowCurrencySection] = useState(false);
+  const [manualRateOverride, setManualRateOverride] = useState({});
+  const [currencyModalProduct, setCurrencyModalProduct] = useState(null);
+  const [currencyConversionData, setCurrencyConversionData] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -665,6 +962,192 @@ export default function PriceListForm() {
       return;
     }
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Epic 14 - PRICE-006: Validate dates when they change
+    if (field === "effectiveFrom" || field === "effectiveTo") {
+      validateDateRange(
+        field === "effectiveFrom" ? value : formData.effectiveFrom,
+        field === "effectiveTo" ? value : formData.effectiveTo
+      );
+    }
+  };
+
+  // Epic 14 - PRICE-006: Validate date range
+  const validateDateRange = (fromDate, toDate) => {
+    setDateValidationError("");
+    setShowDateWarning(false);
+
+    if (!fromDate || !toDate) return;
+
+    // Check if effectiveTo >= effectiveFrom
+    if (new Date(toDate) < new Date(fromDate)) {
+      setDateValidationError("Effective To date must be after or equal to Effective From date");
+      return;
+    }
+
+    // Check for overlapping pricelists
+    checkDateOverlap(fromDate, toDate);
+  };
+
+  // Epic 14 - PRICE-006: Check for overlapping price lists
+  const checkDateOverlap = async (fromDate, toDate) => {
+    try {
+      const response = await pricelistService.getAll();
+      const pricelists = response.pricelists || [];
+
+      // Filter out current pricelist if editing
+      const otherPricelists = pricelists.filter(p => p.id !== parseInt(id));
+
+      // Find overlaps
+      const overlaps = otherPricelists.filter(p => {
+        if (!p.effectiveFrom || !p.effectiveTo) return false;
+
+        // Overlap logic: (new_start <= existing_end) AND (new_end >= existing_start)
+        const newStart = new Date(fromDate);
+        const newEnd = new Date(toDate);
+        const existingStart = new Date(p.effectiveFrom);
+        const existingEnd = new Date(p.effectiveTo);
+
+        return newStart <= existingEnd && newEnd >= existingStart;
+      });
+
+      if (overlaps.length > 0) {
+        setOverlappingPricelists(overlaps);
+        setShowDateWarning(true);
+      } else {
+        setOverlappingPricelists([]);
+        setShowDateWarning(false);
+      }
+    } catch (error) {
+      console.error("Error checking date overlap:", error);
+    }
+  };
+
+  // Epic 14 - PRICE-006: Calculate validity period in days
+  const calculateValidityDays = (fromDate, toDate) => {
+    if (!fromDate || !toDate) return null;
+    const start = new Date(fromDate);
+    const end = new Date(toDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Epic 14 - PRICE-007: Fetch exchange rate for currency conversion
+  const fetchExchangeRate = async (fromCurrency, toCurrency = "AED") => {
+    if (fromCurrency === toCurrency) {
+      return { rate: 1, date: new Date().toISOString(), source: "Direct" };
+    }
+
+    try {
+      const response = await exchangeRateService.getLatestRate(fromCurrency, toCurrency);
+      return {
+        rate: response.rate || 1,
+        date: response.effectiveDate || response.date || new Date().toISOString(),
+        source: response.source || "System",
+      };
+    } catch (error) {
+      console.error("Error fetching exchange rate:", error);
+      notificationService.warning(`Could not fetch exchange rate for ${fromCurrency}/${toCurrency}`);
+      return { rate: 1, date: new Date().toISOString(), source: "Default" };
+    }
+  };
+
+  // Epic 14 - PRICE-007: Convert cost price to base currency
+  const convertCostToBaseCurrency = async (productId) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return null;
+
+    const costCurrency = product.costCurrency || product.cost_currency || "AED";
+    const costPrice = product.costPrice || product.cost_price || 0;
+
+    if (costCurrency === "AED") {
+      return {
+        originalCost: costPrice,
+        originalCurrency: costCurrency,
+        convertedCost: costPrice,
+        baseCurrency: "AED",
+        exchangeRate: 1,
+        rateDate: new Date().toISOString(),
+        rateSource: "Direct",
+      };
+    }
+
+    // Check for manual override first
+    if (manualRateOverride[productId]) {
+      const override = manualRateOverride[productId];
+      return {
+        originalCost: costPrice,
+        originalCurrency: costCurrency,
+        convertedCost: costPrice * override.rate,
+        baseCurrency: "AED",
+        exchangeRate: override.rate,
+        rateDate: override.date,
+        rateSource: override.source || "Manual Override",
+        isOverride: true,
+      };
+    }
+
+    // Fetch current exchange rate
+    const rateData = await fetchExchangeRate(costCurrency, "AED");
+    const convertedCost = costPrice * rateData.rate;
+
+    return {
+      originalCost: costPrice,
+      originalCurrency: costCurrency,
+      convertedCost,
+      baseCurrency: "AED",
+      exchangeRate: rateData.rate,
+      rateDate: rateData.date,
+      rateSource: rateData.source,
+    };
+  };
+
+  // Epic 14 - PRICE-007: Calculate margin with currency conversion
+  const calculateMarginWithConversion = async (productId, sellingPrice) => {
+    const conversionData = await convertCostToBaseCurrency(productId);
+    if (!conversionData) return null;
+
+    const margin = ((sellingPrice - conversionData.convertedCost) / conversionData.convertedCost) * 100;
+
+    return {
+      margin: margin.toFixed(1),
+      conversionData,
+    };
+  };
+
+  // Epic 14 - PRICE-007: Check if exchange rate is old (>7 days)
+  const isExchangeRateOld = (rateDate) => {
+    if (!rateDate) return false;
+    const rateDateObj = new Date(rateDate);
+    const today = new Date();
+    const diffTime = Math.abs(today - rateDateObj);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 7;
+  };
+
+  // Epic 14 - PRICE-007: Open currency conversion modal
+  const handleShowCurrencyConversion = async (product) => {
+    const sellingPrice = getProductPrice(product.id);
+    if (!sellingPrice) {
+      notificationService.warning("Please enter a selling price first");
+      return;
+    }
+
+    const conversionData = await convertCostToBaseCurrency(product.id);
+    if (conversionData) {
+      setCurrencyModalProduct(product);
+      setCurrencyConversionData(conversionData);
+    }
+  };
+
+  // Epic 14 - PRICE-007: Handle rate override
+  const handleRateOverride = (productId, overrideData) => {
+    setManualRateOverride((prev) => ({
+      ...prev,
+      [productId]: overrideData,
+    }));
+    notificationService.success("Exchange rate override applied");
   };
 
   const handlePriceChange = (productId, newPrice) => {
@@ -1242,7 +1725,7 @@ export default function PriceListForm() {
                   {/* Effective To */}
                   <div className="col-span-6 sm:col-span-3">
                     <label className={LABEL_CLASSES(isDarkMode)}>
-                      Effective To
+                      Effective To *
                     </label>
                     <input
                       type="date"
@@ -1250,9 +1733,103 @@ export default function PriceListForm() {
                       onChange={(e) =>
                         handleChange("effectiveTo", e.target.value)
                       }
-                      className={INPUT_CLASSES(isDarkMode)}
+                      className={`${INPUT_CLASSES(isDarkMode)} ${dateValidationError ? "border-red-500" : ""}`}
                     />
+                    {dateValidationError && (
+                      <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                        <AlertCircle size={12} />
+                        {dateValidationError}
+                      </p>
+                    )}
                   </div>
+
+                  {/* Epic 14 - PRICE-006: Validity Period Display */}
+                  {formData.effectiveFrom && formData.effectiveTo && !dateValidationError && (
+                    <div className="col-span-12">
+                      <div
+                        className={`rounded-[14px] p-3 flex items-center gap-3 ${
+                          isDarkMode
+                            ? "bg-[#0f151b] border border-[#2a3640]"
+                            : "bg-blue-50 border border-blue-200"
+                        }`}
+                      >
+                        <Calendar size={16} className="text-[#4aa3ff]" />
+                        <div>
+                          <p
+                            className={`text-xs font-medium ${
+                              isDarkMode ? "text-[#e6edf3]" : "text-gray-900"
+                            }`}
+                          >
+                            Price list valid from{" "}
+                            <span className="font-bold">
+                              {new Date(formData.effectiveFrom).toLocaleDateString()}
+                            </span>{" "}
+                            to{" "}
+                            <span className="font-bold">
+                              {new Date(formData.effectiveTo).toLocaleDateString()}
+                            </span>
+                          </p>
+                          <p
+                            className={`text-[11px] mt-0.5 ${
+                              isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                            }`}
+                          >
+                            Duration: {calculateValidityDays(formData.effectiveFrom, formData.effectiveTo)} days
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Epic 14 - PRICE-006: Overlap Warning */}
+                  {showDateWarning && overlappingPricelists.length > 0 && (
+                    <div className="col-span-12">
+                      <div
+                        className={`rounded-[14px] p-3 border ${
+                          isDarkMode
+                            ? "bg-amber-900/20 border-amber-500/35"
+                            : "bg-amber-50 border-amber-300"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <AlertCircle
+                            size={16}
+                            className={`mt-0.5 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                          />
+                          <div className="flex-1">
+                            <p
+                              className={`text-xs font-semibold ${
+                                isDarkMode ? "text-amber-400" : "text-amber-800"
+                              }`}
+                            >
+                              ⚠ Overlapping Price Lists Detected
+                            </p>
+                            <div className="mt-2 space-y-1">
+                              {overlappingPricelists.map((pl) => (
+                                <p
+                                  key={pl.id}
+                                  className={`text-[11px] ${
+                                    isDarkMode ? "text-amber-400/80" : "text-amber-700"
+                                  }`}
+                                >
+                                  <span className="font-bold">{pl.name}</span> from{" "}
+                                  {new Date(pl.effectiveFrom).toLocaleDateString()} to{" "}
+                                  {new Date(pl.effectiveTo).toLocaleDateString()}
+                                </p>
+                              ))}
+                            </div>
+                            <p
+                              className={`text-[10px] mt-2 ${
+                                isDarkMode ? "text-amber-400/70" : "text-amber-600"
+                              }`}
+                            >
+                              Manager approval required to proceed with overlapping dates.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Audit Trail Section (Epic 9 - PRICE-008) */}
                   <div className="col-span-12">
@@ -1482,11 +2059,39 @@ export default function PriceListForm() {
                                     {formData.currency}{" "}
                                     {product.sellingPrice?.toFixed(2) || "0.00"}
                                   </div>
-                                  <div
-                                    className={`text-[11px] font-mono ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
-                                  >
-                                    Cost: {costPrice?.toFixed(2) || "0.00"}
-                                  </div>
+                                  {/* Epic 14 - PRICE-007: Show currency conversion for cost */}
+                                  {(() => {
+                                    const costCurrency = product.costCurrency || product.cost_currency || "AED";
+                                    const showConversion = costCurrency !== "AED";
+
+                                    if (!showConversion) {
+                                      return (
+                                        <div
+                                          className={`text-[11px] font-mono ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
+                                        >
+                                          Cost: {costPrice?.toFixed(2) || "0.00"} AED
+                                        </div>
+                                      );
+                                    }
+
+                                    return (
+                                      <div className="mt-1">
+                                        <div
+                                          className={`text-[10px] font-mono ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
+                                        >
+                                          Cost: {costPrice?.toFixed(2)} {costCurrency}
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleShowCurrencyConversion(product)}
+                                          className={`text-[9px] flex items-center justify-end gap-1 ${isDarkMode ? "text-[#4aa3ff] hover:text-[#5bb2ff]" : "text-blue-600 hover:text-blue-700"} transition-colors cursor-pointer`}
+                                        >
+                                          <DollarSign size={10} />
+                                          View conversion
+                                        </button>
+                                      </div>
+                                    );
+                                  })()}
                                 </td>
                                 <td className="py-2.5 px-3">
                                   <div className="flex items-center justify-end gap-1.5">
@@ -1749,6 +2354,20 @@ export default function PriceListForm() {
         onClose={() => setSelectedProduct(null)}
         isDarkMode={isDarkMode}
         navigate={navigate}
+      />
+
+      {/* Epic 14 - PRICE-007: Currency Conversion Modal */}
+      <CurrencyConversionModal
+        isOpen={!!currencyModalProduct}
+        onClose={() => {
+          setCurrencyModalProduct(null);
+          setCurrencyConversionData(null);
+        }}
+        product={currencyModalProduct}
+        sellingPrice={currencyModalProduct ? parseFloat(getProductPrice(currencyModalProduct.id)) : null}
+        conversionData={currencyConversionData}
+        isDarkMode={isDarkMode}
+        onRateOverride={handleRateOverride}
       />
 
       {/* Bulk Adjustment Modal */}
