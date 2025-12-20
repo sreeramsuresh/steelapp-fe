@@ -10,17 +10,16 @@ import { apiClient } from './api';
 export const allocationService = {
   /**
    * Get available stock batches for a product in a warehouse
+   * Company ID is automatically added by backend from authenticated user context
    * @param {number} productId - Product ID
    * @param {number} warehouseId - Warehouse ID
    * @param {Object} params - Additional query parameters
-   * @param {number} params.companyId - Company ID (required)
    * @returns {Promise<Array>} Array of available batches with FIFO ordering
    */
   async getAvailableBatches(productId, warehouseId, params = {}) {
     const queryParams = {
       productId,
       warehouseId,
-      companyId: params.companyId,
       hasStock: true, // Only batches with remaining stock
     };
 
@@ -33,11 +32,11 @@ export const allocationService = {
 
   /**
    * Allocate stock using FIFO logic (backend-computed)
+   * Company ID is automatically added by backend from authenticated user context
    * @param {number} productId - Product ID
    * @param {number} warehouseId - Warehouse ID
    * @param {number} quantity - Quantity to allocate
    * @param {Object} params - Additional parameters
-   * @param {number} params.companyId - Company ID (required)
    * @returns {Promise<Object>} Allocation result with batch allocations
    */
   async allocateFIFO(productId, warehouseId, quantity, params = {}) {
@@ -45,7 +44,6 @@ export const allocationService = {
       productId,
       warehouseId,
       quantity,
-      companyId: params.companyId,
     };
 
     const response = await apiClient.post('/allocations/fifo', payload);
@@ -54,11 +52,11 @@ export const allocationService = {
 
   /**
    * Preview FIFO allocation without committing
+   * Company ID is automatically added by backend from authenticated user context
    * @param {number} productId - Product ID
    * @param {number} warehouseId - Warehouse ID
    * @param {number} quantity - Quantity to allocate
    * @param {Object} params - Additional parameters
-   * @param {number} params.companyId - Company ID (required)
    * @returns {Promise<Object>} Preview of what batches would be allocated
    */
   async previewFIFO(productId, warehouseId, quantity, params = {}) {
@@ -66,7 +64,6 @@ export const allocationService = {
       productId,
       warehouseId,
       quantity,
-      companyId: params.companyId,
     };
 
     const response = await apiClient.get(

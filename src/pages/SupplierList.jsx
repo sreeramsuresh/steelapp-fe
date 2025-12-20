@@ -38,7 +38,7 @@ export function SupplierList() {
       setLoading(true);
       setError(null);
       const response = await suppliersAPI.getAll();
-      setSuppliers(response || []);
+      setSuppliers(response?.suppliers || []);
     } catch (err) {
       console.error("Failed to load suppliers:", err);
       setError(err.message || "Failed to load suppliers");

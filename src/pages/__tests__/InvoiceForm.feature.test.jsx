@@ -55,7 +55,7 @@ describe('Invoice Feature', () => {
               ))}
             </div>
             <div>Subtotal: {invoice.subtotal}</div>
-            <div>VAT (5%): {invoice.vat}</div>
+            <div>VAT (5%): {invoice.vatAmount}</div>
             <div>Total: {invoice.total}</div>
             <button onClick={handleSave}>Save Invoice</button>
           </>

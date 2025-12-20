@@ -23,6 +23,15 @@ test-result.png
 test-error.png
 puppeteer-demo.png
 *.test.png
+scenario*.png
+e2e-test-output.log
+
+# Generated test files
+e2e-validation-results.json
+e2e-phase*.mjs
+*.test.ts
+scenario*.ts
+scenario*.json
 
 # Puppeteer test scripts (keep these in version control but ignore artifacts)
 # test-*.js files are kept tracked

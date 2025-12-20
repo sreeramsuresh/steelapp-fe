@@ -11,8 +11,8 @@ import { apiClient } from './api';
 export const stockBatchService = {
   /**
    * List stock batches with pagination and filters
+   * Company ID is automatically added by backend from authenticated user context
    * @param {Object} params - Query parameters
-   * @param {number} params.companyId - Company ID (required)
    * @param {number} params.productId - Filter by product
    * @param {string} params.procurementChannel - Filter by channel: LOCAL or IMPORTED
    * @param {number} params.warehouseId - Filter by warehouse
@@ -23,7 +23,6 @@ export const stockBatchService = {
    */
   async getBatches(params = {}) {
     const queryParams = {
-      companyId: params.companyId,
       page: params.page || 1,
       limit: params.limit || 20,
     };
@@ -41,15 +40,13 @@ export const stockBatchService = {
 
   /**
    * Get batches for a specific product
+   * Company ID is automatically added by backend from authenticated user context
    * @param {number} productId - Product ID
    * @param {Object} params - Additional query parameters
-   * @param {number} params.companyId - Company ID (required)
    * @param {string} params.procurementChannel - Filter by channel: LOCAL or IMPORTED
    */
   async getBatchesByProduct(productId, params = {}) {
-    const queryParams = {
-      companyId: params.companyId,
-    };
+    const queryParams = {};
 
     if (params.procurementChannel)
       queryParams.procurementChannel = params.procurementChannel;
@@ -61,15 +58,13 @@ export const stockBatchService = {
   /**
    * Get procurement summary for a product
    * Returns aggregated stock quantities by procurement channel
+   * Company ID is automatically added by backend from authenticated user context
    * @param {number} productId - Product ID
    * @param {Object} params - Query parameters
-   * @param {number} params.companyId - Company ID (required)
    * @returns {Promise<{localQty: number, importedQty: number, totalQty: number}>}
    */
   async getProcurementSummary(productId, params = {}) {
-    const queryParams = {
-      companyId: params.companyId,
-    };
+    const queryParams = {};
 
     return apiClient.get(
       `/stock-batches/product/${productId}/summary`,

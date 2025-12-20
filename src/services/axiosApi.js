@@ -3,19 +3,22 @@ import axios from 'axios';
 const IS_DEV = import.meta.env.DEV;
 
 // ============================================================================
-// DEV-ONLY: Dynamic Contract Guard Import (Zero Production Bundle Impact)
+// DEV-ONLY: Response Validator Import (Module Load Time - Correction #3)
 // ============================================================================
-// Using dynamic import ensures Zod + contract schemas are NOT included in
-// production bundle (tree-shaken). Static imports would pull the entire
-// module graph even if code paths don't execute.
+// Validator is imported ONCE at module load, not dynamically per-request.
+// This avoids dynamic import overhead while still being tree-shakeable
+// (it's only used when IS_DEV is true in conditional blocks).
 // ============================================================================
-let contractGuard = null;
+let validateResponse = null;
 
-async function getContractGuard() {
-  if (!contractGuard && IS_DEV) {
-    contractGuard = await import('../contracts/validateContract.js');
-  }
-  return contractGuard;
+if (IS_DEV) {
+  // Import validator at module load time (once)
+  import('./validators/responseValidator.js').then((module) => {
+    validateResponse = module.validateResponse;
+  }).catch(() => {
+    // Silently fail if validator module not found
+    // This allows development without the validator module
+  });
 }
 
 // Resolve API base URL with a LAN-safe fallback.
@@ -186,7 +189,21 @@ export const apiService = {
         ? { params: apiService.cleanParams(config) }
         : config;
     const response = await api.get(url, axiosConfig);
-    return response.data;
+    const data = response.data;
+
+    // Validate response contract in development (Correction #3 & #7)
+    // Only validates endpoints in CONTRACT_REGISTRY (list endpoints with pagination)
+    // Skips mutation endpoints and single-entity responses
+    if (IS_DEV && validateResponse) {
+      try {
+        return validateResponse(url, data);
+      } catch (validationError) {
+        console.error('Response validation error:', validationError);
+        throw validationError;
+      }
+    }
+
+    return data;
   },
 
   post: async (url, data = {}, config = {}) => {

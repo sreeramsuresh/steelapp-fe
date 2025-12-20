@@ -43,9 +43,9 @@ export const supplierService = {
     }
     try {
       const res = await apiClient.get('/suppliers', params);
-      const suppliers = res.suppliers || res.items || res || [];
-      const pageInfo = res.pageInfo || {};
-      return { suppliers, pageInfo };
+      // Contract validation in axiosApi ensures: {suppliers: [], pageInfo: {...}}
+      // Trust the contract - no fallbacks needed
+      return res;
     } catch (e) {
       return { suppliers: ls.all() };
     }

@@ -7423,7 +7423,7 @@ const InvoiceForm = ({ onSave }) => {
               ? parseInt(invoice.warehouseId, 10)
               : warehouses[0]?.id || 1
           }
-          companyId={company?.id || 1}
+          companyId={company?.id}
           customerId={invoice.customer?.id || null} // NEW - for pricing
           priceListId={selectedPricelistId || null} // NEW - for pricing
           onAddLineItem={handleAddLineItem}

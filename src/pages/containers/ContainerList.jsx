@@ -80,9 +80,6 @@ export function ContainerList() {
   const [editingContainer, setEditingContainer] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  // TODO: Get from auth context
-  const companyId = 1;
-
   // Load containers
   const loadContainers = useCallback(async () => {
     try {
@@ -90,7 +87,6 @@ export function ContainerList() {
       setError(null);
 
       const params = {
-        companyId,
         page,
         limit: itemsPerPage,
         ...filters,

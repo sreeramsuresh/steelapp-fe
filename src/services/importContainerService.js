@@ -10,8 +10,8 @@ import { apiClient } from './api';
 export const importContainerService = {
   /**
    * List containers with pagination and filters
+   * Company ID is automatically added by backend from authenticated user context
    * @param {Object} params - Query parameters
-   * @param {number} params.companyId - Company ID (required)
    * @param {number} params.page - Page number (default: 1)
    * @param {number} params.limit - Items per page (default: 20)
    * @param {string} params.status - Filter by status
@@ -22,7 +22,6 @@ export const importContainerService = {
    */
   async getContainers(params = {}) {
     const queryParams = {
-      companyId: params.companyId,
       page: params.page || 1,
       limit: params.limit || 20,
     };

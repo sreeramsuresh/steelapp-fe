@@ -1162,7 +1162,6 @@ const PurchaseOrderForm = () => {
   const fetchImportContainers = async () => {
     try {
       const response = await importContainerService.getContainers({
-        companyId: 1,
         status: "PENDING", // Only show containers that can receive goods
         limit: 50,
       });

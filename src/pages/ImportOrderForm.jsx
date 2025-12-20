@@ -1725,7 +1725,7 @@ const ImportOrderForm = () => {
                         </td>
                         <td className="py-2 pr-2">
                           <div className="space-y-1">
-                            <Select
+                            <select
                               value={item.product_id}
                               onChange={(e) =>
                                 handleProductSelect(index, e.target.value)
@@ -1742,7 +1742,7 @@ const ImportOrderForm = () => {
                                     "N/A"}
                                 </option>
                               ))}
-                            </Select>
+                            </select>
                             <input
                               type="text"
                               value={item.unique_name}
