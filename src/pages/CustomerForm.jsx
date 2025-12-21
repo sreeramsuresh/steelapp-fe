@@ -40,6 +40,41 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 
+/**
+ * ISO 3166-1 alpha-2 country codes for address validation
+ * Used to enforce VAT/compliance standards: all addresses must use ISO alpha-2 format
+ * Example: AE (UAE), IN (India), CN (China), not "UAE", "India", "China"
+ *
+ * Pattern copied from SupplierForm.jsx (lines 90-100)
+ */
+const VALID_ISO_COUNTRY_CODES = new Set([
+  "AE", "AF", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
+  "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ",
+  "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ",
+  "DE", "DJ", "DK", "DM", "DO", "DZ",
+  "EC", "EE", "EG", "EH", "ER", "ES", "ET",
+  "FI", "FJ", "FK", "FM", "FO", "FR",
+  "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY",
+  "HK", "HM", "HN", "HR", "HT", "HU",
+  "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT",
+  "JE", "JM", "JO", "JP",
+  "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ",
+  "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY",
+  "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ",
+  "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ",
+  "OM",
+  "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY",
+  "QA",
+  "RE", "RO", "RS", "RU", "RW",
+  "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ",
+  "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ",
+  "UA", "UG", "UM", "US", "UY", "UZ",
+  "VA", "VC", "VE", "VG", "VI", "VN", "VU",
+  "WF", "WS",
+  "YE", "YT",
+  "ZA", "ZM", "ZW"
+]);
+
 const CustomerForm = () => {
   const { customerId } = useParams();
   const navigate = useNavigate();
@@ -52,7 +87,12 @@ const CustomerForm = () => {
     company: "",
     email: "",
     phone: "",
-    address: "",
+    // Address fields (structured - matches supplier pattern)
+    street: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "AE",  // Default to UAE (ISO alpha-2)
     vatNumber: "",
     trn: "",
     creditLimit: 0,
@@ -61,6 +101,9 @@ const CustomerForm = () => {
     dsoValue: 0,
     creditUtilization: 0,
   });
+
+  // Form Errors
+  const [errors, setErrors] = useState({});
 
   // Credit Management State
   const [creditData, setCreditData] = useState({
@@ -105,13 +148,33 @@ const CustomerForm = () => {
       setError("");
       const customer = await customerService.getCustomerById(customerId);
 
+      // Parse address field if it's a JSON string (matches supplier pattern)
+      const parseAddress = (addressData) => {
+        if (!addressData) return { street: "", city: "", state: "", postalCode: "", country: "AE" };
+        if (typeof addressData === "string") {
+          try {
+            return JSON.parse(addressData);
+          } catch {
+            return { street: addressData, city: "", state: "", postalCode: "", country: "AE" };
+          }
+        }
+        return addressData;
+      };
+
+      const addressParsed = parseAddress(customer.address);
+
       setFormData({
         id: customer.id || "",
         name: customer.name || "",
         company: customer.company || "",
         email: customer.email || "",
         phone: customer.phone || "",
-        address: customer.address || "",
+        // Structured address fields
+        street: addressParsed.street || "",
+        city: customer.city || addressParsed.city || "",  // Prioritize generated column
+        state: addressParsed.state || "",
+        postalCode: addressParsed.postalCode || addressParsed.postal_code || "",
+        country: customer.country || addressParsed.country || "AE",  // Prioritize generated column
         vatNumber: customer.vatNumber || "",
         trn: customer.trn || "",
         creditLimit: customer.creditLimit || 0,
@@ -153,18 +216,43 @@ const CustomerForm = () => {
     try {
       setSaving(true);
       setError("");
+      const newErrors = {};
 
       if (!formData.name.trim()) {
-        setError("Customer name is required");
+        newErrors.name = "Customer name is required";
+      }
+
+      // Address validation - Country is required and must be ISO alpha-2 format (VAT compliance)
+      if (!formData.country?.trim()) {
+        newErrors.country = "Country is required (ISO alpha-2 code)";
+      } else {
+        const countryCode = formData.country.trim().toUpperCase();
+        if (!VALID_ISO_COUNTRY_CODES.has(countryCode)) {
+          newErrors.country = `Country must be ISO alpha-2 code (e.g., AE for UAE, IN for India, CN for China). "${formData.country}" is invalid.`;
+        }
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        setError(Object.values(newErrors)[0]);
         return;
       }
 
+      setErrors({});
+
+      // Extract address fields from formData
+      const { street, city, state, postalCode, country, ...otherFields } = formData;
+
       const payload = {
-        name: formData.name,
-        company: formData.company,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
+        ...otherFields,
+        // Structure address as JSON string (API Gateway will parse it)
+        address: JSON.stringify({
+          street: street || "",
+          city: city || "",
+          state: state || "",
+          postal_code: postalCode || "",
+          country: country || "AE",
+        }),
         vat_number: formData.vatNumber,
         trn: formData.trn,
         credit_limit: parseFloat(formData.creditLimit) || 0,
@@ -548,7 +636,7 @@ const CustomerForm = () => {
                       Address
                     </div>
                     <div className={`text-xs ${textMuted}`}>
-                      Physical business address
+                      Physical business address (structured format)
                     </div>
                   </div>
                   <ChevronDown
@@ -556,15 +644,96 @@ const CustomerForm = () => {
                   />
                 </summary>
                 <div className={`p-3 border-t ${cardBorder}`}>
-                  <textarea
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    disabled={!isEditMode}
-                    placeholder="Street address, city, state, postal code"
-                    rows={3}
-                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Street Address */}
+                    <div className="md:col-span-2">
+                      <label className={`block text-xs font-medium ${textSecondary} mb-1.5`}>
+                        Street Address
+                      </label>
+                      <input
+                        type="text"
+                        name="street"
+                        value={formData.street}
+                        onChange={handleInputChange}
+                        disabled={!isEditMode}
+                        placeholder="Street address"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      />
+                    </div>
+
+                    {/* City */}
+                    <div>
+                      <label className={`block text-xs font-medium ${textSecondary} mb-1.5`}>
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        disabled={!isEditMode}
+                        placeholder="City"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      />
+                    </div>
+
+                    {/* State/Province */}
+                    <div>
+                      <label className={`block text-xs font-medium ${textSecondary} mb-1.5`}>
+                        State/Province
+                      </label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        disabled={!isEditMode}
+                        placeholder="State or province"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      />
+                    </div>
+
+                    {/* Postal Code */}
+                    <div>
+                      <label className={`block text-xs font-medium ${textSecondary} mb-1.5`}>
+                        Postal Code
+                      </label>
+                      <input
+                        type="text"
+                        name="postalCode"
+                        value={formData.postalCode}
+                        onChange={handleInputChange}
+                        disabled={!isEditMode}
+                        placeholder="Postal code"
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      />
+                    </div>
+
+                    {/* Country (ISO alpha-2) */}
+                    <div>
+                      <label className={`block text-xs font-medium ${textSecondary} mb-1.5`}>
+                        Country
+                        <span className="text-red-500 ml-1">*</span>
+                        <span className="text-xs text-gray-500 ml-1">(ISO alpha-2 code)</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="country"
+                        value={formData.country}
+                        onChange={handleInputChange}
+                        disabled={!isEditMode}
+                        placeholder="e.g., AE (UAE), IN (India), CN (China)"
+                        maxLength={2}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50 ${errors.country ? 'border-red-500' : ''}`}
+                      />
+                      {errors.country && (
+                        <p className="text-red-500 text-sm mt-1">{errors.country}</p>
+                      )}
+                      {!errors.country && formData.country && (
+                        <p className="text-green-500 text-sm mt-1">✓ Valid ISO country code</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </details>
 
