@@ -1364,6 +1364,7 @@ const QuotationForm = () => {
     validationState = null,
     showValidation = true,
     id: elementId,
+    helperText,
     ...props
   }) => {
     const inputId =
@@ -1416,6 +1417,13 @@ const QuotationForm = () => {
           } ${getValidationClasses()} ${className}`}
           {...props}
         />
+        {helperText && !inputError && (
+          <p
+            className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+          >
+            {helperText}
+          </p>
+        )}
         {inputError && (
           <p
             className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}

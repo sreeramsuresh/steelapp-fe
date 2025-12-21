@@ -87,6 +87,39 @@ const CURRENCY_OPTIONS = [
 ];
 
 /**
+ * ISO 3166-1 alpha-2 country codes for address validation
+ * Used to enforce VAT/compliance standards: all addresses must use ISO alpha-2 format
+ * Example: AE (UAE), IN (India), CN (China), not "UAE", "India", "China"
+ */
+const VALID_ISO_COUNTRY_CODES = new Set([
+  "AE", "AF", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
+  "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ",
+  "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ",
+  "DE", "DJ", "DK", "DM", "DO", "DZ",
+  "EC", "EE", "EG", "EH", "ER", "ES", "ET",
+  "FI", "FJ", "FK", "FM", "FO", "FR",
+  "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY",
+  "HK", "HM", "HN", "HR", "HT", "HU",
+  "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT",
+  "JE", "JM", "JO", "JP",
+  "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ",
+  "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY",
+  "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ",
+  "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ",
+  "OM",
+  "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY",
+  "QA",
+  "RE", "RO", "RS", "RU", "RW",
+  "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ",
+  "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ",
+  "UA", "UG", "UM", "US", "UY", "UZ",
+  "VA", "VC", "VE", "VG", "VI", "VN", "VU",
+  "WF", "WS",
+  "YE", "YT",
+  "ZA", "ZM", "ZW"
+]);
+
+/**
  * Supplier Type options
  */
 const SUPPLIER_TYPE_OPTIONS = [
@@ -184,8 +217,10 @@ export function SupplierForm() {
     phone: "",
     alternatePhone: "",
     website: "",
-    address: "",
+    street: "",
     city: "",
+    state: "",
+    postalCode: "",
     country: "UAE",
 
     // Contact Person
@@ -295,6 +330,21 @@ export function SupplierForm() {
           return Array.isArray(data) ? data : [];
         };
 
+        // Parse address field if it's a JSON string
+        const parseAddress = (addressData) => {
+          if (!addressData) return { street: "", city: "", state: "", postalCode: "", country: "UAE" };
+          if (typeof addressData === "string") {
+            try {
+              return JSON.parse(addressData);
+            } catch {
+              return { street: addressData, city: "", state: "", postalCode: "", country: "UAE" };
+            }
+          }
+          return addressData;
+        };
+
+        const addressParsed = parseAddress(supplier.address || supplier.address);
+
         setFormData({
           // Basic Information
           name: supplier.name || "",
@@ -304,9 +354,11 @@ export function SupplierForm() {
           alternatePhone:
             supplier.alternatePhone || supplier.alternate_phone || "",
           website: supplier.website || "",
-          address: supplier.address || "",
-          city: supplier.city || "",
-          country: supplier.country || "UAE",
+          street: addressParsed.street || "",
+          city: supplier.city || addressParsed.city || "",
+          state: addressParsed.state || "",
+          postalCode: addressParsed.postalCode || "",
+          country: supplier.country || addressParsed.country || "UAE",
 
           // Contact Person
           contactPerson:
@@ -493,6 +545,16 @@ export function SupplierForm() {
       newErrors.contactEmail = "Invalid contact email format";
     }
 
+    // Address validation - Country is required and must be ISO alpha-2 format (VAT compliance)
+    if (!formData.country?.trim()) {
+      newErrors.country = "Country is required (ISO alpha-2 code)";
+    } else {
+      const countryCode = formData.country.trim().toUpperCase();
+      if (!VALID_ISO_COUNTRY_CODES.has(countryCode)) {
+        newErrors.country = `Country must be ISO alpha-2 code (e.g., AE for UAE, IN for India, CN for China). "${formData.country}" is invalid.`;
+      }
+    }
+
     // Tax & Compliance validation
     if (formData.vatNumber && !/^[A-Z0-9]{15}$/.test(formData.vatNumber)) {
       newErrors.vatNumber = "VAT number must be 15 alphanumeric characters";
@@ -570,8 +632,18 @@ export function SupplierForm() {
       }
 
       // Prepare payload with serialized JSON fields
+      const { street, city, state, postalCode, country, ...otherFields } = formData;
+
       const payload = {
-        ...formData,
+        ...otherFields,
+        // Structure address as an object (gRPC expects object, not string)
+        address: JSON.stringify({
+          street: street || "",
+          city: city || "",
+          state: state || "",
+          postal_code: postalCode || "",
+          country: country || "",
+        }),
         typicalLeadTimeDays: parseInt(formData.typicalLeadTimeDays, 10) || 0,
         creditLimit: formData.creditLimit
           ? parseFloat(formData.creditLimit)
@@ -751,11 +823,11 @@ export function SupplierForm() {
               </div>
 
               <div className="md:col-span-2">
-                <label className={labelClasses}>Address</label>
+                <label className={labelClasses}>Street Address</label>
                 <input
                   type="text"
-                  value={formData.address}
-                  onChange={(e) => handleChange("address", e.target.value)}
+                  value={formData.street}
+                  onChange={(e) => handleChange("street", e.target.value)}
                   className={inputClasses}
                   placeholder="Street address"
                 />
@@ -773,14 +845,47 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>Country</label>
+                <label className={labelClasses}>State/Emirate</label>
+                <input
+                  type="text"
+                  value={formData.state}
+                  onChange={(e) => handleChange("state", e.target.value)}
+                  className={inputClasses}
+                  placeholder="State or Emirate"
+                />
+              </div>
+
+              <div>
+                <label className={labelClasses}>Postal Code</label>
+                <input
+                  type="text"
+                  value={formData.postalCode}
+                  onChange={(e) => handleChange("postalCode", e.target.value)}
+                  className={inputClasses}
+                  placeholder="Postal code"
+                />
+              </div>
+
+              <div>
+                <label className={labelClasses}>
+                  Country
+                  <span className="text-red-500 ml-1">*</span>
+                  <span className="text-xs text-gray-500 ml-1">(ISO alpha-2 code)</span>
+                </label>
                 <input
                   type="text"
                   value={formData.country}
                   onChange={(e) => handleChange("country", e.target.value)}
-                  className={inputClasses}
-                  placeholder="Country"
+                  className={`${inputClasses} ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}
+                  placeholder="e.g., AE (UAE), IN (India), CN (China)"
+                  maxLength={2}
                 />
+                {errors.country && (
+                  <p className="text-red-500 text-sm mt-1">{errors.country}</p>
+                )}
+                {!errors.country && formData.country && (
+                  <p className="text-green-500 text-sm mt-1">✓ Valid ISO country code</p>
+                )}
               </div>
             </div>
           </div>

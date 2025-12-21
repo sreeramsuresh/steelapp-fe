@@ -19,6 +19,7 @@ import { URL } from 'url';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { spawn } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,6 +28,13 @@ const API_HOST = process.env.API_HOST || 'localhost';
 const API_PORT = process.env.API_PORT || 3000;
 const API_URL = `http://${API_HOST}:${API_PORT}/api/ops/backup-status`;
 const TIMEOUT_MS = 3000; // 3 second timeout
+
+// Backup catch-up configuration
+const BACKUP_INTERVAL_HOURS = 4; // Must match cron schedule
+const BACKUP_INTERVAL_MS = BACKUP_INTERVAL_HOURS * 60 * 60 * 1000;
+const BACKUP_ROOT = process.env.BACKUP_ROOT || '/mnt/d/DB Backup';
+const BACKUP_GUARD_SCRIPT = process.env.BACKUP_GUARD_SCRIPT || '/mnt/d/Ultimate Steel/steelapprnp/backup-system/scripts/backup_guard.sh';
+const CATCHUP_LOG_FILE = path.join(BACKUP_ROOT, 'logs', 'backup_catchup.log');
 
 /**
  * Format timestamp for display
@@ -261,14 +269,142 @@ function displayStatus(status) {
 }
 
 /**
+ * Log catch-up event to file
+ */
+function logCatchup(message, data = {}) {
+  try {
+    const timestamp = new Date().toISOString();
+    const logLine = JSON.stringify({ timestamp, message, ...data });
+
+    // Ensure logs directory exists
+    const logDir = path.dirname(CATCHUP_LOG_FILE);
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+
+    // Append to log file
+    fs.appendFileSync(CATCHUP_LOG_FILE, logLine + '\n');
+  } catch (err) {
+    // Silently fail - don't block startup
+  }
+}
+
+/**
+ * Check if backup should be caught up and execute if needed
+ */
+async function checkAndExecuteCatchup(status) {
+  return new Promise((resolve) => {
+    try {
+      // If no status or status is unknown, skip catch-up
+      if (!status || status.status === 'UNKNOWN') {
+        resolve(false);
+        return;
+      }
+
+      // If backup is blocked, skip catch-up
+      if (status.blocked) {
+        logCatchup('Backup system is blocked - skipping catch-up', {
+          blockedReason: status.blockedReason,
+          lastSuccessAt: status.lastSuccessAt,
+        });
+        resolve(false);
+        return;
+      }
+
+      // Check if catch-up is needed
+      const lastSuccessAt = status.lastSuccessAt;
+      if (!lastSuccessAt) {
+        resolve(false);
+        return;
+      }
+
+      const lastBackupTime = new Date(lastSuccessAt).getTime();
+      const currentTime = Date.now();
+      const elapsedMs = currentTime - lastBackupTime;
+
+      // If backup was less than 4 hours ago, no catch-up needed
+      if (elapsedMs < BACKUP_INTERVAL_MS) {
+        resolve(false);
+        return;
+      }
+
+      // Catch-up needed - backup should have happened but didn't
+      logCatchup('CATCH-UP REQUIRED: Backup interval exceeded', {
+        lastSuccessAt,
+        intervalHours: BACKUP_INTERVAL_HOURS,
+        elapsedHours: Math.round((elapsedMs / (60 * 60 * 1000)) * 10) / 10,
+        currentTime: new Date().toISOString(),
+      });
+
+      // Verify backup guard script exists
+      if (!fs.existsSync(BACKUP_GUARD_SCRIPT)) {
+        logCatchup('ERROR: Backup guard script not found', {
+          script: BACKUP_GUARD_SCRIPT,
+        });
+        resolve(false);
+        return;
+      }
+
+      // Make backup guard executable (in case permissions were lost)
+      try {
+        fs.chmodSync(BACKUP_GUARD_SCRIPT, 0o755);
+      } catch (err) {
+        // Ignore chmod errors
+      }
+
+      // Spawn backup_guard.sh in background (non-blocking)
+      const backupProcess = spawn('bash', [BACKUP_GUARD_SCRIPT], {
+        detached: true,
+        stdio: 'ignore', // Don't inherit stdio
+      });
+
+      backupProcess.on('error', (err) => {
+        logCatchup('ERROR: Failed to spawn backup process', {
+          error: err.message,
+        });
+      });
+
+      // Unref allows parent process to exit even if child is running
+      backupProcess.unref();
+
+      logCatchup('CATCH-UP INITIATED: Backup process spawned', {
+        pid: backupProcess.pid,
+        timestamp: new Date().toISOString(),
+      });
+
+      resolve(true);
+    } catch (err) {
+      logCatchup('EXCEPTION in backup catch-up check', {
+        error: err.message,
+      });
+      resolve(false);
+    }
+  });
+}
+
+/**
  * Main function
  */
 async function main() {
   try {
     const status = await fetchBackupStatus();
+
+    // Display status immediately
     displayStatus(status);
+
+    // Check and execute catch-up if needed
+    // Give it a brief moment to spawn the background process
+    // but don't block if it takes longer (use timeout)
+    const catchupTimeout = new Promise(resolve => setTimeout(resolve, 100));
+    const catchupPromise = checkAndExecuteCatchup(status);
+
+    await Promise.race([catchupPromise, catchupTimeout]).catch(() => {
+      // Silently ignore timeout or errors - don't block startup
+    });
+
+    // Exit after giving catch-up time to spawn
+    process.exit(0);
   } catch (error) {
-    console.error('Error fetching backup status:', error.message);
     // Non-blocking - always exit 0
     process.exit(0);
   }

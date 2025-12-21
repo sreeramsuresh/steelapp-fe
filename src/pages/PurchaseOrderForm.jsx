@@ -966,6 +966,22 @@ const PurchaseOrderForm = () => {
     [],
   );
 
+  // Supplier options for dropdown
+  const suppliers = useMemo(() => {
+    return (suppliersData?.suppliers || []).map((supplier) => ({
+      id: supplier.id,
+      name: supplier.name,
+      email: supplier.email,
+      phone: supplier.phone,
+      address: supplier.address || supplier.company || '',
+      paymentTerms: supplier.paymentTerms || supplier.payment_terms,
+      defaultCurrency: supplier.defaultCurrency || supplier.default_currency,
+      contactName: supplier.contactName || supplier.contact_name,
+      contactEmail: supplier.contactEmail || supplier.contact_email,
+      contactPhone: supplier.contactPhone || supplier.contact_phone,
+    }));
+  }, [suppliersData]);
+
   // Product options for autocomplete
   const productOptions = useMemo(() => {
     return (availableProducts || []).map((product) => {

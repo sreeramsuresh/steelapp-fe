@@ -86,24 +86,31 @@ export function validateResponse(url, response) {
 
 /**
  * Find contract matching the URL
- * Supports both exact matches and prefix matches
+ * Supports exact matches and query parameter variations
+ * DOES NOT match sub-resources (e.g., /invoices/123 or /invoices/number/next)
  *
- * @param {string} url - Request URL (e.g., "/invoices", "/invoices/123", "/api/invoices")
+ * @param {string} url - Request URL (e.g., "/invoices", "/invoices?page=1")
  * @returns {object|null} Contract object or null if not found
  */
 function findContract(url) {
-  // Exact match first (fastest)
-  if (CONTRACT_REGISTRY[url]) {
-    return CONTRACT_REGISTRY[url];
+  // Remove query string for matching (e.g., "/invoices?page=1" → "/invoices")
+  const cleanUrl = url.split('?')[0];
+
+  // Exact match (fastest)
+  if (CONTRACT_REGISTRY[cleanUrl]) {
+    return CONTRACT_REGISTRY[cleanUrl];
   }
 
-  // Pattern match: if url starts with registered path, use that contract
-  // e.g., "/invoices?page=1" matches "/invoices" contract
+  // Trailing slash match (e.g., "/invoices/" matches "/invoices" contract)
   for (const pattern in CONTRACT_REGISTRY) {
-    if (url.startsWith(pattern)) {
+    if (cleanUrl === pattern + '/') {
       return CONTRACT_REGISTRY[pattern];
     }
   }
+
+  // CRITICAL: Do NOT use startsWith() - it causes false positives
+  // e.g., "/invoices/number/next" would match "/invoices" contract
+  // which is wrong. We only want exact paths and query param variations.
 
   return null;
 }
