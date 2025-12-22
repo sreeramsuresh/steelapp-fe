@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { formatCurrency } from "../utils/invoiceUtils";
-import { format } from "date-fns";
-import { customerService } from "../services/customerService";
-import { supplierService } from "../services/supplierService";
-import pricelistService from "../services/pricelistService";
-import { useApiData, useApi } from "../hooks/useApi";
-import { useTheme } from "../contexts/ThemeContext";
-import { notificationService } from "../services/notificationService";
-import { authService } from "../services/axiosAuthService";
-import ConfirmDialog from "./ConfirmDialog";
-import { useConfirm } from "../hooks/useConfirm";
+import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { formatCurrency } from '../utils/invoiceUtils';
+import { format } from 'date-fns';
+import { customerService } from '../services/customerService';
+import { supplierService } from '../services/supplierService';
+import pricelistService from '../services/pricelistService';
+import { useApiData, useApi } from '../hooks/useApi';
+import { useTheme } from '../contexts/ThemeContext';
+import { notificationService } from '../services/notificationService';
+import { authService } from '../services/axiosAuthService';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 import {
   FaUsers,
   FaPlus,
@@ -30,30 +30,30 @@ import {
   FaCalendarAlt,
   FaUpload,
   FaArchive,
-} from "react-icons/fa";
-import { ArrowUp, ArrowDown, ArrowUpDown, Settings2 } from "lucide-react";
-import CustomerUpload from "./CustomerUpload";
+} from 'react-icons/fa';
+import { ArrowUp, ArrowDown, ArrowUpDown, Settings2 } from 'lucide-react';
+import CustomerUpload from './CustomerUpload';
 
 // Column definitions for Customers table
 const CUSTOMER_COLUMNS = [
-  { key: "name", label: "Customer Name", width: "w-[200px]", required: true },
-  { key: "company", label: "Company", width: "w-[150px]" },
-  { key: "email", label: "Email", width: "w-[180px]" },
-  { key: "phone", label: "Phone", width: "w-[120px]" },
-  { key: "creditLimit", label: "Credit Limit", width: "w-[120px]" },
-  { key: "creditUsed", label: "Credit Used", width: "w-[120px]" },
-  { key: "status", label: "Status", width: "w-[100px]" },
+  { key: 'name', label: 'Customer Name', width: 'w-[200px]', required: true },
+  { key: 'company', label: 'Company', width: 'w-[150px]' },
+  { key: 'email', label: 'Email', width: 'w-[180px]' },
+  { key: 'phone', label: 'Phone', width: 'w-[120px]' },
+  { key: 'creditLimit', label: 'Credit Limit', width: 'w-[120px]' },
+  { key: 'creditUsed', label: 'Credit Used', width: 'w-[120px]' },
+  { key: 'status', label: 'Status', width: 'w-[100px]' },
 ];
 
 // Column definitions for Suppliers table
 const SUPPLIER_COLUMNS = [
-  { key: "name", label: "Supplier Name", width: "w-[200px]", required: true },
-  { key: "company", label: "Company", width: "w-[150px]" },
-  { key: "email", label: "Email", width: "w-[180px]" },
-  { key: "phone", label: "Phone", width: "w-[120px]" },
-  { key: "trnNumber", label: "TRN", width: "w-[140px]" },
-  { key: "paymentTerms", label: "Payment Terms", width: "w-[120px]" },
-  { key: "status", label: "Status", width: "w-[100px]" },
+  { key: 'name', label: 'Supplier Name', width: 'w-[200px]', required: true },
+  { key: 'company', label: 'Company', width: 'w-[150px]' },
+  { key: 'email', label: 'Email', width: 'w-[180px]' },
+  { key: 'phone', label: 'Phone', width: 'w-[120px]' },
+  { key: 'trnNumber', label: 'TRN', width: 'w-[140px]' },
+  { key: 'paymentTerms', label: 'Payment Terms', width: 'w-[120px]' },
+  { key: 'status', label: 'Status', width: 'w-[100px]' },
 ];
 
 const CustomerManagement = () => {
@@ -65,22 +65,22 @@ const CustomerManagement = () => {
   useEffect(() => {
     notificationService.setTheme(isDarkMode);
   }, [isDarkMode]);
-  const [activeTab, setActiveTab] = useState("profiles");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [activeTab, setActiveTab] = useState('profiles');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [showArchived, setShowArchived] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [supplierCurrentPage, setSupplierCurrentPage] = useState(1);
-  const [supplierSearchTerm, setSupplierSearchTerm] = useState("");
+  const [supplierSearchTerm, setSupplierSearchTerm] = useState('');
 
   // Table sorting state
   const [customerSortConfig, setCustomerSortConfig] = useState({
-    key: "name",
-    direction: "asc",
+    key: 'name',
+    direction: 'asc',
   });
   const [supplierSortConfig, setSupplierSortConfig] = useState({
-    key: "name",
-    direction: "asc",
+    key: 'name',
+    direction: 'asc',
   });
 
   // Column visibility state
@@ -98,8 +98,8 @@ const CustomerManagement = () => {
     useState(false);
 
   const canReadCustomers =
-    authService.hasPermission("customers", "read") ||
-    authService.hasRole("admin");
+    authService.hasPermission('customers', 'read') ||
+    authService.hasRole('admin');
 
   const {
     data: customersData,
@@ -113,7 +113,7 @@ const CustomerManagement = () => {
     }
     return customerService.getCustomers({
       search: searchTerm,
-      status: filterStatus === "all" ? undefined : filterStatus,
+      status: filterStatus === 'all' ? undefined : filterStatus,
       page: currentPage,
       limit: 20,
     });
@@ -166,8 +166,8 @@ const CustomerManagement = () => {
   const supplierPageInfo = suppliersData?.pageInfo || {};
   const pricelists = pricelistsData?.data || [];
   const canDeleteCustomers =
-    authService.hasPermission("customers", "delete") ||
-    authService.hasRole("admin");
+    authService.hasPermission('customers', 'delete') ||
+    authService.hasRole('admin');
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {
@@ -191,24 +191,24 @@ const CustomerManagement = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const [newCustomer, setNewCustomer] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    alternate_phone: "",
-    website: "",
+    name: '',
+    email: '',
+    phone: '',
+    alternate_phone: '',
+    website: '',
     address: {
-      street: "",
-      city: "",
-      country: "UAE",
+      street: '',
+      city: '',
+      country: 'UAE',
     },
-    company: "",
+    company: '',
     credit_limit: 0,
     current_credit: 0,
-    status: "active",
-    vat_number: "",
-    trn_number: "",
-    trade_license_number: "",
-    trade_license_expiry: "",
+    status: 'active',
+    vat_number: '',
+    trn_number: '',
+    trade_license_number: '',
+    trade_license_expiry: '',
     pricelist_id: null,
     is_designated_zone: false, // UAE VAT: Customer in Free Zone
   });
@@ -217,70 +217,70 @@ const CustomerManagement = () => {
   // Allow empty (optional), but if provided, enforce the full pattern.
   const validateTRN = (value) => {
     if (!value) return null; // optional
-    const digits = String(value).replace(/\s+/g, "");
+    const digits = String(value).replace(/\s+/g, '');
     if (!/^100\d{12}$/.test(digits))
-      return "TRN must start with 100 and be 15 digits";
+      return 'TRN must start with 100 and be 15 digits';
     return null;
   };
 
   // Best practice: sanitize input to digits-only and cap length to 15
   const sanitizeTRNInput = (value) =>
-    String(value || "")
-      .replace(/\D/g, "")
+    String(value || '')
+      .replace(/\D/g, '')
       .slice(0, 15);
 
   const [newContact, setNewContact] = useState({
-    type: "call",
-    subject: "",
-    notes: "",
-    contact_date: new Date().toISOString().split("T")[0],
+    type: 'call',
+    subject: '',
+    notes: '',
+    contact_date: new Date().toISOString().split('T')[0],
   });
 
   const filteredCustomers = customers.filter((c) =>
-    showArchived ? true : c.status !== "archived",
+    showArchived ? true : c.status !== 'archived',
   );
 
   // Helper to get cell value for customer columns
   const getCustomerCellValue = (customer, columnKey) => {
     switch (columnKey) {
-      case "name":
-        return customer.name || "N/A";
-      case "company":
-        return customer.company || "-";
-      case "email":
-        return customer.email || "-";
-      case "phone":
-        return customer.phone || "-";
-      case "creditLimit":
+      case 'name':
+        return customer.name || 'N/A';
+      case 'company':
+        return customer.company || '-';
+      case 'email':
+        return customer.email || '-';
+      case 'phone':
+        return customer.phone || '-';
+      case 'creditLimit':
         return Number(customer.creditLimit) || 0;
-      case "creditUsed":
+      case 'creditUsed':
         return Number(customer.currentCredit) || 0;
-      case "status":
-        return customer.status || "active";
+      case 'status':
+        return customer.status || 'active';
       default:
-        return "-";
+        return '-';
     }
   };
 
   // Helper to get cell value for supplier columns
   const getSupplierCellValue = (supplier, columnKey) => {
     switch (columnKey) {
-      case "name":
-        return supplier.name || "N/A";
-      case "company":
-        return supplier.company || "-";
-      case "email":
-        return supplier.email || "-";
-      case "phone":
-        return supplier.phone || "-";
-      case "trnNumber":
-        return supplier.trnNumber || "-";
-      case "paymentTerms":
-        return supplier.paymentTerms || "-";
-      case "status":
-        return supplier.status || "active";
+      case 'name':
+        return supplier.name || 'N/A';
+      case 'company':
+        return supplier.company || '-';
+      case 'email':
+        return supplier.email || '-';
+      case 'phone':
+        return supplier.phone || '-';
+      case 'trnNumber':
+        return supplier.trnNumber || '-';
+      case 'paymentTerms':
+        return supplier.paymentTerms || '-';
+      case 'status':
+        return supplier.status || 'active';
       default:
-        return "-";
+        return '-';
     }
   };
 
@@ -290,7 +290,7 @@ const CustomerManagement = () => {
     const bVal = getCustomerCellValue(b, customerSortConfig.key);
     const aStr = String(aVal).toLowerCase();
     const bStr = String(bVal).toLowerCase();
-    if (customerSortConfig.direction === "asc") {
+    if (customerSortConfig.direction === 'asc') {
       return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
     }
     return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
@@ -302,7 +302,7 @@ const CustomerManagement = () => {
     const bVal = getSupplierCellValue(b, supplierSortConfig.key);
     const aStr = String(aVal).toLowerCase();
     const bStr = String(bVal).toLowerCase();
-    if (supplierSortConfig.direction === "asc") {
+    if (supplierSortConfig.direction === 'asc') {
       return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
     }
     return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
@@ -312,7 +312,7 @@ const CustomerManagement = () => {
   const handleCustomerSort = (key) => {
     setCustomerSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
@@ -320,7 +320,7 @@ const CustomerManagement = () => {
   const handleSupplierSort = (key) => {
     setSupplierSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
@@ -344,7 +344,7 @@ const CustomerManagement = () => {
   // Sync search from URL param
   const [searchParams] = useSearchParams();
   useEffect(() => {
-    const q = searchParams.get("search") || "";
+    const q = searchParams.get('search') || '';
     setSearchTerm(q);
   }, [searchParams]);
 
@@ -363,41 +363,58 @@ const CustomerManagement = () => {
       const customerData = {
         ...newCustomer,
         credit_limit:
-          newCustomer.creditLimit === "" ? 0 : Number(newCustomer.creditLimit),
+          newCustomer.creditLimit === '' ? 0 : Number(newCustomer.creditLimit),
         current_credit:
-          newCustomer.currentCredit === ""
+          newCustomer.currentCredit === ''
             ? 0
             : Number(newCustomer.currentCredit),
       };
+
+      // Serialize address object to JSON string for API Gateway
+      if (customerData.address && typeof customerData.address === 'object') {
+        const { street, city, state, postalCode, country } = customerData.address;
+        customerData.address = JSON.stringify({
+          street: street || '',
+          city: city || '',
+          state: state || '',
+          postal_code: postalCode || '',
+          country: country || 'AE',
+        });
+      }
+
+      // Remove camelCase variants to avoid case conversion collision
+      delete customerData.creditLimit;
+      delete customerData.currentCredit;
+
       await createCustomer(customerData);
       // TODO: Implement proper cache utility
       setNewCustomer({
-        name: "",
-        email: "",
-        phone: "",
-        alternate_phone: "",
-        website: "",
+        name: '',
+        email: '',
+        phone: '',
+        alternate_phone: '',
+        website: '',
         address: {
-          street: "",
-          city: "",
-          country: "UAE",
+          street: '',
+          city: '',
+          country: 'UAE',
         },
-        company: "",
-        credit_limit: "",
-        current_credit: "",
-        status: "active",
-        vat_number: "",
-        trn_number: "",
-        trade_license_number: "",
-        trade_license_expiry: "",
+        company: '',
+        credit_limit: '',
+        current_credit: '',
+        status: 'active',
+        vat_number: '',
+        trn_number: '',
+        trade_license_number: '',
+        trade_license_expiry: '',
         pricelist_id: null,
         is_designated_zone: false,
       });
       setShowAddModal(false);
       refetchCustomers();
-      notificationService.createSuccess("Customer");
+      notificationService.createSuccess('Customer');
     } catch (error) {
-      notificationService.createError("Customer", error);
+      notificationService.createError('Customer', error);
     }
   };
 
@@ -411,32 +428,49 @@ const CustomerManagement = () => {
       const customerData = {
         ...selectedCustomer,
         credit_limit:
-          selectedCustomer.creditLimit === ""
+          selectedCustomer.creditLimit === ''
             ? 0
             : Number(selectedCustomer.creditLimit),
         current_credit:
-          selectedCustomer.currentCredit === ""
+          selectedCustomer.currentCredit === ''
             ? 0
             : Number(selectedCustomer.currentCredit),
       };
+
+      // Serialize address object to JSON string for API Gateway
+      if (customerData.address && typeof customerData.address === 'object') {
+        const { street, city, state, postalCode, country } = customerData.address;
+        customerData.address = JSON.stringify({
+          street: street || '',
+          city: city || '',
+          state: state || '',
+          postal_code: postalCode || '',
+          country: country || 'AE',
+        });
+      }
+
+      // Remove camelCase variants to avoid case conversion collision
+      delete customerData.creditLimit;
+      delete customerData.currentCredit;
+
       await updateCustomer(selectedCustomer.id, customerData);
       // TODO: Implement proper cache utility
       setShowEditModal(false);
       setSelectedCustomer(null);
       refetchCustomers();
-      notificationService.updateSuccess("Customer");
+      notificationService.updateSuccess('Customer');
     } catch (error) {
-      notificationService.updateError("Customer", error);
+      notificationService.updateError('Customer', error);
     }
   };
 
   const handleDeleteCustomer = async (customerId) => {
     // Repurposed as Archive for safety
     const confirmed = await confirm({
-      title: "Archive Customer?",
-      message: "Archive this customer? You can restore later from the backend.",
-      confirmText: "Archive",
-      variant: "warning",
+      title: 'Archive Customer?',
+      message: 'Archive this customer? You can restore later from the backend.',
+      confirmText: 'Archive',
+      variant: 'warning',
     });
 
     if (!confirmed) return;
@@ -445,26 +479,26 @@ const CustomerManagement = () => {
       await archiveCustomer(customerId);
       // TODO: Implement proper cache utility
       refetchCustomers();
-      notificationService.success("Customer archived successfully");
+      notificationService.success('Customer archived successfully');
     } catch (error) {
-      notificationService.apiError("Archive customer", error);
+      notificationService.apiError('Archive customer', error);
     }
   };
 
   // Supplier CRUD
   const [newSupplier, setNewSupplier] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    company: "",
-    status: "active",
-    trn_number: "",
-    payment_terms: "",
-    default_currency: "AED",
-    contact_name: "",
-    contact_email: "",
-    contact_phone: "",
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    company: '',
+    status: 'active',
+    trn_number: '',
+    payment_terms: '',
+    default_currency: 'AED',
+    contact_name: '',
+    contact_email: '',
+    contact_phone: '',
     is_designated_zone: false, // UAE VAT: Supplier in Free Zone
   });
 
@@ -478,25 +512,25 @@ const CustomerManagement = () => {
       const data = { ...newSupplier };
       await createSupplier(data);
       setNewSupplier({
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        company: "",
-        status: "active",
-        trn_number: "",
-        payment_terms: "",
-        default_currency: "AED",
-        contact_name: "",
-        contact_email: "",
-        contact_phone: "",
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        company: '',
+        status: 'active',
+        trn_number: '',
+        payment_terms: '',
+        default_currency: 'AED',
+        contact_name: '',
+        contact_email: '',
+        contact_phone: '',
         is_designated_zone: false,
       });
       setShowAddSupplierModal(false);
       refetchSuppliers();
-      notificationService.createSuccess("Supplier");
+      notificationService.createSuccess('Supplier');
     } catch (e) {
-      notificationService.createError("Supplier", e);
+      notificationService.createError('Supplier', e);
     }
   };
 
@@ -511,19 +545,19 @@ const CustomerManagement = () => {
       setShowEditSupplierModal(false);
       setSelectedSupplier(null);
       refetchSuppliers();
-      notificationService.updateSuccess("Supplier");
+      notificationService.updateSuccess('Supplier');
     } catch (e) {
-      notificationService.updateError("Supplier", e);
+      notificationService.updateError('Supplier', e);
     }
   };
 
   const handleDeleteSupplier = async (id) => {
     const confirmed = await confirm({
-      title: "Delete Supplier?",
+      title: 'Delete Supplier?',
       message:
-        "Are you sure you want to delete this supplier? This action cannot be undone.",
-      confirmText: "Delete",
-      variant: "danger",
+        'Are you sure you want to delete this supplier? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -531,9 +565,9 @@ const CustomerManagement = () => {
     try {
       await deleteSupplier(id);
       refetchSuppliers();
-      notificationService.deleteSuccess("Supplier");
+      notificationService.deleteSuccess('Supplier');
     } catch (e) {
-      notificationService.deleteError("Supplier", e);
+      notificationService.deleteError('Supplier', e);
     }
   };
 
@@ -559,17 +593,17 @@ const CustomerManagement = () => {
       }));
 
       setNewContact({
-        type: "call",
-        subject: "",
-        notes: "",
-        contact_date: new Date().toISOString().split("T")[0],
+        type: 'call',
+        subject: '',
+        notes: '',
+        contact_date: new Date().toISOString().split('T')[0],
       });
 
       refetchCustomers();
-      notificationService.success("Contact entry added successfully!");
+      notificationService.success('Contact entry added successfully!');
     } catch (error) {
       notificationService.error(
-        `Failed to add contact entry: ${error.message || "Unknown error"}`,
+        `Failed to add contact entry: ${error.message || 'Unknown error'}`,
       );
     }
   };
@@ -577,7 +611,7 @@ const CustomerManagement = () => {
   const calculateAnalytics = () => {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter(
-      (c) => c.status === "active",
+      (c) => c.status === 'active',
     ).length;
     const totalCreditLimit = customers.reduce(
       (sum, c) => sum + (Number(c.creditLimit) || 0),
@@ -605,17 +639,17 @@ const CustomerManagement = () => {
   // Common input styles
   const inputClasses = `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 ${
     isDarkMode
-      ? "border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]"
-      : "border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]"
+      ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]'
+      : 'border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]'
   }`;
 
   const cardClasses = `rounded-xl border transition-all duration-300 ${
-    isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
+    isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-[#E0E0E0]'
   }`;
 
-  const textPrimary = isDarkMode ? "text-white" : "text-[#212121]";
-  const textSecondary = isDarkMode ? "text-[#B0BEC5]" : "text-[#757575]";
-  const textMuted = isDarkMode ? "text-[#78909C]" : "text-[#BDBDBD]";
+  const textPrimary = isDarkMode ? 'text-white' : 'text-[#212121]';
+  const textSecondary = isDarkMode ? 'text-[#B0BEC5]' : 'text-[#757575]';
+  const textMuted = isDarkMode ? 'text-[#78909C]' : 'text-[#BDBDBD]';
 
   const renderProfiles = () => (
     <div className={`${cardClasses} p-6 mb-6`}>
@@ -632,8 +666,8 @@ const CustomerManagement = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 w-full ${
                 isDarkMode
-                  ? "border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]"
-                  : "border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]"
+                  ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]'
+                  : 'border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]'
               }`}
             />
           </div>
@@ -644,8 +678,8 @@ const CustomerManagement = () => {
             onChange={(e) => setFilterStatus(e.target.value)}
             className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 min-w-[150px] ${
               isDarkMode
-                ? "border-[#37474F] bg-[#1E2328] text-white"
-                : "border-[#E0E0E0] bg-white text-[#212121]"
+                ? 'border-[#37474F] bg-[#1E2328] text-white'
+                : 'border-[#E0E0E0] bg-white text-[#212121]'
             }`}
           >
             <option value="all">All Status</option>
@@ -656,7 +690,7 @@ const CustomerManagement = () => {
           {/* Show Archived Toggle */}
           <label
             className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${
-              isDarkMode ? "text-gray-300" : "text-gray-700"
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
             }`}
           >
             <input
@@ -679,8 +713,8 @@ const CustomerManagement = () => {
               }
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
-                  ? "border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  ? 'border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-100'
               }`}
               title="Configure Columns"
             >
@@ -690,15 +724,15 @@ const CustomerManagement = () => {
               <div
                 className={`absolute right-0 top-full mt-1 z-50 w-48 rounded-lg border shadow-lg ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-700"
-                    : "bg-white border-gray-200"
+                    ? 'bg-gray-800 border-gray-700'
+                    : 'bg-white border-gray-200'
                 }`}
               >
                 <div
                   className={`px-3 py-2 border-b text-sm font-medium ${
                     isDarkMode
-                      ? "border-gray-700 text-gray-300"
-                      : "border-gray-200 text-gray-700"
+                      ? 'border-gray-700 text-gray-300'
+                      : 'border-gray-200 text-gray-700'
                   }`}
                 >
                   Show Columns
@@ -708,8 +742,8 @@ const CustomerManagement = () => {
                     <label
                       key={col.key}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm ${
-                        col.required ? "opacity-50 cursor-not-allowed" : ""
-                      } ${isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"}`}
+                        col.required ? 'opacity-50 cursor-not-allowed' : ''
+                      } ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
                     >
                       <input
                         type="checkbox"
@@ -752,14 +786,14 @@ const CustomerManagement = () => {
       {/* Customer Table */}
       <div
         className={`overflow-x-auto rounded-lg border ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
         }`}
       >
         <table className="w-full min-w-[800px] table-fixed">
           {/* Table Header */}
           <thead
             className={`sticky top-0 z-10 ${
-              isDarkMode ? "bg-gray-800" : "bg-gray-50"
+              isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
             }`}
           >
             <tr>
@@ -771,14 +805,14 @@ const CustomerManagement = () => {
                   onClick={() => handleCustomerSort(col.key)}
                   className={`px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors ${col.width} ${
                     isDarkMode
-                      ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <div className="flex items-center gap-1">
                     <span>{col.label}</span>
                     {customerSortConfig.key === col.key ? (
-                      customerSortConfig.direction === "asc" ? (
+                      customerSortConfig.direction === 'asc' ? (
                         <ArrowUp size={14} className="text-teal-500" />
                       ) : (
                         <ArrowDown size={14} className="text-teal-500" />
@@ -791,7 +825,7 @@ const CustomerManagement = () => {
               ))}
               <th
                 className={`px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider w-[100px] ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
                 Actions
@@ -799,7 +833,7 @@ const CustomerManagement = () => {
             </tr>
           </thead>
           <tbody
-            className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+            className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
           >
             {sortedCustomers.length === 0 ? (
               <tr>
@@ -809,10 +843,10 @@ const CustomerManagement = () => {
                 >
                   <p className={textMuted}>
                     {loadingCustomers
-                      ? "Loading..."
+                      ? 'Loading...'
                       : customersError
-                        ? "Error loading customers."
-                        : "No customers found. Try creating a new customer."}
+                        ? 'Error loading customers.'
+                        : 'No customers found. Try creating a new customer.'}
                   </p>
                 </td>
               </tr>
@@ -822,8 +856,8 @@ const CustomerManagement = () => {
                   key={customer.id}
                   className={`transition-colors ${
                     isDarkMode
-                      ? "bg-gray-900 hover:bg-gray-800"
-                      : "bg-white hover:bg-gray-50"
+                      ? 'bg-gray-900 hover:bg-gray-800'
+                      : 'bg-white hover:bg-gray-50'
                   }`}
                 >
                   {CUSTOMER_COLUMNS.filter((col) =>
@@ -832,51 +866,51 @@ const CustomerManagement = () => {
                     <td
                       key={col.key}
                       className={`px-3 py-2 text-sm whitespace-nowrap ${col.width} ${
-                        isDarkMode ? "text-gray-300" : "text-gray-700"
+                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
                       }`}
                     >
-                      {col.key === "name" ? (
+                      {col.key === 'name' ? (
                         <div>
                           <button
                             onClick={() => handleCustomerClick(customer.id)}
-                            className={`font-medium text-left hover:underline ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
+                            className={`font-medium text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
                           >
                             {getCustomerCellValue(customer, col.key)}
                           </button>
                           {customer.company && (
                             <div
-                              className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                             >
                               {customer.company}
                             </div>
                           )}
                         </div>
-                      ) : col.key === "creditLimit" ||
-                        col.key === "creditUsed" ? (
-                        <span
-                          className={
-                            col.key === "creditUsed" ? "font-medium" : ""
-                          }
-                        >
-                          {formatCurrency(
-                            getCustomerCellValue(customer, col.key),
-                          )}
-                        </span>
-                      ) : col.key === "status" ? (
-                        <span
-                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
-                            customer.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : customer.status === "archived"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {customer.status}
-                        </span>
-                      ) : (
-                        getCustomerCellValue(customer, col.key)
-                      )}
+                      ) : col.key === 'creditLimit' ||
+                        col.key === 'creditUsed' ? (
+                          <span
+                            className={
+                              col.key === 'creditUsed' ? 'font-medium' : ''
+                            }
+                          >
+                            {formatCurrency(
+                              getCustomerCellValue(customer, col.key),
+                            )}
+                          </span>
+                        ) : col.key === 'status' ? (
+                          <span
+                            className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+                              customer.status === 'active'
+                                ? 'bg-green-100 text-green-800'
+                                : customer.status === 'archived'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            {customer.status}
+                          </span>
+                        ) : (
+                          getCustomerCellValue(customer, col.key)
+                        )}
                     </td>
                   ))}
                   {/* Actions Column */}
@@ -889,8 +923,8 @@ const CustomerManagement = () => {
                         }}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
-                            ? "text-teal-400 hover:text-teal-300 hover:bg-gray-700"
-                            : "text-teal-600 hover:text-teal-700 hover:bg-gray-100"
+                            ? 'text-teal-400 hover:text-teal-300 hover:bg-gray-700'
+                            : 'text-teal-600 hover:text-teal-700 hover:bg-gray-100'
                         }`}
                         title="Edit"
                       >
@@ -900,8 +934,8 @@ const CustomerManagement = () => {
                         onClick={() => openContactHistory(customer)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
-                            ? "text-blue-400 hover:text-blue-300 hover:bg-gray-700"
-                            : "text-blue-600 hover:text-blue-700 hover:bg-gray-100"
+                            ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700'
+                            : 'text-blue-600 hover:text-blue-700 hover:bg-gray-100'
                         }`}
                         title="Contact History"
                       >
@@ -912,8 +946,8 @@ const CustomerManagement = () => {
                           onClick={() => handleDeleteCustomer(customer.id)}
                           className={`p-1.5 rounded transition-colors ${
                             isDarkMode
-                              ? "text-yellow-400 hover:text-yellow-300 hover:bg-gray-700"
-                              : "text-yellow-600 hover:text-yellow-700 hover:bg-gray-100"
+                              ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-700'
+                              : 'text-yellow-600 hover:text-yellow-700 hover:bg-gray-100'
                           }`}
                           title="Archive"
                         >
@@ -943,11 +977,11 @@ const CustomerManagement = () => {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 pageInfo.hasPrev
                   ? isDarkMode
-                    ? "bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30"
-                    : "bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100"
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
                   : isDarkMode
-                    ? "bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed"
-                    : "bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed"
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
               }`}
             >
               Previous
@@ -958,11 +992,11 @@ const CustomerManagement = () => {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 pageInfo.hasNext
                   ? isDarkMode
-                    ? "bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30"
-                    : "bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100"
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
                   : isDarkMode
-                    ? "bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed"
-                    : "bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed"
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
               }`}
             >
               Next
@@ -992,8 +1026,8 @@ const CustomerManagement = () => {
               onChange={(e) => setSupplierSearchTerm(e.target.value)}
               className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-colors ${
                 isDarkMode
-                  ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-500 focus:border-teal-500"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-500"
+                  ? 'bg-[#1E2328] border-gray-600 text-white placeholder-gray-500 focus:border-teal-500'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-500'
               } focus:outline-none focus:ring-2 focus:ring-teal-500/20`}
             />
           </div>
@@ -1009,8 +1043,8 @@ const CustomerManagement = () => {
               }
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
-                  ? "border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  ? 'border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-100'
               }`}
               title="Configure Columns"
             >
@@ -1020,15 +1054,15 @@ const CustomerManagement = () => {
               <div
                 className={`absolute right-0 top-full mt-1 z-50 w-48 rounded-lg border shadow-lg ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-700"
-                    : "bg-white border-gray-200"
+                    ? 'bg-gray-800 border-gray-700'
+                    : 'bg-white border-gray-200'
                 }`}
               >
                 <div
                   className={`px-3 py-2 border-b text-sm font-medium ${
                     isDarkMode
-                      ? "border-gray-700 text-gray-300"
-                      : "border-gray-200 text-gray-700"
+                      ? 'border-gray-700 text-gray-300'
+                      : 'border-gray-200 text-gray-700'
                   }`}
                 >
                   Show Columns
@@ -1038,8 +1072,8 @@ const CustomerManagement = () => {
                     <label
                       key={col.key}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm ${
-                        col.required ? "opacity-50 cursor-not-allowed" : ""
-                      } ${isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-700"}`}
+                        col.required ? 'opacity-50 cursor-not-allowed' : ''
+                      } ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
                     >
                       <input
                         type="checkbox"
@@ -1074,7 +1108,7 @@ const CustomerManagement = () => {
       {/* Errors */}
       {suppliersError && (
         <div
-          className={`rounded p-3 mb-4 ${isDarkMode ? "bg-red-900/20 text-red-200" : "bg-red-50 text-red-700"}`}
+          className={`rounded p-3 mb-4 ${isDarkMode ? 'bg-red-900/20 text-red-200' : 'bg-red-50 text-red-700'}`}
         >
           Failed to load suppliers
         </div>
@@ -1083,14 +1117,14 @@ const CustomerManagement = () => {
       {/* Supplier Table */}
       <div
         className={`overflow-x-auto rounded-lg border ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
         }`}
       >
         <table className="w-full min-w-[800px] table-fixed">
           {/* Table Header */}
           <thead
             className={`sticky top-0 z-10 ${
-              isDarkMode ? "bg-gray-800" : "bg-gray-50"
+              isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
             }`}
           >
             <tr>
@@ -1102,14 +1136,14 @@ const CustomerManagement = () => {
                   onClick={() => handleSupplierSort(col.key)}
                   className={`px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors ${col.width} ${
                     isDarkMode
-                      ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <div className="flex items-center gap-1">
                     <span>{col.label}</span>
                     {supplierSortConfig.key === col.key ? (
-                      supplierSortConfig.direction === "asc" ? (
+                      supplierSortConfig.direction === 'asc' ? (
                         <ArrowUp size={14} className="text-teal-500" />
                       ) : (
                         <ArrowDown size={14} className="text-teal-500" />
@@ -1122,7 +1156,7 @@ const CustomerManagement = () => {
               ))}
               <th
                 className={`px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider w-[100px] ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
                 Actions
@@ -1130,7 +1164,7 @@ const CustomerManagement = () => {
             </tr>
           </thead>
           <tbody
-            className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+            className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
           >
             {loadingSuppliers ? (
               <tr>
@@ -1156,8 +1190,8 @@ const CustomerManagement = () => {
                   key={supplier.id}
                   className={`transition-colors ${
                     isDarkMode
-                      ? "bg-gray-900 hover:bg-gray-800"
-                      : "bg-white hover:bg-gray-50"
+                      ? 'bg-gray-900 hover:bg-gray-800'
+                      : 'bg-white hover:bg-gray-50'
                   }`}
                 >
                   {SUPPLIER_COLUMNS.filter((col) =>
@@ -1166,37 +1200,37 @@ const CustomerManagement = () => {
                     <td
                       key={col.key}
                       className={`px-3 py-2 text-sm whitespace-nowrap ${col.width} ${
-                        isDarkMode ? "text-gray-300" : "text-gray-700"
+                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
                       }`}
                     >
-                      {col.key === "name" ? (
+                      {col.key === 'name' ? (
                         <div>
                           <button
                             onClick={() => {
                               setSelectedSupplier(supplier);
                               setShowEditSupplierModal(true);
                             }}
-                            className={`font-medium text-left hover:underline ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
+                            className={`font-medium text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
                           >
                             {getSupplierCellValue(supplier, col.key)}
                           </button>
                           {supplier.company && (
                             <div
-                              className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                             >
                               {supplier.company}
                             </div>
                           )}
                         </div>
-                      ) : col.key === "status" ? (
+                      ) : col.key === 'status' ? (
                         <span
                           className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
-                            supplier.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-600"
+                            supplier.status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-600'
                           }`}
                         >
-                          {supplier.status || "active"}
+                          {supplier.status || 'active'}
                         </span>
                       ) : (
                         getSupplierCellValue(supplier, col.key)
@@ -1213,8 +1247,8 @@ const CustomerManagement = () => {
                         }}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
-                            ? "text-teal-400 hover:text-teal-300 hover:bg-gray-700"
-                            : "text-teal-600 hover:text-teal-700 hover:bg-gray-100"
+                            ? 'text-teal-400 hover:text-teal-300 hover:bg-gray-700'
+                            : 'text-teal-600 hover:text-teal-700 hover:bg-gray-100'
                         }`}
                         title="Edit"
                       >
@@ -1224,8 +1258,8 @@ const CustomerManagement = () => {
                         onClick={() => handleDeleteSupplier(supplier.id)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
-                            ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
-                            : "text-red-500 hover:text-red-600 hover:bg-gray-100"
+                            ? 'text-red-400 hover:text-red-300 hover:bg-gray-700'
+                            : 'text-red-500 hover:text-red-600 hover:bg-gray-100'
                         }`}
                         title="Delete"
                       >
@@ -1244,7 +1278,7 @@ const CustomerManagement = () => {
       {supplierPageInfo.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className={textSecondary}>
-            Showing page {supplierPageInfo.currentPage} of{" "}
+            Showing page {supplierPageInfo.currentPage} of{' '}
             {supplierPageInfo.totalPages} ({supplierPageInfo.totalItems} total
             suppliers)
           </div>
@@ -1255,11 +1289,11 @@ const CustomerManagement = () => {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 supplierPageInfo.hasPrev
                   ? isDarkMode
-                    ? "bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30"
-                    : "bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100"
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
                   : isDarkMode
-                    ? "bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed"
-                    : "bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed"
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
               }`}
             >
               Previous
@@ -1270,11 +1304,11 @@ const CustomerManagement = () => {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 supplierPageInfo.hasNext
                   ? isDarkMode
-                    ? "bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30"
-                    : "bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100"
+                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
                   : isDarkMode
-                    ? "bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed"
-                    : "bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed"
+                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
               }`}
             >
               Next
@@ -1356,7 +1390,7 @@ const CustomerManagement = () => {
             <div
               key={customer.id}
               className={`flex items-center gap-4 p-3 rounded-lg hover:bg-opacity-50 transition-colors ${
-                isDarkMode ? "hover:bg-[#37474F]" : "hover:bg-gray-50"
+                isDarkMode ? 'hover:bg-[#37474F]' : 'hover:bg-gray-50'
               }`}
             >
               <span
@@ -1366,7 +1400,7 @@ const CustomerManagement = () => {
               </span>
               <div className="flex-1 flex items-center gap-3">
                 <div
-                  className={`flex-1 rounded-full h-3 ${isDarkMode ? "bg-[#37474F]" : "bg-gray-200"}`}
+                  className={`flex-1 rounded-full h-3 ${isDarkMode ? 'bg-[#37474F]' : 'bg-gray-200'}`}
                 >
                   <div
                     className="bg-[#008B8B] h-3 rounded-full transition-all duration-300"
@@ -1380,9 +1414,9 @@ const CustomerManagement = () => {
                 >
                   {customer.creditLimit > 0
                     ? Math.round(
-                        ((customer.currentCredit || 0) / customer.creditLimit) *
+                      ((customer.currentCredit || 0) / customer.creditLimit) *
                           100,
-                      )
+                    )
                     : 0}
                   %
                 </span>
@@ -1397,13 +1431,13 @@ const CustomerManagement = () => {
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
-        isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+        isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
       }`}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6 max-w-[100vw] overflow-x-hidden">
         {/* Page Header */}
         <div
-          className={`mb-8 pb-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+          className={`mb-8 pb-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
         >
           <div className="flex items-center gap-3 mb-2">
             <FaUsers className={`text-3xl ${textSecondary}`} />
@@ -1418,49 +1452,49 @@ const CustomerManagement = () => {
 
         {/* Tabs - Pill style */}
         <div
-          className={`mb-6 ${isDarkMode ? "bg-transparent" : "bg-transparent"}`}
+          className={`mb-6 ${isDarkMode ? 'bg-transparent' : 'bg-transparent'}`}
         >
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setActiveTab("profiles")}
+              onClick={() => setActiveTab('profiles')}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                activeTab === "profiles"
+                activeTab === 'profiles'
                   ? isDarkMode
-                    ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
-                    : "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
                   : isDarkMode
-                    ? "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
-                    : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <FaUsers size={18} />
               Customer Profiles
             </button>
             <button
-              onClick={() => setActiveTab("suppliers")}
+              onClick={() => setActiveTab('suppliers')}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                activeTab === "suppliers"
+                activeTab === 'suppliers'
                   ? isDarkMode
-                    ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
-                    : "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
                   : isDarkMode
-                    ? "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
-                    : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <FaUsers size={18} />
               Suppliers
             </button>
             <button
-              onClick={() => setActiveTab("analytics")}
+              onClick={() => setActiveTab('analytics')}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                activeTab === "analytics"
+                activeTab === 'analytics'
                   ? isDarkMode
-                    ? "bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200"
-                    : "bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800"
+                    ? 'bg-teal-900/20 text-teal-300 border-teal-600 hover:text-teal-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-300 hover:text-teal-800'
                   : isDarkMode
-                    ? "bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white"
-                    : "bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                    ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700/40 hover:text-white'
+                    : 'bg-transparent text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <FaChartBar size={18} />
@@ -1484,23 +1518,23 @@ const CustomerManagement = () => {
           <div
             className={`rounded-lg p-4 mb-6 border ${
               isDarkMode
-                ? "bg-red-900/20 border-red-800"
-                : "bg-red-50 border-red-200"
+                ? 'bg-red-900/20 border-red-800'
+                : 'bg-red-50 border-red-200'
             }`}
           >
             <div className="flex items-center gap-2">
               <FaExclamationTriangle
-                className={isDarkMode ? "text-red-400" : "text-red-600"}
+                className={isDarkMode ? 'text-red-400' : 'text-red-600'}
               />
-              <span className={isDarkMode ? "text-red-200" : "text-red-800"}>
+              <span className={isDarkMode ? 'text-red-200' : 'text-red-800'}>
                 Error loading customers: {customersError}
               </span>
               <button
                 onClick={refetchCustomers}
                 className={`ml-auto px-3 py-1 text-sm rounded transition-colors ${
                   isDarkMode
-                    ? "bg-red-800 text-red-200 hover:bg-red-700"
-                    : "bg-red-100 text-red-700 hover:bg-red-200"
+                    ? 'bg-red-800 text-red-200 hover:bg-red-700'
+                    : 'bg-red-100 text-red-700 hover:bg-red-200'
                 }`}
               >
                 Try again
@@ -1511,9 +1545,9 @@ const CustomerManagement = () => {
 
         {/* Tab Content */}
         <div>
-          {activeTab === "profiles" && renderProfiles()}
-          {activeTab === "suppliers" && renderSuppliers()}
-          {activeTab === "analytics" && renderAnalytics()}
+          {activeTab === 'profiles' && renderProfiles()}
+          {activeTab === 'suppliers' && renderSuppliers()}
+          {activeTab === 'analytics' && renderAnalytics()}
         </div>
       </div>
 
@@ -1525,7 +1559,7 @@ const CustomerManagement = () => {
           >
             {/* Modal Header */}
             <div
-              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>
                 Add New Customer
@@ -1827,14 +1861,14 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="customerCreditLimit"
-                    value={newCustomer.creditLimit || ""}
+                    value={newCustomer.creditLimit || ''}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
                         credit_limit:
-                          e.target.value === ""
-                            ? ""
-                            : Number(e.target.value) || "",
+                          e.target.value === ''
+                            ? ''
+                            : Number(e.target.value) || '',
                       })
                     }
                     placeholder="Enter credit limit"
@@ -1852,14 +1886,14 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="customerCurrentCredit"
-                    value={newCustomer.currentCredit || ""}
+                    value={newCustomer.currentCredit || ''}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
                         current_credit:
-                          e.target.value === ""
-                            ? ""
-                            : Number(e.target.value) || "",
+                          e.target.value === ''
+                            ? ''
+                            : Number(e.target.value) || '',
                       })
                     }
                     placeholder="Enter current credit used"
@@ -1876,7 +1910,7 @@ const CustomerManagement = () => {
                   </label>
                   <select
                     id="customerPriceList"
-                    value={newCustomer.pricelistId || ""}
+                    value={newCustomer.pricelistId || ''}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -1890,8 +1924,8 @@ const CustomerManagement = () => {
                     <option value="">-- Use Default Price List --</option>
                     {pricelists.map((pricelist) => (
                       <option key={pricelist.id} value={pricelist.id}>
-                        {pricelist.name}{" "}
-                        {pricelist.isDefault ? "(Default)" : ""}
+                        {pricelist.name}{' '}
+                        {pricelist.isDefault ? '(Default)' : ''}
                       </option>
                     ))}
                   </select>
@@ -1924,14 +1958,14 @@ const CustomerManagement = () => {
 
             {/* Modal Footer */}
             <div
-              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <button
                 onClick={() => setShowAddModal(false)}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode
-                    ? "text-[#B0BEC5] hover:text-gray-300"
-                    : "text-[#757575] hover:bg-gray-100"
+                    ? 'text-[#B0BEC5] hover:text-gray-300'
+                    : 'text-[#757575] hover:bg-gray-100'
                 }`}
               >
                 Cancel
@@ -1944,7 +1978,7 @@ const CustomerManagement = () => {
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />
-                {creatingCustomer ? "Adding..." : "Add Customer"}
+                {creatingCustomer ? 'Adding...' : 'Add Customer'}
               </button>
             </div>
           </div>
@@ -1958,7 +1992,7 @@ const CustomerManagement = () => {
             className={`rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}
           >
             <div
-              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>
                 Add Supplier
@@ -2075,7 +2109,7 @@ const CustomerManagement = () => {
                     setNewSupplier({
                       ...newSupplier,
                       trn_number: e.target.value
-                        .replace(/\D/g, "")
+                        .replace(/\D/g, '')
                         .slice(0, 15),
                     })
                   }
@@ -2239,11 +2273,11 @@ const CustomerManagement = () => {
               </div>
             </div>
             <div
-              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <button
                 onClick={() => setShowAddSupplierModal(false)}
-                className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
+                className={`px-4 py-2 rounded-lg ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
               >
                 Cancel
               </button>
@@ -2254,7 +2288,7 @@ const CustomerManagement = () => {
                 }
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
-                <FaSave /> {creatingSupplier ? "Adding..." : "Add Supplier"}
+                <FaSave /> {creatingSupplier ? 'Adding...' : 'Add Supplier'}
               </button>
             </div>
           </div>
@@ -2268,7 +2302,7 @@ const CustomerManagement = () => {
             className={`rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}
           >
             <div
-              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>
                 Edit Supplier
@@ -2311,7 +2345,7 @@ const CustomerManagement = () => {
                 <input
                   type="text"
                   id="editSupplierCompany"
-                  value={selectedSupplier.company || ""}
+                  value={selectedSupplier.company || ''}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2331,7 +2365,7 @@ const CustomerManagement = () => {
                 <input
                   type="email"
                   id="editSupplierEmail"
-                  value={selectedSupplier.email || ""}
+                  value={selectedSupplier.email || ''}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2351,7 +2385,7 @@ const CustomerManagement = () => {
                 <input
                   type="tel"
                   id="editSupplierPhone"
-                  value={selectedSupplier.phone || ""}
+                  value={selectedSupplier.phone || ''}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2371,7 +2405,7 @@ const CustomerManagement = () => {
                 <input
                   type="text"
                   id="editSupplierAddress"
-                  value={selectedSupplier.address || ""}
+                  value={selectedSupplier.address || ''}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2395,12 +2429,12 @@ const CustomerManagement = () => {
                   pattern="\\d*"
                   maxLength={15}
                   placeholder="100XXXXXXXXXXXX"
-                  value={selectedSupplier.trnNumber || ""}
+                  value={selectedSupplier.trnNumber || ''}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
                       trn_number: e.target.value
-                        .replace(/\D/g, "")
+                        .replace(/\D/g, '')
                         .slice(0, 15),
                     })
                   }
@@ -2447,7 +2481,7 @@ const CustomerManagement = () => {
                   type="text"
                   id="editSupplierPaymentTerms"
                   placeholder="e.g., Net 30"
-                  value={selectedSupplier.paymentTerms || ""}
+                  value={selectedSupplier.paymentTerms || ''}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2466,7 +2500,7 @@ const CustomerManagement = () => {
                 </label>
                 <select
                   id="editSupplierCurrency"
-                  value={selectedSupplier.defaultCurrency || "AED"}
+                  value={selectedSupplier.defaultCurrency || 'AED'}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2492,7 +2526,7 @@ const CustomerManagement = () => {
                   <input
                     type="text"
                     id="editSupplierContactName"
-                    value={selectedSupplier.contactName || ""}
+                    value={selectedSupplier.contactName || ''}
                     onChange={(e) =>
                       setSelectedSupplier({
                         ...selectedSupplier,
@@ -2512,7 +2546,7 @@ const CustomerManagement = () => {
                   <input
                     type="email"
                     id="editSupplierContactEmail"
-                    value={selectedSupplier.contactEmail || ""}
+                    value={selectedSupplier.contactEmail || ''}
                     onChange={(e) =>
                       setSelectedSupplier({
                         ...selectedSupplier,
@@ -2532,7 +2566,7 @@ const CustomerManagement = () => {
                   <input
                     type="tel"
                     id="editSupplierContactPhone"
-                    value={selectedSupplier.contactPhone || ""}
+                    value={selectedSupplier.contactPhone || ''}
                     onChange={(e) =>
                       setSelectedSupplier({
                         ...selectedSupplier,
@@ -2552,7 +2586,7 @@ const CustomerManagement = () => {
                 </label>
                 <select
                   id="editSupplierStatus"
-                  value={selectedSupplier.status || "active"}
+                  value={selectedSupplier.status || 'active'}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2567,11 +2601,11 @@ const CustomerManagement = () => {
               </div>
             </div>
             <div
-              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <button
                 onClick={() => setShowEditSupplierModal(false)}
-                className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
+                className={`px-4 py-2 rounded-lg ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
               >
                 Cancel
               </button>
@@ -2582,7 +2616,7 @@ const CustomerManagement = () => {
                 }
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
-                <FaSave /> {updatingSupplier ? "Saving..." : "Save Changes"}
+                <FaSave /> {updatingSupplier ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>
@@ -2597,7 +2631,7 @@ const CustomerManagement = () => {
           >
             {/* Modal Header */}
             <div
-              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>
                 Edit Customer
@@ -2707,7 +2741,7 @@ const CustomerManagement = () => {
                   <input
                     type="tel"
                     id="editCustomerAlternatePhone"
-                    value={selectedCustomer.alternatePhone || ""}
+                    value={selectedCustomer.alternatePhone || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -2729,7 +2763,7 @@ const CustomerManagement = () => {
                   <input
                     type="url"
                     id="editCustomerWebsite"
-                    value={selectedCustomer.website || ""}
+                    value={selectedCustomer.website || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -2741,31 +2775,138 @@ const CustomerManagement = () => {
                   />
                 </div>
 
+                {/* Street Address */}
                 <div className="md:col-span-2">
-                  <label
-                    htmlFor="editCustomerAddress"
-                    className={`block text-sm font-medium mb-1 ${textSecondary}`}
-                  >
-                    Address
+                  <label htmlFor="editCustomerStreet" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Street Address
                   </label>
-                  <textarea
-                    rows={3}
-                    id="editCustomerAddress"
+                  <input
+                    type="text"
+                    id="editCustomerStreet"
                     value={
-                      typeof selectedCustomer.address === "string"
-                        ? selectedCustomer.address
-                        : selectedCustomer.address
-                          ? Object.values(selectedCustomer.address)
-                              .filter((v) => v)
-                              .join(", ")
-                          : ""
+                      selectedCustomer.address && typeof selectedCustomer.address === 'object'
+                        ? selectedCustomer.address.street || ''
+                        : ''
                     }
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
-                        address: e.target.value,
+                        address: {
+                          ...((selectedCustomer.address && typeof selectedCustomer.address === 'object') || {}),
+                          street: e.target.value,
+                        },
                       })
                     }
+                    placeholder="Street address"
+                    className={inputClasses}
+                  />
+                </div>
+
+                {/* City */}
+                <div>
+                  <label htmlFor="editCustomerCity" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    id="editCustomerCity"
+                    value={
+                      selectedCustomer.address && typeof selectedCustomer.address === 'object'
+                        ? selectedCustomer.address.city || ''
+                        : ''
+                    }
+                    onChange={(e) =>
+                      setSelectedCustomer({
+                        ...selectedCustomer,
+                        address: {
+                          ...((selectedCustomer.address && typeof selectedCustomer.address === 'object') || {}),
+                          city: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="City"
+                    className={inputClasses}
+                  />
+                </div>
+
+                {/* State */}
+                <div>
+                  <label htmlFor="editCustomerState" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    State/Province
+                  </label>
+                  <input
+                    type="text"
+                    id="editCustomerState"
+                    value={
+                      selectedCustomer.address && typeof selectedCustomer.address === 'object'
+                        ? selectedCustomer.address.state || ''
+                        : ''
+                    }
+                    onChange={(e) =>
+                      setSelectedCustomer({
+                        ...selectedCustomer,
+                        address: {
+                          ...((selectedCustomer.address && typeof selectedCustomer.address === 'object') || {}),
+                          state: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="State or province"
+                    className={inputClasses}
+                  />
+                </div>
+
+                {/* Postal Code */}
+                <div>
+                  <label htmlFor="editCustomerPostalCode" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Postal Code
+                  </label>
+                  <input
+                    type="text"
+                    id="editCustomerPostalCode"
+                    value={
+                      selectedCustomer.address && typeof selectedCustomer.address === 'object'
+                        ? selectedCustomer.address.postalCode || ''
+                        : ''
+                    }
+                    onChange={(e) =>
+                      setSelectedCustomer({
+                        ...selectedCustomer,
+                        address: {
+                          ...((selectedCustomer.address && typeof selectedCustomer.address === 'object') || {}),
+                          postalCode: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Postal code"
+                    className={inputClasses}
+                  />
+                </div>
+
+                {/* Country */}
+                <div>
+                  <label htmlFor="editCustomerCountry" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
+                    Country <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="editCustomerCountry"
+                    value={
+                      selectedCustomer.address && typeof selectedCustomer.address === 'object'
+                        ? (selectedCustomer.address.country || 'AE').toUpperCase()
+                        : 'AE'
+                    }
+                    onChange={(e) =>
+                      setSelectedCustomer({
+                        ...selectedCustomer,
+                        address: {
+                          ...((selectedCustomer.address && typeof selectedCustomer.address === 'object') || {}),
+                          country: e.target.value.toUpperCase(),
+                        },
+                      })
+                    }
+                    placeholder="e.g., AE (UAE), IN (India), CN (China)"
+                    maxLength={2}
                     className={inputClasses}
                   />
                 </div>
@@ -2783,7 +2924,7 @@ const CustomerManagement = () => {
                     inputMode="numeric"
                     pattern="\\d*"
                     maxLength={15}
-                    value={selectedCustomer.trnNumber || ""}
+                    value={selectedCustomer.trnNumber || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -2837,7 +2978,7 @@ const CustomerManagement = () => {
                   <input
                     type="text"
                     id="editCustomerTradeLicense"
-                    value={selectedCustomer.tradeLicenseNumber || ""}
+                    value={selectedCustomer.tradeLicenseNumber || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -2858,7 +2999,7 @@ const CustomerManagement = () => {
                   <input
                     type="date"
                     id="editCustomerTradeLicenseExpiry"
-                    value={selectedCustomer.tradeLicenseExpiry || ""}
+                    value={selectedCustomer.tradeLicenseExpiry || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -2882,14 +3023,14 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="editCustomerCreditLimit"
-                    value={selectedCustomer.creditLimit || ""}
+                    value={selectedCustomer.creditLimit || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
                         credit_limit:
-                          e.target.value === ""
-                            ? ""
-                            : Number(e.target.value) || "",
+                          e.target.value === ''
+                            ? ''
+                            : Number(e.target.value) || '',
                       })
                     }
                     className={inputClasses}
@@ -2906,14 +3047,14 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="editCustomerCurrentCredit"
-                    value={selectedCustomer.currentCredit || ""}
+                    value={selectedCustomer.currentCredit || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
                         current_credit:
-                          e.target.value === ""
-                            ? ""
-                            : Number(e.target.value) || "",
+                          e.target.value === ''
+                            ? ''
+                            : Number(e.target.value) || '',
                       })
                     }
                     className={inputClasses}
@@ -2929,7 +3070,7 @@ const CustomerManagement = () => {
                   </label>
                   <select
                     id="editCustomerPriceList"
-                    value={selectedCustomer.pricelistId || ""}
+                    value={selectedCustomer.pricelistId || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -2943,8 +3084,8 @@ const CustomerManagement = () => {
                     <option value="">-- Use Default Price List --</option>
                     {pricelists.map((pricelist) => (
                       <option key={pricelist.id} value={pricelist.id}>
-                        {pricelist.name}{" "}
-                        {pricelist.isDefault ? "(Default)" : ""}
+                        {pricelist.name}{' '}
+                        {pricelist.isDefault ? '(Default)' : ''}
                       </option>
                     ))}
                   </select>
@@ -2980,14 +3121,14 @@ const CustomerManagement = () => {
 
             {/* Modal Footer */}
             <div
-              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <button
                 onClick={() => setShowEditModal(false)}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode
-                    ? "text-[#B0BEC5] hover:text-gray-300"
-                    : "text-[#757575] hover:bg-gray-100"
+                    ? 'text-[#B0BEC5] hover:text-gray-300'
+                    : 'text-[#757575] hover:bg-gray-100'
                 }`}
               >
                 Cancel
@@ -3000,7 +3141,7 @@ const CustomerManagement = () => {
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />
-                {updatingCustomer ? "Saving..." : "Save Changes"}
+                {updatingCustomer ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>
@@ -3015,7 +3156,7 @@ const CustomerManagement = () => {
           >
             {/* Modal Header */}
             <div
-              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>
                 Contact History - {contactHistoryCustomer.name}
@@ -3032,7 +3173,7 @@ const CustomerManagement = () => {
             <div className="p-6">
               {/* Add New Contact Entry */}
               <div
-                className={`mb-8 pb-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+                className={`mb-8 pb-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
               >
                 <h3 className={`text-lg font-semibold mb-4 ${textPrimary}`}>
                   Add New Contact Entry
@@ -3138,54 +3279,54 @@ const CustomerManagement = () => {
                 </h3>
                 {contactHistoryCustomer.contactHistory &&
                 contactHistoryCustomer.contactHistory.length > 0 ? (
-                  <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {contactHistoryCustomer.contactHistory.map((contact) => (
-                      <div
-                        key={contact.id}
-                        className={`${cardClasses} p-4 hover:shadow-md transition-shadow`}
-                      >
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-[#008B8B]">
-                            {contact.type === "call" && (
-                              <FaPhone className="w-4 h-4" />
-                            )}
-                            {contact.type === "email" && (
-                              <FaEnvelope className="w-4 h-4" />
-                            )}
-                            {contact.type === "meeting" && (
-                              <FaCalendarAlt className="w-4 h-4" />
-                            )}
-                            {contact.type === "other" && (
-                              <FaExclamationTriangle className="w-4 h-4" />
-                            )}
-                            <span className="text-sm font-medium capitalize">
-                              {contact.type}
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {contactHistoryCustomer.contactHistory.map((contact) => (
+                        <div
+                          key={contact.id}
+                          className={`${cardClasses} p-4 hover:shadow-md transition-shadow`}
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-2 text-[#008B8B]">
+                              {contact.type === 'call' && (
+                                <FaPhone className="w-4 h-4" />
+                              )}
+                              {contact.type === 'email' && (
+                                <FaEnvelope className="w-4 h-4" />
+                              )}
+                              {contact.type === 'meeting' && (
+                                <FaCalendarAlt className="w-4 h-4" />
+                              )}
+                              {contact.type === 'other' && (
+                                <FaExclamationTriangle className="w-4 h-4" />
+                              )}
+                              <span className="text-sm font-medium capitalize">
+                                {contact.type}
+                              </span>
+                            </div>
+                            <span className={`text-sm ${textMuted}`}>
+                              {format(
+                                new Date(contact.contactDate),
+                                'MMM dd, yyyy',
+                              )}
                             </span>
                           </div>
-                          <span className={`text-sm ${textMuted}`}>
-                            {format(
-                              new Date(contact.contactDate),
-                              "MMM dd, yyyy",
-                            )}
-                          </span>
+                          <h4 className={`font-semibold mb-1 ${textPrimary}`}>
+                            {contact.subject}
+                          </h4>
+                          <p className={`text-sm ${textSecondary}`}>
+                            {contact.notes}
+                          </p>
                         </div>
-                        <h4 className={`font-semibold mb-1 ${textPrimary}`}>
-                          {contact.subject}
-                        </h4>
-                        <p className={`text-sm ${textSecondary}`}>
-                          {contact.notes}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FaHistory
-                      className={`mx-auto text-4xl mb-3 ${textMuted}`}
-                    />
-                    <p className={textMuted}>No contact history available</p>
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <FaHistory
+                        className={`mx-auto text-4xl mb-3 ${textMuted}`}
+                      />
+                      <p className={textMuted}>No contact history available</p>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
