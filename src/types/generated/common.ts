@@ -45,7 +45,7 @@ export interface PageRequest {
   /** Field to sort by */
   sortBy?: string;
   /** Sort order: 'asc' or 'desc' */
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 // ============================================
@@ -137,20 +137,20 @@ export interface AuditInfo {
 // ============================================
 
 export type Status =
-  | 'draft'
-  | 'pending'
-  | 'approved'
-  | 'rejected'
-  | 'active'
-  | 'inactive'
-  | 'completed'
-  | 'cancelled'
-  | 'issued'
-  | 'sent';
+  | "draft"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "active"
+  | "inactive"
+  | "completed"
+  | "cancelled"
+  | "issued"
+  | "sent";
 
 export type PaymentStatus =
-  | 'unpaid'
-  | 'partially_paid'
-  | 'paid'
-  | 'overdue'
-  | 'refunded';
+  | "unpaid"
+  | "partially_paid"
+  | "paid"
+  | "overdue"
+  | "refunded";

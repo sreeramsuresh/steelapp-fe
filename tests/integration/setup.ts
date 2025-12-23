@@ -7,7 +7,7 @@
  * Direct database writes are ONLY for "Given" (setup) steps
  */
 
-import pg from 'pg';
+import pg from "pg";
 
 const { Pool } = pg;
 
@@ -22,17 +22,17 @@ export async function setupDatabase() {
   try {
     // Create connection pool to cloud PostgreSQL
     pool = new Pool({
-      host: process.env.DB_HOST || '13.204.19.175',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'steelapp',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'R8kPz!2vAq#9LmT4eX7wB$hQ',
-      ssl: process.env.DB_SSL === 'true' ? true : false,
+      host: process.env.DB_HOST || "13.204.19.175",
+      port: parseInt(process.env.DB_PORT || "5432"),
+      database: process.env.DB_NAME || "steelapp",
+      user: process.env.DB_USER || "postgres",
+      password: process.env.DB_PASSWORD || "R8kPz!2vAq#9LmT4eX7wB$hQ",
+      ssl: process.env.DB_SSL === "true" ? true : false,
     });
 
     // Test connection
-    const result = await dbQuery('SELECT NOW() as now');
-    console.log('✓ Connected to cloud database:', result[0]?.now);
+    const result = await dbQuery("SELECT NOW() as now");
+    console.log("✓ Connected to cloud database:", result[0]?.now);
 
     // CRITICAL FIX #2: Verify schema exists
     const schemaCheck = await dbQuery(
@@ -40,17 +40,17 @@ export async function setupDatabase() {
     );
     if (!schemaCheck[0]?.exists) {
       throw new Error(
-        'SCHEMA VALIDATION FAILED: Database schema not found. Run migrations first.',
+        "SCHEMA VALIDATION FAILED: Database schema not found. Run migrations first.",
       );
     }
-    console.log('✓ Schema validation passed');
+    console.log("✓ Schema validation passed");
 
     // Initialize gRPC client for service calls
     await initializeGrpcClient();
-    console.log('✓ gRPC client initialized and ready');
+    console.log("✓ gRPC client initialized and ready");
   } catch (error) {
     console.error(
-      'FATAL: Failed to setup integration test environment:',
+      "FATAL: Failed to setup integration test environment:",
       error,
     );
     throw error;
@@ -64,14 +64,14 @@ export async function setupDatabase() {
 async function initializeGrpcClient() {
   try {
     // Import gRPC client helper
-    const { initGrpcClient } = await import('./grpc-client');
+    const { initGrpcClient } = await import("./grpc-client");
     grpcClient = await initGrpcClient();
   } catch (error) {
     console.warn(
-      '⚠️  gRPC client initialization failed:',
+      "⚠️  gRPC client initialization failed:",
       (error as Error).message,
     );
-    console.warn('Tests will attempt to continue without gRPC client');
+    console.warn("Tests will attempt to continue without gRPC client");
     // Don't throw - allow tests to run in degraded mode
   }
 }
@@ -83,21 +83,21 @@ async function initializeGrpcClient() {
 export async function cleanDatabase() {
   // Business tables (transient data) - truncate these
   const businessTables = [
-    'journal_entries',
-    'ar_ledger',
-    'allocation_details',
-    'stock_movements',
-    'batches',
-    'delivery_note_items',
-    'delivery_notes',
-    'invoice_items',
-    'invoices',
-    'purchase_order_items',
-    'purchase_orders',
-    'vendor_bills',
-    'customers',
-    'suppliers',
-    'companies',
+    "journal_entries",
+    "ar_ledger",
+    "allocation_details",
+    "stock_movements",
+    "batches",
+    "delivery_note_items",
+    "delivery_notes",
+    "invoice_items",
+    "invoices",
+    "purchase_order_items",
+    "purchase_orders",
+    "vendor_bills",
+    "customers",
+    "suppliers",
+    "companies",
   ];
 
   // Reference tables (preserve across tests) - DO NOT truncate
@@ -123,13 +123,13 @@ export async function cleanDatabase() {
  */
 export async function dbQuery(sql: string, params: unknown[] = []) {
   if (!pool) {
-    throw new Error('Database not initialized - call setupDatabase() first');
+    throw new Error("Database not initialized - call setupDatabase() first");
   }
   try {
     const result = await pool.query(sql, params);
     return result.rows;
   } catch (error) {
-    console.error('Database query error:', { sql, params, error });
+    console.error("Database query error:", { sql, params, error });
     throw error;
   }
 }
@@ -141,14 +141,14 @@ export async function dbQuery(sql: string, params: unknown[] = []) {
 export async function transaction(
   fn: (client: pg.PoolClient) => Promise<void>,
 ) {
-  if (!pool) throw new Error('Database not initialized');
+  if (!pool) throw new Error("Database not initialized");
   const client = await pool.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
     await fn(client);
-    await client.query('COMMIT');
+    await client.query("COMMIT");
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     throw error;
   } finally {
     client.release();
@@ -163,6 +163,6 @@ export async function teardownDatabase() {
   if (pool) {
     await pool.end();
     pool = null;
-    console.log('✓ Database pool closed');
+    console.log("✓ Database pool closed");
   }
 }

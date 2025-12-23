@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { inventoryService } from '../services/inventoryService';
+import { useState, useCallback } from "react";
+import { inventoryService } from "../services/inventoryService";
 
 /**
  * Hook for validating stock availability before form submission
@@ -41,7 +41,7 @@ export function useStockValidation() {
             available: false,
             quantityAvailable: 0,
             shortfall: quantity,
-            message: 'Product not found in warehouse',
+            message: "Product not found in warehouse",
           };
         }
 
@@ -69,12 +69,12 @@ export function useStockValidation() {
             : `Insufficient stock. ${shortfall} ${unit} short`,
         };
       } catch (err) {
-        setError(err.message || 'Failed to check stock availability');
+        setError(err.message || "Failed to check stock availability");
         return {
           available: false,
           quantityAvailable: 0,
           shortfall: quantity,
-          message: 'Error checking availability',
+          message: "Error checking availability",
         };
       } finally {
         setLoading(false);
@@ -106,12 +106,12 @@ export function useStockValidation() {
           return {
             compatible: false,
             stockUnit: null,
-            message: 'Product not found in inventory',
+            message: "Product not found in inventory",
           };
         }
 
         // Get the unit from the first inventory item
-        const stockUnit = items[0]?.unit || 'KG';
+        const stockUnit = items[0]?.unit || "KG";
 
         // Check if units are compatible (same or convertible)
         const compatible = isUnitCompatible(stockUnit, requestedUnit);
@@ -121,15 +121,15 @@ export function useStockValidation() {
           stockUnit,
           requestedUnit,
           message: compatible
-            ? 'Units are compatible'
+            ? "Units are compatible"
             : `Unit mismatch: Stock is in ${stockUnit}, requested ${requestedUnit}`,
         };
       } catch (err) {
-        setError(err.message || 'Failed to validate UOM compatibility');
+        setError(err.message || "Failed to validate UOM compatibility");
         return {
           compatible: false,
           stockUnit: null,
-          message: 'Error validating compatibility',
+          message: "Error validating compatibility",
         };
       } finally {
         setLoading(false);
@@ -163,11 +163,11 @@ export function useStockValidation() {
             convertedQuantity: quantity,
             toUnit: fromUnit,
             conversionRate: 1,
-            message: 'No conversion available',
+            message: "No conversion available",
           };
         }
 
-        const stockUnit = items[0]?.unit || 'KG';
+        const stockUnit = items[0]?.unit || "KG";
 
         // Calculate conversion
         const conversion = convertUnits(quantity, fromUnit, stockUnit);
@@ -180,12 +180,12 @@ export function useStockValidation() {
           message: `${quantity} ${fromUnit} = ${conversion.quantity} ${stockUnit}`,
         };
       } catch (err) {
-        setError(err.message || 'Failed to get conversion preview');
+        setError(err.message || "Failed to get conversion preview");
         return {
           convertedQuantity: quantity,
           toUnit: fromUnit,
           conversionRate: 1,
-          message: 'Error calculating conversion',
+          message: "Error calculating conversion",
         };
       } finally {
         setLoading(false);
@@ -207,7 +207,7 @@ export function useStockValidation() {
         productId,
         warehouseId,
         quantity,
-        'KG',
+        "KG",
       );
 
       if (!result.available) {
@@ -240,11 +240,11 @@ function isUnitCompatible(unit1, unit2) {
   if (unit1 === unit2) return true;
 
   // Weight units are compatible
-  const weightUnits = ['KG', 'MT', 'LB', 'TON'];
+  const weightUnits = ["KG", "MT", "LB", "TON"];
   if (weightUnits.includes(unit1) && weightUnits.includes(unit2)) return true;
 
   // Length units are compatible
-  const lengthUnits = ['MM', 'M', 'FT', 'INCH'];
+  const lengthUnits = ["MM", "M", "FT", "INCH"];
   if (lengthUnits.includes(unit1) && lengthUnits.includes(unit2)) return true;
 
   return false;

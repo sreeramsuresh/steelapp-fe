@@ -4,7 +4,7 @@
  * Uses PostgreSQL MCP tool via setup.dbQuery()
  */
 
-import { dbQuery } from '../setup';
+import { dbQuery } from "../setup";
 
 /**
  * Get invoice by ID with calculated totals

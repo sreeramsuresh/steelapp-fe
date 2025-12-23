@@ -15,14 +15,14 @@
  * - Products: WIRED (via productService)
  */
 
-import { analyticsService } from './analyticsService';
-import { invoiceService } from './invoiceService';
-import { inventoryService } from './inventoryService';
-import { customerService } from './customerService';
-import { productService } from './productService';
-import { commissionService } from './commissionService';
-import { vatService } from './vatService';
-import { warehouseService } from './warehouseService';
+import { analyticsService } from "./analyticsService";
+import { invoiceService } from "./invoiceService";
+import { inventoryService } from "./inventoryService";
+import { customerService } from "./customerService";
+import { productService } from "./productService";
+import { commissionService } from "./commissionService";
+import { vatService } from "./vatService";
+import { warehouseService } from "./warehouseService";
 
 const PREFETCH_DELAY_MS = 1000; // 1 second delay before prefetching adjacent tabs
 
@@ -69,12 +69,12 @@ const prefetchAdjacentTabs = (currentTab) => {
   // Delay prefetch to not compete with current tab's data loading
   prefetchTimeout = setTimeout(() => {
     const tabOrder = [
-      'overview',
-      'products',
-      'agents',
-      'inventory',
-      'vat',
-      'customers',
+      "overview",
+      "products",
+      "agents",
+      "inventory",
+      "vat",
+      "customers",
     ];
     const currentIndex = tabOrder.indexOf(currentTab);
 
@@ -88,22 +88,22 @@ const prefetchAdjacentTabs = (currentTab) => {
     adjacentIndices.forEach((index) => {
       const tab = tabOrder[index];
       switch (tab) {
-        case 'overview':
+        case "overview":
           dashboardService.getDashboardMetrics().catch(() => {});
           break;
-        case 'products':
+        case "products":
           dashboardService.getProductAnalytics().catch(() => {});
           break;
-        case 'agents':
+        case "agents":
           dashboardService.getAgentPerformance().catch(() => {});
           break;
-        case 'inventory':
+        case "inventory":
           dashboardService.getInventoryHealth().catch(() => {});
           break;
-        case 'vat':
+        case "vat":
           dashboardService.getVATMetrics().catch(() => {});
           break;
-        case 'customers':
+        case "customers":
           dashboardService.getCustomerInsights().catch(() => {});
           break;
       }
@@ -131,7 +131,7 @@ const _createWidgetData = (data, options = {}) => ({
     // When data was fetched
     fetchedAt: options.fetchedAt || new Date().toISOString(),
     // Data source (api, cache, mock)
-    source: options.source || 'api',
+    source: options.source || "api",
   },
 });
 
@@ -169,42 +169,42 @@ export const dashboardService = {
       ] = await Promise.all([
         analyticsService.getDashboardData().catch((err) => {
           console.warn(
-            '[dashboardService] getDashboardData failed:',
+            "[dashboardService] getDashboardData failed:",
             err.message,
           );
           return {};
         }),
         analyticsService.getARAgingBuckets().catch((err) => {
           console.warn(
-            '[dashboardService] getARAgingBuckets failed:',
+            "[dashboardService] getARAgingBuckets failed:",
             err.message,
           );
           return null;
         }),
         analyticsService.getRevenueTrend(12).catch((err) => {
           console.warn(
-            '[dashboardService] getRevenueTrend failed:',
+            "[dashboardService] getRevenueTrend failed:",
             err.message,
           );
           return null;
         }),
         analyticsService.getDashboardKPIs().catch((err) => {
           console.warn(
-            '[dashboardService] getDashboardKPIs failed:',
+            "[dashboardService] getDashboardKPIs failed:",
             err.message,
           );
           return null;
         }),
         invoiceService.getInvoices({ limit: 1 }).catch((err) => {
-          console.warn('[dashboardService] getInvoices failed:', err.message);
+          console.warn("[dashboardService] getInvoices failed:", err.message);
           return { pagination: { total: 0 } };
         }),
         customerService.getCustomers({ limit: 1 }).catch((err) => {
-          console.warn('[dashboardService] getCustomers failed:', err.message);
+          console.warn("[dashboardService] getCustomers failed:", err.message);
           return { pagination: { total: 0 }, customers: [] };
         }),
         productService.getProducts({ limit: 1 }).catch((err) => {
-          console.warn('[dashboardService] getProducts failed:', err.message);
+          console.warn("[dashboardService] getProducts failed:", err.message);
           return { pagination: { total: 0 }, products: [] };
         }),
       ]);
@@ -269,25 +269,25 @@ export const dashboardService = {
         // KPIs from dedicated endpoint
         kpis: dashboardKPIs
           ? {
-            grossMargin:
+              grossMargin:
                 parseFloat(
                   dashboardKPIs.gross_margin_percent ||
                     dashboardKPIs.grossMarginPercent,
                 ) || 0,
-            dso:
+              dso:
                 parseFloat(dashboardKPIs.dso_days || dashboardKPIs.dsoDays) ||
                 0,
-            creditUtilization:
+              creditUtilization:
                 parseFloat(
                   dashboardKPIs.credit_utilization_percent ||
                     dashboardKPIs.creditUtilizationPercent,
                 ) || 0,
-          }
+            }
           : {
-            grossMargin: 0,
-            dso: 0,
-            creditUtilization: 0,
-          },
+              grossMargin: 0,
+              dso: 0,
+              creditUtilization: 0,
+            },
 
         // AR Aging buckets
         arAging: arAgingData,
@@ -298,13 +298,13 @@ export const dashboardService = {
         // Top Products
         topProducts: Array.isArray(dashboardData?.topProducts)
           ? dashboardData.topProducts.slice(0, 5).map((p) => ({
-            id: p.id,
-            name: p.name,
-            displayName: p.displayName || p.name,
-            category: p.category,
-            sales: safeNum(p.totalSold),
-            revenue: safeNum(p.totalRevenue),
-          }))
+              id: p.id,
+              name: p.name,
+              displayName: p.displayName || p.name,
+              category: p.category,
+              sales: safeNum(p.totalSold),
+              revenue: safeNum(p.totalRevenue),
+            }))
           : [],
 
         // Indicate real data was used
@@ -319,7 +319,7 @@ export const dashboardService = {
       return metrics;
     } catch (error) {
       console.error(
-        '[dashboardService] Error fetching dashboard metrics:',
+        "[dashboardService] Error fetching dashboard metrics:",
         error,
       );
 
@@ -363,18 +363,18 @@ export const dashboardService = {
         await Promise.all([
           analyticsService.getProductPerformance().catch((err) => {
             console.warn(
-              '[dashboardService] getProductPerformance failed:',
+              "[dashboardService] getProductPerformance failed:",
               err.message,
             );
             return {};
           }),
           productService.getProducts({ limit: 100 }).catch((err) => {
-            console.warn('[dashboardService] getProducts failed:', err.message);
+            console.warn("[dashboardService] getProducts failed:", err.message);
             return { products: [] };
           }),
           inventoryService.getInventorySummary().catch((err) => {
             console.warn(
-              '[dashboardService] getInventorySummary failed:',
+              "[dashboardService] getInventorySummary failed:",
               err.message,
             );
             return {};
@@ -391,34 +391,34 @@ export const dashboardService = {
       // Process top products from analytics or build from product list
       const topProducts = Array.isArray(productPerformance?.products)
         ? productPerformance.products.slice(0, 10).map((p) => ({
-          id: p.id || p.productId || p.product_id,
-          name: p.name || p.productName || p.product_name,
-          displayName: p.displayName || p.name || p.productName,
-          category: p.category,
-          grade: p.grade,
-          totalSold: safeNum(
-            p.totalSold || p.quantitySold || p.quantity_sold,
-          ),
-          totalRevenue: safeNum(p.totalRevenue || p.revenue),
-          avgPrice: safeNum(p.avgPrice || p.averagePrice),
-          margin: safeNum(p.margin || p.marginPercent || p.margin_percent),
-        }))
+            id: p.id || p.productId || p.product_id,
+            name: p.name || p.productName || p.product_name,
+            displayName: p.displayName || p.name || p.productName,
+            category: p.category,
+            grade: p.grade,
+            totalSold: safeNum(
+              p.totalSold || p.quantitySold || p.quantity_sold,
+            ),
+            totalRevenue: safeNum(p.totalRevenue || p.revenue),
+            avgPrice: safeNum(p.avgPrice || p.averagePrice),
+            margin: safeNum(p.margin || p.marginPercent || p.margin_percent),
+          }))
         : products.slice(0, 10).map((p) => ({
-          id: p.id,
-          name: p.name || p.displayName,
-          displayName: p.displayName || p.name,
-          category: p.category || p.productType,
-          grade: p.grade,
-          totalSold: 0,
-          totalRevenue: 0,
-          avgPrice: safeNum(p.sellingPrice || p.price),
-          margin: 0,
-        }));
+            id: p.id,
+            name: p.name || p.displayName,
+            displayName: p.displayName || p.name,
+            category: p.category || p.productType,
+            grade: p.grade,
+            totalSold: 0,
+            totalRevenue: 0,
+            avgPrice: safeNum(p.sellingPrice || p.price),
+            margin: 0,
+          }));
 
       // Category performance aggregation
       const categoryPerformance = {};
       topProducts.forEach((p) => {
-        const cat = p.category || 'Uncategorized';
+        const cat = p.category || "Uncategorized";
         if (!categoryPerformance[cat]) {
           categoryPerformance[cat] = {
             name: cat,
@@ -439,7 +439,7 @@ export const dashboardService = {
         : products;
 
       allProducts.forEach((p) => {
-        const grade = p.grade || 'Unknown';
+        const grade = p.grade || "Unknown";
         if (!gradeMap[grade]) {
           gradeMap[grade] = {
             grade,
@@ -494,7 +494,7 @@ export const dashboardService = {
       return analytics;
     } catch (error) {
       console.error(
-        '[dashboardService] Error fetching product analytics:',
+        "[dashboardService] Error fetching product analytics:",
         error,
       );
 
@@ -530,23 +530,23 @@ export const dashboardService = {
         await Promise.all([
           commissionService.getDashboard().catch((err) => {
             console.warn(
-              '[dashboardService] getCommissionDashboard failed:',
+              "[dashboardService] getCommissionDashboard failed:",
               err.message,
             );
             return {};
           }),
           commissionService.getAgents().catch((err) => {
             console.warn(
-              '[dashboardService] getCommissionAgents failed:',
+              "[dashboardService] getCommissionAgents failed:",
               err.message,
             );
             return { agents: [] };
           }),
           commissionService
-            .getTransactions({ status: 'pending' })
+            .getTransactions({ status: "pending" })
             .catch((err) => {
               console.warn(
-                '[dashboardService] getCommissionTransactions failed:',
+                "[dashboardService] getCommissionTransactions failed:",
                 err.message,
               );
               return { transactions: [], summary: {} };
@@ -569,7 +569,7 @@ export const dashboardService = {
         }
         const amount = safeNum(tx.commissionAmount || tx.commission_amount);
         agentTransactionMap[agentId].totalCommission += amount;
-        if (tx.status === 'pending') {
+        if (tx.status === "pending") {
           agentTransactionMap[agentId].pendingCommission += amount;
         }
         agentTransactionMap[agentId].dealCount += 1;
@@ -586,11 +586,11 @@ export const dashboardService = {
 
         return {
           id: agentId,
-          name: agent.userName || agent.user_name || 'Unknown Agent',
-          email: agent.userEmail || agent.user_email || '',
+          name: agent.userName || agent.user_name || "Unknown Agent",
+          email: agent.userEmail || agent.user_email || "",
           avatar: null,
           rank: index + 1,
-          planName: agent.planName || agent.plan_name || 'No Plan',
+          planName: agent.planName || agent.plan_name || "No Plan",
           commissionRate: safeNum(agent.baseRate || agent.base_rate),
           isActive: agent.isActive !== false && agent.is_active !== false,
           // Commission metrics
@@ -669,7 +669,7 @@ export const dashboardService = {
       return performance;
     } catch (error) {
       console.error(
-        '[dashboardService] Error fetching agent performance:',
+        "[dashboardService] Error fetching agent performance:",
         error,
       );
 
@@ -709,21 +709,21 @@ export const dashboardService = {
         await Promise.all([
           inventoryService.getInventorySummary().catch((err) => {
             console.warn(
-              '[dashboardService] getInventorySummary failed:',
+              "[dashboardService] getInventorySummary failed:",
               err.message,
             );
             return {};
           }),
           inventoryService.getLowStockItems().catch((err) => {
             console.warn(
-              '[dashboardService] getLowStockItems failed:',
+              "[dashboardService] getLowStockItems failed:",
               err.message,
             );
             return [];
           }),
           analyticsService.getInventoryInsights().catch((err) => {
             console.warn(
-              '[dashboardService] getInventoryInsights failed:',
+              "[dashboardService] getInventoryInsights failed:",
               err.message,
             );
             return {};
@@ -770,7 +770,7 @@ export const dashboardService = {
       return health;
     } catch (error) {
       console.error(
-        '[dashboardService] Error fetching inventory health:',
+        "[dashboardService] Error fetching inventory health:",
         error,
       );
       throw error;
@@ -795,7 +795,7 @@ export const dashboardService = {
         .getVATDashboardMetrics()
         .catch((err) => {
           console.warn(
-            '[dashboardService] getVATDashboardMetrics failed:',
+            "[dashboardService] getVATDashboardMetrics failed:",
             err.message,
           );
           return null;
@@ -818,13 +818,13 @@ export const dashboardService = {
       // Fetch invoices for current quarter
       const invoiceResponse = await invoiceService
         .getInvoices({
-          start_date: quarterStart.toISOString().split('T')[0],
-          end_date: quarterEnd.toISOString().split('T')[0],
+          start_date: quarterStart.toISOString().split("T")[0],
+          end_date: quarterEnd.toISOString().split("T")[0],
           limit: 500,
         })
         .catch((err) => {
           console.warn(
-            '[dashboardService] getInvoices for VAT failed:',
+            "[dashboardService] getInvoices for VAT failed:",
             err.message,
           );
           return { invoices: [] };
@@ -871,7 +871,7 @@ export const dashboardService = {
           adjustments: 0,
         },
         returnStatus: {
-          status: 'pending',
+          status: "pending",
           dueDate: new Date(
             currentYear,
             currentQuarter * 3 + 1,
@@ -908,23 +908,23 @@ export const dashboardService = {
       const daysUntilDue = vatData.returnStatus.daysRemaining;
       if (daysUntilDue <= 15 && daysUntilDue > 0) {
         vatData.alerts.push({
-          type: 'warning',
+          type: "warning",
           message: `VAT return due in ${daysUntilDue} days`,
-          severity: daysUntilDue <= 7 ? 'high' : 'medium',
+          severity: daysUntilDue <= 7 ? "high" : "medium",
         });
       }
 
       if (invoicesWithoutVAT > 0) {
         vatData.alerts.push({
-          type: 'info',
+          type: "info",
           message: `${invoicesWithoutVAT} invoice(s) without VAT this quarter`,
-          severity: 'low',
+          severity: "low",
         });
       }
       // console.log('[dashboardService] VAT metrics calculated from', invoices.length, 'invoices');
       return vatData;
     } catch (error) {
-      console.error('[dashboardService] Error fetching VAT metrics:', error);
+      console.error("[dashboardService] Error fetching VAT metrics:", error);
 
       // Return empty structure
       const currentDate = new Date();
@@ -949,7 +949,7 @@ export const dashboardService = {
           adjustments: 0,
         },
         returnStatus: {
-          status: 'unknown',
+          status: "unknown",
           dueDate: null,
           daysRemaining: 0,
           filedDate: null,
@@ -986,23 +986,23 @@ export const dashboardService = {
         await Promise.all([
           analyticsService.getCustomerAnalysis().catch((err) => {
             console.warn(
-              '[dashboardService] getCustomerAnalysis failed:',
+              "[dashboardService] getCustomerAnalysis failed:",
               err.message,
             );
             return {};
           }),
           customerService
-            .getCustomers({ limit: 100, status: 'active' })
+            .getCustomers({ limit: 100, status: "active" })
             .catch((err) => {
               console.warn(
-                '[dashboardService] getCustomers failed:',
+                "[dashboardService] getCustomers failed:",
                 err.message,
               );
               return { customers: [] };
             }),
           invoiceService.getInvoices({ limit: 200 }).catch((err) => {
             console.warn(
-              '[dashboardService] getInvoices for customers failed:',
+              "[dashboardService] getInvoices for customers failed:",
               err.message,
             );
             return { invoices: [] };
@@ -1110,11 +1110,11 @@ export const dashboardService = {
         if (invoiceCount === 0) riskScore += 20;
 
         // Segment based on revenue and activity
-        let segment = 'Standard';
+        let segment = "Standard";
         if (history.totalRevenue > 500000 && daysInactive < 30) {
-          segment = 'Premium';
+          segment = "Premium";
         } else if (invoiceCount <= 2 || daysInactive < 60) {
-          segment = 'New';
+          segment = "New";
         }
 
         return {
@@ -1123,7 +1123,7 @@ export const dashboardService = {
             customer.name ||
             customer.companyName ||
             customer.company_name ||
-            'Unknown',
+            "Unknown",
           email: customer.email,
           phone: customer.phone,
           totalRevenue: Math.round(history.totalRevenue),
@@ -1151,13 +1151,13 @@ export const dashboardService = {
       const atRiskCustomers = enrichedCustomers
         .filter((c) => c.riskScore > 50)
         .map((c) => {
-          let riskReason = 'Multiple risk factors';
+          let riskReason = "Multiple risk factors";
           if (c.daysInactive > 60) {
             riskReason = `No orders in ${c.daysInactive} days`;
           } else if (c.outstanding > 0 && c.outstanding > c.avgOrderValue) {
-            riskReason = 'Significant payment overdue';
+            riskReason = "Significant payment overdue";
           } else if (c.invoiceCount <= 1) {
-            riskReason = 'New customer - needs engagement';
+            riskReason = "New customer - needs engagement";
           }
           return { ...c, riskReason };
         })
@@ -1166,11 +1166,11 @@ export const dashboardService = {
 
       // Segment counts
       const segments = {
-        premium: enrichedCustomers.filter((c) => c.segment === 'Premium')
+        premium: enrichedCustomers.filter((c) => c.segment === "Premium")
           .length,
-        standard: enrichedCustomers.filter((c) => c.segment === 'Standard')
+        standard: enrichedCustomers.filter((c) => c.segment === "Standard")
           .length,
-        new: enrichedCustomers.filter((c) => c.segment === 'New').length,
+        new: enrichedCustomers.filter((c) => c.segment === "New").length,
       };
 
       // New customers this month
@@ -1212,7 +1212,7 @@ export const dashboardService = {
       return result;
     } catch (error) {
       console.error(
-        '[dashboardService] Error fetching customer insights:',
+        "[dashboardService] Error fetching customer insights:",
         error,
       );
 
@@ -1271,10 +1271,10 @@ export const dashboardService = {
         trend: response?.trend || [],
         previousPeriod: response?.previous_period ||
           response?.previousPeriod || {
-          revenue: 0,
-          grossProfit: 0,
-          netProfit: 0,
-        },
+            revenue: 0,
+            grossProfit: 0,
+            netProfit: 0,
+          },
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
@@ -1298,7 +1298,7 @@ export const dashboardService = {
       // console.log('[dashboardService] Net profit fetched successfully');
       return netProfitData;
     } catch (error) {
-      console.error('[dashboardService] Error fetching net profit:', error);
+      console.error("[dashboardService] Error fetching net profit:", error);
 
       // Return empty structure
       return {
@@ -1358,7 +1358,7 @@ export const dashboardService = {
       // console.log('[dashboardService] AP aging fetched successfully');
       return apAgingData;
     } catch (error) {
-      console.error('[dashboardService] Error fetching AP aging:', error);
+      console.error("[dashboardService] Error fetching AP aging:", error);
 
       // Return empty structure
       return {
@@ -1425,7 +1425,7 @@ export const dashboardService = {
       // console.log('[dashboardService] Cash flow fetched successfully');
       return cashFlowData;
     } catch (error) {
-      console.error('[dashboardService] Error fetching cash flow:', error);
+      console.error("[dashboardService] Error fetching cash flow:", error);
 
       // Return empty structure
       const emptyPeriod = {
@@ -1463,7 +1463,7 @@ export const dashboardService = {
       const now = new Date();
       for (let i = 5; i >= 0; i--) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        months.push(d.toLocaleString('default', { month: 'short' }));
+        months.push(d.toLocaleString("default", { month: "short" }));
       }
 
       // Transform API response to widget-expected format
@@ -1511,9 +1511,9 @@ export const dashboardService = {
           0,
         cogs: safeNum(response?.cogs),
         bestPerformer:
-          response?.best_performer || response?.bestPerformer || '',
+          response?.best_performer || response?.bestPerformer || "",
         worstPerformer:
-          response?.worst_performer || response?.worstPerformer || '',
+          response?.worst_performer || response?.worstPerformer || "",
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
@@ -1528,14 +1528,14 @@ export const dashboardService = {
           const avgB = b.data.reduce((s, v) => s + v, 0) / b.data.length;
           return avgB - avgA;
         });
-        stockTurnoverData.bestPerformer = sorted[0]?.name || '';
+        stockTurnoverData.bestPerformer = sorted[0]?.name || "";
         stockTurnoverData.worstPerformer =
-          sorted[sorted.length - 1]?.name || '';
+          sorted[sorted.length - 1]?.name || "";
       }
       // console.log('[dashboardService] Stock turnover fetched successfully');
       return stockTurnoverData;
     } catch (error) {
-      console.error('[dashboardService] Error fetching stock turnover:', error);
+      console.error("[dashboardService] Error fetching stock turnover:", error);
 
       // Return empty structure
       return {
@@ -1545,8 +1545,8 @@ export const dashboardService = {
         avgTurnover: 0,
         daysOfInventory: 0,
         cogs: 0,
-        bestPerformer: '',
-        worstPerformer: '',
+        bestPerformer: "",
+        worstPerformer: "",
         isMockData: true,
         fetchedAt: new Date().toISOString(),
       };
@@ -1572,7 +1572,7 @@ export const dashboardService = {
           id: w.id,
           name: w.name,
           code: w.code,
-          city: w.city || 'Unknown',
+          city: w.city || "Unknown",
           capacity: safeNum(w.capacity),
           used: safeNum(w.inventoryCount || 0),
           utilization: safeNum(w.utilizationPercent || 0),
@@ -1580,12 +1580,12 @@ export const dashboardService = {
           items: parseInt(w.inventoryCount) || 0,
           status:
             w.utilizationPercent >= 90
-              ? 'critical'
+              ? "critical"
               : w.utilizationPercent >= 75
-                ? 'high'
+                ? "high"
                 : w.utilizationPercent >= 50
-                  ? 'optimal'
-                  : 'low',
+                  ? "optimal"
+                  : "low",
         })),
         transfers: [], // Would need transfer data
         summary: {
@@ -1600,9 +1600,9 @@ export const dashboardService = {
           avgUtilization:
             warehouses.length > 0
               ? warehouses.reduce(
-                (sum, w) => sum + safeNum(w.utilizationPercent || 0),
-                0,
-              ) / warehouses.length
+                  (sum, w) => sum + safeNum(w.utilizationPercent || 0),
+                  0,
+                ) / warehouses.length
               : 0,
           totalValue: 0, // Would need inventory value data
         },
@@ -1613,7 +1613,7 @@ export const dashboardService = {
       return warehouseData;
     } catch (error) {
       console.error(
-        '[dashboardService] Error fetching warehouse utilization:',
+        "[dashboardService] Error fetching warehouse utilization:",
         error,
       );
 
@@ -1664,17 +1664,17 @@ export const dashboardService = {
    */
   async getTabData(tabName, options = {}) {
     switch (tabName) {
-      case 'overview':
+      case "overview":
         return this.getDashboardMetrics(options);
-      case 'products':
+      case "products":
         return this.getProductAnalytics(options);
-      case 'agents':
+      case "agents":
         return this.getAgentPerformance(options);
-      case 'inventory':
+      case "inventory":
         return this.getInventoryHealth(options);
-      case 'vat':
+      case "vat":
         return this.getVATMetrics(options);
-      case 'customers':
+      case "customers":
         return this.getCustomerInsights(options);
       default:
         throw new Error(`Unknown tab: ${tabName}`);

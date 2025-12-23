@@ -19,8 +19,8 @@
  * ```
  */
 
-import { screen, within, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen, within, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 /**
  * Find button by semantic role and accessible name
@@ -46,10 +46,10 @@ export function findButtonByRole(name, options = {}) {
     disabled = null,
     throwError = true,
   } = options;
-  const nameRegex = name instanceof RegExp ? name : new RegExp(name, 'i');
+  const nameRegex = name instanceof RegExp ? name : new RegExp(name, "i");
 
   try {
-    const buttons = container.getAllByRole('button', { name: nameRegex });
+    const buttons = container.getAllByRole("button", { name: nameRegex });
 
     if (buttons.length === 0) {
       throw new Error(`Button with name "${name}" not found`);
@@ -67,7 +67,7 @@ export function findButtonByRole(name, options = {}) {
 
     if (filtered.length === 0) {
       throw new Error(
-        `Button with name "${name}"${variant ? ` and variant "${variant}"` : ''}${disabled !== null ? ` with disabled=${disabled}` : ''} not found`,
+        `Button with name "${name}"${variant ? ` and variant "${variant}"` : ""}${disabled !== null ? ` with disabled=${disabled}` : ""} not found`,
       );
     }
 
@@ -90,10 +90,10 @@ export function findButtonByRole(name, options = {}) {
 export function findAllButtons(options = {}) {
   const { within: container = screen, name = null } = options;
 
-  let buttons = container.queryAllByRole('button');
+  let buttons = container.queryAllByRole("button");
 
   if (name) {
-    const regex = name instanceof RegExp ? name : new RegExp(name, 'i');
+    const regex = name instanceof RegExp ? name : new RegExp(name, "i");
     buttons = buttons.filter((btn) => regex.test(btn.textContent));
   }
 
@@ -113,7 +113,7 @@ export function findAllButtons(options = {}) {
  */
 export async function clickButton(button, options = {}) {
   if (!button) {
-    throw new Error('clickButton: button element is required');
+    throw new Error("clickButton: button element is required");
   }
 
   await userEvent.click(button, options);
@@ -137,11 +137,11 @@ export async function clickAndWait(button, options = {}) {
   const { waitFor: assertion, timeout = 5000 } = options;
 
   if (!button) {
-    throw new Error('clickAndWait: button element is required');
+    throw new Error("clickAndWait: button element is required");
   }
 
   if (!assertion) {
-    throw new Error('clickAndWait: waitFor assertion function is required');
+    throw new Error("clickAndWait: waitFor assertion function is required");
   }
 
   await clickButton(button);
@@ -176,7 +176,7 @@ export function isButtonEnabled(button) {
  */
 export function assertButtonEnabled(button, message) {
   if (!button) {
-    throw new Error('assertButtonEnabled: button element is required');
+    throw new Error("assertButtonEnabled: button element is required");
   }
 
   if (button.disabled) {
@@ -198,7 +198,7 @@ export function assertButtonEnabled(button, message) {
  */
 export function assertButtonDisabled(button, message) {
   if (!button) {
-    throw new Error('assertButtonDisabled: button element is required');
+    throw new Error("assertButtonDisabled: button element is required");
   }
 
   if (!button.disabled) {
@@ -226,7 +226,7 @@ export function isButtonLoading(button) {
   }
 
   // Check for aria-busy attribute
-  if (button.getAttribute('aria-busy') === 'true') {
+  if (button.getAttribute("aria-busy") === "true") {
     return true;
   }
 
@@ -290,7 +290,7 @@ export function getButtonLoadingState(button) {
 export function findButtonInGroup(groupText, buttonName, container = screen) {
   // Find the group/row element
   const groupElement = container
-    .getByText(new RegExp(groupText, 'i'))
+    .getByText(new RegExp(groupText, "i"))
     .closest('tr, li, div[role="article"]');
 
   if (!groupElement) {
@@ -298,8 +298,8 @@ export function findButtonInGroup(groupText, buttonName, container = screen) {
   }
 
   // Find button within that group
-  return within(groupElement).getByRole('button', {
-    name: new RegExp(buttonName, 'i'),
+  return within(groupElement).getByRole("button", {
+    name: new RegExp(buttonName, "i"),
   });
 }
 
@@ -315,7 +315,7 @@ export function findButtonInGroup(groupText, buttonName, container = screen) {
  */
 export async function waitForButtonEnabled(button, timeout = 5000) {
   if (!button) {
-    throw new Error('waitForButtonEnabled: button element is required');
+    throw new Error("waitForButtonEnabled: button element is required");
   }
 
   return waitFor(() => assertButtonEnabled(button), { timeout });
@@ -333,7 +333,7 @@ export async function waitForButtonEnabled(button, timeout = 5000) {
  */
 export async function waitForButtonDisabled(button, timeout = 5000) {
   if (!button) {
-    throw new Error('waitForButtonDisabled: button element is required');
+    throw new Error("waitForButtonDisabled: button element is required");
   }
 
   return waitFor(() => assertButtonDisabled(button), { timeout });
@@ -349,7 +349,7 @@ export async function waitForButtonDisabled(button, timeout = 5000) {
  */
 export async function doubleClickButton(button) {
   if (!button) {
-    throw new Error('doubleClickButton: button element is required');
+    throw new Error("doubleClickButton: button element is required");
   }
 
   await userEvent.dblClick(button);
@@ -365,20 +365,20 @@ export async function doubleClickButton(button) {
  * console.log(variant); // "destructive"
  */
 export function getButtonVariant(button) {
-  if (!button) return 'default';
+  if (!button) return "default";
 
   // Check for data-variant attribute
-  const dataVariant = button.getAttribute('data-variant');
+  const dataVariant = button.getAttribute("data-variant");
   if (dataVariant) return dataVariant;
 
   // Check for shadcn variants in className
   const shadcnVariants = [
-    'default',
-    'destructive',
-    'outline',
-    'secondary',
-    'ghost',
-    'link',
+    "default",
+    "destructive",
+    "outline",
+    "secondary",
+    "ghost",
+    "link",
   ];
   const matchedVariant = shadcnVariants.find((v) =>
     button.className.includes(v),
@@ -395,5 +395,5 @@ export function getButtonVariant(button) {
   );
   if (singleWordMatch) return singleWordMatch[1];
 
-  return 'default';
+  return "default";
 }

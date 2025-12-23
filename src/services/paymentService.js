@@ -33,10 +33,10 @@ export const createPaymentPayload = ({
   amount,
   paymentMethod,
   paymentDate,
-  referenceNumber = '',
-  notes = '',
+  referenceNumber = "",
+  notes = "",
   // Phase 1: Multi-currency fields
-  currency = 'AED',
+  currency = "AED",
   exchangeRate = 1.0,
   amountInAed = null,
 }) => ({
@@ -47,9 +47,9 @@ export const createPaymentPayload = ({
   notes,
   // Phase 1: Multi-currency fields for FX tracking
   currency,
-  exchangeRate: currency === 'AED' ? 1.0 : Number(exchangeRate),
+  exchangeRate: currency === "AED" ? 1.0 : Number(exchangeRate),
   amountInAed:
-    currency === 'AED'
+    currency === "AED"
       ? Number(amount)
       : (amountInAed ?? Number(amount) * Number(exchangeRate)),
 });
@@ -59,18 +59,18 @@ export const createPaymentPayload = ({
  * Values match what API Gateway expects (will be converted to proto enum)
  */
 export const PAYMENT_METHOD_OPTIONS = [
-  { value: 'cash', label: 'Cash' },
-  { value: 'bank_transfer', label: 'Bank Transfer' },
-  { value: 'cheque', label: 'Cheque' },
-  { value: 'pdc', label: 'PDC (Post-Dated Cheque)' },
-  { value: 'credit_card', label: 'Credit Card' },
-  { value: 'debit_card', label: 'Debit Card' },
-  { value: 'online', label: 'Online Payment Gateway' },
-  { value: 'wire_transfer', label: 'Wire Transfer (International)' },
-  { value: 'mobile_wallet', label: 'Mobile Wallet (Apple Pay/Google Pay)' },
-  { value: 'upi', label: 'UPI' },
-  { value: 'card', label: 'Card' },
-  { value: 'other', label: 'Other' },
+  { value: "cash", label: "Cash" },
+  { value: "bank_transfer", label: "Bank Transfer" },
+  { value: "cheque", label: "Cheque" },
+  { value: "pdc", label: "PDC (Post-Dated Cheque)" },
+  { value: "credit_card", label: "Credit Card" },
+  { value: "debit_card", label: "Debit Card" },
+  { value: "online", label: "Online Payment Gateway" },
+  { value: "wire_transfer", label: "Wire Transfer (International)" },
+  { value: "mobile_wallet", label: "Mobile Wallet (Apple Pay/Google Pay)" },
+  { value: "upi", label: "UPI" },
+  { value: "card", label: "Card" },
+  { value: "other", label: "Other" },
 ];
 
 /**
@@ -82,15 +82,15 @@ export const validatePayment = (payment) => {
   const errors = [];
 
   if (!payment.amount || payment.amount <= 0) {
-    errors.push('Amount must be greater than 0');
+    errors.push("Amount must be greater than 0");
   }
 
   if (!payment.paymentMethod) {
-    errors.push('Payment method is required');
+    errors.push("Payment method is required");
   }
 
   if (!payment.paymentDate) {
-    errors.push('Payment date is required');
+    errors.push("Payment date is required");
   }
 
   return {
@@ -118,7 +118,7 @@ export const normalizePayment = (payment) => {
       payment.payment_method ||
       payment.method ||
       payment.paymentMode ||
-      'other',
+      "other",
     // Handle various date field names
     paymentDate:
       payment.paymentDate || payment.payment_date || payment.date || null,
@@ -127,8 +127,8 @@ export const normalizePayment = (payment) => {
       payment.referenceNumber ||
       payment.reference_number ||
       payment.referenceNo ||
-      '',
-    notes: payment.notes || '',
+      "",
+    notes: payment.notes || "",
     // Preserve additional fields that might be present
     voided: payment.voided || false,
     voidedAt: payment.voidedAt || payment.voided_at || null,
@@ -137,12 +137,12 @@ export const normalizePayment = (payment) => {
     receiptNumber: payment.receiptNumber || payment.receipt_number || null,
     compositeReference:
       payment.compositeReference || payment.composite_reference || null,
-    receiptStatus: payment.receiptStatus || payment.receipt_status || 'draft',
+    receiptStatus: payment.receiptStatus || payment.receipt_status || "draft",
     isAdvancePayment:
       payment.isAdvancePayment || payment.is_advance_payment || false,
-    remarks: payment.remarks || '',
+    remarks: payment.remarks || "",
     // Phase 1: Multi-currency fields
-    currency: payment.currency || 'AED',
+    currency: payment.currency || "AED",
     exchangeRate: Number(payment.exchangeRate || payment.exchange_rate) || 1.0,
     amountInAed:
       Number(payment.amountInAed || payment.amount_in_aed) ||
@@ -165,13 +165,13 @@ export const getReceiptDetails = (payment) => {
     receiptNumber: payment.receiptNumber || payment.receipt_number,
     compositeReference:
       payment.compositeReference || payment.composite_reference,
-    receiptStatus: payment.receiptStatus || payment.receipt_status || 'draft',
+    receiptStatus: payment.receiptStatus || payment.receipt_status || "draft",
     isAdvancePayment:
       payment.isAdvancePayment || payment.is_advance_payment || false,
-    remarks: payment.remarks || '',
+    remarks: payment.remarks || "",
     paymentDate: payment.paymentDate || payment.payment_date,
     amount: payment.amount,
-    currency: payment.currency || 'AED',
+    currency: payment.currency || "AED",
     exchangeRate: Number(payment.exchangeRate || payment.exchange_rate) || 1.0,
     amountInAed:
       Number(payment.amountInAed || payment.amount_in_aed) ||

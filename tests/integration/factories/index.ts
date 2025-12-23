@@ -4,7 +4,7 @@
  * Uses PostgreSQL MCP tool via setup.dbQuery()
  */
 
-import { dbQuery } from '../setup';
+import { dbQuery } from "../setup";
 
 const entityCounters = {
   company: 0,
@@ -63,7 +63,7 @@ export async function createCustomer(overrides?: Partial<any>) {
         overrides?.name ||
         `Test Customer ${entityCounters.customer}`,
       overrides?.email || `cust${entityCounters.customer}@test.com`,
-      overrides?.phone || '+971 50 123 4567',
+      overrides?.phone || "+971 50 123 4567",
       overrides?.credit_limit || 50000,
     ],
   );
@@ -84,7 +84,7 @@ export async function createProduct(overrides?: Partial<any>) {
   entityCounters.product++;
   const productId =
     overrides?.product_id ||
-    `PROD-${String(entityCounters.product).padStart(4, '0')}`;
+    `PROD-${String(entityCounters.product).padStart(4, "0")}`;
 
   const rows = await dbQuery(
     `INSERT INTO products (product_id, sku, grade, form, finish, width_mm, thickness_mm, length_mm, created_at)
@@ -93,9 +93,9 @@ export async function createProduct(overrides?: Partial<any>) {
     [
       productId,
       overrides?.sku || `SS-304-Sheet-Mirror-1000mm-2mm-6000mm`,
-      overrides?.grade || '304',
-      overrides?.form || 'Sheet',
-      overrides?.finish || 'Mirror',
+      overrides?.grade || "304",
+      overrides?.form || "Sheet",
+      overrides?.finish || "Mirror",
       overrides?.width_mm || 1000,
       overrides?.thickness_mm || 2,
       overrides?.length_mm || 6000,
@@ -111,8 +111,8 @@ export async function createWarehouse(overrides?: Partial<any>) {
   entityCounters.warehouse++;
   const warehouseId =
     overrides?.warehouse_id ||
-    `WH-${String(entityCounters.warehouse).padStart(4, '0')}`;
-  const companyId = overrides?.company_id || 'CO-0001';
+    `WH-${String(entityCounters.warehouse).padStart(4, "0")}`;
+  const companyId = overrides?.company_id || "CO-0001";
 
   const rows = await dbQuery(
     `INSERT INTO warehouses (warehouse_id, company_id, name, location, created_at)
@@ -122,7 +122,7 @@ export async function createWarehouse(overrides?: Partial<any>) {
       warehouseId,
       companyId,
       overrides?.name || `Warehouse ${entityCounters.warehouse}`,
-      overrides?.location || 'Dubai',
+      overrides?.location || "Dubai",
     ],
   );
   return rows[0];
@@ -135,9 +135,9 @@ export async function seedStock(overrides?: Partial<any>) {
   entityCounters.batch++;
   const batchNo =
     overrides?.batch_no ||
-    `BATCH-${String(entityCounters.batch).padStart(4, '0')}`;
-  const warehouseId = overrides?.warehouse_id || 'WH-0001';
-  const productId = overrides?.product_id || 'PROD-0001';
+    `BATCH-${String(entityCounters.batch).padStart(4, "0")}`;
+  const warehouseId = overrides?.warehouse_id || "WH-0001";
+  const productId = overrides?.product_id || "PROD-0001";
 
   const rows = await dbQuery(
     `INSERT INTO stock (warehouse_id, product_id, batch_no, quantity, unit_cost, created_at)
@@ -161,9 +161,9 @@ export async function createInvoice(overrides?: Partial<any>) {
   entityCounters.invoice++;
   const invoiceId =
     overrides?.invoice_id ||
-    `INV-${String(entityCounters.invoice).padStart(6, '0')}`;
-  const customerId = overrides?.customer_id || 'CUST-0001';
-  const companyId = overrides?.company_id || 'CO-0001';
+    `INV-${String(entityCounters.invoice).padStart(6, "0")}`;
+  const customerId = overrides?.customer_id || "CUST-0001";
+  const companyId = overrides?.company_id || "CO-0001";
 
   const subtotal = overrides?.subtotal || 10000;
   const vatRate = overrides?.vat_rate !== undefined ? overrides.vat_rate : 0.05;
@@ -182,7 +182,7 @@ export async function createInvoice(overrides?: Partial<any>) {
       vatRate,
       vatAmount,
       total,
-      overrides?.status || 'draft',
+      overrides?.status || "draft",
     ],
   );
   return rows[0];
@@ -192,15 +192,15 @@ export async function createInvoice(overrides?: Partial<any>) {
  * Create a delivery note
  */
 export async function createDeliveryNote(overrides?: Partial<any>) {
-  const invoiceId = overrides?.invoice_id || 'INV-000001';
-  const companyId = overrides?.company_id || 'CO-0001';
+  const invoiceId = overrides?.invoice_id || "INV-000001";
+  const companyId = overrides?.company_id || "CO-0001";
   const deliveryNoteId = overrides?.delivery_note_id || `DN-${Date.now()}`;
 
   const rows = await dbQuery(
     `INSERT INTO delivery_notes (delivery_note_id, invoice_id, company_id, status, created_at)
      VALUES ($1, $2, $3, $4, NOW())
      RETURNING id, delivery_note_id, invoice_id, company_id, status`,
-    [deliveryNoteId, invoiceId, companyId, overrides?.status || 'draft'],
+    [deliveryNoteId, invoiceId, companyId, overrides?.status || "draft"],
   );
   return rows[0];
 }
@@ -210,8 +210,8 @@ export async function createDeliveryNote(overrides?: Partial<any>) {
  */
 export async function createVendorBill(overrides?: Partial<any>) {
   const billId = overrides?.bill_id || `VB-${Date.now()}`;
-  const supplierId = overrides?.supplier_id || 'SUP-0001';
-  const companyId = overrides?.company_id || 'CO-0001';
+  const supplierId = overrides?.supplier_id || "SUP-0001";
+  const companyId = overrides?.company_id || "CO-0001";
 
   const rows = await dbQuery(
     `INSERT INTO vendor_bills (bill_id, supplier_id, company_id, amount, status, created_at)
@@ -222,11 +222,11 @@ export async function createVendorBill(overrides?: Partial<any>) {
       supplierId,
       companyId,
       overrides?.amount || 5000,
-      overrides?.status || 'draft',
+      overrides?.status || "draft",
     ],
   ).catch((err) => {
     // FK constraint error if supplier doesn't exist
-    if ((err as any).code === '23503') {
+    if ((err as any).code === "23503") {
       throw new Error(
         `Foreign key constraint: supplier ${supplierId} not found`,
       );
@@ -240,19 +240,17 @@ export async function createVendorBill(overrides?: Partial<any>) {
  * Create a supplier
  */
 export async function createSupplier(overrides?: Partial<any>) {
-  const supplierId = overrides?.supplier_id || `SUP-${Date.now()}`;
-  const companyId = overrides?.company_id || 'CO-0001';
+  const supplierName =
+    overrides?.name ||
+    overrides?.supplier_name ||
+    `Test Supplier ${Date.now()}`;
+  const companyId = overrides?.company_id || 1;
 
   const rows = await dbQuery(
-    `INSERT INTO suppliers (supplier_id, company_id, supplier_name, location, created_at)
-     VALUES ($1, $2, $3, $4, NOW())
-     RETURNING id, supplier_id, company_id, supplier_name, location`,
-    [
-      supplierId,
-      companyId,
-      overrides?.supplier_name || `Test Supplier ${supplierId}`,
-      overrides?.location || 'Dubai',
-    ],
+    `INSERT INTO suppliers (company_id, name, city, created_at)
+     VALUES ($1, $2, $3, NOW())
+     RETURNING id, name, company_id, city`,
+    [companyId, supplierName, overrides?.city || "Dubai"],
   );
   return rows[0];
 }

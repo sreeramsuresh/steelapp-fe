@@ -16,8 +16,8 @@
  * ```
  */
 
-import { screen, within, waitFor } from '@testing-library/react';
-import { expect } from 'vitest';
+import { screen, within, waitFor } from "@testing-library/react";
+import { expect } from "vitest";
 
 /**
  * Assert modal/dialog opens with optional title check
@@ -35,7 +35,7 @@ export async function assertModalOpens(titleRegex = null, timeout = 5000) {
 
   await waitFor(
     () => {
-      modal = screen.getByRole('dialog');
+      modal = screen.getByRole("dialog");
       expect(modal).toBeInTheDocument();
 
       if (titleRegex) {
@@ -62,7 +62,7 @@ export async function assertModalOpens(titleRegex = null, timeout = 5000) {
 export async function assertModalCloses(timeout = 5000) {
   await waitFor(
     () => {
-      const modal = screen.queryByRole('dialog');
+      const modal = screen.queryByRole("dialog");
       expect(modal).not.toBeInTheDocument();
     },
     { timeout },
@@ -93,10 +93,10 @@ export async function assertToastAppears(
       const messagePattern =
         messageRegex instanceof RegExp
           ? messageRegex
-          : new RegExp(messageRegex, 'i');
+          : new RegExp(messageRegex, "i");
 
       // Try multiple toast selectors
-      let toasts = screen.queryAllByRole('status');
+      let toasts = screen.queryAllByRole("status");
 
       if (toasts.length === 0) {
         // Try custom toast selectors
@@ -108,7 +108,7 @@ export async function assertToastAppears(
       }
 
       if (toasts.length === 0) {
-        throw new Error('No toasts found');
+        throw new Error("No toasts found");
       }
 
       toast = toasts.find((t) => messagePattern.test(t.textContent));
@@ -119,7 +119,7 @@ export async function assertToastAppears(
       if (type) {
         // Check for type indicators (icon, class, data-type attribute)
         const hasTypeClass = toast.className.includes(type);
-        const hasTypeAttr = toast.getAttribute('data-type') === type;
+        const hasTypeAttr = toast.getAttribute("data-type") === type;
         const hasTypeIcon = toast.querySelector(
           `[data-type="${type}"], [class*="${type}"]`,
         );
@@ -147,7 +147,7 @@ export async function assertToastAppears(
  * await assertSuccessToast(/saved/i);
  */
 export async function assertSuccessToast(messageRegex, timeout = 5000) {
-  return assertToastAppears(messageRegex, 'success', timeout);
+  return assertToastAppears(messageRegex, "success", timeout);
 }
 
 /**
@@ -160,7 +160,7 @@ export async function assertSuccessToast(messageRegex, timeout = 5000) {
  * await assertErrorToast(/failed to save/i);
  */
 export async function assertErrorToast(messageRegex, timeout = 5000) {
-  return assertToastAppears(messageRegex, 'error', timeout);
+  return assertToastAppears(messageRegex, "error", timeout);
 }
 
 /**
@@ -186,10 +186,10 @@ export async function assertFormErrorAppears(
       // Try to find field by label
       let field;
       try {
-        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, "i"));
       } catch {
         // Try by placeholder
-        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, "i"));
       }
 
       // Look for error sibling or parent error message
@@ -198,7 +198,7 @@ export async function assertFormErrorAppears(
       );
 
       if (!errorElement) {
-        errorElement = screen.getByText(new RegExp(errorMessage, 'i'));
+        errorElement = screen.getByText(new RegExp(errorMessage, "i"));
       }
 
       expect(errorElement).toBeInTheDocument();
@@ -229,9 +229,9 @@ export async function assertFormErrorDisappears(
       // Try to find field
       let field;
       try {
-        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, "i"));
       } catch {
-        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, "i"));
       }
 
       // Confirm error is gone
@@ -257,10 +257,10 @@ export function assertFormFieldValue(fieldNameOrLabel, expectedValue) {
   let field;
 
   try {
-    field = screen.getByLabelText(new RegExp(fieldNameOrLabel, 'i'));
+    field = screen.getByLabelText(new RegExp(fieldNameOrLabel, "i"));
   } catch {
     try {
-      field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, 'i'));
+      field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, "i"));
     } catch {
       field = screen.getByDisplayValue(expectedValue);
     }
@@ -291,7 +291,7 @@ export async function assertListItemAdded(
       const itemPattern =
         itemMatcher instanceof RegExp
           ? itemMatcher
-          : new RegExp(itemMatcher, 'i');
+          : new RegExp(itemMatcher, "i");
 
       item = container.getByText(itemPattern);
       expect(item).toBeInTheDocument();
@@ -322,7 +322,7 @@ export async function assertListItemRemoved(
       const itemPattern =
         itemMatcher instanceof RegExp
           ? itemMatcher
-          : new RegExp(itemMatcher, 'i');
+          : new RegExp(itemMatcher, "i");
 
       const item = container.queryByText(itemPattern);
       expect(item).not.toBeInTheDocument();
@@ -345,32 +345,32 @@ export async function assertListItemRemoved(
  */
 export async function assertTableRowCountChanges(
   expectedCount,
-  operator = '=',
-  tableSelector = 'table',
+  operator = "=",
+  tableSelector = "table",
   timeout = 5000,
 ) {
   let table;
 
   await waitFor(
     () => {
-      table = screen.getByRole('table');
-      const rows = within(table).getAllByRole('row');
+      table = screen.getByRole("table");
+      const rows = within(table).getAllByRole("row");
       // Only subtract 1 if there's a header row
-      const hasHeader = table.querySelector('thead');
+      const hasHeader = table.querySelector("thead");
       const count = hasHeader ? rows.length - 1 : rows.length;
 
       let condition;
       switch (operator) {
-        case '>':
+        case ">":
           condition = count > expectedCount;
           break;
-        case '<':
+        case "<":
           condition = count < expectedCount;
           break;
-        case '>=':
+        case ">=":
           condition = count >= expectedCount;
           break;
-        case '<=':
+        case "<=":
           condition = count <= expectedCount;
           break;
         default:
@@ -405,25 +405,25 @@ export async function assertTableContainsRow(
 
   await waitFor(
     () => {
-      const table = screen.getByRole('table');
+      const table = screen.getByRole("table");
       const textPattern =
         textMatcher instanceof RegExp
           ? textMatcher
-          : new RegExp(textMatcher, 'i');
+          : new RegExp(textMatcher, "i");
 
-      let rows = within(table).getAllByRole('row');
+      let rows = within(table).getAllByRole("row");
 
       if (columnName) {
         // Filter by column header
-        const columnRegex = new RegExp(columnName, 'i');
-        const headers = within(table).getAllByRole('columnheader');
+        const columnRegex = new RegExp(columnName, "i");
+        const headers = within(table).getAllByRole("columnheader");
         const columnIndex = headers.findIndex((h) =>
           columnRegex.test(h.textContent),
         );
 
         if (columnIndex >= 0) {
           rows = rows.filter((r) => {
-            const cells = within(r).queryAllByRole('cell');
+            const cells = within(r).queryAllByRole("cell");
             return (
               cells[columnIndex] &&
               textPattern.test(cells[columnIndex].textContent)
@@ -464,7 +464,7 @@ export async function assertLoadingStateChanges(
   await waitFor(
     () => {
       const loadingElement =
-        screen.queryByRole('progressbar') ||
+        screen.queryByRole("progressbar") ||
         screen.queryByText(/loading/i) ||
         document.querySelector(loadingSelector);
 
@@ -492,7 +492,7 @@ export async function waitForLoadingComplete(timeout = 10000) {
   await waitFor(
     () => {
       const loading =
-        screen.queryByRole('progressbar') || screen.queryByText(/loading/i);
+        screen.queryByRole("progressbar") || screen.queryByText(/loading/i);
       expect(loading).not.toBeInTheDocument();
     },
     { timeout },
@@ -514,7 +514,7 @@ export async function assertNavigationOccurred(pathPattern, timeout = 5000) {
       const pathRegex =
         pathPattern instanceof RegExp
           ? pathPattern
-          : new RegExp(pathPattern, 'i');
+          : new RegExp(pathPattern, "i");
       expect(window.location.pathname).toMatch(pathRegex);
     },
     { timeout },
@@ -537,8 +537,8 @@ export async function assertStateChange(
   expectedValue,
   timeout = 5000,
 ) {
-  if (typeof stateGetter !== 'function') {
-    throw new Error('assertStateChange: stateGetter must be a function');
+  if (typeof stateGetter !== "function") {
+    throw new Error("assertStateChange: stateGetter must be a function");
   }
 
   await waitFor(

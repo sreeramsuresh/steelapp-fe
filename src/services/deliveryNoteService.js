@@ -1,10 +1,10 @@
-import { apiClient } from './api';
-import { apiService } from './axiosApi'; // Only for downloadPDF
+import { apiClient } from "./api";
+import { apiService } from "./axiosApi"; // Only for downloadPDF
 
 export const deliveryNoteService = {
   // Get all delivery notes with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/delivery-notes', params);
+    return apiClient.get("/delivery-notes", params);
   },
 
   // Get delivery note by ID
@@ -14,7 +14,7 @@ export const deliveryNoteService = {
 
   // Create delivery note from invoice
   create: (deliveryNoteData) => {
-    return apiClient.post('/delivery-notes', deliveryNoteData);
+    return apiClient.post("/delivery-notes", deliveryNoteData);
   },
 
   // Update delivery note (full update)
@@ -31,7 +31,7 @@ export const deliveryNoteService = {
   },
 
   // Update delivery note status
-  updateStatus: (id, status, notes = '') => {
+  updateStatus: (id, status, notes = "") => {
     return apiClient.patch(`/delivery-notes/${id}/status`, { status, notes });
   },
 
@@ -42,16 +42,16 @@ export const deliveryNoteService = {
 
   // Get next delivery note number
   getNextNumber: () => {
-    return apiClient.get('/delivery-notes/number/next');
+    return apiClient.get("/delivery-notes/number/next");
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     // Use axios-based service to leverage interceptors and auth headers
     const blob = await apiService.request({
-      method: 'GET',
+      method: "GET",
       url: `/delivery-notes/${id}/pdf`,
-      responseType: 'blob',
+      responseType: "blob",
     });
     const downloadUrl = window.URL.createObjectURL(blob);
 
@@ -60,7 +60,7 @@ export const deliveryNoteService = {
     const filename = `DN-${deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || id}.pdf`;
 
     // Create download link
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);

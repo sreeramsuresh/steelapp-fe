@@ -53,11 +53,11 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
       // Good - service validation caught it
       expect(error).toBeDefined();
       expect(error.message).toMatch(/supplier|not found|invalid/i);
-    } else if (createdBill?.bill_id) {
+    } else if (createdBill?.id) {
       // Service allowed creation - FK constraint must prevent it
       const bill = await dbQuery(
-        `SELECT * FROM vendor_bills WHERE bill_id = $1`,
-        [createdBill.bill_id],
+        `SELECT * FROM vendor_bills WHERE id = $1`,
+        [createdBill.id],
       );
       expect(bill).toHaveLength(0);
     } else {
@@ -81,7 +81,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     const company = await createCompany();
     const supplier = await createSupplier({
       company_id: company.company_id,
-      supplier_id: 'SUP-VALID',
+      name: 'SUP-VALID',
     });
 
     // When: Call CreateVendorBill service with valid supplier
@@ -90,7 +90,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
 
     try {
       createdBill = await createVendorBillViaGrpc({
-        supplier_id: supplier.supplier_id,
+        supplier_id: supplier.id.toString(),
         company_id: company.company_id,
         amount: 5000,
       });
@@ -101,12 +101,12 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     // Then: No error - FK is valid
     expect(error).toBeNull();
     expect(createdBill).not.toBeNull();
-    expect(createdBill.supplier_id).toBe(supplier.supplier_id);
+    expect(createdBill.vendor_id).toBe(supplier.id);
 
     // ASSERTION: Bill is in database
     const retrievedBill = await dbQuery(
-      `SELECT * FROM vendor_bills WHERE supplier_id = $1`,
-      [supplier.supplier_id],
+      `SELECT * FROM vendor_bills WHERE vendor_id = $1`,
+      [supplier.id],
     );
     expect(retrievedBill.length).toBeGreaterThan(0);
   });

@@ -17,15 +17,15 @@
  * // Returns: '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;'
  */
 export const escapeHtml = (value) => {
-  if (value == null || value === '') return '';
+  if (value == null || value === "") return "";
 
   return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-    .replace(/\//g, '&#x2F;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+    .replace(/\//g, "&#x2F;");
 };
 
 /**
@@ -43,9 +43,9 @@ export const escapeHtml = (value) => {
  * // Returns: '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;<br>Harmless text'
  */
 export const escapeHtmlWithLineBreaks = (value) => {
-  if (value == null || value === '') return '';
+  if (value == null || value === "") return "";
 
-  return escapeHtml(value).replace(/\n/g, '<br>');
+  return escapeHtml(value).replace(/\n/g, "<br>");
 };
 
 /**
@@ -58,29 +58,29 @@ export const testHtmlEscape = () => {
   const tests = [
     {
       input: '<script>alert("XSS")</script>',
-      expected: '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;',
-      name: 'Script tag escape',
+      expected: "&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;",
+      name: "Script tag escape",
     },
     {
       input: "<img src=x onerror=\"alert('XSS')\">",
-      expected: '&lt;img src=x onerror=&quot;alert(&#039;XSS&#039;)&quot;&gt;',
-      name: 'Image tag with event handler',
+      expected: "&lt;img src=x onerror=&quot;alert(&#039;XSS&#039;)&quot;&gt;",
+      name: "Image tag with event handler",
     },
     {
       input: '"><script>alert(String.fromCharCode(88,83,83))</script>',
       expected:
-        '&quot;&gt;&lt;script&gt;alert(String.fromCharCode(88,83,83))&lt;&#x2F;script&gt;',
-      name: 'Quote escape with script',
+        "&quot;&gt;&lt;script&gt;alert(String.fromCharCode(88,83,83))&lt;&#x2F;script&gt;",
+      name: "Quote escape with script",
     },
     {
       input: null,
-      expected: '',
-      name: 'Null value',
+      expected: "",
+      name: "Null value",
     },
     {
-      input: '',
-      expected: '',
-      name: 'Empty string',
+      input: "",
+      expected: "",
+      name: "Empty string",
     },
   ];
 
@@ -94,7 +94,7 @@ export const testHtmlEscape = () => {
 
   if (!allPass) {
     console.error(
-      'HTML Escape Tests Failed:',
+      "HTML Escape Tests Failed:",
       results.filter((r) => !r.pass),
     );
   }

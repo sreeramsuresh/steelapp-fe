@@ -15,7 +15,7 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
 
   let timeMs;
 
-  if (typeof createdAt === 'object' && createdAt.seconds) {
+  if (typeof createdAt === "object" && createdAt.seconds) {
     timeMs = createdAt.seconds * 1000;
   } else if (createdAt instanceof Date) {
     timeMs = createdAt.getTime();
@@ -53,7 +53,7 @@ export const validateCreditNoteForDownload = (creditNote) => {
       (creditNote.invoice.id || creditNote.invoice.invoice_number));
   if (!hasInvoice) {
     missing.invoice = true;
-    warnings.push('Linked Invoice');
+    warnings.push("Linked Invoice");
   }
 
   // Check for items with actual returned quantities
@@ -69,7 +69,7 @@ export const validateCreditNoteForDownload = (creditNote) => {
 
   if (!hasValidItems && !hasManualAmount && !hasTotalCredit) {
     missing.items = true;
-    warnings.push('Items or Manual Credit Amount');
+    warnings.push("Items or Manual Credit Amount");
   }
 
   // Check reason
@@ -77,7 +77,7 @@ export const validateCreditNoteForDownload = (creditNote) => {
     creditNote.reason_for_return?.trim() || creditNote.reasonForReturn?.trim();
   if (!hasReason) {
     missing.reason = true;
-    warnings.push('Reason for Return');
+    warnings.push("Reason for Return");
   }
 
   // Check date
@@ -85,7 +85,7 @@ export const validateCreditNoteForDownload = (creditNote) => {
     creditNote.credit_note_date || creditNote.creditNoteDate || creditNote.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('Credit Note Date');
+    warnings.push("Credit Note Date");
   }
 
   return {
@@ -116,7 +116,7 @@ export const validateQuotationForDownload = (quotation) => {
     quotation.customerName?.trim();
   if (!hasCustomer) {
     missing.customer = true;
-    warnings.push('Customer');
+    warnings.push("Customer");
   }
 
   // Check items
@@ -131,7 +131,7 @@ export const validateQuotationForDownload = (quotation) => {
     );
   if (!hasItems || !hasValidItems) {
     missing.items = true;
-    warnings.push('Items (with name, quantity, and rate)');
+    warnings.push("Items (with name, quantity, and rate)");
   }
 
   // Check date
@@ -139,14 +139,14 @@ export const validateQuotationForDownload = (quotation) => {
     quotation.quotation_date || quotation.quotationDate || quotation.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('Quotation Date');
+    warnings.push("Quotation Date");
   }
 
   // Check valid until
   const hasValidUntil = quotation.valid_until || quotation.validUntil;
   if (!hasValidUntil) {
     missing.validUntil = true;
-    warnings.push('Valid Until Date');
+    warnings.push("Valid Until Date");
   }
 
   return {
@@ -177,7 +177,7 @@ export const validatePurchaseOrderForDownload = (purchaseOrder) => {
     purchaseOrder.supplierName?.trim();
   if (!hasSupplier) {
     missing.supplier = true;
-    warnings.push('Supplier');
+    warnings.push("Supplier");
   }
 
   // Check items
@@ -192,7 +192,7 @@ export const validatePurchaseOrderForDownload = (purchaseOrder) => {
     );
   if (!hasItems || !hasValidItems) {
     missing.items = true;
-    warnings.push('Items (with name, quantity, and rate)');
+    warnings.push("Items (with name, quantity, and rate)");
   }
 
   // Check PO date
@@ -200,7 +200,7 @@ export const validatePurchaseOrderForDownload = (purchaseOrder) => {
     purchaseOrder.po_date || purchaseOrder.poDate || purchaseOrder.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('PO Date');
+    warnings.push("PO Date");
   }
 
   // Check expected delivery
@@ -210,7 +210,7 @@ export const validatePurchaseOrderForDownload = (purchaseOrder) => {
     purchaseOrder.expected_delivery;
   if (!hasExpectedDelivery) {
     missing.expectedDelivery = true;
-    warnings.push('Expected Delivery Date');
+    warnings.push("Expected Delivery Date");
   }
 
   return {
@@ -242,14 +242,14 @@ export const validateDeliveryNoteForDownload = (deliveryNote) => {
     deliveryNote.invoice_number;
   if (!hasInvoice) {
     missing.invoice = true;
-    warnings.push('Linked Invoice');
+    warnings.push("Linked Invoice");
   }
 
   // Check items
   const hasItems = deliveryNote.items && deliveryNote.items.length > 0;
   if (!hasItems) {
     missing.items = true;
-    warnings.push('Delivery Items');
+    warnings.push("Delivery Items");
   }
 
   // Check delivery date
@@ -259,14 +259,14 @@ export const validateDeliveryNoteForDownload = (deliveryNote) => {
     deliveryNote.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('Delivery Date');
+    warnings.push("Delivery Date");
   }
 
   // Check vehicle (optional but recommended)
   const hasVehicle = deliveryNote.vehicle_number || deliveryNote.vehicleNumber;
   if (!hasVehicle) {
     missing.vehicle = true;
-    warnings.push('Vehicle Number (recommended)');
+    warnings.push("Vehicle Number (recommended)");
   }
 
   return {
@@ -298,7 +298,7 @@ export const validateAccountStatementForDownload = (statement) => {
     statement.customer_name;
   if (!hasCustomer) {
     missing.customer = true;
-    warnings.push('Customer Information');
+    warnings.push("Customer Information");
   }
 
   // Check date range
@@ -306,7 +306,7 @@ export const validateAccountStatementForDownload = (statement) => {
   const hasToDate = statement.to_date || statement.toDate;
   if (!hasFromDate || !hasToDate) {
     missing.dateRange = true;
-    warnings.push('Statement Period');
+    warnings.push("Statement Period");
   }
 
   // Check statement number
@@ -314,7 +314,7 @@ export const validateAccountStatementForDownload = (statement) => {
     statement.statement_number || statement.statementNumber;
   if (!hasStatementNumber) {
     missing.statementNumber = true;
-    warnings.push('Statement Number');
+    warnings.push("Statement Number");
   }
 
   return {
@@ -342,7 +342,7 @@ export const validateInvoiceForDownload = (invoice) => {
   const hasCustomer = invoice.customer?.name?.trim();
   if (!hasCustomer) {
     missing.customer = true;
-    warnings.push('Customer');
+    warnings.push("Customer");
   }
 
   // Check items
@@ -354,19 +354,19 @@ export const validateInvoiceForDownload = (invoice) => {
     );
   if (!hasItems || !hasValidItems) {
     missing.items = true;
-    warnings.push('Items (with name, quantity, and rate)');
+    warnings.push("Items (with name, quantity, and rate)");
   }
 
   // Check date
   if (!invoice.date) {
     missing.date = true;
-    warnings.push('Invoice Date');
+    warnings.push("Invoice Date");
   }
 
   // Check due date
   if (!invoice.dueDate && !invoice.due_date) {
     missing.dueDate = true;
-    warnings.push('Due Date');
+    warnings.push("Due Date");
   }
 
   return {
@@ -397,16 +397,16 @@ export const downloadPDF = async ({
   try {
     if (onStart) onStart();
 
-    const { apiClient } = await import('../services/api');
+    const { apiClient } = await import("../services/api");
     const response = await apiClient.get(url, {
-      responseType: 'blob',
+      responseType: "blob",
     });
 
-    const blob = new Blob([response], { type: 'application/pdf' });
+    const blob = new Blob([response], { type: "application/pdf" });
     const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
-    link.setAttribute('download', filename);
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -415,7 +415,7 @@ export const downloadPDF = async ({
     if (onSuccess) onSuccess();
     return true;
   } catch (error) {
-    console.error('PDF download error:', error);
+    console.error("PDF download error:", error);
     if (onError) onError(error);
     return false;
   } finally {

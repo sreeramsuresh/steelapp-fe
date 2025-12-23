@@ -233,5 +233,13 @@ module.exports = {
     "cypress/", // Cypress test files have their own globals
     "steelapp/", // Build output directory with vendor files
     "chromium/", // Vendored Chromium binaries
+    "check-constraint.js", // Utility scripts
+    "get-constraint-def.js",
+    "inspect-schema.js",
+    "find-status.js",
+    "scripts/show-backup-status.js",
+    "cypress.config.js",
+    "tailwind.config.js",
+    "vite.config.js",
   ],
 };

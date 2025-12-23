@@ -13,9 +13,9 @@
  */
 export function normalizePurchaseOrder(
   rawPO: any,
-  source = 'unknown',
+  source = "unknown",
 ): any | null {
-  if (!rawPO || typeof rawPO !== 'object') {
+  if (!rawPO || typeof rawPO !== "object") {
     console.error(
       `❌ [PurchaseOrder Normalizer] Invalid purchase order data from ${source}:`,
       rawPO,
@@ -44,7 +44,7 @@ export function normalizePurchaseOrder(
       }
 
       // Handle string dates
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
           return parsed.toISOString();
@@ -59,7 +59,7 @@ export function normalizePurchaseOrder(
       // Core identifiers
       id: rawPO.id || 0,
       companyId: rawPO.company_id || rawPO.companyId,
-      poNumber: rawPO.poNumber || rawPO.po_number || '',
+      poNumber: rawPO.poNumber || rawPO.po_number || "",
       poDate: parseDate(rawPO.poDate || rawPO.po_date),
       dueDate: parseDate(rawPO.dueDate || rawPO.due_date),
       expectedDeliveryDate: parseDate(
@@ -91,7 +91,7 @@ export function normalizePurchaseOrder(
       subtotal: parseNumber(rawPO.subtotal, 0),
       vatAmount: parseNumber(rawPO.vatAmount || rawPO.vat_amount, 0),
       total: parseNumber(rawPO.total, 0),
-      currency: rawPO.currency || 'INR',
+      currency: rawPO.currency || "INR",
 
       // Discounts & Charges
       discountPercentage: parseNumber(
@@ -171,7 +171,7 @@ export function normalizePurchaseOrder(
       `❌ [PurchaseOrder Normalizer] Failed to normalize purchase order from ${source}:`,
       error,
     );
-    console.error('   Raw data:', rawPO);
+    console.error("   Raw data:", rawPO);
     return null;
   }
 }
@@ -182,7 +182,7 @@ export function normalizePurchaseOrder(
  * @param source - Source identifier for debugging
  * @returns Array of normalized PurchaseOrder objects
  */
-export function normalizePurchaseOrders(rawPOs: any[], source = 'list'): any[] {
+export function normalizePurchaseOrders(rawPOs: any[], source = "list"): any[] {
   if (!Array.isArray(rawPOs)) {
     console.error(
       `❌ [PurchaseOrder Normalizer] Expected array, got ${typeof rawPOs}`,

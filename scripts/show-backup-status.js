@@ -14,17 +14,17 @@
  * Non-blocking: Continues even if backup API is unreachable
  */
 
-import http from 'http';
-import { URL } from 'url';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { spawn } from 'child_process';
+import http from "http";
+import { URL } from "url";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { spawn } from "child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Configuration
-const API_HOST = process.env.API_HOST || 'localhost';
+const API_HOST = process.env.API_HOST || "localhost";
 const API_PORT = process.env.API_PORT || 3000;
 const API_URL = `http://${API_HOST}:${API_PORT}/api/ops/backup-status`;
 const TIMEOUT_MS = 3000; // 3 second timeout
@@ -32,18 +32,18 @@ const TIMEOUT_MS = 3000; // 3 second timeout
 // Backup catch-up configuration
 const BACKUP_INTERVAL_HOURS = 4; // Must match cron schedule
 const BACKUP_INTERVAL_MS = BACKUP_INTERVAL_HOURS * 60 * 60 * 1000;
-const BACKUP_ROOT = process.env.BACKUP_ROOT || '/mnt/d/DB Backup';
+const BACKUP_ROOT = process.env.BACKUP_ROOT || "/mnt/d/DB Backup";
 const BACKUP_GUARD_SCRIPT =
   process.env.BACKUP_GUARD_SCRIPT ||
-  '/mnt/d/Ultimate Steel/steelapprnp/backup-system/scripts/backup_guard.sh';
-const CATCHUP_LOG_FILE = path.join(BACKUP_ROOT, 'logs', 'backup_catchup.log');
+  "/mnt/d/Ultimate Steel/steelapprnp/backup-system/scripts/backup_guard.sh";
+const CATCHUP_LOG_FILE = path.join(BACKUP_ROOT, "logs", "backup_catchup.log");
 
 /**
  * Format timestamp for display
  * Convert ISO 8601 to readable format with relative time
  */
 function formatTime(isoTimestamp) {
-  if (!isoTimestamp) return 'never';
+  if (!isoTimestamp) return "never";
 
   try {
     const date = new Date(isoTimestamp);
@@ -54,20 +54,20 @@ function formatTime(isoTimestamp) {
     const diffDays = Math.floor(diffHours / 24);
 
     // Format date
-    const dateStr = date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
+    const dateStr = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
     });
-    const timeStr = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
+    const timeStr = date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: true,
     });
 
     // Relative time
-    let relativeTime = '';
+    let relativeTime = "";
     if (diffMins < 1) {
-      relativeTime = 'just now';
+      relativeTime = "just now";
     } else if (diffMins < 60) {
       relativeTime = `${diffMins}m ago`;
     } else if (diffHours < 24) {
@@ -95,10 +95,10 @@ function getAuthToken() {
 
   // Try to read from .env.local if it exists
   try {
-    const envPath = path.join(__dirname, '../.env.local');
+    const envPath = path.join(__dirname, "../.env.local");
 
     if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, 'utf8');
+      const content = fs.readFileSync(envPath, "utf8");
       const match = content.match(/VITE_AUTH_TOKEN\s*=\s*["']?([^"'\n]+)["']?/);
       if (match && match[1]) {
         return match[1];
@@ -122,10 +122,10 @@ function fetchBackupStatus() {
       hostname: reqUrl.hostname,
       port: reqUrl.port,
       path: reqUrl.pathname + reqUrl.search,
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'show-backup-status/1.0',
+        "Content-Type": "application/json",
+        "User-Agent": "show-backup-status/1.0",
       },
       timeout: TIMEOUT_MS,
     };
@@ -137,38 +137,38 @@ function fetchBackupStatus() {
     }
 
     const req = http.request(options, (res) => {
-      let data = '';
+      let data = "";
 
-      res.on('data', (chunk) => {
+      res.on("data", (chunk) => {
         data += chunk;
       });
 
-      res.on('end', () => {
+      res.on("end", () => {
         try {
           const json = JSON.parse(data);
           resolve(json);
         } catch (error) {
           resolve({
-            status: 'ERROR',
-            message: 'Failed to parse API response',
+            status: "ERROR",
+            message: "Failed to parse API response",
           });
         }
       });
     });
 
-    req.on('error', (error) => {
+    req.on("error", (error) => {
       // API unreachable - return UNKNOWN
       resolve({
-        status: 'UNKNOWN',
+        status: "UNKNOWN",
         message: `API unreachable (${error.message})`,
       });
     });
 
-    req.on('timeout', () => {
+    req.on("timeout", () => {
       req.destroy();
       resolve({
-        status: 'UNKNOWN',
-        message: 'API timeout',
+        status: "UNKNOWN",
+        message: "API timeout",
       });
     });
 
@@ -202,25 +202,25 @@ function displayStatus(status) {
   const line = (text) => {
     const visualWidth = getVisualWidth(text);
     const padding = BOX_WIDTH - visualWidth;
-    return `│ ${text}${' '.repeat(Math.max(0, padding))} │`;
+    return `│ ${text}${" ".repeat(Math.max(0, padding))} │`;
   };
-  const topBorder = `┌${'─'.repeat(BOX_WIDTH + 2)}┐`;
-  const divider = `├${'─'.repeat(BOX_WIDTH + 2)}┤`;
-  const bottomBorder = `└${'─'.repeat(BOX_WIDTH + 2)}┘`;
+  const topBorder = `┌${"─".repeat(BOX_WIDTH + 2)}┐`;
+  const divider = `├${"─".repeat(BOX_WIDTH + 2)}┤`;
+  const bottomBorder = `└${"─".repeat(BOX_WIDTH + 2)}┘`;
 
-  console.log('');
+  console.log("");
   console.log(topBorder);
 
   switch (status.status) {
-    case 'SUCCESS': {
-      console.log(line('🟢 DATABASE BACKUP STATUS: SUCCESS'));
+    case "SUCCESS": {
+      console.log(line("🟢 DATABASE BACKUP STATUS: SUCCESS"));
       console.log(divider);
       const lastSuccess = formatTime(status.lastSuccessAt);
       console.log(line(`Last successful backup: ${lastSuccess}`));
       if (status.artifact) {
         const artifact =
           status.artifact.length > BOX_WIDTH - 10
-            ? `${status.artifact.substring(0, BOX_WIDTH - 13)  }...`
+            ? `${status.artifact.substring(0, BOX_WIDTH - 13)}...`
             : status.artifact;
         console.log(line(`Artifact: ${artifact}`));
       }
@@ -230,19 +230,19 @@ function displayStatus(status) {
       if (status.environment) {
         console.log(line(`Environment: ${status.environment}`));
       }
-      console.log(line(''));
-      console.log(line('✅ Backup system is healthy and operational'));
+      console.log(line(""));
+      console.log(line("✅ Backup system is healthy and operational"));
       break;
     }
 
-    case 'BLOCKED': {
-      console.log(line('🔴 DATABASE BACKUP STATUS: BLOCKED'));
+    case "BLOCKED": {
+      console.log(line("🔴 DATABASE BACKUP STATUS: BLOCKED"));
       console.log(divider);
-      console.log(line('Blocking Reason:'));
+      console.log(line("Blocking Reason:"));
       if (status.blockedReason) {
         const reason =
           status.blockedReason.length > BOX_WIDTH - 4
-            ? `${status.blockedReason.substring(0, BOX_WIDTH - 7)  }...`
+            ? `${status.blockedReason.substring(0, BOX_WIDTH - 7)}...`
             : status.blockedReason;
         console.log(line(`  ${reason}`));
       }
@@ -250,26 +250,26 @@ function displayStatus(status) {
         const lastSuccess = formatTime(status.lastSuccessAt);
         console.log(line(`Last success: ${lastSuccess}`));
       } else {
-        console.log(line('Last success: never'));
+        console.log(line("Last success: never"));
       }
-      console.log(line(''));
-      console.log(line('⚠️  BACKUP SYSTEM IS BLOCKED - INVESTIGATE!'));
+      console.log(line(""));
+      console.log(line("⚠️  BACKUP SYSTEM IS BLOCKED - INVESTIGATE!"));
       break;
     }
 
-    case 'UNKNOWN':
+    case "UNKNOWN":
     default: {
-      console.log(line('🟠 DATABASE BACKUP STATUS: UNKNOWN'));
+      console.log(line("🟠 DATABASE BACKUP STATUS: UNKNOWN"));
       console.log(divider);
-      console.log(line('No backup status found'));
-      console.log(line(''));
-      console.log(line('ℹ️  Backup system not configured or not run yet'));
+      console.log(line("No backup status found"));
+      console.log(line(""));
+      console.log(line("ℹ️  Backup system not configured or not run yet"));
       break;
     }
   }
 
   console.log(bottomBorder);
-  console.log('');
+  console.log("");
 }
 
 /**
@@ -287,7 +287,7 @@ function logCatchup(message, data = {}) {
     }
 
     // Append to log file
-    fs.appendFileSync(CATCHUP_LOG_FILE, `${logLine  }\n`);
+    fs.appendFileSync(CATCHUP_LOG_FILE, `${logLine}\n`);
   } catch (err) {
     // Silently fail - don't block startup
   }
@@ -300,14 +300,14 @@ async function checkAndExecuteCatchup(status) {
   return new Promise((resolve) => {
     try {
       // If no status or status is unknown, skip catch-up
-      if (!status || status.status === 'UNKNOWN') {
+      if (!status || status.status === "UNKNOWN") {
         resolve(false);
         return;
       }
 
       // If backup is blocked, skip catch-up
       if (status.blocked) {
-        logCatchup('Backup system is blocked - skipping catch-up', {
+        logCatchup("Backup system is blocked - skipping catch-up", {
           blockedReason: status.blockedReason,
           lastSuccessAt: status.lastSuccessAt,
         });
@@ -333,7 +333,7 @@ async function checkAndExecuteCatchup(status) {
       }
 
       // Catch-up needed - backup should have happened but didn't
-      logCatchup('CATCH-UP REQUIRED: Backup interval exceeded', {
+      logCatchup("CATCH-UP REQUIRED: Backup interval exceeded", {
         lastSuccessAt,
         intervalHours: BACKUP_INTERVAL_HOURS,
         elapsedHours: Math.round((elapsedMs / (60 * 60 * 1000)) * 10) / 10,
@@ -342,7 +342,7 @@ async function checkAndExecuteCatchup(status) {
 
       // Verify backup guard script exists
       if (!fs.existsSync(BACKUP_GUARD_SCRIPT)) {
-        logCatchup('ERROR: Backup guard script not found', {
+        logCatchup("ERROR: Backup guard script not found", {
           script: BACKUP_GUARD_SCRIPT,
         });
         resolve(false);
@@ -357,13 +357,13 @@ async function checkAndExecuteCatchup(status) {
       }
 
       // Spawn backup_guard.sh in background (non-blocking)
-      const backupProcess = spawn('bash', [BACKUP_GUARD_SCRIPT], {
+      const backupProcess = spawn("bash", [BACKUP_GUARD_SCRIPT], {
         detached: true,
-        stdio: 'ignore', // Don't inherit stdio
+        stdio: "ignore", // Don't inherit stdio
       });
 
-      backupProcess.on('error', (err) => {
-        logCatchup('ERROR: Failed to spawn backup process', {
+      backupProcess.on("error", (err) => {
+        logCatchup("ERROR: Failed to spawn backup process", {
           error: err.message,
         });
       });
@@ -371,14 +371,14 @@ async function checkAndExecuteCatchup(status) {
       // Unref allows parent process to exit even if child is running
       backupProcess.unref();
 
-      logCatchup('CATCH-UP INITIATED: Backup process spawned', {
+      logCatchup("CATCH-UP INITIATED: Backup process spawned", {
         pid: backupProcess.pid,
         timestamp: new Date().toISOString(),
       });
 
       resolve(true);
     } catch (err) {
-      logCatchup('EXCEPTION in backup catch-up check', {
+      logCatchup("EXCEPTION in backup catch-up check", {
         error: err.message,
       });
       resolve(false);

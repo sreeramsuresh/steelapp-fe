@@ -1,16 +1,16 @@
-import { apiClient } from './api';
-import { tokenUtils } from './axiosApi';
+import { apiClient } from "./api";
+import { tokenUtils } from "./axiosApi";
 
 class AuthService {
   constructor() {
-    this.TOKEN_KEY = 'steel-app-token';
-    this.USER_KEY = 'steel-app-user';
-    this.REFRESH_TOKEN_KEY = 'steel-app-refresh-token';
+    this.TOKEN_KEY = "steel-app-token";
+    this.USER_KEY = "steel-app-user";
+    this.REFRESH_TOKEN_KEY = "steel-app-refresh-token";
   }
 
   // Register new user
   async register(userData) {
-    const response = await apiClient.post('/auth/register', userData);
+    const response = await apiClient.post("/auth/register", userData);
 
     if (response.token) {
       this.setToken(response.token);
@@ -22,7 +22,7 @@ class AuthService {
 
   // Login user
   async login(email, password) {
-    const response = await apiClient.post('/auth/login', { email, password });
+    const response = await apiClient.post("/auth/login", { email, password });
 
     if (response.token) {
       this.setToken(response.token);
@@ -38,10 +38,10 @@ class AuthService {
   // Logout user
   async logout() {
     try {
-      await apiClient.post('/auth/logout');
+      await apiClient.post("/auth/logout");
     } catch (error) {
       // Continue with logout even if API call fails
-      console.warn('Logout API call failed:', error);
+      console.warn("Logout API call failed:", error);
     } finally {
       this.removeToken();
       this.removeUser();
@@ -50,12 +50,12 @@ class AuthService {
 
   // Get current user profile
   async getCurrentUser() {
-    return apiClient.get('/auth/me');
+    return apiClient.get("/auth/me");
   }
 
   // Change password
   async changePassword(currentPassword, newPassword) {
-    return apiClient.post('/auth/change-password', {
+    return apiClient.post("/auth/change-password", {
       currentPassword,
       newPassword,
     });
@@ -65,7 +65,7 @@ class AuthService {
   setToken(token) {
     // Store in localStorage for backward compatibility
     localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem('token', token); // Also store as 'token' for components using it
+    localStorage.setItem("token", token); // Also store as 'token' for components using it
 
     // Store in cookies for automatic refresh interceptor
     tokenUtils.setToken(token);
@@ -96,7 +96,7 @@ class AuthService {
   removeToken() {
     // Remove from both localStorage and cookies
     localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     tokenUtils.removeTokens();
     this.updateApiHeaders();
@@ -139,7 +139,7 @@ class AuthService {
     if (!user) return false;
 
     // Admin has all permissions
-    if (user.role === 'admin') return true;
+    if (user.role === "admin") return true;
 
     const permissions = user.permissions || {};
     const resourcePermissions = permissions[resource];
