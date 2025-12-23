@@ -154,7 +154,8 @@ export function validateCategoryPricingUnit(category, pricingUnit) {
 export function getMarginThresholds(channel) {
   const upperChannel = channel?.toUpperCase();
   return (
-    MARGIN_THRESHOLDS[upperChannel] || MARGIN_THRESHOLDS[PROCUREMENT_CHANNELS.LOCAL]
+    MARGIN_THRESHOLDS[upperChannel] ||
+    MARGIN_THRESHOLDS[PROCUREMENT_CHANNELS.LOCAL]
   );
 }
 
@@ -183,7 +184,10 @@ export function getMarginColor(margin, channel = PROCUREMENT_CHANNELS.LOCAL) {
  * @param {string} channel - Procurement channel
  * @returns {string} Status message
  */
-export function getMarginStatusMessage(margin, channel = PROCUREMENT_CHANNELS.LOCAL) {
+export function getMarginStatusMessage(
+  margin,
+  channel = PROCUREMENT_CHANNELS.LOCAL,
+) {
   const thresholds = getMarginThresholds(channel);
   const marginValue = parseFloat(margin) || 0;
   const color = getMarginColor(margin, channel);
@@ -229,13 +233,20 @@ export function suggestPricingUnit(category) {
  */
 function getCategoryRationale(category, unit) {
   const rationales = {
-    [PRODUCT_CATEGORIES.COILS]: 'Coils are priced by weight due to variable dimensions',
-    [PRODUCT_CATEGORIES.SHEETS]: 'Sheets are priced by area (m²) for consistent pricing across sizes',
-    [PRODUCT_CATEGORIES.PIPES]: 'Pipes are priced per piece based on standard lengths',
-    [PRODUCT_CATEGORIES.TUBES]: 'Tubes are priced per piece based on standard lengths',
-    [PRODUCT_CATEGORIES.FITTINGS]: 'Fittings are priced per piece as discrete units',
-    [PRODUCT_CATEGORIES.RODS]: 'Rods are priced by weight due to variable lengths',
-    [PRODUCT_CATEGORIES.BARS]: 'Bars are priced by weight due to variable lengths',
+    [PRODUCT_CATEGORIES.COILS]:
+      'Coils are priced by weight due to variable dimensions',
+    [PRODUCT_CATEGORIES.SHEETS]:
+      'Sheets are priced by area (m²) for consistent pricing across sizes',
+    [PRODUCT_CATEGORIES.PIPES]:
+      'Pipes are priced per piece based on standard lengths',
+    [PRODUCT_CATEGORIES.TUBES]:
+      'Tubes are priced per piece based on standard lengths',
+    [PRODUCT_CATEGORIES.FITTINGS]:
+      'Fittings are priced per piece as discrete units',
+    [PRODUCT_CATEGORIES.RODS]:
+      'Rods are priced by weight due to variable lengths',
+    [PRODUCT_CATEGORIES.BARS]:
+      'Bars are priced by weight due to variable lengths',
     [PRODUCT_CATEGORIES.FASTENERS]: 'Fasteners are priced per piece or box',
     [PRODUCT_CATEGORIES.ANGLES]: 'Angles are priced by weight',
     [PRODUCT_CATEGORIES.CHANNELS]: 'Channels are priced by weight',

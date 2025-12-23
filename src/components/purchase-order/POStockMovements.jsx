@@ -7,29 +7,15 @@
  */
 
 import { useState, useEffect } from "react";
+import { Package, ChevronDown, ChevronUp, Truck } from "lucide-react";
 import {
-  Box,
-  Typography,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  Chip,
-  CircularProgress,
-  Alert,
-  Tooltip,
-  IconButton,
-  Collapse,
-} from "@mui/material";
-import {
-  Inventory as InventoryIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  LocalShipping as ShippingIcon,
-} from "@mui/icons-material";
+} from "@/components/ui/table";
 import {
   stockMovementService,
   MOVEMENT_TYPES,
@@ -117,169 +103,146 @@ const POStockMovements = ({
   }
 
   return (
-    <Paper sx={{ mt: 2, p: 2 }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: "pointer",
-        }}
+    <div className="mt-2 p-4 bg-white rounded-lg shadow border border-gray-200">
+      <div
+        className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <InventoryIcon color="primary" />
-          <Typography variant="h6">
+        <div className="flex items-center gap-2">
+          <Package className="w-5 h-5 text-blue-600" />
+          <h3 className="font-semibold text-base">
             Stock Movements
             {movements.length > 0 && (
-              <Chip
-                label={`${movements.length} movement${movements.length !== 1 ? "s" : ""}`}
-                size="small"
-                color="success"
-                sx={{ ml: 1 }}
-              />
+              <span className="ml-2 inline-flex items-center px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                {movements.length} movement{movements.length !== 1 ? "s" : ""}
+              </span>
             )}
-          </Typography>
-        </Box>
-        <IconButton size="small">
-          {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </IconButton>
-      </Box>
+          </h3>
+        </div>
+        <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+          {expanded ? (
+            <ChevronUp className="w-5 h-5" />
+          ) : (
+            <ChevronDown className="w-5 h-5" />
+          )}
+        </button>
+      </div>
 
-      <Collapse in={expanded}>
-        <Box sx={{ mt: 2 }}>
+      {expanded && (
+        <div className="mt-4">
           {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-              <CircularProgress size={24} />
-            </Box>
+            <div className="flex justify-center py-6">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            </div>
           ) : error ? (
-            <Alert severity="error" sx={{ mt: 1 }}>
+            <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
               {error}
-            </Alert>
+            </div>
           ) : movements.length === 0 ? (
-            <Alert severity="info" sx={{ mt: 1 }} icon={<ShippingIcon />}>
-              No stock has been received for this purchase order yet.
-              <br />
-              <Typography variant="caption" color="text.secondary">
-                Stock movements will be created automatically when items are
-                received.
-              </Typography>
-            </Alert>
+            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg flex items-start gap-2">
+              <Truck className="w-5 h-5 mt-0.5 flex-shrink-0" />
+              <div>
+                <p>No stock has been received for this purchase order yet.</p>
+                <p className="text-sm mt-1 opacity-75">
+                  Stock movements will be created automatically when items are
+                  received.
+                </p>
+              </div>
+            </div>
           ) : (
             <>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "grey.50" }}>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Product</TableCell>
-                      <TableCell>Warehouse</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell align="right">Quantity</TableCell>
-                      <TableCell align="right">Balance After</TableCell>
-                      <TableCell>Notes</TableCell>
+              <div className="overflow-x-auto">
+                <Table className="text-sm">
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead>Date</TableHead>
+                      <TableHead>Product</TableHead>
+                      <TableHead>Warehouse</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead className="text-right">Quantity</TableHead>
+                      <TableHead className="text-right">
+                        Balance After
+                      </TableHead>
+                      <TableHead>Notes</TableHead>
                     </TableRow>
-                  </TableHead>
+                  </TableHeader>
                   <TableBody>
                     {movements.map((movement) => {
                       const typeDisplay = getMovementTypeDisplay(
                         movement.movementType,
                       );
                       return (
-                        <TableRow key={movement.id} hover>
+                        <TableRow
+                          key={movement.id}
+                          className="hover:bg-gray-50"
+                        >
                           <TableCell>
-                            <Typography variant="body2" color="text.secondary">
+                            <span className="text-xs text-gray-600">
                               {formatDate(movement.movementDate)}
-                            </Typography>
+                            </span>
                           </TableCell>
                           <TableCell>
-                            <Tooltip
-                              title={`SKU: ${movement.productSku || "N/A"}`}
-                            >
-                              <Typography variant="body2">
+                            <div title={`SKU: ${movement.productSku || "N/A"}`}>
+                              <span className="text-sm">
                                 {movement.productName ||
                                   `Product #${movement.productId}`}
-                              </Typography>
-                            </Tooltip>
+                              </span>
+                            </div>
                           </TableCell>
                           <TableCell>
-                            <Typography variant="body2">
+                            <span className="text-sm">
                               {movement.warehouseName ||
                                 movement.warehouseCode ||
                                 "-"}
-                            </Typography>
+                            </span>
                           </TableCell>
                           <TableCell>
-                            <Chip
-                              label={typeDisplay.label}
-                              size="small"
-                              color={
-                                typeDisplay.color === "green"
-                                  ? "success"
-                                  : "default"
-                              }
-                              variant="outlined"
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <Typography
-                              variant="body2"
-                              fontWeight="medium"
-                              color="success.main"
+                            <span
+                              className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${typeDisplay.color === "green" ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-700 border-gray-200"}`}
                             >
+                              {typeDisplay.label}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="text-sm font-medium text-green-600">
                               +
                               {formatQuantity(movement.quantity, movement.unit)}
-                            </Typography>
+                            </span>
                           </TableCell>
-                          <TableCell align="right">
-                            <Typography variant="body2" color="text.secondary">
+                          <TableCell className="text-right">
+                            <span className="text-xs text-gray-600">
                               {formatQuantity(
                                 movement.balanceAfter,
                                 movement.unit,
                               )}
-                            </Typography>
+                            </span>
                           </TableCell>
                           <TableCell>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
+                            <span className="text-xs text-gray-600">
                               {movement.notes || "-"}
-                            </Typography>
+                            </span>
                           </TableCell>
                         </TableRow>
                       );
                     })}
                   </TableBody>
                 </Table>
-              </TableContainer>
+              </div>
 
               {/* Summary */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: 3,
-                  mt: 2,
-                  pt: 2,
-                  borderTop: 1,
-                  borderColor: "divider",
-                }}
-              >
-                <Box sx={{ textAlign: "right" }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Total Stock Received
-                  </Typography>
-                  <Typography variant="h6" color="success.main">
+              <div className="flex justify-end gap-6 mt-4 pt-4 border-t border-gray-200">
+                <div className="text-right">
+                  <p className="text-xs text-gray-600">Total Stock Received</p>
+                  <p className="text-lg font-semibold text-green-600">
                     +{formatQuantity(totals.totalIn, "KG")}
-                  </Typography>
-                </Box>
-              </Box>
+                  </p>
+                </div>
+              </div>
             </>
           )}
-        </Box>
-      </Collapse>
-    </Paper>
+        </div>
+      )}
+    </div>
   );
 };
 

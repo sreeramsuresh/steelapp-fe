@@ -18,8 +18,18 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
 
         // Simulating database query with company_id filter
         const [invoices] = React.useState([
-          { id: 1, companyId: 'COMPANY-A', customerName: 'Customer 1', amount: 5000 },
-          { id: 2, companyId: 'COMPANY-A', customerName: 'Customer 2', amount: 3000 },
+          {
+            id: 1,
+            companyId: 'COMPANY-A',
+            customerName: 'Customer 1',
+            amount: 5000,
+          },
+          {
+            id: 2,
+            companyId: 'COMPANY-A',
+            customerName: 'Customer 2',
+            amount: 3000,
+          },
           // These should NOT be accessible:
           // { id: 3, companyId: 'COMPANY-B', customerName: 'Other Co Customer', amount: 7000 },
         ]);
@@ -64,7 +74,11 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
             <div>Current Company: {currentCompanyId}</div>
             <div>Customer Company: {customer.companyId}</div>
             <button disabled={!canEdit}>Edit Customer</button>
-            {!canEdit && <div className="alert-error">Access Denied: Customer belongs to different company</div>}
+            {!canEdit && (
+              <div className="alert-error">
+                Access Denied: Customer belongs to different company
+              </div>
+            )}
           </>
         );
       };
@@ -93,7 +107,11 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
             <button onClick={() => {}} disabled={!canDelete}>
               Delete PO
             </button>
-            {!canDelete && <div className="alert-error">Cannot delete: PO belongs to Company B</div>}
+            {!canDelete && (
+              <div className="alert-error">
+                Cannot delete: PO belongs to Company B
+              </div>
+            )}
           </>
         );
       };
@@ -102,7 +120,9 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
 
       const deleteBtn = screen.getByRole('button', { name: /Delete PO/ });
       expect(deleteBtn).toBeDisabled();
-      expect(screen.getByText(/Cannot delete: PO belongs to Company B/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Cannot delete: PO belongs to Company B/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -119,13 +139,20 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
           { id: 4, companyId: 'COMPANY-C', amount: 2000 },
         ];
 
-        const filteredInvoices = allInvoices.filter((inv) => inv.companyId === currentCompanyId);
+        const filteredInvoices = allInvoices.filter(
+          (inv) => inv.companyId === currentCompanyId,
+        );
 
         return (
           <>
-            <div>API returned {filteredInvoices.length} invoices for {currentCompanyId}</div>
+            <div>
+              API returned {filteredInvoices.length} invoices for{' '}
+              {currentCompanyId}
+            </div>
             {filteredInvoices.map((inv) => (
-              <div key={inv.id}>Invoice {inv.id}: {inv.amount}</div>
+              <div key={inv.id}>
+                Invoice {inv.id}: {inv.amount}
+              </div>
             ))}
           </>
         );
@@ -133,7 +160,9 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
 
       render(<MockAPIFiltering />);
 
-      expect(screen.getByText('API returned 2 invoices for COMPANY-A')).toBeInTheDocument();
+      expect(
+        screen.getByText('API returned 2 invoices for COMPANY-A'),
+      ).toBeInTheDocument();
       expect(screen.getByText('Invoice 1: 5000')).toBeInTheDocument();
       expect(screen.getByText('Invoice 3: 3000')).toBeInTheDocument();
       expect(screen.queryByText('Invoice 2: 7000')).not.toBeInTheDocument();
@@ -158,7 +187,9 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
         ]);
 
         // User can only see own company
-        const accessibleCompanies = allCompanies.filter((c) => c.id === user.companyId);
+        const accessibleCompanies = allCompanies.filter(
+          (c) => c.id === user.companyId,
+        );
 
         return (
           <>
@@ -206,9 +237,15 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
 
       render(<MockRBAC />);
 
-      expect(screen.getByRole('button', { name: /Edit Invoice/ })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /Delete Invoice/ })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /Export Data/ })).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Edit Invoice/ }),
+      ).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Delete Invoice/ }),
+      ).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Export Data/ }),
+      ).toBeDisabled();
     });
   });
 
@@ -218,18 +255,37 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
         const currentCompanyId = 'COMPANY-A';
 
         const allLogs = [
-          { id: 1, companyId: 'COMPANY-A', action: 'Invoice Created', user: 'john@companyA' },
-          { id: 2, companyId: 'COMPANY-B', action: 'Invoice Created', user: 'jane@companyB' },
-          { id: 3, companyId: 'COMPANY-A', action: 'Payment Recorded', user: 'john@companyA' },
+          {
+            id: 1,
+            companyId: 'COMPANY-A',
+            action: 'Invoice Created',
+            user: 'john@companyA',
+          },
+          {
+            id: 2,
+            companyId: 'COMPANY-B',
+            action: 'Invoice Created',
+            user: 'jane@companyB',
+          },
+          {
+            id: 3,
+            companyId: 'COMPANY-A',
+            action: 'Payment Recorded',
+            user: 'john@companyA',
+          },
         ];
 
-        const filteredLogs = allLogs.filter((log) => log.companyId === currentCompanyId);
+        const filteredLogs = allLogs.filter(
+          (log) => log.companyId === currentCompanyId,
+        );
 
         return (
           <>
             <div>Audit Logs for {currentCompanyId}:</div>
             {filteredLogs.map((log) => (
-              <div key={log.id}>{log.action} by {log.user}</div>
+              <div key={log.id}>
+                {log.action} by {log.user}
+              </div>
             ))}
           </>
         );
@@ -237,8 +293,12 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
 
       render(<MockAuditIsolation />);
 
-      expect(screen.getByText('Invoice Created by john@companyA')).toBeInTheDocument();
-      expect(screen.getByText('Payment Recorded by john@companyA')).toBeInTheDocument();
+      expect(
+        screen.getByText('Invoice Created by john@companyA'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Payment Recorded by john@companyA'),
+      ).toBeInTheDocument();
       expect(screen.queryByText('jane@companyB')).not.toBeInTheDocument();
     });
   });
@@ -272,9 +332,15 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
 
       render(<MockTenantContext />);
 
-      expect(screen.getByText(/API Call 1.*company_id=COMPANY-A/)).toBeInTheDocument();
-      expect(screen.getByText(/API Call 2.*company_id=COMPANY-A/)).toBeInTheDocument();
-      expect(screen.getByText(/API Call 3.*company_id=COMPANY-A/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/API Call 1.*company_id=COMPANY-A/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/API Call 2.*company_id=COMPANY-A/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/API Call 3.*company_id=COMPANY-A/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -308,7 +374,9 @@ describe('Multi-Tenancy Security - Data Isolation', () => {
 
       render(<MockSecurityAudit />);
 
-      expect(screen.getByText(/SECURITY VIOLATION.*COMPANY-A.*COMPANY-B/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/SECURITY VIOLATION.*COMPANY-A.*COMPANY-B/),
+      ).toBeInTheDocument();
     });
   });
 });

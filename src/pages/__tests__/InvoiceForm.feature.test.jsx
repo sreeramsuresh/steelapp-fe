@@ -30,7 +30,10 @@ describe('Invoice Feature', () => {
         const handleAddItem = () => {
           setInvoice({
             ...invoice,
-            items: [...invoice.items, { product: 'SS-304-Sheet', qty: 50, price: 100 }],
+            items: [
+              ...invoice.items,
+              { product: 'SS-304-Sheet', qty: 50, price: 100 },
+            ],
             subtotal: 5000,
             vat: 250,
             total: 5250,
@@ -46,12 +49,16 @@ describe('Invoice Feature', () => {
             <input
               placeholder="Customer Name"
               value={invoice.customerName}
-              onChange={(e) => setInvoice({ ...invoice, customerName: e.target.value })}
+              onChange={(e) =>
+                setInvoice({ ...invoice, customerName: e.target.value })
+              }
             />
             <button onClick={handleAddItem}>Add Product</button>
             <div className="items-list">
               {invoice.items.map((item, idx) => (
-                <div key={idx}>{item.product} - Qty: {item.qty}</div>
+                <div key={idx}>
+                  {item.product} - Qty: {item.qty}
+                </div>
               ))}
             </div>
             <div>Subtotal: {invoice.subtotal}</div>
@@ -93,7 +100,9 @@ describe('Invoice Feature', () => {
           <>
             <input placeholder="Customer Name" />
             <div>
-              {errors.customer && <span id="customer-error">{errors.customer}</span>}
+              {errors.customer && (
+                <span id="customer-error">{errors.customer}</span>
+              )}
             </div>
             <button onClick={handleSave}>Save</button>
           </>
@@ -147,7 +156,9 @@ describe('Invoice Feature', () => {
           <>
             <div>Stock Level: {stockLevel}</div>
             <button onClick={handleSaveInvoice}>Save Invoice (50 units)</button>
-            {invoiceSaved && <div className="alert-success">Invoice saved, stock updated</div>}
+            {invoiceSaved && (
+              <div className="alert-success">Invoice saved, stock updated</div>
+            )}
           </>
         );
       };
@@ -203,10 +214,16 @@ describe('Invoice Feature', () => {
           <>
             <div>Status: {status}</div>
             <button onClick={() => setStatus('saved')}>Save</button>
-            <button onClick={() => setStatus('delivered')} disabled={status !== 'saved'}>
+            <button
+              onClick={() => setStatus('delivered')}
+              disabled={status !== 'saved'}
+            >
               Mark Delivered
             </button>
-            <button onClick={() => setStatus('paid')} disabled={status !== 'delivered'}>
+            <button
+              onClick={() => setStatus('paid')}
+              disabled={status !== 'delivered'}
+            >
               Mark Paid
             </button>
           </>
@@ -218,17 +235,17 @@ describe('Invoice Feature', () => {
       expect(screen.getByText('Status: draft')).toBeInTheDocument();
 
       // Draft -> Saved
-      let saveBtn = findButtonByRole('Save');
+      const saveBtn = findButtonByRole('Save');
       await userEvent.click(saveBtn);
       expect(screen.getByText('Status: saved')).toBeInTheDocument();
 
       // Saved -> Delivered
-      let deliverBtn = findButtonByRole('Mark Delivered', { disabled: false });
+      const deliverBtn = findButtonByRole('Mark Delivered', { disabled: false });
       await userEvent.click(deliverBtn);
       expect(screen.getByText('Status: delivered')).toBeInTheDocument();
 
       // Delivered -> Paid
-      let paidBtn = findButtonByRole('Mark Paid', { disabled: false });
+      const paidBtn = findButtonByRole('Mark Paid', { disabled: false });
       await userEvent.click(paidBtn);
       expect(screen.getByText('Status: paid')).toBeInTheDocument();
     });
@@ -286,7 +303,9 @@ describe('Invoice Feature', () => {
       const deleteBtn = findButtonByRole('Delete Invoice');
       await userEvent.click(deleteBtn);
 
-      expect(screen.getByText(/Cannot delete paid invoice/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Cannot delete paid invoice/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -297,7 +316,10 @@ describe('Invoice Feature', () => {
           { product: 'SS-304-Sheet', qty: 50, unitPrice: 100 }, // 5000
           { product: 'SS-316-Pipe', qty: 30, unitPrice: 150 }, // 4500
         ];
-        const subtotal = items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0);
+        const subtotal = items.reduce(
+          (sum, item) => sum + item.qty * item.unitPrice,
+          0,
+        );
         const vat = subtotal * 0.05;
         const total = subtotal + vat;
 
@@ -305,7 +327,8 @@ describe('Invoice Feature', () => {
           <>
             {items.map((item, idx) => (
               <div key={idx}>
-                {item.product}: {item.qty} × {item.unitPrice} = {item.qty * item.unitPrice}
+                {item.product}: {item.qty} × {item.unitPrice} ={' '}
+                {item.qty * item.unitPrice}
               </div>
             ))}
             <div>Subtotal: {subtotal}</div>

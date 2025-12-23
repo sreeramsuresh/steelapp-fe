@@ -14,7 +14,8 @@
  * SSOT Pattern Regex
  * Validates product naming follows the standard pattern
  */
-const SSOT_PATTERN_REGEX = /^SS-[A-Z0-9]+-[A-Z]+-[A-Z0-9]+-\d+mm-\d+(\.\d+)?mm-(\d+mm|COIL)$/i;
+const SSOT_PATTERN_REGEX =
+  /^SS-[A-Z0-9]+-[A-Z]+-[A-Z0-9]+-\d+mm-\d+(\.\d+)?mm-(\d+mm|COIL)$/i;
 
 /**
  * Valid product forms

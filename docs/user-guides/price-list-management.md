@@ -18,28 +18,31 @@ The Price List Management module enables you to create, manage, and approve prod
 
 Different product categories require different pricing approaches:
 
-| Category | Pricing Unit | Strategy |
-|----------|--------------|----------|
-| **COILS** | Weight-based (MT/KG) | Cost + margin with minimum thresholds |
-| **SHEETS** | Weight-based (MT/KG) | Cost + margin with minimum thresholds |
-| **PIPES_TUBES** | Length-based (MTR) | Cost + margin + cutting charges |
-| **FITTINGS** | Per piece (PCS) | Fixed price per unit |
-| **BARS_RODS** | Length-based (MTR) | Cost + margin + cutting charges |
+| Category        | Pricing Unit         | Strategy                              |
+| --------------- | -------------------- | ------------------------------------- |
+| **COILS**       | Weight-based (MT/KG) | Cost + margin with minimum thresholds |
+| **SHEETS**      | Weight-based (MT/KG) | Cost + margin with minimum thresholds |
+| **PIPES_TUBES** | Length-based (MTR)   | Cost + margin + cutting charges       |
+| **FITTINGS**    | Per piece (PCS)      | Fixed price per unit                  |
+| **BARS_RODS**   | Length-based (MTR)   | Cost + margin + cutting charges       |
 
 **Auto-Selection:** When you select a product category, the pricing unit is automatically set to the correct type.
 
 ### 2. Cost Validation & Margin Thresholds (Epic 2)
 
 **Minimum Margin Requirements:**
+
 - **LOCAL sales:** ≥ 5%
 - **IMPORTED products:** ≥ 8%
 
 **System Behavior:**
+
 - If you enter a selling price below the minimum margin, you'll see a **warning message**
 - The warning shows: "Margin below threshold for IMPORTED channel (minimum 8%)"
 - You can proceed with a lower margin, but it will be **flagged for approval**
 
 **Example:**
+
 ```
 Product: 304 SS Coil 2mm
 Cost Price: 10,000 AED/MT
@@ -55,15 +58,18 @@ Selling Price (AED/MT):
 ### 3. Effective Date Scheduling (Epic 14)
 
 **Date Range Management:**
+
 - Set **start date** (when price list becomes active)
 - Set **end date** (when price list expires)
 - System prevents overlapping date ranges for the same product
 
 **Visual Timeline:**
+
 - The form displays a timeline showing all price lists for the selected products
 - Overlapping ranges are highlighted with a **red warning**
 
 **Example:**
+
 ```
 Product: 316L SS Sheet 3mm
 
@@ -85,12 +91,14 @@ Corrected:
 **Solution:** The system normalizes all margins to AED equivalent using real-time exchange rates.
 
 **Fields:**
+
 - **Cost Currency:** Currency in which you purchased (USD, EUR, AED)
 - **Selling Currency:** Currency in which customer pays
 - **Exchange Rate:** Auto-fetched or manually entered
 - **Normalized Margin (AED):** Calculated automatically
 
 **Example:**
+
 ```
 Product: 304 SS Coil
 Cost Price: $2,500 USD/MT
@@ -114,17 +122,20 @@ Normalized Margin (AED): 20.0% ✅
 ### 5. Approval Workflow (Epic 8)
 
 **Status Flow:**
+
 1. **Draft** → Created by sales rep, not yet submitted
 2. **Pending Approval** → Submitted for manager review
 3. **Approved** → Manager approved, now active and **read-only**
 4. **Rejected** → Manager rejected, reason provided
 
 **Approval Controls:**
+
 - Only **approved** price lists can be used in export orders
 - Once approved, price list becomes **read-only** (no edits allowed)
 - Audit trail tracks: "Created by [User A] on [Date]" and "Approved by [Manager B] on [Date]"
 
 **Manager Actions:**
+
 - **Approve:** Click "Approve" button, add optional comment
 - **Reject:** Click "Reject" button, provide rejection reason (required)
 
@@ -192,6 +203,7 @@ Normalized Margin (AED): 20.0% ✅
 **Scenario:** Steel prices fluctuate quarterly. You need to schedule price changes in advance.
 
 **Solution:**
+
 1. Create Q1 price list (Jan 1 - Mar 31)
 2. Create Q2 price list (Apr 1 - Jun 30)
 3. Create Q3 price list (Jul 1 - Sep 30)
@@ -203,6 +215,7 @@ Normalized Margin (AED): 20.0% ✅
 **Scenario:** Customer wants quote in EUR, but you purchase in USD.
 
 **Solution:**
+
 1. Enter cost in USD (as purchased)
 2. Enter selling price in EUR
 3. System converts both to AED using exchange rates
@@ -213,6 +226,7 @@ Normalized Margin (AED): 20.0% ✅
 **Scenario:** Supplier increased cost mid-month. Existing price list is no longer profitable.
 
 **Solution:**
+
 1. Create new price list with adjusted prices
 2. Set start date = today
 3. End current price list early (set end date = yesterday)
@@ -226,11 +240,11 @@ Normalized Margin (AED): 20.0% ✅
 
 ### Margin Thresholds
 
-| Channel | Minimum Margin | Enforcement |
-|---------|---------------|-------------|
-| LOCAL | 5% | Warning if below |
-| IMPORTED | 8% | Warning if below |
-| EXPORT | 10% | Warning if below |
+| Channel  | Minimum Margin | Enforcement      |
+| -------- | -------------- | ---------------- |
+| LOCAL    | 5%             | Warning if below |
+| IMPORTED | 8%             | Warning if below |
+| EXPORT   | 10%            | Warning if below |
 
 ### Date Overlaps
 
@@ -240,23 +254,23 @@ Normalized Margin (AED): 20.0% ✅
 
 ### Approval Authority
 
-| Role | Can Create | Can Approve | Can Edit Approved |
-|------|------------|-------------|-------------------|
-| Sales Rep | ✅ | ❌ | ❌ |
-| Sales Manager | ✅ | ✅ | ❌ |
-| Pricing Manager | ✅ | ✅ | ❌ |
-| Admin | ✅ | ✅ | ⚠️ Override only |
+| Role            | Can Create | Can Approve | Can Edit Approved |
+| --------------- | ---------- | ----------- | ----------------- |
+| Sales Rep       | ✅         | ❌          | ❌                |
+| Sales Manager   | ✅         | ✅          | ❌                |
+| Pricing Manager | ✅         | ✅          | ❌                |
+| Admin           | ✅         | ✅          | ⚠️ Override only  |
 
 ### Currency Support
 
-| Currency | Symbol | Auto-Fetch Rate? |
-|----------|--------|------------------|
-| AED | AED | N/A (base currency) |
-| USD | $ | ✅ Yes |
-| EUR | € | ✅ Yes |
-| GBP | £ | ✅ Yes |
-| SAR | SAR | ✅ Yes |
-| INR | ₹ | ✅ Yes |
+| Currency | Symbol | Auto-Fetch Rate?    |
+| -------- | ------ | ------------------- |
+| AED      | AED    | N/A (base currency) |
+| USD      | $      | ✅ Yes              |
+| EUR      | €      | ✅ Yes              |
+| GBP      | £      | ✅ Yes              |
+| SAR      | SAR    | ✅ Yes              |
+| INR      | ₹      | ✅ Yes              |
 
 ---
 
@@ -267,6 +281,7 @@ Normalized Margin (AED): 20.0% ✅
 **Cause:** Selling price is too low relative to cost.
 
 **Solution:**
+
 1. Increase selling price to meet minimum margin, OR
 2. Proceed with warning and explain in approval comment
 
@@ -275,6 +290,7 @@ Normalized Margin (AED): 20.0% ✅
 **Cause:** Another price list exists for the same product in the same date range.
 
 **Solution:**
+
 1. Adjust start/end dates to avoid overlap, OR
 2. End the existing price list early, OR
 3. Wait for existing price list to expire
@@ -284,6 +300,7 @@ Normalized Margin (AED): 20.0% ✅
 **Cause:** Approved price lists are read-only for audit compliance.
 
 **Solution:**
+
 1. Create a **new** price list with updated prices
 2. Set start date to when new prices should apply
 3. System will transition automatically
@@ -293,6 +310,7 @@ Normalized Margin (AED): 20.0% ✅
 **Cause:** System couldn't fetch rate for selected currency pair.
 
 **Solution:**
+
 1. Enter exchange rate manually
 2. Source from: Central Bank, xe.com, or company policy
 3. Document source in comments
@@ -312,6 +330,7 @@ Normalized Margin (AED): 20.0% ✅
 ## Audit & Compliance
 
 **Tracked Information:**
+
 - Created by (user, timestamp)
 - Approved by (user, timestamp)
 - Rejected by (user, timestamp, reason)
@@ -320,6 +339,7 @@ Normalized Margin (AED): 20.0% ✅
 **Retention:** Price lists are retained indefinitely for audit purposes.
 
 **Reports Available:**
+
 - Price List History by Product
 - Margin Analysis by Category
 - Approval Timeline Report
@@ -330,11 +350,13 @@ Normalized Margin (AED): 20.0% ✅
 ## Support
 
 For assistance with price list management:
+
 - **Sales Manager:** Approval issues
 - **Pricing Manager:** Margin thresholds, strategy questions
 - **IT Support:** System errors, performance issues
 
 **Training Resources:**
+
 - Video: "Creating Your First Price List" (5 min)
 - Video: "Multi-Currency Pricing Explained" (8 min)
 - FAQ: Common Pricing Scenarios

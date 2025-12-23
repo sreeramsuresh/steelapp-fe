@@ -95,7 +95,9 @@ const StockReceiptForm = ({
   // GRN State (Epic 3 - RECV-001)
   const [grnNumber, setGrnNumber] = useState("");
   const [grnStatus, setGrnStatus] = useState("draft"); // draft, pending_approval, approved
-  const [grnDate, setGrnDate] = useState(new Date().toISOString().split("T")[0]);
+  const [grnDate, setGrnDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [approvedBy, setApprovedBy] = useState("");
   const [approvalDate, setApprovalDate] = useState("");
 
@@ -163,8 +165,12 @@ const StockReceiptForm = ({
           initialActualWeights[item.id] = pending;
           // Auto-generate batch number (Epic 6 - RECV-003)
           const timestamp = Date.now();
-          const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-          initialBatchNumbers[item.id] = `IMP-${purchaseOrderId || "PO"}-${item.id}-${randomSuffix}`;
+          const randomSuffix = Math.random()
+            .toString(36)
+            .substring(2, 6)
+            .toUpperCase();
+          initialBatchNumbers[item.id] =
+            `IMP-${purchaseOrderId || "PO"}-${item.id}-${randomSuffix}`;
           initialSupplierBatchRefs[item.id] = "";
           initialMfgDates[item.id] = today;
         }
@@ -185,7 +191,10 @@ const StockReceiptForm = ({
   useEffect(() => {
     if (open && !grnNumber) {
       const timestamp = new Date().getTime();
-      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const randomSuffix = Math.random()
+        .toString(36)
+        .substring(2, 6)
+        .toUpperCase();
       setGrnNumber(`GRN-${timestamp}-${randomSuffix}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -349,7 +358,9 @@ const StockReceiptForm = ({
           if (qty > 0) {
             const item = receivableItems.find((i) => i.id === parseInt(itemId));
             if (item) {
-              const { variance, percentage } = calculateWeightVariance(parseInt(itemId));
+              const { variance, percentage } = calculateWeightVariance(
+                parseInt(itemId),
+              );
               itemsToReceive.push({
                 itemId: parseInt(itemId),
                 productId: item.productId || item.product_id,
@@ -547,7 +558,9 @@ const StockReceiptForm = ({
               </div>
 
               {grnStatus === "approved" && approvedBy && (
-                <div className={`p-3 ${isDarkMode ? "bg-green-900/20" : "bg-green-50"} border ${isDarkMode ? "border-green-700/30" : "border-green-200"} rounded-lg flex items-center gap-2`}>
+                <div
+                  className={`p-3 ${isDarkMode ? "bg-green-900/20" : "bg-green-50"} border ${isDarkMode ? "border-green-700/30" : "border-green-200"} rounded-lg flex items-center gap-2`}
+                >
                   <Shield className="w-4 h-4 text-green-500" />
                   <div className="flex-1">
                     <p className={`text-xs ${textPrimary} font-medium`}>
@@ -570,7 +583,9 @@ const StockReceiptForm = ({
               )}
 
               {grnStatus !== "approved" && (
-                <div className={`mt-3 p-2.5 ${isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50"} border ${isDarkMode ? "border-yellow-700/30" : "border-yellow-200"} rounded-lg flex items-start gap-2`}>
+                <div
+                  className={`mt-3 p-2.5 ${isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50"} border ${isDarkMode ? "border-yellow-700/30" : "border-yellow-200"} rounded-lg flex items-start gap-2`}
+                >
                   <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-yellow-600 dark:text-yellow-400">
                     GRN must be approved before stock can be received.
@@ -896,7 +911,10 @@ const StockReceiptForm = ({
                               <td className={`p-3 border-b ${tableBorder}`}>
                                 {!isComplete && isSelected ? (
                                   <select
-                                    value={varianceReasons[item.id] || "accepted_tolerance"}
+                                    value={
+                                      varianceReasons[item.id] ||
+                                      "accepted_tolerance"
+                                    }
                                     onChange={(e) =>
                                       handleVarianceReasonChange(
                                         item.id,

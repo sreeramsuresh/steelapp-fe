@@ -48,7 +48,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO grn_headers (company_id, warehouse_id, grn_number, status, created_at)
        VALUES ($1, $2, $3, 'draft', NOW())
        RETURNING id`,
-      [company.id, warehouse.id, grnNumber]
+      [company.id, warehouse.id, grnNumber],
     );
     const grnId = grnResult[0].id;
 
@@ -57,14 +57,14 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO grn_items (grn_id, product_id, quantity_ordered, quantity_received, unit_cost, batch_number, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())
        RETURNING id`,
-      [grnId, product.id, 50, 50, 100, `BATCH-${Date.now()}`]
+      [grnId, product.id, 50, 50, 100, `BATCH-${Date.now()}`],
     );
     const grnItemId = grnItemResult[0].id;
 
     // Approve GRN - creates stock_batches
     await dbQuery(
       `UPDATE grn_headers SET status = 'approved' WHERE id = $1`,
-      [grnId]
+      [grnId],
     );
 
     // Verify stock_batches created with 50 quantity_remaining
@@ -73,7 +73,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
        FROM stock_batches
        WHERE product_id = $1 AND warehouse_id = $2
        ORDER BY received_date ASC`,
-      [product.id, warehouse.id]
+      [product.id, warehouse.id],
     );
 
     expect(batchResult).toHaveLength(1);
@@ -86,7 +86,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
     const customer = await dbQuery(
       `INSERT INTO customers (company_id, name, email, phone, credit_limit, created_at)
        VALUES ($1, 'Test Customer', 'test@example.com', '+971501234567', 100000, NOW())
-       RETURNING id`
+       RETURNING id`,
     );
     const customerId = customer[0].id;
 
@@ -94,7 +94,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO invoices (company_id, customer_id, invoice_number, subtotal, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, 'draft', NOW())
        RETURNING id`,
-      [company.id, customerId, invoiceNumber, 6000, 300, 6300]
+      [company.id, customerId, invoiceNumber, 6000, 300, 6300],
     );
     const invoiceId = invoiceResult[0].id;
 
@@ -104,7 +104,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
         `INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price, subtotal, created_at)
          VALUES ($1, $2, $3, $4, $5, NOW())
          RETURNING id`,
-        [invoiceId, product.id, 60, 100, 6000]
+        [invoiceId, product.id, 60, 100, 6000],
       );
 
       // If item inserted, now try to allocate batch
@@ -112,7 +112,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       // It should fail: quantity_remaining (50) < quantity_requested (60)
       const itemResult = await dbQuery(
         `SELECT id FROM invoice_items WHERE invoice_id = $1`,
-        [invoiceId]
+        [invoiceId],
       );
       const itemId = itemResult[0].id;
 
@@ -120,14 +120,14 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       await dbQuery(
         `INSERT INTO invoice_batch_consumption (invoice_item_id, batch_id, quantity_reserved, unit_cost, created_at)
          VALUES ($1, $2, $3, $4, NOW())`,
-        [itemId, batch.id, 60, 100]
+        [itemId, batch.id, 60, 100],
       );
 
       // If we reach here, allocation succeeded (BAD - constraint missing)
       // Verify constraint would prevent negative quantity_remaining
       const afterAllocation = await dbQuery(
         `SELECT quantity_remaining, quantity_reserved FROM stock_batches WHERE id = $1`,
-        [batch.id]
+        [batch.id],
       );
 
       const remaining = parseFloat(afterAllocation[0].quantity_remaining);
@@ -176,21 +176,21 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO grn_headers (company_id, warehouse_id, grn_number, status, created_at)
        VALUES ($1, $2, $3, 'approved', NOW())
        RETURNING id`,
-      [company.id, warehouse.id, grnNumber]
+      [company.id, warehouse.id, grnNumber],
     );
     const grnId = grnResult[0].id;
 
     await dbQuery(
       `INSERT INTO grn_items (grn_id, product_id, quantity_ordered, quantity_received, unit_cost, batch_number, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-      [grnId, product.id, 100, 100, 100, `BATCH-SUCCESS-${Date.now()}`]
+      [grnId, product.id, 100, 100, 100, `BATCH-SUCCESS-${Date.now()}`],
     );
 
     // Get created batch
     const batchResult = await dbQuery(
       `SELECT id, quantity_remaining FROM stock_batches
        WHERE product_id = $1 AND warehouse_id = $2`,
-      [product.id, warehouse.id]
+      [product.id, warehouse.id],
     );
     const batch = batchResult[0];
     expect(parseFloat(batch.quantity_remaining)).toBe(100);
@@ -199,14 +199,14 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
     const customerResult = await dbQuery(
       `INSERT INTO customers (company_id, name, email, phone, credit_limit, created_at)
        VALUES ($1, 'Test Customer', 'test@example.com', '+971501234567', 100000, NOW())
-       RETURNING id`
+       RETURNING id`,
     );
 
     const invoiceResult = await dbQuery(
       `INSERT INTO invoices (company_id, customer_id, invoice_number, subtotal, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, 'draft', NOW())
        RETURNING id`,
-      [company.id, customerResult[0].id, `INV-VALID-${Date.now()}`, 6000, 300, 6300]
+      [company.id, customerResult[0].id, `INV-VALID-${Date.now()}`, 6000, 300, 6300],
     );
     const invoiceId = invoiceResult[0].id;
 
@@ -215,20 +215,20 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price, subtotal, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())
        RETURNING id`,
-      [invoiceId, product.id, 60, 100, 6000]
+      [invoiceId, product.id, 60, 100, 6000],
     );
 
     // Allocate batch (should succeed)
     await dbQuery(
       `INSERT INTO invoice_batch_consumption (invoice_item_id, batch_id, quantity_reserved, unit_cost, created_at)
        VALUES ($1, $2, $3, $4, NOW())`,
-      [itemResult[0].id, batch.id, 60, 100]
+      [itemResult[0].id, batch.id, 60, 100],
     );
 
     // Verify: batch has 60 reserved, 40 remaining
     const afterAllocation = await dbQuery(
       `SELECT quantity_remaining, quantity_reserved FROM stock_batches WHERE id = $1`,
-      [batch.id]
+      [batch.id],
     );
 
     expect(parseFloat(afterAllocation[0].quantity_remaining)).toBe(100); // unchanged
@@ -253,18 +253,18 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO grn_headers (company_id, warehouse_id, grn_number, status, created_at)
        VALUES ($1, $2, $3, 'approved', NOW())
        RETURNING id`,
-      [company.id, warehouse.id, `GRN-BOUNDARY-${Date.now()}`]
+      [company.id, warehouse.id, `GRN-BOUNDARY-${Date.now()}`],
     );
 
     await dbQuery(
       `INSERT INTO grn_items (grn_id, product_id, quantity_ordered, quantity_received, unit_cost, batch_number, created_at)
        VALUES ($1, $2, 100, 100, 100, $3, NOW())`,
-      [grnResult[0].id, product.id, `BATCH-BOUNDARY-${Date.now()}`]
+      [grnResult[0].id, product.id, `BATCH-BOUNDARY-${Date.now()}`],
     );
 
     const batchResult = await dbQuery(
       `SELECT id FROM stock_batches WHERE product_id = $1 ORDER BY id DESC LIMIT 1`,
-      [product.id]
+      [product.id],
     );
     const batchId = batchResult[0].id;
 
@@ -272,7 +272,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
     const customerResult = await dbQuery(
       `INSERT INTO customers (company_id, name, email, phone, credit_limit, created_at)
        VALUES ($1, 'Test', 'test@example.com', '+971501234567', 100000, NOW())
-       RETURNING id`
+       RETURNING id`,
     );
 
     // Invoice 1: Allocate exactly 100 units (all available)
@@ -280,27 +280,27 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO invoices (company_id, customer_id, invoice_number, subtotal, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, 10000, 500, 10500, 'draft', NOW())
        RETURNING id`,
-      [company.id, customerResult[0].id, `INV-EXACT-100-${Date.now()}`]
+      [company.id, customerResult[0].id, `INV-EXACT-100-${Date.now()}`],
     );
 
     const item1Result = await dbQuery(
       `INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price, subtotal, created_at)
        VALUES ($1, $2, 100, 100, 10000, NOW())
        RETURNING id`,
-      [inv1Result[0].id, product.id]
+      [inv1Result[0].id, product.id],
     );
 
     // Allocate all 100 units
     await dbQuery(
       `INSERT INTO invoice_batch_consumption (invoice_item_id, batch_id, quantity_reserved, unit_cost, created_at)
        VALUES ($1, $2, 100, 100, NOW())`,
-      [item1Result[0].id, batchId]
+      [item1Result[0].id, batchId],
     );
 
     // Verify: 0 units remaining
     const afterFirst = await dbQuery(
       `SELECT quantity_remaining, quantity_reserved FROM stock_batches WHERE id = $1`,
-      [batchId]
+      [batchId],
     );
     expect(parseFloat(afterFirst[0].quantity_remaining)).toBe(100);
     expect(parseFloat(afterFirst[0].quantity_reserved)).toBe(100);
@@ -311,14 +311,14 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO invoices (company_id, customer_id, invoice_number, subtotal, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, 100, 5, 105, 'draft', NOW())
        RETURNING id`,
-      [company.id, customerResult[0].id, `INV-OVER-ZERO-${Date.now()}`]
+      [company.id, customerResult[0].id, `INV-OVER-ZERO-${Date.now()}`],
     );
 
     const item2Result = await dbQuery(
       `INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price, subtotal, created_at)
        VALUES ($1, $2, 1, 100, 100, NOW())
        RETURNING id`,
-      [inv2Result[0].id, product.id]
+      [inv2Result[0].id, product.id],
     );
 
     try {
@@ -326,13 +326,13 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       await dbQuery(
         `INSERT INTO invoice_batch_consumption (invoice_item_id, batch_id, quantity_reserved, unit_cost, created_at)
          VALUES ($1, $2, 1, 100, NOW())`,
-        [item2Result[0].id, batchId]
+        [item2Result[0].id, batchId],
       );
 
       // If insert succeeded, verify constraint still enforced
       const afterSecond = await dbQuery(
         `SELECT quantity_remaining, quantity_reserved FROM stock_batches WHERE id = $1`,
-        [batchId]
+        [batchId],
       );
 
       const availableForReserve = parseFloat(afterSecond[0].quantity_remaining) - parseFloat(afterSecond[0].quantity_reserved);
@@ -376,13 +376,13 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO grn_headers (company_id, warehouse_id, grn_number, status, created_at)
        VALUES ($1, $2, $3, 'approved', NOW())
        RETURNING id`,
-      [company.id, warehouse.id, `GRN-BATCH1-${Date.now()}`]
+      [company.id, warehouse.id, `GRN-BATCH1-${Date.now()}`],
     );
 
     await dbQuery(
       `INSERT INTO grn_items (grn_id, product_id, quantity_ordered, quantity_received, unit_cost, batch_number, created_at)
        VALUES ($1, $2, 30, 30, 100, $3, NOW())`,
-      [grn1Result[0].id, product.id, `BATCH1-${Date.now()}`]
+      [grn1Result[0].id, product.id, `BATCH1-${Date.now()}`],
     );
 
     // Receive Batch 2: 30 units (after Batch 1)
@@ -390,13 +390,13 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO grn_headers (company_id, warehouse_id, grn_number, status, created_at)
        VALUES ($1, $2, $3, 'approved', NOW())
        RETURNING id`,
-      [company.id, warehouse.id, `GRN-BATCH2-${Date.now()}`]
+      [company.id, warehouse.id, `GRN-BATCH2-${Date.now()}`],
     );
 
     await dbQuery(
       `INSERT INTO grn_items (grn_id, product_id, quantity_ordered, quantity_received, unit_cost, batch_number, created_at)
        VALUES ($1, $2, 30, 30, 100, $3, NOW())`,
-      [grn2Result[0].id, product.id, `BATCH2-${Date.now()}`]
+      [grn2Result[0].id, product.id, `BATCH2-${Date.now()}`],
     );
 
     // Get both batches in FIFO order (received_date ASC)
@@ -404,7 +404,7 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `SELECT id, batch_number FROM stock_batches
        WHERE product_id = $1 AND warehouse_id = $2
        ORDER BY received_date ASC`,
-      [product.id, warehouse.id]
+      [product.id, warehouse.id],
     );
 
     expect(batchesResult).toHaveLength(2);
@@ -415,14 +415,14 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
     const customerResult = await dbQuery(
       `INSERT INTO customers (company_id, name, email, phone, credit_limit, created_at)
        VALUES ($1, 'Test', 'test@example.com', '+971501234567', 100000, NOW())
-       RETURNING id`
+       RETURNING id`,
     );
 
     const invoiceResult = await dbQuery(
       `INSERT INTO invoices (company_id, customer_id, invoice_number, subtotal, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, 5000, 250, 5250, 'draft', NOW())
        RETURNING id`,
-      [company.id, customerResult[0].id, `INV-FIFO-${Date.now()}`]
+      [company.id, customerResult[0].id, `INV-FIFO-${Date.now()}`],
     );
 
     // Create line item for 50 units (will allocate from both batches)
@@ -430,33 +430,33 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       `INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price, subtotal, created_at)
        VALUES ($1, $2, 50, 100, 5000, NOW())
        RETURNING id`,
-      [invoiceResult[0].id, product.id]
+      [invoiceResult[0].id, product.id],
     );
 
     // Allocate: 30 from Batch1 + 20 from Batch2 (FIFO order)
     await dbQuery(
       `INSERT INTO invoice_batch_consumption (invoice_item_id, batch_id, quantity_reserved, unit_cost, created_at)
        VALUES ($1, $2, 30, 100, NOW())`,
-      [itemResult[0].id, batch1Id]
+      [itemResult[0].id, batch1Id],
     );
 
     await dbQuery(
       `INSERT INTO invoice_batch_consumption (invoice_item_id, batch_id, quantity_reserved, unit_cost, created_at)
        VALUES ($1, $2, 20, 100, NOW())`,
-      [itemResult[0].id, batch2Id]
+      [itemResult[0].id, batch2Id],
     );
 
     // Verify: Batch1 has 30 reserved (all consumed), Batch2 has 20 reserved (10 remaining)
     const batch1State = await dbQuery(
       `SELECT quantity_remaining, quantity_reserved FROM stock_batches WHERE id = $1`,
-      [batch1Id]
+      [batch1Id],
     );
     expect(parseFloat(batch1State[0].quantity_remaining)).toBe(30);
     expect(parseFloat(batch1State[0].quantity_reserved)).toBe(30);
 
     const batch2State = await dbQuery(
       `SELECT quantity_remaining, quantity_reserved FROM stock_batches WHERE id = $1`,
-      [batch2Id]
+      [batch2Id],
     );
     expect(parseFloat(batch2State[0].quantity_remaining)).toBe(30);
     expect(parseFloat(batch2State[0].quantity_reserved)).toBe(20);

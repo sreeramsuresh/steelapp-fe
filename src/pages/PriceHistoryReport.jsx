@@ -1,29 +1,17 @@
 import { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  TextField,
-  Button,
-  Stack,
-  Chip,
-  MenuItem,
-  CircularProgress,
-  Alert,
-  Grid,
-} from "@mui/material";
-import { Search as SearchIcon } from "@mui/icons-material";
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import pricelistService from "../services/pricelistService";
 import { productService } from "../services/dataService";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { toUAETime } from "../utils/timezone";
 
 export default function PriceHistoryReport() {
@@ -40,7 +28,7 @@ export default function PriceHistoryReport() {
 
   const fetchProducts = async () => {
     try {
-      const response = await productService.getAll();
+      const response = await productService.getProducts();
       setProducts(response.data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -121,165 +109,165 @@ export default function PriceHistoryReport() {
   );
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Price History Report
-      </Typography>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">Price History Report</h1>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <TextField
-              select
-              label="Select Product"
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex-1 min-w-max">
+            <label className="block text-sm font-medium mb-2">
+              Select Product
+            </label>
+            <select
               value={selectedProduct}
               onChange={(e) => setSelectedProduct(e.target.value)}
-              sx={{ minWidth: 300 }}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white w-full sm:w-80"
             >
-              <MenuItem value="">-- Select Product --</MenuItem>
+              <option value="">-- Select Product --</option>
               {products.map((product) => (
-                <MenuItem key={product.id} value={product.id}>
+                <option key={product.id} value={product.id}>
                   {product.uniqueName || product.unique_name || "N/A"}
-                </MenuItem>
+                </option>
               ))}
-            </TextField>
-            <Button
-              variant="contained"
-              startIcon={<SearchIcon />}
-              onClick={fetchPriceHistory}
-              disabled={loading || !selectedProduct}
-            >
-              View History
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
+            </select>
+          </div>
+          <Button
+            onClick={fetchPriceHistory}
+            disabled={loading || !selectedProduct}
+            className="gap-2 mt-6 sm:mt-0"
+          >
+            <Search className="w-4 h-4" />
+            View History
+          </Button>
+        </div>
+      </div>
 
       {selectedProductData && (
-        <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="caption" color="textSecondary">
-                  Product Name
-                </Typography>
-                <Typography variant="body1" fontWeight="bold">
-                  {selectedProductData.displayName || selectedProductData.name}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="caption" color="textSecondary">
-                  Category
-                </Typography>
-                <Typography variant="body1">
-                  {selectedProductData.category}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="caption" color="textSecondary">
-                  Grade
-                </Typography>
-                <Typography variant="body1">
-                  {selectedProductData.grade}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="caption" color="textSecondary">
-                  Current Price
-                </Typography>
-                <Typography variant="body1" color="primary" fontWeight="bold">
-                  AED {selectedProductData.sellingPrice?.toFixed(2)}
-                </Typography>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                Product Name
+              </p>
+              <p className="font-bold text-lg">
+                {selectedProductData.displayName || selectedProductData.name}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                Category
+              </p>
+              <p className="text-lg">{selectedProductData.category}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                Grade
+              </p>
+              <p className="text-lg">{selectedProductData.grade}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                Current Price
+              </p>
+              <p className="font-bold text-lg text-blue-600">
+                AED {selectedProductData.sellingPrice?.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" p={4}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
       ) : priceHistory.length === 0 && selectedProduct ? (
-        <Alert severity="info">
+        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200 px-4 py-3 rounded-lg">
           No price history found for the selected product.
-        </Alert>
+        </div>
       ) : priceHistory.length > 0 ? (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Price List</TableCell>
-                <TableCell>Effective Date</TableCell>
-                <TableCell align="right">Price</TableCell>
-                <TableCell align="right">Change</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {priceHistory.map((row, index) => {
-                const priceDiff = getPriceDiff(index);
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Price List</TableHead>
+                  <TableHead>Effective Date</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Change</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {priceHistory.map((row, index) => {
+                  const priceDiff = getPriceDiff(index);
 
-                return (
-                  <TableRow key={row.pricelistId}>
-                    <TableCell>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="body2">
-                          {row.pricelistName}
-                        </Typography>
-                        {row.isDefault && (
-                          <Chip label="Default" size="small" color="primary" />
+                  return (
+                    <TableRow
+                      key={row.pricelistId}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{row.pricelistName}</span>
+                          {row.isDefault && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900 dark:text-blue-200">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">
+                          {row.effectiveFrom
+                            ? toUAETime(row.effectiveFrom, { format: "date" })
+                            : "No date"}
+                          {row.effectiveTo &&
+                            ` - ${toUAETime(row.effectiveTo, { format: "date" })}`}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="font-bold">
+                          AED {row.price.toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {priceDiff ? (
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                              priceDiff.diff >= 0
+                                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
+                                : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200"
+                            }`}
+                          >
+                            {priceDiff.diff >= 0 ? "+" : ""}
+                            {priceDiff.diffPercent}%
+                          </span>
+                        ) : (
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            -
+                          </span>
                         )}
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      {row.effectiveFrom
-                        ? toUAETime(row.effectiveFrom, { format: "date" })
-                        : "No date"}
-                      {row.effectiveTo &&
-                        ` - ${toUAETime(row.effectiveTo, { format: "date" })}`}
-                    </TableCell>
-                    <TableCell align="right">
-                      <Typography fontWeight="bold">
-                        AED {row.price.toFixed(2)}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      {priceDiff ? (
-                        <Chip
-                          label={`${priceDiff.diff >= 0 ? "+" : ""}${priceDiff.diffPercent}%`}
-                          size="small"
-                          color={priceDiff.diff >= 0 ? "success" : "error"}
-                        />
-                      ) : (
-                        <Typography variant="body2" color="textSecondary">
-                          -
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {row.isActive ? (
-                        <Chip
-                          label="Active"
-                          size="small"
-                          color="success"
-                          variant="outlined"
-                        />
-                      ) : (
-                        <Chip
-                          label="Inactive"
-                          size="small"
-                          variant="outlined"
-                        />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                      </TableCell>
+                      <TableCell>
+                        {row.isActive ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-200">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-700 dark:text-gray-200">
+                            Inactive
+                          </span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       ) : null}
-    </Box>
+    </div>
   );
 }

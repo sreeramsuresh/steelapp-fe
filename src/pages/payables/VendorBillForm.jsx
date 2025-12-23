@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { X, Loader2, Save, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import vendorBillService from "../../services/vendorBillService";
-import { suppliersAPI } from '../../services/api';
+import { suppliersAPI } from "../../services/api";
 import { purchaseOrderService } from "../../services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

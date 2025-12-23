@@ -6,7 +6,7 @@
  * This tests the full stack: test → API Gateway → gRPC backend → DB
  */
 
-let apiBaseUrl = 'http://localhost:3000/api';
+const apiBaseUrl = 'http://localhost:3000/api';
 let client: any = null;
 
 /**
@@ -43,7 +43,9 @@ export async function initGrpcClient(): Promise<any> {
  */
 export function getGrpcClient(): any {
   if (!client) {
-    throw new Error('Service client not initialized. Call initGrpcClient() first.');
+    throw new Error(
+      'Service client not initialized. Call initGrpcClient() first.',
+    );
   }
   return client;
 }
@@ -90,17 +92,20 @@ export async function recordPaymentViaGrpc(params: {
   payment_method: string;
   company_id: string;
 }): Promise<any> {
-  const response = await fetch(`${apiBaseUrl}/invoices/${params.invoice_id}/payments`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Company-Id': params.company_id,
+  const response = await fetch(
+    `${apiBaseUrl}/invoices/${params.invoice_id}/payments`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Company-Id': params.company_id,
+      },
+      body: JSON.stringify({
+        amount: params.amount,
+        payment_method: params.payment_method,
+      }),
     },
-    body: JSON.stringify({
-      amount: params.amount,
-      payment_method: params.payment_method,
-    }),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -118,14 +123,17 @@ export async function postInvoiceViaGrpc(params: {
   invoice_id: string;
   company_id: string;
 }): Promise<any> {
-  const response = await fetch(`${apiBaseUrl}/invoices/${params.invoice_id}/post`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Company-Id': params.company_id,
+  const response = await fetch(
+    `${apiBaseUrl}/invoices/${params.invoice_id}/post`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Company-Id': params.company_id,
+      },
+      body: JSON.stringify({}),
     },
-    body: JSON.stringify({}),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -173,7 +181,7 @@ export async function callBackendService(
   endpoint: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   params: any,
-  companyId?: string
+  companyId?: string,
 ): Promise<any> {
   const response = await fetch(`${apiBaseUrl}${endpoint}`, {
     method,
@@ -181,7 +189,10 @@ export async function callBackendService(
       'Content-Type': 'application/json',
       ...(companyId && { 'X-Company-Id': companyId }),
     },
-    body: method !== 'GET' && method !== 'DELETE' ? JSON.stringify(params) : undefined,
+    body:
+      method !== 'GET' && method !== 'DELETE'
+        ? JSON.stringify(params)
+        : undefined,
   });
 
   if (!response.ok) {

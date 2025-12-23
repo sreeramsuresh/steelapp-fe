@@ -17,7 +17,7 @@ export async function getInvoice(invoiceId: string) {
        status, created_at, updated_at
      FROM invoices
      WHERE invoice_id = $1`,
-    [invoiceId]
+    [invoiceId],
   );
   return rows[0] || null;
 }
@@ -33,7 +33,7 @@ export async function getInvoicesByCompany(companyId: string) {
      FROM invoices
      WHERE company_id = $1
      ORDER BY created_at DESC`,
-    [companyId]
+    [companyId],
   );
 }
 
@@ -45,7 +45,7 @@ export async function getStockBalance(warehouseId: string, productId: string) {
     `SELECT COALESCE(SUM(quantity), 0) as total
      FROM stock
      WHERE warehouse_id = $1 AND product_id = $2`,
-    [warehouseId, productId]
+    [warehouseId, productId],
   );
   return rows[0]?.total || 0;
 }
@@ -61,7 +61,7 @@ export async function getWarehouseStock(warehouseId: string) {
      FROM stock
      WHERE warehouse_id = $1
      ORDER BY batch_no`,
-    [warehouseId]
+    [warehouseId],
   );
 }
 
@@ -76,7 +76,7 @@ export async function getStockMovements(documentId: string) {
      FROM stock_movements
      WHERE document_id = $1
      ORDER BY created_at`,
-    [documentId]
+    [documentId],
   );
 }
 
@@ -91,7 +91,7 @@ export async function getJournalEntries(invoiceId: string) {
      FROM journal_entries
      WHERE invoice_id = $1
      ORDER BY id`,
-    [invoiceId]
+    [invoiceId],
   );
 }
 
@@ -103,7 +103,7 @@ export async function getARBalance(customerId: string, companyId: string) {
     `SELECT COALESCE(SUM(amount - COALESCE(paid, 0)), 0) as balance
      FROM ar_ledger
      WHERE customer_id = $1 AND company_id = $2`,
-    [customerId, companyId]
+    [customerId, companyId],
   );
   return rows[0]?.balance || 0;
 }
@@ -112,10 +112,9 @@ export async function getARBalance(customerId: string, companyId: string) {
  * Get all data for a company from a table (tenant isolation check)
  */
 export async function getTenantData(tableName: string, companyId: string) {
-  return await dbQuery(
-    `SELECT * FROM ${tableName} WHERE company_id = $1`,
-    [companyId]
-  );
+  return await dbQuery(`SELECT * FROM ${tableName} WHERE company_id = $1`, [
+    companyId,
+  ]);
 }
 
 /**
@@ -127,7 +126,7 @@ export async function getCustomer(customerId: string) {
             location, credit_limit, created_at
      FROM customers
      WHERE customer_id = $1`,
-    [customerId]
+    [customerId],
   );
   return rows[0] || null;
 }
@@ -141,7 +140,7 @@ export async function getProduct(productId: string) {
             width_mm, thickness_mm, length_mm, created_at
      FROM products
      WHERE product_id = $1`,
-    [productId]
+    [productId],
   );
   return rows[0] || null;
 }
@@ -154,7 +153,7 @@ export async function getWarehouse(warehouseId: string) {
     `SELECT id, warehouse_id, company_id, name, location, created_at
      FROM warehouses
      WHERE warehouse_id = $1`,
-    [warehouseId]
+    [warehouseId],
   );
   return rows[0] || null;
 }
@@ -167,7 +166,7 @@ export async function getCompany(companyId: string) {
     `SELECT id, company_id, company_name, trn_no, credit_limit, created_at
      FROM companies
      WHERE company_id = $1`,
-    [companyId]
+    [companyId],
   );
   return rows[0] || null;
 }
@@ -180,7 +179,7 @@ export async function getVendorBill(billId: string) {
     `SELECT id, bill_id, supplier_id, company_id, amount, status, created_at
      FROM vendor_bills
      WHERE bill_id = $1`,
-    [billId]
+    [billId],
   );
   return rows[0] || null;
 }
@@ -193,7 +192,7 @@ export async function getDeliveryNote(deliveryNoteId: string) {
     `SELECT id, delivery_note_id, invoice_id, company_id, status, created_at
      FROM delivery_notes
      WHERE delivery_note_id = $1`,
-    [deliveryNoteId]
+    [deliveryNoteId],
   );
   return rows[0] || null;
 }
@@ -207,7 +206,7 @@ export async function getDeliveryNoteItems(deliveryNoteId: string) {
      FROM delivery_note_items
      WHERE delivery_note_id = $1
      ORDER BY id`,
-    [deliveryNoteId]
+    [deliveryNoteId],
   );
 }
 
@@ -216,15 +215,24 @@ export async function getDeliveryNoteItems(deliveryNoteId: string) {
  */
 export async function getJournalBalance(invoiceId: string) {
   const entries = await getJournalEntries(invoiceId);
-  const debits = entries.reduce((sum, e) => sum + (parseFloat(e.debit) || 0), 0);
-  const credits = entries.reduce((sum, e) => sum + (parseFloat(e.credit) || 0), 0);
+  const debits = entries.reduce(
+    (sum, e) => sum + (parseFloat(e.debit) || 0),
+    0,
+  );
+  const credits = entries.reduce(
+    (sum, e) => sum + (parseFloat(e.credit) || 0),
+    0,
+  );
   return { debits, credits, isBalanced: Math.abs(debits - credits) < 0.01 };
 }
 
 /**
  * Assert helper: Check stock doesn't go negative
  */
-export async function validateStockBalance(warehouseId: string, productId: string) {
+export async function validateStockBalance(
+  warehouseId: string,
+  productId: string,
+) {
   const balance = await getStockBalance(warehouseId, productId);
   return balance >= 0;
 }
@@ -232,7 +240,11 @@ export async function validateStockBalance(warehouseId: string, productId: strin
 /**
  * Assert helper: Check tenant isolation
  */
-export async function validateTenantIsolation(companyIdA: string, companyIdB: string, tableName: string) {
+export async function validateTenantIsolation(
+  companyIdA: string,
+  companyIdB: string,
+  tableName: string,
+) {
   const dataA = await getTenantData(tableName, companyIdA);
   const dataB = await getTenantData(tableName, companyIdB);
 
@@ -240,15 +252,20 @@ export async function validateTenantIsolation(companyIdA: string, companyIdB: st
   return {
     companyARowCount: dataA.length,
     companyBRowCount: dataB.length,
-    isIsolated: dataA.every((row: any) => row.company_id === companyIdA) &&
-                dataB.every((row: any) => row.company_id === companyIdB)
+    isIsolated:
+      dataA.every((row: any) => row.company_id === companyIdA) &&
+      dataB.every((row: any) => row.company_id === companyIdB),
   };
 }
 
 /**
  * Count rows in a table
  */
-export async function countRows(tableName: string, whereClause?: string, params?: unknown[]) {
+export async function countRows(
+  tableName: string,
+  whereClause?: string,
+  params?: unknown[],
+) {
   const sql = whereClause
     ? `SELECT COUNT(*) as count FROM ${tableName} WHERE ${whereClause}`
     : `SELECT COUNT(*) as count FROM ${tableName}`;

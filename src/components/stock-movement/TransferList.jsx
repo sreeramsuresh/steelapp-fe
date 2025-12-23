@@ -8,42 +8,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  IconButton,
-  Chip,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Tooltip,
-  CircularProgress,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  InputAdornment,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Visibility as ViewIcon,
-  LocalShipping as ShipIcon,
-  Inventory as ReceiveIcon,
-  Cancel as CancelIcon,
-  Refresh as RefreshIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
+  Plus,
+  Eye,
+  Truck,
+  Package,
+  X,
+  RotateCcw,
+  Search,
+  Loader2,
+} from "lucide-react";
 import {
   stockMovementService,
   TRANSFER_STATUSES,
@@ -75,6 +48,21 @@ const getStatusChip = (status) => {
     color: "default",
   };
   return statusInfo;
+};
+
+/**
+ * Map MUI colors to Tailwind badge colors
+ */
+const getStatusBadgeClasses = (color) => {
+  const colorMap = {
+    default: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+    primary: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    success: "bg-green-500/20 text-green-400 border-green-500/30",
+    warning: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    error: "bg-red-500/20 text-red-400 border-red-500/30",
+    info: "bg-teal-500/20 text-teal-400 border-teal-500/30",
+  };
+  return colorMap[color] || colorMap.default;
 };
 
 const TransferList = ({ onCreateNew, onViewTransfer }) => {
@@ -233,20 +221,20 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   const getAvailableActions = (transfer) => {
     const actions = [];
 
-    actions.push({ type: "view", label: "View", icon: <ViewIcon /> });
+    actions.push({ type: "view", label: "View", icon: Eye });
 
     if (transfer.status === "DRAFT" || transfer.status === "PENDING") {
-      actions.push({ type: "ship", label: "Ship", icon: <ShipIcon /> });
-      actions.push({ type: "cancel", label: "Cancel", icon: <CancelIcon /> });
+      actions.push({ type: "ship", label: "Ship", icon: Truck });
+      actions.push({ type: "cancel", label: "Cancel", icon: X });
     }
 
     if (transfer.status === "SHIPPED" || transfer.status === "IN_TRANSIT") {
       actions.push({
         type: "receive",
         label: "Receive",
-        icon: <ReceiveIcon />,
+        icon: Package,
       });
-      actions.push({ type: "cancel", label: "Cancel", icon: <CancelIcon /> });
+      actions.push({ type: "cancel", label: "Cancel", icon: X });
     }
 
     return actions;
@@ -263,288 +251,358 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   };
 
   return (
-    <Box>
+    <div>
       {/* Error Alert */}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
+        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+          <span>{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <X size={18} />
+          </button>
+        </div>
       )}
 
       {/* Standardized Filter Bar - Phase 3 Redesign */}
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
+      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F] p-4 mb-4">
+        <div className="flex gap-4 flex-wrap items-center">
           {/* Search Input */}
-          <TextField
-            size="small"
-            placeholder="Search transfers..."
-            value={searchQuery}
+          <div className="relative min-w-[220px]">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Search transfers..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0);
+              }}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+            />
+          </div>
+
+          <select
+            value={statusFilter}
             onChange={(e) => {
-              setSearchQuery(e.target.value);
+              setStatusFilter(e.target.value);
               setPage(0);
             }}
-            sx={{ minWidth: 220 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" color="action" />
-                </InputAdornment>
-              ),
+            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
+          >
+            <option value="">All Status</option>
+            {Object.values(TRANSFER_STATUSES).map((status) => (
+              <option key={status.value} value={status.value}>
+                {status.label}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={sourceWarehouseFilter}
+            onChange={(e) => {
+              setSourceWarehouseFilter(e.target.value);
+              setPage(0);
             }}
-          />
+            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+          >
+            <option value="">All Sources</option>
+            {warehouses.map((wh) => (
+              <option key={wh.id} value={wh.id}>
+                {wh.name}
+              </option>
+            ))}
+          </select>
 
-          <FormControl size="small" sx={{ minWidth: 130 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Status"
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(0);
-              }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {Object.values(TRANSFER_STATUSES).map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Source</InputLabel>
-            <Select
-              value={sourceWarehouseFilter}
-              label="Source"
-              onChange={(e) => {
-                setSourceWarehouseFilter(e.target.value);
-                setPage(0);
-              }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {warehouses.map((wh) => (
-                <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Destination</InputLabel>
-            <Select
-              value={destWarehouseFilter}
-              label="Destination"
-              onChange={(e) => {
-                setDestWarehouseFilter(e.target.value);
-                setPage(0);
-              }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {warehouses.map((wh) => (
-                <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <select
+            value={destWarehouseFilter}
+            onChange={(e) => {
+              setDestWarehouseFilter(e.target.value);
+              setPage(0);
+            }}
+            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+          >
+            <option value="">All Destinations</option>
+            {warehouses.map((wh) => (
+              <option key={wh.id} value={wh.id}>
+                {wh.name}
+              </option>
+            ))}
+          </select>
 
           {/* Spacer */}
-          <Box sx={{ flexGrow: 1 }} />
+          <div className="flex-grow" />
 
           {/* Action Buttons */}
-          <Tooltip title="Refresh">
-            <span>
-              <IconButton
-                onClick={loadTransfers}
-                disabled={loading}
-                size="small"
-                sx={{ border: 1, borderColor: "divider" }}
-              >
-                <RefreshIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onCreateNew}
-            sx={{
-              bgcolor: "#0d9488",
-              "&:hover": { bgcolor: "#0f766e" },
-              textTransform: "none",
-            }}
+          <button
+            onClick={loadTransfers}
+            disabled={loading}
+            title="Refresh"
+            className="p-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
           >
+            <RotateCcw size={18} />
+          </button>
+
+          <button
+            onClick={onCreateNew}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium"
+          >
+            <Plus size={18} />
             New Transfer
-          </Button>
-        </Box>
-      </Paper>
+          </button>
+        </div>
+      </div>
 
       {/* Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "grey.100" }}>
-              <TableCell>Transfer #</TableCell>
-              <TableCell>From</TableCell>
-              <TableCell>To</TableCell>
-              <TableCell>Items</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell>Shipped</TableCell>
-              <TableCell>Received</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                  <CircularProgress size={32} />
-                </TableCell>
-              </TableRow>
-            ) : transfers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">
-                    No transfers found
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              transfers.map((transfer) => {
-                const statusInfo = getStatusChip(transfer.status);
-                const actions = getAvailableActions(transfer);
-
-                return (
-                  <TableRow key={transfer.id} hover>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight="medium">
-                        {transfer.transferNumber}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{transfer.sourceWarehouseName || "-"}</TableCell>
-                    <TableCell>
-                      {transfer.destinationWarehouseName || "-"}
-                    </TableCell>
-                    <TableCell>{transfer.items?.length || 0} items</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={statusInfo.label}
-                        size="small"
-                        color={statusInfo.color}
-                        variant="outlined"
+      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F]">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-800 border-b border-[#37474F]">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Transfer #
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  From
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  To
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Items
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Created
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Shipped
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Received
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#37474F]">
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="px-4 py-8 text-center">
+                    <div className="flex justify-center">
+                      <Loader2
+                        className="animate-spin text-teal-500"
+                        size={32}
                       />
-                    </TableCell>
-                    <TableCell>{formatDate(transfer.createdAt)}</TableCell>
-                    <TableCell>{formatDate(transfer.shippedDate)}</TableCell>
-                    <TableCell>{formatDate(transfer.receivedDate)}</TableCell>
-                    <TableCell align="right">
-                      {actions.map((action) => (
-                        <Tooltip key={action.type} title={action.label}>
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              handleActionClick(action.type, transfer)
-                            }
-                          >
-                            {action.icon}
-                          </IconButton>
-                        </Tooltip>
-                      ))}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+                    </div>
+                  </td>
+                </tr>
+              ) : transfers.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="px-4 py-8 text-center text-gray-400"
+                  >
+                    No transfers found
+                  </td>
+                </tr>
+              ) : (
+                transfers.map((transfer) => {
+                  const statusInfo = getStatusChip(transfer.status);
+                  const actions = getAvailableActions(transfer);
 
-        <TablePagination
-          component="div"
-          count={totalCount}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[10, 20, 50]}
-        />
-      </TableContainer>
+                  return (
+                    <tr key={transfer.id} className="hover:bg-[#252a30]">
+                      <td className="px-4 py-3 text-sm font-medium text-white">
+                        {transfer.transferNumber}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {transfer.sourceWarehouseName || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {transfer.destinationWarehouseName || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {transfer.items?.length || 0} items
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(statusInfo.color)}`}
+                        >
+                          {statusInfo.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {formatDate(transfer.createdAt)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {formatDate(transfer.shippedDate)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {formatDate(transfer.receivedDate)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <div className="flex justify-end gap-1">
+                          {actions.map((action) => {
+                            const IconComponent = action.icon;
+                            return (
+                              <button
+                                key={action.type}
+                                onClick={() =>
+                                  handleActionClick(action.type, transfer)
+                                }
+                                title={action.label}
+                                className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-white"
+                              >
+                                <IconComponent size={18} />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 border-t border-[#37474F] bg-[#1E2328]">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Rows per page:</span>
+            <select
+              value={rowsPerPage}
+              onChange={handleChangeRowsPerPage}
+              className="px-2 py-1 rounded border bg-gray-800 border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-400">
+              {page * rowsPerPage + 1}-
+              {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount}
+            </span>
+            <div className="flex gap-1">
+              <button
+                onClick={(e) => handleChangePage(e, page - 1)}
+                disabled={page === 0}
+                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+              >
+                Previous
+              </button>
+              <button
+                onClick={(e) => handleChangePage(e, page + 1)}
+                disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
+                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Action Confirmation Dialog */}
-      <Dialog
-        open={actionDialog.open}
-        onClose={() =>
-          setActionDialog({ open: false, type: null, transfer: null })
-        }
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {actionDialog.type === "ship" && "Ship Transfer"}
-          {actionDialog.type === "receive" && "Receive Transfer"}
-          {actionDialog.type === "cancel" && "Cancel Transfer"}
-        </DialogTitle>
-        <DialogContent>
-          {actionDialog.type === "ship" && (
-            <Typography>
-              Are you sure you want to ship transfer{" "}
-              <strong>{actionDialog.transfer?.transferNumber}</strong>? This
-              will deduct stock from the source warehouse.
-            </Typography>
-          )}
-          {actionDialog.type === "receive" && (
-            <Typography>
-              Are you sure you want to receive transfer{" "}
-              <strong>{actionDialog.transfer?.transferNumber}</strong>? This
-              will add stock to the destination warehouse.
-            </Typography>
-          )}
-          {actionDialog.type === "cancel" && (
-            <Typography>
-              Are you sure you want to cancel transfer{" "}
-              <strong>{actionDialog.transfer?.transferNumber}</strong>?
-              {actionDialog.transfer?.status === "SHIPPED" &&
-                " Stock will be restored to the source warehouse."}
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
+      {actionDialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/50"
             onClick={() =>
               setActionDialog({ open: false, type: null, transfer: null })
             }
-            disabled={actionLoading}
-          >
-            No, Go Back
-          </Button>
-          <Button
-            variant="contained"
-            color={actionDialog.type === "cancel" ? "error" : "primary"}
-            onClick={() => {
-              if (actionDialog.type === "ship") handleShip();
-              else if (actionDialog.type === "receive") handleReceive();
-              else if (actionDialog.type === "cancel") handleCancel();
-            }}
-            disabled={actionLoading}
-            startIcon={actionLoading && <CircularProgress size={16} />}
-          >
-            {actionDialog.type === "ship" && "Yes, Ship"}
-            {actionDialog.type === "receive" && "Yes, Receive"}
-            {actionDialog.type === "cancel" && "Yes, Cancel"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          />
+
+          {/* Dialog */}
+          <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            {/* Title */}
+            <h3 className="text-lg font-semibold text-white mb-4">
+              {actionDialog.type === "ship" && "Ship Transfer"}
+              {actionDialog.type === "receive" && "Receive Transfer"}
+              {actionDialog.type === "cancel" && "Cancel Transfer"}
+            </h3>
+
+            {/* Content */}
+            <div className="mb-6 text-gray-300">
+              {actionDialog.type === "ship" && (
+                <p>
+                  Are you sure you want to ship transfer{" "}
+                  <strong className="text-white">
+                    {actionDialog.transfer?.transferNumber}
+                  </strong>
+                  ? This will deduct stock from the source warehouse.
+                </p>
+              )}
+              {actionDialog.type === "receive" && (
+                <p>
+                  Are you sure you want to receive transfer{" "}
+                  <strong className="text-white">
+                    {actionDialog.transfer?.transferNumber}
+                  </strong>
+                  ? This will add stock to the destination warehouse.
+                </p>
+              )}
+              {actionDialog.type === "cancel" && (
+                <p>
+                  Are you sure you want to cancel transfer{" "}
+                  <strong className="text-white">
+                    {actionDialog.transfer?.transferNumber}
+                  </strong>
+                  ?
+                  {actionDialog.transfer?.status === "SHIPPED" &&
+                    " Stock will be restored to the source warehouse."}
+                </p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() =>
+                  setActionDialog({ open: false, type: null, transfer: null })
+                }
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+              >
+                No, Go Back
+              </button>
+              <button
+                onClick={() => {
+                  if (actionDialog.type === "ship") handleShip();
+                  else if (actionDialog.type === "receive") handleReceive();
+                  else if (actionDialog.type === "cancel") handleCancel();
+                }}
+                disabled={actionLoading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
+                  actionDialog.type === "cancel"
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {actionLoading && (
+                  <Loader2 className="animate-spin" size={16} />
+                )}
+                {actionDialog.type === "ship" && "Yes, Ship"}
+                {actionDialog.type === "receive" && "Yes, Receive"}
+                {actionDialog.type === "cancel" && "Yes, Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

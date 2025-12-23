@@ -33,7 +33,9 @@ const TIMEOUT_MS = 3000; // 3 second timeout
 const BACKUP_INTERVAL_HOURS = 4; // Must match cron schedule
 const BACKUP_INTERVAL_MS = BACKUP_INTERVAL_HOURS * 60 * 60 * 1000;
 const BACKUP_ROOT = process.env.BACKUP_ROOT || '/mnt/d/DB Backup';
-const BACKUP_GUARD_SCRIPT = process.env.BACKUP_GUARD_SCRIPT || '/mnt/d/Ultimate Steel/steelapprnp/backup-system/scripts/backup_guard.sh';
+const BACKUP_GUARD_SCRIPT =
+  process.env.BACKUP_GUARD_SCRIPT ||
+  '/mnt/d/Ultimate Steel/steelapprnp/backup-system/scripts/backup_guard.sh';
 const CATCHUP_LOG_FILE = path.join(BACKUP_ROOT, 'logs', 'backup_catchup.log');
 
 /**
@@ -216,9 +218,10 @@ function displayStatus(status) {
       const lastSuccess = formatTime(status.lastSuccessAt);
       console.log(line(`Last successful backup: ${lastSuccess}`));
       if (status.artifact) {
-        const artifact = status.artifact.length > BOX_WIDTH - 10
-          ? status.artifact.substring(0, BOX_WIDTH - 13) + '...'
-          : status.artifact;
+        const artifact =
+          status.artifact.length > BOX_WIDTH - 10
+            ? `${status.artifact.substring(0, BOX_WIDTH - 13)  }...`
+            : status.artifact;
         console.log(line(`Artifact: ${artifact}`));
       }
       if (status.durationSec) {
@@ -237,9 +240,10 @@ function displayStatus(status) {
       console.log(divider);
       console.log(line('Blocking Reason:'));
       if (status.blockedReason) {
-        const reason = status.blockedReason.length > BOX_WIDTH - 4
-          ? status.blockedReason.substring(0, BOX_WIDTH - 7) + '...'
-          : status.blockedReason;
+        const reason =
+          status.blockedReason.length > BOX_WIDTH - 4
+            ? `${status.blockedReason.substring(0, BOX_WIDTH - 7)  }...`
+            : status.blockedReason;
         console.log(line(`  ${reason}`));
       }
       if (status.lastSuccessAt) {
@@ -283,7 +287,7 @@ function logCatchup(message, data = {}) {
     }
 
     // Append to log file
-    fs.appendFileSync(CATCHUP_LOG_FILE, logLine + '\n');
+    fs.appendFileSync(CATCHUP_LOG_FILE, `${logLine  }\n`);
   } catch (err) {
     // Silently fail - don't block startup
   }
@@ -395,7 +399,7 @@ async function main() {
     // Check and execute catch-up if needed
     // Give it a brief moment to spawn the background process
     // but don't block if it takes longer (use timeout)
-    const catchupTimeout = new Promise(resolve => setTimeout(resolve, 100));
+    const catchupTimeout = new Promise((resolve) => setTimeout(resolve, 100));
     const catchupPromise = checkAndExecuteCatchup(status);
 
     await Promise.race([catchupPromise, catchupTimeout]).catch(() => {

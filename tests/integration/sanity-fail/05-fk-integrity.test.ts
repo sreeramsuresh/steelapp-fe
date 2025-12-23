@@ -57,7 +57,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
       // Service allowed creation - FK constraint must prevent it
       const bill = await dbQuery(
         `SELECT * FROM vendor_bills WHERE bill_id = $1`,
-        [createdBill.bill_id]
+        [createdBill.bill_id],
       );
       expect(bill).toHaveLength(0);
     } else {
@@ -106,7 +106,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     // ASSERTION: Bill is in database
     const retrievedBill = await dbQuery(
       `SELECT * FROM vendor_bills WHERE supplier_id = $1`,
-      [supplier.supplier_id]
+      [supplier.supplier_id],
     );
     expect(retrievedBill.length).toBeGreaterThan(0);
   });
@@ -123,7 +123,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     await dbQuery(
       `INSERT INTO vendor_bills (bill_id, supplier_id, company_id, amount, status, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())`,
-      [billId, supplier.supplier_id, company.company_id, 5000, 'draft']
+      [billId, supplier.supplier_id, company.company_id, 5000, 'draft'],
     );
 
     // Verify bill exists
@@ -166,7 +166,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
       await dbQuery(
         `INSERT INTO invoices (invoice_id, customer_id, company_id, subtotal, vat_rate, vat_amount, total, status, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
-        [invoiceId, nonExistentCustomerId, company.company_id, 10000, 0.05, 500, 10500, 'draft']
+        [invoiceId, nonExistentCustomerId, company.company_id, 10000, 0.05, 500, 10500, 'draft'],
       );
     } catch (err) {
       error = err;
@@ -190,7 +190,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
       await dbQuery(
         `INSERT INTO stock (warehouse_id, product_id, batch_no, quantity, unit_cost, created_at)
          VALUES ($1, $2, $3, $4, $5, NOW())`,
-        [nonExistentWarehouseId, nonExistentProductId, 'BATCH-FAKE', 100, 100]
+        [nonExistentWarehouseId, nonExistentProductId, 'BATCH-FAKE', 100, 100],
       );
     } catch (err) {
       error = err;

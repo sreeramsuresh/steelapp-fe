@@ -19,6 +19,7 @@ This guide covers all stock movement operations including GRN workflow, batch al
 **GRN (Goods Receipt Note)** is a formal document confirming receipt of goods into the warehouse.
 
 **Automatic Creation:**
+
 - When you create a **Stock Receipt** from an **Import Order**, the system auto-generates a GRN
 - GRN number format: GRN-YYYY-NNNNNN
 - GRN links to BOE, COO, and HS codes from import order
@@ -26,6 +27,7 @@ This guide covers all stock movement operations including GRN workflow, batch al
 ### Stock Receipt Form Fields
 
 #### Basic Information
+
 - **GRN Number:** Auto-generated (read-only)
 - **Import Order Reference:** Select from pending import orders
 - **Receipt Date:** Date goods physically received
@@ -38,17 +40,20 @@ This guide covers all stock movement operations including GRN workflow, batch al
 **Solution:** Weight variance tracking.
 
 **Fields:**
+
 - **Invoiced Weight:** From supplier invoice/packing list
 - **Actual Weight:** Measured on warehouse scales
 - **Variance (KG):** System calculates (Actual - Invoiced)
 - **Variance (%):** System calculates ((Actual - Invoiced) / Invoiced × 100)
 
 **Tolerance Thresholds:**
+
 - ±2% → Acceptable (auto-approve)
-- >2% to 5% → Warning (requires manager approval)
-- >5% → Rejected (investigation required)
+- > 2% to 5% → Warning (requires manager approval)
+- > 5% → Rejected (investigation required)
 
 **Example:**
+
 ```
 Product: 304 SS Coil 2mm
 Invoiced Weight: 10,000 KG
@@ -69,6 +74,7 @@ Action: Contact supplier for credit note
 #### Batch Association (Epic 6)
 
 **Batch Creation:**
+
 - **Auto-create batch?** (Checkbox, default: YES)
 - If YES, system creates batch with:
   - Batch Number: AUTO-GENERATED (BATCH-YYYY-NNNNNN)
@@ -79,11 +85,13 @@ Action: Contact supplier for credit note
   - Landed Cost: Allocated from import order
 
 **Manual Batch Entry:**
+
 - Uncheck "Auto-create batch"
 - Select existing batch from dropdown
 - Use case: Adding to existing batch
 
 **Example:**
+
 ```
 Import Order: IMP-2024-001
 Product: 304 SS Coil 2mm
@@ -103,6 +111,7 @@ System creates:
 #### Quality & Exceptions (Epic 15)
 
 **Quality Inspection:**
+
 - **Inspection Required?** (from import order)
 - **Inspection Status:** Pending/Passed/Failed
 - **Inspector:** Name of quality inspector
@@ -110,6 +119,7 @@ System creates:
 - **Inspection Certificate:** Upload PDF
 
 **Damage & Shortage Reporting:**
+
 - **Damage Reported?** (Checkbox)
 - **Damage Description:** Text area (e.g., "10 coils have surface rust")
 - **Damage Quantity:** KG/PCS affected
@@ -120,11 +130,13 @@ System creates:
 - **Shortage Quantity:** KG/PCS short
 
 **Receiving Clerk Accountability:**
+
 - **Received By:** Dropdown (warehouse staff)
 - **Signature:** Digital signature (if enabled)
 - **Notes:** Additional comments
 
 **Example:**
+
 ```
 Inspection Required: YES
 Inspection Status: Passed
@@ -146,18 +158,21 @@ Notes: "Container seal intact. No issues during unloading."
 ### GRN Approval Workflow
 
 **Status Flow:**
+
 1. **Draft** → Created, not yet submitted
 2. **Pending Approval** → Submitted for warehouse manager review
 3. **Approved** → Manager approved, stock added to inventory
 4. **Rejected** → Manager rejected (variance too high, damage excessive)
 
 **Approval Trigger:**
+
 - Variance >2% → Requires approval
 - Damage reported → Requires approval
 - Shortage reported → Requires approval
 - Quality inspection failed → Auto-rejected
 
 **Manager Actions:**
+
 - **Approve:** Stock added to available inventory
 - **Reject:** Stock held in "Pending" status, requires resolution
 
@@ -170,6 +185,7 @@ Notes: "Container seal intact. No issues during unloading."
 **FIFO (First-In-First-Out)** ensures oldest stock is used first, preventing obsolescence and maintaining cost consistency.
 
 **Algorithm:**
+
 1. Sort all available batches by **Procurement Date** (oldest first)
 2. Allocate from oldest batch until exhausted
 3. Move to next oldest batch
@@ -181,19 +197,21 @@ Notes: "Container seal intact. No issues during unloading."
 
 **Available Batches:**
 
-| Batch | Procurement Date | Available Qty | Landed Cost |
-|-------|------------------|---------------|-------------|
-| BATCH-001 | 2024-01-15 | 2,000 KG | 42.00 AED/KG |
-| BATCH-002 | 2024-02-20 | 3,500 KG | 44.50 AED/KG |
-| BATCH-003 | 2024-03-10 | 4,000 KG | 46.00 AED/KG |
+| Batch     | Procurement Date | Available Qty | Landed Cost  |
+| --------- | ---------------- | ------------- | ------------ |
+| BATCH-001 | 2024-01-15       | 2,000 KG      | 42.00 AED/KG |
+| BATCH-002 | 2024-02-20       | 3,500 KG      | 44.50 AED/KG |
+| BATCH-003 | 2024-03-10       | 4,000 KG      | 46.00 AED/KG |
 
 **FIFO Allocation:**
+
 1. Allocate 2,000 KG from BATCH-001 (oldest)
 2. Allocate 3,000 KG from BATCH-002 (next oldest)
 3. Total allocated: 5,000 KG
 4. BATCH-003 remains untouched
 
 **Weighted Average Cost:**
+
 ```
 Total Cost = (2,000 × 42.00) + (3,000 × 44.50)
            = 84,000 + 133,500
@@ -203,6 +221,7 @@ Weighted Avg = 217,500 / 5,000 = 43.50 AED/KG
 ```
 
 **Why FIFO Matters:**
+
 - Ensures older stock moves first (reduces risk of obsolescence)
 - Provides accurate COGS (Cost of Goods Sold)
 - Maintains traceability (batch → heat number → mill)
@@ -212,17 +231,20 @@ Weighted Avg = 217,500 / 5,000 = 43.50 AED/KG
 **Use Case:** Sales order confirmed, but delivery next month. Reserve stock now.
 
 **Process:**
+
 1. Create reservation for 3,000 KG
 2. System applies FIFO and reserves oldest batches
 3. Stock status changes: Available → Reserved
 4. Reserved stock cannot be allocated to other orders
 
 **Expiry & Auto-Release (Epic 10):**
+
 - Set **Expiry Date** (e.g., 30 days from now)
 - If sales order cancelled before expiry, manually release reservation
 - If expiry date reached, system auto-releases (stock → Available)
 
 **Example:**
+
 ```
 Reservation: RES-2024-001
 Product: 316L SS Sheet 3mm
@@ -242,12 +264,14 @@ Status: Reserved until 2024-05-15 or manual release
 **Use Case:** Transfer 4,000 KG from Dubai warehouse to Abu Dhabi warehouse.
 
 **Process:**
+
 1. Create transfer order (source: Dubai, destination: Abu Dhabi)
 2. System applies FIFO to Dubai warehouse batches
 3. Oldest batches selected for transfer
 4. After approval and receipt, batches moved to Abu Dhabi
 
 **Batch Chain Maintained:**
+
 - Batch number stays the same
 - Procurement date preserved
 - Landed cost preserved
@@ -260,12 +284,14 @@ Status: Reserved until 2024-05-15 or manual release
 ### Creating a Reservation
 
 **When to Reserve:**
+
 - Confirmed sales order, delivery later
 - Customer hold (paid deposit, awaiting delivery)
 - Quality hold (pending re-inspection)
 - Management hold (pricing negotiation in progress)
 
 **Fields:**
+
 - **Product:** Select product (unique_name)
 - **Quantity:** KG/MT/PCS to reserve
 - **Reason:** Dropdown (Sales Order, Customer Hold, Quality Hold, Other)
@@ -274,11 +300,13 @@ Status: Reserved until 2024-05-15 or manual release
 - **Created By:** User creating reservation
 
 **FIFO Pre-Selection:**
+
 - System auto-selects oldest batches
 - User can override (select specific batches manually)
 - Reason for override must be documented
 
 **Example:**
+
 ```
 Product: 304 SS Pipe 2" SCH 40
 Quantity: 500 MTR
@@ -297,12 +325,14 @@ Status: RESERVED
 ### Managing Reservations
 
 **Actions:**
+
 - **Release:** Manually release reserved stock (returns to Available)
 - **Convert to Order:** Create export order from reservation (auto-allocates)
 - **Extend Expiry:** Extend expiry date (requires approval)
 - **Cancel:** Cancel reservation (auto-releases stock)
 
 **Reporting:**
+
 - View all active reservations by product
 - View expiring reservations (next 7 days)
 - View reservation history by customer
@@ -318,6 +348,7 @@ Status: RESERVED
 #### Step 1: Create Transfer Order
 
 **Fields:**
+
 - **From Warehouse:** Dubai Main Warehouse
 - **To Warehouse:** Abu Dhabi Branch
 - **Transfer Type:** REGULAR / URGENT / QUALITY_HOLD
@@ -328,11 +359,13 @@ Status: RESERVED
 - **Driver Contact:** Mobile number
 
 **Line Items:**
+
 - Product
 - Quantity
 - Batch(es) to transfer (FIFO pre-selected)
 
 **Example:**
+
 ```
 Transfer Order: TRN-2024-001
 From: Dubai Main Warehouse
@@ -355,22 +388,26 @@ Line Items:
 #### Step 2: Approval
 
 **Approval Required for:**
+
 - Transfers >5,000 KG
 - URGENT transfers
 - QUALITY_HOLD transfers
 
 **Manager Reviews:**
+
 - Stock availability at source
 - Business justification
 - Transporter details
 
 **Actions:**
+
 - **Approve:** Status → Approved, ready for dispatch
 - **Reject:** Status → Rejected, provide reason
 
 #### Step 3: Dispatch (In-Transit)
 
 **Warehouse Clerk Actions:**
+
 1. Physical loading of goods
 2. Click "Mark In-Transit"
 3. **Departure Time:** Auto-captured
@@ -379,6 +416,7 @@ Line Items:
 **Status:** IN_TRANSIT
 
 **Example:**
+
 ```
 Status: IN_TRANSIT
 Departed: 2024-04-05 08:30 AM
@@ -388,6 +426,7 @@ Estimated Arrival: 2024-04-05 12:00 PM (3.5 hours)
 #### Step 4: Receipt at Destination
 
 **Warehouse Clerk (Abu Dhabi) Actions:**
+
 1. Physical unloading and verification
 2. Click "Confirm Receipt"
 3. **Arrival Time:** Auto-captured
@@ -396,11 +435,13 @@ Estimated Arrival: 2024-04-05 12:00 PM (3.5 hours)
 **Status:** COMPLETED
 
 **Stock Movement:**
+
 - Deducted from Dubai warehouse
 - Added to Abu Dhabi warehouse
 - Batch association maintained
 
 **Example:**
+
 ```
 Status: COMPLETED
 Arrived: 2024-04-05 11:45 AM
@@ -415,20 +456,22 @@ Stock Updated:
 
 ### Transfer Types
 
-| Type | Use Case | Approval? | Priority |
-|------|----------|-----------|----------|
-| **REGULAR** | Normal stock balancing | Auto (if <5,000 KG) | Standard |
-| **URGENT** | Customer order fulfillment | Required | High |
-| **QUALITY_HOLD** | Segregation for re-inspection | Required | Standard |
+| Type             | Use Case                      | Approval?           | Priority |
+| ---------------- | ----------------------------- | ------------------- | -------- |
+| **REGULAR**      | Normal stock balancing        | Auto (if <5,000 KG) | Standard |
+| **URGENT**       | Customer order fulfillment    | Required            | High     |
+| **QUALITY_HOLD** | Segregation for re-inspection | Required            | Standard |
 
 ### Transporter Accountability
 
 **Why Track Transporter:**
+
 - Damage accountability during transit
 - Delivery time monitoring
 - Transporter performance tracking
 
 **Reports:**
+
 - Transporter Performance Report (on-time %, damage %)
 - Transfer History by Transporter
 - Transit Duration Analysis
@@ -442,32 +485,36 @@ Stock Updated:
 **Drop-Ship:** Supplier ships directly to customer, bypassing your warehouse.
 
 **When to Use:**
+
 - Customer orders item you don't stock
 - Urgent delivery (no time for warehouse handling)
 - Bulky items (save double handling)
 
 ### Shipment Types
 
-| Type | Description | Stock Deduction? | Use Case |
-|------|-------------|------------------|----------|
-| **WAREHOUSE** | Ship from your warehouse | YES | Standard orders |
-| **DROP_SHIP** | Supplier ships direct | NO | Special orders |
+| Type          | Description              | Stock Deduction? | Use Case        |
+| ------------- | ------------------------ | ---------------- | --------------- |
+| **WAREHOUSE** | Ship from your warehouse | YES              | Standard orders |
+| **DROP_SHIP** | Supplier ships direct    | NO               | Special orders  |
 
 ### Drop-Ship Workflow (Export Order)
 
 #### Step 1: Create Export Order
 
 **Fields:**
+
 - Customer: Select customer
 - **Shipment Type:** DROP_SHIP (select from dropdown)
 - Line Items: Add products
 
 **System Behavior:**
+
 - Stock deduction: SKIPPED (no warehouse stock used)
 - Supplier: Must select supplier per line item
 - Delivery address: Customer address (not warehouse)
 
 **Example:**
+
 ```
 Export Order: EXP-2024-050
 Customer: ABC Industries LLC
@@ -484,11 +531,13 @@ Line Items:
 #### Step 2: Supplier Coordination
 
 **Purchase Order:**
+
 - Create PO to supplier
 - Delivery address: Customer address (not your warehouse)
 - Delivery timeline: Coordinated with customer
 
 **Logistics:**
+
 - Supplier arranges shipping
 - BOE and COO handled by supplier (or your customs broker)
 - Direct delivery to customer
@@ -496,24 +545,26 @@ Line Items:
 #### Step 3: Invoice & Payment
 
 **Customer Invoice:**
+
 - Generated as normal (you bill customer)
 - No warehouse delivery note (drop-ship note instead)
 
 **Supplier Payment:**
+
 - Pay supplier after customer confirms receipt
 - No stock receipt in your ERP (drop-ship flag)
 
 ### Warehouse vs. Drop-Ship Comparison
 
-| Aspect | WAREHOUSE | DROP_SHIP |
-|--------|-----------|-----------|
-| Stock deduction | YES | NO |
-| Delivery from | Your warehouse | Supplier direct |
-| Warehouse handling | YES | NO |
-| Stock receipt in ERP | YES | NO |
-| Customer visibility | Standard | Must inform customer |
-| Customs clearance | You handle | Supplier/customer handles |
-| Lead time | Faster (stock ready) | Slower (depends on supplier) |
+| Aspect               | WAREHOUSE            | DROP_SHIP                    |
+| -------------------- | -------------------- | ---------------------------- |
+| Stock deduction      | YES                  | NO                           |
+| Delivery from        | Your warehouse       | Supplier direct              |
+| Warehouse handling   | YES                  | NO                           |
+| Stock receipt in ERP | YES                  | NO                           |
+| Customer visibility  | Standard             | Must inform customer         |
+| Customs clearance    | You handle           | Supplier/customer handles    |
+| Lead time            | Faster (stock ready) | Slower (depends on supplier) |
 
 ---
 
@@ -524,6 +575,7 @@ Line Items:
 **Problem:** Container received, weight 5% short.
 
 **Steps:**
+
 1. Create stock receipt
 2. Enter invoiced weight: 10,000 KG
 3. Enter actual weight: 9,500 KG
@@ -539,6 +591,7 @@ Line Items:
 **Problem:** Abu Dhabi customer needs 2,000 KG urgently. Abu Dhabi warehouse has 500 KG, Dubai has 5,000 KG.
 
 **Steps:**
+
 1. Create transfer order (Dubai → Abu Dhabi)
 2. Type: URGENT
 3. Quantity: 1,500 KG (to supplement 500 KG existing)
@@ -551,6 +604,7 @@ Line Items:
 **Problem:** Customer reports quality issue. Which mill and heat number?
 
 **Steps:**
+
 1. Locate sale in export order: EXP-2024-050
 2. Check allocated batches: BATCH-100
 3. Batch details:
@@ -565,6 +619,7 @@ Line Items:
 ## Part 7: Best Practices
 
 ### Stock Receipt
+
 ✅ Always verify weight on calibrated scales
 ✅ Report all damage/shortage immediately
 ✅ Take photos of damaged goods
@@ -572,18 +627,21 @@ Line Items:
 ✅ Enter mill and heat numbers from MTC
 
 ### Batch Allocation
+
 ✅ Use FIFO unless specific reason to override
 ✅ Document reason for manual batch selection
 ✅ Check batch expiry before allocation
 ✅ Reserve stock for confirmed orders
 
 ### Transfers
+
 ✅ Plan transfers in advance (avoid urgent)
 ✅ Use reliable transporters
 ✅ Verify vehicle and driver details
 ✅ Confirm receipt promptly
 
 ### Drop-Ship
+
 ✅ Inform customer about direct delivery
 ✅ Coordinate delivery timeline with supplier
 ✅ Track shipment status
@@ -594,6 +652,7 @@ Line Items:
 ## Part 8: Reports
 
 **Available Stock Reports:**
+
 - Stock Summary by Product
 - Stock by Warehouse
 - Stock by Batch (FIFO sequence)
@@ -601,12 +660,14 @@ Line Items:
 - Aging Stock Report (slow-moving)
 
 **GRN Reports:**
+
 - GRN Summary (pending approvals)
 - Weight Variance Report
 - Damage & Shortage Report
 - Quality Inspection Status
 
 **Transfer Reports:**
+
 - Pending Transfers
 - In-Transit Transfers
 - Transfer History by Warehouse
@@ -617,6 +678,7 @@ Line Items:
 ## Support
 
 For stock movement issues:
+
 - **Warehouse Manager:** GRN approvals, transfers
 - **Stock Controller:** Batch allocation, reservations
 - **IT Support:** System errors, performance

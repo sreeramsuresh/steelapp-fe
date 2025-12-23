@@ -34,6 +34,16 @@ export default defineConfig({
         secure: false,
       },
     },
+    // Warmup critical files on server start (Vite >= 5.1)
+    warmup: {
+      clientFiles: [
+        './src/main.jsx',
+        './src/App.jsx',
+        './src/components/Login.jsx',
+        './src/contexts/ThemeContext.jsx',
+        './src/services/axiosAuthService.js',
+      ],
+    },
   },
   build: {
     rollupOptions: {
@@ -198,7 +208,20 @@ export default defineConfig({
   },
   // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'axios'],
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'axios',
+      'date-fns',
+      'lucide-react',
+      'recharts',
+      'react-hot-toast',
+      'zod',
+      '@radix-ui/react-select',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+    ],
     // Exclude heavy libraries from pre-bundling to allow proper chunking
     exclude: ['jspdf', 'html2canvas', 'xlsx'],
   },

@@ -38,6 +38,7 @@ This document describes the architecture, component structure, state management 
 **Primary Tool:** React Hook Form (`useForm`)
 
 **Why React Hook Form?**
+
 - Minimal re-renders (uncontrolled components)
 - Built-in validation
 - Easy integration with Zod schema
@@ -45,34 +46,35 @@ This document describes the architecture, component structure, state management 
 
 **State Layers:**
 
-| Layer | Tool | Purpose |
-|-------|------|---------|
-| **Form State** | React Hook Form | Input values, validation, dirty state |
-| **Server State** | React Query / TanStack Query | API fetching, caching, mutations |
-| **UI State** | useState / useReducer | Modal visibility, loading states, tabs |
-| **Global State** | Context API | User session, company_id, permissions |
+| Layer            | Tool                         | Purpose                                |
+| ---------------- | ---------------------------- | -------------------------------------- |
+| **Form State**   | React Hook Form              | Input values, validation, dirty state  |
+| **Server State** | React Query / TanStack Query | API fetching, caching, mutations       |
+| **UI State**     | useState / useReducer        | Modal visibility, loading states, tabs |
+| **Global State** | Context API                  | User session, company_id, permissions  |
 
 **Example: ExportOrderForm State Structure**
+
 ```javascript
 const {
-  register,        // Register input fields
-  handleSubmit,    // Form submission handler
-  watch,           // Watch field values for reactivity
-  setValue,        // Programmatically set values
+  register, // Register input fields
+  handleSubmit, // Form submission handler
+  watch, // Watch field values for reactivity
+  setValue, // Programmatically set values
   formState: {
-    errors,        // Validation errors
-    isDirty,       // Has form been modified?
-    isSubmitting   // Submission in progress?
-  }
+    errors, // Validation errors
+    isDirty, // Has form been modified?
+    isSubmitting, // Submission in progress?
+  },
 } = useForm({
   defaultValues: {
-    customerId: '',
-    orderDate: new Date().toISOString().split('T')[0],
-    shipmentType: 'WAREHOUSE',
+    customerId: "",
+    orderDate: new Date().toISOString().split("T")[0],
+    shipmentType: "WAREHOUSE",
     vatRate: 0.05,
-    items: []
+    items: [],
   },
-  resolver: zodResolver(exportOrderSchema) // Zod validation
+  resolver: zodResolver(exportOrderSchema), // Zod validation
 });
 ```
 
@@ -89,59 +91,65 @@ const {
 
 ```javascript
 // schemas/exportOrder.schema.js
-import { z } from 'zod';
+import { z } from "zod";
 
-export const exportOrderSchema = z.object({
-  customerId: z.string().min(1, 'Customer is required'),
-  orderDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
-  shipmentType: z.enum(['WAREHOUSE', 'DROP_SHIP']),
-  vatRate: z.number().min(0).max(1),
-  items: z.array(
-    z.object({
-      productId: z.string().min(1, 'Product is required'),
-      quantity: z.number().positive('Quantity must be positive'),
-      batchId: z.string().optional()
-    })
-  ).min(1, 'At least one item is required')
-}).refine(
-  (data) => {
-    // Cross-field validation: DROP_SHIP must have supplier per item
-    if (data.shipmentType === 'DROP_SHIP') {
-      return data.items.every(item => item.supplierId);
-    }
-    return true;
-  },
-  {
-    message: 'DROP_SHIP orders require supplier selection per item',
-    path: ['shipmentType']
-  }
-);
+export const exportOrderSchema = z
+  .object({
+    customerId: z.string().min(1, "Customer is required"),
+    orderDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+    shipmentType: z.enum(["WAREHOUSE", "DROP_SHIP"]),
+    vatRate: z.number().min(0).max(1),
+    items: z
+      .array(
+        z.object({
+          productId: z.string().min(1, "Product is required"),
+          quantity: z.number().positive("Quantity must be positive"),
+          batchId: z.string().optional(),
+        }),
+      )
+      .min(1, "At least one item is required"),
+  })
+  .refine(
+    (data) => {
+      // Cross-field validation: DROP_SHIP must have supplier per item
+      if (data.shipmentType === "DROP_SHIP") {
+        return data.items.every((item) => item.supplierId);
+      }
+      return true;
+    },
+    {
+      message: "DROP_SHIP orders require supplier selection per item",
+      path: ["shipmentType"],
+    },
+  );
 ```
 
 **Field-Level Validation Example:**
+
 ```jsx
 <FormField
   label="BOE Number"
-  {...register('boeNumber', {
-    required: 'BOE number is required',
+  {...register("boeNumber", {
+    required: "BOE number is required",
     pattern: {
       value: /^BOE-\d{4}-\d{6}$/,
-      message: 'Format: BOE-YYYY-NNNNNN'
-    }
+      message: "Format: BOE-YYYY-NNNNNN",
+    },
   })}
   error={errors.boeNumber?.message}
 />
 ```
 
 **Cross-Field Validation Example:**
+
 ```javascript
 // Watch shipmentType to conditionally validate supplier
-const shipmentType = watch('shipmentType');
+const shipmentType = watch("shipmentType");
 
 useEffect(() => {
-  if (shipmentType === 'DROP_SHIP') {
+  if (shipmentType === "DROP_SHIP") {
     // Trigger validation for supplier fields
-    trigger('items.*.supplierId');
+    trigger("items.*.supplierId");
   }
 }, [shipmentType]);
 ```
@@ -157,12 +165,13 @@ useEffect(() => {
 **Core Components:**
 
 #### FormField (Text Input)
+
 ```jsx
 // components/forms/FormField.jsx
 export function FormField({
   label,
   name,
-  type = 'text',
+  type = "text",
   placeholder,
   error,
   required = false,
@@ -179,7 +188,7 @@ export function FormField({
         type={type}
         placeholder={placeholder}
         disabled={disabled}
-        className={error ? 'error' : ''}
+        className={error ? "error" : ""}
         {...registerProps}
       />
       {error && <span className="error-message">{error}</span>}
@@ -189,13 +198,14 @@ export function FormField({
 ```
 
 #### FormSelect (Dropdown)
+
 ```jsx
 // components/forms/FormSelect.jsx
 export function FormSelect({
   label,
   name,
   options,
-  placeholder = 'Select...',
+  placeholder = "Select...",
   error,
   required = false,
   ...registerProps
@@ -205,13 +215,9 @@ export function FormSelect({
       <label htmlFor={name}>
         {label} {required && <span className="required">*</span>}
       </label>
-      <select
-        id={name}
-        className={error ? 'error' : ''}
-        {...registerProps}
-      >
+      <select id={name} className={error ? "error" : ""} {...registerProps}>
         <option value="">{placeholder}</option>
-        {options.map(opt => (
+        {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
@@ -224,6 +230,7 @@ export function FormSelect({
 ```
 
 #### FormCheckbox (Boolean Input)
+
 ```jsx
 // components/forms/FormCheckbox.jsx
 export function FormCheckbox({
@@ -255,6 +262,7 @@ export function FormCheckbox({
 **Purpose:** Reusable component for FIFO batch allocation across ExportOrderForm, ReservationForm, TransferForm.
 
 **Props:**
+
 ```typescript
 interface BatchAllocatorProps {
   productId: string;
@@ -275,17 +283,18 @@ interface AllocatedBatch {
 ```
 
 **Implementation:**
+
 ```jsx
 // components/stock/BatchAllocator.jsx
-import { useState, useEffect } from 'react';
-import { fetchAvailableBatches } from '@/api/batches';
+import { useState, useEffect } from "react";
+import { fetchAvailableBatches } from "@/api/batches";
 
 export function BatchAllocator({
   productId,
   quantityRequired,
   warehouseId,
   onAllocationChange,
-  autoAllocate = true
+  autoAllocate = true,
 }) {
   const [batches, setBatches] = useState([]);
   const [allocation, setAllocation] = useState([]);
@@ -294,18 +303,17 @@ export function BatchAllocator({
   useEffect(() => {
     if (!productId) return;
 
-    fetchAvailableBatches({ productId, warehouseId })
-      .then(data => {
-        // Sort by procurement date (FIFO)
-        const sorted = data.sort((a, b) =>
-          new Date(a.procurementDate) - new Date(b.procurementDate)
-        );
-        setBatches(sorted);
+    fetchAvailableBatches({ productId, warehouseId }).then((data) => {
+      // Sort by procurement date (FIFO)
+      const sorted = data.sort(
+        (a, b) => new Date(a.procurementDate) - new Date(b.procurementDate),
+      );
+      setBatches(sorted);
 
-        if (autoAllocate) {
-          allocateFIFO(sorted, quantityRequired);
-        }
-      });
+      if (autoAllocate) {
+        allocateFIFO(sorted, quantityRequired);
+      }
+    });
   }, [productId, warehouseId]);
 
   // FIFO allocation algorithm
@@ -319,7 +327,7 @@ export function BatchAllocator({
       const allocQty = Math.min(batch.availableQty, remaining);
       allocated.push({
         ...batch,
-        allocatedQty: allocQty
+        allocatedQty: allocQty,
       });
       remaining -= allocQty;
     }
@@ -330,8 +338,8 @@ export function BatchAllocator({
 
   // Manual allocation adjustment
   function handleManualAllocation(batchId, qty) {
-    const updated = allocation.map(b =>
-      b.batchId === batchId ? { ...b, allocatedQty: qty } : b
+    const updated = allocation.map((b) =>
+      b.batchId === batchId ? { ...b, allocatedQty: qty } : b,
     );
     setAllocation(updated);
     onAllocationChange(updated);
@@ -351,7 +359,7 @@ export function BatchAllocator({
           </tr>
         </thead>
         <tbody>
-          {allocation.map(batch => (
+          {allocation.map((batch) => (
             <tr key={batch.batchId}>
               <td>{batch.batchNumber}</td>
               <td>{batch.procurementDate}</td>
@@ -365,7 +373,10 @@ export function BatchAllocator({
                     value={batch.allocatedQty}
                     max={batch.availableQty}
                     onChange={(e) =>
-                      handleManualAllocation(batch.batchId, Number(e.target.value))
+                      handleManualAllocation(
+                        batch.batchId,
+                        Number(e.target.value),
+                      )
                     }
                   />
                 )}
@@ -376,8 +387,9 @@ export function BatchAllocator({
         </tbody>
       </table>
       <p>
-        Total Allocated: {allocation.reduce((sum, b) => sum + b.allocatedQty, 0)} KG
-        / Required: {quantityRequired} KG
+        Total Allocated:{" "}
+        {allocation.reduce((sum, b) => sum + b.allocatedQty, 0)} KG / Required:{" "}
+        {quantityRequired} KG
       </p>
     </div>
   );
@@ -385,8 +397,9 @@ export function BatchAllocator({
 ```
 
 **Usage in ExportOrderForm:**
+
 ```jsx
-import { BatchAllocator } from '@/components/stock/BatchAllocator';
+import { BatchAllocator } from "@/components/stock/BatchAllocator";
 
 function ExportOrderForm() {
   const [items, setItems] = useState([]);
@@ -408,7 +421,9 @@ function ExportOrderForm() {
           <BatchAllocator
             productId={item.productId}
             quantityRequired={item.quantity}
-            onAllocationChange={(batches) => handleBatchAllocation(idx, batches)}
+            onAllocationChange={(batches) =>
+              handleBatchAllocation(idx, batches)
+            }
             autoAllocate={true}
           />
         </div>
@@ -443,6 +458,7 @@ API call (mutation)
 ```
 
 **Implementation:**
+
 ```javascript
 const onSubmit = async (data) => {
   try {
@@ -453,18 +469,17 @@ const onSubmit = async (data) => {
     const response = await createExportOrder(payload);
 
     // Success handling
-    toast.success('Export order created successfully');
+    toast.success("Export order created successfully");
     navigate(`/export-orders/${response.id}`);
-
   } catch (error) {
     // Error handling
     if (error.response?.data?.errors) {
       // Map API errors to form fields
       Object.entries(error.response.data.errors).forEach(([field, message]) => {
-        setError(field, { type: 'server', message });
+        setError(field, { type: "server", message });
       });
     } else {
-      toast.error('Failed to create export order');
+      toast.error("Failed to create export order");
     }
   }
 };
@@ -476,20 +491,25 @@ const onSubmit = async (data) => {
 
 ```javascript
 // Watch customer selection
-const customerId = watch('customerId');
+const customerId = watch("customerId");
 
 // Fetch customer details and set VAT rate
 useEffect(() => {
   if (!customerId) return;
 
-  fetchCustomer(customerId).then(customer => {
+  fetchCustomer(customerId).then((customer) => {
     // Auto-set VAT rate based on customer type
-    const vatRate = customer.type === 'UAE_MAINLAND' ? 0.05 :
-                    customer.type === 'DESIGNATED_ZONE' ? 0.00 :
-                    customer.type === 'FOREIGN' ? 0.00 : 0.05;
+    const vatRate =
+      customer.type === "UAE_MAINLAND"
+        ? 0.05
+        : customer.type === "DESIGNATED_ZONE"
+          ? 0.0
+          : customer.type === "FOREIGN"
+            ? 0.0
+            : 0.05;
 
-    setValue('vatRate', vatRate);
-    setValue('customerTRN', customer.trn);
+    setValue("vatRate", vatRate);
+    setValue("customerTRN", customer.trn);
   });
 }, [customerId]);
 ```
@@ -500,13 +520,13 @@ useEffect(() => {
 
 ```javascript
 // Watch FOB, freight, duty to recalculate landed cost
-const fobCost = watch('fobCost');
-const freightCost = watch('freightCost');
-const dutyCost = watch('dutyCost');
+const fobCost = watch("fobCost");
+const freightCost = watch("freightCost");
+const dutyCost = watch("dutyCost");
 
 useEffect(() => {
   const landedCost = fobCost + freightCost + dutyCost;
-  setValue('landedCost', landedCost, { shouldValidate: true });
+  setValue("landedCost", landedCost, { shouldValidate: true });
 }, [fobCost, freightCost, dutyCost]);
 ```
 
@@ -517,15 +537,19 @@ useEffect(() => {
 ### 1. Data Fetching (React Query)
 
 ```javascript
-import { useQuery } from '@tanstack/react-query';
-import { fetchProducts } from '@/api/products';
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducts } from "@/api/products";
 
 function ProductSelector() {
-  const { data: products, isLoading, error } = useQuery({
-    queryKey: ['products'],
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["products"],
     queryFn: fetchProducts,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000  // 10 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
   });
 
   if (isLoading) return <Spinner />;
@@ -535,9 +559,9 @@ function ProductSelector() {
     <FormSelect
       label="Product"
       name="productId"
-      options={products.map(p => ({
+      options={products.map((p) => ({
         value: p.id,
-        label: p.uniqueName  // SSOT naming
+        label: p.uniqueName, // SSOT naming
       }))}
     />
   );
@@ -547,8 +571,8 @@ function ProductSelector() {
 ### 2. Form Mutations
 
 ```javascript
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createImportOrder } from '@/api/importOrders';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createImportOrder } from "@/api/importOrders";
 
 function ImportOrderForm() {
   const queryClient = useQueryClient();
@@ -557,13 +581,13 @@ function ImportOrderForm() {
     mutationFn: createImportOrder,
     onSuccess: (data) => {
       // Invalidate related queries to refetch
-      queryClient.invalidateQueries(['importOrders']);
-      toast.success('Import order created');
+      queryClient.invalidateQueries(["importOrders"]);
+      toast.success("Import order created");
       navigate(`/import-orders/${data.id}`);
     },
     onError: (error) => {
       toast.error(error.message);
-    }
+    },
   });
 
   const onSubmit = (data) => {
@@ -574,7 +598,7 @@ function ImportOrderForm() {
     <form onSubmit={handleSubmit(onSubmit)}>
       {/* form fields */}
       <button type="submit" disabled={mutation.isLoading}>
-        {mutation.isLoading ? 'Saving...' : 'Create Order'}
+        {mutation.isLoading ? "Saving..." : "Create Order"}
       </button>
     </form>
   );
@@ -587,37 +611,43 @@ function ImportOrderForm() {
 
 ### File Naming
 
-| Pattern | Example | Purpose |
-|---------|---------|---------|
-| `[Entity]Form.jsx` | `ExportOrderForm.jsx` | Main form component |
+| Pattern              | Example                 | Purpose               |
+| -------------------- | ----------------------- | --------------------- |
+| `[Entity]Form.jsx`   | `ExportOrderForm.jsx`   | Main form component   |
 | `[entity].schema.js` | `exportOrder.schema.js` | Zod validation schema |
-| `[entity].api.js` | `exportOrder.api.js` | API client functions |
-| `use[Entity]Form.js` | `useExportOrderForm.js` | Custom form hook |
+| `[entity].api.js`    | `exportOrder.api.js`    | API client functions  |
+| `use[Entity]Form.js` | `useExportOrderForm.js` | Custom form hook      |
 
 ### Variable Naming
 
 **JavaScript/React (camelCase):**
+
 ```javascript
-const customerId = '123';
+const customerId = "123";
 const vatRate = 0.05;
-const shipmentType = 'WAREHOUSE';
+const shipmentType = "WAREHOUSE";
 ```
 
 **API Payloads (snake_case):**
+
 ```javascript
 const payload = {
-  customer_id: '123',
+  customer_id: "123",
   vat_rate: 0.05,
-  shipment_type: 'WAREHOUSE'
+  shipment_type: "WAREHOUSE",
 };
 ```
 
 **Transformation Function:**
+
 ```javascript
 // utils/caseConversion.js
 export function transformToSnakeCase(obj) {
   return Object.entries(obj).reduce((acc, [key, value]) => {
-    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    const snakeKey = key.replace(
+      /[A-Z]/g,
+      (letter) => `_${letter.toLowerCase()}`,
+    );
     acc[snakeKey] = value;
     return acc;
   }, {});
@@ -633,7 +663,7 @@ export function transformToSnakeCase(obj) {
 ```jsx
 <FormField
   label="BOE Number"
-  {...register('boeNumber')}
+  {...register("boeNumber")}
   error={errors.boeNumber?.message}
 />
 ```
@@ -641,11 +671,11 @@ export function transformToSnakeCase(obj) {
 ### 2. Form-Level Errors (API)
 
 ```jsx
-{errors.root?.server && (
-  <Alert type="error">
-    {errors.root.server.message}
-  </Alert>
-)}
+{
+  errors.root?.server && (
+    <Alert type="error">{errors.root.server.message}</Alert>
+  );
+}
 ```
 
 ### 3. Global Error Boundary
@@ -660,7 +690,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Form Error:', error, errorInfo);
+    console.error("Form Error:", error, errorInfo);
     // Send to error tracking service
   }
 
@@ -670,9 +700,7 @@ export class ErrorBoundary extends React.Component {
         <div className="error-boundary">
           <h2>Something went wrong</h2>
           <p>{this.state.error?.message}</p>
-          <button onClick={() => window.location.reload()}>
-            Reload Page
-          </button>
+          <button onClick={() => window.location.reload()}>Reload Page</button>
         </div>
       );
     }
@@ -683,6 +711,7 @@ export class ErrorBoundary extends React.Component {
 ```
 
 **Usage:**
+
 ```jsx
 <ErrorBoundary>
   <ExportOrderForm />
@@ -704,25 +733,24 @@ export class ErrorBoundary extends React.Component {
 const formValues = watch();
 
 // ✅ GOOD: Watch only specific fields
-const customerId = watch('customerId');
-const shipmentType = watch('shipmentType');
+const customerId = watch("customerId");
+const shipmentType = watch("shipmentType");
 ```
 
 ### 2. Lazy Loading Large Dropdowns
 
 ```javascript
-import { useState, useEffect } from 'react';
-import { debounce } from 'lodash';
+import { useState, useEffect } from "react";
+import { debounce } from "lodash";
 
 function ProductAutocomplete({ onSelect }) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [options, setOptions] = useState([]);
 
   const searchProducts = debounce((searchQuery) => {
     if (searchQuery.length < 3) return;
 
-    fetchProducts({ search: searchQuery, limit: 20 })
-      .then(setOptions);
+    fetchProducts({ search: searchQuery, limit: 20 }).then(setOptions);
   }, 300);
 
   useEffect(() => {
@@ -742,12 +770,10 @@ function ProductAutocomplete({ onSelect }) {
 ### 3. Memoization for Calculated Fields
 
 ```javascript
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
 const totalCost = useMemo(() => {
-  return items.reduce((sum, item) =>
-    sum + (item.quantity * item.unitPrice), 0
-  );
+  return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
 }, [items]); // Only recalculate when items change
 ```
 
@@ -758,30 +784,30 @@ const totalCost = useMemo(() => {
 ### Unit Tests (Validation)
 
 ```javascript
-import { exportOrderSchema } from './exportOrder.schema';
+import { exportOrderSchema } from "./exportOrder.schema";
 
-describe('ExportOrderForm Validation', () => {
-  it('requires customer selection', () => {
+describe("ExportOrderForm Validation", () => {
+  it("requires customer selection", () => {
     const result = exportOrderSchema.safeParse({
-      customerId: '',
-      orderDate: '2024-03-20'
+      customerId: "",
+      orderDate: "2024-03-20",
     });
 
     expect(result.success).toBe(false);
-    expect(result.error.issues[0].message).toBe('Customer is required');
+    expect(result.error.issues[0].message).toBe("Customer is required");
   });
 
-  it('validates DROP_SHIP requires supplier', () => {
+  it("validates DROP_SHIP requires supplier", () => {
     const result = exportOrderSchema.safeParse({
-      customerId: '123',
-      shipmentType: 'DROP_SHIP',
+      customerId: "123",
+      shipmentType: "DROP_SHIP",
       items: [
-        { productId: 'P1', quantity: 100 }  // Missing supplierId
-      ]
+        { productId: "P1", quantity: 100 }, // Missing supplierId
+      ],
     });
 
     expect(result.success).toBe(false);
-    expect(result.error.message).toContain('supplier');
+    expect(result.error.message).toContain("supplier");
   });
 });
 ```
@@ -789,32 +815,32 @@ describe('ExportOrderForm Validation', () => {
 ### Integration Tests (Form Submission)
 
 ```javascript
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ExportOrderForm } from './ExportOrderForm';
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { ExportOrderForm } from "./ExportOrderForm";
 
-describe('ExportOrderForm', () => {
-  it('submits form successfully', async () => {
+describe("ExportOrderForm", () => {
+  it("submits form successfully", async () => {
     const mockOnSubmit = jest.fn();
 
     render(<ExportOrderForm onSubmit={mockOnSubmit} />);
 
     // Fill form
-    fireEvent.change(screen.getByLabelText('Customer'), {
-      target: { value: 'customer-123' }
+    fireEvent.change(screen.getByLabelText("Customer"), {
+      target: { value: "customer-123" },
     });
-    fireEvent.change(screen.getByLabelText('Order Date'), {
-      target: { value: '2024-03-20' }
+    fireEvent.change(screen.getByLabelText("Order Date"), {
+      target: { value: "2024-03-20" },
     });
 
     // Submit
-    fireEvent.click(screen.getByText('Create Order'));
+    fireEvent.click(screen.getByText("Create Order"));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          customerId: 'customer-123',
-          orderDate: '2024-03-20'
-        })
+          customerId: "customer-123",
+          orderDate: "2024-03-20",
+        }),
       );
     });
   });
@@ -851,12 +877,12 @@ const onSubmit = (data) => {
 ```javascript
 // ❌ BAD
 useEffect(() => {
-  setValue('total', calculateTotal(items)); // items not in deps
+  setValue("total", calculateTotal(items)); // items not in deps
 });
 
 // ✅ GOOD
 useEffect(() => {
-  setValue('total', calculateTotal(items));
+  setValue("total", calculateTotal(items));
 }, [items, setValue]); // Include all dependencies
 ```
 
@@ -865,6 +891,7 @@ useEffect(() => {
 ## Summary
 
 **Form Architecture Checklist:**
+
 - ✅ Use React Hook Form for state management
 - ✅ Define Zod schema for validation
 - ✅ Reuse FormField, FormSelect, FormCheckbox components

@@ -7,7 +7,7 @@ const deliveryVarianceService = {
       const response = await api.get('/delivery-variance/kpis', {
         params: { daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching KPIs:', error);
       throw error;
@@ -20,7 +20,7 @@ const deliveryVarianceService = {
       const response = await api.get('/delivery-variance/trend', {
         params: { daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching trend:', error);
       throw error;
@@ -33,7 +33,7 @@ const deliveryVarianceService = {
       const response = await api.get('/delivery-variance/breakdown', {
         params: { daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching breakdown:', error);
       throw error;
@@ -46,7 +46,7 @@ const deliveryVarianceService = {
       const response = await api.get('/delivery-variance/late-deliveries', {
         params: { limit, daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching late deliveries:', error);
       throw error;
@@ -59,7 +59,7 @@ const deliveryVarianceService = {
       const response = await api.get('/delivery-variance/supplier-comparison', {
         params: { limit, daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching supplier comparison:', error);
       throw error;
@@ -72,7 +72,7 @@ const deliveryVarianceService = {
       const response = await api.get('/delivery-variance/health-report', {
         params: { daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching health report:', error);
       throw error;
@@ -85,7 +85,7 @@ const deliveryVarianceService = {
       const response = await api.get('/delivery-variance/recommendations', {
         params: { daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching recommendations:', error);
       throw error;
@@ -101,7 +101,7 @@ const deliveryVarianceService = {
           params: { daysBack },
         },
       );
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching supplier scorecard:', error);
       throw error;
@@ -112,7 +112,7 @@ const deliveryVarianceService = {
   getAtRiskSuppliers: async () => {
     try {
       const response = await api.get('/delivery-variance/at-risk-suppliers');
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching at-risk suppliers:', error);
       throw error;

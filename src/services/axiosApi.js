@@ -13,12 +13,14 @@ let validateResponse = null;
 
 if (IS_DEV) {
   // Import validator at module load time (once)
-  import('./validators/responseValidator.js').then((module) => {
-    validateResponse = module.validateResponse;
-  }).catch(() => {
-    // Silently fail if validator module not found
-    // This allows development without the validator module
-  });
+  import('./validators/responseValidator.js')
+    .then((module) => {
+      validateResponse = module.validateResponse;
+    })
+    .catch(() => {
+      // Silently fail if validator module not found
+      // This allows development without the validator module
+    });
 }
 
 // Resolve API base URL with a LAN-safe fallback.
@@ -365,6 +367,7 @@ export const tokenUtils = {
       sessionStorage.setItem('userEmail', user.email || '');
       sessionStorage.setItem('userRole', user.role || '');
       sessionStorage.setItem('userName', user.name || '');
+      sessionStorage.setItem('userCompanyId', user.companyId || '');
       sessionStorage.setItem(
         'userPermissions',
         JSON.stringify(user.permissions || {}),
@@ -381,6 +384,7 @@ export const tokenUtils = {
       email: sessionStorage.getItem('userEmail'),
       role: sessionStorage.getItem('userRole'),
       name: sessionStorage.getItem('userName'),
+      companyId: sessionStorage.getItem('userCompanyId'),
       permissions: JSON.parse(
         sessionStorage.getItem('userPermissions') || '{}',
       ),
@@ -392,6 +396,7 @@ export const tokenUtils = {
     sessionStorage.removeItem('userEmail');
     sessionStorage.removeItem('userRole');
     sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('userCompanyId');
     sessionStorage.removeItem('userPermissions');
   },
 

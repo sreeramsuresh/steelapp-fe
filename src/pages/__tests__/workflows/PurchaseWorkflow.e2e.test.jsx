@@ -72,7 +72,9 @@ describe('E2E Workflow: Complete Purchase Cycle', () => {
             <>
               <div>GRN Status: Ready</div>
               <div>Current Stock: {data.stockLevel - data.quantity}</div>
-              <button onClick={handleGRNReceived}>Receive Goods (100 units)</button>
+              <button onClick={handleGRNReceived}>
+                Receive Goods (100 units)
+              </button>
             </>
           )}
 
@@ -153,8 +155,13 @@ describe('E2E Workflow: Complete Purchase Cycle', () => {
           <div>Received: {received}</div>
           <div>Pending: {poQty - received}</div>
           <div>Status: {status}</div>
-          <button onClick={() => handleReceive(100)}>Receive First Shipment (100)</button>
-          <button onClick={() => handleReceive(100)} disabled={status === 'complete'}>
+          <button onClick={() => handleReceive(100)}>
+            Receive First Shipment (100)
+          </button>
+          <button
+            onClick={() => handleReceive(100)}
+            disabled={status === 'complete'}
+          >
             Receive Final Shipment (100)
           </button>
         </>
@@ -186,7 +193,8 @@ describe('E2E Workflow: Complete Purchase Cycle', () => {
         bill: 4900, // Discrepancy
       });
 
-      const isMatched = amounts.po === amounts.grn && amounts.grn === amounts.bill;
+      const isMatched =
+        amounts.po === amounts.grn && amounts.grn === amounts.bill;
 
       return (
         <>
@@ -195,7 +203,8 @@ describe('E2E Workflow: Complete Purchase Cycle', () => {
           <div>Bill: {amounts.bill}</div>
           {!isMatched && (
             <div className="alert-error">
-              Discrepancy: Bill ({amounts.bill}) does not match PO ({amounts.po})
+              Discrepancy: Bill ({amounts.bill}) does not match PO ({amounts.po}
+              )
             </div>
           )}
           <button disabled={!isMatched}>Approve for Payment</button>

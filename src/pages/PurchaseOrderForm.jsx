@@ -973,7 +973,7 @@ const PurchaseOrderForm = () => {
       name: supplier.name,
       email: supplier.email,
       phone: supplier.phone,
-      address: supplier.address || supplier.company || '',
+      address: supplier.address || supplier.company || "",
       paymentTerms: supplier.paymentTerms || supplier.payment_terms,
       defaultCurrency: supplier.defaultCurrency || supplier.default_currency,
       contactName: supplier.contactName || supplier.contact_name,

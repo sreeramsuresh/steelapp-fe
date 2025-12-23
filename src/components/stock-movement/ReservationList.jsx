@@ -8,42 +8,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  IconButton,
-  Chip,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Tooltip,
-  CircularProgress,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  LinearProgress,
-  InputAdornment,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Visibility as ViewIcon,
-  CheckCircle as FulfillIcon,
-  Cancel as CancelIcon,
-  Refresh as RefreshIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
+  Plus,
+  Eye,
+  CheckCircle,
+  X,
+  RotateCcw,
+  Search,
+  Loader2,
+} from "lucide-react";
 import {
   stockMovementService,
   RESERVATION_STATUSES,
@@ -82,6 +54,21 @@ const getStatusChip = (status) => {
     color: "default",
   };
   return statusInfo;
+};
+
+/**
+ * Map MUI colors to Tailwind badge colors
+ */
+const getStatusBadgeClasses = (color) => {
+  const colorMap = {
+    default: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+    primary: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    success: "bg-green-500/20 text-green-400 border-green-500/30",
+    warning: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    error: "bg-red-500/20 text-red-400 border-red-500/30",
+    info: "bg-teal-500/20 text-teal-400 border-teal-500/30",
+  };
+  return colorMap[color] || colorMap.default;
 };
 
 const ReservationList = ({ onCreateNew, onViewReservation }) => {
@@ -255,394 +242,465 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   };
 
   return (
-    <Box>
+    <div>
       {/* Error Alert */}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
+        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+          <span>{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <X size={18} />
+          </button>
+        </div>
       )}
 
       {/* Standardized Filter Bar - Phase 3 Redesign */}
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
+      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F] p-4 mb-4">
+        <div className="flex gap-4 flex-wrap items-center">
           {/* Search Input */}
-          <TextField
-            size="small"
-            placeholder="Search reservations..."
-            value={searchQuery}
+          <div className="relative min-w-[220px]">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Search reservations..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0);
+              }}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+            />
+          </div>
+
+          <select
+            value={statusFilter}
             onChange={(e) => {
-              setSearchQuery(e.target.value);
+              setStatusFilter(e.target.value);
               setPage(0);
             }}
-            sx={{ minWidth: 220 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" color="action" />
-                </InputAdornment>
-              ),
+            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
+          >
+            <option value="">All Status</option>
+            {Object.values(RESERVATION_STATUSES).map((status) => (
+              <option key={status.value} value={status.value}>
+                {status.label}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={warehouseFilter}
+            onChange={(e) => {
+              setWarehouseFilter(e.target.value);
+              setPage(0);
             }}
-          />
+            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+          >
+            <option value="">All Warehouses</option>
+            {warehouses.map((wh) => (
+              <option key={wh.id} value={wh.id}>
+                {wh.name}
+              </option>
+            ))}
+          </select>
 
-          <FormControl size="small" sx={{ minWidth: 130 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Status"
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(0);
-              }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {Object.values(RESERVATION_STATUSES).map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Warehouse</InputLabel>
-            <Select
-              value={warehouseFilter}
-              label="Warehouse"
-              onChange={(e) => {
-                setWarehouseFilter(e.target.value);
-                setPage(0);
-              }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {warehouses.map((wh) => (
-                <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 130 }}>
-            <InputLabel>Show Expired</InputLabel>
-            <Select
-              value={includeExpired ? "yes" : "no"}
-              label="Show Expired"
-              onChange={(e) => {
-                setIncludeExpired(e.target.value === "yes");
-                setPage(0);
-              }}
-            >
-              <MenuItem value="no">No</MenuItem>
-              <MenuItem value="yes">Yes</MenuItem>
-            </Select>
-          </FormControl>
+          <select
+            value={includeExpired ? "yes" : "no"}
+            onChange={(e) => {
+              setIncludeExpired(e.target.value === "yes");
+              setPage(0);
+            }}
+            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
+          >
+            <option value="no">Hide Expired</option>
+            <option value="yes">Show Expired</option>
+          </select>
 
           {/* Spacer */}
-          <Box sx={{ flexGrow: 1 }} />
+          <div className="flex-grow" />
 
           {/* Action Buttons */}
-          <Tooltip title="Refresh">
-            <span>
-              <IconButton
-                onClick={loadReservations}
-                disabled={loading}
-                size="small"
-                sx={{ border: 1, borderColor: "divider" }}
-              >
-                <RefreshIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onCreateNew}
-            sx={{
-              bgcolor: "#0d9488",
-              "&:hover": { bgcolor: "#0f766e" },
-              textTransform: "none",
-            }}
+          <button
+            onClick={loadReservations}
+            disabled={loading}
+            title="Refresh"
+            className="p-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
           >
+            <RotateCcw size={18} />
+          </button>
+
+          <button
+            onClick={onCreateNew}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium"
+          >
+            <Plus size={18} />
             New Reservation
-          </Button>
-        </Box>
-      </Paper>
+          </button>
+        </div>
+      </div>
 
       {/* Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "grey.100" }}>
-              <TableCell>Reservation #</TableCell>
-              <TableCell>Product</TableCell>
-              <TableCell>Warehouse</TableCell>
-              <TableCell align="right">Reserved</TableCell>
-              <TableCell align="center">Progress</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Expiry</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                  <CircularProgress size={32} />
-                </TableCell>
-              </TableRow>
-            ) : reservations.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">
+      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F]">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-800 border-b border-[#37474F]">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Reservation #
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Product
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Warehouse
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Reserved
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Progress
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Expiry
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Created
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#37474F]">
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="px-4 py-8 text-center">
+                    <div className="flex justify-center">
+                      <Loader2
+                        className="animate-spin text-teal-500"
+                        size={32}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ) : reservations.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="px-4 py-8 text-center text-gray-400"
+                  >
                     No reservations found
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              reservations.map((reservation) => {
-                const statusInfo = getStatusChip(reservation.status);
-                const progress = getFulfillmentProgress(reservation);
-                const canFulfill = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
-                  reservation.status,
-                );
-                const canCancel = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
-                  reservation.status,
-                );
+                  </td>
+                </tr>
+              ) : (
+                reservations.map((reservation) => {
+                  const statusInfo = getStatusChip(reservation.status);
+                  const progress = getFulfillmentProgress(reservation);
+                  const canFulfill = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                    reservation.status,
+                  );
+                  const canCancel = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                    reservation.status,
+                  );
 
-                return (
-                  <TableRow key={reservation.id} hover>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight="medium">
+                  return (
+                    <tr key={reservation.id} className="hover:bg-[#252a30]">
+                      <td className="px-4 py-3 text-sm font-medium text-white">
                         {reservation.reservationNumber}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
-                        {reservation.productName}
-                      </Typography>
-                      {reservation.productSku && (
-                        <Typography variant="caption" color="text.secondary">
-                          {reservation.productSku}
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>{reservation.warehouseName || "-"}</TableCell>
-                    <TableCell align="right">
-                      {formatQuantity(
-                        reservation.quantityReserved,
-                        reservation.unit,
-                      )}
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: 150 }}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <LinearProgress
-                          variant="determinate"
-                          value={progress}
-                          sx={{ flex: 1, height: 8, borderRadius: 4 }}
-                          color={progress === 100 ? "success" : "primary"}
-                        />
-                        <Typography variant="caption" sx={{ minWidth: 35 }}>
-                          {progress}%
-                        </Typography>
-                      </Box>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatQuantity(
-                          reservation.quantityFulfilled,
-                          reservation.unit,
-                        )}{" "}
-                        /{" "}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div className="text-white">
+                          {reservation.productName}
+                        </div>
+                        {reservation.productSku && (
+                          <div className="text-xs text-gray-400">
+                            {reservation.productSku}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {reservation.warehouseName || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300 text-right">
                         {formatQuantity(
                           reservation.quantityReserved,
                           reservation.unit,
                         )}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={statusInfo.label}
-                        size="small"
-                        color={statusInfo.color}
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell>{formatDate(reservation.expiryDate)}</TableCell>
-                    <TableCell>{formatDate(reservation.createdAt)}</TableCell>
-                    <TableCell align="right">
-                      <Tooltip title="View">
-                        <IconButton
-                          size="small"
-                          onClick={() => onViewReservation?.(reservation)}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-sm"
+                        style={{ minWidth: 150 }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="flex-1 bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div
+                              className={`h-full ${progress === 100 ? "bg-green-500" : "bg-blue-500"}`}
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-400 min-w-[35px] text-right">
+                            {progress}%
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-400 text-center">
+                          {formatQuantity(
+                            reservation.quantityFulfilled,
+                            reservation.unit,
+                          )}{" "}
+                          /{" "}
+                          {formatQuantity(
+                            reservation.quantityReserved,
+                            reservation.unit,
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(statusInfo.color)}`}
                         >
-                          <ViewIcon />
-                        </IconButton>
-                      </Tooltip>
-                      {canFulfill && (
-                        <Tooltip title="Fulfill">
-                          <IconButton
-                            size="small"
-                            color="success"
-                            onClick={() => handleOpenFulfillDialog(reservation)}
+                          {statusInfo.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {formatDate(reservation.expiryDate)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {formatDate(reservation.createdAt)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <div className="flex justify-end gap-1">
+                          <button
+                            onClick={() => onViewReservation?.(reservation)}
+                            title="View"
+                            className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-white"
                           >
-                            <FulfillIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {canCancel && (
-                        <Tooltip title="Cancel">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleOpenCancelDialog(reservation)}
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+                            <Eye size={18} />
+                          </button>
+                          {canFulfill && (
+                            <button
+                              onClick={() =>
+                                handleOpenFulfillDialog(reservation)
+                              }
+                              title="Fulfill"
+                              className="p-1.5 rounded hover:bg-gray-700 text-green-400 hover:text-green-300"
+                            >
+                              <CheckCircle size={18} />
+                            </button>
+                          )}
+                          {canCancel && (
+                            <button
+                              onClick={() =>
+                                handleOpenCancelDialog(reservation)
+                              }
+                              title="Cancel"
+                              className="p-1.5 rounded hover:bg-gray-700 text-red-400 hover:text-red-300"
+                            >
+                              <X size={18} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        <TablePagination
-          component="div"
-          count={totalCount}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[10, 20, 50]}
-        />
-      </TableContainer>
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 border-t border-[#37474F] bg-[#1E2328]">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Rows per page:</span>
+            <select
+              value={rowsPerPage}
+              onChange={handleChangeRowsPerPage}
+              className="px-2 py-1 rounded border bg-gray-800 border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-400">
+              {page * rowsPerPage + 1}-
+              {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount}
+            </span>
+            <div className="flex gap-1">
+              <button
+                onClick={(e) => handleChangePage(e, page - 1)}
+                disabled={page === 0}
+                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+              >
+                Previous
+              </button>
+              <button
+                onClick={(e) => handleChangePage(e, page + 1)}
+                disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
+                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Fulfill Dialog */}
-      <Dialog
-        open={fulfillDialog.open}
-        onClose={() => setFulfillDialog({ open: false, reservation: null })}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Fulfill Reservation</DialogTitle>
-        <DialogContent>
-          <Typography gutterBottom>
-            Reservation:{" "}
-            <strong>{fulfillDialog.reservation?.reservationNumber}</strong>
-          </Typography>
-          <Typography gutterBottom>
-            Product: <strong>{fulfillDialog.reservation?.productName}</strong>
-          </Typography>
-          <Typography gutterBottom>
-            Remaining:{" "}
-            <strong>
-              {formatQuantity(
-                fulfillDialog.reservation?.quantityRemaining,
-                fulfillDialog.reservation?.unit,
-              )}
-            </strong>
-          </Typography>
-          <TextField
-            fullWidth
-            type="number"
-            label="Quantity to Fulfill"
-            value={fulfillQuantity}
-            onChange={(e) => setFulfillQuantity(e.target.value)}
-            inputProps={{
-              min: 0,
-              max: fulfillDialog.reservation?.quantityRemaining,
-              step: 0.01,
-            }}
-            sx={{ mt: 2 }}
-            helperText={`Max: ${fulfillDialog.reservation?.quantityRemaining || 0} ${fulfillDialog.reservation?.unit || "KG"}`}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
+      {fulfillDialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
             onClick={() => setFulfillDialog({ open: false, reservation: null })}
-            disabled={actionLoading}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleFulfill}
-            disabled={
-              actionLoading ||
-              !fulfillQuantity ||
-              parseFloat(fulfillQuantity) <= 0
-            }
-            startIcon={actionLoading && <CircularProgress size={16} />}
-          >
-            Fulfill
-          </Button>
-        </DialogActions>
-      </Dialog>
+          />
+          <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Fulfill Reservation
+            </h3>
+            <div className="space-y-3 mb-6 text-gray-300">
+              <p>
+                Reservation:{" "}
+                <strong className="text-white">
+                  {fulfillDialog.reservation?.reservationNumber}
+                </strong>
+              </p>
+              <p>
+                Product:{" "}
+                <strong className="text-white">
+                  {fulfillDialog.reservation?.productName}
+                </strong>
+              </p>
+              <p>
+                Remaining:{" "}
+                <strong className="text-white">
+                  {formatQuantity(
+                    fulfillDialog.reservation?.quantityRemaining,
+                    fulfillDialog.reservation?.unit,
+                  )}
+                </strong>
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Quantity to Fulfill
+                </label>
+                <input
+                  type="number"
+                  value={fulfillQuantity}
+                  onChange={(e) => setFulfillQuantity(e.target.value)}
+                  min={0}
+                  max={fulfillDialog.reservation?.quantityRemaining}
+                  step={0.01}
+                  className="w-full px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                <p className="mt-1 text-xs text-gray-400">
+                  Max: {fulfillDialog.reservation?.quantityRemaining || 0}{" "}
+                  {fulfillDialog.reservation?.unit || "KG"}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() =>
+                  setFulfillDialog({ open: false, reservation: null })
+                }
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFulfill}
+                disabled={
+                  actionLoading ||
+                  !fulfillQuantity ||
+                  parseFloat(fulfillQuantity) <= 0
+                }
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed text-white"
+              >
+                {actionLoading && (
+                  <Loader2 className="animate-spin" size={16} />
+                )}
+                Fulfill
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cancel Dialog */}
-      <Dialog
-        open={cancelDialog.open}
-        onClose={() => setCancelDialog({ open: false, reservation: null })}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Cancel Reservation</DialogTitle>
-        <DialogContent>
-          <Typography gutterBottom>
-            Are you sure you want to cancel reservation{" "}
-            <strong>{cancelDialog.reservation?.reservationNumber}</strong>?
-          </Typography>
-          <Typography gutterBottom color="text.secondary">
-            This will release{" "}
-            {formatQuantity(
-              cancelDialog.reservation?.quantityRemaining,
-              cancelDialog.reservation?.unit,
-            )}{" "}
-            of reserved stock.
-          </Typography>
-          <TextField
-            fullWidth
-            label="Cancellation Reason"
-            value={cancelReason}
-            onChange={(e) => setCancelReason(e.target.value)}
-            multiline
-            rows={2}
-            sx={{ mt: 2 }}
-            placeholder="Optional: Enter reason for cancellation..."
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
+      {cancelDialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
             onClick={() => setCancelDialog({ open: false, reservation: null })}
-            disabled={actionLoading}
-          >
-            No, Go Back
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleCancel}
-            disabled={actionLoading}
-            startIcon={actionLoading && <CircularProgress size={16} />}
-          >
-            Yes, Cancel Reservation
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          />
+          <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Cancel Reservation
+            </h3>
+            <div className="space-y-3 mb-6">
+              <p className="text-gray-300">
+                Are you sure you want to cancel reservation{" "}
+                <strong className="text-white">
+                  {cancelDialog.reservation?.reservationNumber}
+                </strong>
+                ?
+              </p>
+              <p className="text-gray-400">
+                This will release{" "}
+                {formatQuantity(
+                  cancelDialog.reservation?.quantityRemaining,
+                  cancelDialog.reservation?.unit,
+                )}{" "}
+                of reserved stock.
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Cancellation Reason (Optional)
+                </label>
+                <textarea
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  rows={2}
+                  placeholder="Enter reason for cancellation..."
+                  className="w-full px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() =>
+                  setCancelDialog({ open: false, reservation: null })
+                }
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+              >
+                No, Go Back
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={actionLoading}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed text-white"
+              >
+                {actionLoading && (
+                  <Loader2 className="animate-spin" size={16} />
+                )}
+                Yes, Cancel Reservation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -13,8 +13,10 @@ async function getConstraintDef() {
   });
 
   try {
-    console.log('=== Getting constraint definition for chk_invoice_status ===\n');
-    
+    console.log(
+      '=== Getting constraint definition for chk_invoice_status ===\n',
+    );
+
     const result = await pool.query(`
       SELECT pg_get_constraintdef('chk_invoice_status'::regclass) as constraint_def
     `);
@@ -22,7 +24,6 @@ async function getConstraintDef() {
     console.log('Constraint Definition:');
     console.log(result.rows[0]?.constraint_def || 'NOT FOUND');
     console.log('');
-
   } catch (err) {
     console.error('Error:', err.message);
   } finally {

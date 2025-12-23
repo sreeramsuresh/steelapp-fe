@@ -17,11 +17,13 @@ The API Gateway serves as the translation layer between the frontend (React/came
 ### 1. Case Conversion
 
 **Frontend → API Gateway → gRPC:**
+
 ```
 customerId (camelCase) → customer_id (snake_case) → customer_id (proto)
 ```
 
 **gRPC → API Gateway → Frontend:**
+
 ```
 customer_id (proto) → customer_id (snake_case) → customerId (camelCase)
 ```
@@ -29,6 +31,7 @@ customer_id (proto) → customer_id (snake_case) → customerId (camelCase)
 ### 2. Timestamp Normalization
 
 **Frontend (ISO 8601 string) → gRPC (Timestamp):**
+
 ```javascript
 // Frontend
 const orderDate = "2024-03-20T10:30:00.000Z";
@@ -41,6 +44,7 @@ const orderDate = "2024-03-20T10:30:00.000Z";
 ```
 
 **gRPC (Timestamp) → Frontend (ISO string):**
+
 ```javascript
 // gRPC
 {
@@ -56,6 +60,7 @@ const orderDate = "2024-03-20T10:30:00.000Z";
 ### 3. ID Handling
 
 **Frontend (string) → gRPC (UUID string):**
+
 - Frontend sends: `"customer-123-abc"` (display ID)
 - Gateway resolves to UUID: `"a1b2c3d4-e5f6-7890-abcd-ef1234567890"`
 - gRPC receives UUID
@@ -69,6 +74,7 @@ const orderDate = "2024-03-20T10:30:00.000Z";
 **POST /api/v1/import-orders**
 
 **Request Mapping:**
+
 ```javascript
 // Frontend request
 POST /api/v1/import-orders
@@ -123,6 +129,7 @@ CreateImportOrderRequest {
 ```
 
 **Response Mapping:**
+
 ```javascript
 // gRPC response
 ImportOrder {
@@ -148,6 +155,7 @@ ImportOrder {
 **POST /api/v1/export-orders**
 
 **Batch Allocation Mapping:**
+
 ```javascript
 // Frontend
 {
@@ -197,6 +205,7 @@ items {
 **POST /api/v1/stock-receipts**
 
 **Weight Variance Calculation:**
+
 ```javascript
 // Frontend
 {
@@ -225,6 +234,7 @@ CreateStockReceiptRequest {
 **POST /api/v1/price-lists**
 
 **Margin Calculation & Validation:**
+
 ```javascript
 // Frontend
 {
@@ -261,6 +271,7 @@ CreatePriceListRequest {
 **POST /api/v1/payments**
 
 **Multi-Invoice Allocation:**
+
 ```javascript
 // Frontend
 {
@@ -328,15 +339,15 @@ CreatePaymentRequest {
 
 ```javascript
 // Frontend: Shipment Type
-const shipmentType = "Drop Ship";  // User-friendly label
+const shipmentType = "Drop Ship"; // User-friendly label
 
 // API Gateway transforms to proto enum:
-SHIPMENT_TYPE_DROP_SHIP
+SHIPMENT_TYPE_DROP_SHIP;
 
 // Mapping table:
 const SHIPMENT_TYPE_MAP = {
-  "Warehouse": "SHIPMENT_TYPE_WAREHOUSE",
-  "Drop Ship": "SHIPMENT_TYPE_DROP_SHIP"
+  Warehouse: "SHIPMENT_TYPE_WAREHOUSE",
+  "Drop Ship": "SHIPMENT_TYPE_DROP_SHIP",
 };
 ```
 
@@ -413,6 +424,7 @@ ListExportOrdersRequest {
 ```
 
 **Validation:**
+
 - All write operations (POST, PUT, DELETE) must include `company_id`
 - All read operations (GET) must filter by `company_id`
 - Requests without valid `company_id` → 403 Forbidden
@@ -423,15 +435,15 @@ ListExportOrdersRequest {
 
 ### gRPC Error → HTTP Status Mapping
 
-| gRPC Status | HTTP Status | Frontend Handling |
-|-------------|-------------|-------------------|
-| `OK` | 200 OK | Success |
-| `INVALID_ARGUMENT` | 400 Bad Request | Show field errors |
-| `NOT_FOUND` | 404 Not Found | Show "Not found" message |
-| `ALREADY_EXISTS` | 409 Conflict | Show "Duplicate" error |
-| `PERMISSION_DENIED` | 403 Forbidden | Redirect to login |
-| `UNAUTHENTICATED` | 401 Unauthorized | Redirect to login |
-| `INTERNAL` | 500 Internal Server Error | Show generic error |
+| gRPC Status         | HTTP Status               | Frontend Handling        |
+| ------------------- | ------------------------- | ------------------------ |
+| `OK`                | 200 OK                    | Success                  |
+| `INVALID_ARGUMENT`  | 400 Bad Request           | Show field errors        |
+| `NOT_FOUND`         | 404 Not Found             | Show "Not found" message |
+| `ALREADY_EXISTS`    | 409 Conflict              | Show "Duplicate" error   |
+| `PERMISSION_DENIED` | 403 Forbidden             | Redirect to login        |
+| `UNAUTHENTICATED`   | 401 Unauthorized          | Redirect to login        |
+| `INTERNAL`          | 500 Internal Server Error | Show generic error       |
 
 ### Field-Level Error Mapping
 
@@ -468,11 +480,13 @@ setError("items.0.hsCode", { type: "server", message: "HS code must be 6-8 digit
 ### 1. Response Pagination
 
 **Frontend request:**
+
 ```javascript
 GET /api/v1/export-orders?page=1&limit=50
 ```
 
 **API Gateway → gRPC:**
+
 ```protobuf
 ListExportOrdersRequest {
   company_id: "uuid-company-001",
@@ -482,6 +496,7 @@ ListExportOrdersRequest {
 ```
 
 **gRPC → API Gateway:**
+
 ```protobuf
 ListExportOrdersResponse {
   export_orders: [ ... ],
@@ -495,11 +510,13 @@ ListExportOrdersResponse {
 ### 2. Field Selection (Sparse Fieldsets)
 
 **Frontend request (only needed fields):**
+
 ```javascript
 GET /api/v1/export-orders?fields=id,orderNumber,customer.name,totalAmount
 ```
 
 **API Gateway → gRPC (field mask):**
+
 ```protobuf
 ListExportOrdersRequest {
   field_mask: {
@@ -548,6 +565,7 @@ ListExportOrdersRequest {
 ## Summary
 
 **Phase 3 API Gateway Changes:**
+
 - 8 new endpoints (import-orders, export-orders, stock-receipts, price-lists, reservations, transfers, payments, batches)
 - 150+ field mappings (camelCase ↔ snake_case)
 - Batch allocation enrichment (FIFO procurement dates)

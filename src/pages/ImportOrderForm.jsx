@@ -830,7 +830,15 @@ const ImportOrderForm = () => {
         unit_landed_cost: unitLandedCost,
       };
     });
-  }, [order.items, order.freight_cost, order.insurance_cost, order.other_charges, calculations.subtotal, calculations.customsDuty, calculateItemTotal]);
+  }, [
+    order.items,
+    order.freight_cost,
+    order.insurance_cost,
+    order.other_charges,
+    calculations.subtotal,
+    calculations.customsDuty,
+    calculateItemTotal,
+  ]);
 
   // Update order with calculated values including Form 201 fields and landed costs
   useEffect(() => {
@@ -953,7 +961,12 @@ const ImportOrderForm = () => {
         (p) => p.id === productId || p.id === parseInt(productId),
       );
       if (product) {
-        const uniqueName = product.uniqueName || product.unique_name || product.displayName || product.display_name || "";
+        const uniqueName =
+          product.uniqueName ||
+          product.unique_name ||
+          product.displayName ||
+          product.display_name ||
+          "";
 
         // SSOT validation (Epic 5 - IMPO-009)
         // Show warning if product doesn't follow SSOT pattern
@@ -963,9 +976,9 @@ const ImportOrderForm = () => {
           // Show warning but allow with override for import products
           notificationService.warning(
             `Product "${uniqueName}" does not follow SSOT naming pattern.\n` +
-            `Expected: ${ssotValidation.pattern}\n` +
-            `Error: ${ssotValidation.error}\n\n` +
-            `Product added with manager override flag. Please update product naming.`
+              `Expected: ${ssotValidation.pattern}\n` +
+              `Error: ${ssotValidation.error}\n\n` +
+              `Product added with manager override flag. Please update product naming.`,
           );
           ssotOverride = true;
         }
@@ -2440,7 +2453,10 @@ const ImportOrderForm = () => {
                   type="date"
                   value={order.certificate_of_origin_date}
                   onChange={(e) =>
-                    handleFieldChange("certificate_of_origin_date", e.target.value)
+                    handleFieldChange(
+                      "certificate_of_origin_date",
+                      e.target.value,
+                    )
                   }
                   error={errors.certificate_of_origin_date}
                 />

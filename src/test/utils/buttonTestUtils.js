@@ -40,7 +40,12 @@ import userEvent from '@testing-library/user-event';
  * const maybeButton = findButtonByRole('Delete', { throwError: false });
  */
 export function findButtonByRole(name, options = {}) {
-  const { within: container = screen, variant = null, disabled = null, throwError = true } = options;
+  const {
+    within: container = screen,
+    variant = null,
+    disabled = null,
+    throwError = true,
+  } = options;
   const nameRegex = name instanceof RegExp ? name : new RegExp(name, 'i');
 
   try {
@@ -62,7 +67,7 @@ export function findButtonByRole(name, options = {}) {
 
     if (filtered.length === 0) {
       throw new Error(
-        `Button with name "${name}"${variant ? ` and variant "${variant}"` : ''}${disabled !== null ? ` with disabled=${disabled}` : ''} not found`
+        `Button with name "${name}"${variant ? ` and variant "${variant}"` : ''}${disabled !== null ? ` with disabled=${disabled}` : ''} not found`,
       );
     }
 
@@ -176,7 +181,8 @@ export function assertButtonEnabled(button, message) {
 
   if (button.disabled) {
     throw new Error(
-      message || `Expected button "${button.textContent?.trim()}" to be enabled but it was disabled`
+      message ||
+        `Expected button "${button.textContent?.trim()}" to be enabled but it was disabled`,
     );
   }
 }
@@ -197,7 +203,8 @@ export function assertButtonDisabled(button, message) {
 
   if (!button.disabled) {
     throw new Error(
-      message || `Expected button "${button.textContent?.trim()}" to be disabled but it was enabled`
+      message ||
+        `Expected button "${button.textContent?.trim()}" to be disabled but it was enabled`,
     );
   }
 }
@@ -225,7 +232,9 @@ export function isButtonLoading(button) {
 
   // Check for loading indicators (spinner, class, or text)
   const hasLoadingClass = button.className.match(/loading|saving|processing/i);
-  const hasSpinner = button.querySelector('[class*="spinner"], [class*="loading-icon"], .animate-spin, svg');
+  const hasSpinner = button.querySelector(
+    '[class*="spinner"], [class*="loading-icon"], .animate-spin, svg',
+  );
   const hasLoadingText = /loading|saving|processing/i.test(button.textContent);
 
   // Any of these indicate loading
@@ -251,7 +260,9 @@ export function getButtonLoadingState(button) {
     return { isLoading: false, hasSpinner: false, hasLoadingText: false };
   }
 
-  const hasSpinner = !!button.querySelector('[class*="spinner"], [class*="loading-icon"], .animate-spin');
+  const hasSpinner = !!button.querySelector(
+    '[class*="spinner"], [class*="loading-icon"], .animate-spin',
+  );
   const hasLoadingText = /loading|saving|processing/i.test(button.textContent);
   const isDisabled = button.disabled;
 
@@ -278,14 +289,18 @@ export function getButtonLoadingState(button) {
  */
 export function findButtonInGroup(groupText, buttonName, container = screen) {
   // Find the group/row element
-  const groupElement = container.getByText(new RegExp(groupText, 'i')).closest('tr, li, div[role="article"]');
+  const groupElement = container
+    .getByText(new RegExp(groupText, 'i'))
+    .closest('tr, li, div[role="article"]');
 
   if (!groupElement) {
     throw new Error(`Group with text "${groupText}" not found`);
   }
 
   // Find button within that group
-  return within(groupElement).getByRole('button', { name: new RegExp(buttonName, 'i') });
+  return within(groupElement).getByRole('button', {
+    name: new RegExp(buttonName, 'i'),
+  });
 }
 
 /**
@@ -357,8 +372,17 @@ export function getButtonVariant(button) {
   if (dataVariant) return dataVariant;
 
   // Check for shadcn variants in className
-  const shadcnVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'];
-  const matchedVariant = shadcnVariants.find((v) => button.className.includes(v));
+  const shadcnVariants = [
+    'default',
+    'destructive',
+    'outline',
+    'secondary',
+    'ghost',
+    'link',
+  ];
+  const matchedVariant = shadcnVariants.find((v) =>
+    button.className.includes(v),
+  );
   if (matchedVariant) return matchedVariant;
 
   // Check for custom variants in className (e.g., "btn-primary", "btn-secondary")
@@ -366,7 +390,9 @@ export function getButtonVariant(button) {
   if (customVariantMatch) return customVariantMatch[1];
 
   // Check for single-word variants in className (e.g., "primary", "secondary")
-  const singleWordMatch = button.className.match(/\b(primary|secondary|success|danger|warning|info|light|dark)\b/);
+  const singleWordMatch = button.className.match(
+    /\b(primary|secondary|success|danger|warning|info|light|dark)\b/,
+  );
   if (singleWordMatch) return singleWordMatch[1];
 
   return 'default';

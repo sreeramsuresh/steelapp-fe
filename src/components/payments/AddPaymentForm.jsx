@@ -65,7 +65,8 @@ const AddPaymentForm = ({
       try {
         setLoadingCredit(true);
         setCreditError(null);
-        const summary = await customerCreditService.getCustomerCreditSummary(customerId);
+        const summary =
+          await customerCreditService.getCustomerCreditSummary(customerId);
         setCreditSummary(summary);
       } catch (error) {
         console.error("Error fetching customer credit summary:", error);
@@ -97,7 +98,8 @@ const AddPaymentForm = ({
   const paymentAmount = Number(amount) || 0;
   const calculatedVatAmount = reverseCharge
     ? 0
-    : (paymentAmount * (parseFloat(vatRate) || 0)) / (100 + (parseFloat(vatRate) || 0));
+    : (paymentAmount * (parseFloat(vatRate) || 0)) /
+      (100 + (parseFloat(vatRate) || 0));
   const taxableAmount = paymentAmount - calculatedVatAmount;
 
   // Credit limit calculations (Epic 2 - PAYM-001)
@@ -112,13 +114,18 @@ const AddPaymentForm = ({
 
   // Check if payment would improve or worsen credit position
   const creditImpactPositive = paymentAmount > 0; // Payment always improves credit
-  const creditUtilizationAfterPayment = creditLimit > 0
-    ? ((newUsageAfterPayment / creditLimit) * 100).toFixed(1)
-    : 0;
+  const creditUtilizationAfterPayment =
+    creditLimit > 0
+      ? ((newUsageAfterPayment / creditLimit) * 100).toFixed(1)
+      : 0;
 
   // Warning threshold: if available credit after payment falls below 10% of limit
   const creditWarningThreshold = creditLimit * 0.1;
-  const showCreditWarning = customerId && creditSummary && newAvailableCredit < creditWarningThreshold && newAvailableCredit > 0;
+  const showCreditWarning =
+    customerId &&
+    creditSummary &&
+    newAvailableCredit < creditWarningThreshold &&
+    newAvailableCredit > 0;
 
   // Validation: amount must be > 0, <= outstanding, reference required for non-cash,
   // exchange rate required for foreign currency, and not already saving
@@ -215,23 +222,32 @@ const AddPaymentForm = ({
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div>
                       <div className="text-gray-600">Credit Limit</div>
-                      <div className="font-bold text-green-900">{formatCurrency(creditLimit)}</div>
+                      <div className="font-bold text-green-900">
+                        {formatCurrency(creditLimit)}
+                      </div>
                     </div>
                     <div>
                       <div className="text-gray-600">Current Usage</div>
-                      <div className="font-bold text-green-900">{formatCurrency(currentUsage)}</div>
+                      <div className="font-bold text-green-900">
+                        {formatCurrency(currentUsage)}
+                      </div>
                     </div>
                     <div>
                       <div className="text-gray-600">Available</div>
-                      <div className="font-bold text-green-900">{formatCurrency(availableCredit)}</div>
+                      <div className="font-bold text-green-900">
+                        {formatCurrency(availableCredit)}
+                      </div>
                     </div>
                   </div>
                   {paymentAmount > 0 && (
                     <div className="mt-2 pt-2 border-t border-green-200 text-xs">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">After This Payment:</span>
+                        <span className="text-gray-600">
+                          After This Payment:
+                        </span>
                         <span className="font-bold text-green-700">
-                          {formatCurrency(newAvailableCredit)} available ({creditUtilizationAfterPayment}% used)
+                          {formatCurrency(newAvailableCredit)} available (
+                          {creditUtilizationAfterPayment}% used)
                         </span>
                       </div>
                     </div>
@@ -247,8 +263,11 @@ const AddPaymentForm = ({
               <div className="text-xs text-amber-800 flex items-start gap-2">
                 <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
                 <div>
-                  <strong>Low Credit Warning:</strong> This payment will leave the customer with only{" "}
-                  {formatCurrency(newAvailableCredit)} available credit ({((newAvailableCredit / creditLimit) * 100).toFixed(1)}% of limit).
+                  <strong>Low Credit Warning:</strong> This payment will leave
+                  the customer with only {formatCurrency(newAvailableCredit)}{" "}
+                  available credit (
+                  {((newAvailableCredit / creditLimit) * 100).toFixed(1)}% of
+                  limit).
                 </div>
               </div>
             </div>
@@ -345,7 +364,9 @@ const AddPaymentForm = ({
       {paymentAmount > 0 && (
         <div className="mt-4 px-3 py-3 bg-purple-50 border border-purple-200 rounded-lg">
           <div className="flex justify-between items-center mb-2">
-            <div className="text-xs font-semibold text-purple-900">UAE VAT Breakdown (Form 201 Reference)</div>
+            <div className="text-xs font-semibold text-purple-900">
+              UAE VAT Breakdown (Form 201 Reference)
+            </div>
             <label className="flex items-center gap-2 text-xs cursor-pointer">
               <input
                 type="checkbox"
@@ -359,24 +380,33 @@ const AddPaymentForm = ({
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex justify-between">
               <span className="text-purple-700">Taxable Amount:</span>
-              <span className="font-bold text-purple-900">{formatCurrency(taxableAmount)}</span>
+              <span className="font-bold text-purple-900">
+                {formatCurrency(taxableAmount)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-purple-700">VAT Rate:</span>
-              <span className="font-bold text-purple-900">{reverseCharge ? "0%" : `${vatRate}%`}</span>
+              <span className="font-bold text-purple-900">
+                {reverseCharge ? "0%" : `${vatRate}%`}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-purple-700">VAT Amount:</span>
-              <span className="font-bold text-purple-900">{formatCurrency(calculatedVatAmount)}</span>
+              <span className="font-bold text-purple-900">
+                {formatCurrency(calculatedVatAmount)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-purple-700">Total Payment:</span>
-              <span className="font-bold text-purple-900">{formatCurrency(paymentAmount)}</span>
+              <span className="font-bold text-purple-900">
+                {formatCurrency(paymentAmount)}
+              </span>
             </div>
           </div>
           {reverseCharge && (
             <div className="mt-2 text-xs text-purple-800 bg-purple-100 px-2 py-1 rounded">
-              <strong>Note:</strong> Reverse charge applied. VAT = 0% for import/reverse charge scenarios.
+              <strong>Note:</strong> Reverse charge applied. VAT = 0% for
+              import/reverse charge scenarios.
             </div>
           )}
         </div>

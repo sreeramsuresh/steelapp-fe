@@ -103,7 +103,7 @@ function findContract(url) {
 
   // Trailing slash match (e.g., "/invoices/" matches "/invoices" contract)
   for (const pattern in CONTRACT_REGISTRY) {
-    if (cleanUrl === pattern + '/') {
+    if (cleanUrl === `${pattern  }/`) {
       return CONTRACT_REGISTRY[pattern];
     }
   }
@@ -128,11 +128,15 @@ function validateEnvelope(response, contract, url) {
   const { arrayKey, hasPagination } = contract;
 
   // Assert top-level object exists (not array, not null)
-  if (typeof response !== 'object' || response === null || Array.isArray(response)) {
+  if (
+    typeof response !== 'object' ||
+    response === null ||
+    Array.isArray(response)
+  ) {
     throw new ContractViolationError(
       url,
       'Response must be an object (not array or null)',
-      typeof response === 'object' ? 'array' : typeof response
+      typeof response === 'object' ? 'array' : typeof response,
     );
   }
 
@@ -141,7 +145,7 @@ function validateEnvelope(response, contract, url) {
     throw new ContractViolationError(
       url,
       `Response must have "${arrayKey}" key`,
-      `Keys present: ${Object.keys(response).join(', ')}`
+      `Keys present: ${Object.keys(response).join(', ')}`,
     );
   }
 
@@ -150,7 +154,7 @@ function validateEnvelope(response, contract, url) {
     throw new ContractViolationError(
       url,
       `${arrayKey} must be an array`,
-      `Type received: ${typeof response[arrayKey]}`
+      `Type received: ${typeof response[arrayKey]}`,
     );
   }
 
@@ -170,28 +174,53 @@ function validateEnvelope(response, contract, url) {
  */
 function validatePageInfo(pageInfo, url) {
   if (!pageInfo || typeof pageInfo !== 'object') {
-    throw new ContractViolationError(url, 'pageInfo object required', typeof pageInfo);
+    throw new ContractViolationError(
+      url,
+      'pageInfo object required',
+      typeof pageInfo,
+    );
   }
 
   // Check all required keys
-  const requiredKeys = ['totalItems', 'totalPages', 'currentPage', 'pageSize', 'hasNext', 'hasPrev'];
+  const requiredKeys = [
+    'totalItems',
+    'totalPages',
+    'currentPage',
+    'pageSize',
+    'hasNext',
+    'hasPrev',
+  ];
   for (const key of requiredKeys) {
     if (!pageInfo.hasOwnProperty(key)) {
-      throw new ContractViolationError(url, `pageInfo.${key} required`, `Missing key: ${key}`);
+      throw new ContractViolationError(
+        url,
+        `pageInfo.${key} required`,
+        `Missing key: ${key}`,
+      );
     }
   }
 
   // Type validation
   const typeErrors = [];
-  if (typeof pageInfo.totalItems !== 'number') typeErrors.push('pageInfo.totalItems must be number');
-  if (typeof pageInfo.totalPages !== 'number') typeErrors.push('pageInfo.totalPages must be number');
-  if (typeof pageInfo.currentPage !== 'number') typeErrors.push('pageInfo.currentPage must be number');
-  if (typeof pageInfo.pageSize !== 'number') typeErrors.push('pageInfo.pageSize must be number');
-  if (typeof pageInfo.hasNext !== 'boolean') typeErrors.push('pageInfo.hasNext must be boolean');
-  if (typeof pageInfo.hasPrev !== 'boolean') typeErrors.push('pageInfo.hasPrev must be boolean');
+  if (typeof pageInfo.totalItems !== 'number')
+    typeErrors.push('pageInfo.totalItems must be number');
+  if (typeof pageInfo.totalPages !== 'number')
+    typeErrors.push('pageInfo.totalPages must be number');
+  if (typeof pageInfo.currentPage !== 'number')
+    typeErrors.push('pageInfo.currentPage must be number');
+  if (typeof pageInfo.pageSize !== 'number')
+    typeErrors.push('pageInfo.pageSize must be number');
+  if (typeof pageInfo.hasNext !== 'boolean')
+    typeErrors.push('pageInfo.hasNext must be boolean');
+  if (typeof pageInfo.hasPrev !== 'boolean')
+    typeErrors.push('pageInfo.hasPrev must be boolean');
 
   if (typeErrors.length > 0) {
-    throw new ContractViolationError(url, 'pageInfo type validation', typeErrors.join('; '));
+    throw new ContractViolationError(
+      url,
+      'pageInfo type validation',
+      typeErrors.join('; '),
+    );
   }
 }
 

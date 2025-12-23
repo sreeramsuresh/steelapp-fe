@@ -36,7 +36,10 @@ import pricelistService from "../services/pricelistService";
 import { supplierService } from "../services/supplierService";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem, SelectGroup, SelectLabel } from "../components/ui/select";
-import { validateSsotPattern, getSsotErrorMessage } from "../utils/productSsotValidation";
+import {
+  validateSsotPattern,
+  getSsotErrorMessage,
+} from "../utils/productSsotValidation";
 import BatchAllocator from "../components/batch/BatchAllocator";
 
 // ============================================================
@@ -1549,7 +1552,10 @@ const ExportOrderForm = () => {
           // - destination is NOT UAE AND
           // - NOT a designated zone export AND
           // - customer country is NOT UAE
-          const isUAE = value === "AE" || value === "UAE" || value.toLowerCase() === "united arab emirates";
+          const isUAE =
+            value === "AE" ||
+            value === "UAE" ||
+            value.toLowerCase() === "united arab emirates";
           updated.requires_coo = !isUAE && !updated.is_designated_zone_export;
 
           // Set exemption reason if COO not required
@@ -1557,7 +1563,8 @@ const ExportOrderForm = () => {
             if (isUAE) {
               updated.coo_exemption_reason = "Domestic UAE transaction";
             } else if (updated.is_designated_zone_export) {
-              updated.coo_exemption_reason = "Designated zone export (Article 51)";
+              updated.coo_exemption_reason =
+                "Designated zone export (Article 51)";
             }
           } else {
             updated.coo_exemption_reason = "";
@@ -1760,33 +1767,36 @@ const ExportOrderForm = () => {
     setBatchAllocatorOpen(true);
   }, []);
 
-  const handleBatchAllocation = useCallback((allocations) => {
-    if (batchAllocatorLineIndex === null) return;
+  const handleBatchAllocation = useCallback(
+    (allocations) => {
+      if (batchAllocatorLineIndex === null) return;
 
-    setOrder((prev) => {
-      const newItems = [...prev.items];
-      const item = newItems[batchAllocatorLineIndex];
+      setOrder((prev) => {
+        const newItems = [...prev.items];
+        const item = newItems[batchAllocatorLineIndex];
 
-      // Update batch allocations
-      item.batchAllocations = allocations;
+        // Update batch allocations
+        item.batchAllocations = allocations;
 
-      // Calculate weighted average cost as unit price
-      if (allocations.length > 0) {
-        const totalCost = allocations.reduce(
-          (sum, a) => sum + a.quantity * a.unitCost,
-          0
-        );
-        const totalQty = allocations.reduce((sum, a) => sum + a.quantity, 0);
-        if (totalQty > 0) {
-          item.unit_price = totalCost / totalQty;
-          item.quantity = totalQty;
-          item.total_price = totalCost;
+        // Calculate weighted average cost as unit price
+        if (allocations.length > 0) {
+          const totalCost = allocations.reduce(
+            (sum, a) => sum + a.quantity * a.unitCost,
+            0,
+          );
+          const totalQty = allocations.reduce((sum, a) => sum + a.quantity, 0);
+          if (totalQty > 0) {
+            item.unit_price = totalCost / totalQty;
+            item.quantity = totalQty;
+            item.total_price = totalCost;
+          }
         }
-      }
 
-      return { ...prev, items: newItems };
-    });
-  }, [batchAllocatorLineIndex]);
+        return { ...prev, items: newItems };
+      });
+    },
+    [batchAllocatorLineIndex],
+  );
 
   // ============================================================
   // VALIDATION
@@ -1929,16 +1939,19 @@ const ExportOrderForm = () => {
 
     // UAE Customer TRN validation (for UAE/GCC customers)
     if (order.status !== "draft") {
-      const isUAECustomer = order.customer_country === "UAE" ||
-                           order.customer_country === "United Arab Emirates" ||
-                           order.destination_country === "UAE" ||
-                           order.destination_country === "United Arab Emirates";
+      const isUAECustomer =
+        order.customer_country === "UAE" ||
+        order.customer_country === "United Arab Emirates" ||
+        order.destination_country === "UAE" ||
+        order.destination_country === "United Arab Emirates";
 
-      const isGCCCustomer = order.is_gcc_export ||
-                           GCC_COUNTRIES.some(gcc =>
-                             gcc.code === order.destination_country ||
-                             gcc.name === order.customer_country
-                           );
+      const isGCCCustomer =
+        order.is_gcc_export ||
+        GCC_COUNTRIES.some(
+          (gcc) =>
+            gcc.code === order.destination_country ||
+            gcc.name === order.customer_country,
+        );
 
       if ((isUAECustomer || isGCCCustomer) && order.customer_trn) {
         // Validate TRN format if provided
@@ -1951,12 +1964,14 @@ const ExportOrderForm = () => {
 
     // Epic 9 - EXPO-007: COO requirement validation
     if (order.requires_coo && !order.certificate_of_origin) {
-      newErrors.certificate_of_origin = "Certificate of Origin required for this destination";
+      newErrors.certificate_of_origin =
+        "Certificate of Origin required for this destination";
     }
 
     // If COO not required, exemption reason must be provided
     if (!order.requires_coo && !order.coo_exemption_reason) {
-      newErrors.coo_exemption_reason = "Provide exemption reason when COO not required";
+      newErrors.coo_exemption_reason =
+        "Provide exemption reason when COO not required";
     }
 
     setErrors(newErrors);
@@ -2926,7 +2941,7 @@ const ExportOrderForm = () => {
                     VAT Rate (Auto-calculated)
                   </p>
                   <p
-                    className={`text-lg font-bold ${order.vat_rate > 0 ? (isDarkMode ? "text-amber-400" : "text-amber-600") : (isDarkMode ? "text-green-400" : "text-green-600")}`}
+                    className={`text-lg font-bold ${order.vat_rate > 0 ? (isDarkMode ? "text-amber-400" : "text-amber-600") : isDarkMode ? "text-green-400" : "text-green-600"}`}
                   >
                     {order.vat_rate}%
                   </p>
@@ -2949,7 +2964,9 @@ const ExportOrderForm = () => {
                   <p
                     className={`text-lg font-bold ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                   >
-                    {formatAED(calculations.vatAmount * calculations.exchangeRate)}
+                    {formatAED(
+                      calculations.vatAmount * calculations.exchangeRate,
+                    )}
                   </p>
                   <p
                     className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
@@ -3255,7 +3272,11 @@ const ExportOrderForm = () => {
                         <select
                           value={item.shipmentType || "WAREHOUSE"}
                           onChange={(e) =>
-                            handleItemChange(index, "shipmentType", e.target.value)
+                            handleItemChange(
+                              index,
+                              "shipmentType",
+                              e.target.value,
+                            )
                           }
                           className={`w-full px-2 py-1 text-xs border rounded ${
                             isDarkMode
@@ -3275,8 +3296,8 @@ const ExportOrderForm = () => {
                               item.batchAllocations?.length > 0
                                 ? "bg-teal-600 text-white hover:bg-teal-500"
                                 : isDarkMode
-                                ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                             }`}
                           >
                             <Layers className="w-3 h-3" />
@@ -3290,30 +3311,42 @@ const ExportOrderForm = () => {
                           <select
                             value={item.supplierDropShip || ""}
                             onChange={(e) =>
-                              handleItemChange(index, "supplierDropShip", e.target.value)
+                              handleItemChange(
+                                index,
+                                "supplierDropShip",
+                                e.target.value,
+                              )
                             }
                             className={`w-full px-2 py-1 text-xs border rounded ${
                               errors[`item_${index}_supplier`]
                                 ? "border-red-500"
                                 : isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
+                                  ? "border-gray-600 bg-gray-800 text-white"
+                                  : "border-gray-300 bg-white text-gray-900"
                             }`}
                           >
                             <option value="">Select Supplier</option>
                             {suppliers.map((sup) => (
                               <option key={sup.id} value={sup.id}>
-                                {sup.name || sup.supplierName || `Supplier ${sup.id}`}
+                                {sup.name ||
+                                  sup.supplierName ||
+                                  `Supplier ${sup.id}`}
                               </option>
                             ))}
                           </select>
                         )}
-                        {errors[`item_${index}_batch`] && item.shipmentType === "WAREHOUSE" && (
-                          <p className="text-xs text-red-500">{errors[`item_${index}_batch`]}</p>
-                        )}
-                        {errors[`item_${index}_supplier`] && item.shipmentType === "DROP_SHIP" && (
-                          <p className="text-xs text-red-500">{errors[`item_${index}_supplier`]}</p>
-                        )}
+                        {errors[`item_${index}_batch`] &&
+                          item.shipmentType === "WAREHOUSE" && (
+                            <p className="text-xs text-red-500">
+                              {errors[`item_${index}_batch`]}
+                            </p>
+                          )}
+                        {errors[`item_${index}_supplier`] &&
+                          item.shipmentType === "DROP_SHIP" && (
+                            <p className="text-xs text-red-500">
+                              {errors[`item_${index}_supplier`]}
+                            </p>
+                          )}
                       </div>
                     </td>
                     <td className="py-2 pr-2">
@@ -3662,7 +3695,9 @@ const ExportOrderForm = () => {
                 >
                   <AlertCircle
                     size={20}
-                    className={isDarkMode ? "text-red-400 mt-0.5" : "text-red-600 mt-0.5"}
+                    className={
+                      isDarkMode ? "text-red-400 mt-0.5" : "text-red-600 mt-0.5"
+                    }
                   />
                   <div className="flex-1">
                     <div
@@ -3673,12 +3708,15 @@ const ExportOrderForm = () => {
                     <div
                       className={`text-xs mt-1 ${isDarkMode ? "text-red-300" : "text-red-700"}`}
                     >
-                      Destination: {order.destination_country} | Export to non-UAE requires COO documentation
+                      Destination: {order.destination_country} | Export to
+                      non-UAE requires COO documentation
                     </div>
                     {order.certificate_of_origin ? (
                       <div className="flex items-center gap-2 mt-2">
                         <CheckCircle size={16} className="text-green-500" />
-                        <span className={`text-xs ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
+                        <span
+                          className={`text-xs ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                        >
                           COO Document: {order.certificate_of_origin}
                         </span>
                       </div>
@@ -3701,7 +3739,11 @@ const ExportOrderForm = () => {
                 >
                   <CheckCircle
                     size={20}
-                    className={isDarkMode ? "text-green-400 mt-0.5" : "text-green-600 mt-0.5"}
+                    className={
+                      isDarkMode
+                        ? "text-green-400 mt-0.5"
+                        : "text-green-600 mt-0.5"
+                    }
                   />
                   <div className="flex-1">
                     <div
@@ -3755,7 +3797,11 @@ const ExportOrderForm = () => {
               }
               placeholder="COO number"
               required={order.requires_coo}
-              error={order.requires_coo && !order.certificate_of_origin ? "COO required" : ""}
+              error={
+                order.requires_coo && !order.certificate_of_origin
+                  ? "COO required"
+                  : ""
+              }
             />
             <Input
               label="COO Date"
@@ -3957,7 +4003,9 @@ const ExportOrderForm = () => {
           productId={order.items[batchAllocatorLineIndex]?.product_id}
           warehouseId={null} // TODO: Add warehouse selection if needed
           requiredQuantity={order.items[batchAllocatorLineIndex]?.quantity || 0}
-          currentAllocations={order.items[batchAllocatorLineIndex]?.batchAllocations || []}
+          currentAllocations={
+            order.items[batchAllocatorLineIndex]?.batchAllocations || []
+          }
           onAllocate={handleBatchAllocation}
           mode="export"
           draftInvoiceId={null}

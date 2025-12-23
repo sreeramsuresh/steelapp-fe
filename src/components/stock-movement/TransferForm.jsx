@@ -223,12 +223,15 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   // Handle product select
   const handleProductSelect = useCallback(
     (itemId, product) => {
-      const uniqueName = product.uniqueName || product.unique_name || product.name || "";
+      const uniqueName =
+        product.uniqueName || product.unique_name || product.name || "";
 
       // SSOT validation (Epic 5 - TRAN-002)
       const ssotValidation = validateSsotPattern(uniqueName);
       if (!ssotValidation.isValid) {
-        setError(`Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`);
+        setError(
+          `Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`,
+        );
         return;
       }
 
@@ -512,16 +515,28 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                   : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             >
-              <option value="REGULAR">🟢 Regular - Normal inter-warehouse transfer</option>
-              <option value="URGENT">🔴 Urgent - Priority handling & expedited processing</option>
-              <option value="QUALITY_HOLD">🟡 Quality Hold - Stock quarantined pending inspection</option>
-              <option value="REPAIR">⚪ Repair - Stock sent for repair/refurbishment</option>
+              <option value="REGULAR">
+                🟢 Regular - Normal inter-warehouse transfer
+              </option>
+              <option value="URGENT">
+                🔴 Urgent - Priority handling & expedited processing
+              </option>
+              <option value="QUALITY_HOLD">
+                🟡 Quality Hold - Stock quarantined pending inspection
+              </option>
+              <option value="REPAIR">
+                ⚪ Repair - Stock sent for repair/refurbishment
+              </option>
             </select>
             <p className="mt-1 text-xs text-gray-500">
-              {transferType === "URGENT" && "Priority handling with expedited processing"}
-              {transferType === "QUALITY_HOLD" && "Stock quarantined pending quality inspection"}
-              {transferType === "REPAIR" && "Stock sent for repair or refurbishment"}
-              {transferType === "REGULAR" && "Standard inter-warehouse transfer"}
+              {transferType === "URGENT" &&
+                "Priority handling with expedited processing"}
+              {transferType === "QUALITY_HOLD" &&
+                "Stock quarantined pending quality inspection"}
+              {transferType === "REPAIR" &&
+                "Stock sent for repair or refurbishment"}
+              {transferType === "REGULAR" &&
+                "Standard inter-warehouse transfer"}
             </p>
           </div>
         </div>
@@ -691,7 +706,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                                       }`}
                                     >
                                       <div className="font-medium">
-                                        {product.uniqueName || product.unique_name || product.name}
+                                        {product.uniqueName ||
+                                          product.unique_name ||
+                                          product.name}
                                       </div>
                                       <div className="text-xs opacity-75">
                                         {product.sku || "No SKU"}

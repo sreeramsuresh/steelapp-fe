@@ -222,7 +222,7 @@ const CurrencyConversionModal = ({
   const rateAge = conversionData.rateDate
     ? Math.ceil(
         Math.abs(new Date() - new Date(conversionData.rateDate)) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       )
     : 0;
   const isOld = rateAge > 7;
@@ -239,10 +239,7 @@ const CurrencyConversionModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-black/55"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/55" onClick={onClose} />
       {/* Modal */}
       <div
         className={`relative z-10 w-full max-w-lg rounded-2xl p-4 ${
@@ -652,9 +649,9 @@ const ProductDetailDrawer = ({
                       8
                         ? "text-[#2ecc71]"
                         : ((product.sellingPrice - product.costPrice) /
-                            product.costPrice) *
-                            100 >=
-                          5
+                              product.costPrice) *
+                              100 >=
+                            5
                           ? "text-[#f39c12]"
                           : "text-[#e74c3c]"
                     }`}
@@ -967,7 +964,7 @@ export default function PriceListForm() {
     if (field === "effectiveFrom" || field === "effectiveTo") {
       validateDateRange(
         field === "effectiveFrom" ? value : formData.effectiveFrom,
-        field === "effectiveTo" ? value : formData.effectiveTo
+        field === "effectiveTo" ? value : formData.effectiveTo,
       );
     }
   };
@@ -981,7 +978,9 @@ export default function PriceListForm() {
 
     // Check if effectiveTo >= effectiveFrom
     if (new Date(toDate) < new Date(fromDate)) {
-      setDateValidationError("Effective To date must be after or equal to Effective From date");
+      setDateValidationError(
+        "Effective To date must be after or equal to Effective From date",
+      );
       return;
     }
 
@@ -996,10 +995,10 @@ export default function PriceListForm() {
       const pricelists = response.pricelists || [];
 
       // Filter out current pricelist if editing
-      const otherPricelists = pricelists.filter(p => p.id !== parseInt(id));
+      const otherPricelists = pricelists.filter((p) => p.id !== parseInt(id));
 
       // Find overlaps
-      const overlaps = otherPricelists.filter(p => {
+      const overlaps = otherPricelists.filter((p) => {
         if (!p.effectiveFrom || !p.effectiveTo) return false;
 
         // Overlap logic: (new_start <= existing_end) AND (new_end >= existing_start)
@@ -1040,22 +1039,28 @@ export default function PriceListForm() {
     }
 
     try {
-      const response = await exchangeRateService.getLatestRate(fromCurrency, toCurrency);
+      const response = await exchangeRateService.getLatestRate(
+        fromCurrency,
+        toCurrency,
+      );
       return {
         rate: response.rate || 1,
-        date: response.effectiveDate || response.date || new Date().toISOString(),
+        date:
+          response.effectiveDate || response.date || new Date().toISOString(),
         source: response.source || "System",
       };
     } catch (error) {
       console.error("Error fetching exchange rate:", error);
-      notificationService.warning(`Could not fetch exchange rate for ${fromCurrency}/${toCurrency}`);
+      notificationService.warning(
+        `Could not fetch exchange rate for ${fromCurrency}/${toCurrency}`,
+      );
       return { rate: 1, date: new Date().toISOString(), source: "Default" };
     }
   };
 
   // Epic 14 - PRICE-007: Convert cost price to base currency
   const convertCostToBaseCurrency = async (productId) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find((p) => p.id === productId);
     if (!product) return null;
 
     const costCurrency = product.costCurrency || product.cost_currency || "AED";
@@ -1108,7 +1113,10 @@ export default function PriceListForm() {
     const conversionData = await convertCostToBaseCurrency(productId);
     if (!conversionData) return null;
 
-    const margin = ((sellingPrice - conversionData.convertedCost) / conversionData.convertedCost) * 100;
+    const margin =
+      ((sellingPrice - conversionData.convertedCost) /
+        conversionData.convertedCost) *
+      100;
 
     return {
       margin: margin.toFixed(1),
@@ -1171,9 +1179,12 @@ export default function PriceListForm() {
       } else {
         const product = products.find((p) => p.id === productId);
         // Epic 8 - PRICE-003: Auto-determine pricing unit from category
-        const category = product?.category || '';
-        const procurementChannel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
-        const pricingUnit = getPricingUnitForCategory(category) || 'WEIGHT';
+        const category = product?.category || "";
+        const procurementChannel =
+          product?.procurementChannel ||
+          product?.procurement_channel ||
+          PROCUREMENT_CHANNELS.LOCAL;
+        const pricingUnit = getPricingUnitForCategory(category) || "WEIGHT";
 
         return {
           ...prev,
@@ -1199,12 +1210,16 @@ export default function PriceListForm() {
 
     // Validate adjustment cap at ±20%
     if (percentage > 20) {
-      notificationService.error("Bulk adjustments are capped at ±20%. Please enter a value between 0 and 20.");
+      notificationService.error(
+        "Bulk adjustments are capped at ±20%. Please enter a value between 0 and 20.",
+      );
       return;
     }
 
     if (percentage <= 0) {
-      notificationService.error("Adjustment percentage must be greater than 0.");
+      notificationService.error(
+        "Adjustment percentage must be greater than 0.",
+      );
       return;
     }
 
@@ -1226,9 +1241,12 @@ export default function PriceListForm() {
   const handleResetToDefaults = () => {
     // Reset ALL products to their default selling prices
     const allItems = products.map((product) => {
-      const category = product?.category || '';
-      const procurementChannel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
-      const pricingUnit = getPricingUnitForCategory(category) || 'WEIGHT';
+      const category = product?.category || "";
+      const procurementChannel =
+        product?.procurementChannel ||
+        product?.procurement_channel ||
+        PROCUREMENT_CHANNELS.LOCAL;
+      const pricingUnit = getPricingUnitForCategory(category) || "WEIGHT";
 
       return {
         productId: product.id,
@@ -1384,12 +1402,15 @@ export default function PriceListForm() {
 
     const margin = parseFloat(marginPercent);
     const product = products.find((p) => p.id === productId);
-    const channel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
+    const channel =
+      product?.procurementChannel ||
+      product?.procurement_channel ||
+      PROCUREMENT_CHANNELS.LOCAL;
 
     const colorStatus = getMarginColorByChannel(margin, channel);
 
-    if (colorStatus === 'red') return COLORS.bad;
-    if (colorStatus === 'amber') return COLORS.warn;
+    if (colorStatus === "red") return COLORS.bad;
+    if (colorStatus === "amber") return COLORS.warn;
     return COLORS.good;
   };
 
@@ -1666,11 +1687,17 @@ export default function PriceListForm() {
                     <FormSelect
                       label="Pricing Unit"
                       value={formData.pricingUnit}
-                      onValueChange={(value) => handleChange("pricingUnit", value)}
+                      onValueChange={(value) =>
+                        handleChange("pricingUnit", value)
+                      }
                       showValidation={false}
                     >
-                      <SelectItem value="WEIGHT_BASED">Per Kg (Weight)</SelectItem>
-                      <SelectItem value="PIECE_BASED">Per Unit (Piece)</SelectItem>
+                      <SelectItem value="WEIGHT_BASED">
+                        Per Kg (Weight)
+                      </SelectItem>
+                      <SelectItem value="PIECE_BASED">
+                        Per Unit (Piece)
+                      </SelectItem>
                       <SelectItem value="AREA_BASED">Per m² (Area)</SelectItem>
                     </FormSelect>
                   </div>
@@ -1744,42 +1771,53 @@ export default function PriceListForm() {
                   </div>
 
                   {/* Epic 14 - PRICE-006: Validity Period Display */}
-                  {formData.effectiveFrom && formData.effectiveTo && !dateValidationError && (
-                    <div className="col-span-12">
-                      <div
-                        className={`rounded-[14px] p-3 flex items-center gap-3 ${
-                          isDarkMode
-                            ? "bg-[#0f151b] border border-[#2a3640]"
-                            : "bg-blue-50 border border-blue-200"
-                        }`}
-                      >
-                        <Calendar size={16} className="text-[#4aa3ff]" />
-                        <div>
-                          <p
-                            className={`text-xs font-medium ${
-                              isDarkMode ? "text-[#e6edf3]" : "text-gray-900"
-                            }`}
-                          >
-                            Price list valid from{" "}
-                            <span className="font-bold">
-                              {new Date(formData.effectiveFrom).toLocaleDateString()}
-                            </span>{" "}
-                            to{" "}
-                            <span className="font-bold">
-                              {new Date(formData.effectiveTo).toLocaleDateString()}
-                            </span>
-                          </p>
-                          <p
-                            className={`text-[11px] mt-0.5 ${
-                              isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
-                            }`}
-                          >
-                            Duration: {calculateValidityDays(formData.effectiveFrom, formData.effectiveTo)} days
-                          </p>
+                  {formData.effectiveFrom &&
+                    formData.effectiveTo &&
+                    !dateValidationError && (
+                      <div className="col-span-12">
+                        <div
+                          className={`rounded-[14px] p-3 flex items-center gap-3 ${
+                            isDarkMode
+                              ? "bg-[#0f151b] border border-[#2a3640]"
+                              : "bg-blue-50 border border-blue-200"
+                          }`}
+                        >
+                          <Calendar size={16} className="text-[#4aa3ff]" />
+                          <div>
+                            <p
+                              className={`text-xs font-medium ${
+                                isDarkMode ? "text-[#e6edf3]" : "text-gray-900"
+                              }`}
+                            >
+                              Price list valid from{" "}
+                              <span className="font-bold">
+                                {new Date(
+                                  formData.effectiveFrom,
+                                ).toLocaleDateString()}
+                              </span>{" "}
+                              to{" "}
+                              <span className="font-bold">
+                                {new Date(
+                                  formData.effectiveTo,
+                                ).toLocaleDateString()}
+                              </span>
+                            </p>
+                            <p
+                              className={`text-[11px] mt-0.5 ${
+                                isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                              }`}
+                            >
+                              Duration:{" "}
+                              {calculateValidityDays(
+                                formData.effectiveFrom,
+                                formData.effectiveTo,
+                              )}{" "}
+                              days
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Epic 14 - PRICE-006: Overlap Warning */}
                   {showDateWarning && overlappingPricelists.length > 0 && (
@@ -1809,21 +1847,32 @@ export default function PriceListForm() {
                                 <p
                                   key={pl.id}
                                   className={`text-[11px] ${
-                                    isDarkMode ? "text-amber-400/80" : "text-amber-700"
+                                    isDarkMode
+                                      ? "text-amber-400/80"
+                                      : "text-amber-700"
                                   }`}
                                 >
-                                  <span className="font-bold">{pl.name}</span> from{" "}
-                                  {new Date(pl.effectiveFrom).toLocaleDateString()} to{" "}
-                                  {new Date(pl.effectiveTo).toLocaleDateString()}
+                                  <span className="font-bold">{pl.name}</span>{" "}
+                                  from{" "}
+                                  {new Date(
+                                    pl.effectiveFrom,
+                                  ).toLocaleDateString()}{" "}
+                                  to{" "}
+                                  {new Date(
+                                    pl.effectiveTo,
+                                  ).toLocaleDateString()}
                                 </p>
                               ))}
                             </div>
                             <p
                               className={`text-[10px] mt-2 ${
-                                isDarkMode ? "text-amber-400/70" : "text-amber-600"
+                                isDarkMode
+                                  ? "text-amber-400/70"
+                                  : "text-amber-600"
                               }`}
                             >
-                              Manager approval required to proceed with overlapping dates.
+                              Manager approval required to proceed with
+                              overlapping dates.
                             </p>
                           </div>
                         </div>
@@ -1837,44 +1886,79 @@ export default function PriceListForm() {
                       className={`mt-3 pt-3 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}
                     >
                       <div className="text-xs font-semibold mb-2 flex items-center gap-2">
-                        <History size={14} className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} />
-                        <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>
+                        <History
+                          size={14}
+                          className={
+                            isDarkMode ? "text-[#93a4b4]" : "text-gray-500"
+                          }
+                        />
+                        <span
+                          className={
+                            isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                          }
+                        >
                           Audit Trail
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         {formData.createdBy && (
                           <div>
-                            <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>
+                            <span
+                              className={
+                                isDarkMode ? "text-[#93a4b4]" : "text-gray-500"
+                              }
+                            >
                               Created by:
                             </span>
-                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                            <span
+                              className={`ml-2 font-semibold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                            >
                               {formData.createdBy}
                             </span>
                             {formData.createdDate && (
-                              <span className={`ml-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                                on {new Date(formData.createdDate).toLocaleDateString()}
+                              <span
+                                className={`ml-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                              >
+                                on{" "}
+                                {new Date(
+                                  formData.createdDate,
+                                ).toLocaleDateString()}
                               </span>
                             )}
                           </div>
                         )}
                         {formData.approvedBy && (
                           <div>
-                            <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>
+                            <span
+                              className={
+                                isDarkMode ? "text-[#93a4b4]" : "text-gray-500"
+                              }
+                            >
                               Approved by:
                             </span>
-                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                            <span
+                              className={`ml-2 font-semibold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                            >
                               {formData.approvedBy}
                             </span>
                             {formData.approvalDate && (
-                              <span className={`ml-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                                on {new Date(formData.approvalDate).toLocaleDateString()}
+                              <span
+                                className={`ml-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                              >
+                                on{" "}
+                                {new Date(
+                                  formData.approvalDate,
+                                ).toLocaleDateString()}
                               </span>
                             )}
                           </div>
                         )}
                         {!formData.createdBy && !formData.approvedBy && (
-                          <div className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>
+                          <div
+                            className={
+                              isDarkMode ? "text-[#93a4b4]" : "text-gray-500"
+                            }
+                          >
                             No audit information available yet
                           </div>
                         )}
@@ -1995,7 +2079,10 @@ export default function PriceListForm() {
                             <th
                               className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
                             >
-                              New Price <span className="opacity-60">({getPricingUnitLabel()})</span>
+                              New Price{" "}
+                              <span className="opacity-60">
+                                ({getPricingUnitLabel()})
+                              </span>
                             </th>
                             <th
                               className={`text-right py-2.5 px-4 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
@@ -2047,8 +2134,15 @@ export default function PriceListForm() {
                                   </p>
                                   {/* Epic 8 - PRICE-003: Show category and pricing unit */}
                                   {product.category && (
-                                    <p className={`text-[10px] mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-400"}`}>
-                                      {product.category} • {PRICING_UNIT_LABELS[getPricingUnitForCategory(product.category)] || 'Weight-based'}
+                                    <p
+                                      className={`text-[10px] mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-400"}`}
+                                    >
+                                      {product.category} •{" "}
+                                      {PRICING_UNIT_LABELS[
+                                        getPricingUnitForCategory(
+                                          product.category,
+                                        )
+                                      ] || "Weight-based"}
                                     </p>
                                   )}
                                 </td>
@@ -2061,15 +2155,20 @@ export default function PriceListForm() {
                                   </div>
                                   {/* Epic 14 - PRICE-007: Show currency conversion for cost */}
                                   {(() => {
-                                    const costCurrency = product.costCurrency || product.cost_currency || "AED";
-                                    const showConversion = costCurrency !== "AED";
+                                    const costCurrency =
+                                      product.costCurrency ||
+                                      product.cost_currency ||
+                                      "AED";
+                                    const showConversion =
+                                      costCurrency !== "AED";
 
                                     if (!showConversion) {
                                       return (
                                         <div
                                           className={`text-[11px] font-mono ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
                                         >
-                                          Cost: {costPrice?.toFixed(2) || "0.00"} AED
+                                          Cost:{" "}
+                                          {costPrice?.toFixed(2) || "0.00"} AED
                                         </div>
                                       );
                                     }
@@ -2079,11 +2178,16 @@ export default function PriceListForm() {
                                         <div
                                           className={`text-[10px] font-mono ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
                                         >
-                                          Cost: {costPrice?.toFixed(2)} {costCurrency}
+                                          Cost: {costPrice?.toFixed(2)}{" "}
+                                          {costCurrency}
                                         </div>
                                         <button
                                           type="button"
-                                          onClick={() => handleShowCurrencyConversion(product)}
+                                          onClick={() =>
+                                            handleShowCurrencyConversion(
+                                              product,
+                                            )
+                                          }
                                           className={`text-[9px] flex items-center justify-end gap-1 ${isDarkMode ? "text-[#4aa3ff] hover:text-[#5bb2ff]" : "text-blue-600 hover:text-blue-700"} transition-colors cursor-pointer`}
                                         >
                                           <DollarSign size={10} />
@@ -2125,15 +2229,28 @@ export default function PriceListForm() {
                                   {margin !== null && (
                                     <div
                                       className={`text-[11px] text-right mt-1 font-bold font-mono`}
-                                      style={{ color: getMarginColorForProduct(margin, product.id) }}
+                                      style={{
+                                        color: getMarginColorForProduct(
+                                          margin,
+                                          product.id,
+                                        ),
+                                      }}
                                     >
                                       {margin}% margin
                                       {/* Epic 8 - PRICE-005: Channel-specific warning thresholds */}
                                       {(() => {
-                                        const channel = product?.procurementChannel || product?.procurement_channel || PROCUREMENT_CHANNELS.LOCAL;
-                                        const colorStatus = getMarginColorByChannel(margin, channel);
-                                        if (colorStatus === 'red') return " ⚠️";
-                                        if (colorStatus === 'amber') return " ⚠";
+                                        const channel =
+                                          product?.procurementChannel ||
+                                          product?.procurement_channel ||
+                                          PROCUREMENT_CHANNELS.LOCAL;
+                                        const colorStatus =
+                                          getMarginColorByChannel(
+                                            margin,
+                                            channel,
+                                          );
+                                        if (colorStatus === "red") return " ⚠️";
+                                        if (colorStatus === "amber")
+                                          return " ⚠";
                                         return "";
                                       })()}
                                     </div>
@@ -2364,7 +2481,11 @@ export default function PriceListForm() {
           setCurrencyConversionData(null);
         }}
         product={currencyModalProduct}
-        sellingPrice={currencyModalProduct ? parseFloat(getProductPrice(currencyModalProduct.id)) : null}
+        sellingPrice={
+          currencyModalProduct
+            ? parseFloat(getProductPrice(currencyModalProduct.id))
+            : null
+        }
         conversionData={currencyConversionData}
         isDarkMode={isDarkMode}
         onRateOverride={handleRateOverride}
@@ -2452,12 +2573,13 @@ export default function PriceListForm() {
                     <span>Bulk adjustments are capped at ±20% for safety</span>
                   </div>
                 )}
-                {bulkOperation.percentage > 15 && bulkOperation.percentage <= 20 && (
-                  <div className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                    <span>⚠</span>
-                    <span>Large adjustment - please review carefully</span>
-                  </div>
-                )}
+                {bulkOperation.percentage > 15 &&
+                  bulkOperation.percentage <= 20 && (
+                    <div className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                      <span>⚠</span>
+                      <span>Large adjustment - please review carefully</span>
+                    </div>
+                  )}
               </div>
 
               {/* Preview */}

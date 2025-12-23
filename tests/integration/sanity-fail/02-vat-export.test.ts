@@ -47,7 +47,7 @@ describe('SF-2: Export Invoice VAT Must Be 0%', () => {
       `INSERT INTO invoices (invoice_id, customer_id, company_id, subtotal, vat_rate, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 'draft', NOW())
        RETURNING *`,
-      [invoiceId, customer.customer_id, company.company_id, subtotal, expectedVatRate, expectedVatAmount, expectedTotal]
+      [invoiceId, customer.customer_id, company.company_id, subtotal, expectedVatRate, expectedVatAmount, expectedTotal],
     );
 
     const invoice = rows[0];
@@ -102,7 +102,7 @@ describe('SF-2: Export Invoice VAT Must Be 0%', () => {
       await dbQuery(
         `INSERT INTO invoices (invoice_id, customer_id, company_id, subtotal, vat_rate, vat_amount, total, status, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, 'draft', NOW())`,
-        [invoiceId, customer.customer_id, company.company_id, subtotal, 0, 0, subtotal]
+        [invoiceId, customer.customer_id, company.company_id, subtotal, 0, 0, subtotal],
       );
 
       const invoice = await getInvoice(invoiceId);
@@ -130,7 +130,7 @@ describe('SF-2: Export Invoice VAT Must Be 0%', () => {
     await dbQuery(
       `INSERT INTO invoices (invoice_id, customer_id, company_id, subtotal, vat_rate, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 'draft', NOW())`,
-      [invoiceId, customer.customer_id, company.company_id, subtotal, 0, 0, subtotal]
+      [invoiceId, customer.customer_id, company.company_id, subtotal, 0, 0, subtotal],
     );
 
     const invoice = await getInvoice(invoiceId);

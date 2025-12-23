@@ -25,7 +25,7 @@ import {
   Calendar,
 } from "lucide-react";
 import api from "../../services/api";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { toUAEDateForInput } from "../../utils/timezone";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";

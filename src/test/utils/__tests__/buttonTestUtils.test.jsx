@@ -139,7 +139,7 @@ describe('buttonTestUtils', () => {
         <button>
           <span className="spinner" />
           Loading
-        </button>
+        </button>,
       );
       const button = findButtonByRole('Loading');
       expect(isButtonLoading(button)).toBe(true);
@@ -153,7 +153,7 @@ describe('buttonTestUtils', () => {
           <button>Save</button>
           <button>Delete</button>
           <button>Cancel</button>
-        </>
+        </>,
       );
 
       const buttons = findAllButtons();
@@ -166,7 +166,7 @@ describe('buttonTestUtils', () => {
           <button>Save</button>
           <button>Delete</button>
           <button>Save Draft</button>
-        </>
+        </>,
       );
 
       const saveButtons = findAllButtons({ name: /save/i });
@@ -200,9 +200,7 @@ describe('buttonTestUtils', () => {
   describe('waitForButtonEnabled', () => {
     it('waits for button to become enabled', async () => {
       let isDisabled = true;
-      const { rerender } = render(
-        <button disabled={isDisabled}>Save</button>
-      );
+      const { rerender } = render(<button disabled={isDisabled}>Save</button>);
 
       const button = findButtonByRole('Save');
 
@@ -220,9 +218,7 @@ describe('buttonTestUtils', () => {
       render(<button disabled>Save</button>);
       const button = findButtonByRole('Save');
 
-      await expect(
-        waitForButtonEnabled(button, 100)
-      ).rejects.toThrow();
+      await expect(waitForButtonEnabled(button, 100)).rejects.toThrow();
     });
   });
 });

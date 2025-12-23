@@ -20,7 +20,9 @@ describe('API Response Contracts', () => {
           <>
             <div>Status: {response.status}</div>
             <div>StatusText: {response.statusText}</div>
-            {response.status === 200 && <div className="alert-success">Request successful</div>}
+            {response.status === 200 && (
+              <div className="alert-success">Request successful</div>
+            )}
           </>
         );
       };
@@ -40,7 +42,9 @@ describe('API Response Contracts', () => {
         return (
           <>
             <div>Status: {response.status}</div>
-            {response.status === 201 && <div className="alert-success">Invoice created</div>}
+            {response.status === 201 && (
+              <div className="alert-success">Invoice created</div>
+            )}
           </>
         );
       };
@@ -59,7 +63,9 @@ describe('API Response Contracts', () => {
         return (
           <>
             <div>Status: {response.status}</div>
-            {response.status === 400 && <div className="alert-error">{response.error}</div>}
+            {response.status === 400 && (
+              <div className="alert-error">{response.error}</div>
+            )}
           </>
         );
       };
@@ -78,7 +84,9 @@ describe('API Response Contracts', () => {
         return (
           <>
             <div>Status: {response.status}</div>
-            {response.status === 401 && <div className="alert-error">{response.error}</div>}
+            {response.status === 401 && (
+              <div className="alert-error">{response.error}</div>
+            )}
           </>
         );
       };
@@ -97,7 +105,9 @@ describe('API Response Contracts', () => {
         return (
           <>
             <div>Status: {response.status}</div>
-            {response.status === 403 && <div className="alert-error">{response.error}</div>}
+            {response.status === 403 && (
+              <div className="alert-error">{response.error}</div>
+            )}
           </>
         );
       };
@@ -116,7 +126,9 @@ describe('API Response Contracts', () => {
         return (
           <>
             <div>Status: {response.status}</div>
-            {response.status === 404 && <div className="alert-error">{response.error}</div>}
+            {response.status === 404 && (
+              <div className="alert-error">{response.error}</div>
+            )}
           </>
         );
       };
@@ -135,7 +147,9 @@ describe('API Response Contracts', () => {
         return (
           <>
             <div>Status: {response.status}</div>
-            {response.status === 500 && <div className="alert-error">{response.error}</div>}
+            {response.status === 500 && (
+              <div className="alert-error">{response.error}</div>
+            )}
           </>
         );
       };
@@ -207,7 +221,11 @@ describe('API Response Contracts', () => {
       };
 
       // Validate error structure
-      const hasErrorFields = !!(errorResponse.error && errorResponse.error.code && errorResponse.error.message);
+      const hasErrorFields = !!(
+        errorResponse.error &&
+        errorResponse.error.code &&
+        errorResponse.error.message
+      );
 
       expect(hasErrorFields).toBe(true);
     });
@@ -233,7 +251,8 @@ describe('API Response Contracts', () => {
           pagination.page >= 1 &&
           pagination.pageSize > 0 &&
           pagination.totalRecords >= 0 &&
-          pagination.totalPages === Math.ceil(pagination.totalRecords / pagination.pageSize);
+          pagination.totalPages ===
+            Math.ceil(pagination.totalRecords / pagination.pageSize);
 
         return <div>{isValid ? 'Pagination valid' : 'Invalid'}</div>;
       };
@@ -254,7 +273,9 @@ describe('API Response Contracts', () => {
         },
       };
 
-      expect(response.data.items.length).toBeLessThanOrEqual(response.data.pagination.pageSize);
+      expect(response.data.items.length).toBeLessThanOrEqual(
+        response.data.pagination.pageSize,
+      );
     });
   });
 
@@ -274,7 +295,7 @@ describe('API Response Contracts', () => {
       // Verify descending order
       for (let i = 0; i < response.data.invoices.length - 1; i++) {
         expect(response.data.invoices[i].amount).toBeGreaterThanOrEqual(
-          response.data.invoices[i + 1].amount
+          response.data.invoices[i + 1].amount,
         );
       }
     });
@@ -305,7 +326,9 @@ describe('API Response Contracts', () => {
         { id: 3, status: 'paid', customerId: 456 },
       ];
 
-      const filteredInvoices = allInvoices.filter((inv) => inv.status === 'paid' && inv.customerId === 123);
+      const filteredInvoices = allInvoices.filter(
+        (inv) => inv.status === 'paid' && inv.customerId === 123,
+      );
 
       expect(filteredInvoices.length).toBe(1);
       expect(filteredInvoices[0].id).toBe(1);
@@ -320,7 +343,10 @@ describe('API Response Contracts', () => {
       ];
 
       const filtered = allInvoices.filter(
-        (inv) => inv.amount > 5000 && inv.invoiceDate < '2025-12-20' && inv.status !== 'draft'
+        (inv) =>
+          inv.amount > 5000 &&
+          inv.invoiceDate < '2025-12-20' &&
+          inv.status !== 'draft',
       );
 
       expect(filtered.length).toBe(1);
@@ -347,7 +373,8 @@ describe('API Response Contracts', () => {
         error: {
           requestId: 'req-abc123-xyz789',
           message: 'Internal server error',
-          supportMessage: 'Please reference request ID req-abc123-xyz789 when contacting support',
+          supportMessage:
+            'Please reference request ID req-abc123-xyz789 when contacting support',
         },
       };
 
@@ -371,7 +398,7 @@ describe('API Response Contracts', () => {
     it('should include caching headers for GET requests', async () => {
       const headers = {
         'cache-control': 'max-age=300',
-        'etag': '"abc123"',
+        etag: '"abc123"',
       };
 
       expect(headers['cache-control']).toBeDefined();

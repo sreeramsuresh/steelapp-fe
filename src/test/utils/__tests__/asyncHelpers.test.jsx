@@ -108,7 +108,7 @@ describe('asyncHelpers', () => {
       const button = screen.getByRole('button');
 
       await expect(
-        performAsyncButtonClick(button, stateChecker, { timeout: 100 })
+        performAsyncButtonClick(button, stateChecker, { timeout: 100 }),
       ).rejects.toThrow();
     });
   });
@@ -138,7 +138,7 @@ describe('asyncHelpers', () => {
       render(<button>No Loading</button>);
 
       await expect(
-        waitForLoadingStart('[class*="spinner"]', 100)
+        waitForLoadingStart('[class*="spinner"]', 100),
       ).rejects.toThrow();
     });
   });
@@ -186,18 +186,22 @@ describe('asyncHelpers', () => {
       const condition = vi.fn().mockResolvedValue(false);
 
       await expect(
-        retryUntil(condition, { maxRetries: 2, delayMs: 10 })
+        retryUntil(condition, { maxRetries: 2, delayMs: 10 }),
       ).rejects.toThrow();
 
       expect(condition).toHaveBeenCalledTimes(3); // initial + 2 retries
     });
 
     it('stops early on success', async () => {
-      const condition = vi.fn()
+      const condition = vi
+        .fn()
         .mockResolvedValueOnce(false)
         .mockResolvedValueOnce(true);
 
-      const result = await retryUntil(condition, { maxRetries: 5, delayMs: 10 });
+      const result = await retryUntil(condition, {
+        maxRetries: 5,
+        delayMs: 10,
+      });
 
       expect(result).toBe(true);
       expect(condition).toHaveBeenCalledTimes(2); // Only 2 calls, not 6
@@ -221,7 +225,7 @@ describe('asyncHelpers', () => {
       const condition = () => false;
 
       await expect(
-        pollForCondition(condition, { timeoutMs: 100, intervalMs: 20 })
+        pollForCondition(condition, { timeoutMs: 100, intervalMs: 20 }),
       ).rejects.toThrow();
     });
   });
@@ -242,16 +246,14 @@ describe('asyncHelpers', () => {
       const callback = vi.fn();
 
       await expect(
-        waitForCallback(callback, { timeout: 100 })
+        waitForCallback(callback, { timeout: 100 }),
       ).rejects.toThrow();
     });
   });
 
   describe('waitForAttributeChange', () => {
     it('waits for element attribute to change', async () => {
-      const { rerender } = render(
-        <button aria-busy="false">Save</button>
-      );
+      const { rerender } = render(<button aria-busy="false">Save</button>);
 
       const button = screen.getByRole('button');
 
@@ -268,7 +270,7 @@ describe('asyncHelpers', () => {
       const button = screen.getByRole('button');
 
       await expect(
-        waitForAttributeChange(button, 'aria-busy', 'true', 100)
+        waitForAttributeChange(button, 'aria-busy', 'true', 100),
       ).rejects.toThrow();
     });
   });

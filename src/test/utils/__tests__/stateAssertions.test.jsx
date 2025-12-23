@@ -51,9 +51,7 @@ describe('stateAssertions', () => {
     it('times out if modal does not open', async () => {
       render(<button>No Modal</button>);
 
-      await expect(
-        assertModalOpens(/create invoice/i, 100)
-      ).rejects.toThrow();
+      await expect(assertModalOpens(/create invoice/i, 100)).rejects.toThrow();
     });
   });
 
@@ -111,7 +109,7 @@ describe('stateAssertions', () => {
       render(<button>No Toast</button>);
 
       await expect(
-        assertToastAppears(/success/i, 'success', 100)
+        assertToastAppears(/success/i, 'success', 100),
       ).rejects.toThrow();
     });
   });
@@ -168,9 +166,7 @@ describe('stateAssertions', () => {
             >
               Validate
             </button>
-            {errors.email && (
-              <span id="email-error">{errors.email}</span>
-            )}
+            {errors.email && <span id="email-error">{errors.email}</span>}
           </>
         );
       };
@@ -217,9 +213,7 @@ describe('stateAssertions', () => {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <button
-              onClick={() => setItems([...items, 'Item 2'])}
-            >
+            <button onClick={() => setItems([...items, 'Item 2'])}>
               Add Item
             </button>
           </>
@@ -269,9 +263,7 @@ describe('stateAssertions', () => {
   describe('assertTableRowCountChanges', () => {
     it('detects when table row count changes', async () => {
       const TableComponent = () => {
-        const [rows, setRows] = React.useState([
-          { id: 1, name: 'Row 1' },
-        ]);
+        const [rows, setRows] = React.useState([{ id: 1, name: 'Row 1' }]);
         return (
           <>
             <table>
@@ -314,7 +306,7 @@ describe('stateAssertions', () => {
               <td>200</td>
             </tr>
           </tbody>
-        </table>
+        </table>,
       );
 
       await assertTableContainsRow(/Product A/);
@@ -366,7 +358,7 @@ describe('stateAssertions', () => {
 
       await assertStateChange(
         () => parseInt(screen.getByTestId('count').textContent),
-        1
+        1,
       );
 
       // State should have changed

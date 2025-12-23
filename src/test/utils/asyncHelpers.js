@@ -15,7 +15,11 @@
 
 import { waitFor } from '@testing-library/react';
 import { expect } from 'vitest';
-import { clickButton, waitForButtonDisabled, waitForButtonEnabled } from './buttonTestUtils';
+import {
+  clickButton,
+  waitForButtonDisabled,
+  waitForButtonEnabled,
+} from './buttonTestUtils';
 import { waitForLoadingComplete } from './stateAssertions';
 
 /**
@@ -68,7 +72,7 @@ export async function clickAndWaitForApi(button, mockFn, options = {}) {
         }
       });
     },
-    { timeout }
+    { timeout },
   );
 }
 
@@ -108,7 +112,7 @@ export async function waitForApiCall(mockFn, options = {}) {
         }
       });
     },
-    { timeout }
+    { timeout },
   );
 }
 
@@ -152,7 +156,11 @@ export async function waitForDebounce(delayMs, options = {}) {
  *   expect(await assertTableRowCountChanges(5));
  * });
  */
-export async function performAsyncButtonClick(button, stateChecker = null, options = {}) {
+export async function performAsyncButtonClick(
+  button,
+  stateChecker = null,
+  options = {},
+) {
   const { timeout = 10000 } = options;
 
   if (!button) {
@@ -184,10 +192,16 @@ export async function performAsyncButtonClick(button, stateChecker = null, optio
  * const spinner = await waitForLoadingStart('[class*="spinner"]');
  * expect(spinner).toBeInTheDocument();
  */
-export async function waitForLoadingStart(loadingSelector = '[class*="spinner"], [class*="loading"]', timeout = 5000) {
+export async function waitForLoadingStart(
+  loadingSelector = '[class*="spinner"], [class*="loading"]',
+  timeout = 5000,
+) {
   return new Promise((resolve, reject) => {
     const checkInterval = setInterval(() => {
-      const element = typeof loadingSelector === 'string' ? document.querySelector(loadingSelector) : null;
+      const element =
+        typeof loadingSelector === 'string'
+          ? document.querySelector(loadingSelector)
+          : null;
 
       if (element) {
         clearInterval(checkInterval);
@@ -213,10 +227,16 @@ export async function waitForLoadingStart(loadingSelector = '[class*="spinner"],
  * await userEvent.click(button);
  * await waitForLoadingEnd('[class*="spinner"]');
  */
-export async function waitForLoadingEnd(loadingSelector = '[class*="spinner"], [class*="loading"]', timeout = 10000) {
+export async function waitForLoadingEnd(
+  loadingSelector = '[class*="spinner"], [class*="loading"]',
+  timeout = 10000,
+) {
   return new Promise((resolve, reject) => {
     const checkInterval = setInterval(() => {
-      const element = typeof loadingSelector === 'string' ? document.querySelector(loadingSelector) : null;
+      const element =
+        typeof loadingSelector === 'string'
+          ? document.querySelector(loadingSelector)
+          : null;
 
       if (!element) {
         clearInterval(checkInterval);
@@ -227,7 +247,9 @@ export async function waitForLoadingEnd(loadingSelector = '[class*="spinner"], [
 
     const timeoutId = setTimeout(() => {
       clearInterval(checkInterval);
-      reject(new Error(`Loading indicator did not disappear: ${loadingSelector}`));
+      reject(
+        new Error(`Loading indicator did not disappear: ${loadingSelector}`),
+      );
     }, timeout);
   });
 }
@@ -354,10 +376,12 @@ export async function waitForCallback(callback, options = {}) {
       expect(called).toBe(true);
 
       if (expectedArgs) {
-        expect(callback).toHaveBeenCalledWith(expect.objectContaining(expectedArgs));
+        expect(callback).toHaveBeenCalledWith(
+          expect.objectContaining(expectedArgs),
+        );
       }
     },
-    { timeout }
+    { timeout },
   );
 }
 
@@ -374,7 +398,12 @@ export async function waitForCallback(callback, options = {}) {
  * await userEvent.click(button);
  * await waitForAttributeChange(button, 'disabled', 'true');
  */
-export async function waitForAttributeChange(element, attributeName, expectedValue, timeout = 5000) {
+export async function waitForAttributeChange(
+  element,
+  attributeName,
+  expectedValue,
+  timeout = 5000,
+) {
   if (!element) {
     throw new Error('waitForAttributeChange: element is required');
   }
@@ -382,11 +411,14 @@ export async function waitForAttributeChange(element, attributeName, expectedVal
   await waitFor(
     () => {
       const currentValue = element.getAttribute(attributeName);
-      const expected = expectedValue instanceof RegExp ? expectedValue.test(currentValue) : currentValue === expectedValue;
+      const expected =
+        expectedValue instanceof RegExp
+          ? expectedValue.test(currentValue)
+          : currentValue === expectedValue;
 
       expect(expected).toBe(true);
     },
-    { timeout }
+    { timeout },
   );
 }
 

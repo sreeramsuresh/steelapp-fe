@@ -1,32 +1,21 @@
 import { useState, useEffect } from "react";
-import { Line, Bar } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
+  LineChart,
+  BarChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
   Legend,
-} from "chart.js";
+  ResponsiveContainer,
+} from "recharts";
 import { deliveryVarianceService } from "../services/deliveryVarianceService";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-);
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function DeliveryVarianceDashboard() {
+  const { isDarkMode } = useTheme();
   const [kpis, setKpis] = useState(null);
   const [trend, setTrend] = useState(null);
   const [breakdown, setBreakdown] = useState(null);
@@ -81,46 +70,28 @@ export default function DeliveryVarianceDashboard() {
     );
   if (error) return <div className="text-red-600 p-4">Error: {error}</div>;
 
-  const trendChartData = trend?.trendData?.length > 0 && {
-    labels:
-      trend.trendData?.map((d) => new Date(d.date).toLocaleDateString()) || [],
-    datasets: [
-      {
-        label: "On-Time Delivery %",
-        data: trend.trendData?.map((d) => d.onTimeDeliveryPct) || [],
-        borderColor: "rgb(75, 192, 192)",
-        backgroundColor: "rgba(75, 192, 192, 0.1)",
-        tension: 0.4,
-      },
-    ],
-  };
+  const trendChartData =
+    trend?.trendData?.length > 0 &&
+    trend.trendData.map((d) => ({
+      date: new Date(d.date).toLocaleDateString(),
+      onTimeDeliveryPct: d.onTimeDeliveryPct,
+    }));
 
-  const breakdownChartData = breakdown?.varianceRanges?.length > 0 && {
-    labels: breakdown.varianceRanges?.map((r) => r.rangeLabel) || [],
-    datasets: [
-      {
-        label: "Late Deliveries",
-        data: breakdown.varianceRanges?.map((r) => r.count) || [],
-        backgroundColor: [
-          "rgba(255, 193, 7, 0.8)",
-          "rgba(255, 152, 0, 0.8)",
-          "rgba(255, 87, 34, 0.8)",
-          "rgba(244, 67, 54, 0.8)",
-        ],
-      },
-    ],
-  };
+  const breakdownChartData =
+    breakdown?.varianceRanges?.length > 0 &&
+    breakdown.varianceRanges.map((r) => ({
+      rangeLabel: r.rangeLabel,
+      count: r.count,
+    }));
 
-  const comparisonChartData = comparison?.suppliers?.length > 0 && {
-    labels: comparison.suppliers?.map((s) => s.supplierName) || [],
-    datasets: [
-      {
-        label: "On-Time Delivery %",
-        data: comparison.suppliers?.map((s) => s.onTimeDeliveryPct) || [],
-        backgroundColor: "rgba(76, 175, 80, 0.8)",
-      },
-    ],
-  };
+  const breakdownColors = ["#ffc107", "#ff9800", "#ff5722", "#f44336"];
+
+  const comparisonChartData =
+    comparison?.suppliers?.length > 0 &&
+    comparison.suppliers.map((s) => ({
+      supplierName: s.supplierName,
+      onTimeDeliveryPct: s.onTimeDeliveryPct,
+    }));
 
   const _getRatingColor = (rating) => {
     switch (rating) {
@@ -138,38 +109,60 @@ export default function DeliveryVarianceDashboard() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Delivery Variance Dashboard</h1>
+    <div
+      className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+    >
+      <h1
+        className={`text-3xl font-bold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+      >
+        Delivery Variance Dashboard
+      </h1>
 
       {/* KPIs Section */}
       {kpis && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-gray-600 text-sm font-semibold">
+          <div
+            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
+            <div
+              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
               On-Time Delivery
             </div>
             <div className="text-3xl font-bold text-green-600">
               {kpis.onTimeDeliveryPct || 0}%
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-gray-600 text-sm font-semibold">
+          <div
+            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
+            <div
+              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
               Avg Variance
             </div>
             <div className="text-3xl font-bold text-blue-600">
               {kpis.avgVarianceDays || 0} days
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-gray-600 text-sm font-semibold">
+          <div
+            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
+            <div
+              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
               Late Deliveries
             </div>
             <div className="text-3xl font-bold text-red-600">
               {kpis.lateDeliveryCount || 0}
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-gray-600 text-sm font-semibold">
+          <div
+            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
+            <div
+              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
               Total Deliveries
             </div>
             <div className="text-3xl font-bold text-purple-600">
@@ -183,52 +176,109 @@ export default function DeliveryVarianceDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Trend Chart */}
         {trendChartData && (
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Delivery Trend</h2>
-            <Line
-              data={trendChartData}
-              options={{ responsive: true, maintainAspectRatio: true }}
-            />
+          <div
+            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
+            <h2
+              className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            >
+              Delivery Trend
+            </h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={trendChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="onTimeDeliveryPct"
+                  stroke="#4bc0c0"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         )}
 
         {/* Breakdown Chart */}
         {breakdownChartData && (
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">
+          <div
+            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
+            <h2
+              className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            >
               Late Deliveries Breakdown
             </h2>
-            <Bar
-              data={breakdownChartData}
-              options={{ responsive: true, maintainAspectRatio: true }}
-            />
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={breakdownChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="rangeLabel" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count" fill="#ffc107" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         )}
       </div>
 
       {/* Supplier Comparison */}
       {comparisonChartData && (
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 className="text-xl font-semibold mb-4">
+        <div
+          className={`p-4 rounded-lg shadow mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+        >
+          <h2
+            className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          >
             Top 10 Suppliers Performance
           </h2>
-          <Bar
-            data={comparisonChartData}
-            options={{ responsive: true, indexAxis: "y" }}
-          />
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={comparisonChartData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis dataKey="supplierName" type="category" width={150} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="onTimeDeliveryPct" fill="#4caf50" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       )}
 
       {/* Recommendations */}
       {recommendations && (
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 className="text-xl font-semibold mb-4">Recommendations</h2>
+        <div
+          className={`p-4 rounded-lg shadow mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+        >
+          <h2
+            className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          >
+            Recommendations
+          </h2>
           <div className="space-y-3">
             {recommendations.recommendations?.map((rec, idx) => (
-              <div key={idx} className="border-l-4 border-blue-500 pl-4 py-2">
-                <div className="font-semibold text-blue-900">{rec.title}</div>
-                <div className="text-gray-600 text-sm">{rec.description}</div>
-                <div className="text-blue-600 text-sm mt-1">
+              <div
+                key={idx}
+                className={`border-l-4 border-blue-500 pl-4 py-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+              >
+                <div
+                  className={`font-semibold ${isDarkMode ? "text-blue-400" : "text-blue-900"}`}
+                >
+                  {rec.title}
+                </div>
+                <div
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
+                  {rec.description}
+                </div>
+                <div
+                  className={`text-sm mt-1 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
+                >
                   Action: {rec.action}
                 </div>
               </div>
@@ -239,11 +289,17 @@ export default function DeliveryVarianceDashboard() {
 
       {/* Late Deliveries List */}
       {lateDeliveries && lateDeliveries.lateDeliveries?.length > 0 && (
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Recent Late Deliveries</h2>
+        <div
+          className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+        >
+          <h2
+            className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          >
+            Recent Late Deliveries
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-100">
+              <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-100"}>
                 <tr>
                   <th className="px-4 py-2 text-left">GRN</th>
                   <th className="px-4 py-2 text-left">Supplier</th>
@@ -254,7 +310,10 @@ export default function DeliveryVarianceDashboard() {
               </thead>
               <tbody>
                 {lateDeliveries.lateDeliveries?.map((delivery, idx) => (
-                  <tr key={idx} className="border-b hover:bg-gray-50">
+                  <tr
+                    key={idx}
+                    className={`border-b ${isDarkMode ? "border-gray-700 hover:bg-gray-700" : "border-gray-200 hover:bg-gray-50"}`}
+                  >
                     <td className="px-4 py-2">{delivery.grnId}</td>
                     <td className="px-4 py-2">{delivery.supplierName}</td>
                     <td className="px-4 py-2">

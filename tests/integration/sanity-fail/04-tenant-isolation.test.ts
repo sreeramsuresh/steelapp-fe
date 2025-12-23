@@ -89,7 +89,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     const isolation = await validateTenantIsolation(
       companyA.company_id,
       companyB.company_id,
-      'invoices'
+      'invoices',
     );
     expect(isolation.isIsolated).toBe(true);
     expect(isolation.companyARowCount).toBe(1);
@@ -122,7 +122,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     // Query customers for Company A
     const customersA = await dbQuery(
       'SELECT * FROM customers WHERE company_id = $1 ORDER BY customer_id',
-      [companyA.company_id]
+      [companyA.company_id],
     );
 
     // ASSERTION: Only A's customer is returned
@@ -132,7 +132,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     // Query customers for Company B
     const customersB = await dbQuery(
       'SELECT * FROM customers WHERE company_id = $1 ORDER BY customer_id',
-      [companyB.company_id]
+      [companyB.company_id],
     );
 
     // ASSERTION: Only B's customer is returned
@@ -169,7 +169,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     // Verify isolation: Company B cannot see Company A's invoice
     const companyBInvoices = await dbQuery(
       'SELECT * FROM invoices WHERE company_id = $1',
-      [companyB.company_id]
+      [companyB.company_id],
     );
 
     expect(companyBInvoices).toHaveLength(0);
@@ -177,7 +177,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     // Verify isolation: Company A can see their invoice
     const companyAInvoices = await dbQuery(
       'SELECT * FROM invoices WHERE company_id = $1',
-      [companyA.company_id]
+      [companyA.company_id],
     );
 
     expect(companyAInvoices).toHaveLength(1);
@@ -210,7 +210,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     // Query for Company A's INV-0001
     const queriedInvA = await dbQuery(
       'SELECT * FROM invoices WHERE invoice_id = $1 AND company_id = $2',
-      ['INV-0001', coA.company_id]
+      ['INV-0001', coA.company_id],
     );
 
     // ASSERTION: Gets Company A's invoice (10000 subtotal)
@@ -220,7 +220,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     // Query for Company B's INV-0001
     const queriedInvB = await dbQuery(
       'SELECT * FROM invoices WHERE invoice_id = $1 AND company_id = $2',
-      ['INV-0001', coB.company_id]
+      ['INV-0001', coB.company_id],
     );
 
     // ASSERTION: Gets Company B's invoice (20000 subtotal)

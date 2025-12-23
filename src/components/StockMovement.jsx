@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { stockMovementService } from "../services/stockMovementService";
-import { purchaseOrderService } from '../services/purchaseOrderService';
+import { purchaseOrderService } from "../services/purchaseOrderService";
 import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
 import { productService } from "../services/productService";
 import {

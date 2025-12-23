@@ -29,6 +29,7 @@ This guide covers payment recording with multi-invoice allocation, credit limit 
 ### The Problem
 
 **Scenario:** Customer pays 50,000 AED. They have 3 outstanding invoices:
+
 - INV-001: 20,000 AED
 - INV-002: 18,500 AED
 - INV-003: 15,000 AED
@@ -39,14 +40,15 @@ This guide covers payment recording with multi-invoice allocation, credit limit 
 
 **Payment Form includes allocation table:**
 
-| Invoice No. | Invoice Date | Due Date | Original Amt | Outstanding | VAT | Allocated | Balance |
-|-------------|--------------|----------|--------------|-------------|-----|-----------|---------|
-| INV-001 | 2024-02-15 | 2024-03-17 | 21,000 | 21,000 | 1,000 | 21,000 | 0 |
-| INV-002 | 2024-03-10 | 2024-04-09 | 19,435 | 19,435 | 935 | 19,000 | 435 |
-| INV-003 | 2024-03-25 | 2024-04-24 | 15,750 | 15,750 | 750 | 10,000 | 5,750 |
-| **Total** | | | **56,185** | **56,185** | **2,685** | **50,000** | **6,185** |
+| Invoice No. | Invoice Date | Due Date   | Original Amt | Outstanding | VAT       | Allocated  | Balance   |
+| ----------- | ------------ | ---------- | ------------ | ----------- | --------- | ---------- | --------- |
+| INV-001     | 2024-02-15   | 2024-03-17 | 21,000       | 21,000      | 1,000     | 21,000     | 0         |
+| INV-002     | 2024-03-10   | 2024-04-09 | 19,435       | 19,435      | 935       | 19,000     | 435       |
+| INV-003     | 2024-03-25   | 2024-04-24 | 15,750       | 15,750      | 750       | 10,000     | 5,750     |
+| **Total**   |              |            | **56,185**   | **56,185**  | **2,685** | **50,000** | **6,185** |
 
 **Allocation Logic:**
+
 1. Pay oldest invoice first (FIFO by due date)
 2. INV-001 fully paid: 21,000 AED
 3. INV-002 partially paid: 19,000 AED (435 AED remains)
@@ -54,6 +56,7 @@ This guide covers payment recording with multi-invoice allocation, credit limit 
 5. Total allocated: 50,000 AED
 
 **VAT Breakdown:**
+
 - Total payment: 50,000 AED
 - VAT portion: (21,000 × 1,000/21,000) + (19,000 × 935/19,435) + (10,000 × 750/15,750)
 - VAT allocated: ~2,380 AED
@@ -64,12 +67,14 @@ This guide covers payment recording with multi-invoice allocation, credit limit 
 **Use Case:** Customer specifies which invoices to pay.
 
 **Process:**
+
 1. Uncheck "Auto-allocate" (FIFO disabled)
 2. Manually enter amount per invoice in "Allocated" column
 3. System validates: Total allocated ≤ Payment amount
 4. System recalculates balances
 
 **Example:**
+
 ```
 Payment: 50,000 AED
 Customer request: "Pay INV-003 first, then INV-001"
@@ -90,6 +95,7 @@ Manual Allocation:
 **Credit Exposure = Outstanding Invoices + Unbilled Orders - Advance Payments**
 
 **Example:**
+
 ```
 Customer: ABC Industries LLC
 Credit Limit: 100,000 AED
@@ -105,6 +111,7 @@ Available Credit: 100,000 - 71,185 = 28,815 AED
 ### Real-Time Credit Check
 
 **Payment Form Behavior:**
+
 1. When customer selected, system fetches credit limit
 2. Displays:
    - Credit Limit: 100,000 AED
@@ -115,6 +122,7 @@ Available Credit: 100,000 - 71,185 = 28,815 AED
    - New Available Credit: 78,815 AED
 
 **Color Coding:**
+
 - **Green:** Available credit > 20% of limit (healthy)
 - **Yellow:** Available credit 10-20% of limit (caution)
 - **Red:** Available credit < 10% of limit (critical)
@@ -125,6 +133,7 @@ Available Credit: 100,000 - 71,185 = 28,815 AED
 **Scenario:** Customer credit limit exceeded.
 
 **System Behavior:**
+
 1. Payment recorded successfully (always allow payments)
 2. Warning message: "Credit limit exceeded. Current exposure: 105,000 AED (limit: 100,000 AED)"
 3. New orders blocked until exposure drops below limit
@@ -135,20 +144,21 @@ Available Credit: 100,000 - 71,185 = 28,815 AED
 
 ### Standard Payment Terms
 
-| Term Code | Description | Due Days | Discount | Discount Days |
-|-----------|-------------|----------|----------|---------------|
-| NET30 | Net 30 days | 30 | 0% | 0 |
-| NET60 | Net 60 days | 60 | 0% | 0 |
-| NET90 | Net 90 days | 90 | 0% | 0 |
-| 2/10-NET30 | 2% discount if paid within 10 days, else net 30 | 30 | 2% | 10 |
-| COD | Cash on delivery | 0 | 0% | 0 |
-| ADVANCE | Advance payment required | -30 | 0% | 0 |
+| Term Code  | Description                                     | Due Days | Discount | Discount Days |
+| ---------- | ----------------------------------------------- | -------- | -------- | ------------- |
+| NET30      | Net 30 days                                     | 30       | 0%       | 0             |
+| NET60      | Net 60 days                                     | 60       | 0%       | 0             |
+| NET90      | Net 90 days                                     | 90       | 0%       | 0             |
+| 2/10-NET30 | 2% discount if paid within 10 days, else net 30 | 30       | 2%       | 10            |
+| COD        | Cash on delivery                                | 0        | 0%       | 0             |
+| ADVANCE    | Advance payment required                        | -30      | 0%       | 0             |
 
 ### Terms Validation
 
 **Customer Master Terms:** NET30 (pay within 30 days)
 
 **Invoice Due Date Calculation:**
+
 ```
 Invoice Date: 2024-03-15
 Payment Terms: NET30
@@ -156,6 +166,7 @@ Due Date: 2024-04-14 (30 days from invoice date)
 ```
 
 **Payment Form Validation:**
+
 1. System displays customer's default payment terms
 2. Validates payment against terms:
    - Early payment (before due date): ✅ Acceptable
@@ -163,6 +174,7 @@ Due Date: 2024-04-14 (30 days from invoice date)
    - Late payment (after due date): ⚠️ Warning + late fee calculation
 
 **Late Payment Handling:**
+
 ```
 Invoice: INV-001
 Due Date: 2024-04-14
@@ -181,6 +193,7 @@ Total Due: 21,000 + 147 = 21,147 AED
 **Terms:** 2/10-NET30 (2% discount if paid within 10 days)
 
 **Example:**
+
 ```
 Invoice: INV-002
 Invoice Date: 2024-03-10
@@ -203,11 +216,13 @@ Invoice Status: PAID IN FULL (discount applied)
 ### VAT Tracking per Invoice
 
 **Why Track VAT Separately?**
+
 - Required for VAT return filing
 - Separate VAT payable from revenue
 - Track input VAT (claimable) vs. output VAT (collected)
 
 **Payment Allocation with VAT:**
+
 ```
 Invoice: INV-001
 Total: 21,000 AED
@@ -226,6 +241,7 @@ Breakdown:
 **Problem:** Invoice total 21,000 AED (20,000 principal + 1,000 VAT). Customer pays 10,500 AED (50%).
 
 **VAT Allocation:**
+
 ```
 Payment: 10,500 AED (50% of invoice)
 
@@ -242,11 +258,13 @@ Accounting Entry:
 ### VAT Return Reporting
 
 **Payment Form tracks:**
+
 - VAT collected per payment
 - VAT payment date (for cash basis accounting)
 - Customer TRN (for audit trail)
 
 **VAT Return Data:**
+
 ```
 Period: March 2024
 
@@ -265,22 +283,24 @@ Output VAT (Box 1 on VAT return): 2,411 AED
 
 ### Payment Methods
 
-| Method | Bank Account | Processing Time | Fees |
-|--------|--------------|-----------------|------|
-| **Cash** | Cash Counter | Instant | 0% |
-| **Cheque** | Current Account | 2-3 days (clearing) | 0% |
-| **Bank Transfer** | Current Account | Same day (UAE) | 20-50 AED |
-| **Card Payment** | Merchant Account | Instant | 2-3% |
-| **PDC (Post-Dated Cheque)** | Current Account | As per cheque date | 0% |
+| Method                      | Bank Account     | Processing Time     | Fees      |
+| --------------------------- | ---------------- | ------------------- | --------- |
+| **Cash**                    | Cash Counter     | Instant             | 0%        |
+| **Cheque**                  | Current Account  | 2-3 days (clearing) | 0%        |
+| **Bank Transfer**           | Current Account  | Same day (UAE)      | 20-50 AED |
+| **Card Payment**            | Merchant Account | Instant             | 2-3%      |
+| **PDC (Post-Dated Cheque)** | Current Account  | As per cheque date  | 0%        |
 
 ### Bank Account Routing
 
 **Payment Form Fields:**
+
 - **Payment Method:** Dropdown (Cash, Cheque, Transfer, Card, PDC)
 - **Bank Account:** Auto-populated based on payment method
 - **Reference Number:** Cheque number, transfer reference, card approval code
 
 **Example:**
+
 ```
 Payment Method: Bank Transfer
 Bank Account: Emirates NBD - Current A/C (auto-selected)
@@ -292,6 +312,7 @@ Date: 2024-03-20
 ### Post-Dated Cheque (PDC) Handling
 
 **Process:**
+
 1. Customer gives PDC dated 2024-05-15
 2. Payment recorded with:
    - Payment Method: PDC
@@ -303,6 +324,7 @@ Date: 2024-03-20
 5. Status: **CLEARED** (after bank confirmation)
 
 **Accounting:**
+
 ```
 Receipt Date (2024-03-20):
   PDC Receivable: 50,000 AED Dr
@@ -339,6 +361,7 @@ Clearance Date (2024-05-15):
 5. **Amount Received:** Enter total payment amount
 
 **Example:**
+
 ```
 Customer: ABC Industries LLC
 Payment Date: 2024-03-20
@@ -351,11 +374,13 @@ Amount: 50,000 AED
 ### Step 4: Allocate to Invoices
 
 **Option A: Auto-Allocate (FIFO)**
+
 1. Click "Auto-Allocate"
 2. System allocates oldest invoices first
 3. Review allocation table
 
 **Option B: Manual Allocation**
+
 1. Uncheck "Auto-Allocate"
 2. Enter amount per invoice in "Allocated" column
 3. System validates total = payment amount
@@ -378,6 +403,7 @@ Amount: 50,000 AED
 5. Credit exposure updated
 
 **Confirmation:**
+
 ```
 ✅ Payment Recorded Successfully
 
@@ -397,6 +423,7 @@ Available Credit: 78,815 AED
 **Situation:** Invoice 21,000 AED, customer pays 15,000 AED.
 
 **Steps:**
+
 1. Enter payment: 15,000 AED
 2. Allocate to INV-001 (partially)
 3. System calculates:
@@ -412,6 +439,7 @@ Available Credit: 78,815 AED
 **Situation:** Customer pays 30,000 AED before invoicing.
 
 **Steps:**
+
 1. Record payment as "Advance Payment"
 2. No invoice allocation (allocation table empty)
 3. Payment recorded as:
@@ -426,6 +454,7 @@ Available Credit: 78,815 AED
 **Situation:** Invoice 21,000 AED, customer pays 25,000 AED.
 
 **Steps:**
+
 1. Enter payment: 25,000 AED
 2. Allocate to INV-001: 21,000 AED (full)
 3. Excess: 4,000 AED
@@ -438,6 +467,7 @@ Available Credit: 78,815 AED
 ## Part 9: Payment Reports
 
 **Available Reports:**
+
 - Payment Summary by Customer
 - Payment Aging (0-30, 31-60, 61-90, 90+ days)
 - Collection Efficiency Report
@@ -451,21 +481,21 @@ Available Credit: 78,815 AED
 
 ### Credit Limit Enforcement
 
-| Exposure | Status | Action Allowed |
-|----------|--------|----------------|
-| < 80% of limit | Green | Normal operations |
+| Exposure         | Status | Action Allowed              |
+| ---------------- | ------ | --------------------------- |
+| < 80% of limit   | Green  | Normal operations           |
 | 80-100% of limit | Yellow | New orders require approval |
-| > 100% of limit | Red | New orders blocked |
-| Payment received | Any | Always allowed |
+| > 100% of limit  | Red    | New orders blocked          |
+| Payment received | Any    | Always allowed              |
 
 ### Payment Terms Compliance
 
-| Scenario | Action |
-|----------|--------|
-| Early payment | Apply discount (if applicable) |
-| On-time payment | Normal processing |
-| Late payment (1-30 days) | 1% late fee per month |
-| Late payment (>30 days) | Account on hold, legal action |
+| Scenario                 | Action                         |
+| ------------------------ | ------------------------------ |
+| Early payment            | Apply discount (if applicable) |
+| On-time payment          | Normal processing              |
+| Late payment (1-30 days) | 1% late fee per month          |
+| Late payment (>30 days)  | Account on hold, legal action  |
 
 ### VAT Compliance
 
@@ -478,6 +508,7 @@ Available Credit: 78,815 AED
 ## Support
 
 For payment recording issues:
+
 - **Accounts Receivable Team:** Allocation, credit limits
 - **Finance Manager:** Payment terms, late fees
 - **IT Support:** System errors, bank integration

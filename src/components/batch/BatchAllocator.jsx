@@ -73,7 +73,7 @@ const BatchAllocator = ({
         availableBatches.sort(
           (a, b) =>
             new Date(a.created_at || a.procurementDate) -
-            new Date(b.created_at || b.procurementDate)
+            new Date(b.created_at || b.procurementDate),
         );
 
         setBatches(availableBatches);
@@ -90,9 +90,10 @@ const BatchAllocator = ({
   // Calculate totals
   const allocatedQuantity = allocations.reduce(
     (sum, a) => sum + parseFloat(a.quantity || 0),
-    0
+    0,
   );
-  const remainingQuantity = parseFloat(requiredQuantity || 0) - allocatedQuantity;
+  const remainingQuantity =
+    parseFloat(requiredQuantity || 0) - allocatedQuantity;
   const isFullyAllocated = remainingQuantity <= 0.01;
 
   // FIFO Auto-Allocate
@@ -103,13 +104,16 @@ const BatchAllocator = ({
     for (const batch of batches) {
       if (remaining <= 0) break;
 
-      const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
+      const available = parseFloat(
+        batch.quantityAvailable || batch.quantity_available || 0,
+      );
       if (available <= 0) continue;
 
       const allocQty = Math.min(remaining, available);
       newAllocations.push({
         batchId: batch.id || batch.batchId,
-        batchNumber: batch.batchNumber || batch.batch_number || `BATCH-${batch.id}`,
+        batchNumber:
+          batch.batchNumber || batch.batch_number || `BATCH-${batch.id}`,
         quantity: allocQty,
         unitCost: batch.unitCost || batch.unit_cost || 0,
         supplier: batch.supplier || batch.supplierName || "N/A",
@@ -125,11 +129,15 @@ const BatchAllocator = ({
 
   // Manual allocation change
   const handleAllocationChange = (batchId, quantity) => {
-    const batch = batches.find((b) => b.id === batchId || b.batchId === batchId);
+    const batch = batches.find(
+      (b) => b.id === batchId || b.batchId === batchId,
+    );
     if (!batch) return;
 
     const qty = parseFloat(quantity || 0);
-    const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
+    const available = parseFloat(
+      batch.quantityAvailable || batch.quantity_available || 0,
+    );
 
     if (qty > available) {
       return; // Don't allow exceeding available
@@ -142,8 +150,8 @@ const BatchAllocator = ({
       } else {
         setAllocations(
           allocations.map((a) =>
-            a.batchId === batchId ? { ...a, quantity: qty } : a
-          )
+            a.batchId === batchId ? { ...a, quantity: qty } : a,
+          ),
         );
       }
     } else if (qty > 0) {
@@ -151,7 +159,8 @@ const BatchAllocator = ({
         ...allocations,
         {
           batchId: batch.id || batch.batchId,
-          batchNumber: batch.batchNumber || batch.batch_number || `BATCH-${batch.id}`,
+          batchNumber:
+            batch.batchNumber || batch.batch_number || `BATCH-${batch.id}`,
           quantity: qty,
           unitCost: batch.unitCost || batch.unit_cost || 0,
           supplier: batch.supplier || batch.supplierName || "N/A",
@@ -179,7 +188,9 @@ const BatchAllocator = ({
         {/* Header */}
         <div
           className={`flex items-center justify-between px-6 py-4 border-b ${
-            isDarkMode ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-gray-50"
+            isDarkMode
+              ? "border-gray-700 bg-gray-900"
+              : "border-gray-200 bg-gray-50"
           }`}
         >
           <div className="flex items-center gap-3">
@@ -231,8 +242,8 @@ const BatchAllocator = ({
                 isDarkMode
                   ? "bg-gray-900 border-gray-700"
                   : remainingQuantity > 0.01
-                  ? "bg-orange-50 border-orange-200"
-                  : "bg-teal-50 border-teal-200"
+                    ? "bg-orange-50 border-orange-200"
+                    : "bg-teal-50 border-teal-200"
               }`}
             >
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -295,9 +306,11 @@ const BatchAllocator = ({
               {batches.map((batch) => {
                 const batchId = batch.id || batch.batchId;
                 const available = parseFloat(
-                  batch.quantityAvailable || batch.quantity_available || 0
+                  batch.quantityAvailable || batch.quantity_available || 0,
                 );
-                const allocation = allocations.find((a) => a.batchId === batchId);
+                const allocation = allocations.find(
+                  (a) => a.batchId === batchId,
+                );
                 const allocated = parseFloat(allocation?.quantity || 0);
 
                 return (
@@ -309,15 +322,17 @@ const BatchAllocator = ({
                           ? "bg-teal-900 bg-opacity-30 border-teal-600"
                           : "bg-teal-50 border-teal-300"
                         : isDarkMode
-                        ? "bg-gray-900 border-gray-700 hover:border-gray-600"
-                        : "bg-gray-50 border-gray-200 hover:border-gray-300"
+                          ? "bg-gray-900 border-gray-700 hover:border-gray-600"
+                          : "bg-gray-50 border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="font-mono font-semibold text-sm">
-                            {batch.batchNumber || batch.batch_number || `BATCH-${batchId}`}
+                            {batch.batchNumber ||
+                              batch.batch_number ||
+                              `BATCH-${batchId}`}
                           </span>
                           {allocated > 0 && (
                             <CheckCircle className="w-4 h-4 text-teal-500" />
@@ -331,14 +346,20 @@ const BatchAllocator = ({
                           </div>
                           <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                             <TrendingUp className="w-3 h-3" />
-                            Cost: AED {formatNumber(batch.unitCost || batch.unit_cost || 0)}
+                            Cost: AED{" "}
+                            {formatNumber(
+                              batch.unitCost || batch.unit_cost || 0,
+                            )}
                           </div>
                           <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                             <Calendar className="w-3 h-3" />
-                            {formatDate(batch.procurementDate || batch.created_at)}
+                            {formatDate(
+                              batch.procurementDate || batch.created_at,
+                            )}
                           </div>
                           <div className="text-gray-600 dark:text-gray-400">
-                            Supplier: {batch.supplier || batch.supplierName || "N/A"}
+                            Supplier:{" "}
+                            {batch.supplier || batch.supplierName || "N/A"}
                           </div>
                         </div>
                       </div>
@@ -360,7 +381,9 @@ const BatchAllocator = ({
                               : "bg-white border-gray-300 text-gray-900"
                           }`}
                         />
-                        <span className="text-xs font-medium text-gray-500">KG</span>
+                        <span className="text-xs font-medium text-gray-500">
+                          KG
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -408,8 +431,8 @@ const BatchAllocator = ({
                       {formatNumber(
                         allocations.reduce(
                           (sum, a) => sum + a.quantity * a.unitCost,
-                          0
-                        )
+                          0,
+                        ),
                       )}
                     </span>
                   </div>
@@ -421,8 +444,8 @@ const BatchAllocator = ({
                         ? formatNumber(
                             allocations.reduce(
                               (sum, a) => sum + a.quantity * a.unitCost,
-                              0
-                            ) / allocatedQuantity
+                              0,
+                            ) / allocatedQuantity,
                           )
                         : "0.00"}
                       /KG
@@ -437,7 +460,9 @@ const BatchAllocator = ({
         {/* Footer */}
         <div
           className={`flex items-center justify-between px-6 py-4 border-t ${
-            isDarkMode ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-gray-50"
+            isDarkMode
+              ? "border-gray-700 bg-gray-900"
+              : "border-gray-200 bg-gray-50"
           }`}
         >
           <div className="flex items-center gap-2">

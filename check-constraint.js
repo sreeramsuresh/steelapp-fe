@@ -21,7 +21,7 @@ async function checkConstraints() {
     `);
 
     console.log('\n=== CHECK CONSTRAINTS for invoices ===');
-    result.rows.forEach(row => {
+    result.rows.forEach((row) => {
       console.log(`${row.constraint_name}: ${row.check_clause}`);
     });
 
@@ -31,10 +31,9 @@ async function checkConstraints() {
       SELECT DISTINCT status FROM invoices LIMIT 20
     `);
 
-    statusResult.rows.forEach(row => {
+    statusResult.rows.forEach((row) => {
       console.log(`  - "${row.status}"`);
     });
-
   } finally {
     await pool.end();
   }

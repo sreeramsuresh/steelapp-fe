@@ -36,19 +36,23 @@ export async function setupDatabase() {
 
     // CRITICAL FIX #2: Verify schema exists
     const schemaCheck = await dbQuery(
-      `SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name='companies')`
+      `SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name='companies')`,
     );
     if (!schemaCheck[0]?.exists) {
-      throw new Error('SCHEMA VALIDATION FAILED: Database schema not found. Run migrations first.');
+      throw new Error(
+        'SCHEMA VALIDATION FAILED: Database schema not found. Run migrations first.',
+      );
     }
     console.log('✓ Schema validation passed');
 
     // Initialize gRPC client for service calls
     await initializeGrpcClient();
     console.log('✓ gRPC client initialized and ready');
-
   } catch (error) {
-    console.error('FATAL: Failed to setup integration test environment:', error);
+    console.error(
+      'FATAL: Failed to setup integration test environment:',
+      error,
+    );
     throw error;
   }
 }
@@ -63,7 +67,10 @@ async function initializeGrpcClient() {
     const { initGrpcClient } = await import('./grpc-client');
     grpcClient = await initGrpcClient();
   } catch (error) {
-    console.warn('⚠️  gRPC client initialization failed:', (error as Error).message);
+    console.warn(
+      '⚠️  gRPC client initialization failed:',
+      (error as Error).message,
+    );
     console.warn('Tests will attempt to continue without gRPC client');
     // Don't throw - allow tests to run in degraded mode
   }
@@ -131,7 +138,9 @@ export async function dbQuery(sql: string, params: unknown[] = []) {
  * Execute transaction with multiple statements
  * Used for complex setup
  */
-export async function transaction(fn: (client: pg.PoolClient) => Promise<void>) {
+export async function transaction(
+  fn: (client: pg.PoolClient) => Promise<void>,
+) {
   if (!pool) throw new Error('Database not initialized');
   const client = await pool.connect();
   try {

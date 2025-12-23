@@ -61,7 +61,7 @@ describe('SF-1: Domestic Invoice VAT Must Be 5%', () => {
       `INSERT INTO invoices (invoice_id, customer_id, company_id, subtotal, vat_rate, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 'draft', NOW())
        RETURNING *`,
-      [invoiceId, customer.customer_id, company.company_id, subtotal, expectedVatRate, vatAmount, subtotal + vatAmount]
+      [invoiceId, customer.customer_id, company.company_id, subtotal, expectedVatRate, vatAmount, subtotal + vatAmount],
     );
 
     const invoice = rows[0];
@@ -113,7 +113,7 @@ describe('SF-1: Domestic Invoice VAT Must Be 5%', () => {
       await dbQuery(
         `INSERT INTO invoices (invoice_id, customer_id, company_id, subtotal, vat_rate, vat_amount, total, status, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, 'draft', NOW())`,
-        [invoiceId, customer.customer_id, company.company_id, subtotal, 0.05, vatAmount, subtotal + vatAmount]
+        [invoiceId, customer.customer_id, company.company_id, subtotal, 0.05, vatAmount, subtotal + vatAmount],
       );
 
       const invoice = await getInvoice(invoiceId);

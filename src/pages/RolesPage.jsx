@@ -1,34 +1,14 @@
 import { useState, useEffect } from "react";
+import { Plus, Pencil, Trash2, Users, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
-  Box,
-  Paper,
-  Typography,
-  Button,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  IconButton,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControlLabel,
-  Switch,
-  CircularProgress,
-  Alert,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  People as PeopleIcon,
-  Security as SecurityIcon,
-} from "@mui/icons-material";
+} from "@/components/ui/table";
 import { roleService } from "../services/roleService";
 
 export default function RolesPage() {
@@ -128,44 +108,30 @@ export default function RolesPage() {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="400px"
-      >
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center min-h-96">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-      >
-        <Typography variant="h4" display="flex" alignItems="center" gap={1}>
-          <SecurityIcon /> Roles & Permissions
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          Create Role
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Lock className="w-8 h-8" /> Roles & Permissions
+        </h1>
+        <Button onClick={() => handleOpenDialog()} className="gap-2">
+          <Plus className="w-4 h-4" /> Create Role
         </Button>
-      </Box>
+      </div>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
           {error}
-        </Alert>
+        </div>
       )}
 
-      <TableContainer component={Paper}>
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         <Table>
           <TableHead>
             <TableRow>
@@ -188,50 +154,50 @@ export default function RolesPage() {
               roles.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell>
-                    <Typography variant="subtitle2">
-                      {role.display_name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {role.name}
-                    </Typography>
+                    <div className="font-semibold">{role.display_name}</div>
+                    <div className="text-xs text-gray-500">{role.name}</div>
                   </TableCell>
                   <TableCell>{role.description || "-"}</TableCell>
                   <TableCell>
-                    <Chip
-                      icon={<PeopleIcon />}
-                      label={role.user_count || 0}
-                      size="small"
-                    />
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+                      <Users className="w-3 h-3" /> {role.user_count || 0}
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      icon={<SecurityIcon />}
-                      label={role.permission_count || 0}
-                      size="small"
-                    />
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-full text-sm">
+                      <Lock className="w-3 h-3" /> {role.permission_count || 0}
+                    </span>
                   </TableCell>
                   <TableCell>
-                    {role.is_director && (
-                      <Chip label="Director" color="error" size="small" />
-                    )}
-                    {role.is_system && (
-                      <Chip label="System" color="primary" size="small" />
-                    )}
+                    <div className="flex gap-1">
+                      {role.is_director && (
+                        <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-sm font-medium">
+                          Director
+                        </span>
+                      )}
+                      {role.is_system && (
+                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm font-medium">
+                          System
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      size="small"
+                  <TableCell className="text-right">
+                    <button
                       onClick={() => handleOpenDialog(role)}
+                      className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                      title="Edit role"
                     >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     {!role.is_system && (
-                      <IconButton
-                        size="small"
+                      <button
                         onClick={() => handleDelete(role.id)}
+                        className="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
+                        title="Delete role"
                       >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -239,71 +205,95 @@ export default function RolesPage() {
             )}
           </TableBody>
         </Table>
-      </TableContainer>
+      </div>
 
-      {/* Create/Edit Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {editingRole ? "Edit Role" : "Create New Role"}
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              label="Role Name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              fullWidth
-              required
-              helperText="Unique identifier (e.g., sales_manager)"
-            />
-            <TextField
-              label="Display Name"
-              value={formData.displayName}
-              onChange={(e) =>
-                setFormData({ ...formData, displayName: e.target.value })
-              }
-              fullWidth
-              required
-              helperText="Friendly name (e.g., Sales Manager)"
-            />
-            <TextField
-              label="Description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              fullWidth
-              multiline
-              rows={3}
-              helperText="Brief description of this role's purpose"
-            />
-            <FormControlLabel
-              control={
-                <Switch
+      {/* Create/Edit Modal */}
+      {openDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
+            <h2 className="text-lg font-semibold mb-4">
+              {editingRole ? "Edit Role" : "Create New Role"}
+            </h2>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Role Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., sales_manager"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Unique identifier (e.g., sales_manager)
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.displayName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, displayName: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Sales Manager"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Friendly name (e.g., Sales Manager)
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Brief description of this role's purpose"
+                  rows={3}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Brief description of this role's purpose
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isDirector"
                   checked={formData.isDirector}
                   onChange={(e) =>
                     setFormData({ ...formData, isDirector: e.target.checked })
                   }
+                  className="w-4 h-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              }
-              label="Director Role (elevated privileges)"
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained">
-            {editingRole ? "Update" : "Create"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+                <label htmlFor="isDirector" className="text-sm font-medium">
+                  Director Role (elevated privileges)
+                </label>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={handleCloseDialog}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave}>
+                {editingRole ? "Update" : "Create"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

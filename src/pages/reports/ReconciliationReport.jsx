@@ -10,7 +10,7 @@ import {
   CheckCircle,
   TrendingUp,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { toUAEDateForInput } from "../../utils/timezone";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";

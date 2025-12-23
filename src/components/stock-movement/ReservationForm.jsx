@@ -197,7 +197,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         availableBatches.sort(
           (a, b) =>
             new Date(a.created_at || a.procurementDate) -
-            new Date(b.created_at || b.procurementDate)
+            new Date(b.created_at || b.procurementDate),
         );
 
         setBatches(availableBatches);
@@ -252,12 +252,15 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
   // Handle product selection
   const handleProductSelect = useCallback((product) => {
-    const uniqueName = product.uniqueName || product.unique_name || product.name || "";
+    const uniqueName =
+      product.uniqueName || product.unique_name || product.name || "";
 
     // SSOT validation (Epic 5 - RESV-002)
     const ssotValidation = validateSsotPattern(uniqueName);
     if (!ssotValidation.isValid) {
-      setError(`Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`);
+      setError(
+        `Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`,
+      );
       return;
     }
 
@@ -430,7 +433,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               }`}
             >
               Product *
-              <span className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              <span
+                className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 (Pattern: SS-Grade-Form-Finish-Width-Thickness-Length)
               </span>
             </label>
@@ -483,7 +488,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                       }`}
                     >
                       <div className="font-medium">
-                        {product.uniqueName || product.unique_name || product.name}
+                        {product.uniqueName ||
+                          product.unique_name ||
+                          product.name}
                       </div>
                       <div className="text-sm opacity-75">
                         {product.sku || "No SKU"}
@@ -575,41 +582,65 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   <option value="">Select Batch</option>
                   {batches.map((batch, idx) => {
                     const bId = batch.id || batch.batchId;
-                    const bNum = batch.batchNumber || batch.batch_number || `BATCH-${bId}`;
-                    const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
-                    const supplier = batch.supplier || batch.supplierName || "N/A";
-                    const date = new Date(batch.created_at || batch.procurementDate).toLocaleDateString();
+                    const bNum =
+                      batch.batchNumber || batch.batch_number || `BATCH-${bId}`;
+                    const available = parseFloat(
+                      batch.quantityAvailable || batch.quantity_available || 0,
+                    );
+                    const supplier =
+                      batch.supplier || batch.supplierName || "N/A";
+                    const date = new Date(
+                      batch.created_at || batch.procurementDate,
+                    ).toLocaleDateString();
 
                     return (
                       <option key={bId} value={bId}>
-                        {idx === 0 ? "🔹 " : ""}{bNum} | {available.toFixed(2)} KG | {supplier} | {date}
+                        {idx === 0 ? "🔹 " : ""}
+                        {bNum} | {available.toFixed(2)} KG | {supplier} | {date}
                         {idx === 0 ? " (FIFO - Oldest)" : ""}
                       </option>
                     );
                   })}
                 </select>
               )}
-              {batchId && batches.length > 0 && (() => {
-                const selectedBatch = batches.find(b => (b.id || b.batchId).toString() === batchId.toString());
-                const channel = selectedBatch?.procurementChannel || selectedBatch?.procurement_channel || "UNKNOWN";
-                return (
-                  <div className="mt-2 flex items-center gap-2">
-                    <p className="text-xs text-gray-500">
-                      Selected: {selectedBatch?.batchNumber || selectedBatch?.batch_number || batchId}
-                    </p>
-                    {/* Epic 10: RESV-005 - Procurement Channel Badge */}
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                      channel === "LOCAL"
-                        ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-                        : channel === "IMPORTED"
-                        ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
-                        : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                    }`}>
-                      {channel === "LOCAL" ? "🔵 LOCAL" : channel === "IMPORTED" ? "🟠 IMPORTED" : "❓ UNKNOWN"}
-                    </span>
-                  </div>
-                );
-              })()}
+              {batchId &&
+                batches.length > 0 &&
+                (() => {
+                  const selectedBatch = batches.find(
+                    (b) =>
+                      (b.id || b.batchId).toString() === batchId.toString(),
+                  );
+                  const channel =
+                    selectedBatch?.procurementChannel ||
+                    selectedBatch?.procurement_channel ||
+                    "UNKNOWN";
+                  return (
+                    <div className="mt-2 flex items-center gap-2">
+                      <p className="text-xs text-gray-500">
+                        Selected:{" "}
+                        {selectedBatch?.batchNumber ||
+                          selectedBatch?.batch_number ||
+                          batchId}
+                      </p>
+                      {/* Epic 10: RESV-005 - Procurement Channel Badge */}
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                          channel === "LOCAL"
+                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                            : channel === "IMPORTED"
+                              ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                              : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                        }`}
+                      >
+                        {channel === "LOCAL"
+                          ? "🔵 LOCAL"
+                          : channel === "IMPORTED"
+                            ? "🟠 IMPORTED"
+                            : "❓ UNKNOWN"}
+                      </span>
+                    </div>
+                  );
+                })()}
             </div>
           )}
 
@@ -669,7 +700,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               <option value="">Select reason...</option>
               <option value="SALES_ORDER">Reserved for customer order</option>
               <option value="PRODUCTION">Reserved for manufacturing</option>
-              <option value="MAINTENANCE">Reserved for maintenance/internal use</option>
+              <option value="MAINTENANCE">
+                Reserved for maintenance/internal use
+              </option>
               <option value="OTHER">Other (please specify)</option>
             </select>
           </div>
@@ -715,30 +748,39 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               type="date"
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white"
                   : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
-            {expiryDate && (() => {
-              const daysUntilExpiry = getDaysUntilExpiry(expiryDate);
-              const isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
-              const isExpired = daysUntilExpiry < 0;
-              return (
-                <p className={`mt-1 text-sm font-medium ${
-                  isExpired ? 'text-red-500' :
-                  isExpiringSoon ? 'text-orange-500' :
-                  'text-gray-500'
-                }`}>
-                  {isExpired ? `⚠ Expired ${Math.abs(daysUntilExpiry)} days ago` :
-                   daysUntilExpiry === 0 ? '⚠ Expires today' :
-                   isExpiringSoon ? `⚠ Expires in ${daysUntilExpiry} days` :
-                   `Expires in ${daysUntilExpiry} days`}
-                </p>
-              );
-            })()}
+            {expiryDate &&
+              (() => {
+                const daysUntilExpiry = getDaysUntilExpiry(expiryDate);
+                const isExpiringSoon =
+                  daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+                const isExpired = daysUntilExpiry < 0;
+                return (
+                  <p
+                    className={`mt-1 text-sm font-medium ${
+                      isExpired
+                        ? "text-red-500"
+                        : isExpiringSoon
+                          ? "text-orange-500"
+                          : "text-gray-500"
+                    }`}
+                  >
+                    {isExpired
+                      ? `⚠ Expired ${Math.abs(daysUntilExpiry)} days ago`
+                      : daysUntilExpiry === 0
+                        ? "⚠ Expires today"
+                        : isExpiringSoon
+                          ? `⚠ Expires in ${daysUntilExpiry} days`
+                          : `Expires in ${daysUntilExpiry} days`}
+                  </p>
+                );
+              })()}
             {!expiryDate && (
               <p className="mt-1 text-sm text-gray-500">
                 Leave empty for no expiry

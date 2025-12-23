@@ -1,32 +1,18 @@
 import { useState, useEffect } from "react";
+import { Download, TrendingUp, DollarSign, ShoppingCart } from "lucide-react";
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  Grid,
-  TextField,
-  Button,
-  Stack,
-  Chip,
-  CircularProgress,
-} from "@mui/material";
-import {
-  Download as DownloadIcon,
-  TrendingUp as ProfitIcon,
-  AttachMoney as RevenueIcon,
-  ShoppingCart as SalesIcon,
-} from "@mui/icons-material";
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import api from "../services/api";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { toUAEDateForInput, nowUAE } from "../utils/timezone";
+import { tokenUtils } from "../services/axiosApi";
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
@@ -65,22 +51,31 @@ export default function ProfitAnalysisReport() {
           p.grade,
           SUM(ii.quantity) as total_quantity,
           SUM(ii.amount) as total_revenue,
-          SUM(ii.costPrice * ii.quantity) as total_cost,
+          SUM(ii.cost_price * ii.quantity) as total_cost,
           SUM(ii.profit * ii.quantity) as total_profit,
-          AVG(ii.marginPercent) as avg_margin
+          AVG(ii.margin_percent) as avg_margin
         FROM invoice_items ii
-        JOIN products p ON ii.productId = p.id
-        JOIN invoices i ON ii.invoiceId = i.id
-        WHERE i.invoiceDate BETWEEN $1 AND $2
-          AND ii.costPrice IS NOT NULL
+        JOIN products p ON ii.product_id = p.id
+        JOIN invoices i ON ii.invoice_id = i.id
+        WHERE i.company_id = $3
+          AND i.invoice_date BETWEEN $1 AND $2
+          AND ii.cost_price IS NOT NULL
           AND i.status != 'cancelled'
         GROUP BY p.id, p.name, p.category, p.grade
         ORDER BY total_profit DESC
       `;
 
+      // Get company_id from user context
+      const user = tokenUtils.getUser();
+      const companyId = user?.companyId;
+
+      if (!companyId) {
+        throw new Error("Company context not found");
+      }
+
       const response = await api.post("/query", {
         query,
-        params: [dateRange.startDate, dateRange.endDate],
+        params: [dateRange.startDate, dateRange.endDate, companyId],
       });
 
       const results = response.data?.results || [];
@@ -149,187 +144,177 @@ export default function ProfitAnalysisReport() {
   };
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Profit Analysis Report
-      </Typography>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">Profit Analysis Report</h1>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <TextField
-              label="Start Date"
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div>
+            <label className="block text-sm font-medium mb-2">Start Date</label>
+            <input
               type="date"
               value={dateRange.startDate}
               onChange={(e) =>
                 setDateRange({ ...dateRange, startDate: e.target.value })
               }
-              InputLabelProps={{ shrink: true }}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
-            <TextField
-              label="End Date"
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">End Date</label>
+            <input
               type="date"
               value={dateRange.endDate}
               onChange={(e) =>
                 setDateRange({ ...dateRange, endDate: e.target.value })
               }
-              InputLabelProps={{ shrink: true }}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
-            <Button
-              variant="contained"
-              onClick={fetchReport}
-              disabled={loading}
-            >
+          </div>
+          <div className="flex gap-2 pt-6 sm:pt-0">
+            <Button onClick={fetchReport} disabled={loading}>
               Generate Report
             </Button>
             <Button
-              variant="outlined"
-              startIcon={<DownloadIcon />}
+              variant="outline"
               onClick={exportToCSV}
               disabled={loading || data.length === 0}
+              className="gap-2"
             >
+              <Download className="w-4 h-4" />
               Export CSV
             </Button>
-          </Stack>
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      </div>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" p={4}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
       ) : (
         <>
-          <Grid container spacing={3} mb={3}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <RevenueIcon color="primary" />
-                    <Box>
-                      <Typography variant="caption" color="textSecondary">
-                        Total Revenue
-                      </Typography>
-                      <Typography variant="h6">
-                        AED {summary.totalRevenue.toLocaleString()}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Total Revenue
+                  </p>
+                  <p className="text-xl font-bold">
+                    AED {summary.totalRevenue.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <ProfitIcon color="success" />
-                    <Box>
-                      <Typography variant="caption" color="textSecondary">
-                        Total Profit
-                      </Typography>
-                      <Typography variant="h6" color="success.main">
-                        AED {summary.totalProfit.toLocaleString()}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Total Profit
+                  </p>
+                  <p className="text-xl font-bold text-green-600">
+                    AED {summary.totalProfit.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <SalesIcon color="info" />
-                    <Box>
-                      <Typography variant="caption" color="textSecondary">
-                        Avg Margin
-                      </Typography>
-                      <Typography variant="h6">
-                        {summary.averageMargin}%
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <ShoppingCart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Avg Margin
+                  </p>
+                  <p className="text-xl font-bold">{summary.averageMargin}%</p>
+                </div>
+              </div>
+            </div>
 
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Box>
-                      <Typography variant="caption" color="textSecondary">
-                        Items Sold
-                      </Typography>
-                      <Typography variant="h6">
-                        {summary.totalQuantity.toLocaleString()}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Items Sold
+                </p>
+                <p className="text-xl font-bold">
+                  {summary.totalQuantity.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Product</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell align="right">Qty Sold</TableCell>
-                  <TableCell align="right">Revenue</TableCell>
-                  <TableCell align="right">COGS</TableCell>
-                  <TableCell align="right">Profit</TableCell>
-                  <TableCell align="right">Margin</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Typography variant="body2">{row.name}</Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        {row.grade}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{row.category}</TableCell>
-                    <TableCell align="right">
-                      {parseFloat(row.totalQuantity).toLocaleString()}
-                    </TableCell>
-                    <TableCell align="right">
-                      AED {parseFloat(row.totalRevenue).toLocaleString()}
-                    </TableCell>
-                    <TableCell align="right">
-                      AED {parseFloat(row.totalCost).toLocaleString()}
-                    </TableCell>
-                    <TableCell align="right">
-                      <Typography color="success.main" fontWeight="bold">
-                        AED {parseFloat(row.totalProfit).toLocaleString()}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Chip
-                        label={`${parseFloat(row.avgMargin).toFixed(1)}%`}
-                        size="small"
-                        color={
-                          parseFloat(row.avgMargin) > 30
-                            ? "success"
-                            : parseFloat(row.avgMargin) > 20
-                              ? "warning"
-                              : "default"
-                        }
-                      />
-                    </TableCell>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead className="text-right">Qty Sold</TableHead>
+                    <TableHead className="text-right">Revenue</TableHead>
+                    <TableHead className="text-right">COGS</TableHead>
+                    <TableHead className="text-right">Profit</TableHead>
+                    <TableHead className="text-right">Margin</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHeader>
+                <TableBody>
+                  {data.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
+                      <TableCell>
+                        <div className="font-medium text-sm">{row.name}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          {row.grade}
+                        </div>
+                      </TableCell>
+                      <TableCell>{row.category}</TableCell>
+                      <TableCell className="text-right">
+                        {parseFloat(row.totalQuantity).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        AED {parseFloat(row.totalRevenue).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        AED {parseFloat(row.totalCost).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="font-bold text-green-600">
+                          AED {parseFloat(row.totalProfit).toLocaleString()}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                            parseFloat(row.avgMargin) > 30
+                              ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
+                              : parseFloat(row.avgMargin) > 20
+                                ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200"
+                                : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200"
+                          }`}
+                        >
+                          {parseFloat(row.avgMargin).toFixed(1)}%
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </>
       )}
-    </Box>
+    </div>
   );
 }

@@ -94,14 +94,14 @@ message ImportOrderItem {
 
 **Field Constraints:**
 
-| Field | Type | Required? | Validation |
-|-------|------|-----------|------------|
-| `boe_number` | string | YES (Epic 1) | Format: `BOE-YYYY-NNNNNN` |
-| `coo_number` | string | YES (Epic 1) | Unique |
-| `hs_code` | string | YES (Epic 1) | 6-8 digits |
-| `freight_cost` | double | YES (Epic 6) | ≥ 0 |
-| `mill_name` | string | NO (Epic 12) | Max 255 chars |
-| `lc_number` | string | NO (Epic 12) | If provided, must be valid |
+| Field          | Type   | Required?    | Validation                 |
+| -------------- | ------ | ------------ | -------------------------- |
+| `boe_number`   | string | YES (Epic 1) | Format: `BOE-YYYY-NNNNNN`  |
+| `coo_number`   | string | YES (Epic 1) | Unique                     |
+| `hs_code`      | string | YES (Epic 1) | 6-8 digits                 |
+| `freight_cost` | double | YES (Epic 6) | ≥ 0                        |
+| `mill_name`    | string | NO (Epic 12) | Max 255 chars              |
+| `lc_number`    | string | NO (Epic 12) | If provided, must be valid |
 
 ---
 
@@ -230,14 +230,14 @@ message StockReceiptItem {
 
 **Approval Logic:**
 
-| Condition | Status | Requires Approval? |
-|-----------|--------|--------------------|
-| Variance ≤ 2% | AUTO_APPROVED | NO |
-| Variance > 2% and ≤ 5% | PENDING_APPROVAL | YES |
-| Variance > 5% | REJECTED | YES (investigation) |
-| Damage reported | PENDING_APPROVAL | YES |
-| Shortage reported | PENDING_APPROVAL | YES |
-| Inspection failed | REJECTED | YES |
+| Condition              | Status           | Requires Approval?  |
+| ---------------------- | ---------------- | ------------------- |
+| Variance ≤ 2%          | AUTO_APPROVED    | NO                  |
+| Variance > 2% and ≤ 5% | PENDING_APPROVAL | YES                 |
+| Variance > 5%          | REJECTED         | YES (investigation) |
+| Damage reported        | PENDING_APPROVAL | YES                 |
+| Shortage reported      | PENDING_APPROVAL | YES                 |
+| Inspection failed      | REJECTED         | YES                 |
 
 ---
 
@@ -468,15 +468,15 @@ message Batch {
 ## Summary: Total Field Additions
 
 | Proto Message | New Fields (Phase 3) | Epics Involved |
-|---------------|----------------------|----------------|
-| ImportOrder | 30+ fields | 1, 6, 9, 12 |
-| ExportOrder | 15+ fields | 1, 4, 7, 9, 13 |
-| StockReceipt | 25+ fields | 3, 6, 15 |
-| PriceList | 20+ fields | 2, 8, 14 |
-| Reservation | 10+ fields | 4, 10 |
-| TransferOrder | 20+ fields | 4, 10 |
-| Payment | 15+ fields | 11 |
-| Batch | 15+ fields | 4, 6 |
+| ------------- | -------------------- | -------------- |
+| ImportOrder   | 30+ fields           | 1, 6, 9, 12    |
+| ExportOrder   | 15+ fields           | 1, 4, 7, 9, 13 |
+| StockReceipt  | 25+ fields           | 3, 6, 15       |
+| PriceList     | 20+ fields           | 2, 8, 14       |
+| Reservation   | 10+ fields           | 4, 10          |
+| TransferOrder | 20+ fields           | 4, 10          |
+| Payment       | 15+ fields           | 11             |
+| Batch         | 15+ fields           | 4, 6           |
 
 **Grand Total:** 150+ new proto fields across 8 message types.
 
@@ -484,20 +484,21 @@ message Batch {
 
 ## Data Type Reference
 
-| Proto Type | JavaScript Type | PostgreSQL Type |
-|------------|-----------------|-----------------|
-| `string` | `string` | `VARCHAR`, `TEXT` |
-| `double` | `number` | `NUMERIC`, `DECIMAL` |
-| `int32` | `number` | `INTEGER` |
-| `bool` | `boolean` | `BOOLEAN` |
-| `google.protobuf.Timestamp` | `Date` / ISO string | `TIMESTAMPTZ` |
-| `repeated` | `Array` | `JSONB[]` or separate table |
+| Proto Type                  | JavaScript Type     | PostgreSQL Type             |
+| --------------------------- | ------------------- | --------------------------- |
+| `string`                    | `string`            | `VARCHAR`, `TEXT`           |
+| `double`                    | `number`            | `NUMERIC`, `DECIMAL`        |
+| `int32`                     | `number`            | `INTEGER`                   |
+| `bool`                      | `boolean`           | `BOOLEAN`                   |
+| `google.protobuf.Timestamp` | `Date` / ISO string | `TIMESTAMPTZ`               |
+| `repeated`                  | `Array`             | `JSONB[]` or separate table |
 
 ---
 
 ## Naming Convention Summary
 
 **Proto (snake_case):**
+
 ```protobuf
 string customer_id = 1;
 double vat_rate = 2;
@@ -505,13 +506,15 @@ google.protobuf.Timestamp created_at = 3;
 ```
 
 **JavaScript/React (camelCase):**
+
 ```javascript
-const customerId = '123';
+const customerId = "123";
 const vatRate = 0.05;
 const createdAt = new Date();
 ```
 
 **PostgreSQL (snake_case):**
+
 ```sql
 customer_id VARCHAR(36),
 vat_rate NUMERIC(5,4),

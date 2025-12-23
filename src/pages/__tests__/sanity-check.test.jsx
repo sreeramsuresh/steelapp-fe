@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 describe('SANITY CHECK: Mock-based tests do NOT catch business logic failures', () => {
-  it('FAIL-FAST #1: Should FAIL if VAT rate is 0 (but it WON\'T because test only checks mock state)', () => {
+  it("FAIL-FAST #1: Should FAIL if VAT rate is 0 (but it WON'T because test only checks mock state)", () => {
     const BrokenVAT = () => {
       const [invoice] = React.useState({
         customerLocation: 'Dubai, UAE',
@@ -38,7 +38,7 @@ describe('SANITY CHECK: Mock-based tests do NOT catch business logic failures', 
     expect(screen.getByText('Total: 10000')).toBeInTheDocument(); // ❌ SHOULD FAIL but doesn't
   });
 
-  it('FAIL-FAST #2: Should FAIL if company_id filter is removed (but it WON\'T)', () => {
+  it("FAIL-FAST #2: Should FAIL if company_id filter is removed (but it WON'T)", () => {
     const BrokenTenancy = () => {
       const currentCompanyId = 'COMPANY-A';
 
@@ -53,7 +53,9 @@ describe('SANITY CHECK: Mock-based tests do NOT catch business logic failures', 
         <>
           <div>Company: {currentCompanyId}</div>
           {invoices.map((inv) => (
-            <div key={inv.id}>INV-{inv.id}: {inv.amount}</div>
+            <div key={inv.id}>
+              INV-{inv.id}: {inv.amount}
+            </div>
           ))}
         </>
       );

@@ -31,7 +31,10 @@ describe('Purchase Order Feature', () => {
         const handleAddItem = () => {
           setPO({
             ...po,
-            items: [...po.items, { product: 'SS-304-Sheet', qty: 100, unitCost: 50 }],
+            items: [
+              ...po.items,
+              { product: 'SS-304-Sheet', qty: 100, unitCost: 50 },
+            ],
             subtotal: 5000,
             tax: 500,
             total: 5500,
@@ -48,7 +51,9 @@ describe('Purchase Order Feature', () => {
             <button onClick={handleAddItem}>Add Line Item</button>
             <div className="items-list">
               {po.items.map((item, idx) => (
-                <div key={idx}>{item.product} - {item.qty} units @ {item.unitCost}</div>
+                <div key={idx}>
+                  {item.product} - {item.qty} units @ {item.unitCost}
+                </div>
               ))}
             </div>
             <div>Total: {po.total}</div>
@@ -84,7 +89,9 @@ describe('Purchase Order Feature', () => {
         return (
           <>
             <input placeholder="Supplier" />
-            {errors.supplier && <div className="alert-error">{errors.supplier}</div>}
+            {errors.supplier && (
+              <div className="alert-error">{errors.supplier}</div>
+            )}
             <button onClick={handleSave}>Save PO</button>
           </>
         );
@@ -114,7 +121,11 @@ describe('Purchase Order Feature', () => {
           <>
             <div>Current Stock: {stockLevel}</div>
             <button onClick={handleReceiveGoods}>Receive 50 Units</button>
-            {received && <div className="alert-success">Goods received and added to inventory</div>}
+            {received && (
+              <div className="alert-success">
+                Goods received and added to inventory
+              </div>
+            )}
           </>
         );
       };
@@ -143,7 +154,9 @@ describe('Purchase Order Feature', () => {
 
         return (
           <>
-            <div>Received: {receivedQty} / {originalQty}</div>
+            <div>
+              Received: {receivedQty} / {originalQty}
+            </div>
             <div>Pending: {pendingQty}</div>
             <button onClick={() => handleReceive(50)}>Receive 50</button>
             <button onClick={() => handleReceive(50)}>Receive Remaining</button>
@@ -179,7 +192,9 @@ describe('Purchase Order Feature', () => {
           billAmount: 5000,
         });
 
-        const isMatched = matches.poAmount === matches.grnAmount && matches.grnAmount === matches.billAmount;
+        const isMatched =
+          matches.poAmount === matches.grnAmount &&
+          matches.grnAmount === matches.billAmount;
 
         return (
           <>
@@ -206,7 +221,10 @@ describe('Purchase Order Feature', () => {
           billAmount: 5000,
         });
 
-        const hasDiscrepancy = !(amounts.poAmount === amounts.grnAmount && amounts.grnAmount === amounts.billAmount);
+        const hasDiscrepancy = !(
+          amounts.poAmount === amounts.grnAmount &&
+          amounts.grnAmount === amounts.billAmount
+        );
 
         return (
           <>
@@ -236,9 +254,24 @@ describe('Purchase Order Feature', () => {
         return (
           <>
             <div>Status: {status}</div>
-            <button onClick={() => setStatus('approved')} disabled={status !== 'draft'}>Approve</button>
-            <button onClick={() => setStatus('received')} disabled={status !== 'approved'}>Mark Received</button>
-            <button onClick={() => setStatus('invoiced')} disabled={status !== 'received'}>Mark Invoiced</button>
+            <button
+              onClick={() => setStatus('approved')}
+              disabled={status !== 'draft'}
+            >
+              Approve
+            </button>
+            <button
+              onClick={() => setStatus('received')}
+              disabled={status !== 'approved'}
+            >
+              Mark Received
+            </button>
+            <button
+              onClick={() => setStatus('invoiced')}
+              disabled={status !== 'received'}
+            >
+              Mark Invoiced
+            </button>
           </>
         );
       };
@@ -249,11 +282,15 @@ describe('Purchase Order Feature', () => {
       await userEvent.click(approveBtn);
       expect(screen.getByText('Status: approved')).toBeInTheDocument();
 
-      const receivedBtn = findButtonByRole('Mark Received', { disabled: false });
+      const receivedBtn = findButtonByRole('Mark Received', {
+        disabled: false,
+      });
       await userEvent.click(receivedBtn);
       expect(screen.getByText('Status: received')).toBeInTheDocument();
 
-      const invoicedBtn = findButtonByRole('Mark Invoiced', { disabled: false });
+      const invoicedBtn = findButtonByRole('Mark Invoiced', {
+        disabled: false,
+      });
       await userEvent.click(invoicedBtn);
       expect(screen.getByText('Status: invoiced')).toBeInTheDocument();
     });

@@ -13,12 +13,12 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { tokenUtils } from "../../services/axiosApi";
 import { importContainerService } from "../../services/importContainerService";
 import { suppliersAPI } from "../../services/api";
 import { ContainerStatusBadge } from "../../components/ContainerStatusBadge";
 import { ContainerForm } from "./ContainerForm";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -34,7 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const CONTAINER_STATUSES = [
   { value: "", label: "All Statuses" },
@@ -52,6 +51,8 @@ const CONTAINER_STATUSES = [
 export function ContainerList() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const user = tokenUtils.getUser();
+  const companyId = user?.companyId;
 
   // Data state
   const [containers, setContainers] = useState([]);
@@ -112,7 +113,7 @@ export function ContainerList() {
     } finally {
       setLoading(false);
     }
-  }, [page, filters, companyId]);
+  }, [page, filters]);
 
   // Load suppliers for filter dropdown
   const loadSuppliers = useCallback(async () => {
@@ -217,53 +218,86 @@ export function ContainerList() {
   const hasActiveFilters = Object.values(filters).some((v) => v !== "");
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle>Import Containers</CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className={hasActiveFilters ? "border-blue-500" : ""}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-                {hasActiveFilters && (
-                  <span className="ml-2 bg-blue-500 text-white rounded-full px-2 py-0.5 text-xs">
-                    Active
-                  </span>
-                )}
-              </Button>
-              <Button onClick={handleAddContainer}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Container
-              </Button>
-            </div>
+    <div
+      className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-4`}
+    >
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1
+              className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            >
+              📦 Import Containers
+            </h1>
+            <p
+              className={`mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
+              Manage import containers and landed costs
+            </p>
           </div>
-        </CardHeader>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className={
+                hasActiveFilters ? "border-blue-500 bg-blue-500/10" : ""
+              }
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-2 bg-blue-500 text-white rounded-full px-2 py-0.5 text-xs">
+                  Active
+                </span>
+              )}
+            </Button>
+            <Button
+              onClick={handleAddContainer}
+              className="bg-gradient-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 shadow-lg hover:shadow-teal-500/25"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Container
+            </Button>
+          </div>
+        </div>
+      </div>
 
-        <CardContent>
-          {/* Search Bar */}
-          <div className="mb-4">
+      {/* Search Section */}
+      <div
+        className={`p-6 rounded-xl mb-6 border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+      >
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
                 placeholder="Search by container number..."
                 value={filters.search}
                 onChange={handleSearch}
-                className="pl-10"
+                className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
               />
             </div>
           </div>
+        </div>
+      </div>
 
+      {/* Main Content */}
+      <div
+        className={`rounded-xl border overflow-hidden ${
+          isDarkMode
+            ? "bg-[#1E2328] border-[#37474F]"
+            : "bg-white border-gray-200"
+        }`}
+      >
+        <div className="p-6">
           {/* Filters Panel */}
           {showFilters && (
             <div
               className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-700"
+                  ? "bg-[#0F1419] border-[#37474F]"
                   : "bg-gray-50 border-gray-200"
               }`}
             >
@@ -359,7 +393,9 @@ export function ContainerList() {
 
           {/* Error State */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 text-red-800 rounded border border-red-200">
+            <div
+              className={`mb-4 p-4 rounded border ${isDarkMode ? "bg-red-900/20 text-red-300 border-red-700" : "bg-red-50 text-red-800 border-red-200"}`}
+            >
               {error}
               <Button
                 onClick={loadContainers}
@@ -379,19 +415,30 @@ export function ContainerList() {
             </div>
           ) : containers.length === 0 ? (
             /* Empty State */
-            <div className="text-center py-12">
-              <p
-                className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-              >
-                No containers found
-              </p>
-              <p
-                className={`text-sm mt-2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-              >
-                {hasActiveFilters
-                  ? "Try adjusting your filters"
-                  : 'Click "Add Container" to create your first container'}
-              </p>
+            <div
+              className={`rounded-lg border overflow-hidden ${isDarkMode ? "bg-[#0F1419] border-[#37474F]" : "bg-gray-50 border-gray-200"}`}
+            >
+              <div className="p-8 text-center">
+                <div
+                  className={`w-16 h-16 mx-auto mb-4 rounded-full ${isDarkMode ? "bg-gray-800" : "bg-gray-200"} flex items-center justify-center`}
+                >
+                  <div
+                    className={`w-8 h-8 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    📦
+                  </div>
+                </div>
+                <h3
+                  className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                >
+                  No containers found
+                </h3>
+                <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                  {hasActiveFilters
+                    ? "Try adjusting your filters"
+                    : 'Click "Add Container" to create your first container'}
+                </p>
+              </div>
             </div>
           ) : (
             /* Table */
@@ -493,8 +540,8 @@ export function ContainerList() {
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Container Form Modal */}
       {showForm && (

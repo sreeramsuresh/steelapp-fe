@@ -27,7 +27,11 @@ describe('Database Integrity & Data Consistency', () => {
 
         React.useEffect(() => {
           // Try to save orphaned invoice
-          checkReferentialIntegrity({ id: 1, customerId: null, companyId: 'COMPANY-A' });
+          checkReferentialIntegrity({
+            id: 1,
+            customerId: null,
+            companyId: 'COMPANY-A',
+          });
         }, []);
 
         return (
@@ -45,7 +49,9 @@ describe('Database Integrity & Data Consistency', () => {
 
       render(<MockOrphanedInvoice />);
 
-      expect(screen.getByText(/FK Constraint.*customer_id/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/FK Constraint.*customer_id/),
+      ).toBeInTheDocument();
     });
 
     it('should prevent deleting customer if invoices exist (referential integrity)', async () => {
@@ -56,15 +62,22 @@ describe('Database Integrity & Data Consistency', () => {
           { id: 2, customerId: 123 },
         ]);
 
-        const canDelete = invoices.filter((inv) => inv.customerId === customer.id).length === 0;
+        const canDelete =
+          invoices.filter((inv) => inv.customerId === customer.id).length === 0;
 
         return (
           <>
             <div>Customer: {customer.name}</div>
-            <div>Related Invoices: {invoices.filter((inv) => inv.customerId === customer.id).length}</div>
+            <div>
+              Related Invoices:{' '}
+              {invoices.filter((inv) => inv.customerId === customer.id).length}
+            </div>
             <button disabled={!canDelete}>Delete Customer</button>
             {!canDelete && (
-              <div className="alert-error">Cannot delete: Customer has {invoices.length} associated invoices</div>
+              <div className="alert-error">
+                Cannot delete: Customer has {invoices.length} associated
+                invoices
+              </div>
             )}
           </>
         );
@@ -72,8 +85,12 @@ describe('Database Integrity & Data Consistency', () => {
 
       render(<MockCascadeDelete />);
 
-      expect(screen.getByRole('button', { name: /Delete Customer/ })).toBeDisabled();
-      expect(screen.getByText(/Cannot delete.*2 associated invoices/)).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Delete Customer/ }),
+      ).toBeDisabled();
+      expect(
+        screen.getByText(/Cannot delete.*2 associated invoices/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -88,10 +105,14 @@ describe('Database Integrity & Data Consistency', () => {
           { id: 3, amount: 2000, status: 'partially_paid', paidAmount: 1000 },
         ];
 
-        const totalInvoiced = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+        const totalInvoiced = invoices.reduce(
+          (sum, inv) => sum + inv.amount,
+          0,
+        );
         const totalPaid = invoices.reduce(
-          (sum, inv) => sum + (inv.status === 'paid' ? inv.amount : inv.paidAmount || 0),
-          0
+          (sum, inv) =>
+            sum + (inv.status === 'paid' ? inv.amount : inv.paidAmount || 0),
+          0,
         );
         const totalOutstanding = totalInvoiced - totalPaid;
 
@@ -138,7 +159,8 @@ describe('Database Integrity & Data Consistency', () => {
             <div>Recorded Outstanding: {recorded.outstanding}</div>
             {hasDiscrepancy && (
               <div className="alert-error">
-                Discrepancy detected: {Math.abs(calculated.outstanding - recorded.outstanding)} AED
+                Discrepancy detected:{' '}
+                {Math.abs(calculated.outstanding - recorded.outstanding)} AED
               </div>
             )}
           </>
@@ -147,7 +169,9 @@ describe('Database Integrity & Data Consistency', () => {
 
       render(<MockBalanceDiscrepancy />);
 
-      expect(screen.getByText(/Discrepancy detected.*200 AED/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Discrepancy detected.*200 AED/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -166,9 +190,16 @@ describe('Database Integrity & Data Consistency', () => {
           ],
         };
 
-        const totalReceipts = movements.receipts.reduce((sum, r) => sum + r.qty, 0);
-        const totalIssuances = movements.issuances.reduce((sum, i) => sum + i.qty, 0);
-        const calculatedClosing = movements.opening + totalReceipts - totalIssuances;
+        const totalReceipts = movements.receipts.reduce(
+          (sum, r) => sum + r.qty,
+          0,
+        );
+        const totalIssuances = movements.issuances.reduce(
+          (sum, i) => sum + i.qty,
+          0,
+        );
+        const calculatedClosing =
+          movements.opening + totalReceipts - totalIssuances;
 
         const recordedClosing = 120; // Should match calculated
 
@@ -211,9 +242,13 @@ describe('Database Integrity & Data Consistency', () => {
           <>
             <div>System Balance: {variance.systemBalance}</div>
             <div>Physical Count: {variance.physicalCount}</div>
-            <div>Variance: {variance.difference} units ({variance.variance_pct}%)</div>
+            <div>
+              Variance: {variance.difference} units ({variance.variance_pct}%)
+            </div>
             {Math.abs(variance.variance_pct) > 2 && (
-              <div className="alert-warning">Stock variance exceeds 2% threshold</div>
+              <div className="alert-warning">
+                Stock variance exceeds 2% threshold
+              </div>
             )}
           </>
         );
@@ -240,7 +275,10 @@ describe('Database Integrity & Data Consistency', () => {
           total: 14175,
         });
 
-        const calculatedSubtotal = invoice.lines.reduce((sum, line) => sum + line.lineTotal, 0);
+        const calculatedSubtotal = invoice.lines.reduce(
+          (sum, line) => sum + line.lineTotal,
+          0,
+        );
         const calculatedTotal = calculatedSubtotal * 1.05;
 
         const isValid = Math.abs(calculatedTotal - invoice.total) < 1; // Allow 1 AED rounding
@@ -279,14 +317,17 @@ describe('Database Integrity & Data Consistency', () => {
           equity: 300000,
         });
 
-        const isBalanced = accounts.assets === accounts.liabilities + accounts.equity;
+        const isBalanced =
+          accounts.assets === accounts.liabilities + accounts.equity;
 
         return (
           <>
             <div>Assets: {accounts.assets}</div>
             <div>Liabilities: {accounts.liabilities}</div>
             <div>Equity: {accounts.equity}</div>
-            <div>Liabilities + Equity: {accounts.liabilities + accounts.equity}</div>
+            <div>
+              Liabilities + Equity: {accounts.liabilities + accounts.equity}
+            </div>
             {isBalanced ? (
               <div className="alert-success">Trial balance is correct ✓</div>
             ) : (
@@ -304,8 +345,20 @@ describe('Database Integrity & Data Consistency', () => {
     it('should detect unmatched journal entries', async () => {
       const MockUnmatchedJournals = () => {
         const [entries] = React.useState([
-          { id: 1, account: 'Accounts Receivable', debit: 5000, credit: 0, matched: false },
-          { id: 2, account: 'Sales Revenue', debit: 0, credit: 5000, matched: true },
+          {
+            id: 1,
+            account: 'Accounts Receivable',
+            debit: 5000,
+            credit: 0,
+            matched: false,
+          },
+          {
+            id: 2,
+            account: 'Sales Revenue',
+            debit: 0,
+            credit: 5000,
+            matched: true,
+          },
           { id: 3, account: 'Cash', debit: 2000, credit: 0, matched: false },
         ]);
 
@@ -327,7 +380,9 @@ describe('Database Integrity & Data Consistency', () => {
       render(<MockUnmatchedJournals />);
 
       expect(screen.getByText('Unmatched: 2')).toBeInTheDocument();
-      expect(screen.getByText(/2 unmatched journal entries/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/2 unmatched journal entries/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -346,15 +401,24 @@ describe('Database Integrity & Data Consistency', () => {
           name: 'Warehouse A',
         });
 
-        const isLinked = batch.warehouseId === warehouse.id && batch.warehouseName === warehouse.name;
+        const isLinked =
+          batch.warehouseId === warehouse.id &&
+          batch.warehouseName === warehouse.name;
 
         return (
           <>
             <div>Batch: {batch.batchNo}</div>
-            <div>Warehouse (from batch): {batch.warehouseName} (ID: {batch.warehouseId})</div>
-            <div>Warehouse (from table): {warehouse.name} (ID: {warehouse.id})</div>
+            <div>
+              Warehouse (from batch): {batch.warehouseName} (ID:{' '}
+              {batch.warehouseId})
+            </div>
+            <div>
+              Warehouse (from table): {warehouse.name} (ID: {warehouse.id})
+            </div>
             {isLinked ? (
-              <div className="alert-success">Batch-warehouse link verified ✓</div>
+              <div className="alert-success">
+                Batch-warehouse link verified ✓
+              </div>
             ) : (
               <div className="alert-error">Batch-warehouse link broken!</div>
             )}
@@ -364,7 +428,9 @@ describe('Database Integrity & Data Consistency', () => {
 
       render(<MockBatchWarehouseLink />);
 
-      expect(screen.getByText(/Batch-warehouse link verified/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Batch-warehouse link verified/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -372,18 +438,32 @@ describe('Database Integrity & Data Consistency', () => {
     it('should prevent duplicate invoices with same number and date', async () => {
       const MockDuplicateInvoice = () => {
         const [invoices] = React.useState([
-          { id: 1, invoiceNumber: 'INV-2025-001', invoiceDate: '2025-12-19', customerId: 123 },
-          { id: 2, invoiceNumber: 'INV-2025-001', invoiceDate: '2025-12-19', customerId: 123 }, // Duplicate!
+          {
+            id: 1,
+            invoiceNumber: 'INV-2025-001',
+            invoiceDate: '2025-12-19',
+            customerId: 123,
+          },
+          {
+            id: 2,
+            invoiceNumber: 'INV-2025-001',
+            invoiceDate: '2025-12-19',
+            customerId: 123,
+          }, // Duplicate!
         ]);
 
-        const uniqueInvoices = new Set(invoices.map((inv) => `${inv.invoiceNumber}-${inv.invoiceDate}`));
+        const uniqueInvoices = new Set(
+          invoices.map((inv) => `${inv.invoiceNumber}-${inv.invoiceDate}`),
+        );
         const hasDuplicate = uniqueInvoices.size < invoices.length;
 
         return (
           <>
             <div>Total Records: {invoices.length}</div>
             <div>Unique Invoices: {uniqueInvoices.size}</div>
-            {hasDuplicate && <div className="alert-error">Duplicate invoice detected!</div>}
+            {hasDuplicate && (
+              <div className="alert-error">Duplicate invoice detected!</div>
+            )}
           </>
         );
       };

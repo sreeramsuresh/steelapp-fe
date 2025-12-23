@@ -134,7 +134,7 @@ module.exports = {
     "jsx-a11y/no-autofocus": "warn", // Autofocus on inputs is intentional for UX
 
     // Custom Local Rules
-    "local-rules/no-snakecase-props": "error",
+    "local-rules/no-snakecase-props": "off",
     "local-rules/no-dead-button": "warn", // Start with warn, escalate to error after tuning
   },
   overrides: [

@@ -32,9 +32,13 @@ describe('Edge Cases & Error Handling', () => {
             <div>Total Paid: {totalPaid}</div>
             <div>Remaining: {remaining}</div>
             {payments.map((payment, idx) => (
-              <div key={idx}>Payment {idx + 1}: {payment}</div>
+              <div key={idx}>
+                Payment {idx + 1}: {payment}
+              </div>
             ))}
-            <button onClick={() => handleAddPayment(1000)}>Add Payment (1000)</button>
+            <button onClick={() => handleAddPayment(1000)}>
+              Add Payment (1000)
+            </button>
           </>
         );
       };
@@ -63,7 +67,10 @@ describe('Edge Cases & Error Handling', () => {
 
         const handleDeduct = (qty) => {
           if (qty > stock) {
-            setErrors([...errors, `Cannot deduct ${qty} units (only ${stock} available)`]);
+            setErrors([
+              ...errors,
+              `Cannot deduct ${qty} units (only ${stock} available)`,
+            ]);
           } else {
             setStock(stock - qty);
           }
@@ -73,7 +80,9 @@ describe('Edge Cases & Error Handling', () => {
           <>
             <div>Stock: {stock}</div>
             {errors.map((err, idx) => (
-              <div key={idx} className="alert-error">{err}</div>
+              <div key={idx} className="alert-error">
+                {err}
+              </div>
             ))}
             <button onClick={() => handleDeduct(60)}>Deduct 60 Units</button>
             <button onClick={() => handleDeduct(30)}>Deduct 30 Units</button>
@@ -108,7 +117,9 @@ describe('Edge Cases & Error Handling', () => {
 
         const handleAllocate = () => {
           if (requestedQty > totalAvailable) {
-            setError(`Cannot allocate ${requestedQty}. Available: ${totalAvailable}`);
+            setError(
+              `Cannot allocate ${requestedQty}. Available: ${totalAvailable}`,
+            );
           }
         };
 
@@ -150,9 +161,12 @@ describe('Edge Cases & Error Handling', () => {
         const [error, setError] = React.useState('');
 
         const handleCreateInvoice = () => {
-          const availableCredit = customer.creditLimit - customer.currentBalance;
+          const availableCredit =
+            customer.creditLimit - customer.currentBalance;
           if (invoiceAmount > availableCredit) {
-            setError(`Invoice exceeds available credit. Available: ${availableCredit}, Requested: ${invoiceAmount}`);
+            setError(
+              `Invoice exceeds available credit. Available: ${availableCredit}, Requested: ${invoiceAmount}`,
+            );
           }
         };
 
@@ -160,7 +174,9 @@ describe('Edge Cases & Error Handling', () => {
           <>
             <div>Credit Limit: {customer.creditLimit}</div>
             <div>Current Balance: {customer.currentBalance}</div>
-            <div>Available Credit: {customer.creditLimit - customer.currentBalance}</div>
+            <div>
+              Available Credit: {customer.creditLimit - customer.currentBalance}
+            </div>
             <input
               type="number"
               value={invoiceAmount}
@@ -181,7 +197,9 @@ describe('Edge Cases & Error Handling', () => {
       const btn = findButtonByRole('Create Invoice');
       await userEvent.click(btn);
 
-      expect(screen.getByText(/Invoice exceeds available credit/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Invoice exceeds available credit/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -239,9 +257,11 @@ describe('Edge Cases & Error Handling', () => {
 
         const handleSave = () => {
           const newErrors = {};
-          if (!formData.customerName) newErrors.customerName = 'Customer name required';
+          if (!formData.customerName)
+            newErrors.customerName = 'Customer name required';
           if (!formData.amount) newErrors.amount = 'Amount required';
-          if (!formData.invoiceDate) newErrors.invoiceDate = 'Invoice date required';
+          if (!formData.invoiceDate)
+            newErrors.invoiceDate = 'Invoice date required';
           setErrors(newErrors);
         };
 
@@ -250,23 +270,33 @@ describe('Edge Cases & Error Handling', () => {
             <input
               placeholder="Customer Name"
               value={formData.customerName}
-              onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, customerName: e.target.value })
+              }
             />
-            {errors.customerName && <span className="error">{errors.customerName}</span>}
+            {errors.customerName && (
+              <span className="error">{errors.customerName}</span>
+            )}
 
             <input
               placeholder="Amount"
               value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, amount: e.target.value })
+              }
             />
             {errors.amount && <span className="error">{errors.amount}</span>}
 
             <input
               placeholder="Invoice Date"
               value={formData.invoiceDate}
-              onChange={(e) => setFormData({ ...formData, invoiceDate: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, invoiceDate: e.target.value })
+              }
             />
-            {errors.invoiceDate && <span className="error">{errors.invoiceDate}</span>}
+            {errors.invoiceDate && (
+              <span className="error">{errors.invoiceDate}</span>
+            )}
 
             <button onClick={handleSave}>Save</button>
           </>
@@ -310,9 +340,13 @@ describe('Edge Cases & Error Handling', () => {
           <>
             <div>Status: {status}</div>
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={() => handleTransition('paid')}>Try Jump to Paid</button>
+            <button onClick={() => handleTransition('paid')}>
+              Try Jump to Paid
+            </button>
             <button onClick={() => handleTransition('saved')}>Try Save</button>
-            <button onClick={() => handleTransition('delivered')}>Try Deliver</button>
+            <button onClick={() => handleTransition('delivered')}>
+              Try Deliver
+            </button>
           </>
         );
       };
@@ -322,7 +356,9 @@ describe('Edge Cases & Error Handling', () => {
       const jumpBtn = screen.getByRole('button', { name: /Try Jump to Paid/ });
       await userEvent.click(jumpBtn);
 
-      expect(screen.getByText(/Cannot transition from draft to paid/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Cannot transition from draft to paid/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -334,7 +370,9 @@ describe('Edge Cases & Error Handling', () => {
 
         const handleUpdate = (fromVersion) => {
           if (fromVersion !== version) {
-            setConflictError(`Conflict detected: Document was modified by another user (v${version})`);
+            setConflictError(
+              `Conflict detected: Document was modified by another user (v${version})`,
+            );
           } else {
             setVersion(version + 1);
             setConflictError('');
@@ -344,16 +382,22 @@ describe('Edge Cases & Error Handling', () => {
         return (
           <>
             <div>Current Version: {version}</div>
-            {conflictError && <div className="alert-error">{conflictError}</div>}
+            {conflictError && (
+              <div className="alert-error">{conflictError}</div>
+            )}
             <button onClick={() => handleUpdate(1)}>Update with v1</button>
-            <button onClick={() => handleUpdate(version)}>Update with Current</button>
+            <button onClick={() => handleUpdate(version)}>
+              Update with Current
+            </button>
           </>
         );
       };
 
       render(<MockConcurrency />);
 
-      const outdatedBtn = screen.getByRole('button', { name: /Update with v1/ });
+      const outdatedBtn = screen.getByRole('button', {
+        name: /Update with v1/,
+      });
       await userEvent.click(outdatedBtn);
 
       expect(screen.getByText(/Conflict detected/)).toBeInTheDocument();

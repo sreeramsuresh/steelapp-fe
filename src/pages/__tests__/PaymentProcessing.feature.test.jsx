@@ -40,7 +40,9 @@ describe('Payment Processing Feature', () => {
             />
             <div>Status: {status}</div>
             <button onClick={handleRecordPayment}>Record Payment</button>
-            {saved && <div className="alert-success">Payment recorded successfully</div>}
+            {saved && (
+              <div className="alert-success">Payment recorded successfully</div>
+            )}
           </>
         );
       };
@@ -71,7 +73,12 @@ describe('Payment Processing Feature', () => {
         };
 
         const remainingAmount = invoiceAmount - paidAmount;
-        const status = remainingAmount === 0 ? 'paid' : remainingAmount < invoiceAmount ? 'partially paid' : 'unpaid';
+        const status =
+          remainingAmount === 0
+            ? 'paid'
+            : remainingAmount < invoiceAmount
+              ? 'partially paid'
+              : 'unpaid';
 
         return (
           <>
@@ -86,7 +93,9 @@ describe('Payment Processing Feature', () => {
               placeholder="Payment Amount"
             />
             <button onClick={handleRecordPayment}>Record Payment</button>
-            {saved && <div className="alert-success">Partial payment recorded</div>}
+            {saved && (
+              <div className="alert-success">Partial payment recorded</div>
+            )}
           </>
         );
       };
@@ -115,7 +124,9 @@ describe('Payment Processing Feature', () => {
 
         const handleRecordPayment = () => {
           if (paymentAmount > invoiceAmount) {
-            setError(`Cannot record payment of ${paymentAmount} against invoice of ${invoiceAmount}`);
+            setError(
+              `Cannot record payment of ${paymentAmount} against invoice of ${invoiceAmount}`,
+            );
           }
         };
 
@@ -158,7 +169,9 @@ describe('Payment Processing Feature', () => {
         const [allocation, setAllocation] = React.useState([]);
 
         const handleAllocate = () => {
-          const sorted = [...invoices].sort((a, b) => b.daysOverdue - a.daysOverdue);
+          const sorted = [...invoices].sort(
+            (a, b) => b.daysOverdue - a.daysOverdue,
+          );
           const alloc = [];
           let remaining = paymentAmount;
 
@@ -178,7 +191,9 @@ describe('Payment Processing Feature', () => {
               <div>
                 <div>Allocation (oldest first):</div>
                 {allocation.map((alloc) => (
-                  <div key={alloc.invoiceId}>Invoice {alloc.invoiceId}: {alloc.amount}</div>
+                  <div key={alloc.invoiceId}>
+                    Invoice {alloc.invoiceId}: {alloc.amount}
+                  </div>
                 ))}
               </div>
             )}
@@ -231,7 +246,9 @@ describe('Payment Processing Feature', () => {
 
         const handlePayment = () => {
           if (onCreditHold) {
-            setError('Customer is on credit hold. Payment cannot be processed.');
+            setError(
+              'Customer is on credit hold. Payment cannot be processed.',
+            );
           }
         };
 
@@ -249,7 +266,9 @@ describe('Payment Processing Feature', () => {
       const paymentBtn = findButtonByRole('Process Payment');
       await userEvent.click(paymentBtn);
 
-      expect(screen.getByText(/Payment cannot be processed/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Payment cannot be processed/),
+      ).toBeInTheDocument();
     });
   });
 

@@ -28,8 +28,13 @@ describe('E2E Workflow: Complete Sales Cycle', () => {
       return (
         <>
           <div>Quotation Status: {quote.status}</div>
-          <button onClick={() => setQuote({ ...quote, status: 'sent' })}>Send Quote</button>
-          <button onClick={() => setQuote({ ...quote, status: 'accepted' })} disabled={quote.status !== 'sent'}>
+          <button onClick={() => setQuote({ ...quote, status: 'sent' })}>
+            Send Quote
+          </button>
+          <button
+            onClick={() => setQuote({ ...quote, status: 'accepted' })}
+            disabled={quote.status !== 'sent'}
+          >
             Accept Quote
           </button>
         </>
@@ -48,7 +53,9 @@ describe('E2E Workflow: Complete Sales Cycle', () => {
       return (
         <>
           <div>Purchase Order Status: {po.status}</div>
-          <button onClick={() => setPO({ ...po, status: 'confirmed' })}>Confirm PO</button>
+          <button onClick={() => setPO({ ...po, status: 'confirmed' })}>
+            Confirm PO
+          </button>
         </>
       );
     };
@@ -65,7 +72,9 @@ describe('E2E Workflow: Complete Sales Cycle', () => {
       return (
         <>
           <div>Invoice Status: {invoice.status}</div>
-          <button onClick={() => setInvoice({ ...invoice, status: 'saved' })}>Save Invoice</button>
+          <button onClick={() => setInvoice({ ...invoice, status: 'saved' })}>
+            Save Invoice
+          </button>
         </>
       );
     };
@@ -84,7 +93,15 @@ describe('E2E Workflow: Complete Sales Cycle', () => {
         <>
           <div>Delivery Status: {delivery.status}</div>
           <div>Stock Level: {delivery.stock}</div>
-          <button onClick={() => setDelivery({ ...delivery, status: 'delivered', stock: delivery.stock - 50 })}>
+          <button
+            onClick={() =>
+              setDelivery({
+                ...delivery,
+                status: 'delivered',
+                stock: delivery.stock - 50,
+              })
+            }
+          >
             Mark Delivered
           </button>
         </>
@@ -132,19 +149,25 @@ describe('E2E Workflow: Complete Sales Cycle', () => {
           {step === 'po' && (
             <>
               <PurchaseOrderStep />
-              <button onClick={() => setStep('invoice')}>Proceed to Invoice</button>
+              <button onClick={() => setStep('invoice')}>
+                Proceed to Invoice
+              </button>
             </>
           )}
           {step === 'invoice' && (
             <>
               <InvoiceStep />
-              <button onClick={() => setStep('delivery')}>Proceed to Delivery</button>
+              <button onClick={() => setStep('delivery')}>
+                Proceed to Delivery
+              </button>
             </>
           )}
           {step === 'delivery' && (
             <>
               <DeliveryStep />
-              <button onClick={() => setStep('payment')}>Proceed to Payment</button>
+              <button onClick={() => setStep('payment')}>
+                Proceed to Payment
+              </button>
             </>
           )}
           {step === 'payment' && (
@@ -165,7 +188,9 @@ describe('E2E Workflow: Complete Sales Cycle', () => {
     await userEvent.click(proceedBtn);
 
     // Step 2: PO
-    expect(screen.getByText(/Purchase Order Status: draft/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Purchase Order Status: draft/),
+    ).toBeInTheDocument();
     proceedBtn = findButtonByRole('Proceed to Invoice');
     await userEvent.click(proceedBtn);
 
@@ -198,7 +223,10 @@ describe('E2E Workflow: Complete Sales Cycle', () => {
         { sku: 'SS-316-Pipe', qty: 30, unitPrice: 150 },
       ]);
 
-      const subtotal = items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0);
+      const subtotal = items.reduce(
+        (sum, item) => sum + item.qty * item.unitPrice,
+        0,
+      );
       const vat = subtotal * 0.05;
       const total = subtotal + vat;
 

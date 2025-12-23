@@ -32,7 +32,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
 
       render(<MockDomesticVAT />);
 
-      expect(screen.getByText('Customer Location: Dubai, UAE')).toBeInTheDocument();
+      expect(
+        screen.getByText('Customer Location: Dubai, UAE'),
+      ).toBeInTheDocument();
       expect(screen.getByText('VAT Rate: 5%')).toBeInTheDocument();
       expect(screen.getByText('VAT Amount: 500')).toBeInTheDocument();
       expect(screen.getByText('Total: 10500')).toBeInTheDocument();
@@ -42,7 +44,14 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
   describe('Export Sales - Zero-Rated', () => {
     it('should charge 0% VAT on exports outside GCC countries', async () => {
       const MockExportVAT = () => {
-        const gccCountries = ['Saudi Arabia', 'Kuwait', 'Qatar', 'Bahrain', 'Oman', 'UAE'];
+        const gccCountries = [
+          'Saudi Arabia',
+          'Kuwait',
+          'Qatar',
+          'Bahrain',
+          'Oman',
+          'UAE',
+        ];
 
         const [invoice] = React.useState({
           customerCountry: 'United States',
@@ -61,14 +70,20 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
             <div>Subtotal: {invoice.subtotal}</div>
             <div>VAT: {vatAmount}</div>
             <div>Total: {total}</div>
-            {!isGCC && <div className="alert-info">Zero-rated supply (export outside GCC)</div>}
+            {!isGCC && (
+              <div className="alert-info">
+                Zero-rated supply (export outside GCC)
+              </div>
+            )}
           </>
         );
       };
 
       render(<MockExportVAT />);
 
-      expect(screen.getByText('Destination: United States')).toBeInTheDocument();
+      expect(
+        screen.getByText('Destination: United States'),
+      ).toBeInTheDocument();
       expect(screen.getByText('VAT: 0')).toBeInTheDocument();
       expect(screen.getByText(/Zero-rated supply/)).toBeInTheDocument();
     });
@@ -95,7 +110,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
 
       render(<MockGCCExport />);
 
-      expect(screen.getByText('Trade Type: regional_trade')).toBeInTheDocument();
+      expect(
+        screen.getByText('Trade Type: regional_trade'),
+      ).toBeInTheDocument();
       expect(screen.getByText('VAT: 0')).toBeInTheDocument();
     });
   });
@@ -108,7 +125,8 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
           subtotal: 10000,
           vatApplied: false,
           reverseChargeApplied: true,
-          notes: 'Reverse charge applies - customer responsible for VAT in their country',
+          notes:
+            'Reverse charge applies - customer responsible for VAT in their country',
         });
 
         return (
@@ -116,7 +134,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
             <div>Customer Type: {invoice.customerType}</div>
             <div>Subtotal: {invoice.subtotal}</div>
             <div>VAT Applied: {invoice.vatApplied ? 'Yes' : 'No'}</div>
-            <div>Reverse Charge: {invoice.reverseChargeApplied ? 'Yes' : 'No'}</div>
+            <div>
+              Reverse Charge: {invoice.reverseChargeApplied ? 'Yes' : 'No'}
+            </div>
             <div>Notes: {invoice.notes}</div>
           </>
         );
@@ -132,14 +152,20 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
   describe('Designated Zone Transactions', () => {
     it('should treat JAFZA transactions as zero-rated exports', async () => {
       const MockDesignatedZone = () => {
-        const designatedZones = ['JAFZA', 'Jebel Ali Free Zone', 'RAK Free Zone'];
+        const designatedZones = [
+          'JAFZA',
+          'Jebel Ali Free Zone',
+          'RAK Free Zone',
+        ];
 
         const [invoice] = React.useState({
           customerLocation: 'JAFZA',
           subtotal: 10000,
         });
 
-        const isDesignatedZone = designatedZones.includes(invoice.customerLocation);
+        const isDesignatedZone = designatedZones.includes(
+          invoice.customerLocation,
+        );
         const vatRate = isDesignatedZone ? 0 : 0.05;
         const vatAmount = invoice.subtotal * vatRate;
 
@@ -149,7 +175,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
             <div>Designated Zone: {isDesignatedZone ? 'Yes' : 'No'}</div>
             <div>VAT Rate: {vatRate * 100}%</div>
             <div>VAT Amount: {vatAmount}</div>
-            {isDesignatedZone && <div className="alert-info">Zero-rated (Designated Zone)</div>}
+            {isDesignatedZone && (
+              <div className="alert-info">Zero-rated (Designated Zone)</div>
+            )}
           </>
         );
       };
@@ -158,7 +186,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
 
       expect(screen.getByText('Designated Zone: Yes')).toBeInTheDocument();
       expect(screen.getByText('VAT Rate: 0%')).toBeInTheDocument();
-      expect(screen.getByText(/Zero-rated \(Designated Zone\)/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Zero-rated \(Designated Zone\)/),
+      ).toBeInTheDocument();
     });
   });
 
@@ -178,7 +208,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
             <div>Customer: {customer.name}</div>
             <div>TRN: {customer.trn}</div>
             <div>TRN Valid: {isBusiness ? 'Yes' : 'No'}</div>
-            {!isBusiness && <div className="alert-error">Invalid TRN format</div>}
+            {!isBusiness && (
+              <div className="alert-error">Invalid TRN format</div>
+            )}
           </>
         );
       };
@@ -203,9 +235,13 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
           <>
             <div>Customer: {customer.name}</div>
             <div>TRN Required: {trnRequired ? 'Yes' : 'No'}</div>
-            <button disabled={trnRequired && !canInvoice}>Create Invoice</button>
+            <button disabled={trnRequired && !canInvoice}>
+              Create Invoice
+            </button>
             {trnRequired && !canInvoice && (
-              <div className="alert-error">TRN is required for B2B invoices</div>
+              <div className="alert-error">
+                TRN is required for B2B invoices
+              </div>
             )}
           </>
         );
@@ -213,7 +249,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
 
       render(<MockInvalidTRN />);
 
-      expect(screen.getByRole('button', { name: /Create Invoice/ })).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Create Invoice/ }),
+      ).toBeDisabled();
       expect(screen.getByText(/TRN is required/)).toBeInTheDocument();
     });
   });
@@ -232,12 +270,16 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
 
         return (
           <>
-            <div>Original Invoice Total: {creditNote.originalInvoiceAmount}</div>
+            <div>
+              Original Invoice Total: {creditNote.originalInvoiceAmount}
+            </div>
             <div>Credit Reason: {creditNote.creditReason}</div>
             <div>Credit Amount: {creditNote.creditAmount}</div>
             <div>VAT Reversed: {creditNote.creditVATReversal}</div>
             {creditNote.creditVATReversal === creditNote.originalVAT && (
-              <div className="alert-success">VAT reversal matches original VAT</div>
+              <div className="alert-success">
+                VAT reversal matches original VAT
+              </div>
             )}
           </>
         );
@@ -292,7 +334,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
             <div>Input VAT: {return_.inputVAT}</div>
             <div>Refund Due: {return_.refundDue}</div>
             {return_.refundDue > 0 && (
-              <div className="alert-info">Refund due to FTA for zero-rated exports</div>
+              <div className="alert-info">
+                Refund due to FTA for zero-rated exports
+              </div>
             )}
           </>
         );
@@ -308,7 +352,11 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
   describe('VAT Exemptions', () => {
     it('should handle VAT-exempt supplies (e.g., financial services)', async () => {
       const MockVATExempt = () => {
-        const exemptCategories = ['financial_services', 'healthcare', 'education'];
+        const exemptCategories = [
+          'financial_services',
+          'healthcare',
+          'education',
+        ];
 
         const [transaction] = React.useState({
           serviceType: 'financial_services',
@@ -329,7 +377,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
 
       render(<MockVATExempt />);
 
-      expect(screen.getByText('VAT Applicable: No (Exempt)')).toBeInTheDocument();
+      expect(
+        screen.getByText('VAT Applicable: No (Exempt)'),
+      ).toBeInTheDocument();
       expect(screen.getByText(/VAT-exempt supply/)).toBeInTheDocument();
     });
   });
@@ -357,7 +407,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
           'total',
         ];
 
-        const hasAllFields = requiredFields.every((field) => invoice[field] !== undefined);
+        const hasAllFields = requiredFields.every(
+          (field) => invoice[field] !== undefined,
+        );
 
         return (
           <>
@@ -365,9 +417,13 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
             <div>Seller TRN: {invoice.sellerTRN}</div>
             <div>Buyer TRN: {invoice.buyerTRN}</div>
             <div>Subtotal: {invoice.subtotal}</div>
-            <div>VAT ({invoice.vatRate}%): {invoice.vatAmount}</div>
+            <div>
+              VAT ({invoice.vatRate}%): {invoice.vatAmount}
+            </div>
             <div>Total: {invoice.total}</div>
-            {hasAllFields && <div className="alert-success">All VAT fields present</div>}
+            {hasAllFields && (
+              <div className="alert-success">All VAT fields present</div>
+            )}
           </>
         );
       };
@@ -375,7 +431,9 @@ describe('VAT Compliance - UAE FTA Regulations', () => {
       render(<MockInvoiceDocument />);
 
       expect(screen.getByText(/All VAT fields present/)).toBeInTheDocument();
-      expect(screen.getByText('Seller TRN: 102234567890001')).toBeInTheDocument();
+      expect(
+        screen.getByText('Seller TRN: 102234567890001'),
+      ).toBeInTheDocument();
       expect(screen.getByText('VAT (5%): 500')).toBeInTheDocument();
     });
   });

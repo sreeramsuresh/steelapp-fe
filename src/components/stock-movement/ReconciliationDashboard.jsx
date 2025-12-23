@@ -7,38 +7,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  CircularProgress,
-  Alert,
-  Chip,
-  Card,
-  CardContent,
-  Grid,
-  Tabs,
-  Tab,
-} from "@mui/material";
-import {
-  Assessment as ReportIcon,
-  History as AuditIcon,
-  Warning as WarningIcon,
-  CheckCircle as CheckIcon,
-  Refresh as RefreshIcon,
-} from "@mui/icons-material";
+  FileText,
+  History,
+  AlertTriangle,
+  CheckCircle,
+  RotateCcw,
+  Loader2,
+  X,
+} from "lucide-react";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 
@@ -74,9 +50,21 @@ const formatQuantity = (qty, unit = "KG") => {
  */
 const TabPanel = ({ children, value, index, ...other }) => (
   <div hidden={value !== index} {...other}>
-    {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
+    {value === index && <div className="pt-4">{children}</div>}
   </div>
 );
+
+/**
+ * Map MUI chip colors to Tailwind badge classes
+ */
+const getStatusBadgeClasses = (color) => {
+  const colorMap = {
+    success: "bg-green-500/20 text-green-400 border-green-500/30",
+    warning: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    error: "bg-red-500/20 text-red-400 border-red-500/30",
+  };
+  return colorMap[color] || colorMap.success;
+};
 
 const ReconciliationDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -198,394 +186,467 @@ const ReconciliationDashboard = () => {
   };
 
   return (
-    <Box>
+    <div>
       {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <ReportIcon fontSize="large" color="primary" />
-          <Typography variant="h5">Stock Reconciliation & Audit</Typography>
-        </Box>
-      </Box>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <FileText className="text-teal-500" size={32} />
+          <h1 className="text-2xl font-bold text-white">
+            Stock Reconciliation & Audit
+          </h1>
+        </div>
+      </div>
 
       {/* Tabs */}
-      <Paper sx={{ mb: 2 }}>
-        <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
-          <Tab
-            icon={<ReportIcon />}
-            label="Reconciliation Report"
-            iconPosition="start"
-          />
-          <Tab icon={<AuditIcon />} label="Audit Trail" iconPosition="start" />
-        </Tabs>
-      </Paper>
+      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F] mb-4">
+        <div className="flex border-b border-[#37474F]">
+          <button
+            onClick={() => setActiveTab(0)}
+            className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
+              activeTab === 0
+                ? "text-teal-400 border-b-2 border-teal-400 bg-[#252a30]"
+                : "text-gray-400 hover:text-gray-300 hover:bg-[#252a30]"
+            }`}
+          >
+            <FileText size={18} />
+            Reconciliation Report
+          </button>
+          <button
+            onClick={() => setActiveTab(1)}
+            className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
+              activeTab === 1
+                ? "text-teal-400 border-b-2 border-teal-400 bg-[#252a30]"
+                : "text-gray-400 hover:text-gray-300 hover:bg-[#252a30]"
+            }`}
+          >
+            <History size={18} />
+            Audit Trail
+          </button>
+        </div>
+      </div>
 
       {/* Reconciliation Tab */}
       <TabPanel value={activeTab} index={0}>
         {/* Warehouse Selection */}
-        <Box sx={{ display: "flex", gap: 2, mb: 3, alignItems: "center" }}>
-          <FormControl sx={{ minWidth: 250 }} disabled={loadingWarehouses}>
-            <InputLabel>Select Warehouse</InputLabel>
-            <Select
-              value={selectedWarehouseId}
-              label="Select Warehouse"
-              onChange={(e) => setSelectedWarehouseId(e.target.value)}
-            >
-              {warehouses.map((wh) => (
-                <MenuItem key={wh.id} value={wh.id}>
-                  {wh.name} {wh.code ? `(${wh.code})` : ""}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button
-            startIcon={<RefreshIcon />}
+        <div className="flex gap-4 mb-6 items-center">
+          <select
+            value={selectedWarehouseId}
+            onChange={(e) => setSelectedWarehouseId(e.target.value)}
+            disabled={loadingWarehouses}
+            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[250px] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="">Select Warehouse</option>
+            {warehouses.map((wh) => (
+              <option key={wh.id} value={wh.id}>
+                {wh.name} {wh.code ? `(${wh.code})` : ""}
+              </option>
+            ))}
+          </select>
+          <button
             onClick={loadReconciliation}
             disabled={loadingReconciliation || !selectedWarehouseId}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
           >
+            <RotateCcw size={18} />
             Refresh
-          </Button>
-        </Box>
+          </button>
+        </div>
 
         {/* Error Alert */}
         {reconciliationError && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-            onClose={() => setReconciliationError(null)}
-          >
-            {reconciliationError}
-          </Alert>
+          <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+            <span>{reconciliationError}</span>
+            <button
+              onClick={() => setReconciliationError(null)}
+              className="text-red-400 hover:text-red-300"
+            >
+              <X size={18} />
+            </button>
+          </div>
         )}
 
         {/* Loading */}
         {loadingReconciliation ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-            <CircularProgress />
-          </Box>
+          <div className="flex justify-center py-8">
+            <Loader2 className="animate-spin text-teal-500" size={40} />
+          </div>
         ) : reconciliationData ? (
           <>
             {/* Summary Cards */}
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Warehouse
-                    </Typography>
-                    <Typography variant="h6">
-                      {reconciliationData.warehouseName}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Total Products
-                    </Typography>
-                    <Typography variant="h6">
-                      {reconciliationData.items?.length || 0}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Total Quantity
-                    </Typography>
-                    <Typography variant="h6">
-                      {formatQuantity(reconciliationData.totalSystemValue)}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card
-                  sx={{
-                    bgcolor:
-                      reconciliationData.discrepancyCount > 0
-                        ? "warning.light"
-                        : "success.light",
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Discrepancies
-                    </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      {reconciliationData.discrepancyCount > 0 ? (
-                        <WarningIcon color="warning" />
-                      ) : (
-                        <CheckIcon color="success" />
-                      )}
-                      <Typography variant="h6">
-                        {reconciliationData.discrepancyCount}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="rounded-xl border bg-[#1E2328] border-[#37474F] p-4">
+                <div className="text-sm text-gray-400 mb-1">Warehouse</div>
+                <div className="text-xl font-semibold text-white">
+                  {reconciliationData.warehouseName}
+                </div>
+              </div>
+              <div className="rounded-xl border bg-[#1E2328] border-[#37474F] p-4">
+                <div className="text-sm text-gray-400 mb-1">Total Products</div>
+                <div className="text-xl font-semibold text-white">
+                  {reconciliationData.items?.length || 0}
+                </div>
+              </div>
+              <div className="rounded-xl border bg-[#1E2328] border-[#37474F] p-4">
+                <div className="text-sm text-gray-400 mb-1">Total Quantity</div>
+                <div className="text-xl font-semibold text-white">
+                  {formatQuantity(reconciliationData.totalSystemValue)}
+                </div>
+              </div>
+              <div
+                className={`rounded-xl border p-4 ${
+                  reconciliationData.discrepancyCount > 0
+                    ? "bg-yellow-500/10 border-yellow-500/30"
+                    : "bg-green-500/10 border-green-500/30"
+                }`}
+              >
+                <div className="text-sm text-gray-400 mb-1">Discrepancies</div>
+                <div className="flex items-center gap-2">
+                  {reconciliationData.discrepancyCount > 0 ? (
+                    <AlertTriangle className="text-yellow-400" size={20} />
+                  ) : (
+                    <CheckCircle className="text-green-400" size={20} />
+                  )}
+                  <div className="text-xl font-semibold text-white">
+                    {reconciliationData.discrepancyCount}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Items Table */}
-            <TableContainer component={Paper}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: "grey.100" }}>
-                    <TableCell>Product</TableCell>
-                    <TableCell>SKU</TableCell>
-                    <TableCell align="right">System Qty</TableCell>
-                    <TableCell align="right">Last Count</TableCell>
-                    <TableCell align="right">Discrepancy</TableCell>
-                    <TableCell>Last Count Date</TableCell>
-                    <TableCell>Status</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {(reconciliationData.items || []).length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                        <Typography color="text.secondary">
-                          No inventory items found
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    reconciliationData.items.map((item, idx) => {
-                      const discrepancy = parseFloat(item.discrepancy) || 0;
-                      const hasDiscrepancy = Math.abs(discrepancy) > 0.01;
-
-                      return (
-                        <TableRow
-                          key={idx}
-                          hover
-                          sx={{
-                            bgcolor: hasDiscrepancy
-                              ? "warning.light"
-                              : "inherit",
-                          }}
+            <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F]">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-800 border-b border-[#37474F]">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Product
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        SKU
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        System Qty
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Last Count
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Discrepancy
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Last Count Date
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#37474F]">
+                    {(reconciliationData.items || []).length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="px-4 py-8 text-center text-gray-400"
                         >
-                          <TableCell>{item.productName}</TableCell>
-                          <TableCell>{item.productSku || "-"}</TableCell>
-                          <TableCell align="right">
-                            {formatQuantity(item.systemQuantity)}
-                          </TableCell>
-                          <TableCell align="right">
-                            {formatQuantity(item.lastPhysicalCount)}
-                          </TableCell>
-                          <TableCell align="right">
-                            <Typography
-                              color={hasDiscrepancy ? "error" : "success.main"}
-                              fontWeight={hasDiscrepancy ? "bold" : "normal"}
-                            >
-                              {formatQuantity(discrepancy)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            {formatDate(item.lastCountDate)}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              size="small"
-                              label={hasDiscrepancy ? "Discrepancy" : "OK"}
-                              color={hasDiscrepancy ? "warning" : "success"}
-                              variant="outlined"
-                            />
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                          No inventory items found
+                        </td>
+                      </tr>
+                    ) : (
+                      reconciliationData.items.map((item, idx) => {
+                        const discrepancy = parseFloat(item.discrepancy) || 0;
+                        const hasDiscrepancy = Math.abs(discrepancy) > 0.01;
+
+                        return (
+                          <tr
+                            key={idx}
+                            className={`hover:bg-[#252a30] ${
+                              hasDiscrepancy ? "bg-yellow-500/5" : ""
+                            }`}
+                          >
+                            <td className="px-4 py-3 text-sm text-white">
+                              {item.productName}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-300">
+                              {item.productSku || "-"}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-300 text-right">
+                              {formatQuantity(item.systemQuantity)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-300 text-right">
+                              {formatQuantity(item.lastPhysicalCount)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              <span
+                                className={`${
+                                  hasDiscrepancy
+                                    ? "text-red-400 font-bold"
+                                    : "text-green-400"
+                                }`}
+                              >
+                                {formatQuantity(discrepancy)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-300">
+                              {formatDate(item.lastCountDate)}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
+                                  hasDiscrepancy ? "warning" : "success",
+                                )}`}
+                              >
+                                {hasDiscrepancy ? "Discrepancy" : "OK"}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </>
         ) : (
-          <Alert severity="info">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
             Select a warehouse to view the reconciliation report.
-          </Alert>
+          </div>
         )}
       </TabPanel>
 
       {/* Audit Trail Tab */}
       <TabPanel value={activeTab} index={1}>
         {/* Filters */}
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              flexWrap: "wrap",
-              alignItems: "center",
-            }}
-          >
-            <FormControl size="small" sx={{ minWidth: 200 }}>
-              <InputLabel>Warehouse</InputLabel>
-              <Select
-                value={selectedWarehouseId}
-                label="Warehouse"
+        <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F] p-4 mb-4">
+          <div className="flex gap-4 flex-wrap items-center">
+            <select
+              value={selectedWarehouseId}
+              onChange={(e) => {
+                setSelectedWarehouseId(e.target.value);
+                setAuditPage(0);
+              }}
+              className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[200px]"
+            >
+              <option value="">All Warehouses</option>
+              {warehouses.map((wh) => (
+                <option key={wh.id} value={wh.id}>
+                  {wh.name}
+                </option>
+              ))}
+            </select>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                Start Date
+              </label>
+              <input
+                type="date"
+                value={auditStartDate}
                 onChange={(e) => {
-                  setSelectedWarehouseId(e.target.value);
+                  setAuditStartDate(e.target.value);
                   setAuditPage(0);
                 }}
-              >
-                <MenuItem value="">All Warehouses</MenuItem>
-                {warehouses.map((wh) => (
-                  <MenuItem key={wh.id} value={wh.id}>
-                    {wh.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
 
-            <TextField
-              type="date"
-              label="Start Date"
-              value={auditStartDate}
-              onChange={(e) => {
-                setAuditStartDate(e.target.value);
-                setAuditPage(0);
-              }}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                End Date
+              </label>
+              <input
+                type="date"
+                value={auditEndDate}
+                onChange={(e) => {
+                  setAuditEndDate(e.target.value);
+                  setAuditPage(0);
+                }}
+                className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
 
-            <TextField
-              type="date"
-              label="End Date"
-              value={auditEndDate}
-              onChange={(e) => {
-                setAuditEndDate(e.target.value);
-                setAuditPage(0);
-              }}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
-
-            <Button
-              startIcon={<RefreshIcon />}
+            <button
               onClick={loadAuditTrail}
               disabled={loadingAudit}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
             >
+              <RotateCcw size={18} />
               Refresh
-            </Button>
-          </Box>
-        </Paper>
+            </button>
+          </div>
+        </div>
 
         {/* Error Alert */}
         {auditError && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-            onClose={() => setAuditError(null)}
-          >
-            {auditError}
-          </Alert>
+          <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+            <span>{auditError}</span>
+            <button
+              onClick={() => setAuditError(null)}
+              className="text-red-400 hover:text-red-300"
+            >
+              <X size={18} />
+            </button>
+          </div>
         )}
 
         {/* Audit Trail Table */}
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "grey.100" }}>
-                <TableCell>Timestamp</TableCell>
-                <TableCell>Action</TableCell>
-                <TableCell>Product</TableCell>
-                <TableCell>Warehouse</TableCell>
-                <TableCell align="right">Change</TableCell>
-                <TableCell align="right">Before</TableCell>
-                <TableCell align="right">After</TableCell>
-                <TableCell>Reference</TableCell>
-                <TableCell>User</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loadingAudit ? (
-                <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={32} />
-                  </TableCell>
-                </TableRow>
-              ) : auditEntries.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                    <Typography color="text.secondary">
-                      No audit entries found
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                auditEntries.map((entry) => {
-                  const change = parseFloat(entry.quantityChange) || 0;
-                  const isIncrease =
-                    change > 0 ||
-                    ["IN", "TRANSFER_IN", "RELEASE"].includes(entry.action);
-
-                  return (
-                    <TableRow key={entry.id} hover>
-                      <TableCell>{formatDate(entry.timestamp)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          size="small"
-                          label={entry.action}
-                          color={isIncrease ? "success" : "error"}
-                          variant="outlined"
+        <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F]">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-800 border-b border-[#37474F]">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Timestamp
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Action
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Warehouse
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Change
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Before
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    After
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Reference
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    User
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#37474F]">
+                {loadingAudit ? (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-8 text-center">
+                      <div className="flex justify-center">
+                        <Loader2
+                          className="animate-spin text-teal-500"
+                          size={32}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {entry.productName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{entry.warehouseName || "-"}</TableCell>
-                      <TableCell align="right">
-                        <Typography
-                          color={isIncrease ? "success.main" : "error.main"}
-                          fontWeight="medium"
-                        >
-                          {isIncrease ? "+" : "-"}
-                          {formatQuantity(Math.abs(change))}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        {formatQuantity(entry.balanceBefore)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {formatQuantity(entry.balanceAfter)}
-                      </TableCell>
-                      <TableCell>
-                        {entry.referenceNumber || entry.referenceType || "-"}
-                      </TableCell>
-                      <TableCell>{entry.userName || "-"}</TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+                      </div>
+                    </td>
+                  </tr>
+                ) : auditEntries.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={9}
+                      className="px-4 py-8 text-center text-gray-400"
+                    >
+                      No audit entries found
+                    </td>
+                  </tr>
+                ) : (
+                  auditEntries.map((entry) => {
+                    const change = parseFloat(entry.quantityChange) || 0;
+                    const isIncrease =
+                      change > 0 ||
+                      ["IN", "TRANSFER_IN", "RELEASE"].includes(entry.action);
 
-          <TablePagination
-            component="div"
-            count={auditTotalCount}
-            page={auditPage}
-            onPageChange={handleAuditPageChange}
-            rowsPerPage={auditRowsPerPage}
-            onRowsPerPageChange={handleAuditRowsPerPageChange}
-            rowsPerPageOptions={[25, 50, 100]}
-          />
-        </TableContainer>
+                    return (
+                      <tr key={entry.id} className="hover:bg-[#252a30]">
+                        <td className="px-4 py-3 text-sm text-gray-300">
+                          {formatDate(entry.timestamp)}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
+                              isIncrease ? "success" : "error",
+                            )}`}
+                          >
+                            {entry.action}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-white">
+                          {entry.productName}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-300">
+                          {entry.warehouseName || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right font-medium">
+                          <span
+                            className={
+                              isIncrease ? "text-green-400" : "text-red-400"
+                            }
+                          >
+                            {isIncrease ? "+" : "-"}
+                            {formatQuantity(Math.abs(change))}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-300 text-right">
+                          {formatQuantity(entry.balanceBefore)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-300 text-right">
+                          {formatQuantity(entry.balanceAfter)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-300">
+                          {entry.referenceNumber || entry.referenceType || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-300">
+                          {entry.userName || "-"}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[#37474F] bg-[#1E2328]">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400">Rows per page:</span>
+              <select
+                value={auditRowsPerPage}
+                onChange={handleAuditRowsPerPageChange}
+                className="px-2 py-1 rounded border bg-gray-800 border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-400">
+                {auditPage * auditRowsPerPage + 1}-
+                {Math.min((auditPage + 1) * auditRowsPerPage, auditTotalCount)}{" "}
+                of {auditTotalCount}
+              </span>
+              <div className="flex gap-1">
+                <button
+                  onClick={(e) => handleAuditPageChange(e, auditPage - 1)}
+                  disabled={auditPage === 0}
+                  className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={(e) => handleAuditPageChange(e, auditPage + 1)}
+                  disabled={
+                    auditPage >=
+                    Math.ceil(auditTotalCount / auditRowsPerPage) - 1
+                  }
+                  className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </TabPanel>
-    </Box>
+    </div>
   );
 };
 

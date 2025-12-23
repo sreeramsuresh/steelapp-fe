@@ -1,43 +1,21 @@
 import { useState, useEffect } from "react";
+import { Search, Download, FileText } from "lucide-react";
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  TextField,
-  Button,
-  Stack,
-  Chip,
-  MenuItem,
-  CircularProgress,
-  Alert,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  OutlinedInput,
-  Pagination,
-  TableFooter,
-} from "@mui/material";
-import {
-  Search as SearchIcon,
-  FileDownload as DownloadIcon,
-  PictureAsPdf as PdfIcon,
-} from "@mui/icons-material";
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   stockMovementService,
   MOVEMENT_TYPES,
 } from "../services/stockMovementService";
 import { warehouseService } from "../services/warehouseService";
 import { productService } from "../services/dataService";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { toUAETime } from "../utils/timezone";
 
 const PROCUREMENT_CHANNELS = [
@@ -270,366 +248,365 @@ export default function StockMovementReport() {
   };
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Stock Movement Report
-      </Typography>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">Stock Movement Report</h1>
 
       {/* Filters */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                label="Start Date"
-                type="date"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                label="End Date"
-                type="date"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                select
-                label="Warehouse"
-                value={selectedWarehouse}
-                onChange={(e) => setSelectedWarehouse(e.target.value)}
-                fullWidth
-              >
-                <MenuItem value="">All Warehouses</MenuItem>
-                {warehouses.map((warehouse) => (
-                  <MenuItem key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name}
-                  </MenuItem>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Start Date</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">End Date</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Warehouse</label>
+            <select
+              value={selectedWarehouse}
+              onChange={(e) => setSelectedWarehouse(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Warehouses</option>
+              {warehouses.map((warehouse) => (
+                <option key={warehouse.id} value={warehouse.id}>
+                  {warehouse.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Product</label>
+            <select
+              value={selectedProduct}
+              onChange={(e) => setSelectedProduct(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Products</option>
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.uniqueName ||
+                    product.displayName ||
+                    product.name ||
+                    "N/A"}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Movement Type
+            </label>
+            <select
+              multiple
+              value={selectedMovementTypes}
+              onChange={(e) =>
+                setSelectedMovementTypes(
+                  Array.from(e.target.selectedOptions, (o) => o.value),
+                )
+              }
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
+                <option key={key} value={key}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+            {selectedMovementTypes.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {selectedMovementTypes.map((value) => (
+                  <span
+                    key={value}
+                    className="inline-flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full text-xs font-medium"
+                  >
+                    {getMovementTypeLabel(value)}
+                  </span>
                 ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                select
-                label="Product"
-                value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
-                fullWidth
-              >
-                <MenuItem value="">All Products</MenuItem>
-                {products.map((product) => (
-                  <MenuItem key={product.id} value={product.id}>
-                    {product.uniqueName ||
-                      product.displayName ||
-                      product.name ||
-                      "N/A"}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <FormControl fullWidth>
-                <InputLabel>Movement Type</InputLabel>
-                <Select
-                  multiple
-                  value={selectedMovementTypes}
-                  onChange={(e) => setSelectedMovementTypes(e.target.value)}
-                  input={<OutlinedInput label="Movement Type" />}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip
-                          key={value}
-                          label={getMovementTypeLabel(value)}
-                          size="small"
-                        />
-                      ))}
-                    </Box>
-                  )}
-                >
-                  {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
-                    <MenuItem key={key} value={key}>
-                      {type.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                select
-                label="Procurement Channel"
-                value={procurementChannel}
-                onChange={(e) => setProcurementChannel(e.target.value)}
-                fullWidth
-              >
-                {PROCUREMENT_CHANNELS.map((channel) => (
-                  <MenuItem key={channel.value} value={channel.value}>
-                    {channel.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={12} md={4}>
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{ height: "100%", alignItems: "center" }}
-              >
-                <Button
-                  variant="contained"
-                  startIcon={<SearchIcon />}
-                  onClick={handleSearch}
-                  disabled={loading || !dateFrom || !dateTo}
-                  fullWidth
-                >
-                  Search
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<DownloadIcon />}
-                  onClick={handleExportCSV}
-                  disabled={movements.length === 0}
-                >
-                  CSV
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<PdfIcon />}
-                  onClick={handleExportPDF}
-                  disabled={movements.length === 0}
-                >
-                  PDF
-                </Button>
-              </Stack>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Procurement Channel
+            </label>
+            <select
+              value={procurementChannel}
+              onChange={(e) => setProcurementChannel(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              {PROCUREMENT_CHANNELS.map((channel) => (
+                <option key={channel.value} value={channel.value}>
+                  {channel.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-2 lg:col-span-1">
+            <Button
+              onClick={handleSearch}
+              disabled={loading || !dateFrom || !dateTo}
+              className="flex-1 gap-2"
+            >
+              <Search className="w-4 h-4" />
+              Search
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleExportCSV}
+              disabled={movements.length === 0}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              CSV
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleExportPDF}
+              disabled={movements.length === 0}
+              className="gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              PDF
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Summary Cards */}
       {movements.length > 0 && (
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="caption" color="textSecondary">
-                  Total In
-                </Typography>
-                <Typography variant="h6" color="success.main" fontWeight="bold">
-                  {summary.totalIn.toFixed(2)} KG
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="caption" color="textSecondary">
-                  Total Out
-                </Typography>
-                <Typography variant="h6" color="error.main" fontWeight="bold">
-                  {summary.totalOut.toFixed(2)} KG
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="caption" color="textSecondary">
-                  Net Movement
-                </Typography>
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  color={
-                    summary.netMovement >= 0 ? "success.main" : "error.main"
-                  }
-                >
-                  {summary.netMovement >= 0 ? "+" : ""}
-                  {summary.netMovement.toFixed(2)} KG
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="caption" color="textSecondary">
-                  Total Value
-                </Typography>
-                <Typography variant="h6" color="primary" fontWeight="bold">
-                  AED {summary.totalValue.toFixed(2)}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Total In
+            </p>
+            <p className="text-2xl font-bold text-green-600">
+              {summary.totalIn.toFixed(2)} KG
+            </p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Total Out
+            </p>
+            <p className="text-2xl font-bold text-red-600">
+              {summary.totalOut.toFixed(2)} KG
+            </p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Net Movement
+            </p>
+            <p
+              className={`text-2xl font-bold ${
+                summary.netMovement >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {summary.netMovement >= 0 ? "+" : ""}
+              {summary.netMovement.toFixed(2)} KG
+            </p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Total Value
+            </p>
+            <p className="text-2xl font-bold text-blue-600">
+              AED {summary.totalValue.toFixed(2)}
+            </p>
+          </div>
+        </div>
       )}
 
       {/* Results Section */}
       {loading ? (
-        <Box display="flex" justifyContent="center" p={4}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
       ) : movements.length === 0 && dateFrom && dateTo ? (
-        <Alert severity="info">
+        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200 px-4 py-3 rounded-lg">
           No stock movements found for the selected criteria.
-        </Alert>
+        </div>
       ) : movements.length > 0 ? (
-        <>
-          <Card>
-            <CardContent>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={2}
-              >
-                <Typography variant="h6">Stock Movements</Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Showing {movements.length} of {totalRecords} records
-                </Typography>
-              </Stack>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Stock Movements</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Showing {movements.length} of {totalRecords} records
+              </p>
+            </div>
+          </div>
 
-              <TableContainer component={Paper} variant="outlined">
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Product</TableCell>
-                      <TableCell>Batch #</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell align="right">Quantity</TableCell>
-                      <TableCell align="right">Unit Cost</TableCell>
-                      <TableCell>Reference</TableCell>
-                      <TableCell>Warehouse</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {movements.map((movement) => (
-                      <TableRow key={movement.id} hover>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {toUAETime(
-                              movement.movementDate || movement.createdAt,
-                              {
-                                format: "date",
-                              },
-                            )}
-                          </Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            {toUAETime(
-                              movement.movementDate || movement.createdAt,
-                              {
-                                format: "time",
-                              },
-                            )}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" fontWeight="medium">
-                            {movement.productName ||
-                              movement.productDisplayName ||
-                              "N/A"}
-                          </Typography>
-                          {movement.productSku && (
-                            <Typography variant="caption" color="textSecondary">
-                              SKU: {movement.productSku}
-                            </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {movement.batchNumber || "-"}
-                          </Typography>
-                          {movement.coilNumber && (
-                            <Typography variant="caption" color="textSecondary">
-                              Coil: {movement.coilNumber}
-                            </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={getMovementTypeLabel(movement.movementType)}
-                            size="small"
-                            color={getMovementTypeColor(movement.movementType)}
-                            variant="outlined"
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography variant="body2" fontWeight="medium">
-                            {movement.quantity?.toFixed(2) || "0.00"}{" "}
-                            {movement.unit || "KG"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography variant="body2">
-                            {movement.unitCost
-                              ? `AED ${movement.unitCost.toFixed(2)}`
-                              : "-"}
-                          </Typography>
-                          {movement.totalCost && movement.totalCost > 0 && (
-                            <Typography variant="caption" color="textSecondary">
-                              Total: AED {movement.totalCost.toFixed(2)}
-                            </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {movement.referenceNumber || "-"}
-                          </Typography>
-                          {movement.referenceType && (
-                            <Typography variant="caption" color="textSecondary">
-                              {movement.referenceType}
-                            </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {movement.warehouseName || "N/A"}
-                          </Typography>
-                          {movement.destinationWarehouseName && (
-                            <Typography variant="caption" color="textSecondary">
-                              → {movement.destinationWarehouseName}
-                            </Typography>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                  <TableFooter>
-                    <TableRow>
-                      <TableCell colSpan={8}>
-                        <Box display="flex" justifyContent="center" p={1}>
-                          <Pagination
-                            count={totalPages}
-                            page={page}
-                            onChange={handlePageChange}
-                            color="primary"
-                            showFirstButton
-                            showLastButton
-                          />
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  </TableFooter>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Batch #</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Quantity</TableHead>
+                  <TableHead className="text-right">Unit Cost</TableHead>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Warehouse</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {movements.map((movement) => (
+                  <TableRow
+                    key={movement.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <TableCell>
+                      <div className="text-sm">
+                        {toUAETime(
+                          movement.movementDate || movement.createdAt,
+                          {
+                            format: "date",
+                          },
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        {toUAETime(
+                          movement.movementDate || movement.createdAt,
+                          {
+                            format: "time",
+                          },
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium text-sm">
+                        {movement.productName ||
+                          movement.productDisplayName ||
+                          "N/A"}
+                      </div>
+                      {movement.productSku && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          SKU: {movement.productSku}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {movement.batchNumber || "-"}
+                      </div>
+                      {movement.coilNumber && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Coil: {movement.coilNumber}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                          getMovementTypeColor(movement.movementType) ===
+                          "success"
+                            ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
+                            : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200"
+                        }`}
+                      >
+                        {getMovementTypeLabel(movement.movementType)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="font-medium text-sm">
+                        {movement.quantity?.toFixed(2) || "0.00"}{" "}
+                        {movement.unit || "KG"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="text-sm">
+                        {movement.unitCost
+                          ? `AED ${movement.unitCost.toFixed(2)}`
+                          : "-"}
+                      </div>
+                      {movement.totalCost && movement.totalCost > 0 && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Total: AED {movement.totalCost.toFixed(2)}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {movement.referenceNumber || "-"}
+                      </div>
+                      {movement.referenceType && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          {movement.referenceType}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {movement.warehouseName || "N/A"}
+                      </div>
+                      {movement.destinationWarehouseName && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          → {movement.destinationWarehouseName}
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center py-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex gap-1">
+                <button
+                  onClick={() => handlePageChange(null, 1)}
+                  disabled={page === 1}
+                  className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                >
+                  First
+                </button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = Math.max(1, page - 2) + i;
+                  return pageNum <= totalPages ? (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(null, pageNum)}
+                      className={`px-3 py-1 rounded text-sm ${
+                        page === pageNum
+                          ? "bg-blue-600 text-white"
+                          : "border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ) : null;
+                })}
+                <button
+                  onClick={() => handlePageChange(null, totalPages)}
+                  disabled={page === totalPages}
+                  className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                >
+                  Last
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       ) : null}
-    </Box>
+    </div>
   );
 }

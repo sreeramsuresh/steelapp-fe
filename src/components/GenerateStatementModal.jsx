@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Calendar, FileText, Download, AlertCircle } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
-import { accountStatementService } from '../services/accountStatementService';
+import { accountStatementService } from "../services/accountStatementService";
 import { formatDate } from "../utils/invoiceUtils";
 
 const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {

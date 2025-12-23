@@ -70,18 +70,18 @@ describe('SV: Suite Validity Tests (Infrastructure Validation)', () => {
     // For now, manually insert to test database connectivity
     await dbQuery(
       `INSERT INTO companies (company_id, company_name, created_at) VALUES ($1, $2, NOW())`,
-      ['TEST-CO-SV2', 'Suite Validity Test Company']
+      ['TEST-CO-SV2', 'Suite Validity Test Company'],
     );
 
     await dbQuery(
       `INSERT INTO customers (customer_id, company_id, customer_name, created_at) VALUES ($1, $2, $3, NOW())`,
-      ['CUST-SV2', 'TEST-CO-SV2', 'SV2 Test Customer']
+      ['CUST-SV2', 'TEST-CO-SV2', 'SV2 Test Customer'],
     );
 
     await dbQuery(
       `INSERT INTO invoices (invoice_id, customer_id, company_id, subtotal, vat_rate, vat_amount, total, status, created_at)
        VALUES ($1, $2, $3, 10000, 0.05, 500, 10500, 'draft', NOW())`,
-      ['INV-SV2', 'CUST-SV2', 'TEST-CO-SV2']
+      ['INV-SV2', 'CUST-SV2', 'TEST-CO-SV2'],
     );
 
     // Verify write happened
