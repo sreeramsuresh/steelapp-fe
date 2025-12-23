@@ -13,9 +13,9 @@
  */
 export function normalizeProduct(
   rawProduct: any,
-  source = "unknown",
+  source = 'unknown',
 ): any | null {
-  if (!rawProduct || typeof rawProduct !== "object") {
+  if (!rawProduct || typeof rawProduct !== 'object') {
     console.error(
       `❌ [Product Normalizer] Invalid product data from ${source}:`,
       rawProduct,
@@ -40,28 +40,28 @@ export function normalizeProduct(
       id: rawProduct.id || 0,
       // uniqueName: Technical identifier with origin (source of truth for identity)
       // Used in dropdowns to distinguish Local vs Imported products
-      uniqueName: rawProduct.uniqueName || rawProduct.unique_name || "",
+      uniqueName: rawProduct.uniqueName || rawProduct.unique_name || '',
       // displayName: User-friendly name for documents/invoices (without origin)
-      displayName: rawProduct.displayName || rawProduct.display_name || "",
+      displayName: rawProduct.displayName || rawProduct.display_name || '',
       // Keep legacy 'name' for backward compatibility, prefer displayName
       name:
         rawProduct.displayName ||
         rawProduct.display_name ||
         rawProduct.name ||
         rawProduct.product_name ||
-        "",
+        '',
       // fullName: Deprecated alias for uniqueName (for backward compatibility only)
       fullName:
         rawProduct.uniqueName ||
         rawProduct.unique_name ||
         rawProduct.fullName ||
         rawProduct.full_name ||
-        "",
+        '',
       title:
         rawProduct.title ||
         rawProduct.displayName ||
         rawProduct.display_name ||
-        "",
+        '',
       description: rawProduct.description || undefined,
 
       // Category & Classification
@@ -188,7 +188,7 @@ export function normalizeProduct(
       `❌ [Product Normalizer] Failed to normalize product from ${source}:`,
       error,
     );
-    console.error("   Raw data:", rawProduct);
+    console.error('   Raw data:', rawProduct);
     return null;
   }
 }
@@ -199,7 +199,7 @@ export function normalizeProduct(
  * @param source - Source identifier for debugging
  * @returns Array of normalized Product objects
  */
-export function normalizeProducts(rawProducts: any[], source = "list"): any[] {
+export function normalizeProducts(rawProducts: any[], source = 'list'): any[] {
   if (!Array.isArray(rawProducts)) {
     console.error(
       `❌ [Product Normalizer] Expected array, got ${typeof rawProducts}`,

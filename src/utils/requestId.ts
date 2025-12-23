@@ -26,7 +26,7 @@ export function generateRequestId(): string {
  * @returns {boolean} True if valid request ID format
  */
 export function isValidRequestId(id: string): boolean {
-  if (typeof id !== "string") return false;
+  if (typeof id !== 'string') return false;
   // Match format: req-<alphanumeric>-<alphanumeric> or gw-<uuid> or plain uuid
   return /^(req-[a-z0-9]+-[a-z0-9]+|gw-[0-9a-f-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(
     id,

@@ -6,7 +6,7 @@
  * This tests the full stack: test → API Gateway → gRPC backend → DB
  */
 
-const apiBaseUrl = "http://localhost:3000/api";
+const apiBaseUrl = 'http://localhost:3000/api';
 let client: any = null;
 
 /**
@@ -17,8 +17,8 @@ export async function initGrpcClient(): Promise<any> {
   try {
     // Test API Gateway health
     const response = await fetch(`${apiBaseUrl}/health`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     if (!response.ok) {
@@ -30,10 +30,10 @@ export async function initGrpcClient(): Promise<any> {
       ready: true,
     };
 
-    console.log("✓ API Gateway client initialized (routes to gRPC backend)");
+    console.log('✓ API Gateway client initialized (routes to gRPC backend)');
     return client;
   } catch (error) {
-    console.error("Failed to initialize backend service client:", error);
+    console.error('Failed to initialize backend service client:', error);
     throw error;
   }
 }
@@ -44,7 +44,7 @@ export async function initGrpcClient(): Promise<any> {
 export function getGrpcClient(): any {
   if (!client) {
     throw new Error(
-      "Service client not initialized. Call initGrpcClient() first.",
+      'Service client not initialized. Call initGrpcClient() first.',
     );
   }
   return client;
@@ -62,10 +62,10 @@ export async function createInvoiceViaGrpc(params: {
   invoice_items?: any[];
 }): Promise<any> {
   const response = await fetch(`${apiBaseUrl}/invoices`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      "X-Company-Id": params.company_id,
+      'Content-Type': 'application/json',
+      'X-Company-Id': params.company_id,
     },
     body: JSON.stringify({
       customer_id: params.customer_id,
@@ -95,10 +95,10 @@ export async function recordPaymentViaGrpc(params: {
   const response = await fetch(
     `${apiBaseUrl}/invoices/${params.invoice_id}/payments`,
     {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "X-Company-Id": params.company_id,
+        'Content-Type': 'application/json',
+        'X-Company-Id': params.company_id,
       },
       body: JSON.stringify({
         amount: params.amount,
@@ -126,10 +126,10 @@ export async function postInvoiceViaGrpc(params: {
   const response = await fetch(
     `${apiBaseUrl}/invoices/${params.invoice_id}/post`,
     {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "X-Company-Id": params.company_id,
+        'Content-Type': 'application/json',
+        'X-Company-Id': params.company_id,
       },
       body: JSON.stringify({}),
     },
@@ -154,10 +154,10 @@ export async function createVendorBillViaGrpc(params: {
   bill_date?: string;
 }): Promise<any> {
   const response = await fetch(`${apiBaseUrl}/vendor-bills`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      "X-Company-Id": params.company_id,
+      'Content-Type': 'application/json',
+      'X-Company-Id': params.company_id,
     },
     body: JSON.stringify({
       supplier_id: params.supplier_id,
@@ -179,18 +179,18 @@ export async function createVendorBillViaGrpc(params: {
  */
 export async function callBackendService(
   endpoint: string,
-  method: "GET" | "POST" | "PUT" | "DELETE",
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   params: any,
   companyId?: string,
 ): Promise<any> {
   const response = await fetch(`${apiBaseUrl}${endpoint}`, {
     method,
     headers: {
-      "Content-Type": "application/json",
-      ...(companyId && { "X-Company-Id": companyId }),
+      'Content-Type': 'application/json',
+      ...(companyId && { 'X-Company-Id': companyId }),
     },
     body:
-      method !== "GET" && method !== "DELETE"
+      method !== 'GET' && method !== 'DELETE'
         ? JSON.stringify(params)
         : undefined,
   });

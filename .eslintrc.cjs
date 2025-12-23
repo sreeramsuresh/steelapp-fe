@@ -241,5 +241,6 @@ module.exports = {
     "cypress.config.js",
     "tailwind.config.js",
     "vite.config.js",
+    "vitest.config.js",
   ],
 };

@@ -15,27 +15,27 @@
  * Product categories
  */
 export const PRODUCT_CATEGORIES = {
-  COILS: "COILS",
-  SHEETS: "SHEETS",
-  PIPES: "PIPES",
-  TUBES: "TUBES",
-  FITTINGS: "FITTINGS",
-  RODS: "RODS",
-  BARS: "BARS",
-  FASTENERS: "FASTENERS",
-  ANGLES: "ANGLES",
-  CHANNELS: "CHANNELS",
-  BEAMS: "BEAMS",
+  COILS: 'COILS',
+  SHEETS: 'SHEETS',
+  PIPES: 'PIPES',
+  TUBES: 'TUBES',
+  FITTINGS: 'FITTINGS',
+  RODS: 'RODS',
+  BARS: 'BARS',
+  FASTENERS: 'FASTENERS',
+  ANGLES: 'ANGLES',
+  CHANNELS: 'CHANNELS',
+  BEAMS: 'BEAMS',
 };
 
 /**
  * Pricing unit types
  */
 export const PRICING_UNITS = {
-  WEIGHT: "WEIGHT", // per kg/MT
-  AREA: "AREA", // per m²
-  PIECE: "PIECE", // per unit/piece
-  LENGTH: "LENGTH", // per meter
+  WEIGHT: 'WEIGHT', // per kg/MT
+  AREA: 'AREA', // per m²
+  PIECE: 'PIECE', // per unit/piece
+  LENGTH: 'LENGTH', // per meter
 };
 
 /**
@@ -60,18 +60,18 @@ export const CATEGORY_PRICING_MATRIX = {
  * Pricing unit display labels
  */
 export const PRICING_UNIT_LABELS = {
-  [PRICING_UNITS.WEIGHT]: "Per Kilogram (KG)",
-  [PRICING_UNITS.AREA]: "Per Square Meter (m²)",
-  [PRICING_UNITS.PIECE]: "Per Piece/Unit",
-  [PRICING_UNITS.LENGTH]: "Per Meter",
+  [PRICING_UNITS.WEIGHT]: 'Per Kilogram (KG)',
+  [PRICING_UNITS.AREA]: 'Per Square Meter (m²)',
+  [PRICING_UNITS.PIECE]: 'Per Piece/Unit',
+  [PRICING_UNITS.LENGTH]: 'Per Meter',
 };
 
 /**
  * Procurement channels
  */
 export const PROCUREMENT_CHANNELS = {
-  LOCAL: "LOCAL",
-  IMPORTED: "IMPORTED",
+  LOCAL: 'LOCAL',
+  IMPORTED: 'IMPORTED',
 };
 
 /**
@@ -111,14 +111,14 @@ export function validateCategoryPricingUnit(category, pricingUnit) {
   if (!category) {
     return {
       isValid: false,
-      error: "Product category is required",
+      error: 'Product category is required',
     };
   }
 
   if (!pricingUnit) {
     return {
       isValid: false,
-      error: "Pricing unit is required",
+      error: 'Pricing unit is required',
     };
   }
 
@@ -170,12 +170,12 @@ export function getMarginColor(margin, channel = PROCUREMENT_CHANNELS.LOCAL) {
   const marginValue = parseFloat(margin) || 0;
 
   if (marginValue < thresholds.minimum) {
-    return "red";
+    return 'red';
   }
   if (marginValue < thresholds.warning) {
-    return "amber";
+    return 'amber';
   }
-  return "green";
+  return 'green';
 }
 
 /**
@@ -192,10 +192,10 @@ export function getMarginStatusMessage(
   const marginValue = parseFloat(margin) || 0;
   const color = getMarginColor(margin, channel);
 
-  if (color === "red") {
+  if (color === 'red') {
     return `Below ${thresholds.minimum}% minimum for ${channel} products`;
   }
-  if (color === "amber") {
+  if (color === 'amber') {
     return `Below ${thresholds.warning}% recommended for ${channel} products`;
   }
   return `Good margin for ${channel} products`;
@@ -212,7 +212,7 @@ export function suggestPricingUnit(category) {
     return {
       unit: null,
       label: null,
-      rationale: "Unknown category",
+      rationale: 'Unknown category',
     };
   }
 
@@ -234,23 +234,23 @@ export function suggestPricingUnit(category) {
 function getCategoryRationale(category, unit) {
   const rationales = {
     [PRODUCT_CATEGORIES.COILS]:
-      "Coils are priced by weight due to variable dimensions",
+      'Coils are priced by weight due to variable dimensions',
     [PRODUCT_CATEGORIES.SHEETS]:
-      "Sheets are priced by area (m²) for consistent pricing across sizes",
+      'Sheets are priced by area (m²) for consistent pricing across sizes',
     [PRODUCT_CATEGORIES.PIPES]:
-      "Pipes are priced per piece based on standard lengths",
+      'Pipes are priced per piece based on standard lengths',
     [PRODUCT_CATEGORIES.TUBES]:
-      "Tubes are priced per piece based on standard lengths",
+      'Tubes are priced per piece based on standard lengths',
     [PRODUCT_CATEGORIES.FITTINGS]:
-      "Fittings are priced per piece as discrete units",
+      'Fittings are priced per piece as discrete units',
     [PRODUCT_CATEGORIES.RODS]:
-      "Rods are priced by weight due to variable lengths",
+      'Rods are priced by weight due to variable lengths',
     [PRODUCT_CATEGORIES.BARS]:
-      "Bars are priced by weight due to variable lengths",
-    [PRODUCT_CATEGORIES.FASTENERS]: "Fasteners are priced per piece or box",
-    [PRODUCT_CATEGORIES.ANGLES]: "Angles are priced by weight",
-    [PRODUCT_CATEGORIES.CHANNELS]: "Channels are priced by weight",
-    [PRODUCT_CATEGORIES.BEAMS]: "Beams are priced by weight",
+      'Bars are priced by weight due to variable lengths',
+    [PRODUCT_CATEGORIES.FASTENERS]: 'Fasteners are priced per piece or box',
+    [PRODUCT_CATEGORIES.ANGLES]: 'Angles are priced by weight',
+    [PRODUCT_CATEGORIES.CHANNELS]: 'Channels are priced by weight',
+    [PRODUCT_CATEGORIES.BEAMS]: 'Beams are priced by weight',
   };
 
   return rationales[category] || `Auto-determined pricing unit: ${unit}`;

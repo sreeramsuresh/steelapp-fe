@@ -3,10 +3,10 @@
  * Verifies observable state change assertions
  */
 
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import React from "react";
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
 import {
   assertModalOpens,
   assertModalCloses,
@@ -21,11 +21,11 @@ import {
   assertTableContainsRow,
   waitForLoadingComplete,
   assertStateChange,
-} from "../stateAssertions";
+} from '../stateAssertions';
 
-describe("stateAssertions", () => {
-  describe("assertModalOpens", () => {
-    it("detects when modal opens with title", async () => {
+describe('stateAssertions', () => {
+  describe('assertModalOpens', () => {
+    it('detects when modal opens with title', async () => {
       const ModalComponent = () => {
         const [isOpen, setIsOpen] = React.useState(false);
         return (
@@ -41,22 +41,22 @@ describe("stateAssertions", () => {
       };
 
       render(<ModalComponent />);
-      const button = screen.getByRole("button", { name: "Open Modal" });
+      const button = screen.getByRole('button', { name: 'Open Modal' });
       await userEvent.click(button);
 
       await assertModalOpens(/create invoice/i);
-      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    it("times out if modal does not open", async () => {
+    it('times out if modal does not open', async () => {
       render(<button>No Modal</button>);
 
       await expect(assertModalOpens(/create invoice/i, 100)).rejects.toThrow();
     });
   });
 
-  describe("assertModalCloses", () => {
-    it("detects when modal closes", async () => {
+  describe('assertModalCloses', () => {
+    it('detects when modal closes', async () => {
       const ModalComponent = () => {
         const [isOpen, setIsOpen] = React.useState(true);
         return (
@@ -71,18 +71,18 @@ describe("stateAssertions", () => {
       };
 
       render(<ModalComponent />);
-      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
 
-      const closeButton = screen.getByRole("button", { name: "Close" });
+      const closeButton = screen.getByRole('button', { name: 'Close' });
       await userEvent.click(closeButton);
 
       await assertModalCloses(500);
-      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 
-  describe("assertToastAppears", () => {
-    it("detects success toast notification", async () => {
+  describe('assertToastAppears', () => {
+    it('detects success toast notification', async () => {
       const ToastComponent = () => {
         const [show, setShow] = React.useState(false);
         return (
@@ -98,24 +98,24 @@ describe("stateAssertions", () => {
       };
 
       render(<ToastComponent />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
-      await assertToastAppears(/operation completed/i, "success");
-      expect(screen.getByRole("status")).toBeInTheDocument();
+      await assertToastAppears(/operation completed/i, 'success');
+      expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
-    it("times out if toast does not appear", async () => {
+    it('times out if toast does not appear', async () => {
       render(<button>No Toast</button>);
 
       await expect(
-        assertToastAppears(/success/i, "success", 100),
+        assertToastAppears(/success/i, 'success', 100),
       ).rejects.toThrow();
     });
   });
 
-  describe("assertSuccessToast", () => {
-    it("detects success message without type specification", async () => {
+  describe('assertSuccessToast', () => {
+    it('detects success message without type specification', async () => {
       const SuccessComponent = () => {
         const [show, setShow] = React.useState(false);
         return (
@@ -127,15 +127,15 @@ describe("stateAssertions", () => {
       };
 
       render(<SuccessComponent />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
       await assertSuccessToast(/saved/i);
     });
   });
 
-  describe("assertErrorToast", () => {
-    it("detects error message", async () => {
+  describe('assertErrorToast', () => {
+    it('detects error message', async () => {
       const ErrorComponent = () => {
         const [show, setShow] = React.useState(false);
         return (
@@ -147,22 +147,22 @@ describe("stateAssertions", () => {
       };
 
       render(<ErrorComponent />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
       await assertErrorToast(/network failed/i);
     });
   });
 
-  describe("assertFormErrorAppears", () => {
-    it("detects form validation error", async () => {
+  describe('assertFormErrorAppears', () => {
+    it('detects form validation error', async () => {
       const FormComponent = () => {
         const [errors, setErrors] = React.useState({});
         return (
           <>
             <input placeholder="Email" />
             <button
-              onClick={() => setErrors({ email: "Invalid email format" })}
+              onClick={() => setErrors({ email: 'Invalid email format' })}
             >
               Validate
             </button>
@@ -172,17 +172,17 @@ describe("stateAssertions", () => {
       };
 
       render(<FormComponent />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
-      await assertFormErrorAppears("email", "Invalid email format");
+      await assertFormErrorAppears('email', 'Invalid email format');
     });
   });
 
-  describe("assertFormErrorDisappears", () => {
-    it("detects when form error is cleared", async () => {
+  describe('assertFormErrorDisappears', () => {
+    it('detects when form error is cleared', async () => {
       const FormComponent = () => {
-        const [errors, setErrors] = React.useState({ email: "Invalid" });
+        const [errors, setErrors] = React.useState({ email: 'Invalid' });
         return (
           <>
             <input placeholder="Email" />
@@ -193,19 +193,19 @@ describe("stateAssertions", () => {
       };
 
       render(<FormComponent />);
-      expect(screen.getByText("Invalid")).toBeInTheDocument();
+      expect(screen.getByText('Invalid')).toBeInTheDocument();
 
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
-      await assertFormErrorDisappears("email");
+      await assertFormErrorDisappears('email');
     });
   });
 
-  describe("assertListItemAdded", () => {
-    it("detects new item in list", async () => {
+  describe('assertListItemAdded', () => {
+    it('detects new item in list', async () => {
       const ListComponent = () => {
-        const [items, setItems] = React.useState(["Item 1"]);
+        const [items, setItems] = React.useState(['Item 1']);
         return (
           <>
             <ul>
@@ -213,7 +213,7 @@ describe("stateAssertions", () => {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <button onClick={() => setItems([...items, "Item 2"])}>
+            <button onClick={() => setItems([...items, 'Item 2'])}>
               Add Item
             </button>
           </>
@@ -221,18 +221,18 @@ describe("stateAssertions", () => {
       };
 
       render(<ListComponent />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
       await assertListItemAdded(/Item 2/);
-      expect(screen.getByText("Item 2")).toBeInTheDocument();
+      expect(screen.getByText('Item 2')).toBeInTheDocument();
     });
   });
 
-  describe("assertListItemRemoved", () => {
-    it("detects when item is removed from list", async () => {
+  describe('assertListItemRemoved', () => {
+    it('detects when item is removed from list', async () => {
       const ListComponent = () => {
-        const [items, setItems] = React.useState(["Item 1", "Item 2"]);
+        const [items, setItems] = React.useState(['Item 1', 'Item 2']);
         return (
           <>
             <ul>
@@ -241,7 +241,7 @@ describe("stateAssertions", () => {
               ))}
             </ul>
             <button
-              onClick={() => setItems(items.filter((i) => i !== "Item 1"))}
+              onClick={() => setItems(items.filter((i) => i !== 'Item 1'))}
             >
               Remove
             </button>
@@ -250,20 +250,20 @@ describe("stateAssertions", () => {
       };
 
       render(<ListComponent />);
-      expect(screen.getByText("Item 1")).toBeInTheDocument();
+      expect(screen.getByText('Item 1')).toBeInTheDocument();
 
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
       await assertListItemRemoved(/Item 1/);
-      expect(screen.queryByText("Item 1")).not.toBeInTheDocument();
+      expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
     });
   });
 
-  describe("assertTableRowCountChanges", () => {
-    it("detects when table row count changes", async () => {
+  describe('assertTableRowCountChanges', () => {
+    it('detects when table row count changes', async () => {
       const TableComponent = () => {
-        const [rows, setRows] = React.useState([{ id: 1, name: "Row 1" }]);
+        const [rows, setRows] = React.useState([{ id: 1, name: 'Row 1' }]);
         return (
           <>
             <table>
@@ -276,7 +276,7 @@ describe("stateAssertions", () => {
               </tbody>
             </table>
             <button
-              onClick={() => setRows([...rows, { id: 2, name: "Row 2" }])}
+              onClick={() => setRows([...rows, { id: 2, name: 'Row 2' }])}
             >
               Add Row
             </button>
@@ -285,15 +285,15 @@ describe("stateAssertions", () => {
       };
 
       render(<TableComponent />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
       await userEvent.click(button);
 
-      await assertTableRowCountChanges(2, "=", "table");
+      await assertTableRowCountChanges(2, '=', 'table');
     });
   });
 
-  describe("assertTableContainsRow", () => {
-    it("detects row in table", async () => {
+  describe('assertTableContainsRow', () => {
+    it('detects row in table', async () => {
       render(
         <table>
           <tbody>
@@ -310,12 +310,12 @@ describe("stateAssertions", () => {
       );
 
       await assertTableContainsRow(/Product A/);
-      expect(screen.getByText("Product A")).toBeInTheDocument();
+      expect(screen.getByText('Product A')).toBeInTheDocument();
     });
   });
 
-  describe("waitForLoadingComplete", () => {
-    it("waits for loading spinner to disappear", async () => {
+  describe('waitForLoadingComplete', () => {
+    it('waits for loading spinner to disappear', async () => {
       const LoadingComponent = () => {
         const [isLoading, setIsLoading] = React.useState(true);
         React.useEffect(() => {
@@ -331,15 +331,15 @@ describe("stateAssertions", () => {
       };
 
       render(<LoadingComponent />);
-      expect(screen.getByText("Loading...")).toBeInTheDocument();
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
 
       await waitForLoadingComplete();
-      expect(screen.getByText("Loaded")).toBeInTheDocument();
+      expect(screen.getByText('Loaded')).toBeInTheDocument();
     });
   });
 
-  describe("assertStateChange", () => {
-    it("asserts custom state change", async () => {
+  describe('assertStateChange', () => {
+    it('asserts custom state change', async () => {
       const StateComponent = () => {
         const [count, setCount] = React.useState(0);
         return (
@@ -351,18 +351,18 @@ describe("stateAssertions", () => {
       };
 
       render(<StateComponent />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole('button');
 
       // Click first, then assert state change
       await userEvent.click(button);
 
       await assertStateChange(
-        () => parseInt(screen.getByTestId("count").textContent),
+        () => parseInt(screen.getByTestId('count').textContent),
         1,
       );
 
       // State should have changed
-      expect(parseInt(screen.getByTestId("count").textContent)).toBe(1);
+      expect(parseInt(screen.getByTestId('count').textContent)).toBe(1);
     });
   });
 });

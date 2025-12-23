@@ -332,7 +332,7 @@ describe('Stock Management Feature', () => {
 
         return (
           <>
-            <div>Slow-moving items (>90 days):</div>
+            <div>Slow-moving items ({'\u003E'}90 days):</div>
             {slowMoving.map((item) => (
               <div key={item.sku} className="alert-warning">
                 {item.sku}: {item.qty} units

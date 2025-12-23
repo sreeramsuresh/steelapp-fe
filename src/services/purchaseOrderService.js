@@ -1,10 +1,10 @@
-import { apiClient } from "./api";
-import { apiService } from "./axiosApi";
+import { apiClient } from './api';
+import { apiService } from './axiosApi';
 
 export const purchaseOrderService = {
   // Get all purchase orders with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/purchase-orders", params);
+    return apiClient.get('/purchase-orders', params);
   },
 
   // Get purchase order by ID
@@ -14,7 +14,7 @@ export const purchaseOrderService = {
 
   // Create purchase order
   create: (poData) => {
-    return apiClient.post("/purchase-orders", poData);
+    return apiClient.post('/purchase-orders', poData);
   },
 
   // Update purchase order
@@ -48,29 +48,29 @@ export const purchaseOrderService = {
 
   // Get next PO number
   getNextNumber: () => {
-    return apiClient.get("/purchase-orders/number/next");
+    return apiClient.get('/purchase-orders/number/next');
   },
 
   // Get warehouses
   getWarehouses: () => {
-    return apiClient.get("/warehouses");
+    return apiClient.get('/warehouses');
   },
 
   // Seed warehouses
   seedWarehouses: () => {
-    return apiClient.post("/warehouses/seed");
+    return apiClient.post('/warehouses/seed');
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/purchase-orders/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
     a.download = `PurchaseOrder-${id}.pdf`;
     document.body.appendChild(a);

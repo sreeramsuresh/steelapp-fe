@@ -1,10 +1,10 @@
-import { apiClient } from "./api";
-import { apiService } from "./axiosApi"; // Only for downloadPDF
+import { apiClient } from './api';
+import { apiService } from './axiosApi'; // Only for downloadPDF
 
 export const quotationService = {
   // Get all quotations with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/quotations", params);
+    return apiClient.get('/quotations', params);
   },
 
   // Get quotation by ID
@@ -14,7 +14,7 @@ export const quotationService = {
 
   // Create quotation
   create: (data) => {
-    return apiClient.post("/quotations", data);
+    return apiClient.post('/quotations', data);
   },
 
   // Update quotation
@@ -39,19 +39,19 @@ export const quotationService = {
 
   // Get next quotation number
   getNextNumber: () => {
-    return apiClient.get("/quotations/number/next");
+    return apiClient.get('/quotations/number/next');
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/quotations/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
     a.download = `Quotation-${id}.pdf`;
     document.body.appendChild(a);

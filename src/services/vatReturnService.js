@@ -21,41 +21,41 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { apiClient } from "./api";
+import { apiClient } from './api';
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 export const VAT_RETURN_STATUSES = {
-  DRAFT: "draft",
-  GENERATED: "generated",
-  REVIEW: "review",
-  SUBMITTED: "submitted",
-  FILED: "filed",
-  AMENDED: "amended",
+  DRAFT: 'draft',
+  GENERATED: 'generated',
+  REVIEW: 'review',
+  SUBMITTED: 'submitted',
+  FILED: 'filed',
+  AMENDED: 'amended',
 };
 
 export const FORM_201_BOXES = {
-  BOX_1: { number: 1, label: "Standard rated supplies in UAE", type: "output" },
-  BOX_2: { number: 2, label: "Tax refunds for tourists", type: "output" },
-  BOX_3: { number: 3, label: "Zero-rated supplies", type: "output" },
-  BOX_4: { number: 4, label: "Exempt supplies", type: "output" },
-  BOX_5: { number: 5, label: "Goods imported into UAE", type: "output" },
+  BOX_1: { number: 1, label: 'Standard rated supplies in UAE', type: 'output' },
+  BOX_2: { number: 2, label: 'Tax refunds for tourists', type: 'output' },
+  BOX_3: { number: 3, label: 'Zero-rated supplies', type: 'output' },
+  BOX_4: { number: 4, label: 'Exempt supplies', type: 'output' },
+  BOX_5: { number: 5, label: 'Goods imported into UAE', type: 'output' },
   BOX_6: {
     number: 6,
-    label: "Adjustments to goods imported",
-    type: "adjustment",
+    label: 'Adjustments to goods imported',
+    type: 'adjustment',
   },
-  BOX_7: { number: 7, label: "Total value of due tax", type: "calculated" },
-  BOX_8: { number: 8, label: "Standard rated expenses", type: "input" },
+  BOX_7: { number: 7, label: 'Total value of due tax', type: 'calculated' },
+  BOX_8: { number: 8, label: 'Standard rated expenses', type: 'input' },
   BOX_9: {
     number: 9,
-    label: "Supplies subject to reverse charge",
-    type: "input",
+    label: 'Supplies subject to reverse charge',
+    type: 'input',
   },
-  BOX_10: { number: 10, label: "Recoverable input tax", type: "calculated" },
-  BOX_11: { number: 11, label: "Net VAT due", type: "calculated" },
+  BOX_10: { number: 10, label: 'Recoverable input tax', type: 'calculated' },
+  BOX_11: { number: 11, label: 'Net VAT due', type: 'calculated' },
 };
 
 // ============================================================================
@@ -71,10 +71,10 @@ const transformVatReturnFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId,
-    returnNumber: serverData.returnNumber || "",
+    returnNumber: serverData.returnNumber || '',
     periodStart: serverData.periodStart || serverData.startDate,
     periodEnd: serverData.periodEnd || serverData.endDate,
-    status: serverData.status || "draft",
+    status: serverData.status || 'draft',
     // Form 201 Boxes
     box1Amount: parseFloat(serverData.box1Amount || 0),
     box1Vat: parseFloat(serverData.box1Vat || 0),
@@ -107,14 +107,14 @@ const transformVatReturnFromServer = (serverData) => {
     // Filing info
     filedAt: serverData.filedAt || null,
     filedBy: serverData.filedBy || null,
-    ftaReferenceNumber: serverData.ftaReferenceNumber || "",
+    ftaReferenceNumber: serverData.ftaReferenceNumber || '',
     ftaSubmissionDate: serverData.ftaSubmissionDate || null,
     // Timestamps
     createdAt: serverData.createdAt || null,
     updatedAt: serverData.updatedAt || null,
     generatedAt: serverData.generatedAt || null,
     // Notes
-    notes: serverData.notes || "",
+    notes: serverData.notes || '',
   };
 };
 
@@ -129,10 +129,10 @@ const vatReturnService = {
    */
   async getPeriods() {
     try {
-      const response = await apiClient.get("/vat-return/periods");
+      const response = await apiClient.get('/vat-return/periods');
       return response.data || response || [];
     } catch (error) {
-      console.error("[VATReturnService] getPeriods failed:", error);
+      console.error('[VATReturnService] getPeriods failed:', error);
       throw error;
     }
   },
@@ -147,13 +147,13 @@ const vatReturnService = {
    */
   async generateReturn(periodData) {
     try {
-      const response = await apiClient.post("/vat-returns/generate", {
+      const response = await apiClient.post('/vat-returns/generate', {
         startDate: periodData.startDate,
         endDate: periodData.endDate,
       });
       return transformVatReturnFromServer(response);
     } catch (error) {
-      console.error("[VATReturnService] generateReturn failed:", error);
+      console.error('[VATReturnService] generateReturn failed:', error);
       throw error;
     }
   },
@@ -166,12 +166,12 @@ const vatReturnService = {
    */
   async generateReport(startDate, endDate) {
     try {
-      const response = await apiClient.get("/vat-return/generate", {
+      const response = await apiClient.get('/vat-return/generate', {
         params: { startDate, endDate },
       });
       return response.data || response;
     } catch (error) {
-      console.error("[VATReturnService] generateReport failed:", error);
+      console.error('[VATReturnService] generateReport failed:', error);
       throw error;
     }
   },
@@ -184,13 +184,13 @@ const vatReturnService = {
    */
   async saveReport(startDate, endDate) {
     try {
-      const response = await apiClient.post("/vat-return/save", {
+      const response = await apiClient.post('/vat-return/save', {
         startDate,
         endDate,
       });
       return transformVatReturnFromServer(response.data || response);
     } catch (error) {
-      console.error("[VATReturnService] saveReport failed:", error);
+      console.error('[VATReturnService] saveReport failed:', error);
       throw error;
     }
   },
@@ -201,10 +201,10 @@ const vatReturnService = {
    */
   async getEmirates() {
     try {
-      const response = await apiClient.get("/vat-return/emirates");
+      const response = await apiClient.get('/vat-return/emirates');
       return response.data || response || [];
     } catch (error) {
-      console.error("[VATReturnService] getEmirates failed:", error);
+      console.error('[VATReturnService] getEmirates failed:', error);
       throw error;
     }
   },
@@ -237,7 +237,7 @@ const vatReturnService = {
         axiosConfig.signal = signal;
       }
 
-      const response = await apiClient.get("/vat-returns", axiosConfig);
+      const response = await apiClient.get('/vat-returns', axiosConfig);
 
       if (response.data && Array.isArray(response.data)) {
         return {
@@ -255,7 +255,7 @@ const vatReturnService = {
 
       return { data: [], pagination: null };
     } catch (error) {
-      console.error("[VATReturnService] getAll failed:", error);
+      console.error('[VATReturnService] getAll failed:', error);
       throw error;
     }
   },
@@ -270,7 +270,7 @@ const vatReturnService = {
       const response = await apiClient.get(`/vat-returns/${id}`);
       return transformVatReturnFromServer(response);
     } catch (error) {
-      console.error("[VATReturnService] getById failed:", error);
+      console.error('[VATReturnService] getById failed:', error);
       throw error;
     }
   },
@@ -286,7 +286,7 @@ const vatReturnService = {
       const response = await apiClient.get(`/vat-returns/${id}/preview`);
       return response;
     } catch (error) {
-      console.error("[VATReturnService] getPreview failed:", error);
+      console.error('[VATReturnService] getPreview failed:', error);
       throw error;
     }
   },
@@ -301,7 +301,7 @@ const vatReturnService = {
       const response = await apiClient.post(`/vat-returns/${id}/submit`);
       return transformVatReturnFromServer(response);
     } catch (error) {
-      console.error("[VATReturnService] submitReturn failed:", error);
+      console.error('[VATReturnService] submitReturn failed:', error);
       throw error;
     }
   },
@@ -322,7 +322,7 @@ const vatReturnService = {
       );
       return transformVatReturnFromServer(response);
     } catch (error) {
-      console.error("[VATReturnService] markAsFiled failed:", error);
+      console.error('[VATReturnService] markAsFiled failed:', error);
       throw error;
     }
   },
@@ -337,7 +337,7 @@ const vatReturnService = {
       const response = await apiClient.get(`/vat-returns/${id}/form-201`);
       return response;
     } catch (error) {
-      console.error("[VATReturnService] getForm201Data failed:", error);
+      console.error('[VATReturnService] getForm201Data failed:', error);
       throw error;
     }
   },
@@ -352,7 +352,7 @@ const vatReturnService = {
       const response = await apiClient.get(`/vat-returns/${id}/audit-trail`);
       return response.data || response || [];
     } catch (error) {
-      console.error("[VATReturnService] getAuditTrail failed:", error);
+      console.error('[VATReturnService] getAuditTrail failed:', error);
       throw error;
     }
   },
@@ -368,7 +368,7 @@ const vatReturnService = {
       const response = await apiClient.get(`/vat-returns/${id}/reconciliation`);
       return response;
     } catch (error) {
-      console.error("[VATReturnService] getReconciliation failed:", error);
+      console.error('[VATReturnService] getReconciliation failed:', error);
       throw error;
     }
   },
@@ -385,7 +385,7 @@ const vatReturnService = {
       );
       return response;
     } catch (error) {
-      console.error("[VATReturnService] getSupportingDocuments failed:", error);
+      console.error('[VATReturnService] getSupportingDocuments failed:', error);
       throw error;
     }
   },
@@ -398,12 +398,12 @@ const vatReturnService = {
   async getBlockedVATCategories() {
     try {
       const response = await apiClient.get(
-        "/vat-return/blocked-vat/categories",
+        '/vat-return/blocked-vat/categories',
       );
       return response.data || response || [];
     } catch (error) {
       console.error(
-        "[VATReturnService] getBlockedVATCategories failed:",
+        '[VATReturnService] getBlockedVATCategories failed:',
         error,
       );
       throw error;
@@ -421,12 +421,12 @@ const vatReturnService = {
    */
   async getBlockedVATLog(params = {}) {
     try {
-      const response = await apiClient.get("/vat-return/blocked-vat/log", {
+      const response = await apiClient.get('/vat-return/blocked-vat/log', {
         params,
       });
       return response;
     } catch (error) {
-      console.error("[VATReturnService] getBlockedVATLog failed:", error);
+      console.error('[VATReturnService] getBlockedVATLog failed:', error);
       throw error;
     }
   },
@@ -444,7 +444,7 @@ const vatReturnService = {
       });
       return transformVatReturnFromServer(response);
     } catch (error) {
-      console.error("[VATReturnService] updateStatus failed:", error);
+      console.error('[VATReturnService] updateStatus failed:', error);
       throw error;
     }
   },
@@ -462,7 +462,7 @@ const vatReturnService = {
       });
       return transformVatReturnFromServer(response);
     } catch (error) {
-      console.error("[VATReturnService] addNotes failed:", error);
+      console.error('[VATReturnService] addNotes failed:', error);
       throw error;
     }
   },
@@ -477,7 +477,7 @@ const vatReturnService = {
       const response = await apiClient.delete(`/vat-returns/${id}`);
       return response;
     } catch (error) {
-      console.error("[VATReturnService] delete failed:", error);
+      console.error('[VATReturnService] delete failed:', error);
       throw error;
     }
   },
@@ -491,12 +491,12 @@ const vatReturnService = {
   async downloadPDF(id, returnNumber = null) {
     try {
       const response = await apiClient.get(`/vat-returns/${id}/pdf`, {
-        responseType: "blob",
+        responseType: 'blob',
       });
 
-      const blob = new Blob([response], { type: "application/pdf" });
+      const blob = new Blob([response], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
       link.download = `vat-return-${returnNumber || id}.pdf`;
       document.body.appendChild(link);
@@ -506,7 +506,7 @@ const vatReturnService = {
 
       return true;
     } catch (error) {
-      console.error("[VATReturnService] downloadPDF failed:", error);
+      console.error('[VATReturnService] downloadPDF failed:', error);
       throw error;
     }
   },
@@ -519,14 +519,14 @@ const vatReturnService = {
   async exportExcel(id) {
     try {
       const response = await apiClient.get(`/vat-returns/${id}/export/excel`, {
-        responseType: "blob",
+        responseType: 'blob',
       });
 
       const blob = new Blob([response], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
       link.download = `vat-return-${id}.xlsx`;
       document.body.appendChild(link);
@@ -536,7 +536,7 @@ const vatReturnService = {
 
       return true;
     } catch (error) {
-      console.error("[VATReturnService] exportExcel failed:", error);
+      console.error('[VATReturnService] exportExcel failed:', error);
       throw error;
     }
   },
@@ -549,10 +549,10 @@ const vatReturnService = {
    */
   async getAnalytics(params = {}) {
     try {
-      const response = await apiClient.get("/vat-returns/analytics", params);
+      const response = await apiClient.get('/vat-returns/analytics', params);
       return response;
     } catch (error) {
-      console.error("[VATReturnService] getAnalytics failed:", error);
+      console.error('[VATReturnService] getAnalytics failed:', error);
       throw error;
     }
   },
@@ -568,7 +568,7 @@ const vatReturnService = {
       const response = await apiClient.get(`/vat-returns/${id}/validate`);
       return response;
     } catch (error) {
-      console.error("[VATReturnService] validate failed:", error);
+      console.error('[VATReturnService] validate failed:', error);
       throw error;
     }
   },
@@ -584,7 +584,7 @@ const vatReturnService = {
       const response = await apiClient.post(`/vat-returns/${id}/recalculate`);
       return transformVatReturnFromServer(response);
     } catch (error) {
-      console.error("[VATReturnService] recalculate failed:", error);
+      console.error('[VATReturnService] recalculate failed:', error);
       throw error;
     }
   },

@@ -72,9 +72,9 @@ export interface PurchaseOrder {
  * Type guard to check if object is a valid PurchaseOrder
  */
 export function isPurchaseOrder(obj: unknown): obj is PurchaseOrder {
-  if (!obj || typeof obj !== "object") return false;
+  if (!obj || typeof obj !== 'object') return false;
   const record = obj as Record<string, unknown>;
   return (
-    typeof record.poNumber === "string" && typeof record.total === "number"
+    typeof record.poNumber === 'string' && typeof record.total === 'number'
   );
 }

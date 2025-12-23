@@ -10,13 +10,13 @@
  * Colors for console output
  */
 export const colors = {
-  reset: "\x1b[0m",
-  green: "\x1b[32m",
-  red: "\x1b[31m",
-  yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  cyan: "\x1b[36m",
-  gray: "\x1b[90m",
+  reset: '\x1b[0m',
+  green: '\x1b[32m',
+  red: '\x1b[31m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  cyan: '\x1b[36m',
+  gray: '\x1b[90m',
 };
 
 /**
@@ -84,8 +84,8 @@ export async function fillInput(page, selector, value, options = {}) {
     await page.click(selector);
 
     if (clear) {
-      await page.keyboard.press("Control+A");
-      await page.keyboard.press("Backspace");
+      await page.keyboard.press('Control+A');
+      await page.keyboard.press('Backspace');
     }
 
     await page.type(selector, value, { delay });
@@ -156,7 +156,7 @@ export async function getInputValues(page, selectors) {
 export async function selectDropdown(page, label, value, timeout = 3000) {
   try {
     // Find button containing label
-    const buttons = await page.$$("button");
+    const buttons = await page.$$('button');
     let found = false;
 
     for (const btn of buttons) {
@@ -299,7 +299,7 @@ export async function toggleSection(page, selector) {
  */
 export async function getValidationErrors(page) {
   try {
-    const errors = await page.$$eval(".text-red-500", (els) =>
+    const errors = await page.$$eval('.text-red-500', (els) =>
       els
         .map((el) => el.textContent)
         .filter((text) => text && text.trim().length > 0),
@@ -321,7 +321,7 @@ export async function hasError(page, errorPattern) {
   const errors = await getValidationErrors(page);
 
   for (const error of errors) {
-    if (typeof errorPattern === "string") {
+    if (typeof errorPattern === 'string') {
       if (error.includes(errorPattern)) return true;
     } else if (errorPattern instanceof RegExp) {
       if (errorPattern.test(error)) return true;
@@ -341,7 +341,7 @@ export async function submitForm(page, waitAfter = 500) {
   try {
     const button = await page.$('button[type="submit"]');
     if (!button) {
-      log.error("Submit button not found");
+      log.error('Submit button not found');
       return false;
     }
 
@@ -387,7 +387,7 @@ export async function waitForNavigation(page, expectedPath, timeout = 5000) {
  */
 export async function waitForNotification(
   page,
-  type = "success",
+  type = 'success',
   timeout = 5000,
 ) {
   try {
@@ -395,8 +395,8 @@ export async function waitForNotification(
       `.toast-${type}`,
       `[role="status"]`,
       `[role="alert"]`,
-      ".notification",
-      ".toast",
+      '.notification',
+      '.toast',
     ];
 
     for (const selector of selectors) {
@@ -461,7 +461,7 @@ export async function getPageContent(page) {
  * @param {string} selector - Optional parent selector
  * @returns {object|null} - Element or null
  */
-export async function findByText(page, text, selector = "*") {
+export async function findByText(page, text, selector = '*') {
   try {
     const element = await page.$(`${selector}:has-text("${text}")`);
     return element;
@@ -478,7 +478,7 @@ export async function findByText(page, text, selector = "*") {
  * @param {string} selector - Optional parent selector
  * @returns {boolean} - True if successful
  */
-export async function clickByText(page, text, selector = "button, a") {
+export async function clickByText(page, text, selector = 'button, a') {
   try {
     const element = await page.$(`${selector}:has-text("${text}")`);
     if (!element) {
@@ -572,8 +572,8 @@ export async function uploadFile(page, selector, filePath) {
 export async function captureRequests(page, pattern) {
   const requests = [];
 
-  page.on("response", (response) => {
-    if (typeof pattern === "string") {
+  page.on('response', (response) => {
+    if (typeof pattern === 'string') {
       if (response.url().includes(pattern)) {
         requests.push(response);
       }
@@ -621,7 +621,7 @@ export async function getElementBounds(page, selector) {
 export async function scrollIntoView(page, selector) {
   try {
     await page.$eval(selector, (el) => {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
     await page.waitForTimeout(300);
     return true;
@@ -679,7 +679,7 @@ export async function waitForLoadingDone(
 
     return true;
   } catch (err) {
-    log.debug("Loading indicator already gone or not found");
+    log.debug('Loading indicator already gone or not found');
     return true; // Don't fail if no loading indicator
   }
 }
@@ -690,11 +690,11 @@ export async function waitForLoadingDone(
  * @param {boolean} passed - Whether test passed
  * @param {string} message - Optional message
  */
-export function logTestResult(testName, passed, message = "") {
+export function logTestResult(testName, passed, message = '') {
   const status = passed
     ? `${colors.green}PASS${colors.reset}`
     : `${colors.red}FAIL${colors.reset}`;
-  const msg = message ? ` - ${message}` : "";
+  const msg = message ? ` - ${message}` : '';
   console.log(`${status}  ${testName}${msg}`);
 }
 
