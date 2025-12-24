@@ -191,7 +191,7 @@ function validatePageInfo(pageInfo, url) {
     'hasPrev',
   ];
   for (const key of requiredKeys) {
-    if (!pageInfo.hasOwnProperty(key)) {
+    if (!Object.prototype.hasOwnProperty.call(pageInfo, key)) {
       throw new ContractViolationError(
         url,
         `pageInfo.${key} required`,
