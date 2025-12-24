@@ -14,7 +14,6 @@ import {
   ShoppingCart,
   Quote,
   Ship,
-  CreditCard,
   Scroll,
   MapPin,
   Banknote,
@@ -146,13 +145,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
           icon: ShoppingCart,
           description: "Purchase orders, vendor bills, and payments",
           requiredPermission: "purchase_orders.read",
-        },
-        {
-          name: "Advance Payments",
-          path: "/payments/advance-payments",
-          icon: CreditCard,
-          description: "Manage advance payments received",
-          requiredPermission: "advance_payments.read",
         },
         {
           name: "Delivery Performance",

@@ -135,9 +135,9 @@ export default function CommissionApprovalWorkflow() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1
-              className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
-              Commission Approval Workflow
+              ✅ Commission Approval Workflow
             </h1>
             <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
               Manage and approve pending commission payouts

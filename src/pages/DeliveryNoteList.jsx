@@ -259,10 +259,9 @@ const DeliveryNoteList = () => {
     >
       <div className="flex justify-between items-center mb-6">
         <h1
-          className={`text-2xl font-semibold flex items-center gap-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
         >
-          <TruckIcon size={36} className="text-teal-600" />
-          Delivery Notes
+          🚚 Delivery Notes
         </h1>
         {authService.hasPermission("delivery_notes", "create") && (
           <button

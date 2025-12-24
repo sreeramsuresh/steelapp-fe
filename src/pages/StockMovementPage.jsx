@@ -217,9 +217,9 @@ const StockMovementPage = () => {
             </div>
             <div>
               <h1
-                className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
-                Stock Movement Management
+                📦 Stock Movement Management
               </h1>
               <p
                 className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}

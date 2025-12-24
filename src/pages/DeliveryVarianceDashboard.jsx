@@ -113,9 +113,9 @@ export default function DeliveryVarianceDashboard() {
       className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
     >
       <h1
-        className={`text-3xl font-bold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+        className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
       >
-        Delivery Variance Dashboard
+        📉 Delivery Variance Dashboard
       </h1>
 
       {/* KPIs Section */}

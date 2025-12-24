@@ -502,9 +502,9 @@ const Dashboard = () => {
         <div className="flex items-start justify-between">
           <div>
             <h1
-              className={`text-3xl md:text-4xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
-              Dashboard
+              📊 Dashboard
             </h1>
             <p
               className={`text-sm md:text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}

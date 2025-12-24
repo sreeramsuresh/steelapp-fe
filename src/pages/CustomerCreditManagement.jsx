@@ -133,9 +133,9 @@ export default function CustomerCreditManagement() {
     >
       <div className="max-w-7xl mx-auto">
         <h1
-          className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
         >
-          Customer Credit Management
+          💳 Customer Credit Management
         </h1>
         <p className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
           Monitor credit utilization, DSO, and customer credit grades

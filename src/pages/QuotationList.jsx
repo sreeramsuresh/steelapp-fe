@@ -244,7 +244,7 @@ const QuotationList = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1
-              className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               📋 Quotations
             </h1>
