@@ -28,6 +28,7 @@ export function FormSelect({
   placeholder = "Select...",
   children,
   className = "",
+  "data-testid": dataTestId,
   ...props
 }) {
   const { isDarkMode } = useTheme();
@@ -81,6 +82,7 @@ export function FormSelect({
         {...props}
       >
         <SelectTrigger
+          data-testid={dataTestId}
           className={`${getValidationClasses()} h-[38px] text-sm ${
             isDarkMode
               ? "text-white disabled:bg-gray-700 disabled:text-gray-500"

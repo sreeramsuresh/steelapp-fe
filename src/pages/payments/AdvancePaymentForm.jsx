@@ -453,6 +453,7 @@ const AdvancePaymentForm = () => {
                   {isEditMode ? "Edit" : "Draft"}
                 </span>
                 <button
+                  type="submit"
                   onClick={handleSave}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
@@ -647,6 +648,7 @@ const AdvancePaymentForm = () => {
                       Receipt Number <span className="text-red-500">*</span>
                     </label>
                     <input
+                      name="receiptNumber"
                       type="text"
                       value={payment.receiptNumber}
                       onChange={(e) =>
@@ -665,6 +667,7 @@ const AdvancePaymentForm = () => {
                       Payment Date <span className="text-red-500">*</span>
                     </label>
                     <input
+                      name="paymentDate"
                       type="date"
                       value={payment.paymentDate}
                       onChange={(e) =>
@@ -690,6 +693,7 @@ const AdvancePaymentForm = () => {
                       }
                       required={true}
                       showValidation={false}
+                      data-testid="payment-method"
                     >
                       {PAYMENT_METHODS.map((method) => (
                         <SelectItem key={method.value} value={method.value}>
@@ -712,6 +716,7 @@ const AdvancePaymentForm = () => {
                         AED
                       </span>
                       <input
+                        name="totalAmount"
                         type="number"
                         min="0"
                         step="0.01"
@@ -731,6 +736,7 @@ const AdvancePaymentForm = () => {
                       Reference Number
                     </label>
                     <input
+                      name="referenceNumber"
                       type="text"
                       value={payment.referenceNumber}
                       onChange={(e) =>
@@ -771,6 +777,7 @@ const AdvancePaymentForm = () => {
                       Purpose
                     </label>
                     <input
+                      name="purpose"
                       type="text"
                       value={payment.purpose}
                       onChange={(e) =>
@@ -835,6 +842,7 @@ const AdvancePaymentForm = () => {
                           Exchange Rate (to AED)
                         </label>
                         <input
+                          name="exchangeRate"
                           type="number"
                           min="0"
                           step="0.0001"
@@ -897,6 +905,7 @@ const AdvancePaymentForm = () => {
                         Bank Name
                       </label>
                       <input
+                        name="bankName"
                         type="text"
                         value={payment.bankName}
                         onChange={(e) =>
@@ -916,6 +925,7 @@ const AdvancePaymentForm = () => {
                         Cheque Number
                       </label>
                       <input
+                        name="chequeNumber"
                         type="text"
                         value={payment.chequeNumber}
                         onChange={(e) =>
@@ -935,6 +945,7 @@ const AdvancePaymentForm = () => {
                         Transaction ID
                       </label>
                       <input
+                        name="transactionId"
                         type="text"
                         value={payment.transactionId}
                         onChange={(e) =>
@@ -1107,6 +1118,7 @@ const AdvancePaymentForm = () => {
                         Official Receipt Number
                       </label>
                       <input
+                        name="receiptNumberOfficial"
                         type="text"
                         value={payment.receiptNumberOfficial}
                         onChange={(e) =>
@@ -1126,6 +1138,7 @@ const AdvancePaymentForm = () => {
                         Attachment URLs (comma-separated)
                       </label>
                       <input
+                        name="attachmentUrls"
                         type="text"
                         value={
                           Array.isArray(payment.attachmentUrls)
@@ -1174,6 +1187,7 @@ const AdvancePaymentForm = () => {
                         Project ID
                       </label>
                       <input
+                        name="projectId"
                         type="text"
                         value={payment.projectId || ""}
                         onChange={(e) =>
@@ -1193,6 +1207,7 @@ const AdvancePaymentForm = () => {
                         Cost Center
                       </label>
                       <input
+                        name="costCenter"
                         type="text"
                         value={payment.costCenter}
                         onChange={(e) =>
@@ -1212,6 +1227,7 @@ const AdvancePaymentForm = () => {
                         Sales Person ID
                       </label>
                       <input
+                        name="salesPersonId"
                         type="text"
                         value={payment.salesPersonId || ""}
                         onChange={(e) =>
@@ -1295,6 +1311,7 @@ const AdvancePaymentForm = () => {
                         Valid Until (Expiry Date)
                       </label>
                       <input
+                        name="validUntil"
                         type="date"
                         value={payment.validUntil || ""}
                         onChange={(e) =>
@@ -1363,6 +1380,7 @@ const AdvancePaymentForm = () => {
                             AED
                           </span>
                           <input
+                            name="refundAmount"
                             type="number"
                             min="0"
                             step="0.01"
@@ -1386,6 +1404,7 @@ const AdvancePaymentForm = () => {
                           Refund Method
                         </label>
                         <input
+                          name="refundMethod"
                           type="text"
                           value={payment.refundMethod || ""}
                           onChange={(e) =>
@@ -1405,6 +1424,7 @@ const AdvancePaymentForm = () => {
                           Refund Reference
                         </label>
                         <input
+                          name="refundReference"
                           type="text"
                           value={payment.refundReference}
                           onChange={(e) =>
@@ -1441,6 +1461,7 @@ const AdvancePaymentForm = () => {
                 </summary>
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <textarea
+                    name="notes"
                     value={payment.notes}
                     onChange={(e) =>
                       setPayment((prev) => ({ ...prev, notes: e.target.value }))
@@ -1579,7 +1600,7 @@ const AdvancePaymentForm = () => {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>VAT ({VAT_RATE}%):</span>
-                      <span className={`font-mono ${textPrimary}`}>
+                      <span data-testid="vat-amount" className={`font-mono ${textPrimary}`}>
                         {formatCurrency(payment.vatAmount)}
                       </span>
                     </div>
@@ -1589,6 +1610,7 @@ const AdvancePaymentForm = () => {
                         Total Received:
                       </span>
                       <span
+                        data-testid="total-received"
                         className={`font-bold font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}
                       >
                         {formatCurrency(payment.totalAmount)}
