@@ -2650,7 +2650,7 @@ const SteelProducts = () => {
           <div className="flex items-center gap-2 mb-1">
             <Package size={24} className="text-teal-600" />
             <h1
-              className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               🏗️ Stainless Steel Products
             </h1>

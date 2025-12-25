@@ -16,7 +16,7 @@
  * - Right 40%: Help documentation (full height, always visible)
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Shield,
   Key,
@@ -80,8 +80,15 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   // Test result
   const [testResult, setTestResult] = useState(null);
 
+  // Guard against duplicate API calls (React Strict Mode double-mounting)
+  const hasFetchedRef = useRef(false);
+
   // Load integration data
   const loadIntegration = useCallback(async () => {
+    // Prevent duplicate fetches from React Strict Mode
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     try {
       setLoading(true);
       setError(null);

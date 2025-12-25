@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -19,6 +19,7 @@ import { suppliersAPI } from "../../services/api";
 import { ContainerStatusBadge } from "../../components/ContainerStatusBadge";
 import { ContainerForm } from "./ContainerForm";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -81,8 +82,15 @@ export function ContainerList() {
   const [editingContainer, setEditingContainer] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+  // Guard against concurrent API calls
+  const loadingRef = useRef(false);
+
   // Load containers
   const loadContainers = useCallback(async () => {
+    // Prevent duplicate concurrent requests
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+
     try {
       setLoading(true);
       setError(null);
@@ -112,6 +120,7 @@ export function ContainerList() {
       setError(err.message || "Failed to load containers");
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   }, [page, filters]);
 
@@ -241,8 +250,10 @@ export function ContainerList() {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 hasActiveFilters
-                  ? "border-teal-500 bg-teal-500/10 text-teal-400"
-                  : "border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
+                  ? "border-teal-500 bg-teal-500/10 text-teal-600 dark:text-teal-400"
+                  : isDarkMode
+                    ? "border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
+                    : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
               }`}
             >
               <Filter className="h-4 w-4" />
@@ -277,7 +288,7 @@ export function ContainerList() {
                 placeholder="Search by container number..."
                 value={filters.search}
                 onChange={handleSearch}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
               />
             </div>
           </div>

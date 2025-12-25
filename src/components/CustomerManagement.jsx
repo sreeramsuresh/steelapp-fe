@@ -1443,8 +1443,8 @@ const CustomerManagement = () => {
         >
           <div className="flex items-center gap-3 mb-2">
             <FaUsers className={`text-3xl ${textSecondary}`} />
-            <h1 className={`text-3xl font-bold ${textPrimary}`}>
-              Customer Management
+            <h1 className={`text-2xl font-semibold mb-2 ${textPrimary}`}>
+              👥 Customer Management
             </h1>
           </div>
           <p className={textSecondary}>

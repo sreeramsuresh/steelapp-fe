@@ -162,8 +162,8 @@ const COLORS = {
   border: "#2a3640",
   text: "#e6edf3",
   muted: "#93a4b4",
-  accent: "#4aa3ff",
-  accentHover: "#5bb2ff",
+  accent: "#0d9488", // teal-600
+  accentHover: "#14b8a6", // teal-500
   inputBg: "#0f151b",
 };
 
@@ -1382,14 +1382,16 @@ const QuotationForm = () => {
           : "border-red-500 bg-red-50";
       }
       if (validationState === "valid") {
+        // Subtle teal border for valid fields, no background color change
         return isDarkMode
-          ? "border-green-500 bg-green-900/10"
-          : "border-green-500 bg-green-50";
+          ? "border-teal-500/50 bg-gray-800"
+          : "border-teal-500/50 bg-white";
       }
       if (required && validationState === null) {
+        // Required but untouched - use neutral styling, no yellow
         return isDarkMode
-          ? "border-yellow-600/50 bg-yellow-900/5"
-          : "border-yellow-400/50 bg-yellow-50/30";
+          ? "border-gray-600 bg-gray-800"
+          : "border-gray-300 bg-white";
       }
       return isDarkMode
         ? "border-gray-600 bg-gray-800"
@@ -2362,8 +2364,8 @@ const QuotationForm = () => {
                         onClick={() => handleOpenDeliverySchedule(index)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                           isDarkMode
-                            ? "bg-blue-900/30 text-blue-300 hover:bg-blue-900/50"
-                            : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                            ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
+                            : "bg-teal-50 text-teal-700 hover:bg-teal-100"
                         }`}
                       >
                         <Calendar className="h-4 w-4" />
@@ -2376,10 +2378,10 @@ const QuotationForm = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenAlternativeProducts(index)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
                           isDarkMode
-                            ? "bg-purple-900/30 text-purple-300 hover:bg-purple-900/50"
-                            : "bg-purple-50 text-purple-700 hover:bg-purple-100"
+                            ? "bg-gray-800 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
+                            : "bg-white text-gray-700 border-gray-300 hover:border-teal-500 hover:text-teal-600"
                         }`}
                       >
                         <Layers className="h-4 w-4" />
@@ -2873,10 +2875,10 @@ const QuotationForm = () => {
                 <button
                   type="button"
                   onClick={() => setVolumeDiscountModalOpen(true)}
-                  className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-all flex items-center gap-2 ${
+                  className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-all flex items-center gap-2 border ${
                     isDarkMode
-                      ? "bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-800/50"
-                      : "bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200"
+                      ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
+                      : "bg-white hover:bg-gray-50 text-gray-700 border-gray-300 hover:border-teal-500 hover:text-teal-600"
                   }`}
                 >
                   <Calculator className="h-4 w-4" />
@@ -2890,10 +2892,10 @@ const QuotationForm = () => {
                 <button
                   type="button"
                   onClick={() => setChargesDrawerOpen(true)}
-                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
+                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-sm rounded-lg border transition-colors ${
                     isDarkMode
-                      ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
-                      : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
+                      ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
+                      : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
                   }`}
                 >
                   <Package className="h-4 w-4 opacity-60" />
@@ -2920,10 +2922,10 @@ const QuotationForm = () => {
                 <button
                   type="button"
                   onClick={() => setNotesDrawerOpen(true)}
-                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
+                  className={`w-full flex items-center gap-2 py-2 px-2.5 text-sm rounded-lg border transition-colors ${
                     isDarkMode
-                      ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
-                      : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
+                      ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
+                      : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
                   }`}
                 >
                   <FileText className="h-4 w-4 opacity-60" />
@@ -2942,10 +2944,10 @@ const QuotationForm = () => {
               <button
                 type="button"
                 onClick={() => setShowPreview(true)}
-                className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] rounded-xl border transition-colors ${
+                className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-sm rounded-lg border transition-colors ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]"
-                    : "bg-white border-gray-300 text-gray-700 hover:border-blue-500"
+                    ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
+                    : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
                 }`}
               >
                 <Eye size={16} />
@@ -2954,7 +2956,7 @@ const QuotationForm = () => {
               <button
                 type="submit"
                 disabled={isSaving}
-                className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl text-[13px] cursor-pointer ${
+                className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow-md ${
                   isSaving ? "opacity-60 cursor-not-allowed" : ""
                 }`}
               >
@@ -3016,9 +3018,9 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-2 focus:ring-teal-500/20`}
               />
             </div>
             <div>
@@ -3041,9 +3043,9 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-2 focus:ring-teal-500/20`}
               />
             </div>
             <div>
@@ -3066,9 +3068,9 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-2 focus:ring-teal-500/20`}
               />
             </div>
             <div>
@@ -3091,9 +3093,9 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-2 focus:ring-teal-500/20`}
               />
             </div>
             <div className="col-span-2">
@@ -3116,9 +3118,9 @@ const QuotationForm = () => {
                 }
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-2 focus:ring-teal-500/20`}
               />
             </div>
           </div>
@@ -3200,9 +3202,9 @@ const QuotationForm = () => {
                     }
                     className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                       isDarkMode
-                        ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                        : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                    } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
                   />
                 </div>
               )}
@@ -3230,9 +3232,9 @@ const QuotationForm = () => {
                     }
                     className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                       isDarkMode
-                        ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                        : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                    } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
                   />
                 </div>
               )}
@@ -3272,7 +3274,7 @@ const QuotationForm = () => {
           <button
             type="button"
             onClick={() => setChargesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
+            className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
           >
             Done
           </button>
@@ -3303,9 +3305,9 @@ const QuotationForm = () => {
               rows={4}
               className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
                 isDarkMode
-                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                  ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+              } focus:ring-2 focus:ring-teal-500/20`}
             />
           </div>
           <div>
@@ -3326,9 +3328,9 @@ const QuotationForm = () => {
               rows={5}
               className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
                 isDarkMode
-                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                  ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+              } focus:ring-2 focus:ring-teal-500/20`}
             />
           </div>
         </div>
@@ -3344,7 +3346,7 @@ const QuotationForm = () => {
           <button
             type="button"
             onClick={() => setNotesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
+            className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
           >
             Done
           </button>

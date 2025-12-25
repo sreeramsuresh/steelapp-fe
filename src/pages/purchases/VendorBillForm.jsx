@@ -1263,6 +1263,7 @@ const VendorBillForm = () => {
 
   return (
     <div
+      data-testid="vendor-bill-form"
       className={`h-full overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
     >
       {/* Sticky Header */}
@@ -1369,6 +1370,7 @@ const VendorBillForm = () => {
 
               <Button
                 variant="secondary"
+                data-testid="save-draft"
                 onClick={() => handleSave("draft")}
                 disabled={saving}
               >
@@ -1380,7 +1382,7 @@ const VendorBillForm = () => {
                 Save Draft
               </Button>
 
-              <Button onClick={() => handleSave("approved")} disabled={saving}>
+              <Button data-testid="save-approve" onClick={() => handleSave("approved")} disabled={saving}>
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -1440,6 +1442,7 @@ const VendorBillForm = () => {
                 <div>
                   <FormSelect
                     label="Vendor"
+                    data-testid="vendor-select"
                     value={bill.vendorId || "none"}
                     onValueChange={(value) =>
                       handleVendorChange(value === "none" ? "" : value)
@@ -1493,6 +1496,7 @@ const VendorBillForm = () => {
                   </label>
                   <input
                     id="vendor-invoice-number"
+                    data-testid="vendor-invoice-number"
                     type="text"
                     value={bill.vendorInvoiceNumber}
                     onChange={(e) =>
@@ -1520,6 +1524,7 @@ const VendorBillForm = () => {
                   </label>
                   <input
                     id="bill-date"
+                    data-testid="bill-date"
                     type="date"
                     value={bill.billDate}
                     onChange={(e) =>
@@ -1564,6 +1569,7 @@ const VendorBillForm = () => {
                   </label>
                   <input
                     id="due-date"
+                    data-testid="due-date"
                     type="date"
                     value={bill.dueDate}
                     onChange={(e) =>
@@ -1662,6 +1668,7 @@ const VendorBillForm = () => {
                     onValueChange={(value) => handleVatCategoryChange(value)}
                     required={true}
                     showValidation={false}
+                    data-testid="vat-category"
                   >
                     {VAT_CATEGORIES.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
@@ -1707,6 +1714,7 @@ const VendorBillForm = () => {
                       required={true}
                       showValidation={false}
                       placeholder="Select reason..."
+                      data-testid="blocked-vat-reason"
                     >
                       <SelectItem value="none">Select reason...</SelectItem>
                       {BLOCKED_VAT_REASONS.map((reason) => (
@@ -2387,6 +2395,7 @@ const VendorBillForm = () => {
                 </h2>
                 <button
                   onClick={handleAddItem}
+                  data-testid="add-item"
                   className="flex items-center gap-2 px-3 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
@@ -2409,6 +2418,7 @@ const VendorBillForm = () => {
                           Product / Description
                         </label>
                         <FormSelect
+                          data-testid={`item-product-${index}`}
                           value={
                             item.productId ? String(item.productId) : "none"
                           }
@@ -2440,6 +2450,7 @@ const VendorBillForm = () => {
                         </FormSelect>
                         <input
                           type="text"
+                          data-testid={`item-description-${index}`}
                           value={item.description}
                           onChange={(e) =>
                             handleItemChange(
@@ -2467,6 +2478,7 @@ const VendorBillForm = () => {
                         </label>
                         <input
                           id={`item-quantity-${index}`}
+                          data-testid={`item-quantity-${index}`}
                           type="number"
                           min="0"
                           step={
@@ -2565,6 +2577,7 @@ const VendorBillForm = () => {
                         >
                           <input
                             id={`item-unit-price-${index}`}
+                            data-testid={`item-unit-price-${index}`}
                             type="number"
                             min="0"
                             step="0.01"
@@ -2944,6 +2957,7 @@ const VendorBillForm = () => {
                       Subtotal:
                     </span>
                     <span
+                      data-testid="subtotal"
                       className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {formatCurrency(bill.subtotal)}
@@ -2959,6 +2973,7 @@ const VendorBillForm = () => {
                       %):
                     </span>
                     <span
+                      data-testid="vat-amount"
                       className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {formatCurrency(bill.vatAmount)}
@@ -2989,7 +3004,7 @@ const VendorBillForm = () => {
                       className={`flex justify-between text-sm ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
                     >
                       <span>Reverse Charge VAT:</span>
-                      <span>{formatCurrency(bill.reverseChargeAmount)}</span>
+                      <span data-testid="reverse-charge-amount">{formatCurrency(bill.reverseChargeAmount)}</span>
                     </div>
                   )}
                   <div
@@ -3000,7 +3015,7 @@ const VendorBillForm = () => {
                     >
                       Total:
                     </span>
-                    <span className="text-lg font-bold text-teal-600">
+                    <span data-testid="total" className="text-lg font-bold text-teal-600">
                       {formatCurrency(bill.total)}
                     </span>
                   </div>

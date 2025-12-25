@@ -56,9 +56,9 @@ const ReportsDashboard = () => {
             </div>
             <div>
               <h1
-                className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
-                Reports & Analytics
+                📊 Reports & Analytics
               </h1>
               <p
                 className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
