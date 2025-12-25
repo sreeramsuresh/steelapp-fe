@@ -1382,7 +1382,11 @@ const VendorBillForm = () => {
                 Save Draft
               </Button>
 
-              <Button data-testid="save-approve" onClick={() => handleSave("approved")} disabled={saving}>
+              <Button
+                data-testid="save-approve"
+                onClick={() => handleSave("approved")}
+                disabled={saving}
+              >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -3004,7 +3008,9 @@ const VendorBillForm = () => {
                       className={`flex justify-between text-sm ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
                     >
                       <span>Reverse Charge VAT:</span>
-                      <span data-testid="reverse-charge-amount">{formatCurrency(bill.reverseChargeAmount)}</span>
+                      <span data-testid="reverse-charge-amount">
+                        {formatCurrency(bill.reverseChargeAmount)}
+                      </span>
                     </div>
                   )}
                   <div
@@ -3015,7 +3021,10 @@ const VendorBillForm = () => {
                     >
                       Total:
                     </span>
-                    <span data-testid="total" className="text-lg font-bold text-teal-600">
+                    <span
+                      data-testid="total"
+                      className="text-lg font-bold text-teal-600"
+                    >
                       {formatCurrency(bill.total)}
                     </span>
                   </div>

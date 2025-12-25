@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Stock Batch Service
@@ -35,7 +35,7 @@ export const stockBatchService = {
     if (params.activeOnly !== undefined)
       queryParams.activeOnly = params.activeOnly;
 
-    return apiClient.get('/stock-batches', queryParams);
+    return apiClient.get("/stock-batches", queryParams);
   },
 
   /**
@@ -95,7 +95,7 @@ export const stockBatchService = {
    * @param {string} data.millName - Mill/manufacturer name for imports
    */
   async createBatch(data) {
-    return apiClient.post('/stock-batches', data);
+    return apiClient.post("/stock-batches", data);
   },
 
   /**

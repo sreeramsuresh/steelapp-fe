@@ -1,11 +1,11 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
-const LS_KEY = 'steel-app-suppliers';
+const LS_KEY = "steel-app-suppliers";
 
 const ls = {
   all() {
     try {
-      return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+      return JSON.parse(localStorage.getItem(LS_KEY) || "[]");
     } catch {
       return [];
     }
@@ -35,14 +35,14 @@ export const supplierService = {
   async getSuppliers(params = {}) {
     // Safeguard: some backends don't expose /suppliers. Avoid noisy 404 logs.
     const enabled =
-      (import.meta.env.VITE_ENABLE_SUPPLIERS || '').toString().toLowerCase() ===
-      'true';
+      (import.meta.env.VITE_ENABLE_SUPPLIERS || "").toString().toLowerCase() ===
+      "true";
     if (!enabled) {
       // Use local storage cache only
       return { suppliers: ls.all() };
     }
     try {
-      const res = await apiClient.get('/suppliers', params);
+      const res = await apiClient.get("/suppliers", params);
       // Contract validation in axiosApi ensures: {suppliers: [], pageInfo: {...}}
       // Trust the contract - no fallbacks needed
       return res;
@@ -61,7 +61,7 @@ export const supplierService = {
 
   async createSupplier(data) {
     try {
-      return await apiClient.post('/suppliers', data);
+      return await apiClient.post("/suppliers", data);
     } catch {
       const local = { ...data, id: data.id || `sup_${Date.now()}` };
       return ls.upsert(local);

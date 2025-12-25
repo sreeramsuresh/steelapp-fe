@@ -1600,7 +1600,10 @@ const AdvancePaymentForm = () => {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>VAT ({VAT_RATE}%):</span>
-                      <span data-testid="vat-amount" className={`font-mono ${textPrimary}`}>
+                      <span
+                        data-testid="vat-amount"
+                        className={`font-mono ${textPrimary}`}
+                      >
                         {formatCurrency(payment.vatAmount)}
                       </span>
                     </div>

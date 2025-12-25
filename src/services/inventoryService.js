@@ -1,30 +1,30 @@
-import { apiClient } from './api.js';
+import { apiClient } from "./api.js";
 
 // Map UI model -> server payload (snake_case)
 const toServer = (item = {}) => ({
-  description: item.description || '',
-  product_type: item.productType || '',
-  grade: item.grade || '',
-  finish: item.finish || '',
-  size: item.size || '',
-  thickness: item.thickness || '',
+  description: item.description || "",
+  product_type: item.productType || "",
+  grade: item.grade || "",
+  finish: item.finish || "",
+  size: item.size || "",
+  thickness: item.thickness || "",
   quantity:
-    typeof item.quantity === 'number'
+    typeof item.quantity === "number"
       ? item.quantity
       : parseFloat(item.quantity) || 0,
   price_purchased:
-    typeof item.pricePurchased === 'number'
+    typeof item.pricePurchased === "number"
       ? item.pricePurchased
       : parseFloat(item.pricePurchased) || 0,
   selling_price:
-    typeof item.sellingPrice === 'number'
+    typeof item.sellingPrice === "number"
       ? item.sellingPrice
       : parseFloat(item.sellingPrice) || 0,
   landed_cost:
-    typeof item.landedCost === 'number'
+    typeof item.landedCost === "number"
       ? item.landedCost
       : parseFloat(item.landedCost) || 0,
-  location: item.location || '',
+  location: item.location || "",
   warehouse_id: item.warehouseId ? Number(item.warehouseId) : null,
   min_stock:
     item.minStock !== null && item.minStock !== undefined
@@ -34,20 +34,20 @@ const toServer = (item = {}) => ({
   product_name: item.productName || null,
   // ERP fields
   quantity_on_hand:
-    typeof item.quantityOnHand === 'number'
+    typeof item.quantityOnHand === "number"
       ? item.quantityOnHand
       : parseFloat(item.quantityOnHand) || 0,
   quantity_reserved:
-    typeof item.quantityReserved === 'number'
+    typeof item.quantityReserved === "number"
       ? item.quantityReserved
       : parseFloat(item.quantityReserved) || 0,
-  status: item.status || 'AVAILABLE',
-  batch_number: item.batchNumber || '',
-  coil_number: item.coilNumber || '',
-  heat_number: item.heatNumber || '',
-  bundle_number: item.bundleNumber || '',
+  status: item.status || "AVAILABLE",
+  batch_number: item.batchNumber || "",
+  coil_number: item.coilNumber || "",
+  heat_number: item.heatNumber || "",
+  bundle_number: item.bundleNumber || "",
   unit_cost:
-    typeof item.unitCost === 'number'
+    typeof item.unitCost === "number"
       ? item.unitCost
       : parseFloat(item.unitCost) || 0,
 });
@@ -58,12 +58,12 @@ const toServer = (item = {}) => ({
 // fields for backward compatibility with UI components.
 const fromServer = (rec = {}) => ({
   id: rec.id,
-  description: rec.description || '',
-  productType: rec.productType || '',
-  grade: rec.grade || '',
-  finish: rec.finish || '',
-  size: rec.size || '',
-  thickness: rec.thickness || '',
+  description: rec.description || "",
+  productType: rec.productType || "",
+  grade: rec.grade || "",
+  finish: rec.finish || "",
+  size: rec.size || "",
+  thickness: rec.thickness || "",
   // Map from ERP fields (quantityOnHand/minimumStock) OR legacy fields (quantity/minStock)
   quantity:
     parseFloat(rec.quantityOnHand) ||
@@ -74,24 +74,24 @@ const fromServer = (rec = {}) => ({
   pricePurchased: rec.pricePurchased || rec.pricePurchased || 0,
   sellingPrice: rec.sellingPrice || 0,
   landedCost: rec.landedCost || 0,
-  location: rec.location || '',
-  warehouseId: rec.warehouseId || '',
-  warehouseName: rec.warehouseName || '',
-  warehouseCode: rec.warehouseCode || '',
-  warehouseCity: rec.warehouseCity || '',
+  location: rec.location || "",
+  warehouseId: rec.warehouseId || "",
+  warehouseName: rec.warehouseName || "",
+  warehouseCode: rec.warehouseCode || "",
+  warehouseCity: rec.warehouseCity || "",
   productId: rec.productId || null,
   productName: rec.productName || rec.productDisplayName || null,
-  productOrigin: rec.productOrigin || '',
+  productOrigin: rec.productOrigin || "",
   // ERP fields (keep for components that use them directly)
   quantityOnHand: parseFloat(rec.quantityOnHand) || 0,
   quantityReserved: parseFloat(rec.quantityReserved) || 0,
   quantityAvailable: parseFloat(rec.quantityAvailable) || 0,
-  unit: rec.unit || 'KG',
-  status: rec.status || 'AVAILABLE',
-  batchNumber: rec.batchNumber || '',
-  coilNumber: rec.coilNumber || '',
-  heatNumber: rec.heatNumber || '',
-  bundleNumber: rec.bundleNumber || '',
+  unit: rec.unit || "KG",
+  status: rec.status || "AVAILABLE",
+  batchNumber: rec.batchNumber || "",
+  coilNumber: rec.coilNumber || "",
+  heatNumber: rec.heatNumber || "",
+  bundleNumber: rec.bundleNumber || "",
   unitCost: parseFloat(rec.unitCost) || 0,
   totalValue: parseFloat(rec.totalValue) || 0,
   isLowStock: rec.isLowStock || false,
@@ -99,7 +99,7 @@ const fromServer = (rec = {}) => ({
 
 class InventoryService {
   constructor() {
-    this.endpoint = '/inventory';
+    this.endpoint = "/inventory";
   }
 
   async getAllItems(params = {}) {
@@ -138,7 +138,7 @@ class InventoryService {
     return apiClient.get(`${this.endpoint}/by-product`, filters);
   }
 
-  async updateQuantity(id, quantity, operation = 'set') {
+  async updateQuantity(id, quantity, operation = "set") {
     return apiClient.patch(`${this.endpoint}/${id}/quantity`, {
       quantity,
       operation, // 'set', 'add', 'subtract'

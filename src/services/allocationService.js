@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Allocation Service
@@ -24,7 +24,7 @@ export const allocationService = {
     };
 
     const response = await apiClient.get(
-      '/stock-batches/available',
+      "/stock-batches/available",
       queryParams,
     );
     return response.data || response;
@@ -46,7 +46,7 @@ export const allocationService = {
       quantity,
     };
 
-    const response = await apiClient.post('/allocations/fifo', payload);
+    const response = await apiClient.post("/allocations/fifo", payload);
     return response.data || response;
   },
 
@@ -67,7 +67,7 @@ export const allocationService = {
     };
 
     const response = await apiClient.get(
-      '/allocations/fifo/preview',
+      "/allocations/fifo/preview",
       queryParams,
     );
     return response.data || response;

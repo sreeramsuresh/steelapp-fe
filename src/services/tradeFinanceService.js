@@ -1,14 +1,14 @@
-import { api } from './api';
+import { api } from "./api";
 
 export const tradeFinanceService = {
   // Get all trade finance records
   async getTradeFinanceRecords(params = {}) {
     try {
       // api.get() delegates to apiService.get() which already returns response.data
-      const data = await api.get('/trade-finance', { params });
+      const data = await api.get("/trade-finance", { params });
       return data;
     } catch (error) {
-      console.error('Error fetching trade finance records:', error);
+      console.error("Error fetching trade finance records:", error);
       throw error;
     }
   },
@@ -19,7 +19,7 @@ export const tradeFinanceService = {
       const data = await api.get(`/trade-finance/${id}`);
       return data;
     } catch (error) {
-      console.error('Error fetching trade finance record:', error);
+      console.error("Error fetching trade finance record:", error);
       throw error;
     }
   },
@@ -27,10 +27,10 @@ export const tradeFinanceService = {
   // Create new trade finance record
   async createTradeFinanceRecord(data) {
     try {
-      const result = await api.post('/trade-finance', data);
+      const result = await api.post("/trade-finance", data);
       return result;
     } catch (error) {
-      console.error('Error creating trade finance record:', error);
+      console.error("Error creating trade finance record:", error);
       throw error;
     }
   },
@@ -41,7 +41,7 @@ export const tradeFinanceService = {
       const result = await api.put(`/trade-finance/${id}`, data);
       return result;
     } catch (error) {
-      console.error('Error updating trade finance record:', error);
+      console.error("Error updating trade finance record:", error);
       throw error;
     }
   },
@@ -52,13 +52,13 @@ export const tradeFinanceService = {
       const result = await api.delete(`/trade-finance/${id}`);
       return result;
     } catch (error) {
-      console.error('Error deleting trade finance record:', error);
+      console.error("Error deleting trade finance record:", error);
       throw error;
     }
   },
 
   // Update status
-  async updateStatus(id, status, notes = '') {
+  async updateStatus(id, status, notes = "") {
     try {
       const result = await api.patch(`/trade-finance/${id}/status`, {
         status,
@@ -66,7 +66,7 @@ export const tradeFinanceService = {
       });
       return result;
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error("Error updating status:", error);
       throw error;
     }
   },
@@ -82,7 +82,7 @@ export const tradeFinanceService = {
       );
       return result;
     } catch (error) {
-      console.error('Error calculating commission:', error);
+      console.error("Error calculating commission:", error);
       throw error;
     }
   },
@@ -90,12 +90,12 @@ export const tradeFinanceService = {
   // Get expiring instruments
   async getExpiringInstruments(days = 30) {
     try {
-      const data = await api.get('/trade-finance/expiring', {
+      const data = await api.get("/trade-finance/expiring", {
         params: { days },
       });
       return data;
     } catch (error) {
-      console.error('Error fetching expiring instruments:', error);
+      console.error("Error fetching expiring instruments:", error);
       throw error;
     }
   },
@@ -103,10 +103,10 @@ export const tradeFinanceService = {
   // Get instrument types
   async getInstrumentTypes() {
     try {
-      const data = await api.get('/trade-finance/types/list');
+      const data = await api.get("/trade-finance/types/list");
       return data;
     } catch (error) {
-      console.error('Error fetching instrument types:', error);
+      console.error("Error fetching instrument types:", error);
       throw error;
     }
   },
@@ -114,12 +114,12 @@ export const tradeFinanceService = {
   // Get document requirements
   async getDocumentRequirements(instrument_type) {
     try {
-      const data = await api.get('/trade-finance/documents/requirements', {
+      const data = await api.get("/trade-finance/documents/requirements", {
         params: { instrument_type },
       });
       return data;
     } catch (error) {
-      console.error('Error fetching document requirements:', error);
+      console.error("Error fetching document requirements:", error);
       throw error;
     }
   },
@@ -127,16 +127,16 @@ export const tradeFinanceService = {
   // Get status options
   getStatusOptions() {
     return [
-      { value: 'draft', label: 'Draft', color: 'gray' },
-      { value: 'issued', label: 'Issued', color: 'blue' },
-      { value: 'advised', label: 'Advised', color: 'yellow' },
-      { value: 'confirmed', label: 'Confirmed', color: 'purple' },
-      { value: 'presented', label: 'Presented', color: 'orange' },
-      { value: 'accepted', label: 'Accepted', color: 'green' },
-      { value: 'paid', label: 'Paid', color: 'green' },
-      { value: 'discrepant', label: 'Discrepant', color: 'red' },
-      { value: 'rejected', label: 'Rejected', color: 'red' },
-      { value: 'expired', label: 'Expired', color: 'gray' },
+      { value: "draft", label: "Draft", color: "gray" },
+      { value: "issued", label: "Issued", color: "blue" },
+      { value: "advised", label: "Advised", color: "yellow" },
+      { value: "confirmed", label: "Confirmed", color: "purple" },
+      { value: "presented", label: "Presented", color: "orange" },
+      { value: "accepted", label: "Accepted", color: "green" },
+      { value: "paid", label: "Paid", color: "green" },
+      { value: "discrepant", label: "Discrepant", color: "red" },
+      { value: "rejected", label: "Rejected", color: "red" },
+      { value: "expired", label: "Expired", color: "gray" },
     ];
   },
 };

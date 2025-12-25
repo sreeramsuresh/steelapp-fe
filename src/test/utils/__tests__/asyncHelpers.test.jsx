@@ -3,10 +3,10 @@
  * Verifies async operation and timing utilities
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
 import {
   clickAndWaitForApi,
   waitForApiCall,
@@ -19,11 +19,11 @@ import {
   waitForCallback,
   waitForAttributeChange,
   createTimer,
-} from '../asyncHelpers';
+} from "../asyncHelpers";
 
-describe('asyncHelpers', () => {
-  describe('waitForApiCall', () => {
-    it('waits for mock function to be called', async () => {
+describe("asyncHelpers", () => {
+  describe("waitForApiCall", () => {
+    it("waits for mock function to be called", async () => {
       const mockApi = vi.fn().mockResolvedValue({ success: true });
 
       setTimeout(() => {
@@ -34,13 +34,13 @@ describe('asyncHelpers', () => {
       expect(mockApi).toHaveBeenCalled();
     });
 
-    it('times out if API call never happens', async () => {
+    it("times out if API call never happens", async () => {
       const mockApi = vi.fn();
 
       await expect(waitForApiCall(mockApi, { timeout: 100 })).rejects.toThrow();
     });
 
-    it('checks call arguments', async () => {
+    it("checks call arguments", async () => {
       const mockApi = vi.fn().mockResolvedValue({});
 
       setTimeout(() => {
@@ -52,8 +52,8 @@ describe('asyncHelpers', () => {
     });
   });
 
-  describe('waitForDebounce', () => {
-    it('waits for debounce delay', async () => {
+  describe("waitForDebounce", () => {
+    it("waits for debounce delay", async () => {
       const callback = vi.fn();
       const delayMs = 200;
       const timer = createTimer();
@@ -65,15 +65,15 @@ describe('asyncHelpers', () => {
       expect(timer.elapsed()).toBeGreaterThanOrEqual(delayMs);
     });
 
-    it('accounts for debounce delay variability', async () => {
+    it("accounts for debounce delay variability", async () => {
       const timer = createTimer();
       await waitForDebounce(100, { variability: 50 });
       expect(timer.elapsed()).toBeGreaterThanOrEqual(100);
     });
   });
 
-  describe('performAsyncButtonClick', () => {
-    it('clicks button and checks state change', async () => {
+  describe("performAsyncButtonClick", () => {
+    it("clicks button and checks state change", async () => {
       const stateChecker = vi.fn().mockResolvedValue(true);
 
       const AsyncComponent = () => {
@@ -93,7 +93,7 @@ describe('asyncHelpers', () => {
       };
 
       render(<AsyncComponent />);
-      const button = screen.getByRole('button');
+      const button = screen.getByRole("button");
 
       await performAsyncButtonClick(button, stateChecker);
 
@@ -101,11 +101,11 @@ describe('asyncHelpers', () => {
       expect(button.disabled).toBe(false); // Should be enabled again
     });
 
-    it('times out if state never changes', async () => {
+    it("times out if state never changes", async () => {
       const stateChecker = vi.fn().mockResolvedValue(false);
 
       render(<button>Action</button>);
-      const button = screen.getByRole('button');
+      const button = screen.getByRole("button");
 
       await expect(
         performAsyncButtonClick(button, stateChecker, { timeout: 100 }),
@@ -113,8 +113,8 @@ describe('asyncHelpers', () => {
     });
   });
 
-  describe('waitForLoadingStart', () => {
-    it('waits for loading element to appear', async () => {
+  describe("waitForLoadingStart", () => {
+    it("waits for loading element to appear", async () => {
       const LoadingComponent = () => {
         const [isLoading, setIsLoading] = React.useState(false);
         return (
@@ -126,15 +126,15 @@ describe('asyncHelpers', () => {
       };
 
       render(<LoadingComponent />);
-      const button = screen.getByRole('button');
+      const button = screen.getByRole("button");
 
       await userEvent.click(button);
       await waitForLoadingStart('[class*="spinner"]');
 
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.getByText("Loading...")).toBeInTheDocument();
     });
 
-    it('times out if loading never starts', async () => {
+    it("times out if loading never starts", async () => {
       render(<button>No Loading</button>);
 
       await expect(
@@ -143,8 +143,8 @@ describe('asyncHelpers', () => {
     });
   });
 
-  describe('waitForLoadingEnd', () => {
-    it('waits for loading element to disappear', async () => {
+  describe("waitForLoadingEnd", () => {
+    it("waits for loading element to disappear", async () => {
       const LoadingComponent = () => {
         const [isLoading, setIsLoading] = React.useState(true);
         React.useEffect(() => {
@@ -160,16 +160,16 @@ describe('asyncHelpers', () => {
       };
 
       render(<LoadingComponent />);
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.getByText("Loading...")).toBeInTheDocument();
 
       await waitForLoadingEnd('[class*="spinner"]');
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-      expect(screen.getByText('Complete')).toBeInTheDocument();
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+      expect(screen.getByText("Complete")).toBeInTheDocument();
     });
   });
 
-  describe('retryUntil', () => {
-    it('retries condition until it passes', async () => {
+  describe("retryUntil", () => {
+    it("retries condition until it passes", async () => {
       let attempts = 0;
       const condition = vi.fn(async () => {
         attempts++;
@@ -182,7 +182,7 @@ describe('asyncHelpers', () => {
       expect(attempts).toBe(3);
     });
 
-    it('fails if max retries exceeded', async () => {
+    it("fails if max retries exceeded", async () => {
       const condition = vi.fn().mockResolvedValue(false);
 
       await expect(
@@ -192,7 +192,7 @@ describe('asyncHelpers', () => {
       expect(condition).toHaveBeenCalledTimes(3); // initial + 2 retries
     });
 
-    it('stops early on success', async () => {
+    it("stops early on success", async () => {
       const condition = vi
         .fn()
         .mockResolvedValueOnce(false)
@@ -208,8 +208,8 @@ describe('asyncHelpers', () => {
     });
   });
 
-  describe('pollForCondition', () => {
-    it('polls until condition is true', async () => {
+  describe("pollForCondition", () => {
+    it("polls until condition is true", async () => {
       let value = 0;
       const condition = () => {
         value++;
@@ -221,7 +221,7 @@ describe('asyncHelpers', () => {
       expect(value).toBeGreaterThanOrEqual(3);
     });
 
-    it('times out if condition never becomes true', async () => {
+    it("times out if condition never becomes true", async () => {
       const condition = () => false;
 
       await expect(
@@ -230,19 +230,19 @@ describe('asyncHelpers', () => {
     });
   });
 
-  describe('waitForCallback', () => {
-    it('waits for callback to be called', async () => {
+  describe("waitForCallback", () => {
+    it("waits for callback to be called", async () => {
       const callback = vi.fn();
 
       setTimeout(() => {
-        callback('result');
+        callback("result");
       }, 100);
 
       await waitForCallback(callback, { timeout: 500 });
-      expect(callback).toHaveBeenCalledWith('result');
+      expect(callback).toHaveBeenCalledWith("result");
     });
 
-    it('times out if callback never fires', async () => {
+    it("times out if callback never fires", async () => {
       const callback = vi.fn();
 
       await expect(
@@ -251,32 +251,32 @@ describe('asyncHelpers', () => {
     });
   });
 
-  describe('waitForAttributeChange', () => {
-    it('waits for element attribute to change', async () => {
+  describe("waitForAttributeChange", () => {
+    it("waits for element attribute to change", async () => {
       const { rerender } = render(<button aria-busy="false">Save</button>);
 
-      const button = screen.getByRole('button');
+      const button = screen.getByRole("button");
 
       setTimeout(() => {
         rerender(<button aria-busy="true">Save</button>);
       }, 100);
 
-      await waitForAttributeChange(button, 'aria-busy', 'true');
-      expect(button).toHaveAttribute('aria-busy', 'true');
+      await waitForAttributeChange(button, "aria-busy", "true");
+      expect(button).toHaveAttribute("aria-busy", "true");
     });
 
-    it('times out if attribute never changes', async () => {
+    it("times out if attribute never changes", async () => {
       render(<button aria-busy="false">Save</button>);
-      const button = screen.getByRole('button');
+      const button = screen.getByRole("button");
 
       await expect(
-        waitForAttributeChange(button, 'aria-busy', 'true', 100),
+        waitForAttributeChange(button, "aria-busy", "true", 100),
       ).rejects.toThrow();
     });
   });
 
-  describe('createTimer', () => {
-    it('measures elapsed time', async () => {
+  describe("createTimer", () => {
+    it("measures elapsed time", async () => {
       const timer = createTimer();
 
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -286,7 +286,7 @@ describe('asyncHelpers', () => {
       expect(elapsed).toBeLessThan(200); // Some margin
     });
 
-    it('can be reset', async () => {
+    it("can be reset", async () => {
       const timer = createTimer();
 
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -299,17 +299,17 @@ describe('asyncHelpers', () => {
       expect(elapsed).toBeLessThan(100);
     });
 
-    it('can mark checkpoints', async () => {
+    it("can mark checkpoints", async () => {
       const timer = createTimer();
 
       await new Promise((resolve) => setTimeout(resolve, 50));
-      timer.mark('first');
+      timer.mark("first");
 
       await new Promise((resolve) => setTimeout(resolve, 50));
-      timer.mark('second');
+      timer.mark("second");
 
-      const firstMark = timer.elapsed('first');
-      const secondMark = timer.elapsed('second');
+      const firstMark = timer.elapsed("first");
+      const secondMark = timer.elapsed("second");
 
       expect(firstMark).toBeGreaterThanOrEqual(50);
       expect(secondMark).toBeGreaterThanOrEqual(100);
@@ -317,8 +317,8 @@ describe('asyncHelpers', () => {
     });
   });
 
-  describe('clickAndWaitForApi', () => {
-    it('clicks button and waits for API call', async () => {
+  describe("clickAndWaitForApi", () => {
+    it("clicks button and waits for API call", async () => {
       const mockApi = vi.fn().mockResolvedValue({ success: true });
 
       const AsyncComponent = () => {
@@ -329,7 +329,7 @@ describe('asyncHelpers', () => {
       };
 
       render(<AsyncComponent />);
-      const button = screen.getByRole('button');
+      const button = screen.getByRole("button");
 
       // Simulate delayed API call
       setTimeout(() => mockApi(), 100);

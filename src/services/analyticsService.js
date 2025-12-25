@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 export const analyticsService = {
   // Normalize common date param names to snake_case expected by API
@@ -19,53 +19,53 @@ export const analyticsService = {
 
   async getDashboardData(params = {}) {
     return apiClient.get(
-      '/analytics/dashboard',
+      "/analytics/dashboard",
       analyticsService.normalizeParams(params),
     );
   },
 
   async getSalesTrends(params = {}) {
     return apiClient.get(
-      '/analytics/sales-trends',
+      "/analytics/sales-trends",
       analyticsService.normalizeParams(params),
     );
   },
 
   async getProductPerformance(params = {}) {
     return apiClient.get(
-      '/analytics/product-performance',
+      "/analytics/product-performance",
       analyticsService.normalizeParams(params),
     );
   },
 
   async getCustomerAnalysis(params = {}) {
     return apiClient.get(
-      '/analytics/customer-analysis',
+      "/analytics/customer-analysis",
       analyticsService.normalizeParams(params),
     );
   },
 
   async getInventoryInsights() {
-    return apiClient.get('/analytics/inventory-insights');
+    return apiClient.get("/analytics/inventory-insights");
   },
 
   async getRevenueMetrics(startDate, endDate) {
-    return apiClient.get('/analytics/dashboard', {
+    return apiClient.get("/analytics/dashboard", {
       start_date: startDate,
       end_date: endDate,
     });
   },
 
-  async getMonthlyTrends(period = 'month') {
-    return apiClient.get('/analytics/sales-trends', { period });
+  async getMonthlyTrends(period = "month") {
+    return apiClient.get("/analytics/sales-trends", { period });
   },
 
   async getTopCustomers(limit = 10) {
-    return apiClient.get('/analytics/customer-analysis', { limit });
+    return apiClient.get("/analytics/customer-analysis", { limit });
   },
 
   async getTopProducts(limit = 10) {
-    return apiClient.get('/analytics/product-performance', { limit });
+    return apiClient.get("/analytics/product-performance", { limit });
   },
 
   // NEW KPI ENDPOINTS
@@ -75,7 +75,7 @@ export const analyticsService = {
    */
   async getARAgingBuckets() {
     // Use the new AR Aging Report API with summary_only mode
-    const response = await apiClient.get('/reports/ar-aging', {
+    const response = await apiClient.get("/reports/ar-aging", {
       summary_only: true,
       page_size: 5,
     });
@@ -88,31 +88,31 @@ export const analyticsService = {
       return {
         buckets: [
           {
-            label: 'Current',
+            label: "Current",
             amount: totals.agingCurrent || 0,
             percentage:
               totalAr > 0 ? ((totals.agingCurrent || 0) / totalAr) * 100 : 0,
           },
           {
-            label: '1-30 Days',
+            label: "1-30 Days",
             amount: totals.aging1To30 || 0,
             percentage:
               totalAr > 0 ? ((totals.aging1To30 || 0) / totalAr) * 100 : 0,
           },
           {
-            label: '31-60 Days',
+            label: "31-60 Days",
             amount: totals.aging31To60 || 0,
             percentage:
               totalAr > 0 ? ((totals.aging31To60 || 0) / totalAr) * 100 : 0,
           },
           {
-            label: '61-90 Days',
+            label: "61-90 Days",
             amount: totals.aging61To90 || 0,
             percentage:
               totalAr > 0 ? ((totals.aging61To90 || 0) / totalAr) * 100 : 0,
           },
           {
-            label: '90+ Days',
+            label: "90+ Days",
             amount: totals.aging90Plus || 0,
             percentage:
               totalAr > 0 ? ((totals.aging90Plus || 0) / totalAr) * 100 : 0,
@@ -133,7 +133,7 @@ export const analyticsService = {
    * @param {number} months - Number of months to fetch (default 12)
    */
   async getRevenueTrend(months = 12) {
-    return apiClient.get('/analytics/revenue-trend', { months });
+    return apiClient.get("/analytics/revenue-trend", { months });
   },
 
   /**
@@ -145,7 +145,7 @@ export const analyticsService = {
     const params = {};
     if (dateFrom) params.date_from = dateFrom;
     if (dateTo) params.date_to = dateTo;
-    return apiClient.get('/analytics/gross-margin', params);
+    return apiClient.get("/analytics/gross-margin", params);
   },
 
   /**
@@ -153,14 +153,14 @@ export const analyticsService = {
    * @param {number} daysPeriod - Number of days to calculate DSO (default 90)
    */
   async getDSOMetric(daysPeriod = 90) {
-    return apiClient.get('/analytics/dso', { days_period: daysPeriod });
+    return apiClient.get("/analytics/dso", { days_period: daysPeriod });
   },
 
   /**
    * Get Credit Utilization metrics
    */
   async getCreditUtilization() {
-    return apiClient.get('/analytics/credit-utilization');
+    return apiClient.get("/analytics/credit-utilization");
   },
 
   /**
@@ -168,7 +168,7 @@ export const analyticsService = {
    * Returns: AR Aging, Gross Margin, DSO, Credit Utilization
    */
   async getDashboardKPIs() {
-    return apiClient.get('/analytics/dashboard-kpis');
+    return apiClient.get("/analytics/dashboard-kpis");
   },
 
   // ============================================================
@@ -182,7 +182,7 @@ export const analyticsService = {
    */
   async getNetProfit(params = {}) {
     const normalizedParams = analyticsService.normalizeParams(params);
-    return apiClient.get('/analytics/net-profit', normalizedParams);
+    return apiClient.get("/analytics/net-profit", normalizedParams);
   },
 
   /**
@@ -190,7 +190,7 @@ export const analyticsService = {
    * @returns {Promise<Object>} { buckets, total_ap, overdue_ap }
    */
   async getAPAging() {
-    return apiClient.get('/analytics/ap-aging');
+    return apiClient.get("/analytics/ap-aging");
   },
 
   /**
@@ -200,7 +200,7 @@ export const analyticsService = {
    */
   async getCashFlow(params = {}) {
     const normalizedParams = analyticsService.normalizeParams(params);
-    return apiClient.get('/analytics/cash-flow', normalizedParams);
+    return apiClient.get("/analytics/cash-flow", normalizedParams);
   },
 
   /**
@@ -209,6 +209,6 @@ export const analyticsService = {
    * @returns {Promise<Object>} { turnover_ratio, days_of_inventory, cogs, by_category }
    */
   async getStockTurnover(params = {}) {
-    return apiClient.get('/analytics/stock-turnover', params);
+    return apiClient.get("/analytics/stock-turnover", params);
   },
 };

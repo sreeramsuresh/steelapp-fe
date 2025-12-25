@@ -10,7 +10,7 @@
  * - Support for UAE and GCC country TRN formats
  */
 
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * TRN Format patterns for client-side validation
@@ -19,40 +19,40 @@ import { apiClient } from './api';
 const TRN_FORMATS = {
   AE: {
     pattern: /^\d{15}$/,
-    description: '15 digits exactly (e.g., 100-1234-5678-9123)',
-    example: '100123456789123',
-    displayFormat: 'XXX-XXXX-XXXX-XXXX',
-    country: 'UAE',
+    description: "15 digits exactly (e.g., 100-1234-5678-9123)",
+    example: "100123456789123",
+    displayFormat: "XXX-XXXX-XXXX-XXXX",
+    country: "UAE",
   },
   SA: {
     pattern: /^3\d{14}$/,
-    description: '15 digits starting with 3',
-    example: '310123456789012',
-    country: 'Saudi Arabia',
+    description: "15 digits starting with 3",
+    example: "310123456789012",
+    country: "Saudi Arabia",
   },
   BH: {
     pattern: /^\d{13}$/,
-    description: '13 digits',
-    example: '1234567890123',
-    country: 'Bahrain',
+    description: "13 digits",
+    example: "1234567890123",
+    country: "Bahrain",
   },
   OM: {
     pattern: /^\d{8}$/,
-    description: '8 digits',
-    example: '12345678',
-    country: 'Oman',
+    description: "8 digits",
+    example: "12345678",
+    country: "Oman",
   },
   KW: {
     pattern: /^.+$/,
-    description: 'No standard format (VAT not implemented)',
-    example: 'N/A',
-    country: 'Kuwait',
+    description: "No standard format (VAT not implemented)",
+    example: "N/A",
+    country: "Kuwait",
   },
   QA: {
     pattern: /^.+$/,
-    description: 'No standard format (VAT not implemented)',
-    example: 'N/A',
-    country: 'Qatar',
+    description: "No standard format (VAT not implemented)",
+    example: "N/A",
+    country: "Qatar",
   },
 };
 
@@ -68,8 +68,8 @@ export const trnService = {
    * @returns {string} Formatted TRN or original if invalid
    */
   formatForDisplay(trn) {
-    if (!trn) return '';
-    const clean = String(trn).replace(/[\s-]/g, '');
+    if (!trn) return "";
+    const clean = String(trn).replace(/[\s-]/g, "");
     if (clean.length !== 15 || !/^\d{15}$/.test(clean)) return trn;
     return `${clean.slice(0, 3)}-${clean.slice(3, 7)}-${clean.slice(7, 11)}-${clean.slice(11)}`;
   },
@@ -81,8 +81,8 @@ export const trnService = {
    * @returns {string} Clean 15-digit TRN or original if cannot normalize
    */
   normalizeInput(trn) {
-    if (!trn) return '';
-    return String(trn).replace(/[\s-]/g, '');
+    if (!trn) return "";
+    return String(trn).replace(/[\s-]/g, "");
   },
 
   /**
@@ -94,7 +94,7 @@ export const trnService = {
    */
   handleInput(trn) {
     const clean = this.normalizeInput(trn);
-    const digitsOnly = clean.replace(/\D/g, '');
+    const digitsOnly = clean.replace(/\D/g, "");
 
     // Limit to 15 digits
     const limited = digitsOnly.slice(0, 15);
@@ -115,16 +115,16 @@ export const trnService = {
    * @param {string} countryCode - ISO 2-letter country code (default: AE)
    * @returns {object} Validation result
    */
-  validateFormat(trn, countryCode = 'AE') {
-    if (!trn || typeof trn !== 'string') {
+  validateFormat(trn, countryCode = "AE") {
+    if (!trn || typeof trn !== "string") {
       return {
         valid: false,
-        error: 'TRN is required',
+        error: "TRN is required",
       };
     }
 
     // Clean the TRN (remove spaces, dashes)
-    const cleanTRN = trn.replace(/[\s-]/g, '');
+    const cleanTRN = trn.replace(/[\s-]/g, "");
 
     // Get format rules for country
     const format = TRN_FORMATS[countryCode.toUpperCase()];
@@ -163,9 +163,9 @@ export const trnService = {
    * @param {string} countryCode - ISO 2-letter country code (default: AE)
    * @returns {Promise<object>} Verification result
    */
-  async verify(trn, countryCode = 'AE') {
+  async verify(trn, countryCode = "AE") {
     try {
-      const response = await apiClient.post('/trn/verify', {
+      const response = await apiClient.post("/trn/verify", {
         trn,
         country_code: countryCode,
       });
@@ -183,11 +183,11 @@ export const trnService = {
         verified: null,
         formatValid: errorData.format_valid || false,
         apiConfigured: errorData.api_configured || false,
-        error: errorData.message || error.message || 'Verification failed',
-        errorCode: errorData.error_code || 'UNKNOWN_ERROR',
+        error: errorData.message || error.message || "Verification failed",
+        errorCode: errorData.error_code || "UNKNOWN_ERROR",
         manualVerificationUrl:
           errorData.manual_verification_url ||
-          'https://tax.gov.ae/en/trn.verification.aspx',
+          "https://tax.gov.ae/en/trn.verification.aspx",
       };
     }
   },
@@ -200,9 +200,9 @@ export const trnService = {
    * @param {string} countryCode - ISO 2-letter country code (default: AE)
    * @returns {Promise<object>} Validation result
    */
-  async validateRemote(trn, countryCode = 'AE') {
+  async validateRemote(trn, countryCode = "AE") {
     try {
-      const response = await apiClient.post('/trn/validate', {
+      const response = await apiClient.post("/trn/validate", {
         trn,
         country_code: countryCode,
       });
@@ -216,7 +216,7 @@ export const trnService = {
         success: false,
         valid: false,
         error:
-          error.response?.data?.message || error.message || 'Validation failed',
+          error.response?.data?.message || error.message || "Validation failed",
       };
     }
   },
@@ -228,7 +228,7 @@ export const trnService = {
    */
   async getStatus() {
     try {
-      const response = await apiClient.get('/trn/status');
+      const response = await apiClient.get("/trn/status");
       return {
         success: true,
         ...response,
@@ -236,7 +236,7 @@ export const trnService = {
     } catch (error) {
       return {
         success: false,
-        error: error.message || 'Failed to get service status',
+        error: error.message || "Failed to get service status",
       };
     }
   },
@@ -248,7 +248,7 @@ export const trnService = {
    */
   async getFormats() {
     try {
-      const response = await apiClient.get('/trn/formats');
+      const response = await apiClient.get("/trn/formats");
       return {
         success: true,
         ...response,
@@ -263,8 +263,8 @@ export const trnService = {
           description: format.description,
           example: format.example,
         })),
-        defaultCountry: 'AE',
-        source: 'local_fallback',
+        defaultCountry: "AE",
+        source: "local_fallback",
       };
     }
   },
@@ -295,14 +295,14 @@ export const trnService = {
    * @returns {boolean} True if VAT is implemented
    */
   hasVatSystem(countryCode) {
-    const noVatCountries = ['KW', 'QA'];
+    const noVatCountries = ["KW", "QA"];
     return !noVatCountries.includes(countryCode?.toUpperCase());
   },
 
   /**
    * Manual verification URL
    */
-  manualVerificationUrl: 'https://tax.gov.ae/en/trn.verification.aspx',
+  manualVerificationUrl: "https://tax.gov.ae/en/trn.verification.aspx",
 };
 
 export default trnService;

@@ -1,10 +1,10 @@
-import api from './api';
+import api from "./api";
 
 const pricelistService = {
   // Get all pricelists
   async getAll(params = {}) {
     // api.get() delegates to apiService.get() which already returns response.data
-    const data = await api.get('/pricelists', { params });
+    const data = await api.get("/pricelists", { params });
     return data;
   },
 
@@ -16,7 +16,7 @@ const pricelistService = {
 
   // Create new pricelist
   async create(data) {
-    const result = await api.post('/pricelists', data);
+    const result = await api.post("/pricelists", data);
     return result;
   },
 
@@ -41,7 +41,7 @@ const pricelistService = {
   },
 
   // Bulk update pricelist items
-  async updateItems(pricelistId, items, operation = 'upsert') {
+  async updateItems(pricelistId, items, operation = "upsert") {
     const result = await api.put(`/pricelists/${pricelistId}/items`, {
       items,
       operation,
@@ -64,7 +64,7 @@ const pricelistService = {
   },
 
   // Apply percentage change to all items
-  async applyPercentage(pricelistId, percentage, operation = 'increase') {
+  async applyPercentage(pricelistId, percentage, operation = "increase") {
     const result = await api.post(
       `/pricelists/${pricelistId}/apply-percentage`,
       {
@@ -92,7 +92,7 @@ const pricelistService = {
 
   // Bulk price lookup for multiple products
   async bulkPriceLookup(productIds, params = {}) {
-    const result = await api.post('/products/bulk-price-lookup', {
+    const result = await api.post("/products/bulk-price-lookup", {
       product_ids: productIds,
       ...params,
     });
@@ -101,7 +101,7 @@ const pricelistService = {
 
   // Get price for a product based on quantity (volume discount support)
   async getPriceForQuantity(productId, pricelistId, quantity) {
-    const data = await api.get('/pricelists/price-for-quantity', {
+    const data = await api.get("/pricelists/price-for-quantity", {
       params: {
         product_id: productId,
         pricelist_id: pricelistId,
