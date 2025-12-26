@@ -16,7 +16,7 @@ import { apiClient } from "./api";
 const transformGRNForServer = (grnData) => {
   return {
     purchaseOrderId: grnData.purchaseOrderId || null,
-    supplierId: grnData.supplierId || grnData.vendorId || null,
+    supplierId: grnData.supplierId || null,
     warehouseId: grnData.warehouseId || null,
     receivedDate:
       grnData.receivedDate || new Date().toISOString().split("T")[0],
@@ -177,7 +177,7 @@ const grnService = {
       const queryParams = {
         page: params.page || 1,
         pageSize: params.pageSize || params.limit || 50,
-        supplierId: params.supplierId || params.vendorId || undefined,
+        supplierId: params.supplierId || undefined,
         purchaseOrderId: params.purchaseOrderId || undefined,
         warehouseId: params.warehouseId || undefined,
         status: params.status || undefined,
@@ -257,7 +257,7 @@ const grnService = {
   async getUnbilled(params = {}) {
     try {
       const queryParams = {
-        supplierId: params.supplierId || params.vendorId || undefined,
+        supplierId: params.supplierId || undefined,
         page: params.page || 1,
         pageSize: params.pageSize || 50,
       };

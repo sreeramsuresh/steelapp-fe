@@ -119,8 +119,8 @@ const DebitNoteForm = () => {
   const [debitNote, setDebitNote] = useState({
     vendorBillId: null,
     vendorBillNumber: "",
-    vendorId: null,
-    vendor: null,
+    supplierId: null,
+    supplier: null,
     debitNoteNumber: "",
     debitNoteDate: formatDateForInput(new Date()),
     reason: "",
@@ -247,10 +247,10 @@ const DebitNoteForm = () => {
         ...prev,
         vendorBillId: bill.id,
         vendorBillNumber: bill.billNumber,
-        vendorId: bill.vendorId,
-        vendor: bill.vendorDetails || {
-          name: bill.vendorName,
-          trn: bill.vendorTrn,
+        supplierId: bill.supplierId,
+        supplier: bill.supplierDetails || {
+          name: bill.supplierName,
+          trn: bill.supplierTrn,
         },
         vatCategory: bill.vatCategory || "STANDARD",
         isReverseCharge: bill.isReverseCharge || false,
@@ -640,8 +640,8 @@ const DebitNoteForm = () => {
                                 ...prev,
                                 vendorBillId: null,
                                 vendorBillNumber: "",
-                                vendorId: null,
-                                vendor: null,
+                                supplierId: null,
+                                supplier: null,
                               }));
                             }}
                             className={`px-2.5 py-1 text-xs rounded-xl border transition-colors ${

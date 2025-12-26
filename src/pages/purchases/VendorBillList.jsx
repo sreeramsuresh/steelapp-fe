@@ -167,7 +167,7 @@ const VendorBillList = () => {
         search: debouncedSearch || undefined,
         status: statusFilter || undefined,
         vatCategory: vatCategoryFilter || undefined,
-        vendorId: vendorFilter || undefined,
+        supplierId: vendorFilter || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
       };

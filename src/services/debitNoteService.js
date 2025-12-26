@@ -53,18 +53,15 @@ const transformDebitNoteFromServer = (serverData) => {
     companyId: serverData.companyId,
     vendorBillId: serverData.vendorBillId,
     vendorBillNumber: serverData.vendorBillNumber || "",
-    // Handle both vendorId and supplierId naming from backend
-    vendorId: serverData.vendorId || serverData.supplierId || null,
-    vendorDetails: serverData.vendorDetails || serverData.supplierDetails || {},
-    vendorName:
-      serverData.vendorName ||
+    supplierId: serverData.supplierId || null,
+    supplierDetails: serverData.supplierDetails || {},
+    supplierName:
       serverData.supplierName ||
-      serverData.vendorDetails?.name ||
+      serverData.supplierDetails?.name ||
       "",
-    vendorTrn:
-      serverData.vendorTrn ||
+    supplierTrn:
       serverData.supplierTrn ||
-      serverData.vendorDetails?.trn ||
+      serverData.supplierDetails?.trn ||
       "",
     debitNoteNumber: serverData.debitNoteNumber || "",
     debitNoteDate: serverData.debitNoteDate || null,
@@ -121,7 +118,7 @@ const debitNoteService = {
    * @param {Object} params - Query parameters
    * @param {number} params.page - Page number
    * @param {number} params.pageSize - Items per page
-   * @param {number} params.vendorId - Filter by vendor
+   * @param {number} params.supplierId - Filter by supplier
    * @param {number} params.vendorBillId - Filter by vendor bill
    * @param {string} params.status - Filter by status
    * @param {string} params.startDate - Filter by date from
@@ -134,8 +131,7 @@ const debitNoteService = {
       const queryParams = {
         page: params.page || 1,
         pageSize: params.pageSize || params.limit || 50,
-        // API gateway expects supplier_id, not vendor_id
-        supplierId: params.vendorId || params.supplierId || undefined,
+        supplierId: params.supplierId || undefined,
         vendorBillId: params.vendorBillId || undefined,
         status: params.status || undefined,
         startDate: params.startDate || undefined,
@@ -220,21 +216,21 @@ const debitNoteService = {
   },
 
   /**
-   * Get debit notes by vendor ID
-   * @param {number|string} vendorId - Vendor ID
+   * Get debit notes by supplier ID
+   * @param {number|string} supplierId - Supplier ID
    * @returns {Promise<Array>}
    */
-  async getByVendor(vendorId) {
+  async getBySupplier(supplierId) {
     try {
       const response = await apiClient.get(
-        `/debit-notes/by-vendor/${vendorId}`,
+        `/debit-notes/by-supplier/${supplierId}`,
       );
       const debitNotes = Array.isArray(response)
         ? response
         : response.data || [];
       return debitNotes.map(transformDebitNoteFromServer);
     } catch (error) {
-      console.error("[DebitNoteService] getByVendor failed:", error);
+      console.error("[DebitNoteService] getBySupplier failed:", error);
       throw error;
     }
   },

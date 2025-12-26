@@ -21,8 +21,7 @@ import { apiClient } from "./api";
 const transformVendorBillForServer = (billData) => {
   return {
     // Use supplierId to match API gateway expected field (converts to supplier_id)
-    supplierId:
-      billData.vendorId || billData.vendor?.id || billData.supplierId || null,
+    supplierId: billData.supplierId || billData.supplier?.id || null,
     vendorInvoiceNumber: billData.vendorInvoiceNumber || "",
     billDate: billData.billDate || null,
     dueDate: billData.dueDate || null,
@@ -83,18 +82,15 @@ const transformVendorBillFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId,
-    // Handle both vendorId and supplierId naming conventions
-    vendorId: serverData.vendorId || serverData.supplierId || null,
-    vendorDetails: serverData.vendorDetails || serverData.supplierDetails || {},
-    vendorName:
-      serverData.vendorName ||
+    supplierId: serverData.supplierId || null,
+    supplierDetails: serverData.supplierDetails || {},
+    supplierName:
       serverData.supplierName ||
-      serverData.vendorDetails?.name ||
+      serverData.supplierDetails?.name ||
       "",
-    vendorTrn:
-      serverData.vendorTrn ||
+    supplierTrn:
       serverData.supplierTrn ||
-      serverData.vendorDetails?.trn ||
+      serverData.supplierDetails?.trn ||
       "",
     billNumber: serverData.billNumber || "",
     vendorInvoiceNumber: serverData.vendorInvoiceNumber || "",
@@ -182,7 +178,7 @@ const vendorBillService = {
    * @param {Object} params - Query parameters
    * @param {number} params.page - Page number (default: 1)
    * @param {number} params.pageSize - Items per page (default: 50)
-   * @param {number} params.vendorId - Filter by vendor ID
+   * @param {number} params.supplierId - Filter by supplier ID
    * @param {string} params.status - Filter by status (draft, approved, cancelled)
    * @param {string} params.vatCategory - Filter by VAT category
    * @param {string} params.startDate - Filter by bill date from
@@ -196,8 +192,7 @@ const vendorBillService = {
       const queryParams = {
         page: params.page || 1,
         pageSize: params.pageSize || params.limit || 50,
-        // API gateway expects supplier_id, not vendor_id
-        supplierId: params.vendorId || params.supplierId || undefined,
+        supplierId: params.supplierId || undefined,
         status: params.status || undefined,
         vatCategory: params.vatCategory || undefined,
         startDate: params.startDate || undefined,
@@ -265,19 +260,19 @@ const vendorBillService = {
   },
 
   /**
-   * Get vendor bills by vendor ID
-   * @param {number|string} vendorId - Vendor ID
+   * Get vendor bills by supplier ID
+   * @param {number|string} supplierId - Supplier ID
    * @returns {Promise<Array>}
    */
-  async getByVendor(vendorId) {
+  async getBySupplier(supplierId) {
     try {
       const response = await apiClient.get(
-        `/vendor-bills/by-vendor/${vendorId}`,
+        `/vendor-bills/by-supplier/${supplierId}`,
       );
       const bills = Array.isArray(response) ? response : response.data || [];
       return bills.map(transformVendorBillFromServer);
     } catch (error) {
-      console.error("[VendorBillService] getByVendor failed:", error);
+      console.error("[VendorBillService] getBySupplier failed:", error);
       throw error;
     }
   },
@@ -480,7 +475,7 @@ const vendorBillService = {
    * @param {Object} params - Query parameters
    * @param {string} params.startDate - Period start date
    * @param {string} params.endDate - Period end date
-   * @param {number} params.vendorId - Optional vendor filter
+   * @param {number} params.supplierId - Optional supplier filter
    * @returns {Promise<Object>}
    */
   async getAnalytics(params = {}) {

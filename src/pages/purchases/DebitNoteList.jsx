@@ -146,7 +146,7 @@ const DebitNoteList = () => {
         pageSize,
         search: debouncedSearch || undefined,
         status: statusFilter || undefined,
-        vendorId: vendorFilter || undefined,
+        supplierId: vendorFilter || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
       };

@@ -531,8 +531,8 @@ const VendorBillForm = () => {
 
   // Bill data state
   const [bill, setBill] = useState({
-    vendorId: null,
-    vendor: null,
+    supplierId: null,
+    supplier: null,
     billNumber: "",
     vendorInvoiceNumber: "",
     billDate: formatDateForInput(new Date()),
@@ -709,15 +709,15 @@ const VendorBillForm = () => {
     }
   };
 
-  // Load unbilled GRNs for the selected vendor
-  const loadUnbilledGRNs = async (vendorId) => {
-    if (!vendorId) {
+  // Load unbilled GRNs for the selected supplier
+  const loadUnbilledGRNs = async (supplierId) => {
+    if (!supplierId) {
       setAvailableGRNs([]);
       return;
     }
     try {
       setLoadingGRNs(true);
-      const grns = await grnService.getUnbilled({ vendorId });
+      const grns = await grnService.getUnbilled({ supplierId });
       setAvailableGRNs(grns || []);
     } catch (error) {
       console.error("Failed to load unbilled GRNs:", error);
@@ -727,14 +727,14 @@ const VendorBillForm = () => {
     }
   };
 
-  // Load available import containers for the selected vendor
-  const loadImportContainers = async (vendorId) => {
-    if (!vendorId) {
+  // Load available import containers for the selected supplier
+  const loadImportContainers = async (supplierId) => {
+    if (!supplierId) {
       setAvailableContainers([]);
       return;
     }
     try {
-      const response = await importContainerService.getBySupplier(vendorId);
+      const response = await importContainerService.getBySupplier(supplierId);
       const containers = response.data || response.containers || response || [];
       setAvailableContainers(Array.isArray(containers) ? containers : []);
     } catch (error) {
@@ -867,16 +867,16 @@ const VendorBillForm = () => {
     }));
   }, [calculateLandedCost]);
 
-  // Handle vendor selection
-  const handleVendorChange = (vendorId) => {
-    const vendor = vendors.find(
-      (v) => v.id === vendorId || v.id === parseInt(vendorId),
+  // Handle supplier selection
+  const handleSupplierChange = (supplierId) => {
+    const supplier = vendors.find(
+      (v) => v.id === supplierId || v.id === parseInt(supplierId),
     );
     setBill((prev) => ({
       ...prev,
-      vendorId: vendorId || null,
-      vendor: vendor || null,
-      // Clear GRN linkage when vendor changes
+      supplierId: supplierId || null,
+      supplier: supplier || null,
+      // Clear GRN linkage when supplier changes
       grnId: null,
       grnNumber: "",
       purchaseOrderId: null,
@@ -885,10 +885,10 @@ const VendorBillForm = () => {
       importContainerNumber: "",
     }));
 
-    // Load unbilled GRNs and import containers for this vendor
-    if (vendorId) {
-      loadUnbilledGRNs(vendorId);
-      loadImportContainers(vendorId);
+    // Load unbilled GRNs and import containers for this supplier
+    if (supplierId) {
+      loadUnbilledGRNs(supplierId);
+      loadImportContainers(supplierId);
     } else {
       setAvailableGRNs([]);
       setAvailableContainers([]);
@@ -1174,7 +1174,7 @@ const VendorBillForm = () => {
   const validateForm = () => {
     const errors = [];
 
-    if (!bill.vendorId) {
+    if (!bill.supplierId) {
       errors.push("Please select a vendor");
     }
     if (!bill.billNumber) {
@@ -1304,11 +1304,11 @@ const VendorBillForm = () => {
 
             <div className="flex gap-2 items-start relative">
               {/* Match to GRN Button */}
-              {bill.vendorId && !bill.grnId && (
+              {bill.supplierId && !bill.grnId && (
                 <Button
                   variant="outline"
                   onClick={() => setShowGRNMatchModal(true)}
-                  disabled={loadingGRNs || !bill.vendorId}
+                  disabled={loadingGRNs || !bill.supplierId}
                   title="Link this bill to a Goods Receipt Note for 3-way matching"
                 >
                   {loadingGRNs ? (
@@ -1447,9 +1447,9 @@ const VendorBillForm = () => {
                   <FormSelect
                     label="Vendor"
                     data-testid="vendor-select"
-                    value={bill.vendorId || "none"}
+                    value={bill.supplierId || "none"}
                     onValueChange={(value) =>
-                      handleVendorChange(value === "none" ? "" : value)
+                      handleSupplierChange(value === "none" ? "" : value)
                     }
                     required={true}
                     showValidation={false}
