@@ -302,7 +302,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
         ...prev,
         supplierId,
         supplierName: supplier.name || '',
-        supplierTrn: supplier.trn || '',
+        supplierTrn: supplier.trnNumber || '',
         supplierAddress: supplier.address || '',
       }));
     }
