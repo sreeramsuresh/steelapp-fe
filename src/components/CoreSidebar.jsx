@@ -129,7 +129,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           name: "Purchases",
           path: "/app/purchases",
           icon: ShoppingCart,
-          description: "Purchase orders, vendor bills, and payments",
+          description: "Purchase orders, supplier bills, and payments",
           requiredPermission: "purchase_orders.read",
         },
       ],

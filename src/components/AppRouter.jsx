@@ -106,11 +106,11 @@ const VATReturnReport = lazy(() => import("./VATReturnReport"));
 const RolesPage = lazy(() => import("../pages/RolesPage"));
 
 // Purchases Components
-const VendorBillList = lazy(() =>
-  import("../pages/purchases").then((m) => ({ default: m.VendorBillList })),
+const SupplierBillList = lazy(() =>
+  import("../pages/purchases").then((m) => ({ default: m.SupplierBillList })),
 );
-const VendorBillForm = lazy(() =>
-  import("../pages/purchases").then((m) => ({ default: m.VendorBillForm })),
+const SupplierBillForm = lazy(() =>
+  import("../pages/purchases").then((m) => ({ default: m.SupplierBillForm })),
 );
 const DebitNoteList = lazy(() =>
   import("../pages/purchases").then((m) => ({ default: m.DebitNoteList })),
@@ -381,24 +381,24 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               </ProtectedRoute>
             } />
 
-            <Route path="vendor-bills" element={
+            <Route path="supplier-bills" element={
               <ProtectedRoute user={user} requiredPermission="payables.read">
-                <VendorBillList />
+                <SupplierBillList />
               </ProtectedRoute>
             } />
-            <Route path="vendor-bills/new" element={
+            <Route path="supplier-bills/new" element={
               <ProtectedRoute user={user} requiredPermission="payables.create">
-                <VendorBillForm />
+                <SupplierBillForm />
               </ProtectedRoute>
             } />
-            <Route path="vendor-bills/:id" element={
+            <Route path="supplier-bills/:id" element={
               <ProtectedRoute user={user} requiredPermission="payables.read">
-                <VendorBillForm />
+                <SupplierBillForm />
               </ProtectedRoute>
             } />
-            <Route path="vendor-bills/:id/edit" element={
+            <Route path="supplier-bills/:id/edit" element={
               <ProtectedRoute user={user} requiredPermission="payables.update">
-                <VendorBillForm />
+                <SupplierBillForm />
               </ProtectedRoute>
             } />
 

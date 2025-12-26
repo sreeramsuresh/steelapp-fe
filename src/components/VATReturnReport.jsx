@@ -31,7 +31,7 @@ import {
 } from "../utils/invoiceUtils";
 import api from "../services/api";
 import vatReturnService from "../services/vatReturnService";
-import vendorBillService from "../services/vendorBillService";
+import supplierBillService from "../services/supplierBillService";
 import advancePaymentService from "../services/advancePaymentService";
 import vatAmendmentService from "../services/vatAmendmentService";
 
@@ -41,7 +41,7 @@ import vatAmendmentService from "../services/vatAmendmentService";
  * Complete Form 201 compliance with:
  * - Output VAT (Boxes 1-7)
  * - Input VAT (Boxes 8-13)
- * - Vendor Bills Summary
+ * - Supplier Bills Summary
  * - Advance Payments VAT
  * - Blocked VAT (Non-recoverable)
  * - Net VAT Calculation
@@ -87,7 +87,7 @@ const VATReturnReport = () => {
 
   // Enhanced data state
   const [form201, setForm201] = useState(null);
-  const [vendorBillSummary, setVendorBillSummary] = useState([]);
+  const [supplierBillSummary, setSupplierBillSummary] = useState([]);
   const [advancePayments, setAdvancePayments] = useState([]);
   const [blockedVatLog, setBlockedVatLog] = useState([]);
   const [amendments, setAmendments] = useState([]);
@@ -96,7 +96,7 @@ const VATReturnReport = () => {
   const [expandedSections, setExpandedSections] = useState({
     outputVat: true,
     inputVat: true,
-    vendorBills: false,
+    supplierBills: false,
     advancePayments: false,
     blockedVat: false,
     amendments: false,
@@ -156,16 +156,16 @@ const VATReturnReport = () => {
         console.warn("Form 201 data not available:", err);
       }
 
-      // Get vendor bills summary for period
+      // Get supplier bills summary for period
       if (vatReturnData?.periodStart && vatReturnData?.periodEnd) {
         try {
-          const vendorSummary = await vendorBillService.getVATSummary({
+          const vendorSummary = await supplierBillService.getVATSummary({
             startDate: vatReturnData.periodStart,
             endDate: vatReturnData.periodEnd,
           });
-          setVendorBillSummary(vendorSummary?.categories || []);
+          setSupplierBillSummary(vendorSummary?.categories || []);
         } catch (err) {
-          console.warn("Vendor bill summary not available:", err);
+          console.warn("Supplier bill summary not available:", err);
         }
 
         // Get advance payments for period
@@ -235,13 +235,13 @@ const VATReturnReport = () => {
 
         // Also load related data
         try {
-          const vendorSummary = await vendorBillService.getVATSummary({
+          const vendorSummary = await supplierBillService.getVATSummary({
             startDate: customDates.startDate,
             endDate: customDates.endDate,
           });
-          setVendorBillSummary(vendorSummary?.categories || []);
+          setSupplierBillSummary(vendorSummary?.categories || []);
         } catch (err) {
-          console.warn("Vendor bill summary not available:", err);
+          console.warn("Supplier bill summary not available:", err);
         }
 
         try {
@@ -340,7 +340,7 @@ const VATReturnReport = () => {
     0,
   );
 
-  // VAT category labels for vendor bill summary
+  // VAT category labels for supplier bill summary
   const vatCategoryLabels = {
     STANDARD: "Standard Rated (5%)",
     ZERO: "Zero Rated (0%)",
@@ -1031,33 +1031,33 @@ const VATReturnReport = () => {
             )}
           </div>
 
-          {/* Vendor Bills Summary */}
-          {vendorBillSummary.length > 0 && (
+          {/* Supplier Bills Summary */}
+          {supplierBillSummary.length > 0 && (
             <div className={cardClass}>
               <div
                 role="button"
                 tabIndex={0}
                 className={sectionHeaderClass}
-                onClick={() => toggleSection("vendorBills")}
+                onClick={() => toggleSection("supplierBills")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleSection("vendorBills");
+                    toggleSection("supplierBills");
                   }
                 }}
               >
                 <h3 className={`${headerClass} flex items-center`}>
                   <FileText className="h-5 w-5 mr-2 text-purple-600" />
-                  Vendor Bills Summary
+                  Supplier Bills Summary
                 </h3>
-                {expandedSections.vendorBills ? (
+                {expandedSections.supplierBills ? (
                   <ChevronUp className="h-5 w-5" />
                 ) : (
                   <ChevronDown className="h-5 w-5" />
                 )}
               </div>
 
-              {expandedSections.vendorBills && (
+              {expandedSections.supplierBills && (
                 <div className="mt-4 overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
@@ -1077,7 +1077,7 @@ const VATReturnReport = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {vendorBillSummary.map((row, idx) => (
+                      {supplierBillSummary.map((row, idx) => (
                         <tr
                           key={idx}
                           className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}

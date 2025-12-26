@@ -1,8 +1,8 @@
 /**
  * DebitNoteForm.jsx - UAE VAT Compliance
  *
- * Form for creating/editing debit notes (adjustments to vendor bills).
- * Links to original vendor bill and supports line item copying.
+ * Form for creating/editing debit notes (adjustments to supplier bills).
+ * Links to original supplier bill and supports line item copying.
  *
  * UX Patterns (Tier 2 - Medium):
  * - Sticky header with blur backdrop
@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import debitNoteService from "../../services/debitNoteService";
-import vendorBillService from "../../services/vendorBillService";
+import supplierBillService from "../../services/supplierBillService";
 import { warehouseService } from "../../services/warehouseService";
 import { notificationService } from "../../services/notificationService";
 import { formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
@@ -83,7 +83,7 @@ const APPROVAL_STATUSES = [
 // Empty line item template
 const createEmptyItem = () => ({
   id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-  vendorBillItemId: null,
+  supplierBillItemId: null,
   productId: null,
   description: "",
   quantity: 1,
@@ -103,22 +103,22 @@ const DebitNoteForm = () => {
   // Form state
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [vendorBillSearching, setVendorBillSearching] = useState(false);
+  const [supplierBillSearching, setSupplierBillSearching] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
 
-  // Vendor bill search
-  const [vendorBillSearch, setVendorBillSearch] = useState("");
-  const [vendorBillResults, setVendorBillResults] = useState([]);
-  const [showVendorBillDropdown, setShowVendorBillDropdown] = useState(false);
-  const [selectedVendorBill, setSelectedVendorBill] = useState(null);
+  // Supplier bill search
+  const [supplierBillSearch, setSupplierBillSearch] = useState("");
+  const [supplierBillResults, setSupplierBillResults] = useState([]);
+  const [showSupplierBillDropdown, setShowSupplierBillDropdown] = useState(false);
+  const [selectedSupplierBill, setSelectedSupplierBill] = useState(null);
 
   // Warehouses (for Phase 2b)
   const [warehouses, setWarehouses] = useState([]);
 
   // Debit note data state
   const [debitNote, setDebitNote] = useState({
-    vendorBillId: null,
-    vendorBillNumber: "",
+    supplierBillId: null,
+    supplierBillNumber: "",
     supplierId: null,
     supplier: null,
     debitNoteNumber: "",
@@ -155,9 +155,9 @@ const DebitNoteForm = () => {
       loadDebitNote();
     } else {
       loadNextDebitNoteNumber();
-      const vendorBillIdParam = searchParams.get("vendorBillId");
-      if (vendorBillIdParam) {
-        loadVendorBill(vendorBillIdParam);
+      const supplierBillIdParam = searchParams.get("supplierBillId");
+      if (supplierBillIdParam) {
+        loadSupplierBill(supplierBillIdParam);
       }
     }
     loadWarehouses();
@@ -179,18 +179,18 @@ const DebitNoteForm = () => {
     setDebitNote((prev) => ({ ...prev, amountInBaseCurrency }));
   }, [debitNote.totalDebit, debitNote.exchangeRate]);
 
-  // Search vendor bills with debouncing
+  // Search supplier bills with debouncing
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (vendorBillSearch && vendorBillSearch.length >= 2) {
-        searchVendorBills(vendorBillSearch);
+      if (supplierBillSearch && supplierBillSearch.length >= 2) {
+        searchSupplierBills(supplierBillSearch);
       } else {
-        setVendorBillResults([]);
-        setShowVendorBillDropdown(false);
+        setSupplierBillResults([]);
+        setShowSupplierBillDropdown(false);
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [vendorBillSearch]);
+  }, [supplierBillSearch]);
 
   const loadDebitNote = async () => {
     try {
@@ -200,9 +200,9 @@ const DebitNoteForm = () => {
         ...data,
         items: data.items?.length > 0 ? data.items : [createEmptyItem()],
       });
-      if (data.vendorBillId) {
-        const bill = await vendorBillService.getById(data.vendorBillId);
-        setSelectedVendorBill(bill);
+      if (data.supplierBillId) {
+        const bill = await supplierBillService.getById(data.supplierBillId);
+        setSelectedSupplierBill(bill);
       }
     } catch (error) {
       console.error("Error loading debit note:", error);
@@ -225,28 +225,28 @@ const DebitNoteForm = () => {
     }
   };
 
-  const searchVendorBills = async (query) => {
+  const searchSupplierBills = async (query) => {
     try {
-      setVendorBillSearching(true);
-      const results = await vendorBillService.search(query);
-      setVendorBillResults(results);
-      setShowVendorBillDropdown(results.length > 0);
+      setSupplierBillSearching(true);
+      const results = await supplierBillService.search(query);
+      setSupplierBillResults(results);
+      setShowSupplierBillDropdown(results.length > 0);
     } catch (error) {
-      console.error("Error searching vendor bills:", error);
-      setVendorBillResults([]);
+      console.error("Error searching supplier bills:", error);
+      setSupplierBillResults([]);
     } finally {
-      setVendorBillSearching(false);
+      setSupplierBillSearching(false);
     }
   };
 
-  const loadVendorBill = async (billId) => {
+  const loadSupplierBill = async (billId) => {
     try {
-      const bill = await vendorBillService.getById(billId);
-      setSelectedVendorBill(bill);
+      const bill = await supplierBillService.getById(billId);
+      setSelectedSupplierBill(bill);
       setDebitNote((prev) => ({
         ...prev,
-        vendorBillId: bill.id,
-        vendorBillNumber: bill.billNumber,
+        supplierBillId: bill.id,
+        supplierBillNumber: bill.billNumber,
         supplierId: bill.supplierId,
         supplier: bill.supplierDetails || {
           name: bill.supplierName,
@@ -255,27 +255,27 @@ const DebitNoteForm = () => {
         vatCategory: bill.vatCategory || "STANDARD",
         isReverseCharge: bill.isReverseCharge || false,
       }));
-      setVendorBillSearch("");
-      setShowVendorBillDropdown(false);
+      setSupplierBillSearch("");
+      setShowSupplierBillDropdown(false);
     } catch (error) {
-      console.error("Error loading vendor bill:", error);
-      notificationService.error("Failed to load vendor bill");
+      console.error("Error loading supplier bill:", error);
+      notificationService.error("Failed to load supplier bill");
     }
   };
 
-  const handleVendorBillSelect = (bill) => {
-    loadVendorBill(bill.id);
+  const handleSupplierBillSelect = (bill) => {
+    loadSupplierBill(bill.id);
   };
 
   const handleCopyItemsFromBill = () => {
-    if (!selectedVendorBill || !selectedVendorBill.items) {
-      notificationService.warning("No items to copy from vendor bill");
+    if (!selectedSupplierBill || !selectedSupplierBill.items) {
+      notificationService.warning("No items to copy from supplier bill");
       return;
     }
 
-    const copiedItems = selectedVendorBill.items.map((item) => ({
+    const copiedItems = selectedSupplierBill.items.map((item) => ({
       id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      vendorBillItemId: item.id,
+      supplierBillItemId: item.id,
       productId: item.productId,
       description: item.description,
       quantity: item.quantity,
@@ -287,7 +287,7 @@ const DebitNoteForm = () => {
 
     setDebitNote((prev) => ({ ...prev, items: copiedItems }));
     recalculateTotals(copiedItems);
-    notificationService.success("Items copied from vendor bill");
+    notificationService.success("Items copied from supplier bill");
   };
 
   const handleAddItem = () => {
@@ -340,7 +340,7 @@ const DebitNoteForm = () => {
 
   const validateForm = () => {
     const errors = [];
-    if (!debitNote.vendorBillId) errors.push("Please select a vendor bill");
+    if (!debitNote.supplierBillId) errors.push("Please select a supplier bill");
     if (!debitNote.debitNoteNumber)
       errors.push("Debit note number is required");
     if (!debitNote.debitNoteDate) errors.push("Debit note date is required");
@@ -448,7 +448,7 @@ const DebitNoteForm = () => {
                   <p className={`text-xs ${textMuted}`}>
                     {isEditMode
                       ? `Editing ${debitNote.debitNoteNumber}`
-                      : "Vendor bill adjustment"}
+                      : "Supplier bill adjustment"}
                   </p>
                 </div>
               </div>
@@ -526,21 +526,21 @@ const DebitNoteForm = () => {
 
             {/* LEFT COLUMN: Main Form */}
             <div className="col-span-12 lg:col-span-8 space-y-3">
-              {/* Section 1: Linked Vendor Bill */}
+              {/* Section 1: Linked Supplier Bill */}
               <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
                 <div className="mb-3">
                   <div
                     className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}
                   >
                     <Link2 className="h-4 w-4" />
-                    Linked Vendor Bill <span className="text-red-500">*</span>
+                    Linked Supplier Bill <span className="text-red-500">*</span>
                   </div>
                   <div className={`text-xs ${textMuted}`}>
-                    Select the vendor bill this debit note adjusts
+                    Select the supplier bill this debit note adjusts
                   </div>
                 </div>
 
-                {!selectedVendorBill ? (
+                {!selectedSupplierBill ? (
                   <div className="relative">
                     <div className="relative">
                       <Search
@@ -548,28 +548,28 @@ const DebitNoteForm = () => {
                       />
                       <input
                         type="text"
-                        placeholder="Search vendor bill by number or vendor name..."
-                        value={vendorBillSearch}
-                        onChange={(e) => setVendorBillSearch(e.target.value)}
+                        placeholder="Search supplier bill by number or vendor name..."
+                        value={supplierBillSearch}
+                        onChange={(e) => setSupplierBillSearch(e.target.value)}
                         className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
                       />
-                      {vendorBillSearching && (
+                      {supplierBillSearching && (
                         <Loader2
                           className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin ${textMuted}`}
                         />
                       )}
                     </div>
 
-                    {/* Vendor Bill Dropdown */}
-                    {showVendorBillDropdown && vendorBillResults.length > 0 && (
+                    {/* Supplier Bill Dropdown */}
+                    {showSupplierBillDropdown && supplierBillResults.length > 0 && (
                       <div
                         className={`absolute z-10 w-full mt-1 rounded-xl shadow-lg border max-h-60 overflow-y-auto ${cardBg} ${cardBorder}`}
                       >
-                        {vendorBillResults.map((bill) => (
+                        {supplierBillResults.map((bill) => (
                           <button
                             key={bill.id}
                             type="button"
-                            onClick={() => handleVendorBillSelect(bill)}
+                            onClick={() => handleSupplierBillSelect(bill)}
                             className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
                               isDarkMode
                                 ? "hover:bg-[#1a2027]"
@@ -609,15 +609,15 @@ const DebitNoteForm = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <div className={`text-sm font-medium ${textPrimary}`}>
-                          {selectedVendorBill.billNumber}
+                          {selectedSupplierBill.billNumber}
                         </div>
                         <div className={`text-xs ${textMuted}`}>
-                          Vendor: {selectedVendorBill.vendorName}
+                          Vendor: {selectedSupplierBill.vendorName}
                         </div>
                         <div
                           className={`text-xs font-mono ${textMuted} mt-0.5`}
                         >
-                          Total: {formatCurrency(selectedVendorBill.total)}
+                          Total: {formatCurrency(selectedSupplierBill.total)}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -635,11 +635,11 @@ const DebitNoteForm = () => {
                         {!isEditMode && (
                           <button
                             onClick={() => {
-                              setSelectedVendorBill(null);
+                              setSelectedSupplierBill(null);
                               setDebitNote((prev) => ({
                                 ...prev,
-                                vendorBillId: null,
-                                vendorBillNumber: "",
+                                supplierBillId: null,
+                                supplierBillNumber: "",
                                 supplierId: null,
                                 supplier: null,
                               }));

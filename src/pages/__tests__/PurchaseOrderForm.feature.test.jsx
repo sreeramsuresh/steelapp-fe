@@ -184,7 +184,7 @@ describe("Purchase Order Feature", () => {
   });
 
   describe("Supplier Bill Matching", () => {
-    it("should match vendor bill with PO and GRN (3-way match)", async () => {
+    it("should match supplier bill with PO and GRN (3-way match)", async () => {
       const MockThreeWayMatch = () => {
         const [matches, setMatches] = React.useState({
           poAmount: 5000,

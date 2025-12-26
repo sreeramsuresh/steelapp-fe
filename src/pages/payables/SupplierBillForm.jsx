@@ -1,128 +1,127 @@
-import { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import { X, Loader2, Save, ChevronDown, Plus, Trash2 } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import vendorBillService from "../../services/vendorBillService";
-import { suppliersAPI } from "../../services/api";
-import { purchaseOrderService } from "../../services/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { X, Loader2, Save, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import supplierBillService from '../../services/supplierBillService';
+import { suppliersAPI, purchaseOrderService } from '../../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 // UAE Emirates for place of supply
 const EMIRATES = [
-  { value: "AE-AZ", label: "Abu Dhabi" },
-  { value: "AE-DU", label: "Dubai" },
-  { value: "AE-SH", label: "Sharjah" },
-  { value: "AE-AJ", label: "Ajman" },
-  { value: "AE-UQ", label: "Umm Al Quwain" },
-  { value: "AE-RK", label: "Ras Al Khaimah" },
-  { value: "AE-FU", label: "Fujairah" },
+  { value: 'AE-AZ', label: 'Abu Dhabi' },
+  { value: 'AE-DU', label: 'Dubai' },
+  { value: 'AE-SH', label: 'Sharjah' },
+  { value: 'AE-AJ', label: 'Ajman' },
+  { value: 'AE-UQ', label: 'Umm Al Quwain' },
+  { value: 'AE-RK', label: 'Ras Al Khaimah' },
+  { value: 'AE-FU', label: 'Fujairah' },
 ];
 
 // VAT Categories (from proto)
 const VAT_CATEGORIES = [
-  { value: "STANDARD_RATED", label: "Standard Rated (5%)", rate: 5 },
-  { value: "ZERO_RATED", label: "Zero Rated (0%)", rate: 0 },
-  { value: "EXEMPT", label: "Exempt", rate: 0 },
-  { value: "OUT_OF_SCOPE", label: "Out of Scope", rate: 0 },
-  { value: "REVERSE_CHARGE", label: "Reverse Charge", rate: 5 },
-  { value: "BLOCKED", label: "Blocked (Non-Recoverable)", rate: 5 },
+  { value: 'STANDARD_RATED', label: 'Standard Rated (5%)', rate: 5 },
+  { value: 'ZERO_RATED', label: 'Zero Rated (0%)', rate: 0 },
+  { value: 'EXEMPT', label: 'Exempt', rate: 0 },
+  { value: 'OUT_OF_SCOPE', label: 'Out of Scope', rate: 0 },
+  { value: 'REVERSE_CHARGE', label: 'Reverse Charge', rate: 5 },
+  { value: 'BLOCKED', label: 'Blocked (Non-Recoverable)', rate: 5 },
 ];
 
-// Vendor Bill Status (from proto)
-const VENDOR_BILL_STATUSES = [
-  { value: "DRAFT", label: "Draft" },
-  { value: "PENDING", label: "Pending" },
-  { value: "APPROVED", label: "Approved" },
-  { value: "PAID", label: "Paid" },
-  { value: "PARTIALLY_PAID", label: "Partially Paid" },
-  { value: "CANCELLED", label: "Cancelled" },
-  { value: "DISPUTED", label: "Disputed" },
+// Supplier Bill Status (from proto)
+const SUPPLIER_BILL_STATUSES = [
+  { value: 'DRAFT', label: 'Draft' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'APPROVED', label: 'Approved' },
+  { value: 'PAID', label: 'Paid' },
+  { value: 'PARTIALLY_PAID', label: 'Partially Paid' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+  { value: 'DISPUTED', label: 'Disputed' },
 ];
 
 // Currencies
 const CURRENCIES = [
-  { value: "AED", label: "AED" },
-  { value: "USD", label: "USD" },
-  { value: "EUR", label: "EUR" },
-  { value: "GBP", label: "GBP" },
-  { value: "INR", label: "INR" },
+  { value: 'AED', label: 'AED' },
+  { value: 'USD', label: 'USD' },
+  { value: 'EUR', label: 'EUR' },
+  { value: 'GBP', label: 'GBP' },
+  { value: 'INR', label: 'INR' },
 ];
 
 // Units of measure
 const UNITS = [
-  { value: "PCS", label: "PCS" },
-  { value: "MT", label: "MT" },
-  { value: "KG", label: "KG" },
-  { value: "M", label: "M" },
-  { value: "SQM", label: "SQM" },
-  { value: "BOX", label: "BOX" },
+  { value: 'PCS', label: 'PCS' },
+  { value: 'MT', label: 'MT' },
+  { value: 'KG', label: 'KG' },
+  { value: 'M', label: 'M' },
+  { value: 'SQM', label: 'SQM' },
+  { value: 'BOX', label: 'BOX' },
 ];
 
 // Blocked VAT Reasons (from proto)
 const BLOCKED_VAT_REASONS = [
-  { value: "ENTERTAINMENT", label: "Entertainment" },
-  { value: "EMPLOYEE_BENEFITS", label: "Employee Benefits" },
-  { value: "MOTOR_VEHICLE", label: "Motor Vehicle" },
-  { value: "NON_BUSINESS", label: "Non-Business" },
-  { value: "MISSING_DOCUMENTATION", label: "Missing Documentation" },
-  { value: "OTHER_BLOCKED", label: "Other" },
+  { value: 'ENTERTAINMENT', label: 'Entertainment' },
+  { value: 'EMPLOYEE_BENEFITS', label: 'Employee Benefits' },
+  { value: 'MOTOR_VEHICLE', label: 'Motor Vehicle' },
+  { value: 'NON_BUSINESS', label: 'Non-Business' },
+  { value: 'MISSING_DOCUMENTATION', label: 'Missing Documentation' },
+  { value: 'OTHER_BLOCKED', label: 'Other' },
 ];
 
 // Empty item template
 const createEmptyItem = () => ({
   id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   productId: null,
-  productName: "",
-  description: "",
+  productName: '',
+  description: '',
   quantity: 1,
-  unit: "PCS",
+  unit: 'PCS',
   unitPrice: 0,
   amount: 0,
   vatRate: 5,
   vatAmount: 0,
-  vatCategory: "STANDARD_RATED",
+  vatCategory: 'STANDARD_RATED',
   isBlockedVat: false,
-  blockedReason: "",
-  costCenter: "",
-  glAccount: "",
+  blockedReason: '',
+  costCenter: '',
+  glAccount: '',
 });
 
 /**
- * VendorBillForm - Modal form for create/edit vendor bills (Phase 2c)
+ * SupplierBillForm - Modal form for create/edit supplier bills (Phase 2c)
  * Follows ContainerForm pattern with accordion sections
  */
-export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
+export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
   const { isDarkMode } = useTheme();
-  const isEditing = Boolean(vendorBill?.id);
+  const isEditing = Boolean(supplierBill?.id);
 
   const [formData, setFormData] = useState({
-    billNumber: "",
-    vendorInvoiceNumber: "",
-    receivedDate: new Date().toISOString().split("T")[0],
-    supplierId: "",
-    supplierName: "",
-    supplierTrn: "",
-    supplierAddress: "",
-    billDate: new Date().toISOString().split("T")[0],
-    dueDate: "",
-    purchaseOrderNumber: "",
-    purchaseOrderId: "",
-    importOrderId: "",
-    placeOfSupply: "AE-DU",
+    billNumber: '',
+    vendorInvoiceNumber: '',
+    receivedDate: new Date().toISOString().split('T')[0],
+    supplierId: '',
+    supplierName: '',
+    supplierTrn: '',
+    supplierAddress: '',
+    billDate: new Date().toISOString().split('T')[0],
+    dueDate: '',
+    purchaseOrderNumber: '',
+    purchaseOrderId: '',
+    importOrderId: '',
+    placeOfSupply: 'AE-DU',
     subtotal: 0,
     vatAmount: 0,
     total: 0,
-    primaryVatCategory: "STANDARD_RATED",
+    primaryVatCategory: 'STANDARD_RATED',
     standardRatedAmount: 0,
     standardRatedVat: 0,
     zeroRatedAmount: 0,
@@ -131,14 +130,14 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
     recoverableVat: 0,
     isReverseCharge: false,
     reverseChargeVat: 0,
-    currency: "AED",
+    currency: 'AED',
     exchangeRate: 1,
     totalAed: 0,
-    attachmentUrl: "",
-    status: "DRAFT",
-    approvalNotes: "",
-    notes: "",
-    internalNotes: "",
+    attachmentUrl: '',
+    status: 'DRAFT',
+    approvalNotes: '',
+    notes: '',
+    internalNotes: '',
     items: [createEmptyItem()],
   });
 
@@ -162,7 +161,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
         const poArray = posRes?.purchaseOrders || posRes;
         setPurchaseOrders(Array.isArray(poArray) ? poArray : []);
       } catch (err) {
-        console.error("Failed to load form data:", err);
+        console.error('Failed to load form data:', err);
         setSuppliers([]);
         setPurchaseOrders([]);
       } finally {
@@ -180,7 +179,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
       dueDate.setDate(dueDate.getDate() + 30);
       setFormData((prev) => ({
         ...prev,
-        dueDate: dueDate.toISOString().split("T")[0],
+        dueDate: dueDate.toISOString().split('T')[0],
       }));
     }
   }, [formData.billDate, isEditing]);
@@ -202,12 +201,12 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
       totalVatAmount += vatAmount;
 
       // Categorize by VAT type
-      if (item.vatCategory === "STANDARD_RATED") {
+      if (item.vatCategory === 'STANDARD_RATED') {
         standardRatedAmount += amount;
         standardRatedVat += vatAmount;
-      } else if (item.vatCategory === "ZERO_RATED") {
+      } else if (item.vatCategory === 'ZERO_RATED') {
         zeroRatedAmount += amount;
-      } else if (item.vatCategory === "EXEMPT") {
+      } else if (item.vatCategory === 'EXEMPT') {
         exemptAmount += amount;
       }
 
@@ -220,7 +219,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
     const reverseChargeVat = formData.isReverseCharge ? totalVatAmount : 0;
     const total = subtotal + totalVatAmount;
     const totalAed =
-      formData.currency === "AED" ? total : total * formData.exchangeRate;
+      formData.currency === 'AED' ? total : total * formData.exchangeRate;
 
     setFormData((prev) => ({
       ...prev,
@@ -245,48 +244,48 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
 
   // Populate form when editing
   useEffect(() => {
-    if (vendorBill) {
+    if (supplierBill) {
       setFormData({
-        billNumber: vendorBill.billNumber || "",
-        vendorInvoiceNumber: vendorBill.vendorInvoiceNumber || "",
-        receivedDate: vendorBill.receivedDate?.split("T")[0] || "",
-        supplierId: vendorBill.supplierId?.toString() || "",
-        supplierName: vendorBill.supplierName || "",
-        supplierTrn: vendorBill.supplierTrn || "",
-        supplierAddress: vendorBill.supplierAddress || "",
-        billDate: vendorBill.billDate?.split("T")[0] || "",
-        dueDate: vendorBill.dueDate?.split("T")[0] || "",
-        purchaseOrderNumber: vendorBill.purchaseOrderNumber || "",
-        purchaseOrderId: vendorBill.purchaseOrderId?.toString() || "",
-        importOrderId: vendorBill.importOrderId?.toString() || "",
-        placeOfSupply: vendorBill.placeOfSupply || "AE-DU",
-        subtotal: vendorBill.subtotal || 0,
-        vatAmount: vendorBill.vatAmount || 0,
-        total: vendorBill.total || 0,
-        primaryVatCategory: vendorBill.primaryVatCategory || "STANDARD_RATED",
-        standardRatedAmount: vendorBill.standardRatedAmount || 0,
-        standardRatedVat: vendorBill.standardRatedVat || 0,
-        zeroRatedAmount: vendorBill.zeroRatedAmount || 0,
-        exemptAmount: vendorBill.exemptAmount || 0,
-        blockedVatAmount: vendorBill.blockedVatAmount || 0,
-        recoverableVat: vendorBill.recoverableVat || 0,
-        isReverseCharge: vendorBill.isReverseCharge || false,
-        reverseChargeVat: vendorBill.reverseChargeVat || 0,
-        currency: vendorBill.currency || "AED",
-        exchangeRate: vendorBill.exchangeRate || 1,
-        totalAed: vendorBill.totalAed || 0,
-        attachmentUrl: vendorBill.attachmentUrl || "",
-        status: vendorBill.status || "DRAFT",
-        approvalNotes: vendorBill.approvalNotes || "",
-        notes: vendorBill.notes || "",
-        internalNotes: vendorBill.internalNotes || "",
+        billNumber: supplierBill.billNumber || '',
+        vendorInvoiceNumber: supplierBill.vendorInvoiceNumber || '',
+        receivedDate: supplierBill.receivedDate?.split('T')[0] || '',
+        supplierId: supplierBill.supplierId?.toString() || '',
+        supplierName: supplierBill.supplierName || '',
+        supplierTrn: supplierBill.supplierTrn || '',
+        supplierAddress: supplierBill.supplierAddress || '',
+        billDate: supplierBill.billDate?.split('T')[0] || '',
+        dueDate: supplierBill.dueDate?.split('T')[0] || '',
+        purchaseOrderNumber: supplierBill.purchaseOrderNumber || '',
+        purchaseOrderId: supplierBill.purchaseOrderId?.toString() || '',
+        importOrderId: supplierBill.importOrderId?.toString() || '',
+        placeOfSupply: supplierBill.placeOfSupply || 'AE-DU',
+        subtotal: supplierBill.subtotal || 0,
+        vatAmount: supplierBill.vatAmount || 0,
+        total: supplierBill.total || 0,
+        primaryVatCategory: supplierBill.primaryVatCategory || 'STANDARD_RATED',
+        standardRatedAmount: supplierBill.standardRatedAmount || 0,
+        standardRatedVat: supplierBill.standardRatedVat || 0,
+        zeroRatedAmount: supplierBill.zeroRatedAmount || 0,
+        exemptAmount: supplierBill.exemptAmount || 0,
+        blockedVatAmount: supplierBill.blockedVatAmount || 0,
+        recoverableVat: supplierBill.recoverableVat || 0,
+        isReverseCharge: supplierBill.isReverseCharge || false,
+        reverseChargeVat: supplierBill.reverseChargeVat || 0,
+        currency: supplierBill.currency || 'AED',
+        exchangeRate: supplierBill.exchangeRate || 1,
+        totalAed: supplierBill.totalAed || 0,
+        attachmentUrl: supplierBill.attachmentUrl || '',
+        status: supplierBill.status || 'DRAFT',
+        approvalNotes: supplierBill.approvalNotes || '',
+        notes: supplierBill.notes || '',
+        internalNotes: supplierBill.internalNotes || '',
         items:
-          vendorBill.items && vendorBill.items.length > 0
-            ? vendorBill.items
+          supplierBill.items && supplierBill.items.length > 0
+            ? supplierBill.items
             : [createEmptyItem()],
       });
     }
-  }, [vendorBill]);
+  }, [supplierBill]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -302,9 +301,9 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
       setFormData((prev) => ({
         ...prev,
         supplierId,
-        supplierName: supplier.name || "",
-        supplierTrn: supplier.trn || "",
-        supplierAddress: supplier.address || "",
+        supplierName: supplier.name || '',
+        supplierTrn: supplier.trn || '',
+        supplierAddress: supplier.address || '',
       }));
     }
   };
@@ -316,7 +315,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
       newItems[index] = { ...newItems[index], [field]: value };
 
       // Auto-calculate amount and VAT
-      if (field === "quantity" || field === "unitPrice") {
+      if (field === 'quantity' || field === 'unitPrice') {
         const quantity = parseFloat(newItems[index].quantity) || 0;
         const unitPrice = parseFloat(newItems[index].unitPrice) || 0;
         newItems[index].amount = quantity * unitPrice;
@@ -324,12 +323,12 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           (newItems[index].amount * newItems[index].vatRate) / 100;
       }
 
-      if (field === "vatRate") {
+      if (field === 'vatRate') {
         newItems[index].vatAmount =
           (newItems[index].amount * parseFloat(value)) / 100;
       }
 
-      if (field === "vatCategory") {
+      if (field === 'vatCategory') {
         const category = VAT_CATEGORIES.find((c) => c.value === value);
         if (category) {
           newItems[index].vatRate = category.rate;
@@ -351,7 +350,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
 
   const handleRemoveItem = (index) => {
     if (formData.items.length === 1) {
-      setError("At least one item is required");
+      setError('At least one item is required');
       return;
     }
     setFormData((prev) => ({
@@ -363,22 +362,22 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
   const validate = () => {
     const errors = {};
     if (!formData.vendorInvoiceNumber.trim()) {
-      errors.vendorInvoiceNumber = "Vendor invoice number is required";
+      errors.vendorInvoiceNumber = 'Vendor invoice number is required';
     }
     if (!formData.supplierId) {
-      errors.supplierId = "Supplier is required";
+      errors.supplierId = 'Supplier is required';
     }
     if (!formData.billDate) {
-      errors.billDate = "Bill date is required";
+      errors.billDate = 'Bill date is required';
     }
     if (!formData.dueDate) {
-      errors.dueDate = "Due date is required";
+      errors.dueDate = 'Due date is required';
     }
     if (formData.items.length === 0) {
-      errors.items = "At least one item is required";
+      errors.items = 'At least one item is required';
     }
     if (formData.total <= 0) {
-      errors.total = "Total must be greater than zero";
+      errors.total = 'Total must be greater than zero';
     }
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -434,32 +433,32 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
 
       let result;
       if (isEditing) {
-        result = await vendorBillService.updateVendorBill(
-          vendorBill.id,
+        result = await supplierBillService.updateSupplierBill(
+          supplierBill.id,
           payload,
         );
       } else {
-        result = await vendorBillService.createVendorBill(payload);
+        result = await supplierBillService.createSupplierBill(payload);
       }
 
       onSave(result);
     } catch (err) {
-      console.error("Failed to save vendor bill:", err);
-      setError(err.message || "Failed to save vendor bill");
+      console.error('Failed to save supplier bill:', err);
+      setError(err.message || 'Failed to save supplier bill');
     } finally {
       setSaving(false);
     }
   };
 
   // CSS classes for consistent styling
-  const labelClass = `text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
-  const inputClass = `${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`;
+  const labelClass = `text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`;
+  const inputClass = `${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`;
 
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div
-          className={`p-8 rounded-xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
+          className={`p-8 rounded-xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}
         >
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
@@ -471,24 +470,24 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div
         className={`w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
-          isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
+          isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
         }`}
       >
         {/* Header */}
         <div
           className={`sticky top-0 flex items-center justify-between p-4 border-b ${
             isDarkMode
-              ? "bg-[#1E2328] border-gray-700"
-              : "bg-white border-gray-200"
+              ? 'bg-[#1E2328] border-gray-700'
+              : 'bg-white border-gray-200'
           }`}
         >
           <h2 className="text-xl font-semibold">
-            {isEditing ? "Edit Vendor Bill" : "Create Vendor Bill"}
+            {isEditing ? 'Edit Supplier Bill' : 'Create Supplier Bill'}
           </h2>
           <button
             onClick={onClose}
             className={`p-2 rounded-lg hover:bg-gray-100 ${
-              isDarkMode ? "hover:bg-gray-700" : ""
+              isDarkMode ? 'hover:bg-gray-700' : ''
             }`}
           >
             <X className="h-5 w-5" />
@@ -507,11 +506,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Bill Identification
               </h3>
@@ -521,7 +520,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className={labelClass}>
-                    Bill Number {isEditing && "(readonly)"}
+                    Bill Number {isEditing && '(readonly)'}
                   </Label>
                   <Input
                     value={formData.billNumber}
@@ -532,7 +531,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                 </div>
                 <div>
                   <Label className={labelClass}>
-                    Vendor Invoice Number{" "}
+                    Vendor Invoice Number{' '}
                     <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -540,7 +539,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     data-testid="vendor-invoice-number"
                     value={formData.vendorInvoiceNumber}
                     onChange={(e) =>
-                      handleChange("vendorInvoiceNumber", e.target.value)
+                      handleChange('vendorInvoiceNumber', e.target.value)
                     }
                     placeholder="Supplier's invoice number"
                     className={inputClass}
@@ -557,7 +556,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     type="date"
                     value={formData.receivedDate}
                     onChange={(e) =>
-                      handleChange("receivedDate", e.target.value)
+                      handleChange('receivedDate', e.target.value)
                     }
                     className={inputClass}
                   />
@@ -570,11 +569,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Supplier Details
               </h3>
@@ -639,7 +638,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   <Select
                     value={formData.purchaseOrderId}
                     onValueChange={(value) =>
-                      handleChange("purchaseOrderId", value)
+                      handleChange('purchaseOrderId', value)
                     }
                   >
                     <SelectTrigger className={inputClass}>
@@ -662,11 +661,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Dates & References
               </h3>
@@ -683,7 +682,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     data-testid="bill-date"
                     type="date"
                     value={formData.billDate}
-                    onChange={(e) => handleChange("billDate", e.target.value)}
+                    onChange={(e) => handleChange('billDate', e.target.value)}
                     className={inputClass}
                   />
                   {validationErrors.billDate && (
@@ -701,7 +700,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     data-testid="due-date"
                     type="date"
                     value={formData.dueDate}
-                    onChange={(e) => handleChange("dueDate", e.target.value)}
+                    onChange={(e) => handleChange('dueDate', e.target.value)}
                     className={inputClass}
                   />
                   {validationErrors.dueDate && (
@@ -715,7 +714,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   <Input
                     value={formData.purchaseOrderNumber}
                     onChange={(e) =>
-                      handleChange("purchaseOrderNumber", e.target.value)
+                      handleChange('purchaseOrderNumber', e.target.value)
                     }
                     className={inputClass}
                   />
@@ -726,7 +725,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     type="number"
                     value={formData.importOrderId}
                     onChange={(e) =>
-                      handleChange("importOrderId", e.target.value)
+                      handleChange('importOrderId', e.target.value)
                     }
                     placeholder="Optional"
                     className={inputClass}
@@ -737,7 +736,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   <Select
                     value={formData.placeOfSupply}
                     onValueChange={(value) =>
-                      handleChange("placeOfSupply", value)
+                      handleChange('placeOfSupply', value)
                     }
                   >
                     <SelectTrigger className={inputClass}>
@@ -760,11 +759,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details open className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Bill Items
               </h3>
@@ -776,8 +775,8 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   key={item.id}
                   className={`p-4 rounded-lg border ${
                     isDarkMode
-                      ? "border-gray-700 bg-gray-800"
-                      : "border-gray-200 bg-gray-50"
+                      ? 'border-gray-700 bg-gray-800'
+                      : 'border-gray-200 bg-gray-50'
                   }`}
                 >
                   <div className="flex justify-between items-start mb-4">
@@ -797,7 +796,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                       <Input
                         value={item.productName}
                         onChange={(e) =>
-                          handleItemChange(index, "productName", e.target.value)
+                          handleItemChange(index, 'productName', e.target.value)
                         }
                         className={inputClass}
                       />
@@ -807,7 +806,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                       <Input
                         value={item.description}
                         onChange={(e) =>
-                          handleItemChange(index, "description", e.target.value)
+                          handleItemChange(index, 'description', e.target.value)
                         }
                         className={inputClass}
                       />
@@ -819,7 +818,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                         step="0.01"
                         value={item.quantity}
                         onChange={(e) =>
-                          handleItemChange(index, "quantity", e.target.value)
+                          handleItemChange(index, 'quantity', e.target.value)
                         }
                         className={inputClass}
                       />
@@ -829,7 +828,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                       <Select
                         value={item.unit}
                         onValueChange={(value) =>
-                          handleItemChange(index, "unit", value)
+                          handleItemChange(index, 'unit', value)
                         }
                       >
                         <SelectTrigger className={inputClass}>
@@ -851,7 +850,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                         step="0.01"
                         value={item.unitPrice}
                         onChange={(e) =>
-                          handleItemChange(index, "unitPrice", e.target.value)
+                          handleItemChange(index, 'unitPrice', e.target.value)
                         }
                         className={inputClass}
                       />
@@ -861,7 +860,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                       <Select
                         value={item.vatCategory}
                         onValueChange={(value) =>
-                          handleItemChange(index, "vatCategory", value)
+                          handleItemChange(index, 'vatCategory', value)
                         }
                       >
                         <SelectTrigger className={inputClass}>
@@ -883,7 +882,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                         step="0.01"
                         value={item.vatRate}
                         onChange={(e) =>
-                          handleItemChange(index, "vatRate", e.target.value)
+                          handleItemChange(index, 'vatRate', e.target.value)
                         }
                         className={inputClass}
                       />
@@ -913,7 +912,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                         onChange={(e) =>
                           handleItemChange(
                             index,
-                            "isBlockedVat",
+                            'isBlockedVat',
                             e.target.checked,
                           )
                         }
@@ -926,7 +925,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                         <Select
                           value={item.blockedReason}
                           onValueChange={(value) =>
-                            handleItemChange(index, "blockedReason", value)
+                            handleItemChange(index, 'blockedReason', value)
                           }
                         >
                           <SelectTrigger className={inputClass}>
@@ -950,7 +949,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                       <Input
                         value={item.costCenter}
                         onChange={(e) =>
-                          handleItemChange(index, "costCenter", e.target.value)
+                          handleItemChange(index, 'costCenter', e.target.value)
                         }
                         className={inputClass}
                       />
@@ -960,7 +959,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                       <Input
                         value={item.glAccount}
                         onChange={(e) =>
-                          handleItemChange(index, "glAccount", e.target.value)
+                          handleItemChange(index, 'glAccount', e.target.value)
                         }
                         className={inputClass}
                       />
@@ -984,11 +983,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details open className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 VAT Breakdown
               </h3>
@@ -1001,7 +1000,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   <Select
                     value={formData.primaryVatCategory}
                     onValueChange={(value) =>
-                      handleChange("primaryVatCategory", value)
+                      handleChange('primaryVatCategory', value)
                     }
                   >
                     <SelectTrigger className={inputClass}>
@@ -1082,11 +1081,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details open className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Financial Summary
               </h3>
@@ -1128,7 +1127,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     type="checkbox"
                     checked={formData.isReverseCharge}
                     onChange={(e) =>
-                      handleChange("isReverseCharge", e.target.checked)
+                      handleChange('isReverseCharge', e.target.checked)
                     }
                   />
                   <span className="text-sm font-medium">
@@ -1148,7 +1147,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   </div>
                 )}
               </div>
-              {formData.currency !== "AED" && (
+              {formData.currency !== 'AED' && (
                 <div>
                   <Label className={labelClass}>Total AED (readonly)</Label>
                   <Input
@@ -1165,11 +1164,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Currency & Exchange
               </h3>
@@ -1181,7 +1180,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   <Label className={labelClass}>Currency</Label>
                   <Select
                     value={formData.currency}
-                    onValueChange={(value) => handleChange("currency", value)}
+                    onValueChange={(value) => handleChange('currency', value)}
                   >
                     <SelectTrigger className={inputClass}>
                       <SelectValue />
@@ -1202,7 +1201,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                     step="0.0001"
                     value={formData.exchangeRate}
                     onChange={(e) =>
-                      handleChange("exchangeRate", e.target.value)
+                      handleChange('exchangeRate', e.target.value)
                     }
                     className={inputClass}
                   />
@@ -1215,11 +1214,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Attachments
               </h3>
@@ -1231,7 +1230,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                 <Input
                   value={formData.attachmentUrl}
                   onChange={(e) =>
-                    handleChange("attachmentUrl", e.target.value)
+                    handleChange('attachmentUrl', e.target.value)
                   }
                   placeholder="URL or file path"
                   className={inputClass}
@@ -1244,11 +1243,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Approval & Status
               </h3>
@@ -1260,13 +1259,13 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   <Label className={labelClass}>Status</Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value) => handleChange("status", value)}
+                    onValueChange={(value) => handleChange('status', value)}
                   >
                     <SelectTrigger className={inputClass}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {VENDOR_BILL_STATUSES.map((status) => (
+                      {SUPPLIER_BILL_STATUSES.map((status) => (
                         <SelectItem key={status.value} value={status.value}>
                           {status.label}
                         </SelectItem>
@@ -1279,7 +1278,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                   <Textarea
                     value={formData.approvalNotes}
                     onChange={(e) =>
-                      handleChange("approvalNotes", e.target.value)
+                      handleChange('approvalNotes', e.target.value)
                     }
                     className={inputClass}
                     rows={3}
@@ -1293,11 +1292,11 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
               }`}
             >
               <h3
-                className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Notes
               </h3>
@@ -1308,7 +1307,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                 <Label className={labelClass}>Notes</Label>
                 <Textarea
                   value={formData.notes}
-                  onChange={(e) => handleChange("notes", e.target.value)}
+                  onChange={(e) => handleChange('notes', e.target.value)}
                   placeholder="Public notes"
                   className={inputClass}
                   rows={3}
@@ -1319,7 +1318,7 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
                 <Textarea
                   value={formData.internalNotes}
                   onChange={(e) =>
-                    handleChange("internalNotes", e.target.value)
+                    handleChange('internalNotes', e.target.value)
                   }
                   placeholder="Internal notes (not visible to vendor)"
                   className={inputClass}
@@ -1354,8 +1353,8 @@ export function VendorBillForm({ vendorBill, companyId, onSave, onClose }) {
   );
 }
 
-VendorBillForm.propTypes = {
-  vendorBill: PropTypes.object,
+SupplierBillForm.propTypes = {
+  supplierBill: PropTypes.object,
   companyId: PropTypes.number.isRequired,
   onSave: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,

@@ -135,7 +135,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 3. PURCHASES (3 items) - Purchases Dashboard with tabs for PO, Vendor Bills, Debit Notes + Advance Payments
+    // 3. PURCHASES (3 items) - Purchases Dashboard with tabs for PO, Supplier Bills, Debit Notes + Advance Payments
     {
       section: "Purchases",
       items: [
@@ -143,7 +143,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
           name: "Purchases",
           path: "/purchases",
           icon: ShoppingCart,
-          description: "Purchase orders, vendor bills, and payments",
+          description: "Purchase orders, supplier bills, and payments",
           requiredPermission: "purchase_orders.read",
         },
         {

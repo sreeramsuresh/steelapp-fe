@@ -3,8 +3,8 @@
  *
  * Unified dashboard for all purchasing activities:
  * - Purchase Orders
- * - Vendor Bills (purchase invoices)
- * - Debit Notes (adjustments to vendor bills)
+ * - Supplier Bills (purchase invoices)
+ * - Debit Notes (adjustments to supplier bills)
  * - Advance Payments (supplier deposits)
  */
 
@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 import PurchaseOrderList from "./PurchaseOrderList";
-import { VendorBillList, DebitNoteList } from "./purchases";
+import { SupplierBillList, DebitNoteList } from "./purchases";
 import { AdvancePaymentList } from "./payments";
 
 const PurchasesDashboard = () => {
@@ -31,16 +31,18 @@ const PurchasesDashboard = () => {
   // Auto-open tab if navigated with tab parameter
   useEffect(() => {
     const tabParam = searchParams.get("tab");
+    // Support both supplier-bills and legacy vendor-bills
+    const normalizedTab = tabParam === "vendor-bills" ? "supplier-bills" : tabParam;
     if (
-      tabParam &&
+      normalizedTab &&
       [
         "purchase-orders",
-        "vendor-bills",
+        "supplier-bills",
         "debit-notes",
         "advance-payments",
-      ].includes(tabParam)
+      ].includes(normalizedTab)
     ) {
-      setActiveTab(tabParam);
+      setActiveTab(normalizedTab);
     }
   }, [searchParams]);
 
@@ -52,10 +54,10 @@ const PurchasesDashboard = () => {
       component: PurchaseOrderList,
     },
     {
-      id: "vendor-bills",
-      label: "Vendor Bills",
+      id: "supplier-bills",
+      label: "Supplier Bills",
       icon: Receipt,
-      component: VendorBillList,
+      component: SupplierBillList,
     },
     {
       id: "debit-notes",
@@ -97,7 +99,7 @@ const PurchasesDashboard = () => {
               <p
                 className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
-                Manage purchase orders, vendor bills, debit notes, and advance
+                Manage purchase orders, supplier bills, debit notes, and advance
                 payments
               </p>
             </div>

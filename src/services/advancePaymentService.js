@@ -60,66 +60,76 @@ const transformAdvancePaymentForServer = (paymentData) => {
 
 /**
  * Transform advance payment data from server response
+ * Note: API Gateway uses keepCase: true, so fields come in snake_case
  */
 const transformAdvancePaymentFromServer = (serverData) => {
   if (!serverData) return null;
 
   return {
     id: serverData.id,
-    companyId: serverData.companyId,
-    customerId: serverData.customerId,
-    customerDetails: serverData.customerDetails || {},
+    companyId: serverData.company_id || serverData.companyId,
+    customerId: serverData.customer_id || serverData.customerId,
+    customerDetails: serverData.customer_details || serverData.customerDetails || {},
     customerName:
-      serverData.customerName || serverData.customerDetails?.name || "",
+      serverData.customer_name || serverData.customerName ||
+      serverData.customer_details?.name || serverData.customerDetails?.name || "",
     customerTrn:
-      serverData.customerTrn || serverData.customerDetails?.trn || "",
-    receiptNumber: serverData.receiptNumber || serverData.advanceNumber || "", // Proto uses advance_number → advanceNumber
-    paymentDate: serverData.paymentDate || null,
+      serverData.customer_trn || serverData.customerTrn ||
+      serverData.customer_details?.trn || serverData.customerDetails?.trn || "",
+    receiptNumber: serverData.receipt_number || serverData.receiptNumber ||
+      serverData.advance_number || serverData.advanceNumber || "",
+    // payment_date comes as proto Timestamp { seconds, nanos }
+    paymentDate: serverData.payment_date || serverData.paymentDate || null,
     // Amount fields
     amount: parseFloat(serverData.amount || 0),
-    vatRate: parseFloat(serverData.vatRate || 5),
-    vatAmount: parseFloat(serverData.vatAmount || 0),
+    vatRate: parseFloat(serverData.vat_rate || serverData.vatRate || 5),
+    vatAmount: parseFloat(serverData.vat_amount || serverData.vatAmount || 0),
     totalAmount: parseFloat(
-      serverData.totalAmount || serverData.totalReceived || 0,
-    ), // Proto uses total_received → totalReceived
+      serverData.total_amount || serverData.totalAmount ||
+      serverData.total_received || serverData.totalReceived || 0,
+    ),
     // VAT tracking
-    vatCategory: serverData.vatCategory || "STANDARD",
-    isVatInclusive: serverData.isVatInclusive !== false,
+    vatCategory: serverData.vat_category || serverData.vatCategory || "STANDARD",
+    isVatInclusive: (serverData.is_vat_inclusive ?? serverData.isVatInclusive) !== false,
     // Application tracking
-    amountApplied: parseFloat(serverData.amountApplied || 0),
-    amountAvailable: parseFloat(serverData.amountAvailable || 0),
-    amountRefunded: parseFloat(serverData.amountRefunded || 0),
+    amountApplied: parseFloat(serverData.amount_applied || serverData.amountApplied || 0),
+    amountAvailable: parseFloat(serverData.amount_available || serverData.amountAvailable || 0),
+    amountRefunded: parseFloat(serverData.amount_refunded || serverData.amountRefunded || 0),
     // Payment details
-    paymentMethod: serverData.paymentMethod || "bank_transfer",
+    paymentMethod: serverData.payment_method || serverData.paymentMethod || "bank_transfer",
     referenceNumber:
-      serverData.referenceNumber || serverData.paymentReference || "", // Proto uses payment_reference → paymentReference
-    bankAccount: serverData.bankAccount || "",
+      serverData.reference_number || serverData.referenceNumber ||
+      serverData.payment_reference || serverData.paymentReference || "",
+    bankAccount: serverData.bank_account || serverData.bankAccount || "",
     // Status
     status: serverData.status || "received",
     // Metadata
     purpose: serverData.purpose || "",
     notes: serverData.notes || "",
-    attachmentUrls: serverData.attachmentUrls || [],
+    attachmentUrls: serverData.attachment_urls || serverData.attachmentUrls || [],
     // Related entities
-    quotationId: serverData.quotationId || null,
-    salesOrderId: serverData.salesOrderId || null,
-    projectId: serverData.projectId || null,
+    quotationId: serverData.quotation_id || serverData.quotationId || null,
+    salesOrderId: serverData.sales_order_id || serverData.salesOrderId || null,
+    projectId: serverData.project_id || serverData.projectId || null,
     // Applications (invoices this advance was applied to)
     applications: (serverData.applications || []).map((app) => ({
       id: app.id,
-      invoiceId: app.invoiceId,
-      invoiceNumber: app.invoiceNumber || "",
-      amountApplied: parseFloat(app.amountApplied || 0),
-      vatAmountApplied: parseFloat(app.vatAmountApplied || 0),
-      appliedAt: app.appliedAt || app.createdAt,
+      invoiceId: app.invoice_id || app.invoiceId,
+      invoiceNumber: app.invoice_number || app.invoiceNumber || "",
+      amountApplied: parseFloat(app.amount_applied || app.amountApplied || 0),
+      vatAmountApplied: parseFloat(app.vat_amount_applied || app.vatAmountApplied || 0),
+      appliedAt: app.applied_at || app.appliedAt || app.created_at || app.createdAt,
       notes: app.notes || "",
     })),
     // Refunds
     refunds: serverData.refunds || [],
-    // Timestamps - Proto sends nested audit.created_at/updated_at, frontend expects flat
-    createdAt: serverData.createdAt || serverData.audit?.createdAt || null,
-    updatedAt: serverData.updatedAt || serverData.audit?.updatedAt || null,
-    receivedBy: serverData.receivedBy || serverData.audit?.createdBy || null,
+    // Timestamps - Proto sends nested audit.created_at/updated_at
+    createdAt: serverData.created_at || serverData.createdAt ||
+      serverData.audit?.created_at || serverData.audit?.createdAt || null,
+    updatedAt: serverData.updated_at || serverData.updatedAt ||
+      serverData.audit?.updated_at || serverData.audit?.updatedAt || null,
+    receivedBy: serverData.received_by || serverData.receivedBy ||
+      serverData.audit?.created_by || serverData.audit?.createdBy || null,
   };
 };
 

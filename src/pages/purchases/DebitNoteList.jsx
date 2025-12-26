@@ -1,8 +1,8 @@
 /**
  * DebitNoteList.jsx - UAE VAT Compliance
  *
- * List view for debit notes (adjustments to vendor bills).
- * Used when vendor bill amount needs to be increased after issuance.
+ * List view for debit notes (adjustments to supplier bills).
+ * Used when supplier bill amount needs to be increased after issuance.
  */
 
 import { useState, useEffect } from "react";
@@ -305,11 +305,11 @@ const DebitNoteList = () => {
             <p
               className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
             >
-              Adjustments to vendor bills (amount increases)
+              Adjustments to supplier bills (amount increases)
             </p>
           </div>
           <button
-            onClick={() => navigate("/purchases/debit-notes/new")}
+            onClick={() => navigate("/app/debit-notes/new")}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -605,7 +605,7 @@ const DebitNoteList = () => {
                     <th
                       className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
-                      Vendor Bill
+                      Supplier Bill
                     </th>
                     <th
                       className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
@@ -647,7 +647,7 @@ const DebitNoteList = () => {
                       key={debitNote.id}
                       className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors cursor-pointer`}
                       onClick={() =>
-                        navigate(`/purchases/debit-notes/${debitNote.id}`)
+                        navigate(`/app/debit-notes/${debitNote.id}`)
                       }
                     >
                       <td
@@ -662,7 +662,7 @@ const DebitNoteList = () => {
                       >
                         <div className="flex items-center gap-1">
                           <Link2 className="h-3 w-3" />
-                          {debitNote.vendorBillNumber || "N/A"}
+                          {debitNote.supplierBillNumber || "N/A"}
                         </div>
                       </td>
                       <td
@@ -702,7 +702,7 @@ const DebitNoteList = () => {
                           {/* View */}
                           <button
                             onClick={() =>
-                              navigate(`/purchases/debit-notes/${debitNote.id}`)
+                              navigate(`/app/debit-notes/${debitNote.id}`)
                             }
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
@@ -714,7 +714,7 @@ const DebitNoteList = () => {
                             <button
                               onClick={() =>
                                 navigate(
-                                  `/purchases/debit-notes/${debitNote.id}/edit`,
+                                  `/app/debit-notes/${debitNote.id}/edit`,
                                 )
                               }
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}

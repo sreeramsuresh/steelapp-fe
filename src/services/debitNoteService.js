@@ -1,8 +1,8 @@
 /**
  * Debit Note Service - UAE VAT Compliance
  *
- * Handles debit notes (adjustments to vendor bills).
- * Used when vendor bill amount needs to be increased after issuance.
+ * Handles debit notes (adjustments to supplier bills).
+ * Used when supplier bill amount needs to be increased after issuance.
  * Mirrors credit note logic but for purchases/payables.
  *
  * Architecture:
@@ -20,7 +20,7 @@ import { apiClient } from "./api";
  */
 const transformDebitNoteForServer = (debitNoteData) => {
   return {
-    vendorBillId: debitNoteData.vendorBillId || null,
+    supplierBillId: debitNoteData.supplierBillId || null,
     debitNoteDate: debitNoteData.debitNoteDate || null,
     reason: debitNoteData.reason || "",
     // VAT fields
@@ -29,7 +29,7 @@ const transformDebitNoteForServer = (debitNoteData) => {
     notes: debitNoteData.notes || "",
     // Items - backend calculates totals from items
     items: (debitNoteData.items || []).map((item) => ({
-      vendorBillItemId: item.vendorBillItemId || null,
+      supplierBillItemId: item.supplierBillItemId || null,
       productId: item.productId || null,
       productName: item.productName || item.name || "",
       description: item.description || "",
@@ -51,8 +51,8 @@ const transformDebitNoteFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId,
-    vendorBillId: serverData.vendorBillId,
-    vendorBillNumber: serverData.vendorBillNumber || "",
+    supplierBillId: serverData.supplierBillId,
+    supplierBillNumber: serverData.supplierBillNumber || "",
     supplierId: serverData.supplierId || null,
     supplierDetails: serverData.supplierDetails || {},
     supplierName:
@@ -84,7 +84,7 @@ const transformDebitNoteFromServer = (serverData) => {
     items: (serverData.items || []).map((item) => ({
       id: item.id,
       debitNoteId: item.debitNoteId,
-      vendorBillItemId: item.vendorBillItemId,
+      supplierBillItemId: item.supplierBillItemId,
       productId: item.productId,
       productName: item.productName || "",
       description: item.description || "",
@@ -119,7 +119,7 @@ const debitNoteService = {
    * @param {number} params.page - Page number
    * @param {number} params.pageSize - Items per page
    * @param {number} params.supplierId - Filter by supplier
-   * @param {number} params.vendorBillId - Filter by vendor bill
+   * @param {number} params.supplierBillId - Filter by supplier bill
    * @param {string} params.status - Filter by status
    * @param {string} params.startDate - Filter by date from
    * @param {string} params.endDate - Filter by date to
@@ -132,7 +132,7 @@ const debitNoteService = {
         page: params.page || 1,
         pageSize: params.pageSize || params.limit || 50,
         supplierId: params.supplierId || undefined,
-        vendorBillId: params.vendorBillId || undefined,
+        supplierBillId: params.supplierBillId || undefined,
         status: params.status || undefined,
         startDate: params.startDate || undefined,
         endDate: params.endDate || undefined,
@@ -196,21 +196,21 @@ const debitNoteService = {
   },
 
   /**
-   * Get debit notes by vendor bill ID
-   * @param {number|string} vendorBillId - Vendor bill ID
+   * Get debit notes by supplier bill ID
+   * @param {number|string} supplierBillId - Supplier bill ID
    * @returns {Promise<Array>}
    */
-  async getByVendorBill(vendorBillId) {
+  async getBySupplierBill(supplierBillId) {
     try {
       const response = await apiClient.get(
-        `/debit-notes/by-vendor-bill/${vendorBillId}`,
+        `/debit-notes/by-supplier-bill/${supplierBillId}`,
       );
       const debitNotes = Array.isArray(response)
         ? response
         : response.data || [];
       return debitNotes.map(transformDebitNoteFromServer);
     } catch (error) {
-      console.error("[DebitNoteService] getByVendorBill failed:", error);
+      console.error("[DebitNoteService] getBySupplierBill failed:", error);
       throw error;
     }
   },

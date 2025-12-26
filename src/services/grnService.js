@@ -2,7 +2,7 @@
  * GRN (Goods Receipt Note) Service
  *
  * Handles goods receipt operations for the 3-way match workflow:
- * Purchase Order -> GRN -> Vendor Bill
+ * Purchase Order -> GRN -> Supplier Bill
  *
  * GRNs capture actual received quantities and weights at warehouse,
  * enabling variance detection and landed cost allocation.
@@ -98,9 +98,9 @@ const transformGRNFromServer = (serverData) => {
       "LOCAL",
     // Billing status
     isBilled: serverData.isBilled || serverData.is_billed || false,
-    vendorBillId: serverData.vendorBillId || serverData.vendor_bill_id || null,
-    vendorBillNumber:
-      serverData.vendorBillNumber || serverData.vendor_bill_number || "",
+    supplierBillId: serverData.supplierBillId || serverData.supplier_bill_id || null,
+    supplierBillNumber:
+      serverData.supplierBillNumber || serverData.supplier_bill_number || "",
     // Totals
     totalReceivedQuantity: parseFloat(
       serverData.totalReceivedQuantity ||
@@ -252,7 +252,7 @@ const grnService = {
   },
 
   /**
-   * Get unbilled GRNs (available for vendor bill matching)
+   * Get unbilled GRNs (available for supplier bill matching)
    */
   async getUnbilled(params = {}) {
     try {
@@ -330,12 +330,12 @@ const grnService = {
   },
 
   /**
-   * Mark GRN as billed (linked to vendor bill)
+   * Mark GRN as billed (linked to supplier bill)
    */
-  async markBilled(id, vendorBillId) {
+  async markBilled(id, supplierBillId) {
     try {
       const response = await apiClient.post(`/grns/${id}/mark-billed`, {
-        vendorBillId,
+        supplierBillId,
       });
       return transformGRNFromServer(response);
     } catch (error) {

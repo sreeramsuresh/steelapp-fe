@@ -92,7 +92,7 @@ const transformAmendmentForServer = (amendmentData) => {
     // Related transactions
     relatedInvoiceIds: amendmentData.relatedInvoiceIds || [],
     relatedCreditNoteIds: amendmentData.relatedCreditNoteIds || [],
-    relatedVendorBillIds: amendmentData.relatedVendorBillIds || [],
+    relatedSupplierBillIds: amendmentData.relatedSupplierBillIds || [],
     // Status
     status: amendmentData.status || "draft",
     notes: amendmentData.notes || "",
@@ -146,7 +146,7 @@ const transformAmendmentFromServer = (serverData) => {
     // Related transactions
     relatedInvoiceIds: serverData.relatedInvoiceIds || [],
     relatedCreditNoteIds: serverData.relatedCreditNoteIds || [],
-    relatedVendorBillIds: serverData.relatedVendorBillIds || [],
+    relatedSupplierBillIds: serverData.relatedSupplierBillIds || [],
     // Status
     status: serverData.status || "draft",
     notes: serverData.notes || "",

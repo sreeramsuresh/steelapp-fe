@@ -23,7 +23,8 @@ export const REDIRECTS = {
   // Purchases (operational → /app)
   '/purchases': '/app/purchases',
   '/purchase-orders': '/app/purchase-orders',
-  '/vendor-bills': '/app/vendor-bills',
+  '/supplier-bills': '/app/supplier-bills',
+  '/vendor-bills': '/app/supplier-bills', // Legacy redirect
   '/debit-notes': '/app/debit-notes',
   '/advance-payments': '/app/advance-payments',
 

@@ -44,7 +44,7 @@ const CURRENCIES = [
 
 /**
  * AdvancePaymentForm - Modal form for create/edit advance payments (Phase 2c)
- * Follows VendorBillForm pattern with accordion sections
+ * Follows SupplierBillForm pattern with accordion sections
  *
  * Key UAE VAT Rule:
  * VAT is due on advance payments at time of RECEIPT, not when goods/services are delivered.
