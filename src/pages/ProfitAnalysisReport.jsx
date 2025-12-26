@@ -16,6 +16,7 @@ import { tokenUtils } from "../services/axiosApi";
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [dateRange, setDateRange] = useState(() => {
     // Use UAE timezone for default date range
     const now = new Date();
@@ -36,11 +37,13 @@ export default function ProfitAnalysisReport() {
 
   useEffect(() => {
     fetchReport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchReport = async () => {
     try {
       setLoading(true);
+      setHasError(false); // Reset error state on new fetch attempt
 
       // Query to get profit by product
       const query = `
@@ -103,7 +106,11 @@ export default function ProfitAnalysisReport() {
       });
     } catch (error) {
       console.error("Error fetching report:", error);
-      toast.error("Failed to load profit analysis");
+      // Only show toast if not already showing error state
+      if (!hasError) {
+        setHasError(true);
+        toast.error("Failed to load profit analysis. The report endpoint may not be available.");
+      }
     } finally {
       setLoading(false);
     }

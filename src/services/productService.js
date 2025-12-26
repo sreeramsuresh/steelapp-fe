@@ -1,6 +1,11 @@
 import { apiClient } from "./api";
 
 export const productService = {
+  // Alias for backwards compatibility with components using getAll
+  async getAll(params = {}) {
+    return apiClient.get("/products", params);
+  },
+
   async getProducts(params = {}) {
     return apiClient.get("/products", params);
   },

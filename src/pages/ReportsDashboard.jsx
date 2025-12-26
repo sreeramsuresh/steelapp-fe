@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   BarChart3,
@@ -6,11 +6,20 @@ import {
   FileText,
   PieChart,
   Receipt,
+  Loader2,
 } from "lucide-react";
 
-import SalesAnalytics from "../components/SalesAnalytics";
-import RevenueTrends from "../components/RevenueTrends";
-import VATReturnReport from "../components/VATReturnReport";
+// Lazy-load tab components for better initial load performance
+const SalesAnalytics = lazy(() => import("../components/SalesAnalytics"));
+const RevenueTrends = lazy(() => import("../components/RevenueTrends"));
+const VATReturnReport = lazy(() => import("../components/VATReturnReport"));
+
+// Tab loading fallback
+const TabLoadingFallback = ({ isDarkMode }) => (
+  <div className="flex items-center justify-center py-16">
+    <Loader2 className={`h-8 w-8 animate-spin ${isDarkMode ? "text-purple-400" : "text-purple-600"}`} />
+  </div>
+);
 
 const ReportsDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -95,8 +104,12 @@ const ReportsDashboard = () => {
         </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="flex-1">{ActiveComponent && <ActiveComponent />}</div>
+      {/* Tab Content - Lazy loaded with Suspense */}
+      <div className="flex-1">
+        <Suspense fallback={<TabLoadingFallback isDarkMode={isDarkMode} />}>
+          {ActiveComponent && <ActiveComponent />}
+        </Suspense>
+      </div>
     </div>
   );
 };

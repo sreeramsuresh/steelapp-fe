@@ -185,6 +185,34 @@ export default defineConfig({
             return "feature-reports";
           }
 
+          // Analytics Hub - lazy loaded, separate from Core ERP
+          if (
+            id.includes("/layouts/AnalyticsLayout") ||
+            id.includes("/components/AnalyticsSidebar") ||
+            id.includes("/components/AnalyticsLoadingScreen") ||
+            id.includes("/pages/AnalyticsDashboard")
+          ) {
+            return "analytics-hub";
+          }
+          if (
+            id.includes("/pages/ARAgingReport") ||
+            id.includes("/pages/BatchAnalytics") ||
+            id.includes("/pages/DeliveryVariance") ||
+            id.includes("/pages/SupplierPerformance") ||
+            id.includes("/pages/CommissionDashboard") ||
+            id.includes("/pages/AgentCommissionDashboard")
+          ) {
+            return "analytics-dashboards";
+          }
+
+          // Core ERP layouts - loaded immediately
+          if (
+            id.includes("/layouts/CoreERPLayout") ||
+            id.includes("/components/CoreSidebar")
+          ) {
+            return "core-layout";
+          }
+
           // Marketing pages - separate chunk for public site
           if (id.includes("/marketing/")) {
             return "marketing";
@@ -220,7 +248,6 @@ export default defineConfig({
       "zod",
       "@radix-ui/react-select",
       "@radix-ui/react-dialog",
-      "@radix-ui/react-dropdown-menu",
     ],
     // Exclude heavy libraries from pre-bundling to allow proper chunking
     exclude: ["jspdf", "html2canvas", "xlsx"],

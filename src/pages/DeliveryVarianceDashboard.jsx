@@ -1,18 +1,10 @@
-import { useState, useEffect } from "react";
-import {
-  LineChart,
-  BarChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { deliveryVarianceService } from "../services/deliveryVarianceService";
 import { useTheme } from "../contexts/ThemeContext";
+// Lazy-load chart components for better initial load performance
+import { ChartSkeleton } from "../components/charts";
+const LazyLineChart = lazy(() => import("../components/charts/LazyLineChart"));
+const LazyBarChart = lazy(() => import("../components/charts/LazyBarChart"));
 
 export default function DeliveryVarianceDashboard() {
   const { isDarkMode } = useTheme();
@@ -30,45 +22,74 @@ export default function DeliveryVarianceDashboard() {
   }, []);
 
   const loadDashboard = async () => {
-    try {
-      setLoading(true);
-      const [
-        kpiData,
-        trendData,
-        breakdownData,
-        comparisonData,
-        recommendationData,
-        lateData,
-      ] = await Promise.all([
-        deliveryVarianceService.getDeliveryVarianceKPIs(),
-        deliveryVarianceService.getDeliveryVarianceTrend(),
-        deliveryVarianceService.getLateDeliveriesBreakdown(),
-        deliveryVarianceService.getSupplierPerformanceComparison(),
-        deliveryVarianceService.generateRecommendations(),
-        deliveryVarianceService.getRecentLateDeliveries(20),
-      ]);
+    setLoading(true);
+    setError(null);
 
-      setKpis(kpiData);
-      setTrend(trendData);
-      setBreakdown(breakdownData);
-      setComparison(comparisonData);
-      setRecommendations(recommendationData);
-      setLateDeliveries(lateData);
-    } catch (err) {
-      setError(err.message);
-      console.error("Dashboard load error:", err);
-    } finally {
-      setLoading(false);
+    // Use Promise.allSettled to handle partial failures gracefully
+    const results = await Promise.allSettled([
+      deliveryVarianceService.getDeliveryVarianceKPIs(),
+      deliveryVarianceService.getDeliveryVarianceTrend(),
+      deliveryVarianceService.getLateDeliveriesBreakdown(),
+      deliveryVarianceService.getSupplierPerformanceComparison(),
+      deliveryVarianceService.generateRecommendations(),
+      deliveryVarianceService.getRecentLateDeliveries(20),
+    ]);
+
+    const [kpiResult, trendResult, breakdownResult, comparisonResult, recommendationResult, lateResult] = results;
+
+    // Set data from successful calls, null for failed ones
+    setKpis(kpiResult.status === "fulfilled" ? kpiResult.value : null);
+    setTrend(trendResult.status === "fulfilled" ? trendResult.value : null);
+    setBreakdown(breakdownResult.status === "fulfilled" ? breakdownResult.value : null);
+    setComparison(comparisonResult.status === "fulfilled" ? comparisonResult.value : null);
+    setRecommendations(recommendationResult.status === "fulfilled" ? recommendationResult.value : null);
+    setLateDeliveries(lateResult.status === "fulfilled" ? lateResult.value : null);
+
+    // Check if ALL calls failed
+    const allFailed = results.every(r => r.status === "rejected");
+    if (allFailed) {
+      const firstError = results.find(r => r.status === "rejected")?.reason;
+      setError(firstError?.message || "Failed to load delivery performance data. The service may be unavailable.");
+      console.error("Dashboard load error - all endpoints failed:", firstError);
+    } else {
+      // Log any individual failures for debugging
+      results.forEach((r, i) => {
+        if (r.status === "rejected") {
+          const endpoints = ["KPIs", "Trend", "Breakdown", "Comparison", "Recommendations", "Late Deliveries"];
+          console.warn(`Delivery Performance: ${endpoints[i]} endpoint failed:`, r.reason?.message);
+        }
+      });
     }
+
+    setLoading(false);
   };
 
   if (loading)
     return (
       <div className="flex justify-center items-center h-96">
-        Loading dashboard...
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Loading delivery performance data...
+          </p>
+        </div>
       </div>
     );
-  if (error) return <div className="text-red-600 p-4">Error: {error}</div>;
+  if (error) return (
+    <div className={`p-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"} min-h-screen`}>
+      <div className={`p-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-800 text-red-400" : "bg-red-50 border-red-200 text-red-700"}`}>
+        <h3 className="font-semibold mb-2">Unable to load Delivery Performance</h3>
+        <p className="text-sm mb-4">{error}</p>
+        <p className="text-sm mb-4">This may be because the delivery variance backend service is not available. Please contact your administrator.</p>
+        <button
+          onClick={loadDashboard}
+          className={`px-4 py-2 rounded-lg ${isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  );
 
   const trendChartData =
     trend?.trendData?.length > 0 &&
@@ -184,22 +205,22 @@ export default function DeliveryVarianceDashboard() {
             >
               Delivery Trend
             </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="onTimeDeliveryPct"
-                  stroke="#4bc0c0"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <LazyLineChart
+                data={trendChartData}
+                xAxisKey="date"
+                height={300}
+                lines={[
+                  {
+                    dataKey: "onTimeDeliveryPct",
+                    color: "#4bc0c0",
+                    name: "On-Time Delivery %",
+                    strokeWidth: 2,
+                    dot: false,
+                  },
+                ]}
+              />
+            </Suspense>
           </div>
         )}
 
@@ -213,16 +234,20 @@ export default function DeliveryVarianceDashboard() {
             >
               Late Deliveries Breakdown
             </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={breakdownChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="rangeLabel" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#ffc107" />
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <LazyBarChart
+                data={breakdownChartData}
+                xAxisKey="rangeLabel"
+                height={300}
+                bars={[
+                  {
+                    dataKey: "count",
+                    color: "#ffc107",
+                    name: "Late Deliveries",
+                  },
+                ]}
+              />
+            </Suspense>
           </div>
         )}
       </div>
@@ -237,16 +262,21 @@ export default function DeliveryVarianceDashboard() {
           >
             Top 10 Suppliers Performance
           </h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={comparisonChartData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="supplierName" type="category" width={150} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="onTimeDeliveryPct" fill="#4caf50" />
-            </BarChart>
-          </ResponsiveContainer>
+          <Suspense fallback={<ChartSkeleton height={400} />}>
+            <LazyBarChart
+              data={comparisonChartData}
+              xAxisKey="supplierName"
+              height={400}
+              layout="vertical"
+              bars={[
+                {
+                  dataKey: "onTimeDeliveryPct",
+                  color: "#4caf50",
+                  name: "On-Time Delivery %",
+                },
+              ]}
+            />
+          </Suspense>
         </div>
       )}
 

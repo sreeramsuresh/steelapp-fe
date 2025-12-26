@@ -34,28 +34,49 @@ const AgentCommissionDashboard = () => {
   }, []); // Intentionally run once on mount
 
   const loadAgentData = async () => {
-    try {
-      // Double-check user ID exists before API calls
-      if (!currentUser?.id) {
-        console.error("User ID not available");
-        notificationService.error("User authentication required");
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      const [summaryRes, transactionsRes] = await Promise.all([
-        commissionService.getAgentSummary(currentUser.id),
-        commissionService.getTransactions({ agent_id: currentUser.id }),
-      ]);
-      setSummary(summaryRes.data || {});
-      setTransactions(transactionsRes.data || {});
-    } catch (error) {
-      console.error("Error loading agent data:", error);
-      notificationService.error("Failed to load commission data");
-    } finally {
+    // Double-check user ID exists before API calls
+    if (!currentUser?.id) {
+      console.error("User ID not available");
+      notificationService.error("User authentication required");
       setLoading(false);
+      return;
     }
+
+    setLoading(true);
+    let hasError = false;
+
+    // Use Promise.allSettled to handle partial failures gracefully
+    const [summaryResult, transactionsResult] = await Promise.allSettled([
+      commissionService.getAgentSummary(currentUser.id),
+      commissionService.getTransactions({ agent_id: currentUser.id }),
+    ]);
+
+    // Handle summary result
+    if (summaryResult.status === "fulfilled" && summaryResult.value?.data) {
+      setSummary(summaryResult.value.data);
+    } else {
+      console.error("Error loading summary:", summaryResult.reason || "No data");
+      setSummary({});
+      hasError = true;
+    }
+
+    // Handle transactions result
+    if (transactionsResult.status === "fulfilled") {
+      // Handle both { data: [...] } and direct array responses
+      const txData = transactionsResult.value?.data || transactionsResult.value || [];
+      setTransactions(Array.isArray(txData) ? txData : []);
+    } else {
+      console.error("Error loading transactions:", transactionsResult.reason || "No data");
+      setTransactions([]);
+      hasError = true;
+    }
+
+    // Show single error toast if any request failed
+    if (hasError) {
+      notificationService.error("Some commission data could not be loaded");
+    }
+
+    setLoading(false);
   };
 
   const getStatusBadge = (status) => {

@@ -14,49 +14,51 @@
     -moz-osx-font-smoothing: grayscale;
 
     /* Shadcn theme variables - Light mode (default) */
-    --background: 250 250 250; /* #FAFAFA */
-    --foreground: 33 33 33; /* #212121 */
-    --card: 255 255 255; /* #FFFFFF */
-    --card-foreground: 33 33 33; /* #212121 */
-    --popover: 255 255 255; /* #FFFFFF */
-    --popover-foreground: 33 33 33; /* #212121 */
-    --primary: 0 139 139; /* #008b8b - teal-500 */
-    --primary-foreground: 255 255 255; /* #FFFFFF */
-    --secondary: 245 245 245; /* #F5F5F5 */
-    --secondary-foreground: 33 33 33; /* #212121 */
-    --muted: 245 245 245; /* #F5F5F5 */
-    --muted-foreground: 117 117 117; /* #757575 */
-    --accent: 245 245 245; /* #F5F5F5 */
-    --accent-foreground: 33 33 33; /* #212121 */
-    --destructive: 239 68 68; /* #ef4444 */
-    --destructive-foreground: 255 255 255; /* #FFFFFF */
-    --border: 224 224 224; /* #E0E0E0 */
-    --input: 224 224 224; /* #E0E0E0 */
-    --ring: 0 139 139; /* #008b8b - teal-500 */
+    /* Using HSL format: H S% L% (space-separated for Tailwind) */
+    --background: 0 0% 98%; /* #FAFAFA */
+    --foreground: 0 0% 13%; /* #212121 */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 0 0% 13%; /* #212121 */
+    --popover: 0 0% 100%; /* #FFFFFF */
+    --popover-foreground: 0 0% 13%; /* #212121 */
+    --primary: 180 100% 27%; /* #008b8b - teal-500 */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF */
+    --secondary: 0 0% 96%; /* #F5F5F5 */
+    --secondary-foreground: 0 0% 13%; /* #212121 */
+    --muted: 0 0% 96%; /* #F5F5F5 */
+    --muted-foreground: 0 0% 46%; /* #757575 */
+    --accent: 0 0% 96%; /* #F5F5F5 */
+    --accent-foreground: 0 0% 13%; /* #212121 */
+    --destructive: 0 84% 60%; /* #ef4444 */
+    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+    --border: 0 0% 88%; /* #E0E0E0 */
+    --input: 0 0% 88%; /* #E0E0E0 */
+    --ring: 180 100% 27%; /* #008b8b - teal-500 */
     --radius: 0.5rem;
   }
 
   /* Dark mode theme variables */
+  /* Using HSL format: H S% L% (space-separated for Tailwind) */
   .dark {
-    --background: 18 20 24; /* #121418 */
-    --foreground: 255 255 255; /* #FFFFFF */
-    --card: 30 35 40; /* #1E2328 */
-    --card-foreground: 255 255 255; /* #FFFFFF */
-    --popover: 30 35 40; /* #1E2328 */
-    --popover-foreground: 255 255 255; /* #FFFFFF */
-    --primary: 0 139 139; /* #008b8b - teal-500 */
-    --primary-foreground: 255 255 255; /* #FFFFFF */
-    --secondary: 38 50 56; /* #263238 */
-    --secondary-foreground: 255 255 255; /* #FFFFFF */
-    --muted: 46 59 78; /* #2E3B4E */
-    --muted-foreground: 176 190 197; /* #B0BEC5 */
-    --accent: 46 59 78; /* #2E3B4E */
-    --accent-foreground: 255 255 255; /* #FFFFFF */
-    --destructive: 220 38 38; /* #dc2626 */
-    --destructive-foreground: 255 255 255; /* #FFFFFF */
-    --border: 55 71 79; /* #37474F */
-    --input: 55 71 79; /* #37474F */
-    --ring: 0 139 139; /* #008b8b - teal-500 */
+    --background: 220 14% 8%; /* #121418 */
+    --foreground: 0 0% 100%; /* #FFFFFF */
+    --card: 213 14% 14%; /* #1E2328 */
+    --card-foreground: 0 0% 100%; /* #FFFFFF */
+    --popover: 213 14% 14%; /* #1E2328 */
+    --popover-foreground: 0 0% 100%; /* #FFFFFF */
+    --primary: 180 100% 27%; /* #008b8b - teal-500 */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF */
+    --secondary: 200 19% 18%; /* #263238 */
+    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+    --muted: 215 26% 24%; /* #2E3B4E */
+    --muted-foreground: 198 16% 73%; /* #B0BEC5 */
+    --accent: 215 26% 24%; /* #2E3B4E */
+    --accent-foreground: 0 0% 100%; /* #FFFFFF */
+    --destructive: 0 72% 51%; /* #dc2626 */
+    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+    --border: 198 18% 26%; /* #37474F */
+    --input: 198 18% 26%; /* #37474F */
+    --ring: 180 100% 27%; /* #008b8b - teal-500 */
 
     /* Force native browser controls to use dark mode */
     color-scheme: dark;

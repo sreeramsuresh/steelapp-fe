@@ -2,6 +2,16 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { lazy, Suspense } from "react";
 
+// Layout Components
+import { CoreERPLayout } from "../layouts";
+const AnalyticsLayout = lazy(() => import("../layouts/AnalyticsLayout"));
+
+// Loading Screen for Analytics
+import AnalyticsLoadingScreen from "./AnalyticsLoadingScreen";
+
+// Legacy Redirect Component
+import LegacyRedirect from "./LegacyRedirect";
+
 // Lazy loaded components
 const CustomerDetail = lazy(() => import("../pages/CustomerDetail"));
 
@@ -62,6 +72,8 @@ const ContainerForm = lazy(() =>
 
 // Finance Components
 const FinanceDashboard = lazy(() => import("../pages/FinanceDashboard"));
+const Receivables = lazy(() => import("../pages/Receivables"));
+const Payables = lazy(() => import("../pages/Payables"));
 
 // Purchases Dashboard
 const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
@@ -123,16 +135,12 @@ const PriceListForm = lazy(() => import("../pages/PriceListForm"));
 const AgentCommissionDashboard = lazy(
   () => import("../pages/AgentCommissionDashboard"),
 );
-const CommissionApprovalWorkflow = lazy(
-  () => import("../pages/CommissionApprovalWorkflow"),
-);
-
 // Phase 4 & 5 Dashboard Components
 const DeliveryVarianceDashboard = lazy(
   () => import("../pages/DeliveryVarianceDashboard"),
 );
-const CustomerCreditManagement = lazy(
-  () => import("../pages/CustomerCreditManagement"),
+const SupplierPerformanceDashboard = lazy(
+  () => import("../pages/SupplierPerformanceDashboard"),
 );
 const ARAgingReport = lazy(() => import("../pages/ARAgingReport"));
 
@@ -148,6 +156,8 @@ const SupplierForm = lazy(() =>
   import("../pages/SupplierForm").then((m) => ({ default: m.SupplierForm })),
 );
 
+// AnalyticsDashboard removed - /analytics now redirects to /analytics/dashboard
+
 const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
@@ -156,24 +166,25 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const isMarketing =
     location.pathname === "/" || location.pathname.startsWith("/marketing");
   const isLoginPage = location.pathname === "/login";
+  const isAppRoute = location.pathname.startsWith("/app") || location.pathname.startsWith("/analytics");
 
   // Check if we need to redirect to login
   const needsAuth = !user && !isLoginPage && !isMarketing;
 
-  // If user is logged in and on login page, redirect to dashboard
-  const needsDashboardRedirect = user && isLoginPage;
+  // If user is logged in and on login page, redirect to app
+  const needsAppRedirect = user && isLoginPage;
 
   if (needsAuth) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (needsDashboardRedirect) {
-    return <Navigate to="/invoices" replace />;
+  if (needsAppRedirect) {
+    return <Navigate to="/app" replace />;
   }
 
   return (
     <div
-      className={`w-full ${isMarketing ? "" : "p-2 sm:p-1 min-h-[calc(100vh-64px)]"} ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`w-full ${isMarketing || isAppRoute ? "" : "p-2 sm:p-1 min-h-[calc(100vh-64px)]"} ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
     >
       <Suspense
         fallback={
@@ -186,856 +197,562 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
         }
       >
         <Routes>
-          {/* Default route - redirect to login if not authenticated, invoices if authenticated */}
+          {/* ========================================== */}
+          {/* PUBLIC ROUTES (No Auth Required)          */}
+          {/* ========================================== */}
+
+          {/* Root - redirect to app or login */}
           <Route
             path="/"
-            element={<Navigate to={user ? "/invoices" : "/login"} replace />}
+            element={<Navigate to={user ? "/app" : "/login"} replace />}
           />
 
-          {/* Public Routes: Marketing + Login */}
+          {/* Marketing Pages */}
           <Route path="/marketing" element={<MarketingHome />} />
           <Route path="/marketing/products" element={<MarketingProducts />} />
           <Route path="/marketing/about" element={<MarketingAbout />} />
           <Route path="/marketing/contact" element={<MarketingContact />} />
+
+          {/* Login */}
           <Route
             path="/login"
             element={<Login onLoginSuccess={onLoginSuccess} />}
           />
 
-          {/* Protected Routes */}
+          {/* ========================================== */}
+          {/* LEGACY REDIRECTS (Old URLs → New URLs)    */}
+          {/* ========================================== */}
 
-          <Route
-            path="/search"
-            element={
+          {/* Dashboard → Analytics */}
+          <Route path="/dashboard" element={<LegacyRedirect />} />
+
+          {/* Sales */}
+          <Route path="/quotations/*" element={<LegacyRedirect />} />
+          <Route path="/invoices/*" element={<LegacyRedirect />} />
+          <Route path="/delivery-notes/*" element={<LegacyRedirect />} />
+          <Route path="/credit-notes/*" element={<LegacyRedirect />} />
+
+          {/* Purchases */}
+          <Route path="/purchases/*" element={<LegacyRedirect />} />
+          <Route path="/purchase-orders/*" element={<LegacyRedirect />} />
+
+          {/* Finance */}
+          <Route path="/finance" element={<LegacyRedirect />} />
+          <Route path="/dashboards/*" element={<LegacyRedirect />} />
+          <Route path="/account-statements/*" element={<LegacyRedirect />} />
+
+          {/* Inventory */}
+          <Route path="/warehouses/*" element={<LegacyRedirect />} />
+          <Route path="/inventory" element={<LegacyRedirect />} />
+          <Route path="/stock-movements" element={<LegacyRedirect />} />
+          <Route path="/batch-analytics" element={<LegacyRedirect />} />
+
+          {/* Trade */}
+          <Route path="/import-export" element={<LegacyRedirect />} />
+          <Route path="/containers/*" element={<LegacyRedirect />} />
+          <Route path="/import-orders/*" element={<LegacyRedirect />} />
+          <Route path="/export-orders/*" element={<LegacyRedirect />} />
+          <Route path="/transit" element={<LegacyRedirect />} />
+
+          {/* Masters */}
+          <Route path="/customers/*" element={<LegacyRedirect />} />
+          <Route path="/products" element={<LegacyRedirect />} />
+          <Route path="/pricelists/*" element={<LegacyRedirect />} />
+          <Route path="/suppliers/*" element={<LegacyRedirect />} />
+
+          {/* Settings */}
+          <Route path="/settings" element={<LegacyRedirect />} />
+          <Route path="/roles" element={<LegacyRedirect />} />
+          <Route path="/audit-logs" element={<LegacyRedirect />} />
+
+          {/* Reports */}
+          <Route path="/reports/*" element={<LegacyRedirect />} />
+
+          {/* ========================================== */}
+          {/* CORE ERP ROUTES (/app/*)                  */}
+          {/* Operational workflows - DO something      */}
+          {/* ========================================== */}
+
+          <Route path="/app" element={<CoreERPLayout />}>
+            {/* Redirect /app to first operational page */}
+            <Route index element={<Navigate to="/app/quotations" replace />} />
+
+            {/* Search */}
+            <Route path="search" element={
               <ProtectedRoute user={user}>
                 <SearchResults />
               </ProtectedRoute>
-            }
-          />
+            } />
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute user={user}>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/create-invoice"
-            element={
-              <ProtectedRoute user={user} requiredPermission="invoices.create">
-                <InvoiceForm onSave={handleSaveInvoice} />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/edit/:id"
-            element={
-              <ProtectedRoute user={user} requiredPermission="invoices.update">
-                <InvoiceForm onSave={handleSaveInvoice} />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/invoices/:invoiceId/confirm-allocation"
-            element={
-              <ProtectedRoute user={user} requiredPermission="invoices.read">
-                <InvoiceAllocationConfirmation />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* All invoices list requires invoices_all.read */}
-          <Route
-            path="/invoices"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="invoices_all.read"
-              >
-                <InvoiceList />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Credit Notes Routes */}
-          <Route
-            path="/credit-notes"
-            element={
-              <ProtectedRoute user={user} requiredPermission="invoices.read">
-                <CreditNoteList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/credit-notes/new"
-            element={
-              <ProtectedRoute user={user} requiredPermission="invoices.create">
-                <CreditNoteForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/credit-notes/:id"
-            element={
-              <ProtectedRoute user={user} requiredPermission="invoices.update">
-                <CreditNoteForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute user={user} requiredPermission="analytics.read">
-                <ReportsDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/reports/profit-analysis"
-            element={
-              <ProtectedRoute user={user} requiredPermission="analytics.read">
-                <ProfitAnalysisReport />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/reports/price-history"
-            element={
-              <ProtectedRoute user={user} requiredPermission="analytics.read">
-                <PriceHistoryReport />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/reports/stock-movements"
-            element={
-              <ProtectedRoute user={user} requiredPermission="inventory.read">
-                <StockMovementReport />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* VAT Return Report Routes */}
-          <Route
-            path="/reports/vat-return"
-            element={
-              <ProtectedRoute user={user} requiredPermission="analytics.read">
-                <VATReturnReport />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports/vat-return/:id"
-            element={
-              <ProtectedRoute user={user} requiredPermission="analytics.read">
-                <VATReturnReport />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports/vat-return/:id/preview"
-            element={
-              <ProtectedRoute user={user} requiredPermission="analytics.read">
-                <VATReturnReport />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Purchases Routes - Vendor Bills */}
-          <Route
-            path="/purchases/vendor-bills"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <VendorBillList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/purchases/vendor-bills/new"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.create">
-                <VendorBillForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/purchases/vendor-bills/:id"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <VendorBillForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/purchases/vendor-bills/:id/edit"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.update">
-                <VendorBillForm />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Purchases Routes - Debit Notes */}
-          <Route
-            path="/purchases/debit-notes"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <DebitNoteList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/purchases/debit-notes/new"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.create">
-                <DebitNoteForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/purchases/debit-notes/:id"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <DebitNoteForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/purchases/debit-notes/:id/edit"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.update">
-                <DebitNoteForm />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Advance Payments Routes */}
-          <Route
-            path="/payments/advance-payments"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <AdvancePaymentList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/payments/advance-payments/new"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.create">
-                <AdvancePaymentForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/payments/advance-payments/:id"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <AdvancePaymentForm />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Price List Routes */}
-          <Route
-            path="/pricelists"
-            element={
-              <ProtectedRoute user={user} requiredPermission="products.read">
-                <PriceListList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/pricelists/new"
-            element={
-              <ProtectedRoute user={user} requiredPermission="products.create">
-                <PriceListForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/pricelists/:id"
-            element={
-              <ProtectedRoute user={user} requiredPermission="products.read">
-                <PriceListForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/pricelists/:id/edit"
-            element={
-              <ProtectedRoute user={user} requiredPermission="products.update">
-                <PriceListForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/my-commissions"
-            element={
-              <ProtectedRoute user={user}>
-                <AgentCommissionDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Phase 5A: Commission Approval Workflow */}
-          <Route
-            path="/dashboards/commission-approvals"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="commissions.approve"
-              >
-                <CommissionApprovalWorkflow />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute user={user} requiredRole="admin">
-                <CompanySettings />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/audit-logs"
-            element={
-              <ProtectedRoute user={user} requiredRole="admin">
-                <AuditLogs />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/roles"
-            element={
-              <ProtectedRoute user={user} requiredRole="admin">
-                <RolesPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/finance"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <FinanceDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Phase 5B: Customer Credit Management */}
-          <Route
-            path="/dashboards/customer-credit"
-            element={
-              <ProtectedRoute user={user} requiredPermission="customers.read">
-                <CustomerCreditManagement />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/payables/customer/:customerId"
-            element={
-              <ProtectedRoute user={user} requiredPermission="payables.read">
-                <CustomerPerspective />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/inventory"
-            element={
-              <ProtectedRoute user={user}>
-                <InventoryList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/stock-movements"
-            element={
-              <ProtectedRoute user={user}>
-                <StockMovementPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Warehouse Routes */}
-          <Route
-            path="/warehouses"
-            element={
-              <ProtectedRoute user={user}>
-                <WarehouseList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/warehouses/:id"
-            element={
-              <ProtectedRoute user={user}>
-                <WarehouseDetail />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Batch Analytics Route */}
-          <Route
-            path="/batch-analytics"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredRoles={[
-                  "warehouse_manager",
-                  "inventory_controller",
-                  "supervisor",
-                  "manager",
-                  "admin",
-                  "super_admin",
-                  "finance_manager",
-                  "accountant",
-                  "director",
-                ]}
-              >
-                <BatchAnalyticsPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/delivery-notes"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="delivery_notes.read"
-              >
-                <DeliveryNoteList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/delivery-notes/new"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="delivery_notes.create"
-              >
-                <DeliveryNoteForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/delivery-notes/:id"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="delivery_notes.read"
-              >
-                <DeliveryNoteDetails />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/delivery-notes/:id/edit"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="delivery_notes.update"
-              >
-                <DeliveryNoteForm />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Purchases Dashboard - Main purchases page with tabs */}
-          <Route
-            path="/purchases"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="purchase_orders.read"
-              >
-                <PurchasesDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Legacy Purchase Orders route - redirect to purchases dashboard */}
-          <Route
-            path="/purchase-orders"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="purchase_orders.read"
-              >
-                <PurchasesDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/purchase-orders/new"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="purchase_orders.create"
-              >
-                <PurchaseOrderForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/purchase-orders/:id/edit"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="purchase_orders.update"
-              >
-                <PurchaseOrderForm />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Supplier Management Routes (Phase 4 Procurement) */}
-          <Route
-            path="/suppliers"
-            element={
-              <ProtectedRoute user={user} requiredPermission="suppliers.read">
-                <SupplierList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/suppliers/new"
-            element={
-              <ProtectedRoute user={user} requiredPermission="suppliers.create">
-                <SupplierForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/suppliers/:id/edit"
-            element={
-              <ProtectedRoute user={user} requiredPermission="suppliers.update">
-                <SupplierForm />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Phase 4: Delivery Variance Dashboard */}
-          <Route
-            path="/dashboards/delivery-variance"
-            element={
-              <ProtectedRoute user={user} requiredPermission="suppliers.read">
-                <DeliveryVarianceDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* AR Aging Report */}
-          <Route
-            path="/dashboards/ar-aging"
-            element={
-              <ProtectedRoute user={user} requiredPermission="customers.read">
-                <ARAgingReport />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/account-statements"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="account_statements.read"
-              >
-                <AccountStatementList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/account-statements/new"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="account_statements.create"
-              >
-                <AccountStatementForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/account-statements/:id"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="account_statements.read"
-              >
-                <AccountStatementDetails />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/quotations"
-            element={
+            {/* ===== SALES ===== */}
+            <Route path="quotations" element={
               <ProtectedRoute user={user} requiredPermission="quotations.read">
                 <QuotationList />
               </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/quotations/new"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="quotations.create"
-              >
+            } />
+            <Route path="quotations/new" element={
+              <ProtectedRoute user={user} requiredPermission="quotations.create">
                 <QuotationForm />
               </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/quotations/:id"
-            element={
+            } />
+            <Route path="quotations/:id" element={
               <ProtectedRoute user={user} requiredPermission="quotations.read">
                 <QuotationForm />
               </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/quotations/:id/edit"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="quotations.update"
-              >
+            } />
+            <Route path="quotations/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="quotations.update">
                 <QuotationForm />
               </ProtectedRoute>
-            }
-          />
+            } />
 
-          {/* Import/Export Routes */}
+            <Route path="invoices" element={
+              <ProtectedRoute user={user} requiredPermission="invoices_all.read">
+                <InvoiceList />
+              </ProtectedRoute>
+            } />
+            <Route path="invoices/new" element={
+              <ProtectedRoute user={user} requiredPermission="invoices.create">
+                <InvoiceForm onSave={handleSaveInvoice} />
+              </ProtectedRoute>
+            } />
+            <Route path="invoices/:id" element={
+              <ProtectedRoute user={user} requiredPermission="invoices.update">
+                <InvoiceForm onSave={handleSaveInvoice} />
+              </ProtectedRoute>
+            } />
+            <Route path="invoices/:invoiceId/confirm-allocation" element={
+              <ProtectedRoute user={user} requiredPermission="invoices.read">
+                <InvoiceAllocationConfirmation />
+              </ProtectedRoute>
+            } />
 
-          {/* Main Import/Export Dashboard with Tabs */}
-          <Route
-            path="/import-export"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.read"
-              >
+            <Route path="delivery-notes" element={
+              <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
+                <DeliveryNoteList />
+              </ProtectedRoute>
+            } />
+            <Route path="delivery-notes/new" element={
+              <ProtectedRoute user={user} requiredPermission="delivery_notes.create">
+                <DeliveryNoteForm />
+              </ProtectedRoute>
+            } />
+            <Route path="delivery-notes/:id" element={
+              <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
+                <DeliveryNoteDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="delivery-notes/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="delivery_notes.update">
+                <DeliveryNoteForm />
+              </ProtectedRoute>
+            } />
+
+            <Route path="credit-notes" element={
+              <ProtectedRoute user={user} requiredPermission="invoices.read">
+                <CreditNoteList />
+              </ProtectedRoute>
+            } />
+            <Route path="credit-notes/new" element={
+              <ProtectedRoute user={user} requiredPermission="invoices.create">
+                <CreditNoteForm />
+              </ProtectedRoute>
+            } />
+            <Route path="credit-notes/:id" element={
+              <ProtectedRoute user={user} requiredPermission="invoices.update">
+                <CreditNoteForm />
+              </ProtectedRoute>
+            } />
+
+            {/* ===== PURCHASES ===== */}
+            <Route path="purchases" element={
+              <ProtectedRoute user={user} requiredPermission="purchase_orders.read">
+                <PurchasesDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="purchase-orders/new" element={
+              <ProtectedRoute user={user} requiredPermission="purchase_orders.create">
+                <PurchaseOrderForm />
+              </ProtectedRoute>
+            } />
+            <Route path="purchase-orders/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="purchase_orders.update">
+                <PurchaseOrderForm />
+              </ProtectedRoute>
+            } />
+
+            <Route path="vendor-bills" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <VendorBillList />
+              </ProtectedRoute>
+            } />
+            <Route path="vendor-bills/new" element={
+              <ProtectedRoute user={user} requiredPermission="payables.create">
+                <VendorBillForm />
+              </ProtectedRoute>
+            } />
+            <Route path="vendor-bills/:id" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <VendorBillForm />
+              </ProtectedRoute>
+            } />
+            <Route path="vendor-bills/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="payables.update">
+                <VendorBillForm />
+              </ProtectedRoute>
+            } />
+
+            <Route path="debit-notes" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <DebitNoteList />
+              </ProtectedRoute>
+            } />
+            <Route path="debit-notes/new" element={
+              <ProtectedRoute user={user} requiredPermission="payables.create">
+                <DebitNoteForm />
+              </ProtectedRoute>
+            } />
+            <Route path="debit-notes/:id" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <DebitNoteForm />
+              </ProtectedRoute>
+            } />
+            <Route path="debit-notes/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="payables.update">
+                <DebitNoteForm />
+              </ProtectedRoute>
+            } />
+
+            <Route path="advance-payments" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <AdvancePaymentList />
+              </ProtectedRoute>
+            } />
+            <Route path="advance-payments/new" element={
+              <ProtectedRoute user={user} requiredPermission="payables.create">
+                <AdvancePaymentForm />
+              </ProtectedRoute>
+            } />
+            <Route path="advance-payments/:id" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <AdvancePaymentForm />
+              </ProtectedRoute>
+            } />
+
+            {/* ===== FINANCE (Operational) ===== */}
+            <Route path="finance" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <FinanceDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="receivables" element={
+              <ProtectedRoute user={user} requiredPermission="receivables.read">
+                <Receivables />
+              </ProtectedRoute>
+            } />
+            <Route path="payables" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <Payables />
+              </ProtectedRoute>
+            } />
+            <Route path="my-commissions" element={
+              <ProtectedRoute user={user}>
+                <AgentCommissionDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="customer-perspective/:customerId" element={
+              <ProtectedRoute user={user} requiredPermission="payables.read">
+                <CustomerPerspective />
+              </ProtectedRoute>
+            } />
+            <Route path="account-statements" element={
+              <ProtectedRoute user={user} requiredPermission="account_statements.read">
+                <AccountStatementList />
+              </ProtectedRoute>
+            } />
+            <Route path="account-statements/new" element={
+              <ProtectedRoute user={user} requiredPermission="account_statements.create">
+                <AccountStatementForm />
+              </ProtectedRoute>
+            } />
+            <Route path="account-statements/:id" element={
+              <ProtectedRoute user={user} requiredPermission="account_statements.read">
+                <AccountStatementDetails />
+              </ProtectedRoute>
+            } />
+
+            {/* ===== INVENTORY ===== */}
+            <Route path="warehouses" element={
+              <ProtectedRoute user={user}>
+                <WarehouseList />
+              </ProtectedRoute>
+            } />
+            <Route path="warehouses/:id" element={
+              <ProtectedRoute user={user}>
+                <WarehouseDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="inventory" element={
+              <ProtectedRoute user={user}>
+                <InventoryList />
+              </ProtectedRoute>
+            } />
+            <Route path="stock-movements" element={
+              <ProtectedRoute user={user}>
+                <StockMovementPage />
+              </ProtectedRoute>
+            } />
+
+            {/* ===== TRADE ===== */}
+            <Route path="import-export" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.read">
                 <ImportExportDashboard />
               </ProtectedRoute>
-            }
-          />
-
-          {/* Import Order Forms & Details */}
-          <Route
-            path="/import-orders/new"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.create"
-              >
+            } />
+            <Route path="import-orders/new" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.create">
                 <ImportOrderForm />
               </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/import-orders/:id"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.read"
-              >
+            } />
+            <Route path="import-orders/:id" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.read">
                 <ImportOrderDetails />
               </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/import-orders/:id/edit"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.update"
-              >
+            } />
+            <Route path="import-orders/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.update">
                 <ImportOrderForm />
               </ProtectedRoute>
-            }
-          />
-
-          {/* Export Order Forms & Details */}
-          <Route
-            path="/export-orders/new"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="export_orders.create"
-              >
+            } />
+            <Route path="export-orders/new" element={
+              <ProtectedRoute user={user} requiredPermission="export_orders.create">
                 <ExportOrderForm />
               </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/export-orders/:id"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="export_orders.read"
-              >
+            } />
+            <Route path="export-orders/:id" element={
+              <ProtectedRoute user={user} requiredPermission="export_orders.read">
                 <ExportOrderDetails />
               </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/export-orders/:id/edit"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="export_orders.update"
-              >
+            } />
+            <Route path="export-orders/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="export_orders.update">
                 <ExportOrderForm />
               </ProtectedRoute>
-            }
-          />
-
-          {/* Transit Tracking */}
-          <Route
-            path="/transit"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.read"
-              >
+            } />
+            <Route path="transit" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.read">
                 <TransitList />
               </ProtectedRoute>
-            }
-          />
-
-          {/* Container Management Routes */}
-          <Route
-            path="/containers"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.read"
-              >
+            } />
+            <Route path="containers" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.read">
                 <ContainerList />
               </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/containers/new"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.create"
-              >
+            } />
+            <Route path="containers/new" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.create">
                 <ContainerForm />
               </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/containers/:id"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.read"
-              >
+            } />
+            <Route path="containers/:id" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.read">
                 <ContainerForm />
               </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/containers/:id/edit"
-            element={
-              <ProtectedRoute
-                user={user}
-                requiredPermission="import_orders.update"
-              >
+            } />
+            <Route path="containers/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="import_orders.update">
                 <ContainerForm />
               </ProtectedRoute>
-            }
-          />
+            } />
 
-          {/* Masters Routes */}
-          <Route
-            path="/masters/countries"
-            element={
-              <ProtectedRoute user={user}>
-                <CountriesList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/masters/exchange-rates"
-            element={
-              <ProtectedRoute user={user}>
-                <ExchangeRateList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customers"
-            element={
+            {/* ===== MASTERS ===== */}
+            <Route path="customers" element={
               <ProtectedRoute user={user} requiredPermission="customers.read">
                 <CustomerManagement />
               </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customers/:customerId"
-            element={
+            } />
+            <Route path="customers/:customerId" element={
               <ProtectedRoute user={user} requiredPermission="customers.read">
                 <CustomerDetail />
               </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products"
-            element={
+            } />
+            <Route path="products" element={
               <ProtectedRoute user={user} requiredPermission="products.read">
                 <SteelProducts />
               </ProtectedRoute>
-            }
-          />
+            } />
+            <Route path="pricelists" element={
+              <ProtectedRoute user={user} requiredPermission="products.read">
+                <PriceListList />
+              </ProtectedRoute>
+            } />
+            <Route path="pricelists/new" element={
+              <ProtectedRoute user={user} requiredPermission="products.create">
+                <PriceListForm />
+              </ProtectedRoute>
+            } />
+            <Route path="pricelists/:id" element={
+              <ProtectedRoute user={user} requiredPermission="products.read">
+                <PriceListForm />
+              </ProtectedRoute>
+            } />
+            <Route path="pricelists/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="products.update">
+                <PriceListForm />
+              </ProtectedRoute>
+            } />
+            <Route path="suppliers" element={
+              <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <SupplierList />
+              </ProtectedRoute>
+            } />
+            <Route path="suppliers/new" element={
+              <ProtectedRoute user={user} requiredPermission="suppliers.create">
+                <SupplierForm />
+              </ProtectedRoute>
+            } />
+            <Route path="suppliers/:id/edit" element={
+              <ProtectedRoute user={user} requiredPermission="suppliers.update">
+                <SupplierForm />
+              </ProtectedRoute>
+            } />
+            <Route path="countries" element={
+              <ProtectedRoute user={user}>
+                <CountriesList />
+              </ProtectedRoute>
+            } />
+            <Route path="exchange-rates" element={
+              <ProtectedRoute user={user}>
+                <ExchangeRateList />
+              </ProtectedRoute>
+            } />
 
-          {/* Catch all route - DEVELOPMENT: redirect to invoices */}
-          <Route path="*" element={<Navigate to="/invoices" replace />} />
+            {/* ===== SETTINGS ===== */}
+            <Route path="settings" element={
+              <ProtectedRoute user={user} requiredRole="admin">
+                <CompanySettings />
+              </ProtectedRoute>
+            } />
+            <Route path="roles" element={
+              <ProtectedRoute user={user} requiredRole="admin">
+                <RolesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="audit-logs" element={
+              <ProtectedRoute user={user} requiredRole="admin">
+                <AuditLogs />
+              </ProtectedRoute>
+            } />
+          </Route>
+
+          {/* ========================================== */}
+          {/* ANALYTICS HUB ROUTES (/analytics/*)       */}
+          {/* View/Report - see data, analyze, export   */}
+          {/* ========================================== */}
+
+          <Route
+            path="/analytics"
+            element={
+              <Suspense fallback={<AnalyticsLoadingScreen />}>
+                <AnalyticsLayout />
+              </Suspense>
+            }
+          >
+            {/* Redirect /analytics to /analytics/dashboard */}
+            <Route index element={<Navigate to="/analytics/dashboard" replace />} />
+
+            {/* Executive Dashboard */}
+            <Route path="dashboard" element={
+              <ProtectedRoute user={user}>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+
+            {/* Sales Analytics */}
+            <Route path="profit-analysis" element={
+              <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProfitAnalysisReport />
+              </ProtectedRoute>
+            } />
+            <Route path="price-history" element={
+              <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <PriceHistoryReport />
+              </ProtectedRoute>
+            } />
+
+            {/* Finance Dashboards */}
+            <Route path="ar-aging" element={
+              <ProtectedRoute user={user} requiredPermission="customers.read">
+                <ARAgingReport />
+              </ProtectedRoute>
+            } />
+            <Route path="commission-dashboard" element={
+              <ProtectedRoute user={user}>
+                <AgentCommissionDashboard />
+              </ProtectedRoute>
+            } />
+
+            {/* Inventory Analytics */}
+            <Route path="batch-analytics" element={
+              <ProtectedRoute user={user} requiredRoles={[
+                "warehouse_manager",
+                "inventory_controller",
+                "supervisor",
+                "manager",
+                "admin",
+                "super_admin",
+                "finance_manager",
+                "accountant",
+                "director",
+              ]}>
+                <BatchAnalyticsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="stock-movement-report" element={
+              <ProtectedRoute user={user} requiredPermission="inventory.read">
+                <StockMovementReport />
+              </ProtectedRoute>
+            } />
+
+            {/* Purchase Analytics */}
+            <Route path="delivery-performance" element={
+              <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <DeliveryVarianceDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="supplier-performance" element={
+              <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <SupplierPerformanceDashboard />
+              </ProtectedRoute>
+            } />
+
+            {/* Reports Hub */}
+            <Route path="reports" element={
+              <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ReportsDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="vat-return" element={
+              <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <VATReturnReport />
+              </ProtectedRoute>
+            } />
+            <Route path="vat-return/:id" element={
+              <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <VATReturnReport />
+              </ProtectedRoute>
+            } />
+            <Route path="vat-return/:id/preview" element={
+              <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <VATReturnReport />
+              </ProtectedRoute>
+            } />
+          </Route>
+
+          {/* ========================================== */}
+          {/* CATCH-ALL - Redirect to /app              */}
+          {/* ========================================== */}
+          <Route path="*" element={<Navigate to="/app" replace />} />
         </Routes>
       </Suspense>
     </div>

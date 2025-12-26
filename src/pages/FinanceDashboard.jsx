@@ -4,22 +4,21 @@ import { useTheme } from "../contexts/ThemeContext";
 import {
   Banknote,
   TrendingUp,
-  TrendingDown,
   RotateCcw,
   FileText,
   DollarSign,
+  ShieldCheck,
 } from "lucide-react";
 
-import Payables from "./Payables";
-import Receivables from "./Receivables";
 import CreditNoteList from "./CreditNoteList";
 import AccountStatementList from "./AccountStatementList";
-import CommissionDashboard from "./CommissionDashboard";
+import CommissionApprovalWorkflow from "./CommissionApprovalWorkflow";
+import CustomerCreditManagement from "./CustomerCreditManagement";
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState("receivables");
+  const [activeTab, setActiveTab] = useState("credit-notes");
 
   // Auto-open tab if navigated with tab parameter
   useEffect(() => {
@@ -27,11 +26,10 @@ const FinanceDashboard = () => {
     if (
       tabParam &&
       [
-        "receivables",
-        "payables",
-        "statements",
         "credit-notes",
-        "commissions",
+        "statements",
+        "commission-approvals",
+        "credit-management",
       ].includes(tabParam)
     ) {
       setActiveTab(tabParam);
@@ -40,16 +38,10 @@ const FinanceDashboard = () => {
 
   const tabs = [
     {
-      id: "receivables",
-      label: "Receivables",
-      icon: TrendingUp,
-      component: Receivables,
-    },
-    {
-      id: "payables",
-      label: "Payables",
-      icon: TrendingDown,
-      component: Payables,
+      id: "credit-notes",
+      label: "Credit Notes",
+      icon: RotateCcw,
+      component: CreditNoteList,
     },
     {
       id: "statements",
@@ -58,16 +50,16 @@ const FinanceDashboard = () => {
       component: AccountStatementList,
     },
     {
-      id: "credit-notes",
-      label: "Credit Notes",
-      icon: RotateCcw,
-      component: CreditNoteList,
+      id: "commission-approvals",
+      label: "Commission Approvals",
+      icon: DollarSign,
+      component: CommissionApprovalWorkflow,
     },
     {
-      id: "commissions",
-      label: "Commissions",
-      icon: DollarSign,
-      component: CommissionDashboard,
+      id: "credit-management",
+      label: "Credit Management",
+      icon: ShieldCheck,
+      component: CustomerCreditManagement,
     },
   ];
 
@@ -97,8 +89,7 @@ const FinanceDashboard = () => {
               <p
                 className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
-                Manage receivables, payables, statements, credit notes, and
-                commissions
+                Credit notes, statements, commission approvals, and credit management
               </p>
             </div>
           </div>

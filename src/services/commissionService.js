@@ -153,11 +153,13 @@ const commissionService = {
   // Get list of commission transactions
   getTransactions: async (filters = {}) => {
     try {
-      const { status, userId, dateFrom, dateTo } = filters;
+      // Support both userId and agent_id for backwards compatibility
+      const { status, userId, agent_id, dateFrom, dateTo } = filters;
+      const effectiveUserId = userId || agent_id;
       const response = await api.get("/commissions/transactions", {
         params: {
           ...(status && { status }),
-          ...(userId && { user_id: userId }),
+          ...(effectiveUserId && { user_id: effectiveUserId }),
           ...(dateFrom && { date_from: dateFrom }),
           ...(dateTo && { date_to: dateTo }),
         },
@@ -416,6 +418,36 @@ const commissionService = {
       return response.data;
     } catch (error) {
       console.error("Error deleting commission plan:", error);
+      throw error;
+    }
+  },
+
+  // Get agent summary for AgentCommissionDashboard
+  getAgentSummary: async (agentId, daysBack = 90) => {
+    try {
+      const response = await api.get(
+        `/commissions/sales-person/${agentId}/stats`,
+        {
+          params: { daysBack },
+        },
+      );
+
+      const stats = response.data || {};
+
+      // Transform backend response to dashboard-expected format
+      return {
+        data: {
+          totalSales: parseFloat(stats.total_sales || stats.totalSales || 0),
+          pendingAmount: parseFloat(stats.pending_amount || stats.pendingAmount || 0),
+          approvedAmount: parseFloat(stats.approved_amount || stats.approvedAmount || 0),
+          paidAmount: parseFloat(stats.paid_amount || stats.paidAmount || stats.total_commission_paid || stats.totalCommissionPaid || 0),
+          totalTransactions: parseInt(stats.total_transactions || stats.totalTransactions || stats.transaction_count || stats.transactionCount || 0, 10),
+          totalCommission: parseFloat(stats.total_commission || stats.totalCommission || stats.total_commission_earned || stats.totalCommissionEarned || 0),
+          averageRate: parseFloat(stats.average_rate || stats.averageRate || stats.avg_commission_rate || stats.avgCommissionRate || 0),
+        },
+      };
+    } catch (error) {
+      console.error("Error fetching agent summary:", error);
       throw error;
     }
   },

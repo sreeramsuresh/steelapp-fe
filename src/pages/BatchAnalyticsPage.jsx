@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import PropTypes from "prop-types";
 import {
   BarChart3,
@@ -14,18 +14,10 @@ import {
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { apiClient } from "../services/api";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+// Lazy-load chart components for better initial load performance
+import { ChartSkeleton } from "../components/charts";
+const LazyLineChart = lazy(() => import("../components/charts/LazyLineChart"));
+const LazyBarChart = lazy(() => import("../components/charts/LazyBarChart"));
 import {
   Card,
   CardHeader,
@@ -389,40 +381,21 @@ const CostVarianceTab = ({ isDarkMode }) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={varianceData.chartData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={isDarkMode ? "#374151" : "#E5E7EB"}
-                />
-                <XAxis
-                  dataKey="date"
-                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
-                  style={{ fontSize: "12px" }}
-                />
-                <YAxis
-                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
-                  style={{ fontSize: "12px" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
-                    borderRadius: "8px",
-                  }}
-                  labelStyle={{ color: isDarkMode ? "#F3F4F6" : "#111827" }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="variance"
-                  stroke={CHART_COLORS.primary}
-                  strokeWidth={2}
-                  dot={{ fill: CHART_COLORS.primary, r: 4 }}
-                  name="Cost Variance"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <LazyLineChart
+                data={varianceData.chartData}
+                xAxisKey="date"
+                height={300}
+                lines={[
+                  {
+                    dataKey: "variance",
+                    color: CHART_COLORS.primary,
+                    name: "Cost Variance",
+                    strokeWidth: 2,
+                  },
+                ]}
+              />
+            </Suspense>
           </CardContent>
         </Card>
       )}
@@ -921,37 +894,20 @@ const BatchAgingTab = ({ isDarkMode }) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={agingData.chartData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={isDarkMode ? "#374151" : "#E5E7EB"}
-                />
-                <XAxis
-                  dataKey="ageBucket"
-                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
-                  style={{ fontSize: "12px" }}
-                />
-                <YAxis
-                  stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
-                  style={{ fontSize: "12px" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
-                    borderRadius: "8px",
-                  }}
-                  labelStyle={{ color: isDarkMode ? "#F3F4F6" : "#111827" }}
-                />
-                <Legend />
-                <Bar
-                  dataKey="count"
-                  fill={CHART_COLORS.primary}
-                  name="Number of Batches"
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <LazyBarChart
+                data={agingData.chartData}
+                xAxisKey="ageBucket"
+                height={300}
+                bars={[
+                  {
+                    dataKey: "count",
+                    color: CHART_COLORS.primary,
+                    name: "Number of Batches",
+                  },
+                ]}
+              />
+            </Suspense>
           </CardContent>
         </Card>
       )}

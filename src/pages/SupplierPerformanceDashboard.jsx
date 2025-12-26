@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,17 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 import { AlertCircle, TrendingUp } from "lucide-react";
+// Lazy-load chart components for better initial load performance
+import { ChartSkeleton } from "../components/charts";
+const LazyLineChart = lazy(() => import("../components/charts/LazyLineChart"));
 /**
  * SupplierPerformanceDashboard - Phase 6 Analytics
  * Shows supplier rankings, OTD%, variance trends, at-risk suppliers
@@ -243,21 +236,20 @@ export function SupplierPerformanceDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="otd"
-                  stroke="#10b981"
-                  name="OTD %"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <LazyLineChart
+                data={trends}
+                xAxisKey="week"
+                height={300}
+                lines={[
+                  {
+                    dataKey: "otd",
+                    color: "#10b981",
+                    name: "OTD %",
+                  },
+                ]}
+              />
+            </Suspense>
           </CardContent>
         </Card>
 
@@ -269,21 +261,20 @@ export function SupplierPerformanceDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="variance"
-                  stroke="#f59e0b"
-                  name="Variance (days)"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <LazyLineChart
+                data={trends}
+                xAxisKey="week"
+                height={300}
+                lines={[
+                  {
+                    dataKey: "variance",
+                    color: "#f59e0b",
+                    name: "Variance (days)",
+                  },
+                ]}
+              />
+            </Suspense>
           </CardContent>
         </Card>
       </div>

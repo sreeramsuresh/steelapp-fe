@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
-import Sidebar from "./components/Sidebar";
-import TopNavbar from "./components/TopNavbar";
 import AppRouter from "./components/AppRouter";
 import NotificationProvider from "./components/NotificationProvider";
 import { NotificationCenterProvider } from "./contexts/NotificationCenterContext";
@@ -13,148 +11,25 @@ import ApiStatusBanner from "./components/common/ApiStatusBanner";
 // Initialize auth service on app load
 authService.initialize();
 
-// Helper component to get current page title
-const AppContent = ({
-  user,
-  sidebarOpen,
-  setSidebarOpen,
-  handleLogout,
-  handleSaveInvoice,
-  onLoginSuccess,
-}) => {
-  const location = useLocation();
-  const { isDarkMode } = useTheme();
-
-  const getPageTitle = () => {
-    const path = location.pathname;
-    switch (path) {
-      case "/":
-      case "/dashboard":
-        return "Dashboard";
-      case "/login":
-        return "Login";
-      case "/create-invoice":
-        return "Create Invoice";
-      case "/invoices":
-        return "All Invoices";
-      case "/drafts":
-        return "Draft Invoices";
-      case "/customers":
-        return "Customer Management";
-      case "/products":
-        return "Steel Products";
-      case "/calculator":
-        return "Price Calculator";
-      case "/analytics":
-        return "Sales Analytics";
-      case "/trends":
-        return "Revenue Trends";
-      case "/settings":
-        return "Company Settings";
-      case "/batch-analytics":
-        return "Batch Analytics";
-      default:
-        if (path.includes("/edit/")) {
-          return "Edit Invoice";
-        }
-        if (path.includes("/confirm-allocation")) {
-          return "Confirm Batch Allocation";
-        }
-        return "Dashboard";
-    }
-  };
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  // If on login or public marketing pages (including root), show only the router content
-  const isPublicMarketing =
-    location.pathname === "/" || location.pathname.startsWith("/marketing");
-
-  // Toggle global scrolling depending on public vs. app pages
-  useEffect(() => {
-    const htmlEl = document.documentElement;
-    const bodyEl = document.body;
-    if (isPublicMarketing || location.pathname === "/login") {
-      // Allow normal page scroll for public pages
-      htmlEl.style.overflow = "auto";
-      htmlEl.style.height = "auto";
-      bodyEl.style.overflow = "auto";
-      bodyEl.style.height = "auto";
-    } else {
-      // Preserve app behavior: single scroll container inside app layout
-      htmlEl.style.overflow = "hidden";
-      htmlEl.style.height = "100vh";
-      bodyEl.style.overflow = "hidden";
-      bodyEl.style.height = "100vh";
-    }
-
-    // Cleanup on unmount
-    return () => {
-      htmlEl.style.overflow = "";
-      htmlEl.style.height = "";
-      bodyEl.style.overflow = "";
-      bodyEl.style.height = "";
-    };
-  }, [isPublicMarketing, location.pathname]);
-  if (location.pathname === "/login" || isPublicMarketing) {
-    return (
-      <AppRouter
-        user={user}
-        handleSaveInvoice={handleSaveInvoice}
-        onLoginSuccess={onLoginSuccess}
-      />
-    );
-  }
-
-  // For authenticated routes, show full layout
+/**
+ * AppContent - Simplified wrapper for the router
+ * Layouts (CoreERPLayout, AnalyticsLayout) now handle sidebar/topnavbar
+ */
+const AppContent = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   return (
-    <div
-      className={`relative min-h-screen max-h-screen overflow-hidden w-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
-    >
-      {/* Sidebar Overlay for mobile */}
-      <div
-        className={`md:hidden ${sidebarOpen ? "block" : "hidden"} fixed inset-0 bg-black bg-opacity-50 z-[999]`}
-        onClick={toggleSidebar}
-        onKeyDown={(e) => e.key === "Escape" && toggleSidebar()}
-        role="button"
-        tabIndex={0}
-        aria-label="Close sidebar"
-      />
-
-      <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
-
-      <div
-        className={`${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} h-screen transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
-          sidebarOpen ? "md:ml-[260px] xl:ml-[280px]" : "md:ml-0"
-        }`}
-      >
-        <TopNavbar
-          user={user}
-          onLogout={handleLogout}
-          onToggleSidebar={toggleSidebar}
-          currentPage={getPageTitle()}
-        />
-
-        <AppRouter
-          user={user}
-          handleSaveInvoice={handleSaveInvoice}
-          onLoginSuccess={onLoginSuccess}
-        />
-      </div>
-    </div>
+    <AppRouter
+      user={user}
+      handleSaveInvoice={handleSaveInvoice}
+      onLoginSuccess={onLoginSuccess}
+    />
   );
 };
 
 // Themed App wrapper that uses the theme context
-const ThemedApp = ({ isLoading, ...props }) => {
+const ThemedApp = ({ isLoading, user, handleSaveInvoice, onLoginSuccess }) => {
   const { isDarkMode } = useTheme();
 
-  // console.log('🌍 GLOBAL ThemedApp - isLoading:', isLoading, 'user:', props.user?.email || 'null');
-
   if (isLoading) {
-    // console.log('🌍 GLOBAL SPINNER SHOWING - "Loading ULTIMATE STEELS..."');
     return (
       <div
         className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
@@ -167,39 +42,37 @@ const ThemedApp = ({ isLoading, ...props }) => {
     );
   }
 
-  // console.log('🌍 GLOBAL SPINNER HIDDEN - rendering AppContent');
-  return <AppContent {...props} />;
+  return (
+    <AppContent
+      user={user}
+      handleSaveInvoice={handleSaveInvoice}
+      onLoginSuccess={onLoginSuccess}
+    />
+  );
 };
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Initialize user from auth service on app load
   useEffect(() => {
     let mounted = true;
 
     const initializeApp = async () => {
       try {
-        // console.log('🚀 App.jsx initializeApp - isAuthenticated:', authService.isAuthenticated());
-        // Exact GigLabz behavior: do not proactively verify/refresh on load.
-        // Just hydrate user from storage if tokens exist; rely on interceptor (403) to refresh.
         if (authService.isAuthenticated()) {
           const storedUser = authService.getUser();
-          // console.log('🚀 App.jsx - storedUser from authService:', storedUser?.email);
           if (storedUser && mounted) {
             setUser(storedUser);
-            // console.log('🚀 App.jsx - user state set to:', storedUser?.email);
           }
         } else if (mounted) {
-          // console.log('🚀 App.jsx - not authenticated, setting user to null');
           setUser(null);
         }
       } catch (error) {
         if (mounted) console.error("Failed to initialize app:", error);
       } finally {
         if (mounted) {
-          // console.log('🚀 App.jsx - setting loading to false');
           setLoading(false);
         }
       }
@@ -212,49 +85,15 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const handleSaveInvoice = () => {
     // Invoice state is now managed by individual components
   };
 
   const handleLoginSuccess = async (userData) => {
-    // console.log('🔑 App.jsx handleLoginSuccess called with:', userData);
     setUser(userData);
-    // console.log('🔑 App.jsx user state set to:', userData?.email);
   };
-
-  const handleLogout = async () => {
-    // console.log('🚨 App.jsx handleLogout called!');
-    // console.log('🚨 Current user:', user);
-    try {
-      // console.log('🚨 Calling authService.logout()...');
-      await authService.logout();
-      // console.log('🚨 authService.logout() completed successfully');
-    } catch (error) {
-      console.warn("🚨 Logout failed:", error);
-    } finally {
-      // console.log('🚨 Setting user to null...');
-      setUser(null);
-      // console.log('🚨 User set to null, logout complete');
-    }
-  };
-
-  // console.log('🌍 APP.JSX MAIN RENDER - loading:', loading, 'user:', user?.email || 'null');
 
   if (loading) {
-    // console.log('🌍 APP.JSX - showing global loading screen (initial auth check)');
     return (
       <ThemeProvider>
         <ThemedApp isLoading={true} />
@@ -262,20 +101,15 @@ function App() {
     );
   }
 
-  // console.log('🌍 APP.JSX - rendering full app with Router');
   return (
     <ThemeProvider>
       <ApiHealthProvider>
         <Router>
           <NotificationCenterProvider>
             <NotificationProvider>
-              {/* API Status Banner - Shows warning when backend is unavailable */}
               <ApiStatusBanner />
               <ThemedApp
                 user={user}
-                sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
-                handleLogout={handleLogout}
                 handleSaveInvoice={handleSaveInvoice}
                 onLoginSuccess={handleLoginSuccess}
               />
