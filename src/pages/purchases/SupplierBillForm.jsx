@@ -1439,23 +1439,23 @@ const SupplierBillForm = () => {
                 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 <Building2 className="h-5 w-5" />
-                Vendor Information
+                Supplier Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Vendor Selection */}
                 <div>
                   <FormSelect
-                    label="Vendor"
-                    data-testid="vendor-select"
+                    label="Supplier"
+                    data-testid="supplier-select"
                     value={bill.supplierId || 'none'}
                     onValueChange={(value) =>
                       handleSupplierChange(value === 'none' ? '' : value)
                     }
                     required={true}
                     showValidation={false}
-                    placeholder="Select Vendor..."
+                    placeholder="Select Supplier..."
                   >
-                    <SelectItem value="none">Select Vendor...</SelectItem>
+                    <SelectItem value="none">Select Supplier...</SelectItem>
                     {vendors.map((vendor) => (
                       <SelectItem key={vendor.id} value={String(vendor.id)}>
                         {vendor.name}
@@ -1496,7 +1496,7 @@ const SupplierBillForm = () => {
                     htmlFor="vendor-invoice-number"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
-                    Vendor Invoice # (Reference)
+                    Supplier Invoice # (Reference)
                   </label>
                   <input
                     id="vendor-invoice-number"
@@ -1509,7 +1509,7 @@ const SupplierBillForm = () => {
                         vendorInvoiceNumber: e.target.value,
                       }))
                     }
-                    placeholder="Vendor's invoice number"
+                    placeholder="Supplier's invoice number"
                     className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
                         ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'

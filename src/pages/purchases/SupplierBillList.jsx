@@ -558,12 +558,12 @@ const SupplierBillList = () => {
                   </select>
                 </div>
 
-                {/* Vendor */}
+                {/* Supplier */}
                 <div>
                   <label
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
-                    Vendor
+                    Supplier
                   </label>
                   <select
                     value={vendorFilter}
@@ -574,7 +574,7 @@ const SupplierBillList = () => {
                         : 'border-gray-300 bg-white text-gray-900'
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   >
-                    <option value="">All Vendors</option>
+                    <option value="">All Suppliers</option>
                     {vendors.map((vendor) => (
                       <option key={vendor.id} value={vendor.id}>
                         {vendor.name}
@@ -684,7 +684,7 @@ const SupplierBillList = () => {
                     <th
                       className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
-                      Vendor
+                      Supplier
                     </th>
                     <th
                       className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}

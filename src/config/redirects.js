@@ -25,6 +25,8 @@ export const REDIRECTS = {
   '/purchase-orders': '/app/purchase-orders',
   '/supplier-bills': '/app/supplier-bills',
   '/vendor-bills': '/app/supplier-bills', // Legacy redirect
+  '/purchases/vendor-bills': '/app/supplier-bills', // Legacy redirect (nested)
+  '/app/vendor-bills': '/app/supplier-bills', // Legacy redirect (app prefix)
   '/debit-notes': '/app/debit-notes',
   '/advance-payments': '/app/advance-payments',
 

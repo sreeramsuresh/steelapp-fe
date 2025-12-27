@@ -2035,7 +2035,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           <div className="flex items-center gap-3">
             {authService.hasPermission("invoices", "create") && (
               <Link
-                to="/create-invoice"
+                to="/app/invoices/new"
                 className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
               >
                 <Plus size={18} />
@@ -2491,7 +2491,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           statusFilter === "all" &&
                           paymentStatusFilter === "all" && (
                             <Link
-                              to="/create-invoice"
+                              to="/app/invoices/new"
                               className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
                             >
                               <Plus size={16} />

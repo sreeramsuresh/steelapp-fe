@@ -3854,12 +3854,17 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add("customer.name");
     }
 
-    // Check if there are any items
-    if (!invoice.items || invoice.items.length === 0) {
+    // Check if there are any items (filter out empty placeholder items)
+    // Placeholder items have no productId and no name - same logic as UI display
+    const realItems = (invoice.items || []).filter(
+      (item) => item.productId || (item.name && item.name.trim() !== ""),
+    );
+
+    if (realItems.length === 0) {
       errors.push("At least one item is required");
     } else {
-      // Validate each item
-      invoice.items.forEach((item, index) => {
+      // Validate each real item
+      realItems.forEach((item, index) => {
         if (!item.name || item.name.trim() === "") {
           errors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
@@ -4043,16 +4048,12 @@ const InvoiceForm = ({ onSave }) => {
 
     // DEBUG: Log status at start of performSave
 
-    // Filter out blank items before validation
-    const nonBlankItems = (invoice.items || []).filter((item) => {
-      // An item is considered blank if name is empty AND either quantity or rate is 0/empty
-      const hasName = item.name && item.name.trim() !== "";
-      const hasQuantity = item.quantity && Number(item.quantity) > 0;
-      const hasRate = item.rate && Number(item.rate) > 0;
-
-      // Keep the item only if it has a name or has been filled with data
-      return hasName || hasQuantity || hasRate;
-    });
+    // Filter out empty placeholder items before validation
+    // Placeholder items have no productId and no name - same logic as UI display
+    // Note: Can't rely on quantity/rate since defaults are quantity=1, rate=0
+    const nonBlankItems = (invoice.items || []).filter(
+      (item) => item.productId || (item.name && item.name.trim() !== ""),
+    );
 
     // Validate required fields before saving
     const errors = [];
