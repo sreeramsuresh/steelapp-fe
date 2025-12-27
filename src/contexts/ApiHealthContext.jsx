@@ -5,8 +5,8 @@ import {
   useCallback,
   useEffect,
   useRef,
-} from "react";
-import PropTypes from "prop-types";
+} from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * ApiHealthContext - Global API health state
@@ -36,7 +36,7 @@ export const useApiHealthContext = () => {
   const context = useContext(ApiHealthContext);
   if (!context) {
     throw new Error(
-      "useApiHealthContext must be used within ApiHealthProvider",
+      'useApiHealthContext must be used within ApiHealthProvider',
     );
   }
   return context;
@@ -51,7 +51,7 @@ export const ApiHealthProvider = ({ children }) => {
 
   const isMountedRef = useRef(true);
   const intervalRef = useRef(null);
-  const healthUrl = "http://localhost:3000/health";
+  const healthUrl = 'http://localhost:3000/health';
   const pollingInterval = 30000;
 
   /**
@@ -60,7 +60,7 @@ export const ApiHealthProvider = ({ children }) => {
   const handleUnhealthyReport = useCallback((errorMessage) => {
     if (isMountedRef.current) {
       setIsHealthy(false);
-      setError(errorMessage || "Cannot connect to server");
+      setError(errorMessage || 'Cannot connect to server');
       setIsDismissed(false); // Force banner to reappear
     }
   }, []);
@@ -86,9 +86,9 @@ export const ApiHealthProvider = ({ children }) => {
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       const response = await fetch(healthUrl, {
-        method: "GET",
+        method: 'GET',
         signal: controller.signal,
-        credentials: "omit",
+        credentials: 'omit',
       });
 
       clearTimeout(timeoutId);
@@ -109,12 +109,12 @@ export const ApiHealthProvider = ({ children }) => {
         setIsHealthy(false);
         setIsDismissed(false);
 
-        if (err.name === "AbortError") {
-          setError("Server is not responding (timeout)");
-        } else if (err.message.includes("Failed to fetch")) {
-          setError("Cannot connect to server");
+        if (err.name === 'AbortError') {
+          setError('Server is not responding (timeout)');
+        } else if (err.message.includes('Failed to fetch')) {
+          setError('Cannot connect to server');
         } else {
-          setError(err.message || "Health check failed");
+          setError(err.message || 'Health check failed');
         }
         setLastChecked(new Date());
       }

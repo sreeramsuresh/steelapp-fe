@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Search } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -7,18 +7,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import pricelistService from "../services/pricelistService";
-import { productService } from "../services/dataService";
-import toast from "react-hot-toast";
-import { toUAETime } from "../utils/timezone";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import pricelistService from '../services/pricelistService';
+import { productService } from '../services/dataService';
+import toast from 'react-hot-toast';
+import { toUAETime } from '../utils/timezone';
 
 export default function PriceHistoryReport() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [pricelists, setPricelists] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState('');
   const [priceHistory, setPriceHistory] = useState([]);
 
   useEffect(() => {
@@ -31,8 +31,8 @@ export default function PriceHistoryReport() {
       const response = await productService.getProducts();
       setProducts(response.data || []);
     } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Failed to load products");
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
     }
   };
 
@@ -41,14 +41,14 @@ export default function PriceHistoryReport() {
       const response = await pricelistService.getAll();
       setPricelists(response.data || []);
     } catch (error) {
-      console.error("Error fetching pricelists:", error);
-      toast.error("Failed to load price lists");
+      console.error('Error fetching pricelists:', error);
+      toast.error('Failed to load price lists');
     }
   };
 
   const fetchPriceHistory = async () => {
     if (!selectedProduct) {
-      toast.error("Please select a product");
+      toast.error('Please select a product');
       return;
     }
 
@@ -85,8 +85,8 @@ export default function PriceHistoryReport() {
 
       setPriceHistory(history);
     } catch (error) {
-      console.error("Error fetching price history:", error);
-      toast.error("Failed to load price history");
+      console.error('Error fetching price history:', error);
+      toast.error('Failed to load price history');
     } finally {
       setLoading(false);
     }
@@ -126,7 +126,7 @@ export default function PriceHistoryReport() {
               <option value="">-- Select Product --</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
-                  {product.uniqueName || product.unique_name || "N/A"}
+                  {product.uniqueName || product.unique_name || 'N/A'}
                 </option>
               ))}
             </select>
@@ -220,10 +220,10 @@ export default function PriceHistoryReport() {
                       <TableCell>
                         <span className="text-sm">
                           {row.effectiveFrom
-                            ? toUAETime(row.effectiveFrom, { format: "date" })
-                            : "No date"}
+                            ? toUAETime(row.effectiveFrom, { format: 'date' })
+                            : 'No date'}
                           {row.effectiveTo &&
-                            ` - ${toUAETime(row.effectiveTo, { format: "date" })}`}
+                            ` - ${toUAETime(row.effectiveTo, { format: 'date' })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
@@ -236,11 +236,11 @@ export default function PriceHistoryReport() {
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                               priceDiff.diff >= 0
-                                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
-                                : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200"
+                                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200'
+                                : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200'
                             }`}
                           >
-                            {priceDiff.diff >= 0 ? "+" : ""}
+                            {priceDiff.diff >= 0 ? '+' : ''}
                             {priceDiff.diffPercent}%
                           </span>
                         ) : (

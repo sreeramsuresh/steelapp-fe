@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   Banknote,
   TrendingUp,
@@ -8,28 +8,28 @@ import {
   FileText,
   DollarSign,
   ShieldCheck,
-} from "lucide-react";
+} from 'lucide-react';
 
-import CreditNoteList from "./CreditNoteList";
-import AccountStatementList from "./AccountStatementList";
-import CommissionApprovalWorkflow from "./CommissionApprovalWorkflow";
-import CustomerCreditManagement from "./CustomerCreditManagement";
+import CreditNoteList from './CreditNoteList';
+import AccountStatementList from './AccountStatementList';
+import CommissionApprovalWorkflow from './CommissionApprovalWorkflow';
+import CustomerCreditManagement from './CustomerCreditManagement';
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState("credit-notes");
+  const [activeTab, setActiveTab] = useState('credit-notes');
 
   // Auto-open tab if navigated with tab parameter
   useEffect(() => {
-    const tabParam = searchParams.get("tab");
+    const tabParam = searchParams.get('tab');
     if (
       tabParam &&
       [
-        "credit-notes",
-        "statements",
-        "commission-approvals",
-        "credit-management",
+        'credit-notes',
+        'statements',
+        'commission-approvals',
+        'credit-management',
       ].includes(tabParam)
     ) {
       setActiveTab(tabParam);
@@ -38,26 +38,26 @@ const FinanceDashboard = () => {
 
   const tabs = [
     {
-      id: "credit-notes",
-      label: "Credit Notes",
+      id: 'credit-notes',
+      label: 'Credit Notes',
       icon: RotateCcw,
       component: CreditNoteList,
     },
     {
-      id: "statements",
-      label: "Statement of Accounts",
+      id: 'statements',
+      label: 'Statement of Accounts',
       icon: FileText,
       component: AccountStatementList,
     },
     {
-      id: "commission-approvals",
-      label: "Commission Approvals",
+      id: 'commission-approvals',
+      label: 'Commission Approvals',
       icon: DollarSign,
       component: CommissionApprovalWorkflow,
     },
     {
-      id: "credit-management",
-      label: "Credit Management",
+      id: 'credit-management',
+      label: 'Credit Management',
       icon: ShieldCheck,
       component: CustomerCreditManagement,
     },
@@ -67,12 +67,12 @@ const FinanceDashboard = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
       {/* Header */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} border-b ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-b ${
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
         }`}
       >
         <div className="px-6 py-4">
@@ -82,12 +82,12 @@ const FinanceDashboard = () => {
             </div>
             <div>
               <h1
-                className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 💵 Finance Dashboard
               </h1>
               <p
-                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
                 Credit notes, statements, commission approvals, and credit management
               </p>
@@ -108,8 +108,8 @@ const FinanceDashboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
                     isActive
-                      ? `border-green-600 ${isDarkMode ? "bg-gray-700 text-green-400" : "bg-gray-50 text-green-600"}`
-                      : `border-transparent ${isDarkMode ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`
+                      ? `border-green-600 ${isDarkMode ? 'bg-gray-700 text-green-400' : 'bg-gray-50 text-green-600'}`
+                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
                   }`}
                 >
                   <Icon size={18} />
@@ -125,9 +125,9 @@ const FinanceDashboard = () => {
       <div className="flex-1">
         {ActiveComponent && (
           <ActiveComponent
-            preSelectedCustomerId={searchParams.get("customerId")}
-            preSelectedCustomerName={searchParams.get("customerName")}
-            preSelectedInvoiceId={searchParams.get("invoiceId")}
+            preSelectedCustomerId={searchParams.get('customerId')}
+            preSelectedCustomerName={searchParams.get('customerName')}
+            preSelectedInvoiceId={searchParams.get('invoiceId')}
           />
         )}
       </div>

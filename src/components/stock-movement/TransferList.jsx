@@ -6,7 +6,7 @@
  * Lists all stock transfers with filtering and actions
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   Plus,
   Eye,
@@ -16,26 +16,26 @@ import {
   RotateCcw,
   Search,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   stockMovementService,
   TRANSFER_STATUSES,
-} from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
+} from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return "-";
+  if (!dateValue) return '-';
   const date =
-    typeof dateValue === "object" && dateValue.seconds
+    typeof dateValue === 'object' && dateValue.seconds
       ? new Date(dateValue.seconds * 1000)
       : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 };
 
@@ -45,7 +45,7 @@ const formatDate = (dateValue) => {
 const getStatusChip = (status) => {
   const statusInfo = TRANSFER_STATUSES[status] || {
     label: status,
-    color: "default",
+    color: 'default',
   };
   return statusInfo;
 };
@@ -55,12 +55,12 @@ const getStatusChip = (status) => {
  */
 const getStatusBadgeClasses = (color) => {
   const colorMap = {
-    default: "bg-gray-500/20 text-gray-400 border-gray-500/30",
-    primary: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    success: "bg-green-500/20 text-green-400 border-green-500/30",
-    warning: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    error: "bg-red-500/20 text-red-400 border-red-500/30",
-    info: "bg-teal-500/20 text-teal-400 border-teal-500/30",
+    default: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    primary: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    success: 'bg-green-500/20 text-green-400 border-green-500/30',
+    warning: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    error: 'bg-red-500/20 text-red-400 border-red-500/30',
+    info: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
   };
   return colorMap[color] || colorMap.default;
 };
@@ -77,10 +77,10 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [sourceWarehouseFilter, setSourceWarehouseFilter] = useState("");
-  const [destWarehouseFilter, setDestWarehouseFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [sourceWarehouseFilter, setSourceWarehouseFilter] = useState('');
+  const [destWarehouseFilter, setDestWarehouseFilter] = useState('');
 
   // Action dialogs
   const [actionDialog, setActionDialog] = useState({
@@ -97,7 +97,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error("Error loading warehouses:", err);
+        console.error('Error loading warehouses:', err);
       }
     };
     loadWarehouses();
@@ -137,8 +137,8 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       setTransfers(filteredData);
       setTotalCount(result.pagination?.totalItems || filteredData.length || 0);
     } catch (err) {
-      console.error("Error loading transfers:", err);
-      setError("Failed to load transfers");
+      console.error('Error loading transfers:', err);
+      setError('Failed to load transfers');
     } finally {
       setLoading(false);
     }
@@ -176,8 +176,8 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       setActionDialog({ open: false, type: null, transfer: null });
       loadTransfers();
     } catch (err) {
-      console.error("Error shipping transfer:", err);
-      setError(err.message || "Failed to ship transfer");
+      console.error('Error shipping transfer:', err);
+      setError(err.message || 'Failed to ship transfer');
     } finally {
       setActionLoading(false);
     }
@@ -193,8 +193,8 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       setActionDialog({ open: false, type: null, transfer: null });
       loadTransfers();
     } catch (err) {
-      console.error("Error receiving transfer:", err);
-      setError(err.message || "Failed to receive transfer");
+      console.error('Error receiving transfer:', err);
+      setError(err.message || 'Failed to receive transfer');
     } finally {
       setActionLoading(false);
     }
@@ -210,8 +210,8 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       setActionDialog({ open: false, type: null, transfer: null });
       loadTransfers();
     } catch (err) {
-      console.error("Error cancelling transfer:", err);
-      setError(err.message || "Failed to cancel transfer");
+      console.error('Error cancelling transfer:', err);
+      setError(err.message || 'Failed to cancel transfer');
     } finally {
       setActionLoading(false);
     }
@@ -221,20 +221,20 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   const getAvailableActions = (transfer) => {
     const actions = [];
 
-    actions.push({ type: "view", label: "View", icon: Eye });
+    actions.push({ type: 'view', label: 'View', icon: Eye });
 
-    if (transfer.status === "DRAFT" || transfer.status === "PENDING") {
-      actions.push({ type: "ship", label: "Ship", icon: Truck });
-      actions.push({ type: "cancel", label: "Cancel", icon: X });
+    if (transfer.status === 'DRAFT' || transfer.status === 'PENDING') {
+      actions.push({ type: 'ship', label: 'Ship', icon: Truck });
+      actions.push({ type: 'cancel', label: 'Cancel', icon: X });
     }
 
-    if (transfer.status === "SHIPPED" || transfer.status === "IN_TRANSIT") {
+    if (transfer.status === 'SHIPPED' || transfer.status === 'IN_TRANSIT') {
       actions.push({
-        type: "receive",
-        label: "Receive",
+        type: 'receive',
+        label: 'Receive',
         icon: Package,
       });
-      actions.push({ type: "cancel", label: "Cancel", icon: X });
+      actions.push({ type: 'cancel', label: 'Cancel', icon: X });
     }
 
     return actions;
@@ -242,7 +242,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
   // Handle action click
   const handleActionClick = (type, transfer) => {
-    if (type === "view") {
+    if (type === 'view') {
       onViewTransfer?.(transfer);
       return;
     }
@@ -424,10 +424,10 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                         {transfer.transferNumber}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-300">
-                        {transfer.sourceWarehouseName || "-"}
+                        {transfer.sourceWarehouseName || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-300">
-                        {transfer.destinationWarehouseName || "-"}
+                        {transfer.destinationWarehouseName || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-300">
                         {transfer.items?.length || 0} items
@@ -529,40 +529,40 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
           <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             {/* Title */}
             <h3 className="text-lg font-semibold text-white mb-4">
-              {actionDialog.type === "ship" && "Ship Transfer"}
-              {actionDialog.type === "receive" && "Receive Transfer"}
-              {actionDialog.type === "cancel" && "Cancel Transfer"}
+              {actionDialog.type === 'ship' && 'Ship Transfer'}
+              {actionDialog.type === 'receive' && 'Receive Transfer'}
+              {actionDialog.type === 'cancel' && 'Cancel Transfer'}
             </h3>
 
             {/* Content */}
             <div className="mb-6 text-gray-300">
-              {actionDialog.type === "ship" && (
+              {actionDialog.type === 'ship' && (
                 <p>
-                  Are you sure you want to ship transfer{" "}
+                  Are you sure you want to ship transfer{' '}
                   <strong className="text-white">
                     {actionDialog.transfer?.transferNumber}
                   </strong>
                   ? This will deduct stock from the source warehouse.
                 </p>
               )}
-              {actionDialog.type === "receive" && (
+              {actionDialog.type === 'receive' && (
                 <p>
-                  Are you sure you want to receive transfer{" "}
+                  Are you sure you want to receive transfer{' '}
                   <strong className="text-white">
                     {actionDialog.transfer?.transferNumber}
                   </strong>
                   ? This will add stock to the destination warehouse.
                 </p>
               )}
-              {actionDialog.type === "cancel" && (
+              {actionDialog.type === 'cancel' && (
                 <p>
-                  Are you sure you want to cancel transfer{" "}
+                  Are you sure you want to cancel transfer{' '}
                   <strong className="text-white">
                     {actionDialog.transfer?.transferNumber}
                   </strong>
                   ?
-                  {actionDialog.transfer?.status === "SHIPPED" &&
-                    " Stock will be restored to the source warehouse."}
+                  {actionDialog.transfer?.status === 'SHIPPED' &&
+                    ' Stock will be restored to the source warehouse.'}
                 </p>
               )}
             </div>
@@ -580,23 +580,23 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               </button>
               <button
                 onClick={() => {
-                  if (actionDialog.type === "ship") handleShip();
-                  else if (actionDialog.type === "receive") handleReceive();
-                  else if (actionDialog.type === "cancel") handleCancel();
+                  if (actionDialog.type === 'ship') handleShip();
+                  else if (actionDialog.type === 'receive') handleReceive();
+                  else if (actionDialog.type === 'cancel') handleCancel();
                 }}
                 disabled={actionLoading}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
-                  actionDialog.type === "cancel"
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                  actionDialog.type === 'cancel'
+                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
               >
                 {actionLoading && (
                   <Loader2 className="animate-spin" size={16} />
                 )}
-                {actionDialog.type === "ship" && "Yes, Ship"}
-                {actionDialog.type === "receive" && "Yes, Receive"}
-                {actionDialog.type === "cancel" && "Yes, Cancel"}
+                {actionDialog.type === 'ship' && 'Yes, Ship'}
+                {actionDialog.type === 'receive' && 'Yes, Receive'}
+                {actionDialog.type === 'cancel' && 'Yes, Cancel'}
               </button>
             </div>
           </div>

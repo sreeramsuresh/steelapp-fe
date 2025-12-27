@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Lock, Unlock, Clock, AlertCircle } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { Lock, Unlock, Clock, AlertCircle } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function StockReservationToggle({
   item,
@@ -8,11 +8,11 @@ export default function StockReservationToggle({
   onToggleReservation,
 }) {
   const { isDarkMode } = useTheme();
-  const [timeRemaining, setTimeRemaining] = useState("");
+  const [timeRemaining, setTimeRemaining] = useState('');
 
   useEffect(() => {
     if (!item.stockReserved || !item.reservationExpiry) {
-      setTimeRemaining("");
+      setTimeRemaining('');
       return;
     }
 
@@ -22,7 +22,7 @@ export default function StockReservationToggle({
       const diffMs = expiryTime - now;
 
       if (diffMs <= 0) {
-        setTimeRemaining("Expired");
+        setTimeRemaining('Expired');
         return;
       }
 
@@ -58,14 +58,14 @@ export default function StockReservationToggle({
         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors ${
           item.stockReserved
             ? isDarkMode
-              ? "bg-green-900 text-green-200 hover:bg-green-800"
-              : "bg-green-100 text-green-700 hover:bg-green-200"
+              ? 'bg-green-900 text-green-200 hover:bg-green-800'
+              : 'bg-green-100 text-green-700 hover:bg-green-200'
             : isDarkMode
-              ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
         title={
-          item.stockReserved ? "Release reservation" : "Reserve stock (2 hours)"
+          item.stockReserved ? 'Release reservation' : 'Reserve stock (2 hours)'
         }
       >
         {item.stockReserved ? (
@@ -84,16 +84,16 @@ export default function StockReservationToggle({
       {item.stockReserved && timeRemaining && (
         <div
           className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs ${
-            timeRemaining === "Expired"
+            timeRemaining === 'Expired'
               ? isDarkMode
-                ? "bg-red-900 text-red-200"
-                : "bg-red-100 text-red-700"
+                ? 'bg-red-900 text-red-200'
+                : 'bg-red-100 text-red-700'
               : isDarkMode
-                ? "bg-blue-900 text-blue-200"
-                : "bg-blue-100 text-blue-700"
+                ? 'bg-blue-900 text-blue-200'
+                : 'bg-blue-100 text-blue-700'
           }`}
         >
-          {timeRemaining === "Expired" ? (
+          {timeRemaining === 'Expired' ? (
             <>
               <AlertCircle className="h-3 w-3" />
               Expired

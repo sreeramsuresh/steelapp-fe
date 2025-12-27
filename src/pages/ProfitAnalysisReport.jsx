@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Download, TrendingUp, DollarSign, ShoppingCart } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Download, TrendingUp, DollarSign, ShoppingCart } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -7,12 +7,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import api from "../services/api";
-import toast from "react-hot-toast";
-import { toUAEDateForInput, nowUAE } from "../utils/timezone";
-import { tokenUtils } from "../services/axiosApi";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+import { toUAEDateForInput, nowUAE } from '../utils/timezone';
+import { tokenUtils } from '../services/axiosApi';
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
@@ -73,10 +73,10 @@ export default function ProfitAnalysisReport() {
       const companyId = user?.companyId;
 
       if (!companyId) {
-        throw new Error("Company context not found");
+        throw new Error('Company context not found');
       }
 
-      const response = await api.post("/query", {
+      const response = await api.post('/query', {
         query,
         params: [dateRange.startDate, dateRange.endDate, companyId],
       });
@@ -105,11 +105,11 @@ export default function ProfitAnalysisReport() {
         averageMargin: parseFloat(averageMargin),
       });
     } catch (error) {
-      console.error("Error fetching report:", error);
+      console.error('Error fetching report:', error);
       // Only show toast if not already showing error state
       if (!hasError) {
         setHasError(true);
-        toast.error("Failed to load profit analysis. The report endpoint may not be available.");
+        toast.error('Failed to load profit analysis. The report endpoint may not be available.');
       }
     } finally {
       setLoading(false);
@@ -118,14 +118,14 @@ export default function ProfitAnalysisReport() {
 
   const exportToCSV = () => {
     const headers = [
-      "Product",
-      "Category",
-      "Grade",
-      "Quantity",
-      "Revenue",
-      "Cost",
-      "Profit",
-      "Margin %",
+      'Product',
+      'Category',
+      'Grade',
+      'Quantity',
+      'Revenue',
+      'Cost',
+      'Profit',
+      'Margin %',
     ];
     const rows = data.map((row) => [
       row.name,
@@ -138,13 +138,13 @@ export default function ProfitAnalysisReport() {
       row.avgMargin,
     ]);
 
-    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join(
-      "\n",
+    const csv = [headers.join(','), ...rows.map((row) => row.join(','))].join(
+      '\n',
     );
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `profit-analysis-${dateRange.startDate}-to-${dateRange.endDate}.csv`;
     a.click();
@@ -305,10 +305,10 @@ export default function ProfitAnalysisReport() {
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                             parseFloat(row.avgMargin) > 30
-                              ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
+                              ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200'
                               : parseFloat(row.avgMargin) > 20
-                                ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200"
-                                : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200"
+                                ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200'
+                                : 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200'
                           }`}
                         >
                           {parseFloat(row.avgMargin).toFixed(1)}%

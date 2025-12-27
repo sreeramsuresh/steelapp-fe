@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus,
   Trash2,
@@ -26,21 +26,21 @@ import {
   Plane,
   Layers,
   User,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { exportOrderService } from "../services/exportOrderService";
-import { customerService } from "../services/customerService";
-import { productService } from "../services/productService";
-import { notificationService } from "../services/notificationService";
-import pricelistService from "../services/pricelistService";
-import { supplierService } from "../services/supplierService";
-import { FormSelect } from "../components/ui/form-select";
-import { SelectItem, SelectGroup, SelectLabel } from "../components/ui/select";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { exportOrderService } from '../services/exportOrderService';
+import { customerService } from '../services/customerService';
+import { productService } from '../services/productService';
+import { notificationService } from '../services/notificationService';
+import pricelistService from '../services/pricelistService';
+import { supplierService } from '../services/supplierService';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem, SelectGroup, SelectLabel } from '../components/ui/select';
 import {
   validateSsotPattern,
   getSsotErrorMessage,
-} from "../utils/productSsotValidation";
-import BatchAllocator from "../components/batch/BatchAllocator";
+} from '../utils/productSsotValidation';
+import BatchAllocator from '../components/batch/BatchAllocator';
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -48,52 +48,52 @@ import BatchAllocator from "../components/batch/BatchAllocator";
 
 const Button = ({
   children,
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   disabled = false,
   onClick,
-  className = "",
-  type = "button",
+  className = '',
+  type = 'button',
   ...props
 }) => {
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
 
   const getVariantClasses = () => {
-    if (variant === "primary") {
+    if (variant === 'primary') {
       return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:opacity-50 disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
-    } else if (variant === "secondary") {
+    } else if (variant === 'secondary') {
       return `${
         isDarkMode
-          ? "bg-gray-700 hover:bg-gray-600"
-          : "bg-gray-200 hover:bg-gray-300"
-      } ${isDarkMode ? "text-white" : "text-gray-800"} disabled:opacity-50`;
-    } else if (variant === "danger") {
+          ? 'bg-gray-700 hover:bg-gray-600'
+          : 'bg-gray-200 hover:bg-gray-300'
+      } ${isDarkMode ? 'text-white' : 'text-gray-800'} disabled:opacity-50`;
+    } else if (variant === 'danger') {
       return `bg-red-600 text-white hover:bg-red-500 focus:ring-red-500 disabled:opacity-50`;
-    } else if (variant === "success") {
+    } else if (variant === 'success') {
       return `bg-green-600 text-white hover:bg-green-500 focus:ring-green-500 disabled:opacity-50`;
     } else {
       return `border ${
         isDarkMode
-          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-          : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+          ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
+          : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
       } focus:ring-teal-500 disabled:opacity-50`;
     }
   };
 
   const sizes = {
-    sm: "px-2.5 py-1 text-xs",
-    md: "px-3 py-1.5 text-sm",
-    lg: "px-4 py-2 text-sm",
+    sm: 'px-2.5 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-4 py-2 text-sm',
   };
 
   return (
     <button
       type={type}
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
-        disabled ? "cursor-not-allowed" : ""
+        disabled ? 'cursor-not-allowed' : ''
       } ${className}`}
       disabled={disabled}
       onClick={onClick}
@@ -107,7 +107,7 @@ const Button = ({
 const Input = ({
   label,
   error,
-  className = "",
+  className = '',
   required = false,
   helperText,
   id,
@@ -122,8 +122,8 @@ const Input = ({
         <label
           htmlFor={inputId}
           className={`block text-xs font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
+            isDarkMode ? 'text-gray-400' : 'text-gray-700'
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
         >
           {label}
         </label>
@@ -132,21 +132,21 @@ const Input = ({
         id={inputId}
         className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
           isDarkMode
-            ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
-            : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
-        } ${error ? "border-red-500" : ""} ${className}`}
+            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
+            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+        } ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
       {helperText && !error && (
         <p
-          className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+          className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
         >
           {helperText}
         </p>
       )}
       {error && (
         <p
-          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
         >
           {error}
         </p>
@@ -158,7 +158,7 @@ const Input = ({
 const Textarea = ({
   label,
   error,
-  className = "",
+  className = '',
   required = false,
   id,
   ...props
@@ -173,8 +173,8 @@ const Textarea = ({
         <label
           htmlFor={textareaId}
           className={`block text-sm font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
+            isDarkMode ? 'text-gray-400' : 'text-gray-700'
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
         >
           {label}
         </label>
@@ -183,14 +183,14 @@ const Textarea = ({
         id={textareaId}
         className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 resize-none ${
           isDarkMode
-            ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500"
-            : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-        } ${error ? "border-red-500" : ""} ${className}`}
+            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500'
+            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+        } ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
       {error && (
         <p
-          className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+          className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
         >
           {error}
         </p>
@@ -210,7 +210,7 @@ const _Checkbox = ({
 
   return (
     <label
-      className={`flex items-start gap-2 cursor-pointer ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`flex items-start gap-2 cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <input
         type="checkbox"
@@ -219,19 +219,19 @@ const _Checkbox = ({
         disabled={disabled}
         className={`mt-0.5 h-4 w-4 rounded border focus:ring-teal-500 focus:ring-2 transition-colors ${
           isDarkMode
-            ? "border-gray-600 bg-gray-800 text-teal-500"
-            : "border-gray-300 bg-white text-teal-600"
+            ? 'border-gray-600 bg-gray-800 text-teal-500'
+            : 'border-gray-300 bg-white text-teal-600'
         }`}
       />
       <div>
         <span
-          className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+          className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
         >
           {label}
         </span>
         {helperText && (
           <p
-            className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+            className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
           >
             {helperText}
           </p>
@@ -243,42 +243,42 @@ const _Checkbox = ({
 
 const Card = ({
   children,
-  className = "",
+  className = '',
   title,
   icon: Icon,
   highlight = false,
-  highlightColor = "teal",
+  highlightColor = 'teal',
 }) => {
   const { isDarkMode } = useTheme();
 
   const highlightColors = {
-    teal: isDarkMode ? "border-l-teal-500" : "border-l-teal-500",
-    green: isDarkMode ? "border-l-green-500" : "border-l-green-500",
-    blue: isDarkMode ? "border-l-blue-500" : "border-l-blue-500",
-    amber: isDarkMode ? "border-l-amber-500" : "border-l-amber-500",
-    red: isDarkMode ? "border-l-red-500" : "border-l-red-500",
+    teal: isDarkMode ? 'border-l-teal-500' : 'border-l-teal-500',
+    green: isDarkMode ? 'border-l-green-500' : 'border-l-green-500',
+    blue: isDarkMode ? 'border-l-blue-500' : 'border-l-blue-500',
+    amber: isDarkMode ? 'border-l-amber-500' : 'border-l-amber-500',
+    red: isDarkMode ? 'border-l-red-500' : 'border-l-red-500',
   };
 
   return (
     <div
       className={`rounded-xl shadow-sm ${
         isDarkMode
-          ? "bg-gray-800 border border-gray-700"
-          : "bg-white border border-gray-200"
-      } ${highlight ? `border-l-4 ${highlightColors[highlightColor]}` : ""} ${className}`}
+          ? 'bg-gray-800 border border-gray-700'
+          : 'bg-white border border-gray-200'
+      } ${highlight ? `border-l-4 ${highlightColors[highlightColor]}` : ''} ${className}`}
     >
       {title && (
         <div
-          className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+          className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
         >
           <div className="flex items-center gap-2">
             {Icon && (
               <Icon
-                className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                className={`h-4 w-4 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
               />
             )}
             <h3
-              className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               {title}
             </h3>
@@ -292,14 +292,14 @@ const Card = ({
 
 const StatusBadge = ({ status }) => {
   const statusConfig = {
-    draft: { bg: "bg-gray-500", text: "Draft" },
-    confirmed: { bg: "bg-blue-500", text: "Confirmed" },
-    preparing: { bg: "bg-yellow-500", text: "Preparing" },
-    shipped: { bg: "bg-orange-500", text: "Shipped" },
-    in_transit: { bg: "bg-purple-500", text: "In Transit" },
-    delivered: { bg: "bg-green-500", text: "Delivered" },
-    completed: { bg: "bg-green-600", text: "Completed" },
-    cancelled: { bg: "bg-red-500", text: "Cancelled" },
+    draft: { bg: 'bg-gray-500', text: 'Draft' },
+    confirmed: { bg: 'bg-blue-500', text: 'Confirmed' },
+    preparing: { bg: 'bg-yellow-500', text: 'Preparing' },
+    shipped: { bg: 'bg-orange-500', text: 'Shipped' },
+    in_transit: { bg: 'bg-purple-500', text: 'In Transit' },
+    delivered: { bg: 'bg-green-500', text: 'Delivered' },
+    completed: { bg: 'bg-green-600', text: 'Completed' },
+    cancelled: { bg: 'bg-red-500', text: 'Cancelled' },
   };
 
   const config = statusConfig[status] || statusConfig.draft;
@@ -318,19 +318,19 @@ const VatBadge = ({ treatment, form201Box }) => {
 
   const treatmentConfig = {
     zero_rated: {
-      bg: "bg-green-100 dark:bg-green-900/30",
-      text: "text-green-800 dark:text-green-300",
-      label: "0% Zero-Rated",
+      bg: 'bg-green-100 dark:bg-green-900/30',
+      text: 'text-green-800 dark:text-green-300',
+      label: '0% Zero-Rated',
     },
     exempt: {
-      bg: "bg-blue-100 dark:bg-blue-900/30",
-      text: "text-blue-800 dark:text-blue-300",
-      label: "Exempt",
+      bg: 'bg-blue-100 dark:bg-blue-900/30',
+      text: 'text-blue-800 dark:text-blue-300',
+      label: 'Exempt',
     },
     re_export: {
-      bg: "bg-purple-100 dark:bg-purple-900/30",
-      text: "text-purple-800 dark:text-purple-300",
-      label: "0% Re-Export",
+      bg: 'bg-purple-100 dark:bg-purple-900/30',
+      text: 'text-purple-800 dark:text-purple-300',
+      label: '0% Re-Export',
     },
   };
 
@@ -346,7 +346,7 @@ const VatBadge = ({ treatment, form201Box }) => {
       </span>
       {form201Box && (
         <span
-          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           (Form 201 {form201Box})
         </span>
@@ -362,200 +362,200 @@ const VatBadge = ({ treatment, form201Box }) => {
 // UAE Company TRN Validation (Federal Decree-Law No. 8 of 2017, Article 65)
 // Format: 15 digits exactly (displayed as XXX-XXXX-XXXX-XXXX)
 const validateTRN = (trn) => {
-  if (!trn) return { valid: false, message: "TRN is required" };
-  const cleanTRN = String(trn).replace(/[\s-]/g, "");
+  if (!trn) return { valid: false, message: 'TRN is required' };
+  const cleanTRN = String(trn).replace(/[\s-]/g, '');
   if (!/^\d+$/.test(cleanTRN))
-    return { valid: false, message: "TRN must contain only digits" };
+    return { valid: false, message: 'TRN must contain only digits' };
   if (cleanTRN.length !== 15)
     return {
       valid: false,
       message: `TRN must be exactly 15 digits (${cleanTRN.length}/15)`,
     };
-  return { valid: true, message: "Valid TRN" };
+  return { valid: true, message: 'Valid TRN' };
 };
 
 // Export VAT Treatment Options (UAE VAT Law Article 45)
 const EXPORT_VAT_TREATMENT_OPTIONS = [
   {
-    value: "zero_rated",
-    label: "0% - Zero-Rated Export (Article 45)",
-    form_201_box: "box_2",
-    description: "Standard export to outside UAE/GCC",
+    value: 'zero_rated',
+    label: '0% - Zero-Rated Export (Article 45)',
+    form_201_box: 'box_2',
+    description: 'Standard export to outside UAE/GCC',
   },
   {
-    value: "exempt",
-    label: "Exempt - Specific Exemptions",
-    form_201_box: "box_6",
-    description: "Exempt supplies under Article 46",
+    value: 'exempt',
+    label: 'Exempt - Specific Exemptions',
+    form_201_box: 'box_6',
+    description: 'Exempt supplies under Article 46',
   },
   {
-    value: "re_export",
-    label: "0% - Re-Export of Imported Goods",
-    form_201_box: "box_2",
-    description: "Previously imported goods being re-exported",
+    value: 're_export',
+    label: '0% - Re-Export of Imported Goods',
+    form_201_box: 'box_2',
+    description: 'Previously imported goods being re-exported',
   },
 ];
 
 // Export Type Options
 const EXPORT_TYPE_OPTIONS = [
   {
-    value: "direct_export",
-    label: "Direct Export (UAE Mainland -> International)",
-    description: "Goods manufactured or sourced in UAE mainland",
+    value: 'direct_export',
+    label: 'Direct Export (UAE Mainland -> International)',
+    description: 'Goods manufactured or sourced in UAE mainland',
   },
   {
-    value: "re_export",
-    label: "Re-Export (Imported -> Re-Exported)",
+    value: 're_export',
+    label: 'Re-Export (Imported -> Re-Exported)',
     description:
-      "Goods imported then re-exported without substantial transformation",
+      'Goods imported then re-exported without substantial transformation',
   },
   {
-    value: "dz_export",
-    label: "Designated Zone Export",
-    description: "Export from UAE Designated Zone (Article 51)",
+    value: 'dz_export',
+    label: 'Designated Zone Export',
+    description: 'Export from UAE Designated Zone (Article 51)',
   },
   {
-    value: "gcc_export",
-    label: "GCC Export (Article 30)",
-    description: "Intra-GCC supply to VAT-registered customer",
+    value: 'gcc_export',
+    label: 'GCC Export (Article 30)',
+    description: 'Intra-GCC supply to VAT-registered customer',
   },
 ];
 
 // GCC Countries (for intra-GCC supplies per UAE VAT Law Article 30)
 const GCC_COUNTRIES = [
-  { code: "SA", name: "Saudi Arabia", vat_rate: 15, currency: "SAR" },
-  { code: "BH", name: "Bahrain", vat_rate: 10, currency: "BHD" },
-  { code: "KW", name: "Kuwait", vat_rate: 0, currency: "KWD" },
-  { code: "OM", name: "Oman", vat_rate: 5, currency: "OMR" },
-  { code: "QA", name: "Qatar", vat_rate: 0, currency: "QAR" },
+  { code: 'SA', name: 'Saudi Arabia', vat_rate: 15, currency: 'SAR' },
+  { code: 'BH', name: 'Bahrain', vat_rate: 10, currency: 'BHD' },
+  { code: 'KW', name: 'Kuwait', vat_rate: 0, currency: 'KWD' },
+  { code: 'OM', name: 'Oman', vat_rate: 5, currency: 'OMR' },
+  { code: 'QA', name: 'Qatar', vat_rate: 0, currency: 'QAR' },
 ];
 
 // UAE Designated Zones (FTA-approved free zones - Article 51)
 const UAE_DESIGNATED_ZONES = [
   {
-    code: "JAFZA",
-    name: "Jebel Ali Free Zone",
-    emirate: "Dubai",
-    port: "AEJEA",
+    code: 'JAFZA',
+    name: 'Jebel Ali Free Zone',
+    emirate: 'Dubai',
+    port: 'AEJEA',
   },
   {
-    code: "DAFZA",
-    name: "Dubai Airport Free Zone",
-    emirate: "Dubai",
-    port: "AEDXB",
+    code: 'DAFZA',
+    name: 'Dubai Airport Free Zone',
+    emirate: 'Dubai',
+    port: 'AEDXB',
   },
   {
-    code: "SAIF",
+    code: 'SAIF',
     name: "Sharjah Airport Int'l Free Zone",
-    emirate: "Sharjah",
-    port: "AESHJ",
+    emirate: 'Sharjah',
+    port: 'AESHJ',
   },
   {
-    code: "KIZAD",
-    name: "Khalifa Industrial Zone",
-    emirate: "Abu Dhabi",
-    port: "AEKHL",
+    code: 'KIZAD',
+    name: 'Khalifa Industrial Zone',
+    emirate: 'Abu Dhabi',
+    port: 'AEKHL',
   },
   {
-    code: "ADPC",
-    name: "Abu Dhabi Ports Free Zone",
-    emirate: "Abu Dhabi",
-    port: "AEAUH",
+    code: 'ADPC',
+    name: 'Abu Dhabi Ports Free Zone',
+    emirate: 'Abu Dhabi',
+    port: 'AEAUH',
   },
   {
-    code: "RAK",
-    name: "RAK Free Trade Zone",
-    emirate: "Ras Al Khaimah",
-    port: "AERKT",
+    code: 'RAK',
+    name: 'RAK Free Trade Zone',
+    emirate: 'Ras Al Khaimah',
+    port: 'AERKT',
   },
   {
-    code: "HAMRIYAH",
-    name: "Hamriyah Free Zone",
-    emirate: "Sharjah",
-    port: "AEHAM",
+    code: 'HAMRIYAH',
+    name: 'Hamriyah Free Zone',
+    emirate: 'Sharjah',
+    port: 'AEHAM',
   },
   {
-    code: "UAQ",
-    name: "Umm Al Quwain Free Zone",
-    emirate: "UAQ",
-    port: "AEUAQ",
+    code: 'UAQ',
+    name: 'Umm Al Quwain Free Zone',
+    emirate: 'UAQ',
+    port: 'AEUAQ',
   },
-  { code: "AFZA", name: "Ajman Free Zone", emirate: "Ajman", port: "AEAJM" },
+  { code: 'AFZA', name: 'Ajman Free Zone', emirate: 'Ajman', port: 'AEAJM' },
   {
-    code: "DMCC",
-    name: "Dubai Multi Commodities Centre",
-    emirate: "Dubai",
-    port: "AEJEA",
+    code: 'DMCC',
+    name: 'Dubai Multi Commodities Centre',
+    emirate: 'Dubai',
+    port: 'AEJEA',
   },
   {
-    code: "DIFC",
-    name: "Dubai International Financial Centre",
-    emirate: "Dubai",
-    port: "AEDXB",
+    code: 'DIFC',
+    name: 'Dubai International Financial Centre',
+    emirate: 'Dubai',
+    port: 'AEDXB',
   },
 ];
 
 // UAE Export Ports
 const UAE_PORTS = [
   {
-    value: "AEJEA",
-    label: "Jebel Ali Port, Dubai",
-    type: "seaport",
-    emirate: "Dubai",
+    value: 'AEJEA',
+    label: 'Jebel Ali Port, Dubai',
+    type: 'seaport',
+    emirate: 'Dubai',
   },
   {
-    value: "AESHJ",
-    label: "Sharjah Port",
-    type: "seaport",
-    emirate: "Sharjah",
+    value: 'AESHJ',
+    label: 'Sharjah Port',
+    type: 'seaport',
+    emirate: 'Sharjah',
   },
   {
-    value: "AEAUH",
-    label: "Abu Dhabi Port (Mina Zayed)",
-    type: "seaport",
-    emirate: "Abu Dhabi",
+    value: 'AEAUH',
+    label: 'Abu Dhabi Port (Mina Zayed)',
+    type: 'seaport',
+    emirate: 'Abu Dhabi',
   },
   {
-    value: "AEKHL",
-    label: "Khalifa Port, Abu Dhabi",
-    type: "seaport",
-    emirate: "Abu Dhabi",
+    value: 'AEKHL',
+    label: 'Khalifa Port, Abu Dhabi',
+    type: 'seaport',
+    emirate: 'Abu Dhabi',
   },
   {
-    value: "AERKT",
-    label: "Ras Al Khaimah Port",
-    type: "seaport",
-    emirate: "Ras Al Khaimah",
+    value: 'AERKT',
+    label: 'Ras Al Khaimah Port',
+    type: 'seaport',
+    emirate: 'Ras Al Khaimah',
   },
   {
-    value: "AEHAM",
-    label: "Hamriyah Port, Sharjah",
-    type: "seaport",
-    emirate: "Sharjah",
+    value: 'AEHAM',
+    label: 'Hamriyah Port, Sharjah',
+    type: 'seaport',
+    emirate: 'Sharjah',
   },
   {
-    value: "AEDXB",
-    label: "Dubai International Airport",
-    type: "airport",
-    emirate: "Dubai",
+    value: 'AEDXB',
+    label: 'Dubai International Airport',
+    type: 'airport',
+    emirate: 'Dubai',
   },
   {
-    value: "AEDWC",
-    label: "Dubai World Central (Al Maktoum)",
-    type: "airport",
-    emirate: "Dubai",
+    value: 'AEDWC',
+    label: 'Dubai World Central (Al Maktoum)',
+    type: 'airport',
+    emirate: 'Dubai',
   },
   {
-    value: "AEAUHAP",
-    label: "Abu Dhabi International Airport",
-    type: "airport",
-    emirate: "Abu Dhabi",
+    value: 'AEAUHAP',
+    label: 'Abu Dhabi International Airport',
+    type: 'airport',
+    emirate: 'Abu Dhabi',
   },
   {
-    value: "AESHJAP",
-    label: "Sharjah International Airport",
-    type: "airport",
-    emirate: "Sharjah",
+    value: 'AESHJAP',
+    label: 'Sharjah International Airport',
+    type: 'airport',
+    emirate: 'Sharjah',
   },
 ];
 
@@ -563,538 +563,538 @@ const UAE_PORTS = [
 const INTERNATIONAL_PORTS = [
   // Asia Pacific
   {
-    value: "SGSIN",
-    label: "Singapore",
-    country: "Singapore",
-    region: "Asia Pacific",
+    value: 'SGSIN',
+    label: 'Singapore',
+    country: 'Singapore',
+    region: 'Asia Pacific',
   },
   {
-    value: "HKHKG",
-    label: "Hong Kong",
-    country: "Hong Kong",
-    region: "Asia Pacific",
+    value: 'HKHKG',
+    label: 'Hong Kong',
+    country: 'Hong Kong',
+    region: 'Asia Pacific',
   },
   {
-    value: "CNSHA",
-    label: "Shanghai, China",
-    country: "China",
-    region: "Asia Pacific",
+    value: 'CNSHA',
+    label: 'Shanghai, China',
+    country: 'China',
+    region: 'Asia Pacific',
   },
   {
-    value: "CNSZX",
-    label: "Shenzhen, China",
-    country: "China",
-    region: "Asia Pacific",
+    value: 'CNSZX',
+    label: 'Shenzhen, China',
+    country: 'China',
+    region: 'Asia Pacific',
   },
   {
-    value: "JPYOK",
-    label: "Yokohama, Japan",
-    country: "Japan",
-    region: "Asia Pacific",
+    value: 'JPYOK',
+    label: 'Yokohama, Japan',
+    country: 'Japan',
+    region: 'Asia Pacific',
   },
   {
-    value: "JPTYO",
-    label: "Tokyo, Japan",
-    country: "Japan",
-    region: "Asia Pacific",
+    value: 'JPTYO',
+    label: 'Tokyo, Japan',
+    country: 'Japan',
+    region: 'Asia Pacific',
   },
   {
-    value: "KRPUS",
-    label: "Busan, South Korea",
-    country: "South Korea",
-    region: "Asia Pacific",
+    value: 'KRPUS',
+    label: 'Busan, South Korea',
+    country: 'South Korea',
+    region: 'Asia Pacific',
   },
   {
-    value: "INNSA",
-    label: "Nhava Sheva (JNPT), India",
-    country: "India",
-    region: "Asia Pacific",
+    value: 'INNSA',
+    label: 'Nhava Sheva (JNPT), India',
+    country: 'India',
+    region: 'Asia Pacific',
   },
   {
-    value: "INMUN",
-    label: "Mundra, India",
-    country: "India",
-    region: "Asia Pacific",
+    value: 'INMUN',
+    label: 'Mundra, India',
+    country: 'India',
+    region: 'Asia Pacific',
   },
   {
-    value: "INCHE",
-    label: "Chennai, India",
-    country: "India",
-    region: "Asia Pacific",
+    value: 'INCHE',
+    label: 'Chennai, India',
+    country: 'India',
+    region: 'Asia Pacific',
   },
   {
-    value: "MYPKG",
-    label: "Port Klang, Malaysia",
-    country: "Malaysia",
-    region: "Asia Pacific",
+    value: 'MYPKG',
+    label: 'Port Klang, Malaysia',
+    country: 'Malaysia',
+    region: 'Asia Pacific',
   },
   {
-    value: "THBKK",
-    label: "Bangkok (Laem Chabang), Thailand",
-    country: "Thailand",
-    region: "Asia Pacific",
+    value: 'THBKK',
+    label: 'Bangkok (Laem Chabang), Thailand',
+    country: 'Thailand',
+    region: 'Asia Pacific',
   },
   {
-    value: "VNSGN",
-    label: "Ho Chi Minh City, Vietnam",
-    country: "Vietnam",
-    region: "Asia Pacific",
+    value: 'VNSGN',
+    label: 'Ho Chi Minh City, Vietnam',
+    country: 'Vietnam',
+    region: 'Asia Pacific',
   },
   {
-    value: "IDTPP",
-    label: "Tanjung Priok, Indonesia",
-    country: "Indonesia",
-    region: "Asia Pacific",
+    value: 'IDTPP',
+    label: 'Tanjung Priok, Indonesia',
+    country: 'Indonesia',
+    region: 'Asia Pacific',
   },
   {
-    value: "PHMNL",
-    label: "Manila, Philippines",
-    country: "Philippines",
-    region: "Asia Pacific",
+    value: 'PHMNL',
+    label: 'Manila, Philippines',
+    country: 'Philippines',
+    region: 'Asia Pacific',
   },
   {
-    value: "AUMEL",
-    label: "Melbourne, Australia",
-    country: "Australia",
-    region: "Asia Pacific",
+    value: 'AUMEL',
+    label: 'Melbourne, Australia',
+    country: 'Australia',
+    region: 'Asia Pacific',
   },
   {
-    value: "AUSYD",
-    label: "Sydney, Australia",
-    country: "Australia",
-    region: "Asia Pacific",
+    value: 'AUSYD',
+    label: 'Sydney, Australia',
+    country: 'Australia',
+    region: 'Asia Pacific',
   },
   {
-    value: "NZAKL",
-    label: "Auckland, New Zealand",
-    country: "New Zealand",
-    region: "Asia Pacific",
+    value: 'NZAKL',
+    label: 'Auckland, New Zealand',
+    country: 'New Zealand',
+    region: 'Asia Pacific',
   },
   // Europe
   {
-    value: "NLRTM",
-    label: "Rotterdam, Netherlands",
-    country: "Netherlands",
-    region: "Europe",
+    value: 'NLRTM',
+    label: 'Rotterdam, Netherlands',
+    country: 'Netherlands',
+    region: 'Europe',
   },
   {
-    value: "DEHAM",
-    label: "Hamburg, Germany",
-    country: "Germany",
-    region: "Europe",
+    value: 'DEHAM',
+    label: 'Hamburg, Germany',
+    country: 'Germany',
+    region: 'Europe',
   },
   {
-    value: "BEANR",
-    label: "Antwerp, Belgium",
-    country: "Belgium",
-    region: "Europe",
+    value: 'BEANR',
+    label: 'Antwerp, Belgium',
+    country: 'Belgium',
+    region: 'Europe',
   },
   {
-    value: "GBFXT",
-    label: "Felixstowe, UK",
-    country: "United Kingdom",
-    region: "Europe",
+    value: 'GBFXT',
+    label: 'Felixstowe, UK',
+    country: 'United Kingdom',
+    region: 'Europe',
   },
   {
-    value: "GBLGP",
-    label: "London Gateway, UK",
-    country: "United Kingdom",
-    region: "Europe",
+    value: 'GBLGP',
+    label: 'London Gateway, UK',
+    country: 'United Kingdom',
+    region: 'Europe',
   },
   {
-    value: "FRLEH",
-    label: "Le Havre, France",
-    country: "France",
-    region: "Europe",
+    value: 'FRLEH',
+    label: 'Le Havre, France',
+    country: 'France',
+    region: 'Europe',
   },
-  { value: "ITGOA", label: "Genoa, Italy", country: "Italy", region: "Europe" },
+  { value: 'ITGOA', label: 'Genoa, Italy', country: 'Italy', region: 'Europe' },
   {
-    value: "ESBCN",
-    label: "Barcelona, Spain",
-    country: "Spain",
-    region: "Europe",
-  },
-  {
-    value: "GRGIT",
-    label: "Piraeus, Greece",
-    country: "Greece",
-    region: "Europe",
+    value: 'ESBCN',
+    label: 'Barcelona, Spain',
+    country: 'Spain',
+    region: 'Europe',
   },
   {
-    value: "TRIST",
-    label: "Istanbul (Ambarli), Turkey",
-    country: "Turkey",
-    region: "Europe",
+    value: 'GRGIT',
+    label: 'Piraeus, Greece',
+    country: 'Greece',
+    region: 'Europe',
+  },
+  {
+    value: 'TRIST',
+    label: 'Istanbul (Ambarli), Turkey',
+    country: 'Turkey',
+    region: 'Europe',
   },
   // Americas
   {
-    value: "USNYC",
-    label: "New York/New Jersey, USA",
-    country: "USA",
-    region: "Americas",
+    value: 'USNYC',
+    label: 'New York/New Jersey, USA',
+    country: 'USA',
+    region: 'Americas',
   },
   {
-    value: "USLAX",
-    label: "Los Angeles, USA",
-    country: "USA",
-    region: "Americas",
+    value: 'USLAX',
+    label: 'Los Angeles, USA',
+    country: 'USA',
+    region: 'Americas',
   },
-  { value: "USHOU", label: "Houston, USA", country: "USA", region: "Americas" },
+  { value: 'USHOU', label: 'Houston, USA', country: 'USA', region: 'Americas' },
   {
-    value: "USSAV",
-    label: "Savannah, USA",
-    country: "USA",
-    region: "Americas",
+    value: 'USSAV',
+    label: 'Savannah, USA',
+    country: 'USA',
+    region: 'Americas',
   },
-  { value: "USMIA", label: "Miami, USA", country: "USA", region: "Americas" },
+  { value: 'USMIA', label: 'Miami, USA', country: 'USA', region: 'Americas' },
   {
-    value: "CAHAL",
-    label: "Halifax, Canada",
-    country: "Canada",
-    region: "Americas",
-  },
-  {
-    value: "CAVAN",
-    label: "Vancouver, Canada",
-    country: "Canada",
-    region: "Americas",
+    value: 'CAHAL',
+    label: 'Halifax, Canada',
+    country: 'Canada',
+    region: 'Americas',
   },
   {
-    value: "MXVER",
-    label: "Veracruz, Mexico",
-    country: "Mexico",
-    region: "Americas",
+    value: 'CAVAN',
+    label: 'Vancouver, Canada',
+    country: 'Canada',
+    region: 'Americas',
   },
   {
-    value: "BRSSZ",
-    label: "Santos, Brazil",
-    country: "Brazil",
-    region: "Americas",
+    value: 'MXVER',
+    label: 'Veracruz, Mexico',
+    country: 'Mexico',
+    region: 'Americas',
   },
   {
-    value: "CLVAP",
-    label: "Valparaiso, Chile",
-    country: "Chile",
-    region: "Americas",
+    value: 'BRSSZ',
+    label: 'Santos, Brazil',
+    country: 'Brazil',
+    region: 'Americas',
+  },
+  {
+    value: 'CLVAP',
+    label: 'Valparaiso, Chile',
+    country: 'Chile',
+    region: 'Americas',
   },
   // Middle East (Non-GCC)
   {
-    value: "IRBND",
-    label: "Bandar Abbas, Iran",
-    country: "Iran",
-    region: "Middle East",
+    value: 'IRBND',
+    label: 'Bandar Abbas, Iran',
+    country: 'Iran',
+    region: 'Middle East',
   },
   {
-    value: "IQBSR",
-    label: "Basra, Iraq",
-    country: "Iraq",
-    region: "Middle East",
+    value: 'IQBSR',
+    label: 'Basra, Iraq',
+    country: 'Iraq',
+    region: 'Middle East',
   },
   {
-    value: "JOLAQ",
-    label: "Aqaba, Jordan",
-    country: "Jordan",
-    region: "Middle East",
+    value: 'JOLAQ',
+    label: 'Aqaba, Jordan',
+    country: 'Jordan',
+    region: 'Middle East',
   },
   {
-    value: "EGSUZ",
-    label: "Port Said, Egypt",
-    country: "Egypt",
-    region: "Middle East",
+    value: 'EGSUZ',
+    label: 'Port Said, Egypt',
+    country: 'Egypt',
+    region: 'Middle East',
   },
   {
-    value: "ILASH",
-    label: "Ashdod, Israel",
-    country: "Israel",
-    region: "Middle East",
+    value: 'ILASH',
+    label: 'Ashdod, Israel',
+    country: 'Israel',
+    region: 'Middle East',
   },
   {
-    value: "LBBEY",
-    label: "Beirut, Lebanon",
-    country: "Lebanon",
-    region: "Middle East",
+    value: 'LBBEY',
+    label: 'Beirut, Lebanon',
+    country: 'Lebanon',
+    region: 'Middle East',
   },
   // GCC
   {
-    value: "SAJED",
-    label: "Jeddah, Saudi Arabia",
-    country: "Saudi Arabia",
-    region: "GCC",
+    value: 'SAJED',
+    label: 'Jeddah, Saudi Arabia',
+    country: 'Saudi Arabia',
+    region: 'GCC',
   },
   {
-    value: "SADMM",
-    label: "Dammam, Saudi Arabia",
-    country: "Saudi Arabia",
-    region: "GCC",
+    value: 'SADMM',
+    label: 'Dammam, Saudi Arabia',
+    country: 'Saudi Arabia',
+    region: 'GCC',
   },
   {
-    value: "BHMIN",
-    label: "Mina Salman, Bahrain",
-    country: "Bahrain",
-    region: "GCC",
+    value: 'BHMIN',
+    label: 'Mina Salman, Bahrain',
+    country: 'Bahrain',
+    region: 'GCC',
   },
   {
-    value: "KWSAA",
-    label: "Shuaiba, Kuwait",
-    country: "Kuwait",
-    region: "GCC",
+    value: 'KWSAA',
+    label: 'Shuaiba, Kuwait',
+    country: 'Kuwait',
+    region: 'GCC',
   },
-  { value: "OMSLL", label: "Salalah, Oman", country: "Oman", region: "GCC" },
-  { value: "OMSOH", label: "Sohar, Oman", country: "Oman", region: "GCC" },
+  { value: 'OMSLL', label: 'Salalah, Oman', country: 'Oman', region: 'GCC' },
+  { value: 'OMSOH', label: 'Sohar, Oman', country: 'Oman', region: 'GCC' },
   {
-    value: "QADOH",
-    label: "Doha (Hamad Port), Qatar",
-    country: "Qatar",
-    region: "GCC",
+    value: 'QADOH',
+    label: 'Doha (Hamad Port), Qatar',
+    country: 'Qatar',
+    region: 'GCC',
   },
   // Africa
   {
-    value: "ZADUR",
-    label: "Durban, South Africa",
-    country: "South Africa",
-    region: "Africa",
+    value: 'ZADUR',
+    label: 'Durban, South Africa',
+    country: 'South Africa',
+    region: 'Africa',
   },
   {
-    value: "ZACPT",
-    label: "Cape Town, South Africa",
-    country: "South Africa",
-    region: "Africa",
+    value: 'ZACPT',
+    label: 'Cape Town, South Africa',
+    country: 'South Africa',
+    region: 'Africa',
   },
   {
-    value: "KEMLB",
-    label: "Mombasa, Kenya",
-    country: "Kenya",
-    region: "Africa",
+    value: 'KEMLB',
+    label: 'Mombasa, Kenya',
+    country: 'Kenya',
+    region: 'Africa',
   },
   {
-    value: "TZDAR",
-    label: "Dar es Salaam, Tanzania",
-    country: "Tanzania",
-    region: "Africa",
+    value: 'TZDAR',
+    label: 'Dar es Salaam, Tanzania',
+    country: 'Tanzania',
+    region: 'Africa',
   },
   {
-    value: "MAPTM",
-    label: "Tanger-Med, Morocco",
-    country: "Morocco",
-    region: "Africa",
+    value: 'MAPTM',
+    label: 'Tanger-Med, Morocco',
+    country: 'Morocco',
+    region: 'Africa',
   },
   {
-    value: "NGAPP",
-    label: "Apapa (Lagos), Nigeria",
-    country: "Nigeria",
-    region: "Africa",
+    value: 'NGAPP',
+    label: 'Apapa (Lagos), Nigeria',
+    country: 'Nigeria',
+    region: 'Africa',
   },
-  { value: "GHTEM", label: "Tema, Ghana", country: "Ghana", region: "Africa" },
-  { value: "DJJIB", label: "Djibouti", country: "Djibouti", region: "Africa" },
+  { value: 'GHTEM', label: 'Tema, Ghana', country: 'Ghana', region: 'Africa' },
+  { value: 'DJJIB', label: 'Djibouti', country: 'Djibouti', region: 'Africa' },
 ];
 
 // Incoterms for Export
 const INCOTERMS_OPTIONS = [
   {
-    value: "EXW",
-    label: "EXW - Ex Works",
-    seller_risk: "Minimum",
-    description: "Buyer arranges all transport",
+    value: 'EXW',
+    label: 'EXW - Ex Works',
+    seller_risk: 'Minimum',
+    description: 'Buyer arranges all transport',
   },
   {
-    value: "FCA",
-    label: "FCA - Free Carrier",
-    seller_risk: "Low",
-    description: "Seller delivers to carrier",
+    value: 'FCA',
+    label: 'FCA - Free Carrier',
+    seller_risk: 'Low',
+    description: 'Seller delivers to carrier',
   },
   {
-    value: "FAS",
-    label: "FAS - Free Alongside Ship",
-    seller_risk: "Low",
-    description: "Sea freight only",
+    value: 'FAS',
+    label: 'FAS - Free Alongside Ship',
+    seller_risk: 'Low',
+    description: 'Sea freight only',
   },
   {
-    value: "FOB",
-    label: "FOB - Free On Board",
-    seller_risk: "Medium",
-    description: "Seller loads on vessel",
+    value: 'FOB',
+    label: 'FOB - Free On Board',
+    seller_risk: 'Medium',
+    description: 'Seller loads on vessel',
   },
   {
-    value: "CFR",
-    label: "CFR - Cost & Freight",
-    seller_risk: "Medium",
-    description: "Seller pays freight",
+    value: 'CFR',
+    label: 'CFR - Cost & Freight',
+    seller_risk: 'Medium',
+    description: 'Seller pays freight',
   },
   {
-    value: "CIF",
-    label: "CIF - Cost, Insurance & Freight",
-    seller_risk: "Medium",
-    description: "Seller pays freight + insurance",
+    value: 'CIF',
+    label: 'CIF - Cost, Insurance & Freight',
+    seller_risk: 'Medium',
+    description: 'Seller pays freight + insurance',
   },
   {
-    value: "CPT",
-    label: "CPT - Carriage Paid To",
-    seller_risk: "Medium",
-    description: "Any transport mode",
+    value: 'CPT',
+    label: 'CPT - Carriage Paid To',
+    seller_risk: 'Medium',
+    description: 'Any transport mode',
   },
   {
-    value: "CIP",
-    label: "CIP - Carriage & Insurance Paid",
-    seller_risk: "Medium",
-    description: "CPT + insurance",
+    value: 'CIP',
+    label: 'CIP - Carriage & Insurance Paid',
+    seller_risk: 'Medium',
+    description: 'CPT + insurance',
   },
   {
-    value: "DAP",
-    label: "DAP - Delivered At Place",
-    seller_risk: "High",
-    description: "Seller delivers unloaded",
+    value: 'DAP',
+    label: 'DAP - Delivered At Place',
+    seller_risk: 'High',
+    description: 'Seller delivers unloaded',
   },
   {
-    value: "DPU",
-    label: "DPU - Delivered at Place Unloaded",
-    seller_risk: "High",
-    description: "Seller unloads at destination",
+    value: 'DPU',
+    label: 'DPU - Delivered at Place Unloaded',
+    seller_risk: 'High',
+    description: 'Seller unloads at destination',
   },
   {
-    value: "DDP",
-    label: "DDP - Delivered Duty Paid",
-    seller_risk: "Maximum",
-    description: "Seller pays all costs + duty",
+    value: 'DDP',
+    label: 'DDP - Delivered Duty Paid',
+    seller_risk: 'Maximum',
+    description: 'Seller pays all costs + duty',
   },
 ];
 
 // Payment Methods for Export
 const PAYMENT_METHOD_OPTIONS = [
   {
-    value: "advance",
-    label: "Advance Payment (TT)",
-    risk: "lowest",
-    description: "Payment before shipment",
+    value: 'advance',
+    label: 'Advance Payment (TT)',
+    risk: 'lowest',
+    description: 'Payment before shipment',
   },
   {
-    value: "letter_of_credit",
-    label: "Letter of Credit (LC)",
-    risk: "low",
-    description: "Bank guarantee",
+    value: 'letter_of_credit',
+    label: 'Letter of Credit (LC)',
+    risk: 'low',
+    description: 'Bank guarantee',
   },
   {
-    value: "documents_against_payment",
-    label: "Documents Against Payment (D/P)",
-    risk: "medium",
-    description: "Payment on document presentation",
+    value: 'documents_against_payment',
+    label: 'Documents Against Payment (D/P)',
+    risk: 'medium',
+    description: 'Payment on document presentation',
   },
   {
-    value: "documents_against_acceptance",
-    label: "Documents Against Acceptance (D/A)",
-    risk: "medium-high",
-    description: "Payment on acceptance",
+    value: 'documents_against_acceptance',
+    label: 'Documents Against Acceptance (D/A)',
+    risk: 'medium-high',
+    description: 'Payment on acceptance',
   },
   {
-    value: "open_account",
-    label: "Open Account",
-    risk: "high",
-    description: "Payment after delivery",
+    value: 'open_account',
+    label: 'Open Account',
+    risk: 'high',
+    description: 'Payment after delivery',
   },
   {
-    value: "consignment",
-    label: "Consignment",
-    risk: "highest",
-    description: "Payment on sale",
+    value: 'consignment',
+    label: 'Consignment',
+    risk: 'highest',
+    description: 'Payment on sale',
   },
   {
-    value: "bank_guarantee",
-    label: "Bank Guarantee",
-    risk: "low",
-    description: "BG-backed payment",
+    value: 'bank_guarantee',
+    label: 'Bank Guarantee',
+    risk: 'low',
+    description: 'BG-backed payment',
   },
   {
-    value: "escrow",
-    label: "Escrow",
-    risk: "low",
-    description: "Third-party escrow",
+    value: 'escrow',
+    label: 'Escrow',
+    risk: 'low',
+    description: 'Third-party escrow',
   },
 ];
 
 // Shipping Methods
 const SHIPPING_METHOD_OPTIONS = [
   {
-    value: "sea",
-    label: "Sea Freight (FCL)",
+    value: 'sea',
+    label: 'Sea Freight (FCL)',
     icon: Ship,
-    description: "Full container load",
+    description: 'Full container load',
   },
   {
-    value: "sea_lcl",
-    label: "Sea Freight (LCL)",
+    value: 'sea_lcl',
+    label: 'Sea Freight (LCL)',
     icon: Ship,
-    description: "Less than container load",
+    description: 'Less than container load',
   },
-  { value: "air", label: "Air Freight", icon: Plane, description: "Air cargo" },
+  { value: 'air', label: 'Air Freight', icon: Plane, description: 'Air cargo' },
   {
-    value: "land",
-    label: "Land Transport",
+    value: 'land',
+    label: 'Land Transport',
     icon: Truck,
-    description: "Road/rail",
+    description: 'Road/rail',
   },
   {
-    value: "multimodal",
-    label: "Multimodal",
+    value: 'multimodal',
+    label: 'Multimodal',
     icon: Ship,
-    description: "Combined transport",
+    description: 'Combined transport',
   },
   {
-    value: "courier",
-    label: "Courier/Express",
+    value: 'courier',
+    label: 'Courier/Express',
     icon: Truck,
-    description: "Express delivery",
+    description: 'Express delivery',
   },
 ];
 
 // Currency Options
 const CURRENCY_OPTIONS = [
-  { value: "USD", label: "USD - US Dollar", symbol: "$" },
-  { value: "EUR", label: "EUR - Euro", symbol: "E" },
-  { value: "AED", label: "AED - UAE Dirham", symbol: "AED" },
-  { value: "GBP", label: "GBP - British Pound", symbol: "P" },
-  { value: "CNY", label: "CNY - Chinese Yuan", symbol: "Y" },
-  { value: "INR", label: "INR - Indian Rupee", symbol: "Rs" },
-  { value: "JPY", label: "JPY - Japanese Yen", symbol: "Y" },
-  { value: "SAR", label: "SAR - Saudi Riyal", symbol: "SAR" },
-  { value: "QAR", label: "QAR - Qatari Riyal", symbol: "QAR" },
-  { value: "KWD", label: "KWD - Kuwaiti Dinar", symbol: "KD" },
-  { value: "OMR", label: "OMR - Omani Rial", symbol: "OMR" },
-  { value: "BHD", label: "BHD - Bahraini Dinar", symbol: "BD" },
+  { value: 'USD', label: 'USD - US Dollar', symbol: '$' },
+  { value: 'EUR', label: 'EUR - Euro', symbol: 'E' },
+  { value: 'AED', label: 'AED - UAE Dirham', symbol: 'AED' },
+  { value: 'GBP', label: 'GBP - British Pound', symbol: 'P' },
+  { value: 'CNY', label: 'CNY - Chinese Yuan', symbol: 'Y' },
+  { value: 'INR', label: 'INR - Indian Rupee', symbol: 'Rs' },
+  { value: 'JPY', label: 'JPY - Japanese Yen', symbol: 'Y' },
+  { value: 'SAR', label: 'SAR - Saudi Riyal', symbol: 'SAR' },
+  { value: 'QAR', label: 'QAR - Qatari Riyal', symbol: 'QAR' },
+  { value: 'KWD', label: 'KWD - Kuwaiti Dinar', symbol: 'KD' },
+  { value: 'OMR', label: 'OMR - Omani Rial', symbol: 'OMR' },
+  { value: 'BHD', label: 'BHD - Bahraini Dinar', symbol: 'BD' },
 ];
 
 // Unit Options
 const UNIT_OPTIONS = [
-  { value: "MT", label: "MT (Metric Ton)" },
-  { value: "KG", label: "KG (Kilogram)" },
-  { value: "PCS", label: "PCS (Pieces)" },
-  { value: "LM", label: "LM (Linear Meter)" },
-  { value: "SQM", label: "SQM (Square Meter)" },
-  { value: "CBM", label: "CBM (Cubic Meter)" },
-  { value: "COIL", label: "COIL (Coils)" },
-  { value: "BUNDLE", label: "BUNDLE (Bundles)" },
-  { value: "SHEET", label: "SHEET (Sheets)" },
-  { value: "SET", label: "SET (Sets)" },
+  { value: 'MT', label: 'MT (Metric Ton)' },
+  { value: 'KG', label: 'KG (Kilogram)' },
+  { value: 'PCS', label: 'PCS (Pieces)' },
+  { value: 'LM', label: 'LM (Linear Meter)' },
+  { value: 'SQM', label: 'SQM (Square Meter)' },
+  { value: 'CBM', label: 'CBM (Cubic Meter)' },
+  { value: 'COIL', label: 'COIL (Coils)' },
+  { value: 'BUNDLE', label: 'BUNDLE (Bundles)' },
+  { value: 'SHEET', label: 'SHEET (Sheets)' },
+  { value: 'SET', label: 'SET (Sets)' },
 ];
 
 // Export Order Status Options
 const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "preparing", label: "Preparing Shipment" },
-  { value: "shipped", label: "Shipped" },
-  { value: "in_transit", label: "In Transit" },
-  { value: "delivered", label: "Delivered" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
+  { value: 'draft', label: 'Draft' },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'preparing', label: 'Preparing Shipment' },
+  { value: 'shipped', label: 'Shipped' },
+  { value: 'in_transit', label: 'In Transit' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 // Exchange Rate Source options (for FTA audit trail)
 const EXCHANGE_RATE_SOURCE_OPTIONS = [
-  { value: "uae_central_bank", label: "UAE Central Bank" },
-  { value: "commercial_bank", label: "Commercial Bank Rate" },
-  { value: "oanda", label: "OANDA (Forex)" },
-  { value: "reuters", label: "Reuters" },
-  { value: "contract_rate", label: "Contract Rate" },
-  { value: "manual", label: "Manual Entry" },
+  { value: 'uae_central_bank', label: 'UAE Central Bank' },
+  { value: 'commercial_bank', label: 'Commercial Bank Rate' },
+  { value: 'oanda', label: 'OANDA (Forex)' },
+  { value: 'reuters', label: 'Reuters' },
+  { value: 'contract_rate', label: 'Contract Rate' },
+  { value: 'manual', label: 'Manual Entry' },
 ];
 
 // ============================================================
@@ -1103,84 +1103,84 @@ const EXCHANGE_RATE_SOURCE_OPTIONS = [
 
 const createEmptyLineItem = () => ({
   id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-  product_id: "",
-  unique_name: "", // SSOT product naming
-  description: "",
-  grade: "",
-  finish: "",
-  thickness: "",
-  width: "",
-  length: "",
-  outer_diameter: "",
+  product_id: '',
+  unique_name: '', // SSOT product naming
+  description: '',
+  grade: '',
+  finish: '',
+  thickness: '',
+  width: '',
+  length: '',
+  outer_diameter: '',
   quantity: 0,
-  unit: "MT",
+  unit: 'MT',
   unit_price: 0,
   total_price: 0,
-  hs_code: "",
-  country_of_origin: "AE", // UAE for direct exports
-  mill_name: "",
-  heat_number: "",
+  hs_code: '',
+  country_of_origin: 'AE', // UAE for direct exports
+  mill_name: '',
+  heat_number: '',
   // Re-export item tracking
-  original_import_item_id: "",
-  original_import_boe: "",
+  original_import_item_id: '',
+  original_import_boe: '',
   // Epic 4: Batch allocation
   batchAllocations: [], // Array of {batchId, batchNumber, quantity, unitCost, supplier, procurementDate}
   // Epic 7: Drop-ship handling
-  shipmentType: "WAREHOUSE", // "WAREHOUSE" | "DROP_SHIP"
-  supplierDropShip: "", // Supplier ID for drop-ship items
+  shipmentType: 'WAREHOUSE', // "WAREHOUSE" | "DROP_SHIP"
+  supplierDropShip: '', // Supplier ID for drop-ship items
 });
 
 const createEmptyOrder = () => ({
   // Header
-  order_number: "",
-  status: "draft",
-  order_date: new Date().toISOString().split("T")[0],
-  expected_ship_date: "",
-  exporter_trn: "", // UAE company TRN (seller)
+  order_number: '',
+  status: 'draft',
+  order_date: new Date().toISOString().split('T')[0],
+  expected_ship_date: '',
+  exporter_trn: '', // UAE company TRN (seller)
 
   // Customer Details
-  customer_id: "",
-  customer_name: "",
-  customer_address: "",
-  customer_country: "",
-  customer_contact_name: "",
-  customer_contact_email: "",
-  customer_contact_phone: "",
+  customer_id: '',
+  customer_name: '',
+  customer_address: '',
+  customer_country: '',
+  customer_contact_name: '',
+  customer_contact_email: '',
+  customer_contact_phone: '',
 
   // Customer VAT Details (for GCC exports)
-  customer_vat_id: "", // Customer's VAT registration number
-  customer_gcc_vat_id: "", // GCC-specific VAT ID
-  customer_trn: "", // UAE customer TRN (for UAE/GCC exports, Form 201 compliance)
+  customer_vat_id: '', // Customer's VAT registration number
+  customer_gcc_vat_id: '', // GCC-specific VAT ID
+  customer_trn: '', // UAE customer TRN (for UAE/GCC exports, Form 201 compliance)
 
   // Destination Details
-  destination_country: "",
-  destination_port: "",
-  destination_address: "",
+  destination_country: '',
+  destination_port: '',
+  destination_address: '',
 
   // Origin Details (UAE)
-  origin_port: "AEJEA", // Default Jebel Ali
-  origin_address: "",
-  origin_emirate: "Dubai",
+  origin_port: 'AEJEA', // Default Jebel Ali
+  origin_address: '',
+  origin_emirate: 'Dubai',
 
   // Shipping Terms
-  incoterms: "FOB",
-  payment_method: "letter_of_credit",
-  shipping_method: "sea",
-  lc_number: "",
-  pi_number: "", // Proforma Invoice
-  po_number: "", // Customer PO
+  incoterms: 'FOB',
+  payment_method: 'letter_of_credit',
+  shipping_method: 'sea',
+  lc_number: '',
+  pi_number: '', // Proforma Invoice
+  po_number: '', // Customer PO
 
   // Shipping Details
-  vessel_name: "",
-  bl_number: "", // Bill of Lading
-  awb_number: "", // Air Waybill (for air freight)
-  container_numbers: "",
-  etd: "", // Estimated Time of Departure
-  eta: "", // Estimated Time of Arrival
-  actual_ship_date: "",
+  vessel_name: '',
+  bl_number: '', // Bill of Lading
+  awb_number: '', // Air Waybill (for air freight)
+  container_numbers: '',
+  etd: '', // Estimated Time of Departure
+  eta: '', // Estimated Time of Arrival
+  actual_ship_date: '',
 
   // Currency & Totals
-  currency: "USD",
+  currency: 'USD',
   exchange_rate: 1,
   subtotal: 0,
   freight_cost: 0,
@@ -1191,55 +1191,55 @@ const createEmptyOrder = () => ({
   total: 0,
 
   // UAE VAT EXPORT COMPLIANCE FIELDS (CRITICAL - Article 45)
-  export_vat_treatment: "zero_rated", // Article 45 UAE VAT Law
-  export_type: "direct_export", // direct_export, re_export, dz_export, gcc_export
+  export_vat_treatment: 'zero_rated', // Article 45 UAE VAT Law
+  export_type: 'direct_export', // direct_export, re_export, dz_export, gcc_export
   is_designated_zone_export: false, // Article 51
-  designated_zone_origin: "", // If exporting FROM a DZ
+  designated_zone_origin: '', // If exporting FROM a DZ
 
   // Re-Export Tracking (for goods imported then re-exported)
   is_re_export: false,
-  original_import_boe: "", // Original Bill of Entry number
-  original_import_date: "",
+  original_import_boe: '', // Original Bill of Entry number
+  original_import_date: '',
   original_import_value: 0,
-  re_export_reason: "",
+  re_export_reason: '',
 
   // GCC Export Fields (Article 30)
   is_gcc_export: false,
-  gcc_country_code: "",
-  gcc_vat_treatment: "zero_rated", // Depends on customer registration
+  gcc_country_code: '',
+  gcc_vat_treatment: 'zero_rated', // Depends on customer registration
 
   // Export Documentation
-  export_declaration_number: "",
-  export_declaration_date: "",
-  certificate_of_origin: "",
-  certificate_of_origin_date: "",
-  commercial_invoice_number: "",
-  packing_list_number: "",
+  export_declaration_number: '',
+  export_declaration_date: '',
+  certificate_of_origin: '',
+  certificate_of_origin_date: '',
+  commercial_invoice_number: '',
+  packing_list_number: '',
 
   // COO Requirement Tracking (Epic 9 - EXPO-007)
   requires_coo: true, // Auto-determined based on destination
-  coo_exemption_reason: "", // If COO not required, state why
-  coo_document_status: "", // pending | uploaded | verified
+  coo_exemption_reason: '', // If COO not required, state why
+  coo_document_status: '', // pending | uploaded | verified
 
   // Form 201 VAT Return Mapping
-  form_201_box: "box_2", // Zero-rated supplies (Box 2)
+  form_201_box: 'box_2', // Zero-rated supplies (Box 2)
   zero_rated_export_value: 0, // Maps to Box 2
 
   // Exchange Rate Audit Trail (FTA Requirement)
-  exchange_rate_source: "uae_central_bank",
-  exchange_rate_date: new Date().toISOString().split("T")[0],
-  exchange_rate_reference: "",
+  exchange_rate_source: 'uae_central_bank',
+  exchange_rate_date: new Date().toISOString().split('T')[0],
+  exchange_rate_reference: '',
 
   // VAT Return Period
-  vat_return_period: "", // YYYY-MM format
+  vat_return_period: '', // YYYY-MM format
 
   // Line Items
   items: [createEmptyLineItem()],
 
   // Notes & Documents
-  notes: "",
-  internal_notes: "",
-  special_instructions: "",
+  notes: '',
+  internal_notes: '',
+  special_instructions: '',
 });
 
 // ============================================================
@@ -1271,7 +1271,7 @@ const ExportOrderForm = () => {
   const [_pricelistName, setPricelistName] = useState(null);
 
   // Search States
-  const [customerSearchTerm, setCustomerSearchTerm] = useState("");
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
 
   // Epic 4 & 7: Batch allocation and drop-ship
@@ -1289,14 +1289,14 @@ const ExportOrderForm = () => {
       try {
         const response = await customerService.getCustomers({
           limit: 1000,
-          status: "active",
+          status: 'active',
         });
         const customerList =
           response.customers || response.data?.customers || response || [];
         setCustomers(Array.isArray(customerList) ? customerList : []);
       } catch (error) {
-        console.error("Failed to fetch customers:", error);
-        notificationService.error("Failed to load customers");
+        console.error('Failed to fetch customers:', error);
+        notificationService.error('Failed to load customers');
       } finally {
         setLoadingCustomers(false);
       }
@@ -1314,8 +1314,8 @@ const ExportOrderForm = () => {
           response.products || response.data?.products || response || [];
         setProducts(Array.isArray(productList) ? productList : []);
       } catch (error) {
-        console.error("Failed to fetch products:", error);
-        notificationService.error("Failed to load products");
+        console.error('Failed to fetch products:', error);
+        notificationService.error('Failed to load products');
       } finally {
         setLoadingProducts(false);
       }
@@ -1331,7 +1331,7 @@ const ExportOrderForm = () => {
         const supplierList = response.suppliers || response.data || [];
         setSuppliers(Array.isArray(supplierList) ? supplierList : []);
       } catch (error) {
-        console.error("Failed to fetch suppliers:", error);
+        console.error('Failed to fetch suppliers:', error);
       }
     };
     fetchSuppliers();
@@ -1353,9 +1353,9 @@ const ExportOrderForm = () => {
 
           setOrder(orderData);
         } catch (error) {
-          console.error("Failed to fetch order:", error);
-          notificationService.error("Failed to load export order");
-          navigate("/import-export");
+          console.error('Failed to fetch order:', error);
+          notificationService.error('Failed to load export order');
+          navigate('/import-export');
         } finally {
           setIsLoading(false);
         }
@@ -1402,14 +1402,14 @@ const ExportOrderForm = () => {
 
     // Form 201 Box 2 - Zero-rated supplies (exports)
     const zeroRatedExportValue =
-      order.export_vat_treatment === "zero_rated" ||
-      order.export_vat_treatment === "re_export"
+      order.export_vat_treatment === 'zero_rated' ||
+      order.export_vat_treatment === 're_export'
         ? totalInAED
         : 0;
 
     // Form 201 Box 6 - Exempt supplies
     const exemptValue =
-      order.export_vat_treatment === "exempt" ? totalInAED : 0;
+      order.export_vat_treatment === 'exempt' ? totalInAED : 0;
 
     return {
       subtotal,
@@ -1452,16 +1452,16 @@ const ExportOrderForm = () => {
 
     // Determine if customer is UAE-based
     const isUAECustomer =
-      order.customer_country === "UAE" ||
-      order.customer_country === "United Arab Emirates" ||
-      order.destination_country === "UAE" ||
-      order.destination_country === "United Arab Emirates";
+      order.customer_country === 'UAE' ||
+      order.customer_country === 'United Arab Emirates' ||
+      order.destination_country === 'UAE' ||
+      order.destination_country === 'United Arab Emirates';
 
     // VAT Rate Logic:
     // 1. Designated Zone exports → 0% (zero-rated)
     // 2. UAE customers (non-DZ) → 5% (standard rate)
     // 3. Non-UAE exports → 0% (zero-rated)
-    if (order.is_designated_zone_export || order.export_type === "dz_export") {
+    if (order.is_designated_zone_export || order.export_type === 'dz_export') {
       autoVatRate = 0; // Designated zone = zero-rated
     } else if (isUAECustomer) {
       autoVatRate = 5; // UAE domestic = 5% VAT
@@ -1494,44 +1494,44 @@ const ExportOrderForm = () => {
         const updated = { ...prev, [field]: value };
 
         // Auto-update export type when VAT treatment changes
-        if (field === "export_vat_treatment") {
-          if (value === "re_export") {
-            updated.export_type = "re_export";
+        if (field === 'export_vat_treatment') {
+          if (value === 're_export') {
+            updated.export_type = 're_export';
             updated.is_re_export = true;
           } else if (
-            value === "zero_rated" &&
-            prev.export_type === "re_export"
+            value === 'zero_rated' &&
+            prev.export_type === 're_export'
           ) {
-            updated.export_type = "direct_export";
+            updated.export_type = 'direct_export';
             updated.is_re_export = false;
           }
         }
 
         // Auto-update when export type changes
-        if (field === "export_type") {
-          if (value === "re_export") {
+        if (field === 'export_type') {
+          if (value === 're_export') {
             updated.is_re_export = true;
-            updated.export_vat_treatment = "re_export";
-          } else if (value === "dz_export") {
+            updated.export_vat_treatment = 're_export';
+          } else if (value === 'dz_export') {
             updated.is_designated_zone_export = true;
-          } else if (value === "gcc_export") {
+          } else if (value === 'gcc_export') {
             updated.is_gcc_export = true;
           } else {
             updated.is_re_export = false;
-            updated.is_designated_zone_export = value === "dz_export";
-            updated.is_gcc_export = value === "gcc_export";
+            updated.is_designated_zone_export = value === 'dz_export';
+            updated.is_gcc_export = value === 'gcc_export';
           }
         }
 
         // Auto-detect GCC export based on destination
-        if (field === "destination_country") {
+        if (field === 'destination_country') {
           const isGCC = GCC_COUNTRIES.some(
             (c) =>
               c.code === value || c.name.toLowerCase() === value.toLowerCase(),
           );
           if (isGCC) {
             updated.is_gcc_export = true;
-            updated.export_type = "gcc_export";
+            updated.export_type = 'gcc_export';
             const gccCountry = GCC_COUNTRIES.find(
               (c) =>
                 c.code === value ||
@@ -1542,8 +1542,8 @@ const ExportOrderForm = () => {
             }
           } else {
             updated.is_gcc_export = false;
-            if (prev.export_type === "gcc_export") {
-              updated.export_type = "direct_export";
+            if (prev.export_type === 'gcc_export') {
+              updated.export_type = 'direct_export';
             }
           }
 
@@ -1553,26 +1553,26 @@ const ExportOrderForm = () => {
           // - NOT a designated zone export AND
           // - customer country is NOT UAE
           const isUAE =
-            value === "AE" ||
-            value === "UAE" ||
-            value.toLowerCase() === "united arab emirates";
+            value === 'AE' ||
+            value === 'UAE' ||
+            value.toLowerCase() === 'united arab emirates';
           updated.requires_coo = !isUAE && !updated.is_designated_zone_export;
 
           // Set exemption reason if COO not required
           if (!updated.requires_coo) {
             if (isUAE) {
-              updated.coo_exemption_reason = "Domestic UAE transaction";
+              updated.coo_exemption_reason = 'Domestic UAE transaction';
             } else if (updated.is_designated_zone_export) {
               updated.coo_exemption_reason =
-                "Designated zone export (Article 51)";
+                'Designated zone export (Article 51)';
             }
           } else {
-            updated.coo_exemption_reason = "";
+            updated.coo_exemption_reason = '';
           }
         }
 
         // Auto-set Form 201 box based on VAT treatment
-        if (field === "export_vat_treatment") {
+        if (field === 'export_vat_treatment') {
           const treatment = EXPORT_VAT_TREATMENT_OPTIONS.find(
             (t) => t.value === value,
           );
@@ -1582,7 +1582,7 @@ const ExportOrderForm = () => {
         }
 
         // Auto-derive origin emirate from origin port
-        if (field === "origin_port") {
+        if (field === 'origin_port') {
           const port = UAE_PORTS.find((p) => p.value === value);
           if (port) {
             updated.origin_emirate = port.emirate;
@@ -1609,20 +1609,20 @@ const ExportOrderForm = () => {
         setOrder((prev) => ({
           ...prev,
           customer_id: customerId,
-          customer_name: customer.name || customer.company_name || "",
-          customer_address: customer.address || "",
-          customer_country: customer.country || "",
-          customer_contact_name: customer.contact_name || "",
+          customer_name: customer.name || customer.company_name || '',
+          customer_address: customer.address || '',
+          customer_country: customer.country || '',
+          customer_contact_name: customer.contact_name || '',
           customer_contact_email:
-            customer.contact_email || customer.email || "",
+            customer.contact_email || customer.email || '',
           customer_contact_phone:
-            customer.contact_phone || customer.phone || "",
-          customer_vat_id: customer.vat_number || customer.trn_number || "",
-          customer_trn: customer.trn_number || customer.vat_number || "",
-          destination_country: customer.country || "",
+            customer.contact_phone || customer.phone || '',
+          customer_vat_id: customer.vat_number || customer.trn_number || '',
+          customer_trn: customer.trn_number || customer.vat_number || '',
+          destination_country: customer.country || '',
         }));
         setShowCustomerDropdown(false);
-        setCustomerSearchTerm("");
+        setCustomerSearchTerm('');
 
         // Fetch customer's pricelist
         if (customer.pricelistId || customer.pricelist_id) {
@@ -1633,7 +1633,7 @@ const ExportOrderForm = () => {
             setPricelistName(
               response.pricelist?.name ||
                 response.data?.name ||
-                "Custom Price List",
+                'Custom Price List',
             );
           } catch (error) {
             // Silently ignore - pricelist is optional
@@ -1643,7 +1643,7 @@ const ExportOrderForm = () => {
         } else {
           // Use default pricelist
           setSelectedPricelistId(null);
-          setPricelistName("Default Price List");
+          setPricelistName('Default Price List');
         }
       }
     },
@@ -1656,9 +1656,9 @@ const ExportOrderForm = () => {
     const term = customerSearchTerm.toLowerCase();
     return customers.filter(
       (c) =>
-        (c.name || "").toLowerCase().includes(term) ||
-        (c.company_name || "").toLowerCase().includes(term) ||
-        (c.email || "").toLowerCase().includes(term),
+        (c.name || '').toLowerCase().includes(term) ||
+        (c.company_name || '').toLowerCase().includes(term) ||
+        (c.email || '').toLowerCase().includes(term),
     );
   }, [customers, customerSearchTerm]);
 
@@ -1670,13 +1670,13 @@ const ExportOrderForm = () => {
         newItems[index] = { ...newItems[index], [field]: value };
 
         // Auto-calculate total price
-        if (field === "quantity" || field === "unit_price") {
+        if (field === 'quantity' || field === 'unit_price') {
           const qty =
-            field === "quantity"
+            field === 'quantity'
               ? parseFloat(value) || 0
               : parseFloat(newItems[index].quantity) || 0;
           const price =
-            field === "unit_price"
+            field === 'unit_price'
               ? parseFloat(value) || 0
               : parseFloat(newItems[index].unit_price) || 0;
           newItems[index].total_price = qty * price;
@@ -1726,12 +1726,12 @@ const ExportOrderForm = () => {
               product.unique_name ||
               product.displayName ||
               product.display_name ||
-              "",
-            description: product.description || "",
-            grade: product.grade || "",
-            finish: product.finish || "",
-            hs_code: product.hs_code || "",
-            country_of_origin: "AE", // Default to UAE for exports
+              '',
+            description: product.description || '',
+            grade: product.grade || '',
+            finish: product.finish || '',
+            hs_code: product.hs_code || '',
+            country_of_origin: 'AE', // Default to UAE for exports
             unit_price: sellingPrice,
             total_price:
               (parseFloat(newItems[index].quantity) || 0) * sellingPrice,
@@ -1753,7 +1753,7 @@ const ExportOrderForm = () => {
   const removeLineItem = useCallback((index) => {
     setOrder((prev) => {
       if (prev.items.length <= 1) {
-        notificationService.warning("At least one line item is required");
+        notificationService.warning('At least one line item is required');
         return prev;
       }
       const newItems = prev.items.filter((_, i) => i !== index);
@@ -1807,27 +1807,27 @@ const ExportOrderForm = () => {
 
     // Required fields validation
     if (!order.customer_id) {
-      newErrors.customer_id = "Customer is required";
+      newErrors.customer_id = 'Customer is required';
     }
 
     if (!order.destination_country) {
-      newErrors.destination_country = "Destination country is required";
+      newErrors.destination_country = 'Destination country is required';
     }
 
     if (!order.destination_port) {
-      newErrors.destination_port = "Destination port is required";
+      newErrors.destination_port = 'Destination port is required';
     }
 
     if (!order.incoterms) {
-      newErrors.incoterms = "Incoterms is required";
+      newErrors.incoterms = 'Incoterms is required';
     }
 
     if (!order.payment_method) {
-      newErrors.payment_method = "Payment method is required";
+      newErrors.payment_method = 'Payment method is required';
     }
 
     if (!order.origin_port) {
-      newErrors.origin_port = "Origin port is required";
+      newErrors.origin_port = 'Origin port is required';
     }
 
     // Validate line items
@@ -1839,13 +1839,13 @@ const ExportOrderForm = () => {
     );
 
     if (!hasValidItem) {
-      newErrors.items = "At least one complete line item is required";
+      newErrors.items = 'At least one complete line item is required';
     }
 
     // HS Code validation for each item (required for exports)
     order.items.forEach((item, index) => {
       if (item.unique_name && !item.hs_code) {
-        newErrors[`item_${index}_hs_code`] = "HS Code required for exports";
+        newErrors[`item_${index}_hs_code`] = 'HS Code required for exports';
       }
 
       // SSOT product naming validation (Epic 5 - EXPO-001)
@@ -1857,25 +1857,25 @@ const ExportOrderForm = () => {
       }
 
       // Epic 4: Batch allocation validation for WAREHOUSE items
-      if (item.shipmentType === "WAREHOUSE" && item.quantity > 0) {
+      if (item.shipmentType === 'WAREHOUSE' && item.quantity > 0) {
         if (!item.batchAllocations || item.batchAllocations.length === 0) {
-          newErrors[`item_${index}_batch`] = "Batch allocation required";
+          newErrors[`item_${index}_batch`] = 'Batch allocation required';
         }
       }
 
       // Epic 7: Drop-ship supplier validation
-      if (item.shipmentType === "DROP_SHIP" && !item.supplierDropShip) {
-        newErrors[`item_${index}_supplier`] = "Supplier required for drop-ship";
+      if (item.shipmentType === 'DROP_SHIP' && !item.supplierDropShip) {
+        newErrors[`item_${index}_supplier`] = 'Supplier required for drop-ship';
       }
     });
 
     // Validate exchange rate
     if (!order.exchange_rate || parseFloat(order.exchange_rate) <= 0) {
-      newErrors.exchange_rate = "Valid exchange rate is required";
+      newErrors.exchange_rate = 'Valid exchange rate is required';
     }
 
     // UAE VAT Compliance Validations (stricter for non-draft orders)
-    if (order.status !== "draft") {
+    if (order.status !== 'draft') {
       // Exporter TRN validation
       const trnValidation = validateTRN(order.exporter_trn);
       if (!trnValidation.valid) {
@@ -1885,19 +1885,19 @@ const ExportOrderForm = () => {
       // Exchange rate source (FTA audit trail requirement)
       if (!order.exchange_rate_source) {
         newErrors.exchange_rate_source =
-          "Exchange rate source required for FTA compliance";
+          'Exchange rate source required for FTA compliance';
       }
 
       // Export declaration required for shipped orders
       if (
-        order.status === "shipped" ||
-        order.status === "in_transit" ||
-        order.status === "delivered" ||
-        order.status === "completed"
+        order.status === 'shipped' ||
+        order.status === 'in_transit' ||
+        order.status === 'delivered' ||
+        order.status === 'completed'
       ) {
         if (!order.export_declaration_number) {
           newErrors.export_declaration_number =
-            "Export declaration number required for shipped orders";
+            'Export declaration number required for shipped orders';
         }
       }
     }
@@ -1906,44 +1906,44 @@ const ExportOrderForm = () => {
     if (order.is_re_export) {
       if (!order.original_import_boe) {
         newErrors.original_import_boe =
-          "Original Bill of Entry required for re-exports";
+          'Original Bill of Entry required for re-exports';
       }
       if (!order.original_import_date) {
         newErrors.original_import_date =
-          "Original import date required for re-exports";
+          'Original import date required for re-exports';
       }
     }
 
     // GCC export validation (Article 30)
     if (order.is_gcc_export) {
       if (!order.gcc_country_code) {
-        newErrors.gcc_country_code = "GCC country is required";
+        newErrors.gcc_country_code = 'GCC country is required';
       }
       // For GCC exports, customer VAT ID required for zero-rating
       if (
-        order.status !== "draft" &&
+        order.status !== 'draft' &&
         !order.customer_gcc_vat_id &&
         !order.customer_vat_id
       ) {
         newErrors.customer_vat_id =
-          "Customer VAT ID required for GCC exports (Article 30)";
+          'Customer VAT ID required for GCC exports (Article 30)';
       }
     }
 
     // Designated Zone export validation
-    if (order.is_designated_zone_export || order.export_type === "dz_export") {
+    if (order.is_designated_zone_export || order.export_type === 'dz_export') {
       if (!order.designated_zone_origin) {
-        newErrors.designated_zone_origin = "Designated Zone origin required";
+        newErrors.designated_zone_origin = 'Designated Zone origin required';
       }
     }
 
     // UAE Customer TRN validation (for UAE/GCC customers)
-    if (order.status !== "draft") {
+    if (order.status !== 'draft') {
       const isUAECustomer =
-        order.customer_country === "UAE" ||
-        order.customer_country === "United Arab Emirates" ||
-        order.destination_country === "UAE" ||
-        order.destination_country === "United Arab Emirates";
+        order.customer_country === 'UAE' ||
+        order.customer_country === 'United Arab Emirates' ||
+        order.destination_country === 'UAE' ||
+        order.destination_country === 'United Arab Emirates';
 
       const isGCCCustomer =
         order.is_gcc_export ||
@@ -1965,13 +1965,13 @@ const ExportOrderForm = () => {
     // Epic 9 - EXPO-007: COO requirement validation
     if (order.requires_coo && !order.certificate_of_origin) {
       newErrors.certificate_of_origin =
-        "Certificate of Origin required for this destination";
+        'Certificate of Origin required for this destination';
     }
 
     // If COO not required, exemption reason must be provided
     if (!order.requires_coo && !order.coo_exemption_reason) {
       newErrors.coo_exemption_reason =
-        "Provide exemption reason when COO not required";
+        'Provide exemption reason when COO not required';
     }
 
     setErrors(newErrors);
@@ -1987,7 +1987,7 @@ const ExportOrderForm = () => {
       e?.preventDefault();
 
       if (!validateForm()) {
-        notificationService.error("Please fix the validation errors");
+        notificationService.error('Please fix the validation errors');
         return;
       }
 
@@ -2024,18 +2024,18 @@ const ExportOrderForm = () => {
             id,
             submitData,
           );
-          notificationService.success("Export order updated successfully");
+          notificationService.success('Export order updated successfully');
         } else {
           _response = await exportOrderService.createExportOrder(submitData);
-          notificationService.success("Export order created successfully");
+          notificationService.success('Export order created successfully');
         }
 
         // Navigate to import/export dashboard
-        navigate("/import-export");
+        navigate('/import-export');
       } catch (error) {
-        console.error("Failed to save export order:", error);
+        console.error('Failed to save export order:', error);
         notificationService.error(
-          error.message || "Failed to save export order",
+          error.message || 'Failed to save export order',
         );
       } finally {
         setIsSubmitting(false);
@@ -2053,7 +2053,7 @@ const ExportOrderForm = () => {
   );
 
   const handleSaveDraft = useCallback(async () => {
-    setOrder((prev) => ({ ...prev, status: "draft" }));
+    setOrder((prev) => ({ ...prev, status: 'draft' }));
     // Small delay to ensure state is updated
     setTimeout(() => handleSubmit(), 100);
   }, [handleSubmit]);
@@ -2065,14 +2065,14 @@ const ExportOrderForm = () => {
   const formatCurrency = useCallback(
     (amount, currency = order.currency) => {
       const currencyConfig = CURRENCY_OPTIONS.find((c) => c.value === currency);
-      const symbol = currencyConfig?.symbol || "$";
-      return `${symbol} ${(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const symbol = currencyConfig?.symbol || '$';
+      return `${symbol} ${(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     },
     [order.currency],
   );
 
   const formatAED = useCallback((amount) => {
-    return `AED ${(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `AED ${(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }, []);
 
   // ============================================================
@@ -2097,11 +2097,11 @@ const ExportOrderForm = () => {
   if (isLoading) {
     return (
       <div
-        className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+        className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
       >
         <div className="flex items-center gap-3">
           <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
-          <span className={isDarkMode ? "text-white" : "text-gray-900"}>
+          <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
             Loading export order...
           </span>
         </div>
@@ -2115,35 +2115,35 @@ const ExportOrderForm = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
       {/* Header */}
       <div
-        className={`sticky top-0 z-10 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border-b shadow-sm`}
+        className={`sticky top-0 z-10 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}
       >
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate("/import-export")}
+                onClick={() => navigate('/import-export')}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode
-                    ? "hover:bg-gray-700 text-gray-400"
-                    : "hover:bg-gray-100 text-gray-600"
+                    ? 'hover:bg-gray-700 text-gray-400'
+                    : 'hover:bg-gray-100 text-gray-600'
                 }`}
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div>
                 <h1
-                  className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
-                  {isEditMode ? "Edit Export Order" : "Create Export Order"}
+                  {isEditMode ? 'Edit Export Order' : 'Create Export Order'}
                 </h1>
                 <div className="flex items-center gap-3 mt-1">
                   {order.order_number && (
                     <span
-                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       #{order.order_number}
                     </span>
@@ -2159,7 +2159,7 @@ const ExportOrderForm = () => {
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                onClick={() => navigate("/import-export")}
+                onClick={() => navigate('/import-export')}
               >
                 Cancel
               </Button>
@@ -2179,7 +2179,7 @@ const ExportOrderForm = () => {
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    {isEditMode ? "Update Order" : "Create Order"}
+                    {isEditMode ? 'Update Order' : 'Create Order'}
                   </>
                 )}
               </Button>
@@ -2195,7 +2195,7 @@ const ExportOrderForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <Input
               label="Order Number"
-              value={order.order_number || "(Auto-assigned on save)"}
+              value={order.order_number || '(Auto-assigned on save)'}
               disabled
               placeholder="Auto-generated"
             />
@@ -2203,7 +2203,7 @@ const ExportOrderForm = () => {
               label="Order Date"
               type="date"
               value={order.order_date}
-              onChange={(e) => handleFieldChange("order_date", e.target.value)}
+              onChange={(e) => handleFieldChange('order_date', e.target.value)}
               required
             />
             <Input
@@ -2211,14 +2211,14 @@ const ExportOrderForm = () => {
               type="date"
               value={order.expected_ship_date}
               onChange={(e) =>
-                handleFieldChange("expected_ship_date", e.target.value)
+                handleFieldChange('expected_ship_date', e.target.value)
               }
             />
             <FormSelect
               label="Status"
-              value={order.status || "none"}
+              value={order.status || 'none'}
               onValueChange={(value) =>
-                handleFieldChange("status", value === "none" ? "" : value)
+                handleFieldChange('status', value === 'none' ? '' : value)
               }
               required
             >
@@ -2234,17 +2234,17 @@ const ExportOrderForm = () => {
                 label="Exporter TRN"
                 value={order.exporter_trn}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 15);
-                  handleFieldChange("exporter_trn", value);
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                  handleFieldChange('exporter_trn', value);
                 }}
                 placeholder="100XXXXXXXXXXXX"
                 error={errors.exporter_trn}
-                required={order.status !== "draft"}
+                required={order.status !== 'draft'}
                 helperText="Your UAE company TRN"
               />
               {order.exporter_trn && order.exporter_trn.length > 0 && (
                 <div
-                  className={`text-xs mt-1 ${validateTRN(order.exporter_trn).valid ? "text-green-500" : "text-amber-500"}`}
+                  className={`text-xs mt-1 ${validateTRN(order.exporter_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
                 >
                   {validateTRN(order.exporter_trn).message}
                 </div>
@@ -2255,19 +2255,19 @@ const ExportOrderForm = () => {
             <Input
               label="PI Number"
               value={order.pi_number}
-              onChange={(e) => handleFieldChange("pi_number", e.target.value)}
+              onChange={(e) => handleFieldChange('pi_number', e.target.value)}
               placeholder="Proforma Invoice #"
             />
             <Input
               label="Customer PO Number"
               value={order.po_number}
-              onChange={(e) => handleFieldChange("po_number", e.target.value)}
+              onChange={(e) => handleFieldChange('po_number', e.target.value)}
               placeholder="Customer Purchase Order #"
             />
             <Input
               label="LC Number"
               value={order.lc_number}
-              onChange={(e) => handleFieldChange("lc_number", e.target.value)}
+              onChange={(e) => handleFieldChange('lc_number', e.target.value)}
               placeholder="Letter of Credit #"
             />
           </div>
@@ -2280,7 +2280,7 @@ const ExportOrderForm = () => {
             <div className="relative">
               <label
                 htmlFor="customer-search"
-                className={`block text-xs font-medium mb-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-700"} after:content-["*"] after:ml-1 after:text-red-500`}
+                className={`block text-xs font-medium mb-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'} after:content-["*"] after:ml-1 after:text-red-500`}
               >
                 Customer
               </label>
@@ -2297,20 +2297,20 @@ const ExportOrderForm = () => {
                   placeholder="Search customer..."
                   className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 ${
                     isDarkMode
-                      ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500"
-                      : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                  } ${errors.customer_id ? "border-red-500" : ""}`}
+                      ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500'
+                      : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                  } ${errors.customer_id ? 'border-red-500' : ''}`}
                 />
                 <Search
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                 />
               </div>
               {showCustomerDropdown && filteredCustomers.length > 0 && (
                 <div
                   className={`absolute z-20 w-full mt-1 max-h-60 overflow-auto rounded-md shadow-lg ${
                     isDarkMode
-                      ? "bg-gray-800 border border-gray-700"
-                      : "bg-white border border-gray-200"
+                      ? 'bg-gray-800 border border-gray-700'
+                      : 'bg-white border border-gray-200'
                   }`}
                 >
                   {filteredCustomers.map((customer) => (
@@ -2320,8 +2320,8 @@ const ExportOrderForm = () => {
                       onClick={() => handleCustomerChange(customer.id)}
                       className={`w-full text-left px-3 py-2 text-sm ${
                         isDarkMode
-                          ? "hover:bg-gray-700 text-white"
-                          : "hover:bg-gray-100 text-gray-900"
+                          ? 'hover:bg-gray-700 text-white'
+                          : 'hover:bg-gray-100 text-gray-900'
                       }`}
                     >
                       <div className="font-medium">
@@ -2329,7 +2329,7 @@ const ExportOrderForm = () => {
                       </div>
                       {customer.country && (
                         <div
-                          className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                           {customer.country}
                         </div>
@@ -2349,7 +2349,7 @@ const ExportOrderForm = () => {
               label="Customer Name"
               value={order.customer_name}
               onChange={(e) =>
-                handleFieldChange("customer_name", e.target.value)
+                handleFieldChange('customer_name', e.target.value)
               }
               disabled={!!order.customer_id}
             />
@@ -2357,14 +2357,14 @@ const ExportOrderForm = () => {
               label="Customer VAT ID"
               value={order.customer_vat_id}
               onChange={(e) =>
-                handleFieldChange("customer_vat_id", e.target.value)
+                handleFieldChange('customer_vat_id', e.target.value)
               }
               placeholder="Customer Tax Registration #"
               error={errors.customer_vat_id}
               helperText={
                 order.is_gcc_export
-                  ? "Required for GCC exports (Article 30)"
-                  : "Optional"
+                  ? 'Required for GCC exports (Article 30)'
+                  : 'Optional'
               }
             />
           </div>
@@ -2375,8 +2375,8 @@ const ExportOrderForm = () => {
               label="Customer TRN (UAE/GCC)"
               value={order.customer_trn}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "").slice(0, 15);
-                handleFieldChange("customer_trn", value);
+                const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                handleFieldChange('customer_trn', value);
               }}
               placeholder="300XXXXXXXXX5 (15 digits)"
               error={errors.customer_trn}
@@ -2384,7 +2384,7 @@ const ExportOrderForm = () => {
             />
             {order.customer_trn && order.customer_trn.length > 0 && (
               <div
-                className={`text-xs mt-1 ${validateTRN(order.customer_trn).valid ? "text-green-500" : "text-amber-500"}`}
+                className={`text-xs mt-1 ${validateTRN(order.customer_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
               >
                 {validateTRN(order.customer_trn).message}
               </div>
@@ -2396,7 +2396,7 @@ const ExportOrderForm = () => {
               label="Contact Name"
               value={order.customer_contact_name}
               onChange={(e) =>
-                handleFieldChange("customer_contact_name", e.target.value)
+                handleFieldChange('customer_contact_name', e.target.value)
               }
             />
             <Input
@@ -2404,14 +2404,14 @@ const ExportOrderForm = () => {
               type="email"
               value={order.customer_contact_email}
               onChange={(e) =>
-                handleFieldChange("customer_contact_email", e.target.value)
+                handleFieldChange('customer_contact_email', e.target.value)
               }
             />
             <Input
               label="Contact Phone"
               value={order.customer_contact_phone}
               onChange={(e) =>
-                handleFieldChange("customer_contact_phone", e.target.value)
+                handleFieldChange('customer_contact_phone', e.target.value)
               }
             />
           </div>
@@ -2421,7 +2421,7 @@ const ExportOrderForm = () => {
               label="Customer Address"
               value={order.customer_address}
               onChange={(e) =>
-                handleFieldChange("customer_address", e.target.value)
+                handleFieldChange('customer_address', e.target.value)
               }
               rows={2}
               placeholder="Full customer address..."
@@ -2434,10 +2434,10 @@ const ExportOrderForm = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Origin (UAE) */}
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
             >
               <h4
-                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
               >
                 <MapPin className="h-4 w-4" />
                 Origin (UAE)
@@ -2445,11 +2445,11 @@ const ExportOrderForm = () => {
               <div className="space-y-4">
                 <FormSelect
                   label="Origin Port"
-                  value={order.origin_port || "none"}
+                  value={order.origin_port || 'none'}
                   onValueChange={(value) =>
                     handleFieldChange(
-                      "origin_port",
-                      value === "none" ? "" : value,
+                      'origin_port',
+                      value === 'none' ? '' : value,
                     )
                   }
                   error={errors.origin_port}
@@ -2472,7 +2472,7 @@ const ExportOrderForm = () => {
                   label="Origin Address"
                   value={order.origin_address}
                   onChange={(e) =>
-                    handleFieldChange("origin_address", e.target.value)
+                    handleFieldChange('origin_address', e.target.value)
                   }
                   rows={2}
                   placeholder="Warehouse/factory address..."
@@ -2482,10 +2482,10 @@ const ExportOrderForm = () => {
 
             {/* Destination */}
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
             >
               <h4
-                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? "text-orange-400" : "text-orange-600"}`}
+                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}
               >
                 <Globe className="h-4 w-4" />
                 Destination
@@ -2495,7 +2495,7 @@ const ExportOrderForm = () => {
                   label="Destination Country"
                   value={order.destination_country}
                   onChange={(e) =>
-                    handleFieldChange("destination_country", e.target.value)
+                    handleFieldChange('destination_country', e.target.value)
                   }
                   placeholder="e.g., United States, India, Germany"
                   error={errors.destination_country}
@@ -2503,11 +2503,11 @@ const ExportOrderForm = () => {
                 />
                 <FormSelect
                   label="Destination Port"
-                  value={order.destination_port || "none"}
+                  value={order.destination_port || 'none'}
                   onValueChange={(value) =>
                     handleFieldChange(
-                      "destination_port",
-                      value === "none" ? "" : value,
+                      'destination_port',
+                      value === 'none' ? '' : value,
                     )
                   }
                   error={errors.destination_port}
@@ -2529,7 +2529,7 @@ const ExportOrderForm = () => {
                   label="Destination Address"
                   value={order.destination_address}
                   onChange={(e) =>
-                    handleFieldChange("destination_address", e.target.value)
+                    handleFieldChange('destination_address', e.target.value)
                   }
                   rows={2}
                   placeholder="Full delivery address..."
@@ -2544,9 +2544,9 @@ const ExportOrderForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <FormSelect
               label="Incoterms"
-              value={order.incoterms || "none"}
+              value={order.incoterms || 'none'}
               onValueChange={(value) =>
-                handleFieldChange("incoterms", value === "none" ? "" : value)
+                handleFieldChange('incoterms', value === 'none' ? '' : value)
               }
               error={errors.incoterms}
               required
@@ -2560,11 +2560,11 @@ const ExportOrderForm = () => {
             </FormSelect>
             <FormSelect
               label="Payment Method"
-              value={order.payment_method || "none"}
+              value={order.payment_method || 'none'}
               onValueChange={(value) =>
                 handleFieldChange(
-                  "payment_method",
-                  value === "none" ? "" : value,
+                  'payment_method',
+                  value === 'none' ? '' : value,
                 )
               }
               error={errors.payment_method}
@@ -2579,11 +2579,11 @@ const ExportOrderForm = () => {
             </FormSelect>
             <FormSelect
               label="Shipping Method"
-              value={order.shipping_method || "none"}
+              value={order.shipping_method || 'none'}
               onValueChange={(value) =>
                 handleFieldChange(
-                  "shipping_method",
-                  value === "none" ? "" : value,
+                  'shipping_method',
+                  value === 'none' ? '' : value,
                 )
               }
             >
@@ -2598,7 +2598,7 @@ const ExportOrderForm = () => {
               label="Container Numbers"
               value={order.container_numbers}
               onChange={(e) =>
-                handleFieldChange("container_numbers", e.target.value)
+                handleFieldChange('container_numbers', e.target.value)
               }
               placeholder="CONT123, CONT456"
             />
@@ -2608,19 +2608,19 @@ const ExportOrderForm = () => {
             <Input
               label="Vessel/Flight Name"
               value={order.vessel_name}
-              onChange={(e) => handleFieldChange("vessel_name", e.target.value)}
+              onChange={(e) => handleFieldChange('vessel_name', e.target.value)}
               placeholder="Ship/Aircraft name"
             />
             <Input
               label="B/L Number"
               value={order.bl_number}
-              onChange={(e) => handleFieldChange("bl_number", e.target.value)}
+              onChange={(e) => handleFieldChange('bl_number', e.target.value)}
               placeholder="Bill of Lading #"
             />
             <Input
               label="AWB Number"
               value={order.awb_number}
-              onChange={(e) => handleFieldChange("awb_number", e.target.value)}
+              onChange={(e) => handleFieldChange('awb_number', e.target.value)}
               placeholder="Air Waybill # (if air freight)"
             />
             <Input
@@ -2628,7 +2628,7 @@ const ExportOrderForm = () => {
               type="date"
               value={order.actual_ship_date}
               onChange={(e) =>
-                handleFieldChange("actual_ship_date", e.target.value)
+                handleFieldChange('actual_ship_date', e.target.value)
               }
             />
           </div>
@@ -2638,13 +2638,13 @@ const ExportOrderForm = () => {
               label="ETD (Estimated Departure)"
               type="date"
               value={order.etd}
-              onChange={(e) => handleFieldChange("etd", e.target.value)}
+              onChange={(e) => handleFieldChange('etd', e.target.value)}
             />
             <Input
               label="ETA (Estimated Arrival)"
               type="date"
               value={order.eta}
-              onChange={(e) => handleFieldChange("eta", e.target.value)}
+              onChange={(e) => handleFieldChange('eta', e.target.value)}
             />
           </div>
         </Card>
@@ -2658,20 +2658,20 @@ const ExportOrderForm = () => {
         >
           {/* VAT Treatment Alert */}
           <div
-            className={`mb-4 p-4 rounded-lg ${isDarkMode ? "bg-green-900/30 border border-green-700" : "bg-green-50 border border-green-200"}`}
+            className={`mb-4 p-4 rounded-lg ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}
           >
             <div className="flex items-start gap-3">
               <CheckCircle
-                className={`h-5 w-5 mt-0.5 flex-shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                className={`h-5 w-5 mt-0.5 flex-shrink-0 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
               />
               <div>
                 <p
-                  className={`font-semibold ${isDarkMode ? "text-green-300" : "text-green-800"}`}
+                  className={`font-semibold ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}
                 >
                   Export VAT Treatment: Zero-Rated (0%)
                 </p>
                 <p
-                  className={`text-sm mt-1 ${isDarkMode ? "text-green-200" : "text-green-700"}`}
+                  className={`text-sm mt-1 ${isDarkMode ? 'text-green-200' : 'text-green-700'}`}
                 >
                   Under UAE VAT Law Article 45, exports of goods outside the UAE
                   are zero-rated supplies. This means no VAT is charged but the
@@ -2684,11 +2684,11 @@ const ExportOrderForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormSelect
               label="Export VAT Treatment"
-              value={order.export_vat_treatment || "none"}
+              value={order.export_vat_treatment || 'none'}
               onValueChange={(value) =>
                 handleFieldChange(
-                  "export_vat_treatment",
-                  value === "none" ? "" : value,
+                  'export_vat_treatment',
+                  value === 'none' ? '' : value,
                 )
               }
               required
@@ -2702,9 +2702,9 @@ const ExportOrderForm = () => {
             </FormSelect>
             <FormSelect
               label="Export Type"
-              value={order.export_type || "none"}
+              value={order.export_type || 'none'}
               onValueChange={(value) =>
-                handleFieldChange("export_type", value === "none" ? "" : value)
+                handleFieldChange('export_type', value === 'none' ? '' : value)
               }
               required
             >
@@ -2718,10 +2718,10 @@ const ExportOrderForm = () => {
             <Input
               label="Form 201 Box"
               value={
-                order.form_201_box === "box_2"
-                  ? "Box 2 - Zero-Rated Supplies"
-                  : order.form_201_box === "box_6"
-                    ? "Box 6 - Exempt Supplies"
+                order.form_201_box === 'box_2'
+                  ? 'Box 2 - Zero-Rated Supplies'
+                  : order.form_201_box === 'box_6'
+                    ? 'Box 6 - Exempt Supplies'
                     : order.form_201_box
               }
               disabled
@@ -2731,12 +2731,12 @@ const ExportOrderForm = () => {
 
           {/* Designated Zone Export Section */}
           {(order.is_designated_zone_export ||
-            order.export_type === "dz_export") && (
+            order.export_type === 'dz_export') && (
             <div
-              className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+              className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
             >
               <h4
-                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
+                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
               >
                 <Building2 className="h-4 w-4" />
                 Designated Zone Export (Article 51)
@@ -2744,11 +2744,11 @@ const ExportOrderForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormSelect
                   label="Designated Zone Origin"
-                  value={order.designated_zone_origin || "none"}
+                  value={order.designated_zone_origin || 'none'}
                   onValueChange={(value) =>
                     handleFieldChange(
-                      "designated_zone_origin",
-                      value === "none" ? "" : value,
+                      'designated_zone_origin',
+                      value === 'none' ? '' : value,
                     )
                   }
                   error={errors.designated_zone_origin}
@@ -2762,10 +2762,10 @@ const ExportOrderForm = () => {
                   ))}
                 </FormSelect>
                 <div
-                  className={`p-3 rounded-lg ${isDarkMode ? "bg-blue-900/20" : "bg-blue-50"}`}
+                  className={`p-3 rounded-lg ${isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}
                 >
                   <p
-                    className={`text-xs ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}
+                    className={`text-xs ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}
                   >
                     Goods stored in a Designated Zone being exported outside
                     UAE. Zero-rated under Article 51 conditions.
@@ -2778,10 +2778,10 @@ const ExportOrderForm = () => {
           {/* Re-Export Section */}
           {order.is_re_export && (
             <div
-              className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+              className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
             >
               <h4
-                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}
+                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}
               >
                 <Package className="h-4 w-4" />
                 Re-Export Details (Previously Imported Goods)
@@ -2791,7 +2791,7 @@ const ExportOrderForm = () => {
                   label="Original Import BOE"
                   value={order.original_import_boe}
                   onChange={(e) =>
-                    handleFieldChange("original_import_boe", e.target.value)
+                    handleFieldChange('original_import_boe', e.target.value)
                   }
                   placeholder="Bill of Entry #"
                   error={errors.original_import_boe}
@@ -2802,7 +2802,7 @@ const ExportOrderForm = () => {
                   type="date"
                   value={order.original_import_date}
                   onChange={(e) =>
-                    handleFieldChange("original_import_date", e.target.value)
+                    handleFieldChange('original_import_date', e.target.value)
                   }
                   error={errors.original_import_date}
                   required
@@ -2812,7 +2812,7 @@ const ExportOrderForm = () => {
                   type="number"
                   value={order.original_import_value}
                   onChange={(e) =>
-                    handleFieldChange("original_import_value", e.target.value)
+                    handleFieldChange('original_import_value', e.target.value)
                   }
                   min="0"
                   step="0.01"
@@ -2821,16 +2821,16 @@ const ExportOrderForm = () => {
                   label="Re-Export Reason"
                   value={order.re_export_reason}
                   onChange={(e) =>
-                    handleFieldChange("re_export_reason", e.target.value)
+                    handleFieldChange('re_export_reason', e.target.value)
                   }
                   placeholder="e.g., Transit, Rejected goods"
                 />
               </div>
               <div
-                className={`mt-3 p-3 rounded-lg ${isDarkMode ? "bg-purple-900/20" : "bg-purple-50"}`}
+                className={`mt-3 p-3 rounded-lg ${isDarkMode ? 'bg-purple-900/20' : 'bg-purple-50'}`}
               >
                 <p
-                  className={`text-xs ${isDarkMode ? "text-purple-300" : "text-purple-700"}`}
+                  className={`text-xs ${isDarkMode ? 'text-purple-300' : 'text-purple-700'}`}
                 >
                   Re-exports are zero-rated. Link to original import BOE for
                   customs duty drawback eligibility.
@@ -2842,10 +2842,10 @@ const ExportOrderForm = () => {
           {/* GCC Export Section */}
           {order.is_gcc_export && (
             <div
-              className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+              className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
             >
               <h4
-                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
               >
                 <Globe className="h-4 w-4" />
                 GCC Export (Article 30)
@@ -2853,11 +2853,11 @@ const ExportOrderForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormSelect
                   label="GCC Country"
-                  value={order.gcc_country_code || "none"}
+                  value={order.gcc_country_code || 'none'}
                   onValueChange={(value) =>
                     handleFieldChange(
-                      "gcc_country_code",
-                      value === "none" ? "" : value,
+                      'gcc_country_code',
+                      value === 'none' ? '' : value,
                     )
                   }
                   error={errors.gcc_country_code}
@@ -2874,16 +2874,16 @@ const ExportOrderForm = () => {
                   label="Customer GCC VAT ID"
                   value={order.customer_gcc_vat_id}
                   onChange={(e) =>
-                    handleFieldChange("customer_gcc_vat_id", e.target.value)
+                    handleFieldChange('customer_gcc_vat_id', e.target.value)
                   }
                   placeholder="GCC Tax Registration #"
                   helperText="Required for zero-rating"
                 />
                 <div
-                  className={`p-3 rounded-lg ${isDarkMode ? "bg-amber-900/20" : "bg-amber-50"}`}
+                  className={`p-3 rounded-lg ${isDarkMode ? 'bg-amber-900/20' : 'bg-amber-50'}`}
                 >
                   <p
-                    className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}
+                    className={`text-xs ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}
                   >
                     <strong>GCC VAT Treatment:</strong> Zero-rated if customer
                     is VAT-registered in destination GCC country. Otherwise,
@@ -2896,39 +2896,39 @@ const ExportOrderForm = () => {
 
           {/* Form 201 VAT Return Mapping */}
           <div
-            className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+            className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
           >
             <h4
-              className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? "text-indigo-400" : "text-indigo-600"}`}
+              className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}
             >
               <Calculator className="h-4 w-4" />
               Form 201 VAT Return Preview
             </h4>
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-indigo-900/20 border border-indigo-800" : "bg-indigo-50 border border-indigo-200"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-indigo-900/20 border border-indigo-800' : 'bg-indigo-50 border border-indigo-200'}`}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <p
-                    className={`text-xs font-medium ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`}
+                    className={`text-xs font-medium ${isDarkMode ? 'text-indigo-300' : 'text-indigo-700'}`}
                   >
                     Box 2: Zero-Rated Supplies
                   </p>
                   <p
-                    className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {formatAED(calculations.zeroRatedExportValue)}
                   </p>
                 </div>
-                {order.export_vat_treatment === "exempt" && (
+                {order.export_vat_treatment === 'exempt' && (
                   <div>
                     <p
-                      className={`text-xs font-medium ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`}
+                      className={`text-xs font-medium ${isDarkMode ? 'text-indigo-300' : 'text-indigo-700'}`}
                     >
                       Box 6: Exempt Supplies
                     </p>
                     <p
-                      className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatAED(calculations.exemptValue)}
                     </p>
@@ -2936,40 +2936,40 @@ const ExportOrderForm = () => {
                 )}
                 <div>
                   <p
-                    className={`text-xs font-medium ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`}
+                    className={`text-xs font-medium ${isDarkMode ? 'text-indigo-300' : 'text-indigo-700'}`}
                   >
                     VAT Rate (Auto-calculated)
                   </p>
                   <p
-                    className={`text-lg font-bold ${order.vat_rate > 0 ? (isDarkMode ? "text-amber-400" : "text-amber-600") : isDarkMode ? "text-green-400" : "text-green-600"}`}
+                    className={`text-lg font-bold ${order.vat_rate > 0 ? (isDarkMode ? 'text-amber-400' : 'text-amber-600') : isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                   >
                     {order.vat_rate}%
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     {order.vat_rate === 0
-                      ? "Zero-rated export"
+                      ? 'Zero-rated export'
                       : order.vat_rate === 5
-                        ? "UAE domestic sale (5%)"
+                        ? 'UAE domestic sale (5%)'
                         : `Custom rate: ${order.vat_rate}%`}
                   </p>
                 </div>
                 <div>
                   <p
-                    className={`text-xs font-medium ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`}
+                    className={`text-xs font-medium ${isDarkMode ? 'text-indigo-300' : 'text-indigo-700'}`}
                   >
                     VAT Amount (Output)
                   </p>
                   <p
-                    className={`text-lg font-bold ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                    className={`text-lg font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                   >
                     {formatAED(
                       calculations.vatAmount * calculations.exchangeRate,
                     )}
                   </p>
                   <p
-                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     {order.currency} {calculations.vatAmount.toFixed(2)}
                   </p>
@@ -2986,9 +2986,9 @@ const ExportOrderForm = () => {
               <div className="grid grid-cols-2 gap-4">
                 <FormSelect
                   label="Currency"
-                  value={order.currency || "none"}
+                  value={order.currency || 'none'}
                   onValueChange={(value) =>
-                    handleFieldChange("currency", value === "none" ? "" : value)
+                    handleFieldChange('currency', value === 'none' ? '' : value)
                   }
                 >
                   <SelectItem value="none">Select Currency</SelectItem>
@@ -3003,15 +3003,15 @@ const ExportOrderForm = () => {
                   type="number"
                   value={order.exchange_rate}
                   onChange={(e) =>
-                    handleFieldChange("exchange_rate", e.target.value)
+                    handleFieldChange('exchange_rate', e.target.value)
                   }
                   min="0"
                   step="0.0001"
                   error={errors.exchange_rate}
                   required
                   helperText={
-                    order.currency === "AED"
-                      ? "N/A for AED"
+                    order.currency === 'AED'
+                      ? 'N/A for AED'
                       : `1 ${order.currency} = X AED`
                   }
                 />
@@ -3019,15 +3019,15 @@ const ExportOrderForm = () => {
               <div className="grid grid-cols-3 gap-4">
                 <FormSelect
                   label="Rate Source"
-                  value={order.exchange_rate_source || "none"}
+                  value={order.exchange_rate_source || 'none'}
                   onValueChange={(value) =>
                     handleFieldChange(
-                      "exchange_rate_source",
-                      value === "none" ? "" : value,
+                      'exchange_rate_source',
+                      value === 'none' ? '' : value,
                     )
                   }
                   error={errors.exchange_rate_source}
-                  required={order.status !== "draft"}
+                  required={order.status !== 'draft'}
                 >
                   <SelectItem value="none">Select Rate Source</SelectItem>
                   {EXCHANGE_RATE_SOURCE_OPTIONS.map((opt) => (
@@ -3041,45 +3041,45 @@ const ExportOrderForm = () => {
                   type="date"
                   value={order.exchange_rate_date}
                   onChange={(e) =>
-                    handleFieldChange("exchange_rate_date", e.target.value)
+                    handleFieldChange('exchange_rate_date', e.target.value)
                   }
                 />
                 <Input
                   label="Reference #"
                   value={order.exchange_rate_reference}
                   onChange={(e) =>
-                    handleFieldChange("exchange_rate_reference", e.target.value)
+                    handleFieldChange('exchange_rate_reference', e.target.value)
                   }
                   placeholder="Central Bank bulletin #"
                 />
               </div>
             </div>
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
             >
               <h4
-                className={`text-sm font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 FTA Exchange Rate Audit Trail
               </h4>
               <p
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
                 UAE FTA requires documented exchange rates for VAT returns. Use
                 UAE Central Bank rates for compliance. Keep reference numbers
                 for audit purposes.
               </p>
-              {order.currency !== "AED" && calculations.totalInAED > 0 && (
+              {order.currency !== 'AED' && calculations.totalInAED > 0 && (
                 <div
-                  className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                  className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                 >
                   <p
-                    className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     Total in AED:
                   </p>
                   <p
-                    className={`text-lg font-bold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                    className={`text-lg font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                   >
                     {formatAED(calculations.totalInAED)}
                   </p>
@@ -3095,8 +3095,8 @@ const ExportOrderForm = () => {
             <div
               className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
                 isDarkMode
-                  ? "bg-red-900/20 text-red-400"
-                  : "bg-red-50 text-red-600"
+                  ? 'bg-red-900/20 text-red-400'
+                  : 'bg-red-50 text-red-600'
               }`}
             >
               <AlertTriangle className="h-4 w-4" />
@@ -3108,7 +3108,7 @@ const ExportOrderForm = () => {
             <table className="w-full min-w-[1200px]">
               <thead>
                 <tr
-                  className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
                   <th className="text-left pb-2 pr-2 w-8">#</th>
                   <th className="text-left pb-2 pr-2 min-w-[180px]">Product</th>
@@ -3126,16 +3126,16 @@ const ExportOrderForm = () => {
                 </tr>
               </thead>
               <tbody
-                className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+                className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
               >
                 {order.items.map((item, index) => (
                   <tr
                     key={item.id}
-                    className={`${isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"}`}
+                    className={`${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}
                   >
                     <td className="py-2 pr-2">
                       <span
-                        className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                       >
                         {index + 1}
                       </span>
@@ -3156,7 +3156,7 @@ const ExportOrderForm = () => {
                                 product.unique_name ||
                                 product.displayName ||
                                 product.display_name ||
-                                "N/A"}
+                                'N/A'}
                             </option>
                           ))}
                         </Select>
@@ -3166,17 +3166,17 @@ const ExportOrderForm = () => {
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              "unique_name",
+                              'unique_name',
                               e.target.value,
                             )
                           }
                           placeholder="SS-304-SHEET-2B-1250mm-2.0mm-2500mm"
                           className={`w-full px-2 py-1 text-xs border rounded ${
                             errors[`item_${index}_unique_name`]
-                              ? "border-red-500"
+                              ? 'border-red-500'
                               : isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
+                                ? 'border-gray-600 bg-gray-800 text-white'
+                                : 'border-gray-300 bg-white text-gray-900'
                           }`}
                         />
                         {errors[`item_${index}_unique_name`] && (
@@ -3191,13 +3191,13 @@ const ExportOrderForm = () => {
                         type="text"
                         value={item.grade}
                         onChange={(e) =>
-                          handleItemChange(index, "grade", e.target.value)
+                          handleItemChange(index, 'grade', e.target.value)
                         }
                         placeholder="304, 316L"
                         className={`w-full px-2 py-1 text-xs border rounded ${
                           isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
+                            ? 'border-gray-600 bg-gray-800 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
                         }`}
                       />
                     </td>
@@ -3208,15 +3208,15 @@ const ExportOrderForm = () => {
                         onChange={(e) =>
                           handleItemChange(
                             index,
-                            "finish",
+                            'finish',
                             e.target.value.toUpperCase(),
                           )
                         }
                         placeholder="2B, BA"
                         className={`w-full px-2 py-1 text-xs border rounded ${
                           isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
+                            ? 'border-gray-600 bg-gray-800 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
                         }`}
                       />
                     </td>
@@ -3226,42 +3226,42 @@ const ExportOrderForm = () => {
                           type="text"
                           value={item.thickness}
                           onChange={(e) =>
-                            handleItemChange(index, "thickness", e.target.value)
+                            handleItemChange(index, 'thickness', e.target.value)
                           }
                           placeholder="T"
                           title="Thickness"
                           className={`w-10 px-1 py-1 text-xs border rounded text-center ${
                             isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
+                              ? 'border-gray-600 bg-gray-800 text-white'
+                              : 'border-gray-300 bg-white text-gray-900'
                           }`}
                         />
                         <input
                           type="text"
                           value={item.width}
                           onChange={(e) =>
-                            handleItemChange(index, "width", e.target.value)
+                            handleItemChange(index, 'width', e.target.value)
                           }
                           placeholder="W"
                           title="Width"
                           className={`w-10 px-1 py-1 text-xs border rounded text-center ${
                             isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
+                              ? 'border-gray-600 bg-gray-800 text-white'
+                              : 'border-gray-300 bg-white text-gray-900'
                           }`}
                         />
                         <input
                           type="text"
                           value={item.length}
                           onChange={(e) =>
-                            handleItemChange(index, "length", e.target.value)
+                            handleItemChange(index, 'length', e.target.value)
                           }
                           placeholder="L"
                           title="Length"
                           className={`w-10 px-1 py-1 text-xs border rounded text-center ${
                             isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
+                              ? 'border-gray-600 bg-gray-800 text-white'
+                              : 'border-gray-300 bg-white text-gray-900'
                           }`}
                         />
                       </div>
@@ -3270,59 +3270,59 @@ const ExportOrderForm = () => {
                     <td className="py-2 pr-2">
                       <div className="space-y-1">
                         <select
-                          value={item.shipmentType || "WAREHOUSE"}
+                          value={item.shipmentType || 'WAREHOUSE'}
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              "shipmentType",
+                              'shipmentType',
                               e.target.value,
                             )
                           }
                           className={`w-full px-2 py-1 text-xs border rounded ${
                             isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
+                              ? 'border-gray-600 bg-gray-800 text-white'
+                              : 'border-gray-300 bg-white text-gray-900'
                           }`}
                         >
                           <option value="WAREHOUSE">Warehouse</option>
                           <option value="DROP_SHIP">Drop-Ship</option>
                         </select>
                         {/* Show batch allocator button for WAREHOUSE items */}
-                        {item.shipmentType === "WAREHOUSE" && (
+                        {item.shipmentType === 'WAREHOUSE' && (
                           <button
                             type="button"
                             onClick={() => handleOpenBatchAllocator(index)}
                             className={`w-full flex items-center justify-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
                               item.batchAllocations?.length > 0
-                                ? "bg-teal-600 text-white hover:bg-teal-500"
+                                ? 'bg-teal-600 text-white hover:bg-teal-500'
                                 : isDarkMode
-                                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                           >
                             <Layers className="w-3 h-3" />
                             {item.batchAllocations?.length > 0
-                              ? `${item.batchAllocations.length} batch${item.batchAllocations.length !== 1 ? "es" : ""}`
-                              : "Allocate"}
+                              ? `${item.batchAllocations.length} batch${item.batchAllocations.length !== 1 ? 'es' : ''}`
+                              : 'Allocate'}
                           </button>
                         )}
                         {/* Show supplier selector for DROP_SHIP items */}
-                        {item.shipmentType === "DROP_SHIP" && (
+                        {item.shipmentType === 'DROP_SHIP' && (
                           <select
-                            value={item.supplierDropShip || ""}
+                            value={item.supplierDropShip || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "supplierDropShip",
+                                'supplierDropShip',
                                 e.target.value,
                               )
                             }
                             className={`w-full px-2 py-1 text-xs border rounded ${
                               errors[`item_${index}_supplier`]
-                                ? "border-red-500"
+                                ? 'border-red-500'
                                 : isDarkMode
-                                  ? "border-gray-600 bg-gray-800 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
+                                  ? 'border-gray-600 bg-gray-800 text-white'
+                                  : 'border-gray-300 bg-white text-gray-900'
                             }`}
                           >
                             <option value="">Select Supplier</option>
@@ -3336,17 +3336,17 @@ const ExportOrderForm = () => {
                           </select>
                         )}
                         {errors[`item_${index}_batch`] &&
-                          item.shipmentType === "WAREHOUSE" && (
-                            <p className="text-xs text-red-500">
-                              {errors[`item_${index}_batch`]}
-                            </p>
-                          )}
+                          item.shipmentType === 'WAREHOUSE' && (
+                          <p className="text-xs text-red-500">
+                            {errors[`item_${index}_batch`]}
+                          </p>
+                        )}
                         {errors[`item_${index}_supplier`] &&
-                          item.shipmentType === "DROP_SHIP" && (
-                            <p className="text-xs text-red-500">
-                              {errors[`item_${index}_supplier`]}
-                            </p>
-                          )}
+                          item.shipmentType === 'DROP_SHIP' && (
+                          <p className="text-xs text-red-500">
+                            {errors[`item_${index}_supplier`]}
+                          </p>
+                        )}
                       </div>
                     </td>
                     <td className="py-2 pr-2">
@@ -3354,14 +3354,14 @@ const ExportOrderForm = () => {
                         type="number"
                         value={item.quantity}
                         onChange={(e) =>
-                          handleItemChange(index, "quantity", e.target.value)
+                          handleItemChange(index, 'quantity', e.target.value)
                         }
                         min="0"
                         step="0.001"
                         className={`w-full px-2 py-1 text-xs border rounded text-right ${
                           isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
+                            ? 'border-gray-600 bg-gray-800 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
                         }`}
                       />
                     </td>
@@ -3369,12 +3369,12 @@ const ExportOrderForm = () => {
                       <select
                         value={item.unit}
                         onChange={(e) =>
-                          handleItemChange(index, "unit", e.target.value)
+                          handleItemChange(index, 'unit', e.target.value)
                         }
                         className={`w-full px-1 py-1 text-xs border rounded ${
                           isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
+                            ? 'border-gray-600 bg-gray-800 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
                         }`}
                       >
                         {UNIT_OPTIONS.map((opt) => (
@@ -3389,14 +3389,14 @@ const ExportOrderForm = () => {
                         type="number"
                         value={item.unit_price}
                         onChange={(e) =>
-                          handleItemChange(index, "unit_price", e.target.value)
+                          handleItemChange(index, 'unit_price', e.target.value)
                         }
                         min="0"
                         step="0.01"
                         className={`w-full px-2 py-1 text-xs border rounded text-right ${
                           isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
+                            ? 'border-gray-600 bg-gray-800 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
                         }`}
                       />
                     </td>
@@ -3405,14 +3405,14 @@ const ExportOrderForm = () => {
                         type="text"
                         value={item.hs_code}
                         onChange={(e) =>
-                          handleItemChange(index, "hs_code", e.target.value)
+                          handleItemChange(index, 'hs_code', e.target.value)
                         }
                         placeholder="72XX.XX.XX"
                         className={`w-full px-2 py-1 text-xs border rounded ${
                           isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        } ${errors[`item_${index}_hs_code`] ? "border-red-500" : ""}`}
+                            ? 'border-gray-600 bg-gray-800 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
+                        } ${errors[`item_${index}_hs_code`] ? 'border-red-500' : ''}`}
                       />
                       {errors[`item_${index}_hs_code`] && (
                         <span className="text-xs text-red-500">Required</span>
@@ -3425,7 +3425,7 @@ const ExportOrderForm = () => {
                         onChange={(e) =>
                           handleItemChange(
                             index,
-                            "country_of_origin",
+                            'country_of_origin',
                             e.target.value,
                           )
                         }
@@ -3433,14 +3433,14 @@ const ExportOrderForm = () => {
                         maxLength={2}
                         className={`w-full px-2 py-1 text-xs border rounded text-center ${
                           isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
+                            ? 'border-gray-600 bg-gray-800 text-white'
+                            : 'border-gray-300 bg-white text-gray-900'
                         }`}
                       />
                     </td>
                     <td className="py-2 pr-2 text-right">
                       <span
-                        className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                       >
                         {formatCurrency(calculateItemTotal(item))}
                       </span>
@@ -3451,8 +3451,8 @@ const ExportOrderForm = () => {
                         onClick={() => removeLineItem(index)}
                         className={`p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors ${
                           order.items.length <= 1
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
+                            ? 'opacity-50 cursor-not-allowed'
+                            : ''
                         }`}
                         disabled={order.items.length <= 1}
                         title="Remove item"
@@ -3472,10 +3472,10 @@ const ExportOrderForm = () => {
               Add Line Item
             </Button>
             <div
-              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
-              {order.items.length} item{order.items.length !== 1 ? "s" : ""} |
-              Subtotal:{" "}
+              {order.items.length} item{order.items.length !== 1 ? 's' : ''} |
+              Subtotal:{' '}
               <span className="font-medium">
                 {formatCurrency(calculations.subtotal)}
               </span>
@@ -3483,14 +3483,14 @@ const ExportOrderForm = () => {
           </div>
 
           <div
-            className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-amber-900/20 border border-amber-800" : "bg-amber-50 border border-amber-200"}`}
+            className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-amber-900/20 border border-amber-800' : 'bg-amber-50 border border-amber-200'}`}
           >
             <div className="flex items-start gap-2">
               <AlertCircle
-                className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
               />
               <p
-                className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}
+                className={`text-xs ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}
               >
                 <strong>HS Code Required:</strong> Harmonized System codes are
                 mandatory for export declarations. Ensure correct classification
@@ -3511,7 +3511,7 @@ const ExportOrderForm = () => {
                   type="number"
                   value={order.freight_cost}
                   onChange={(e) =>
-                    handleFieldChange("freight_cost", e.target.value)
+                    handleFieldChange('freight_cost', e.target.value)
                   }
                   min="0"
                   step="0.01"
@@ -3522,7 +3522,7 @@ const ExportOrderForm = () => {
                   type="number"
                   value={order.insurance_cost}
                   onChange={(e) =>
-                    handleFieldChange("insurance_cost", e.target.value)
+                    handleFieldChange('insurance_cost', e.target.value)
                   }
                   min="0"
                   step="0.01"
@@ -3534,7 +3534,7 @@ const ExportOrderForm = () => {
                 type="number"
                 value={order.other_charges}
                 onChange={(e) =>
-                  handleFieldChange("other_charges", e.target.value)
+                  handleFieldChange('other_charges', e.target.value)
                 }
                 min="0"
                 step="0.01"
@@ -3544,22 +3544,22 @@ const ExportOrderForm = () => {
 
             {/* Right Column - Totals */}
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
             >
               <h4
-                className={`text-sm font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-sm font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Order Totals
               </h4>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span
-                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     Subtotal ({order.currency})
                   </span>
                   <span
-                    className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {formatCurrency(calculations.subtotal)}
                   </span>
@@ -3567,12 +3567,12 @@ const ExportOrderForm = () => {
                 {calculations.freight > 0 && (
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       + Freight
                     </span>
                     <span
-                      className={`text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(calculations.freight)}
                     </span>
@@ -3581,12 +3581,12 @@ const ExportOrderForm = () => {
                 {calculations.insurance > 0 && (
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       + Insurance
                     </span>
                     <span
-                      className={`text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(calculations.insurance)}
                     </span>
@@ -3595,57 +3595,57 @@ const ExportOrderForm = () => {
                 {calculations.otherCharges > 0 && (
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       + Other Charges
                     </span>
                     <span
-                      className={`text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(calculations.otherCharges)}
                     </span>
                   </div>
                 )}
                 <div
-                  className={`border-t pt-3 ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                  className={`border-t pt-3 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                     >
                       VAT (Export = 0%)
                     </span>
                     <span
-                      className={`text-sm font-medium ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                      className={`text-sm font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                     >
                       {formatCurrency(0)}
                     </span>
                   </div>
                 </div>
                 <div
-                  className={`border-t pt-3 mt-3 ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                  className={`border-t pt-3 mt-3 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Total ({order.currency})
                     </span>
                     <span
-                      className={`text-lg font-bold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                      className={`text-lg font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                     >
                       {formatCurrency(calculations.total)}
                     </span>
                   </div>
-                  {order.currency !== "AED" && (
+                  {order.currency !== 'AED' && (
                     <div className="flex justify-between items-center mt-2">
                       <span
-                        className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                       >
                         Equivalent in AED
                       </span>
                       <span
-                        className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         {formatAED(calculations.totalInAED)}
                       </span>
@@ -3656,20 +3656,20 @@ const ExportOrderForm = () => {
 
               {/* Export VAT Reminder */}
               <div
-                className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-green-900/30 border border-green-700" : "bg-green-50 border border-green-200"}`}
+                className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}
               >
                 <div className="flex items-start gap-2">
                   <CheckCircle
-                    className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                    className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                   />
                   <div>
                     <p
-                      className={`text-xs font-semibold ${isDarkMode ? "text-green-300" : "text-green-800"}`}
+                      className={`text-xs font-semibold ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}
                     >
                       Zero-Rated Export
                     </p>
                     <p
-                      className={`text-xs ${isDarkMode ? "text-green-200" : "text-green-700"}`}
+                      className={`text-xs ${isDarkMode ? 'text-green-200' : 'text-green-700'}`}
                     >
                       No VAT charged. Report in Form 201 Box 2.
                     </p>
@@ -3689,24 +3689,24 @@ const ExportOrderForm = () => {
                 <div
                   className={`px-4 py-3 rounded-lg border-2 flex items-start gap-3 ${
                     isDarkMode
-                      ? "bg-red-900/20 border-red-600/40"
-                      : "bg-red-50 border-red-300"
+                      ? 'bg-red-900/20 border-red-600/40'
+                      : 'bg-red-50 border-red-300'
                   }`}
                 >
                   <AlertCircle
                     size={20}
                     className={
-                      isDarkMode ? "text-red-400 mt-0.5" : "text-red-600 mt-0.5"
+                      isDarkMode ? 'text-red-400 mt-0.5' : 'text-red-600 mt-0.5'
                     }
                   />
                   <div className="flex-1">
                     <div
-                      className={`text-sm font-semibold ${isDarkMode ? "text-red-400" : "text-red-800"}`}
+                      className={`text-sm font-semibold ${isDarkMode ? 'text-red-400' : 'text-red-800'}`}
                     >
                       Certificate of Origin REQUIRED
                     </div>
                     <div
-                      className={`text-xs mt-1 ${isDarkMode ? "text-red-300" : "text-red-700"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}
                     >
                       Destination: {order.destination_country} | Export to
                       non-UAE requires COO documentation
@@ -3715,14 +3715,14 @@ const ExportOrderForm = () => {
                       <div className="flex items-center gap-2 mt-2">
                         <CheckCircle size={16} className="text-green-500" />
                         <span
-                          className={`text-xs ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                          className={`text-xs ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                         >
                           COO Document: {order.certificate_of_origin}
                         </span>
                       </div>
                     ) : (
                       <div
-                        className={`text-xs mt-2 font-medium ${isDarkMode ? "text-red-400" : "text-red-800"}`}
+                        className={`text-xs mt-2 font-medium ${isDarkMode ? 'text-red-400' : 'text-red-800'}`}
                       >
                         Status: Missing COO document
                       </div>
@@ -3733,21 +3733,21 @@ const ExportOrderForm = () => {
                 <div
                   className={`px-4 py-3 rounded-lg border flex items-start gap-3 ${
                     isDarkMode
-                      ? "bg-green-900/20 border-green-600/40"
-                      : "bg-green-50 border-green-300"
+                      ? 'bg-green-900/20 border-green-600/40'
+                      : 'bg-green-50 border-green-300'
                   }`}
                 >
                   <CheckCircle
                     size={20}
                     className={
                       isDarkMode
-                        ? "text-green-400 mt-0.5"
-                        : "text-green-600 mt-0.5"
+                        ? 'text-green-400 mt-0.5'
+                        : 'text-green-600 mt-0.5'
                     }
                   />
                   <div className="flex-1">
                     <div
-                      className={`text-sm font-semibold ${isDarkMode ? "text-green-400" : "text-green-800"}`}
+                      className={`text-sm font-semibold ${isDarkMode ? 'text-green-400' : 'text-green-800'}`}
                     >
                       COO Not Required
                     </div>
@@ -3755,8 +3755,8 @@ const ExportOrderForm = () => {
                       <div
                         className={`text-xs mt-1 px-2 py-1 rounded inline-block ${
                           isDarkMode
-                            ? "bg-amber-900/30 text-amber-300"
-                            : "bg-amber-100 text-amber-800"
+                            ? 'bg-amber-900/30 text-amber-300'
+                            : 'bg-amber-100 text-amber-800'
                         }`}
                       >
                         Reason: {order.coo_exemption_reason}
@@ -3773,12 +3773,12 @@ const ExportOrderForm = () => {
               label="Export Declaration Number"
               value={order.export_declaration_number}
               onChange={(e) =>
-                handleFieldChange("export_declaration_number", e.target.value)
+                handleFieldChange('export_declaration_number', e.target.value)
               }
               placeholder="Customs declaration #"
               error={errors.export_declaration_number}
               required={
-                order.status === "shipped" || order.status === "completed"
+                order.status === 'shipped' || order.status === 'completed'
               }
             />
             <Input
@@ -3786,21 +3786,21 @@ const ExportOrderForm = () => {
               type="date"
               value={order.export_declaration_date}
               onChange={(e) =>
-                handleFieldChange("export_declaration_date", e.target.value)
+                handleFieldChange('export_declaration_date', e.target.value)
               }
             />
             <Input
               label="Certificate of Origin"
               value={order.certificate_of_origin}
               onChange={(e) =>
-                handleFieldChange("certificate_of_origin", e.target.value)
+                handleFieldChange('certificate_of_origin', e.target.value)
               }
               placeholder="COO number"
               required={order.requires_coo}
               error={
                 order.requires_coo && !order.certificate_of_origin
-                  ? "COO required"
-                  : ""
+                  ? 'COO required'
+                  : ''
               }
             />
             <Input
@@ -3808,7 +3808,7 @@ const ExportOrderForm = () => {
               type="date"
               value={order.certificate_of_origin_date}
               onChange={(e) =>
-                handleFieldChange("certificate_of_origin_date", e.target.value)
+                handleFieldChange('certificate_of_origin_date', e.target.value)
               }
             />
           </div>
@@ -3817,7 +3817,7 @@ const ExportOrderForm = () => {
               label="Commercial Invoice Number"
               value={order.commercial_invoice_number}
               onChange={(e) =>
-                handleFieldChange("commercial_invoice_number", e.target.value)
+                handleFieldChange('commercial_invoice_number', e.target.value)
               }
               placeholder="CI-XXXX"
             />
@@ -3825,7 +3825,7 @@ const ExportOrderForm = () => {
               label="Packing List Number"
               value={order.packing_list_number}
               onChange={(e) =>
-                handleFieldChange("packing_list_number", e.target.value)
+                handleFieldChange('packing_list_number', e.target.value)
               }
               placeholder="PL-XXXX"
             />
@@ -3833,7 +3833,7 @@ const ExportOrderForm = () => {
               label="VAT Return Period"
               value={order.vat_return_period}
               onChange={(e) =>
-                handleFieldChange("vat_return_period", e.target.value)
+                handleFieldChange('vat_return_period', e.target.value)
               }
               placeholder="YYYY-MM"
               helperText="Period for Form 201 reporting"
@@ -3843,27 +3843,27 @@ const ExportOrderForm = () => {
           {/* Document Upload Section */}
           <div className="mt-6">
             <h4
-              className={`text-sm font-medium mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
               Attached Documents
             </h4>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center ${
                 isDarkMode
-                  ? "border-gray-600 hover:border-gray-500"
-                  : "border-gray-300 hover:border-gray-400"
+                  ? 'border-gray-600 hover:border-gray-500'
+                  : 'border-gray-300 hover:border-gray-400'
               } transition-colors cursor-pointer`}
             >
               <Upload
-                className={`h-8 w-8 mx-auto mb-2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                className={`h-8 w-8 mx-auto mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
               />
               <p
-                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
                 Drag and drop files here, or click to select
               </p>
               <p
-                className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
               >
                 Supports: PDF, images, Excel files (max 10MB each)
               </p>
@@ -3872,30 +3872,30 @@ const ExportOrderForm = () => {
 
           {/* Required Documents Checklist */}
           <div
-            className={`mt-6 p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+            className={`mt-6 p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
           >
             <h4
-              className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-sm font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Export Documentation Checklist
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {[
-                { name: "Commercial Invoice", required: true },
-                { name: "Packing List", required: true },
-                { name: "Bill of Lading / Airway Bill", required: true },
-                { name: "Export Declaration", required: true },
-                { name: "Certificate of Origin", required: false },
-                { name: "Insurance Certificate", required: false },
-                { name: "Quality/Mill Test Certificate", required: false },
-                { name: "Letter of Credit (if applicable)", required: false },
+                { name: 'Commercial Invoice', required: true },
+                { name: 'Packing List', required: true },
+                { name: 'Bill of Lading / Airway Bill', required: true },
+                { name: 'Export Declaration', required: true },
+                { name: 'Certificate of Origin', required: false },
+                { name: 'Insurance Certificate', required: false },
+                { name: 'Quality/Mill Test Certificate', required: false },
+                { name: 'Letter of Credit (if applicable)', required: false },
               ].map((doc, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <div
-                    className={`h-2 w-2 rounded-full ${doc.required ? "bg-red-500" : "bg-gray-400"}`}
+                    className={`h-2 w-2 rounded-full ${doc.required ? 'bg-red-500' : 'bg-gray-400'}`}
                   />
                   <span
-                    className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     {doc.name}
                     {doc.required && (
@@ -3914,7 +3914,7 @@ const ExportOrderForm = () => {
             <Textarea
               label="Notes (visible on documents)"
               value={order.notes}
-              onChange={(e) => handleFieldChange("notes", e.target.value)}
+              onChange={(e) => handleFieldChange('notes', e.target.value)}
               rows={4}
               placeholder="Enter any notes to appear on documents..."
             />
@@ -3922,7 +3922,7 @@ const ExportOrderForm = () => {
               label="Internal Notes (not visible on documents)"
               value={order.internal_notes}
               onChange={(e) =>
-                handleFieldChange("internal_notes", e.target.value)
+                handleFieldChange('internal_notes', e.target.value)
               }
               rows={4}
               placeholder="Internal comments, reminders..."
@@ -3933,7 +3933,7 @@ const ExportOrderForm = () => {
               label="Special Instructions"
               value={order.special_instructions}
               onChange={(e) =>
-                handleFieldChange("special_instructions", e.target.value)
+                handleFieldChange('special_instructions', e.target.value)
               }
               rows={3}
               placeholder="Special handling, shipping, or delivery instructions..."
@@ -3943,25 +3943,25 @@ const ExportOrderForm = () => {
 
         {/* Bottom Action Bar */}
         <div
-          className={`sticky bottom-0 py-4 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+          className={`sticky bottom-0 py-4 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
         >
           <div className="flex justify-between items-center">
             <Button
               variant="outline"
-              onClick={() => navigate("/import-export")}
+              onClick={() => navigate('/import-export')}
             >
               <X className="h-4 w-4" />
               Cancel
             </Button>
             <div className="flex items-center gap-3">
               <div
-                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
-                Total:{" "}
+                Total:{' '}
                 <span className="font-bold">
                   {formatCurrency(calculations.total)}
                 </span>
-                {order.currency !== "AED" && (
+                {order.currency !== 'AED' && (
                   <span className="ml-2">
                     ({formatAED(calculations.totalInAED)})
                   </span>
@@ -3983,7 +3983,7 @@ const ExportOrderForm = () => {
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    {isEditMode ? "Update Order" : "Create Order"}
+                    {isEditMode ? 'Update Order' : 'Create Order'}
                   </>
                 )}
               </Button>

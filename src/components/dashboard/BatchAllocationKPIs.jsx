@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import {
   AlertTriangle,
   DollarSign,
@@ -8,9 +8,9 @@ import {
   TrendingDown,
   RefreshCw,
   Loader2,
-} from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import { apiClient } from "../../services/api";
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { apiClient } from '../../services/api';
 
 /**
  * BatchAllocationKPIs Component
@@ -44,8 +44,8 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
 
       // Fetch both endpoints in parallel
       const [metricsResponse, healthResponse] = await Promise.all([
-        apiClient.get("/analytics/allocation-metrics"),
-        apiClient.get("/analytics/allocation-health"),
+        apiClient.get('/analytics/allocation-metrics'),
+        apiClient.get('/analytics/allocation-health'),
       ]);
 
       // Process allocation metrics
@@ -61,8 +61,8 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
         costVariance: metricsData.totalCostVariance || 0,
       });
     } catch (err) {
-      console.error("Failed to fetch batch allocation metrics:", err);
-      setError(err.message || "Failed to load metrics");
+      console.error('Failed to fetch batch allocation metrics:', err);
+      setError(err.message || 'Failed to load metrics');
     } finally {
       setLoading(false);
     }
@@ -86,53 +86,53 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
   // KPI card configuration
   const cards = [
     {
-      id: "batch-issues",
-      title: "Batch Issues",
+      id: 'batch-issues',
+      title: 'Batch Issues',
       value: metrics.batchIssues,
       icon: AlertTriangle,
-      format: "number",
-      tab: "issues",
+      format: 'number',
+      tab: 'issues',
       getColor: (value) => {
-        if (value > 0) return "red";
-        return "green";
+        if (value > 0) return 'red';
+        return 'green';
       },
-      tooltip: "Negative stock and batch mismatches",
+      tooltip: 'Negative stock and batch mismatches',
     },
     {
-      id: "allocated-value",
-      title: "Allocated Value",
+      id: 'allocated-value',
+      title: 'Allocated Value',
       value: metrics.allocatedValue,
       icon: DollarSign,
-      format: "currency",
-      tab: "allocations",
-      getColor: () => "blue",
-      tooltip: "Total AED value of allocated batches",
+      format: 'currency',
+      tab: 'allocations',
+      getColor: () => 'blue',
+      tooltip: 'Total AED value of allocated batches',
     },
     {
-      id: "pending-allocations",
-      title: "Pending Allocations",
+      id: 'pending-allocations',
+      title: 'Pending Allocations',
       value: metrics.pendingAllocations,
       icon: Clock,
-      format: "number",
-      tab: "pending",
+      format: 'number',
+      tab: 'pending',
       getColor: (value) => {
-        if (value > 10) return "yellow";
-        return "gray";
+        if (value > 10) return 'yellow';
+        return 'gray';
       },
-      tooltip: "Unallocated invoice lines",
+      tooltip: 'Unallocated invoice lines',
     },
     {
-      id: "cost-variance",
-      title: "Cost Variance",
+      id: 'cost-variance',
+      title: 'Cost Variance',
       value: metrics.costVariance,
       icon: TrendingDown,
-      format: "currency",
-      tab: "variance",
+      format: 'currency',
+      tab: 'variance',
       getColor: (value) => {
-        if (value < 0) return "red";
-        return "green";
+        if (value < 0) return 'red';
+        return 'green';
       },
-      tooltip: "Sum of reallocation cost impact",
+      tooltip: 'Sum of reallocation cost impact',
     },
   ];
 
@@ -140,29 +140,29 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
   const getColorClasses = (color) => {
     const colors = {
       red: {
-        bg: isDarkMode ? "bg-red-900/30" : "bg-red-100",
-        icon: isDarkMode ? "text-red-400" : "text-red-600",
-        value: isDarkMode ? "text-red-400" : "text-red-600",
+        bg: isDarkMode ? 'bg-red-900/30' : 'bg-red-100',
+        icon: isDarkMode ? 'text-red-400' : 'text-red-600',
+        value: isDarkMode ? 'text-red-400' : 'text-red-600',
       },
       green: {
-        bg: isDarkMode ? "bg-green-900/30" : "bg-green-100",
-        icon: isDarkMode ? "text-green-400" : "text-green-600",
-        value: isDarkMode ? "text-green-400" : "text-green-600",
+        bg: isDarkMode ? 'bg-green-900/30' : 'bg-green-100',
+        icon: isDarkMode ? 'text-green-400' : 'text-green-600',
+        value: isDarkMode ? 'text-green-400' : 'text-green-600',
       },
       blue: {
-        bg: isDarkMode ? "bg-blue-900/30" : "bg-blue-100",
-        icon: isDarkMode ? "text-blue-400" : "text-blue-600",
-        value: isDarkMode ? "text-blue-400" : "text-blue-600",
+        bg: isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100',
+        icon: isDarkMode ? 'text-blue-400' : 'text-blue-600',
+        value: isDarkMode ? 'text-blue-400' : 'text-blue-600',
       },
       yellow: {
-        bg: isDarkMode ? "bg-yellow-900/30" : "bg-yellow-100",
-        icon: isDarkMode ? "text-yellow-400" : "text-yellow-600",
-        value: isDarkMode ? "text-yellow-400" : "text-yellow-600",
+        bg: isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-100',
+        icon: isDarkMode ? 'text-yellow-400' : 'text-yellow-600',
+        value: isDarkMode ? 'text-yellow-400' : 'text-yellow-600',
       },
       gray: {
-        bg: isDarkMode ? "bg-gray-700" : "bg-gray-100",
-        icon: isDarkMode ? "text-gray-400" : "text-gray-500",
-        value: isDarkMode ? "text-gray-400" : "text-gray-500",
+        bg: isDarkMode ? 'bg-gray-700' : 'bg-gray-100',
+        icon: isDarkMode ? 'text-gray-400' : 'text-gray-500',
+        value: isDarkMode ? 'text-gray-400' : 'text-gray-500',
       },
     };
     return colors[color] || colors.gray;
@@ -170,12 +170,12 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
 
   // Format value helper
   const formatValue = (value, format) => {
-    if (loading) return "—";
+    if (loading) return '—';
 
-    if (format === "currency") {
-      return new Intl.NumberFormat("en-AE", {
-        style: "currency",
-        currency: "AED",
+    if (format === 'currency') {
+      return new Intl.NumberFormat('en-AE', {
+        style: 'currency',
+        currency: 'AED',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(value || 0);
@@ -190,8 +190,8 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
       <div
         className={`rounded-lg border p-6 ${
           isDarkMode
-            ? "bg-[#1E2328] border-gray-700"
-            : "bg-white border-gray-200"
+            ? 'bg-[#1E2328] border-gray-700'
+            : 'bg-white border-gray-200'
         }`}
       >
         <div className="flex items-center justify-between mb-4">
@@ -199,7 +199,7 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
             <AlertTriangle className="w-5 h-5 text-red-500" />
             <h3
               className={`text-lg font-semibold ${
-                isDarkMode ? "text-white" : "text-gray-900"
+                isDarkMode ? 'text-white' : 'text-gray-900'
               }`}
             >
               Failed to Load Metrics
@@ -209,8 +209,8 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
             onClick={handleRetry}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
               isDarkMode
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-blue-500 hover:bg-blue-600 text-white"
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
             }`}
           >
             <RefreshCw className="w-4 h-4" />
@@ -218,7 +218,7 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
           </button>
         </div>
         <p
-          className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+          className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
         >
           {error}
         </p>
@@ -232,7 +232,7 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
       <div className="flex items-center justify-between">
         <h3
           className={`text-lg font-semibold ${
-            isDarkMode ? "text-white" : "text-gray-900"
+            isDarkMode ? 'text-white' : 'text-gray-900'
           }`}
         >
           Batch Allocation Metrics
@@ -242,14 +242,14 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
           disabled={loading}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
             loading
-              ? "opacity-50 cursor-not-allowed"
+              ? 'opacity-50 cursor-not-allowed'
               : isDarkMode
-                ? "hover:bg-gray-700 text-gray-300"
-                : "hover:bg-gray-100 text-gray-700"
+                ? 'hover:bg-gray-700 text-gray-300'
+                : 'hover:bg-gray-100 text-gray-700'
           }`}
           title="Refresh metrics"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
@@ -266,18 +266,18 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
               key={card.id}
               onClick={() => !loading && handleCardClick(card.tab)}
               onKeyDown={(e) =>
-                e.key === "Enter" && !loading && handleCardClick(card.tab)
+                e.key === 'Enter' && !loading && handleCardClick(card.tab)
               }
               role="button"
               tabIndex={loading ? -1 : 0}
               className={`rounded-lg border p-4 transition-all duration-200 ${
                 loading
-                  ? "cursor-default"
-                  : "cursor-pointer hover:shadow-md hover:-translate-y-0.5"
+                  ? 'cursor-default'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5'
               } ${
                 isDarkMode
-                  ? "bg-[#1E2328] border-gray-700 hover:border-gray-600"
-                  : "bg-white border-gray-200 hover:border-gray-300"
+                  ? 'bg-[#1E2328] border-gray-700 hover:border-gray-600'
+                  : 'bg-white border-gray-200 hover:border-gray-300'
               }`}
               title={card.tooltip}
             >
@@ -285,7 +285,7 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
                 <div className="flex-1">
                   <p
                     className={`text-xs font-medium uppercase tracking-wide ${
-                      isDarkMode ? "text-gray-500" : "text-gray-500"
+                      isDarkMode ? 'text-gray-500' : 'text-gray-500'
                     }`}
                   >
                     {card.title}

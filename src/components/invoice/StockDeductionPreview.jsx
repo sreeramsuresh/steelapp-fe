@@ -11,16 +11,16 @@
  * Phase 3: Invoice-Stock Integration
  */
 
-import { useState, useEffect } from "react";
-import { apiClient } from "../../services/api";
+import { useState, useEffect } from 'react';
+import { apiClient } from '../../services/api';
 
 export default function StockDeductionPreview({
   items = [],
   warehouseId = null,
-  warehouseName = "",
+  warehouseName = '',
   onClose,
   onConfirm,
-  className = "",
+  className = '',
 }) {
   const [stockLevels, setStockLevels] = useState({});
   const [loading, setLoading] = useState(true);
@@ -55,7 +55,7 @@ export default function StockDeductionPreview({
             params.warehouse_id = warehouseId;
           }
           const response = await apiClient.get(
-            "/stock-movements/current-stock",
+            '/stock-movements/current-stock',
             { params },
           );
           levels[productId] = {
@@ -65,16 +65,16 @@ export default function StockDeductionPreview({
             available: parseFloat(
               response.totalAvailable || response.total_available || 0,
             ),
-            unit: response.unit || "KG",
+            unit: response.unit || 'KG',
           };
         } catch {
-          levels[productId] = { currentStock: 0, available: 0, unit: "KG" };
+          levels[productId] = { currentStock: 0, available: 0, unit: 'KG' };
         }
       }
       setStockLevels(levels);
     } catch (err) {
-      console.error("Failed to fetch stock levels:", err);
-      setError("Failed to load current stock levels");
+      console.error('Failed to fetch stock levels:', err);
+      setError('Failed to load current stock levels');
     } finally {
       setLoading(false);
     }
@@ -82,27 +82,27 @@ export default function StockDeductionPreview({
 
   const getStockStatus = (productId, quantity) => {
     const stock = stockLevels[productId];
-    if (!stock) return { status: "unknown", message: "Stock data unavailable" };
+    if (!stock) return { status: 'unknown', message: 'Stock data unavailable' };
 
     const afterDeduction = stock.currentStock - parseFloat(quantity);
 
     if (afterDeduction < 0) {
       return {
-        status: "negative",
+        status: 'negative',
         message: `Will go negative (${afterDeduction.toFixed(2)})`,
-        color: "text-red-600 bg-red-50",
+        color: 'text-red-600 bg-red-50',
       };
     } else if (afterDeduction < stock.currentStock * 0.1) {
       return {
-        status: "low",
+        status: 'low',
         message: `Low stock warning`,
-        color: "text-yellow-600 bg-yellow-50",
+        color: 'text-yellow-600 bg-yellow-50',
       };
     } else {
       return {
-        status: "ok",
-        message: "Sufficient stock",
-        color: "text-green-600 bg-green-50",
+        status: 'ok',
+        message: 'Sufficient stock',
+        color: 'text-green-600 bg-green-50',
       };
     }
   };
@@ -251,7 +251,7 @@ export default function StockDeductionPreview({
                     const productId = item.productId || item.product_id;
                     const stock = stockLevels[productId] || {
                       currentStock: 0,
-                      unit: "KG",
+                      unit: 'KG',
                     };
                     const quantity = parseFloat(item.quantity) || 0;
                     const afterDeduction = stock.currentStock - quantity;
@@ -263,8 +263,8 @@ export default function StockDeductionPreview({
                           <div className="font-medium">{item.name}</div>
                           {item.size && (
                             <div className="text-xs text-gray-500">
-                              {item.size}{" "}
-                              {item.thickness ? `x ${item.thickness}mm` : ""}
+                              {item.size}{' '}
+                              {item.thickness ? `x ${item.thickness}mm` : ''}
                             </div>
                           )}
                         </td>
@@ -275,7 +275,7 @@ export default function StockDeductionPreview({
                           -{quantity.toFixed(2)} {item.unit || stock.unit}
                         </td>
                         <td
-                          className={`px-4 py-3 text-sm text-right font-medium ${afterDeduction < 0 ? "text-red-600" : "text-gray-900"}`}
+                          className={`px-4 py-3 text-sm text-right font-medium ${afterDeduction < 0 ? 'text-red-600' : 'text-gray-900'}`}
                         >
                           {afterDeduction.toFixed(2)} {stock.unit}
                         </td>
@@ -283,7 +283,7 @@ export default function StockDeductionPreview({
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${status.color}`}
                           >
-                            {status.status === "negative" && (
+                            {status.status === 'negative' && (
                               <svg
                                 className="mr-1 h-3 w-3"
                                 fill="currentColor"
@@ -296,7 +296,7 @@ export default function StockDeductionPreview({
                                 />
                               </svg>
                             )}
-                            {status.status === "ok" && (
+                            {status.status === 'ok' && (
                               <svg
                                 className="mr-1 h-3 w-3"
                                 fill="currentColor"
@@ -359,11 +359,11 @@ export default function StockDeductionPreview({
             onClick={onConfirm}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md ${
               hasNegativeStock
-                ? "bg-yellow-600 hover:bg-yellow-700"
-                : "bg-blue-600 hover:bg-blue-700"
+                ? 'bg-yellow-600 hover:bg-yellow-700'
+                : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {hasNegativeStock ? "Proceed Anyway" : "Confirm & Issue"}
+            {hasNegativeStock ? 'Proceed Anyway' : 'Confirm & Issue'}
           </button>
         </div>
       )}

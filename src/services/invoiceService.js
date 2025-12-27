@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from './api';
 
 // ============================================================================
 // DATA TRANSFORMERS
@@ -12,7 +12,7 @@ const transformInvoiceForServer = (invoiceData) => {
     invoice_date: invoiceData.date,
     due_date: invoiceData.dueDate,
     // Invoice-level discount (for backend recomputation)
-    discount_type: invoiceData.discountType || "amount",
+    discount_type: invoiceData.discountType || 'amount',
     discount_percentage: invoiceData.discountPercentage || 0,
     discount_amount: invoiceData.discountAmount || 0,
     // Charges
@@ -25,13 +25,13 @@ const transformInvoiceForServer = (invoiceData) => {
     cheque_number: invoiceData.chequeNumber || null,
     // Warehouse data
     warehouse_id: invoiceData.warehouseId || null,
-    warehouse_name: invoiceData.warehouseName || "",
-    warehouse_code: invoiceData.warehouseCode || "",
-    warehouse_city: invoiceData.warehouseCity || "",
+    warehouse_name: invoiceData.warehouseName || '',
+    warehouse_code: invoiceData.warehouseCode || '',
+    warehouse_city: invoiceData.warehouseCity || '',
     subtotal: invoiceData.subtotal,
     vat_amount: invoiceData.vatAmount,
     total: invoiceData.total,
-    status: invoiceData.status || "draft",
+    status: invoiceData.status || 'draft',
     notes: invoiceData.notes,
     terms: invoiceData.terms,
     // UAE VAT Compliance Fields
@@ -53,21 +53,21 @@ const transformInvoiceForServer = (invoiceData) => {
         vat_rate: item.vatRate,
         amount: item.amount,
         // Source type and warehouse for batch allocation
-        source_type: item.source_type || item.sourceType || "WAREHOUSE",
+        source_type: item.source_type || item.sourceType || 'WAREHOUSE',
         warehouse_id: item.warehouse_id || item.warehouseId || null,
         // Batch allocation mode
         allocation_mode:
-          item.allocation_mode || item.allocationMode || "AUTO_FIFO",
+          item.allocation_mode || item.allocationMode || 'AUTO_FIFO',
         manual_allocations:
           item.manual_allocations || item.manualAllocations || [],
         // Pricing & Commercial Fields
-        pricing_basis: item.pricing_basis || item.pricingBasis || "PER_MT",
+        pricing_basis: item.pricing_basis || item.pricingBasis || 'PER_MT',
         unit_weight_kg: item.unit_weight_kg || item.unitWeightKg || null,
         theoretical_weight_kg:
           item.theoretical_weight_kg || item.theoreticalWeightKg || null,
         // Phase 2: UOM tracking for audit trail
         quantity_uom:
-          item.quantity_uom || item.quantityUom || item.unit || "PCS",
+          item.quantity_uom || item.quantityUom || item.unit || 'PCS',
         // Phase 4: Line item temp ID for linking to draft_batch_reservations
         line_item_temp_id:
           item.line_item_temp_id || item.lineItemTempId || null,
@@ -87,11 +87,11 @@ const transformInvoiceFromServer = (serverData) => {
     date: serverData.date || serverData.invoiceDate || null,
 
     // proto: supply_date (line 357) → API: supplyDate
-    supplyDate: serverData.supplyDate || serverData.supply_date || "",
+    supplyDate: serverData.supplyDate || serverData.supply_date || '',
 
     // proto: exchange_rate_date (line 360) → API: exchangeRateDate
     exchangeRateDate:
-      serverData.exchangeRateDate || serverData.exchange_rate_date || "",
+      serverData.exchangeRateDate || serverData.exchange_rate_date || '',
 
     // proto: expires_at (line 437) → API: expiresAt - Batch reservation expiration
     expiresAt: serverData.expiresAt || serverData.expires_at || null,
@@ -101,7 +101,7 @@ const transformInvoiceFromServer = (serverData) => {
     // ========================================
     // proto: customer_details (line 247) → API: customerDetails → frontend: customer
     customer:
-      typeof serverData.customerDetails === "string"
+      typeof serverData.customerDetails === 'string'
         ? JSON.parse(serverData.customerDetails)
         : serverData.customerDetails || serverData.customer || {},
 
@@ -114,7 +114,7 @@ const transformInvoiceFromServer = (serverData) => {
     // These are computed/aggregated from items array, not in proto
     // ========================================
     warehouseId: serverData.warehouseId || serverData.warehouse_id || null,
-    warehouseName: serverData.warehouseName || serverData.warehouse_name || "",
+    warehouseName: serverData.warehouseName || serverData.warehouse_name || '',
 
     // ========================================
     // Financial Fields - Proto has these, API Gateway converts to camelCase
@@ -148,7 +148,7 @@ const transformInvoiceFromServer = (serverData) => {
     // UAE VAT Compliance Fields
     // ========================================
     // proto: place_of_supply (line 356) → API: placeOfSupply
-    placeOfSupply: serverData.placeOfSupply || serverData.place_of_supply || "",
+    placeOfSupply: serverData.placeOfSupply || serverData.place_of_supply || '',
 
     // proto: is_reverse_charge (line 358) → API: isReverseCharge
     isReverseCharge:
@@ -176,7 +176,7 @@ export const invoiceService = {
       axiosConfig.signal = signal;
     }
 
-    const response = await apiClient.get("/invoices", axiosConfig);
+    const response = await apiClient.get('/invoices', axiosConfig);
 
     // Handle paginated response
     if (response.invoices && response.pagination) {
@@ -204,7 +204,7 @@ export const invoiceService = {
   async createInvoice(invoiceData) {
     const transformedData = transformInvoiceForServer(invoiceData);
 
-    const response = await apiClient.post("/invoices", transformedData);
+    const response = await apiClient.post('/invoices', transformedData);
     return transformInvoiceFromServer(response);
   },
 
@@ -282,15 +282,15 @@ export const invoiceService = {
   },
 
   async getNextInvoiceNumber() {
-    return apiClient.get("/invoices/number/next");
+    return apiClient.get('/invoices/number/next');
   },
 
   async getInvoiceAnalytics(params = {}) {
-    return apiClient.get("/invoices/analytics", params);
+    return apiClient.get('/invoices/analytics', params);
   },
 
   async searchInvoices(searchTerm, filters = {}) {
-    return apiClient.get("/invoices", {
+    return apiClient.get('/invoices', {
       search: searchTerm,
       ...filters,
     });
@@ -298,25 +298,25 @@ export const invoiceService = {
 
   async searchForCreditNote(query) {
     // Fast autocomplete search for invoices eligible for credit notes
-    const response = await apiClient.get("/invoices/search-for-credit-note", {
+    const response = await apiClient.get('/invoices/search-for-credit-note', {
       q: query,
     });
     return response;
   },
 
   async getInvoicesByCustomer(customerId) {
-    return apiClient.get("/invoices", { customer_id: customerId });
+    return apiClient.get('/invoices', { customer_id: customerId });
   },
 
   async getInvoicesByDateRange(startDate, endDate) {
-    return apiClient.get("/invoices", {
+    return apiClient.get('/invoices', {
       start_date: startDate,
       end_date: endDate,
     });
   },
 
   async getInvoicesByStatus(status) {
-    return apiClient.get("/invoices", { status });
+    return apiClient.get('/invoices', { status });
   },
 
   async addInvoicePayment(id, payload) {
@@ -372,7 +372,7 @@ export const invoiceService = {
     if (warehouseId) {
       payload.warehouse_id = warehouseId;
     }
-    return apiClient.post("/stock-movements/from-invoice", payload);
+    return apiClient.post('/stock-movements/from-invoice', payload);
   },
 
   /**
@@ -386,7 +386,7 @@ export const invoiceService = {
    */
   async reverseStockMovements(
     invoiceId,
-    reason = "Invoice cancelled",
+    reason = 'Invoice cancelled',
     creditNoteId = null,
   ) {
     const payload = {
@@ -396,7 +396,7 @@ export const invoiceService = {
     if (creditNoteId) {
       payload.credit_note_id = creditNoteId;
     }
-    return apiClient.post("/stock-movements/reverse-invoice", payload);
+    return apiClient.post('/stock-movements/reverse-invoice', payload);
   },
 
   /**

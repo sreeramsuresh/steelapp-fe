@@ -1,6 +1,6 @@
-import { CreditCard } from "lucide-react";
-import BaseWidget, { MetricValue } from "../BaseWidget";
-import { useTheme } from "../../../../contexts/ThemeContext";
+import { CreditCard } from 'lucide-react';
+import BaseWidget, { MetricValue } from '../BaseWidget';
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 // Mock data for Phase 1 - used when no API data available
 const MOCK_CREDIT_UTILIZATION = 65.5;
@@ -28,15 +28,15 @@ export const CreditUtilizationWidget = ({
 
   // Determine status based on utilization
   const getStatusColor = () => {
-    if (displayUtilization <= 60) return "from-green-500 to-green-600";
-    if (displayUtilization <= 80) return "from-yellow-500 to-yellow-600";
-    return "from-red-500 to-red-600";
+    if (displayUtilization <= 60) return 'from-green-500 to-green-600';
+    if (displayUtilization <= 80) return 'from-yellow-500 to-yellow-600';
+    return 'from-red-500 to-red-600';
   };
 
   const getBarColor = () => {
-    if (displayUtilization <= 60) return "bg-green-500";
-    if (displayUtilization <= 80) return "bg-yellow-500";
-    return "bg-red-500";
+    if (displayUtilization <= 60) return 'bg-green-500';
+    if (displayUtilization <= 80) return 'bg-yellow-500';
+    return 'bg-red-500';
   };
 
   return (
@@ -58,7 +58,7 @@ export const CreditUtilizationWidget = ({
       <div className="mt-3">
         <div
           className={`h-2 rounded-full overflow-hidden ${
-            isDarkMode ? "bg-gray-700" : "bg-gray-200"
+            isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
           }`}
         >
           <div

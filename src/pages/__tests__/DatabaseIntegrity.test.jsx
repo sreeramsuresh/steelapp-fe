@@ -3,13 +3,13 @@
  * Ensures referential integrity, account reconciliation, and data consistency
  */
 
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
-describe("Database Integrity & Data Consistency", () => {
-  describe("Referential Integrity (Foreign Keys)", () => {
-    it("should prevent orphaned invoice records (invoice without customer)", async () => {
+describe('Database Integrity & Data Consistency', () => {
+  describe('Referential Integrity (Foreign Keys)', () => {
+    it('should prevent orphaned invoice records (invoice without customer)', async () => {
       const MockOrphanedInvoice = () => {
         // Simulating database constraint check
         const [validationErrors, setValidationErrors] = React.useState([]);
@@ -17,10 +17,10 @@ describe("Database Integrity & Data Consistency", () => {
         const checkReferentialIntegrity = (invoice) => {
           const errors = [];
           if (!invoice.customerId) {
-            errors.push("FK Constraint: Invoice must have valid customer_id");
+            errors.push('FK Constraint: Invoice must have valid customer_id');
           }
           if (!invoice.companyId) {
-            errors.push("FK Constraint: Invoice must have valid company_id");
+            errors.push('FK Constraint: Invoice must have valid company_id');
           }
           setValidationErrors(errors);
         };
@@ -30,7 +30,7 @@ describe("Database Integrity & Data Consistency", () => {
           checkReferentialIntegrity({
             id: 1,
             customerId: null,
-            companyId: "COMPANY-A",
+            companyId: 'COMPANY-A',
           });
         }, []);
 
@@ -54,9 +54,9 @@ describe("Database Integrity & Data Consistency", () => {
       ).toBeInTheDocument();
     });
 
-    it("should prevent deleting customer if invoices exist (referential integrity)", async () => {
+    it('should prevent deleting customer if invoices exist (referential integrity)', async () => {
       const MockCascadeDelete = () => {
-        const [customer] = React.useState({ id: 123, name: "ABC Corp" });
+        const [customer] = React.useState({ id: 123, name: 'ABC Corp' });
         const [invoices] = React.useState([
           { id: 1, customerId: 123 },
           { id: 2, customerId: 123 },
@@ -69,7 +69,7 @@ describe("Database Integrity & Data Consistency", () => {
           <>
             <div>Customer: {customer.name}</div>
             <div>
-              Related Invoices:{" "}
+              Related Invoices:{' '}
               {invoices.filter((inv) => inv.customerId === customer.id).length}
             </div>
             <button disabled={!canDelete}>Delete Customer</button>
@@ -86,7 +86,7 @@ describe("Database Integrity & Data Consistency", () => {
       render(<MockCascadeDelete />);
 
       expect(
-        screen.getByRole("button", { name: /Delete Customer/ }),
+        screen.getByRole('button', { name: /Delete Customer/ }),
       ).toBeDisabled();
       expect(
         screen.getByText(/Cannot delete.*2 associated invoices/),
@@ -94,15 +94,15 @@ describe("Database Integrity & Data Consistency", () => {
     });
   });
 
-  describe("Account Reconciliation", () => {
-    it("should reconcile customer accounts: Invoiced - Paid = Outstanding", async () => {
+  describe('Account Reconciliation', () => {
+    it('should reconcile customer accounts: Invoiced - Paid = Outstanding', async () => {
       const MockAccountReconciliation = () => {
         const customerId = 123;
 
         const invoices = [
-          { id: 1, amount: 5000, status: "paid" },
-          { id: 2, amount: 3000, status: "unpaid" },
-          { id: 3, amount: 2000, status: "partially_paid", paidAmount: 1000 },
+          { id: 1, amount: 5000, status: 'paid' },
+          { id: 2, amount: 3000, status: 'unpaid' },
+          { id: 3, amount: 2000, status: 'partially_paid', paidAmount: 1000 },
         ];
 
         const totalInvoiced = invoices.reduce(
@@ -111,7 +111,7 @@ describe("Database Integrity & Data Consistency", () => {
         );
         const totalPaid = invoices.reduce(
           (sum, inv) =>
-            sum + (inv.status === "paid" ? inv.amount : inv.paidAmount || 0),
+            sum + (inv.status === 'paid' ? inv.amount : inv.paidAmount || 0),
           0,
         );
         const totalOutstanding = totalInvoiced - totalPaid;
@@ -131,13 +131,13 @@ describe("Database Integrity & Data Consistency", () => {
 
       render(<MockAccountReconciliation />);
 
-      expect(screen.getByText("Total Invoiced: 10000")).toBeInTheDocument();
-      expect(screen.getByText("Total Paid: 6000")).toBeInTheDocument();
-      expect(screen.getByText("Outstanding: 4000")).toBeInTheDocument();
+      expect(screen.getByText('Total Invoiced: 10000')).toBeInTheDocument();
+      expect(screen.getByText('Total Paid: 6000')).toBeInTheDocument();
+      expect(screen.getByText('Outstanding: 4000')).toBeInTheDocument();
       expect(screen.getByText(/Account reconciled/)).toBeInTheDocument();
     });
 
-    it("should detect account balance discrepancies", async () => {
+    it('should detect account balance discrepancies', async () => {
       const MockBalanceDiscrepancy = () => {
         const calculated = {
           invoiced: 10000,
@@ -159,7 +159,7 @@ describe("Database Integrity & Data Consistency", () => {
             <div>Recorded Outstanding: {recorded.outstanding}</div>
             {hasDiscrepancy && (
               <div className="alert-error">
-                Discrepancy detected:{" "}
+                Discrepancy detected:{' '}
                 {Math.abs(calculated.outstanding - recorded.outstanding)} AED
               </div>
             )}
@@ -175,18 +175,18 @@ describe("Database Integrity & Data Consistency", () => {
     });
   });
 
-  describe("Stock Balance Calculations", () => {
-    it("should verify stock balance: Opening + Receipt - Issuance = Closing", async () => {
+  describe('Stock Balance Calculations', () => {
+    it('should verify stock balance: Opening + Receipt - Issuance = Closing', async () => {
       const MockStockReconciliation = () => {
         const movements = {
           opening: 100,
           receipts: [
-            { date: "2025-12-01", qty: 50 },
-            { date: "2025-12-05", qty: 30 },
+            { date: '2025-12-01', qty: 50 },
+            { date: '2025-12-05', qty: 30 },
           ],
           issuances: [
-            { date: "2025-12-02", qty: 20 },
-            { date: "2025-12-10", qty: 40 },
+            { date: '2025-12-02', qty: 20 },
+            { date: '2025-12-10', qty: 40 },
           ],
         };
 
@@ -223,13 +223,13 @@ describe("Database Integrity & Data Consistency", () => {
 
       render(<MockStockReconciliation />);
 
-      expect(screen.getByText("Opening: 100")).toBeInTheDocument();
-      expect(screen.getByText("Receipts: +80")).toBeInTheDocument();
-      expect(screen.getByText("Issuances: -60")).toBeInTheDocument();
+      expect(screen.getByText('Opening: 100')).toBeInTheDocument();
+      expect(screen.getByText('Receipts: +80')).toBeInTheDocument();
+      expect(screen.getByText('Issuances: -60')).toBeInTheDocument();
       expect(screen.getByText(/Stock balance verified/)).toBeInTheDocument();
     });
 
-    it("should detect stock variance", async () => {
+    it('should detect stock variance', async () => {
       const MockStockVariance = () => {
         const [variance] = React.useState({
           physicalCount: 95,
@@ -256,19 +256,19 @@ describe("Database Integrity & Data Consistency", () => {
 
       render(<MockStockVariance />);
 
-      expect(screen.getByText("Variance: 5 units (5%)")).toBeInTheDocument();
+      expect(screen.getByText('Variance: 5 units (5%)')).toBeInTheDocument();
       expect(screen.getByText(/variance exceeds 2%/)).toBeInTheDocument();
     });
   });
 
-  describe("Invoice Line Total Validation", () => {
-    it("should verify invoice: sum of line items = invoice total", async () => {
+  describe('Invoice Line Total Validation', () => {
+    it('should verify invoice: sum of line items = invoice total', async () => {
       const MockInvoiceLineTotal = () => {
         const [invoice] = React.useState({
           lines: [
-            { sku: "P-001", qty: 50, unitPrice: 100, lineTotal: 5000 },
-            { sku: "P-002", qty: 30, unitPrice: 150, lineTotal: 4500 },
-            { sku: "P-003", qty: 20, unitPrice: 200, lineTotal: 4000 },
+            { sku: 'P-001', qty: 50, unitPrice: 100, lineTotal: 5000 },
+            { sku: 'P-002', qty: 30, unitPrice: 150, lineTotal: 4500 },
+            { sku: 'P-003', qty: 20, unitPrice: 200, lineTotal: 4000 },
           ],
           subtotal: 13500,
           vat: 675,
@@ -308,8 +308,8 @@ describe("Database Integrity & Data Consistency", () => {
     });
   });
 
-  describe("Trial Balance & Accounting Integrity", () => {
-    it("should verify trial balance: Assets = Liabilities + Equity", async () => {
+  describe('Trial Balance & Accounting Integrity', () => {
+    it('should verify trial balance: Assets = Liabilities + Equity', async () => {
       const MockTrialBalance = () => {
         const [accounts] = React.useState({
           assets: 500000,
@@ -342,24 +342,24 @@ describe("Database Integrity & Data Consistency", () => {
       expect(screen.getByText(/Trial balance is correct/)).toBeInTheDocument();
     });
 
-    it("should detect unmatched journal entries", async () => {
+    it('should detect unmatched journal entries', async () => {
       const MockUnmatchedJournals = () => {
         const [entries] = React.useState([
           {
             id: 1,
-            account: "Accounts Receivable",
+            account: 'Accounts Receivable',
             debit: 5000,
             credit: 0,
             matched: false,
           },
           {
             id: 2,
-            account: "Sales Revenue",
+            account: 'Sales Revenue',
             debit: 0,
             credit: 5000,
             matched: true,
           },
-          { id: 3, account: "Cash", debit: 2000, credit: 0, matched: false },
+          { id: 3, account: 'Cash', debit: 2000, credit: 0, matched: false },
         ]);
 
         const unmatchedCount = entries.filter((e) => !e.matched).length;
@@ -379,26 +379,26 @@ describe("Database Integrity & Data Consistency", () => {
 
       render(<MockUnmatchedJournals />);
 
-      expect(screen.getByText("Unmatched: 2")).toBeInTheDocument();
+      expect(screen.getByText('Unmatched: 2')).toBeInTheDocument();
       expect(
         screen.getByText(/2 unmatched journal entries/),
       ).toBeInTheDocument();
     });
   });
 
-  describe("Data Consistency Across Tables", () => {
-    it("should verify stock batch links to correct warehouse", async () => {
+  describe('Data Consistency Across Tables', () => {
+    it('should verify stock batch links to correct warehouse', async () => {
       const MockBatchWarehouseLink = () => {
         const [batch] = React.useState({
-          batchNo: "B-001",
+          batchNo: 'B-001',
           warehouseId: 1,
-          warehouseName: "Warehouse A",
+          warehouseName: 'Warehouse A',
           qty: 100,
         });
 
         const [warehouse] = React.useState({
           id: 1,
-          name: "Warehouse A",
+          name: 'Warehouse A',
         });
 
         const isLinked =
@@ -409,7 +409,7 @@ describe("Database Integrity & Data Consistency", () => {
           <>
             <div>Batch: {batch.batchNo}</div>
             <div>
-              Warehouse (from batch): {batch.warehouseName} (ID:{" "}
+              Warehouse (from batch): {batch.warehouseName} (ID:{' '}
               {batch.warehouseId})
             </div>
             <div>
@@ -434,20 +434,20 @@ describe("Database Integrity & Data Consistency", () => {
     });
   });
 
-  describe("Duplicate Record Prevention", () => {
-    it("should prevent duplicate invoices with same number and date", async () => {
+  describe('Duplicate Record Prevention', () => {
+    it('should prevent duplicate invoices with same number and date', async () => {
       const MockDuplicateInvoice = () => {
         const [invoices] = React.useState([
           {
             id: 1,
-            invoiceNumber: "INV-2025-001",
-            invoiceDate: "2025-12-19",
+            invoiceNumber: 'INV-2025-001',
+            invoiceDate: '2025-12-19',
             customerId: 123,
           },
           {
             id: 2,
-            invoiceNumber: "INV-2025-001",
-            invoiceDate: "2025-12-19",
+            invoiceNumber: 'INV-2025-001',
+            invoiceDate: '2025-12-19',
             customerId: 123,
           }, // Duplicate!
         ]);
@@ -470,8 +470,8 @@ describe("Database Integrity & Data Consistency", () => {
 
       render(<MockDuplicateInvoice />);
 
-      expect(screen.getByText("Total Records: 2")).toBeInTheDocument();
-      expect(screen.getByText("Unique Invoices: 1")).toBeInTheDocument();
+      expect(screen.getByText('Total Records: 2')).toBeInTheDocument();
+      expect(screen.getByText('Unique Invoices: 1')).toBeInTheDocument();
       expect(screen.getByText(/Duplicate invoice/)).toBeInTheDocument();
     });
   });

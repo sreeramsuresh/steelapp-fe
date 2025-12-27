@@ -1,10 +1,10 @@
-import { apiClient } from "./api";
-import { apiService } from "./axiosApi";
+import { apiClient } from './api';
+import { apiService } from './axiosApi';
 
 export const accountStatementService = {
   // Get all account statements with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get("/account-statements", params);
+    return apiClient.get('/account-statements', params);
   },
 
   // Get account statement by ID
@@ -14,7 +14,7 @@ export const accountStatementService = {
 
   // Create account statement
   create: (data) => {
-    return apiClient.post("/account-statements", data);
+    return apiClient.post('/account-statements', data);
   },
 
   // Update account statement
@@ -30,13 +30,13 @@ export const accountStatementService = {
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({
-      method: "GET",
+      method: 'GET',
       url: `/account-statements/${id}/pdf`,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
     a.download = `AccountStatement-${id}.pdf`;
     document.body.appendChild(a);
@@ -48,16 +48,16 @@ export const accountStatementService = {
   // Generate statement on-the-fly without saving
   generateOnTheFly: async (data) => {
     const blob = await apiService.request({
-      method: "POST",
-      url: "/account-statements/generate",
+      method: 'POST',
+      url: '/account-statements/generate',
       data,
-      responseType: "blob",
+      responseType: 'blob',
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
+    const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = blobUrl;
-    const fileName = `Statement-${data.customerId || "Customer"}-${data.startDate}-to-${data.endDate}.pdf`;
+    const fileName = `Statement-${data.customerId || 'Customer'}-${data.startDate}-to-${data.endDate}.pdf`;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();

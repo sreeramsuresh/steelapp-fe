@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
+import { useState, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import {
   AlertTriangle,
   CheckCircle,
   Package,
   Loader2,
   RefreshCw,
-} from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import api from "../../services/api";
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import api from '../../services/api';
 
 /**
  * StockAvailabilityIndicator Component
@@ -40,7 +40,7 @@ const StockAvailabilityIndicator = ({
    */
   const fetchStock = useCallback(async () => {
     const numericProductId =
-      typeof productId === "number" ? productId : parseInt(productId);
+      typeof productId === 'number' ? productId : parseInt(productId);
     const validProductId = numericProductId && numericProductId > 0;
 
     if (!validProductId) {
@@ -56,13 +56,13 @@ const StockAvailabilityIndicator = ({
       // Only add warehouseId if it's a valid value (not undefined, null, empty string, or string "undefined")
       if (
         warehouseId &&
-        warehouseId !== "undefined" &&
-        warehouseId !== "null"
+        warehouseId !== 'undefined' &&
+        warehouseId !== 'null'
       ) {
         params.warehouseId = warehouseId;
       }
 
-      const response = await api.get("/stock-batches/available", { params });
+      const response = await api.get('/stock-batches/available', { params });
       const batches = response.batches || [];
 
       // Calculate total available quantity
@@ -76,8 +76,8 @@ const StockAvailabilityIndicator = ({
         batches,
       });
     } catch (err) {
-      console.error("Failed to fetch stock availability:", err);
-      setError(err.response?.data?.error || "Failed to check stock");
+      console.error('Failed to fetch stock availability:', err);
+      setError(err.response?.data?.error || 'Failed to check stock');
       setStockData(null);
     } finally {
       setLoading(false);
@@ -102,7 +102,7 @@ const StockAvailabilityIndicator = ({
 
   // Format quantity display
   const formatQty = (qty) => {
-    return new Intl.NumberFormat("en-AE", {
+    return new Intl.NumberFormat('en-AE', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(qty || 0);
@@ -123,7 +123,7 @@ const StockAvailabilityIndicator = ({
       if (error || !stockData) {
         return (
           <span
-            title={error || "Unable to check stock"}
+            title={error || 'Unable to check stock'}
             className="flex-shrink-0"
           >
             <AlertTriangle size={16} className="text-gray-400" />
@@ -134,7 +134,7 @@ const StockAvailabilityIndicator = ({
       if (isZero) {
         return (
           <span
-            title={`No stock available${warehouseId ? " in selected warehouse" : ""}`}
+            title={`No stock available${warehouseId ? ' in selected warehouse' : ''}`}
             className="flex-shrink-0 cursor-help"
           >
             <AlertTriangle size={16} className="text-red-500" />
@@ -178,7 +178,7 @@ const StockAvailabilityIndicator = ({
 
     if (error || !stockData) {
       return (
-        <span title={error || "Unable to check stock"}>
+        <span title={error || 'Unable to check stock'}>
           <AlertTriangle size={14} className="text-gray-400" />
         </span>
       );
@@ -187,7 +187,7 @@ const StockAvailabilityIndicator = ({
     if (isZero) {
       return (
         <span
-          title={`No stock available${warehouseId ? " in selected warehouse" : ""}`}
+          title={`No stock available${warehouseId ? ' in selected warehouse' : ''}`}
           className="inline-flex items-center gap-1"
         >
           <AlertTriangle size={14} className="text-red-500" />
@@ -231,7 +231,7 @@ const StockAvailabilityIndicator = ({
   if (loading) {
     return (
       <div
-        className={`flex items-center gap-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+        className={`flex items-center gap-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
       >
         <Loader2 size={16} className="animate-spin" />
         <span>Checking stock availability...</span>
@@ -244,8 +244,8 @@ const StockAvailabilityIndicator = ({
       <div
         className={`flex items-center justify-between p-2 rounded border ${
           isDarkMode
-            ? "bg-gray-800/50 border-gray-700 text-gray-400"
-            : "bg-gray-50 border-gray-200 text-gray-600"
+            ? 'bg-gray-800/50 border-gray-700 text-gray-400'
+            : 'bg-gray-50 border-gray-200 text-gray-600'
         }`}
       >
         <div className="flex items-center gap-2 text-sm">
@@ -256,7 +256,7 @@ const StockAvailabilityIndicator = ({
           type="button"
           onClick={fetchStock}
           className={`p-1 rounded hover:bg-opacity-20 ${
-            isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-300"
+            isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-300'
           }`}
           title="Retry"
         >
@@ -276,26 +276,26 @@ const StockAvailabilityIndicator = ({
       <div
         className={`p-3 rounded-lg border ${
           isDarkMode
-            ? "bg-red-900/20 border-red-700"
-            : "bg-red-50 border-red-200"
+            ? 'bg-red-900/20 border-red-700'
+            : 'bg-red-50 border-red-200'
         }`}
       >
         <div className="flex items-center gap-2">
           <AlertTriangle
             size={18}
-            className={isDarkMode ? "text-red-400" : "text-red-600"}
+            className={isDarkMode ? 'text-red-400' : 'text-red-600'}
           />
           <div>
             <p
-              className={`text-sm font-medium ${isDarkMode ? "text-red-300" : "text-red-700"}`}
+              className={`text-sm font-medium ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}
             >
               Stock Not Available
             </p>
             <p
-              className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+              className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
             >
               No stock found for this product
-              {warehouseId ? " in the selected warehouse" : ""}. Consider using
+              {warehouseId ? ' in the selected warehouse' : ''}. Consider using
               Drop Ship or selecting a different warehouse.
             </p>
           </div>
@@ -310,27 +310,27 @@ const StockAvailabilityIndicator = ({
       <div
         className={`p-3 rounded-lg border ${
           isDarkMode
-            ? "bg-amber-900/20 border-amber-700"
-            : "bg-amber-50 border-amber-200"
+            ? 'bg-amber-900/20 border-amber-700'
+            : 'bg-amber-50 border-amber-200'
         }`}
       >
         <div className="flex items-center gap-2">
           <AlertTriangle
             size={18}
-            className={isDarkMode ? "text-amber-400" : "text-amber-600"}
+            className={isDarkMode ? 'text-amber-400' : 'text-amber-600'}
           />
           <div>
             <p
-              className={`text-sm font-medium ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}
+              className={`text-sm font-medium ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}
             >
               Insufficient Stock
             </p>
             <p
-              className={`text-xs ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+              className={`text-xs ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
             >
-              Only <strong>{formatQty(stockData.totalAvailable)}</strong>{" "}
-              available across {stockData.batchCount} batch(es). Need{" "}
-              <strong>{formatQty(requiredQty)}</strong>, short by{" "}
+              Only <strong>{formatQty(stockData.totalAvailable)}</strong>{' '}
+              available across {stockData.batchCount} batch(es). Need{' '}
+              <strong>{formatQty(requiredQty)}</strong>, short by{' '}
               <strong>{formatQty(shortfall)}</strong>.
             </p>
           </div>
@@ -344,19 +344,19 @@ const StockAvailabilityIndicator = ({
     <div
       className={`p-2 rounded-lg border ${
         isDarkMode
-          ? "bg-green-900/20 border-green-700"
-          : "bg-green-50 border-green-200"
+          ? 'bg-green-900/20 border-green-700'
+          : 'bg-green-50 border-green-200'
       }`}
     >
       <div className="flex items-center gap-2">
         <Package
           size={16}
-          className={isDarkMode ? "text-green-400" : "text-green-600"}
+          className={isDarkMode ? 'text-green-400' : 'text-green-600'}
         />
         <p
-          className={`text-xs ${isDarkMode ? "text-green-300" : "text-green-700"}`}
+          className={`text-xs ${isDarkMode ? 'text-green-300' : 'text-green-700'}`}
         >
-          <strong>{formatQty(stockData.totalAvailable)}</strong> available in{" "}
+          <strong>{formatQty(stockData.totalAvailable)}</strong> available in{' '}
           {stockData.batchCount} batch(es). System will auto-allocate using FIFO
           when invoice is issued.
         </p>

@@ -3,15 +3,15 @@
  * Tests warehouse operations, transfers, batch tracking, and stock levels
  */
 
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import React from "react";
-import { findButtonByRole, assertSuccessToast } from "../../test/utils";
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { findButtonByRole, assertSuccessToast } from '../../test/utils';
 
-describe("Stock Management Feature", () => {
-  describe("Stock Level Tracking", () => {
-    it("should calculate accurate stock balance: Opening + IN - OUT = Closing", async () => {
+describe('Stock Management Feature', () => {
+  describe('Stock Level Tracking', () => {
+    it('should calculate accurate stock balance: Opening + IN - OUT = Closing', async () => {
       const MockStockBalance = () => {
         const [stock] = React.useState({
           opening: 100,
@@ -33,16 +33,16 @@ describe("Stock Management Feature", () => {
 
       render(<MockStockBalance />);
 
-      expect(screen.getByText("Opening: 100")).toBeInTheDocument();
-      expect(screen.getByText("Inbound: +50")).toBeInTheDocument();
-      expect(screen.getByText("Outbound: -30")).toBeInTheDocument();
-      expect(screen.getByText("Closing: 120")).toBeInTheDocument();
+      expect(screen.getByText('Opening: 100')).toBeInTheDocument();
+      expect(screen.getByText('Inbound: +50')).toBeInTheDocument();
+      expect(screen.getByText('Outbound: -30')).toBeInTheDocument();
+      expect(screen.getByText('Closing: 120')).toBeInTheDocument();
     });
 
-    it("should prevent negative stock levels", async () => {
+    it('should prevent negative stock levels', async () => {
       const MockNegativeStock = () => {
         const [stock, setStock] = React.useState(30);
-        const [error, setError] = React.useState("");
+        const [error, setError] = React.useState('');
 
         const handleDeduct = (qty) => {
           if (qty > stock) {
@@ -63,28 +63,28 @@ describe("Stock Management Feature", () => {
 
       render(<MockNegativeStock />);
 
-      const deductBtn = findButtonByRole("Deduct 50 Units");
+      const deductBtn = findButtonByRole('Deduct 50 Units');
       await userEvent.click(deductBtn);
 
       expect(screen.getByText(/Cannot deduct 50 units/)).toBeInTheDocument();
     });
   });
 
-  describe("Warehouse Transfers", () => {
-    it("should transfer stock from one warehouse to another", async () => {
+  describe('Warehouse Transfers', () => {
+    it('should transfer stock from one warehouse to another', async () => {
       const MockWarehouseTransfer = () => {
         const [warehouseA, setWarehouseA] = React.useState(100);
         const [warehouseB, setWarehouseB] = React.useState(50);
         const [transferQty, setTransferQty] = React.useState(0);
-        const [status, setStatus] = React.useState("");
+        const [status, setStatus] = React.useState('');
 
         const handleTransfer = () => {
           if (transferQty > warehouseA) {
-            setStatus("error");
+            setStatus('error');
           } else {
             setWarehouseA(warehouseA - transferQty);
             setWarehouseB(warehouseB + transferQty);
-            setStatus("success");
+            setStatus('success');
             setTransferQty(0);
           }
         };
@@ -100,10 +100,10 @@ describe("Stock Management Feature", () => {
               placeholder="Quantity to Transfer"
             />
             <button onClick={handleTransfer}>Transfer</button>
-            {status === "success" && (
+            {status === 'success' && (
               <div className="alert-success">Transfer complete</div>
             )}
-            {status === "error" && (
+            {status === 'error' && (
               <div className="alert-error">Insufficient stock</div>
             )}
           </>
@@ -112,21 +112,21 @@ describe("Stock Management Feature", () => {
 
       render(<MockWarehouseTransfer />);
 
-      const input = screen.getByPlaceholderText("Quantity to Transfer");
-      await userEvent.type(input, "40");
+      const input = screen.getByPlaceholderText('Quantity to Transfer');
+      await userEvent.type(input, '40');
 
-      const transferBtn = findButtonByRole("Transfer");
+      const transferBtn = findButtonByRole('Transfer');
       await userEvent.click(transferBtn);
 
       await assertSuccessToast(/Transfer complete/i);
-      expect(screen.getByText("Warehouse A: 60")).toBeInTheDocument();
-      expect(screen.getByText("Warehouse B: 90")).toBeInTheDocument();
+      expect(screen.getByText('Warehouse A: 60')).toBeInTheDocument();
+      expect(screen.getByText('Warehouse B: 90')).toBeInTheDocument();
     });
 
-    it("should prevent transfer if insufficient stock in source warehouse", async () => {
+    it('should prevent transfer if insufficient stock in source warehouse', async () => {
       const MockTransferFail = () => {
         const [warehouseA] = React.useState(30);
-        const [error, setError] = React.useState("");
+        const [error, setError] = React.useState('');
 
         const handleTransfer = () => {
           if (50 > warehouseA) {
@@ -147,28 +147,28 @@ describe("Stock Management Feature", () => {
 
       render(<MockTransferFail />);
 
-      const btn = findButtonByRole("Transfer 50");
+      const btn = findButtonByRole('Transfer 50');
       await userEvent.click(btn);
 
       expect(screen.getByText(/Insufficient stock/)).toBeInTheDocument();
     });
   });
 
-  describe("Batch Tracking", () => {
-    it("should track stock by batch with expiration dates", async () => {
+  describe('Batch Tracking', () => {
+    it('should track stock by batch with expiration dates', async () => {
       const MockBatchStock = () => {
         const [batches] = React.useState([
           {
-            batchNo: "B-2025-001",
+            batchNo: 'B-2025-001',
             qty: 50,
-            mfgDate: "2025-01-01",
-            expDate: "2026-01-01",
+            mfgDate: '2025-01-01',
+            expDate: '2026-01-01',
           },
           {
-            batchNo: "B-2025-002",
+            batchNo: 'B-2025-002',
             qty: 30,
-            mfgDate: "2025-02-15",
-            expDate: "2026-02-15",
+            mfgDate: '2025-02-15',
+            expDate: '2026-02-15',
           },
         ]);
 
@@ -188,16 +188,16 @@ describe("Stock Management Feature", () => {
 
       render(<MockBatchStock />);
 
-      expect(screen.getByText("B-2025-001: 50 units")).toBeInTheDocument();
-      expect(screen.getByText("B-2025-002: 30 units")).toBeInTheDocument();
+      expect(screen.getByText('B-2025-001: 50 units')).toBeInTheDocument();
+      expect(screen.getByText('B-2025-002: 30 units')).toBeInTheDocument();
     });
 
-    it("should use FIFO for batch allocation on stock out", async () => {
+    it('should use FIFO for batch allocation on stock out', async () => {
       const MockBatchFIFO = () => {
         const [batches, setBatches] = React.useState([
-          { batchNo: "B-001", qty: 50, sequence: 1 },
-          { batchNo: "B-002", qty: 40, sequence: 2 },
-          { batchNo: "B-003", qty: 30, sequence: 3 },
+          { batchNo: 'B-001', qty: 50, sequence: 1 },
+          { batchNo: 'B-002', qty: 40, sequence: 2 },
+          { batchNo: 'B-003', qty: 30, sequence: 3 },
         ]);
 
         const handleAllocate = (requiredQty) => {
@@ -231,19 +231,19 @@ describe("Stock Management Feature", () => {
 
       render(<MockBatchFIFO />);
 
-      expect(screen.getByText("B-001: 50")).toBeInTheDocument();
-      expect(screen.getByText("B-002: 40")).toBeInTheDocument();
+      expect(screen.getByText('B-001: 50')).toBeInTheDocument();
+      expect(screen.getByText('B-002: 40')).toBeInTheDocument();
     });
   });
 
-  describe("Stock Variance & Adjustments", () => {
-    it("should record and explain stock variances", async () => {
+  describe('Stock Variance & Adjustments', () => {
+    it('should record and explain stock variances', async () => {
       const MockVariance = () => {
         const [variance, setVariance] = React.useState({
           expected: 100,
           actual: 95,
           difference: 5,
-          reason: "normal_wear",
+          reason: 'normal_wear',
         });
 
         return (
@@ -258,12 +258,12 @@ describe("Stock Management Feature", () => {
 
       render(<MockVariance />);
 
-      expect(screen.getByText("Expected: 100")).toBeInTheDocument();
-      expect(screen.getByText("Actual: 95")).toBeInTheDocument();
-      expect(screen.getByText("Variance: 5")).toBeInTheDocument();
+      expect(screen.getByText('Expected: 100')).toBeInTheDocument();
+      expect(screen.getByText('Actual: 95')).toBeInTheDocument();
+      expect(screen.getByText('Variance: 5')).toBeInTheDocument();
     });
 
-    it("should handle stock write-offs", async () => {
+    it('should handle stock write-offs', async () => {
       const MockWriteOff = () => {
         const [stock, setStock] = React.useState(100);
         const [writeOffQty, setWriteOffQty] = React.useState(0);
@@ -293,27 +293,27 @@ describe("Stock Management Feature", () => {
 
       render(<MockWriteOff />);
 
-      const input = screen.getByPlaceholderText("Write-off Quantity");
-      await userEvent.type(input, "10");
+      const input = screen.getByPlaceholderText('Write-off Quantity');
+      await userEvent.type(input, '10');
 
-      const btn = findButtonByRole("Write Off");
+      const btn = findButtonByRole('Write Off');
       await userEvent.click(btn);
 
       await assertSuccessToast(/Stock write-off/i);
-      expect(screen.getByText("Stock: 90")).toBeInTheDocument();
+      expect(screen.getByText('Stock: 90')).toBeInTheDocument();
     });
   });
 
-  describe("Goods In Transit", () => {
-    it("should track stock in goods-in-transit status", async () => {
+  describe('Goods In Transit', () => {
+    it('should track stock in goods-in-transit status', async () => {
       const MockGoodsInTransit = () => {
         const [shipments] = React.useState([
-          { id: 1, qty: 100, status: "in_transit", shippedDate: "2025-12-15" },
-          { id: 2, qty: 50, status: "received", shippedDate: "2025-12-10" },
+          { id: 1, qty: 100, status: 'in_transit', shippedDate: '2025-12-15' },
+          { id: 2, qty: 50, status: 'received', shippedDate: '2025-12-10' },
         ]);
 
         const inTransitQty = shipments
-          .filter((s) => s.status === "in_transit")
+          .filter((s) => s.status === 'in_transit')
           .reduce((sum, s) => sum + s.qty, 0);
 
         return (
@@ -331,26 +331,26 @@ describe("Stock Management Feature", () => {
       render(<MockGoodsInTransit />);
 
       expect(
-        screen.getByText("Goods In Transit: 100 units"),
+        screen.getByText('Goods In Transit: 100 units'),
       ).toBeInTheDocument();
       expect(
-        screen.getByText("Ship 1: 100 units - in_transit"),
+        screen.getByText('Ship 1: 100 units - in_transit'),
       ).toBeInTheDocument();
     });
   });
 
-  describe("Slow-Moving Inventory", () => {
-    it("should identify slow-moving stock (not sold in 90+ days)", async () => {
+  describe('Slow-Moving Inventory', () => {
+    it('should identify slow-moving stock (not sold in 90+ days)', async () => {
       const MockSlowMoving = () => {
         const today = new Date();
         const [products] = React.useState([
           {
-            sku: "P-001",
+            sku: 'P-001',
             qty: 50,
             lastSoldDate: new Date(today.getTime() - 100 * 24 * 60 * 60 * 1000),
           },
           {
-            sku: "P-002",
+            sku: 'P-002',
             qty: 30,
             lastSoldDate: new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000),
           },
@@ -365,7 +365,7 @@ describe("Stock Management Feature", () => {
 
         return (
           <>
-            <div>Slow-moving items ({"\u003E"}90 days):</div>
+            <div>Slow-moving items ({'\u003E'}90 days):</div>
             {slowMoving.map((item) => (
               <div key={item.sku} className="alert-warning">
                 {item.sku}: {item.qty} units
@@ -377,7 +377,7 @@ describe("Stock Management Feature", () => {
 
       render(<MockSlowMoving />);
 
-      expect(screen.getByText("P-001: 50 units")).toBeInTheDocument();
+      expect(screen.getByText('P-001: 50 units')).toBeInTheDocument();
     });
   });
 });

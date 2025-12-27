@@ -9,4 +9,4 @@
  * const LazyBarChart = lazy(() => import("../components/charts/LazyBarChart"));
  */
 
-export { default as ChartSkeleton } from "./ChartSkeleton";
+export { default as ChartSkeleton } from './ChartSkeleton';

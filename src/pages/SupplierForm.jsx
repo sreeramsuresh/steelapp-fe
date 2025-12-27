@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
@@ -18,72 +18,72 @@ import {
   ExternalLink,
   Shield,
   Award,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { supplierService } from "../services/supplierService";
-import { notificationService } from "../services/notificationService";
-import TRNInput from "../components/TRNInput";
-import { FormSelect } from "../components/ui/form-select";
-import { SelectItem } from "../components/ui/select";
-import { apiClient } from "../services/api";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { supplierService } from '../services/supplierService';
+import { notificationService } from '../services/notificationService';
+import TRNInput from '../components/TRNInput';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
+import { apiClient } from '../services/api';
 
 /**
  * Country codes for primary country selection
  * Common steel-exporting countries
  */
 const COUNTRY_OPTIONS = [
-  { value: "", label: "Select Country" },
-  { value: "UAE", label: "United Arab Emirates" },
-  { value: "CHN", label: "China" },
-  { value: "KOR", label: "South Korea" },
-  { value: "IND", label: "India" },
-  { value: "TWN", label: "Taiwan" },
-  { value: "JPN", label: "Japan" },
-  { value: "VNM", label: "Vietnam" },
-  { value: "IDN", label: "Indonesia" },
-  { value: "MYS", label: "Malaysia" },
-  { value: "THA", label: "Thailand" },
-  { value: "TUR", label: "Turkey" },
-  { value: "SAU", label: "Saudi Arabia" },
-  { value: "OMN", label: "Oman" },
-  { value: "BHR", label: "Bahrain" },
-  { value: "KWT", label: "Kuwait" },
-  { value: "QAT", label: "Qatar" },
-  { value: "EUR", label: "Europe (Other)" },
-  { value: "USA", label: "United States" },
-  { value: "OTH", label: "Other" },
+  { value: '', label: 'Select Country' },
+  { value: 'UAE', label: 'United Arab Emirates' },
+  { value: 'CHN', label: 'China' },
+  { value: 'KOR', label: 'South Korea' },
+  { value: 'IND', label: 'India' },
+  { value: 'TWN', label: 'Taiwan' },
+  { value: 'JPN', label: 'Japan' },
+  { value: 'VNM', label: 'Vietnam' },
+  { value: 'IDN', label: 'Indonesia' },
+  { value: 'MYS', label: 'Malaysia' },
+  { value: 'THA', label: 'Thailand' },
+  { value: 'TUR', label: 'Turkey' },
+  { value: 'SAU', label: 'Saudi Arabia' },
+  { value: 'OMN', label: 'Oman' },
+  { value: 'BHR', label: 'Bahrain' },
+  { value: 'KWT', label: 'Kuwait' },
+  { value: 'QAT', label: 'Qatar' },
+  { value: 'EUR', label: 'Europe (Other)' },
+  { value: 'USA', label: 'United States' },
+  { value: 'OTH', label: 'Other' },
 ];
 
 /**
  * Supplier Location options
  */
 const SUPPLIER_LOCATION_OPTIONS = [
-  { value: "UAE_LOCAL", label: "UAE Local" },
-  { value: "OVERSEAS", label: "Overseas" },
+  { value: 'UAE_LOCAL', label: 'UAE Local' },
+  { value: 'OVERSEAS', label: 'Overseas' },
 ];
 
 /**
  * Payment Terms options
  */
 const PAYMENT_TERMS_OPTIONS = [
-  { value: "", label: "Select Payment Terms" },
-  { value: "NET_30", label: "Net 30" },
-  { value: "NET_60", label: "Net 60" },
-  { value: "NET_90", label: "Net 90" },
-  { value: "COD", label: "COD (Cash on Delivery)" },
-  { value: "ADVANCE", label: "Advance Payment" },
-  { value: "LC", label: "Letter of Credit (LC)" },
+  { value: '', label: 'Select Payment Terms' },
+  { value: 'NET_30', label: 'Net 30' },
+  { value: 'NET_60', label: 'Net 60' },
+  { value: 'NET_90', label: 'Net 90' },
+  { value: 'COD', label: 'COD (Cash on Delivery)' },
+  { value: 'ADVANCE', label: 'Advance Payment' },
+  { value: 'LC', label: 'Letter of Credit (LC)' },
 ];
 
 /**
  * Currency options
  */
 const CURRENCY_OPTIONS = [
-  { value: "", label: "Select Currency" },
-  { value: "AED", label: "AED (UAE Dirham)" },
-  { value: "USD", label: "USD (US Dollar)" },
-  { value: "EUR", label: "EUR (Euro)" },
-  { value: "CNY", label: "CNY (Chinese Yuan)" },
+  { value: '', label: 'Select Currency' },
+  { value: 'AED', label: 'AED (UAE Dirham)' },
+  { value: 'USD', label: 'USD (US Dollar)' },
+  { value: 'EUR', label: 'EUR (Euro)' },
+  { value: 'CNY', label: 'CNY (Chinese Yuan)' },
 ];
 
 /**
@@ -92,303 +92,303 @@ const CURRENCY_OPTIONS = [
  * Example: AE (UAE), IN (India), CN (China), not "UAE", "India", "China"
  */
 const VALID_ISO_COUNTRY_CODES = new Set([
-  "AE",
-  "AF",
-  "AL",
-  "AM",
-  "AO",
-  "AQ",
-  "AR",
-  "AS",
-  "AT",
-  "AU",
-  "AW",
-  "AX",
-  "AZ",
-  "BA",
-  "BB",
-  "BD",
-  "BE",
-  "BF",
-  "BG",
-  "BH",
-  "BI",
-  "BJ",
-  "BL",
-  "BM",
-  "BN",
-  "BO",
-  "BQ",
-  "BR",
-  "BS",
-  "BT",
-  "BV",
-  "BW",
-  "BY",
-  "BZ",
-  "CA",
-  "CC",
-  "CD",
-  "CF",
-  "CG",
-  "CH",
-  "CI",
-  "CK",
-  "CL",
-  "CM",
-  "CN",
-  "CO",
-  "CR",
-  "CU",
-  "CV",
-  "CW",
-  "CX",
-  "CY",
-  "CZ",
-  "DE",
-  "DJ",
-  "DK",
-  "DM",
-  "DO",
-  "DZ",
-  "EC",
-  "EE",
-  "EG",
-  "EH",
-  "ER",
-  "ES",
-  "ET",
-  "FI",
-  "FJ",
-  "FK",
-  "FM",
-  "FO",
-  "FR",
-  "GA",
-  "GB",
-  "GD",
-  "GE",
-  "GF",
-  "GG",
-  "GH",
-  "GI",
-  "GL",
-  "GM",
-  "GN",
-  "GP",
-  "GQ",
-  "GR",
-  "GS",
-  "GT",
-  "GU",
-  "GW",
-  "GY",
-  "HK",
-  "HM",
-  "HN",
-  "HR",
-  "HT",
-  "HU",
-  "ID",
-  "IE",
-  "IL",
-  "IM",
-  "IN",
-  "IO",
-  "IQ",
-  "IR",
-  "IS",
-  "IT",
-  "JE",
-  "JM",
-  "JO",
-  "JP",
-  "KE",
-  "KG",
-  "KH",
-  "KI",
-  "KM",
-  "KN",
-  "KP",
-  "KR",
-  "KW",
-  "KY",
-  "KZ",
-  "LA",
-  "LB",
-  "LC",
-  "LI",
-  "LK",
-  "LR",
-  "LS",
-  "LT",
-  "LU",
-  "LV",
-  "LY",
-  "MA",
-  "MC",
-  "MD",
-  "ME",
-  "MF",
-  "MG",
-  "MH",
-  "MK",
-  "ML",
-  "MM",
-  "MN",
-  "MO",
-  "MP",
-  "MQ",
-  "MR",
-  "MS",
-  "MT",
-  "MU",
-  "MV",
-  "MW",
-  "MX",
-  "MY",
-  "MZ",
-  "NA",
-  "NC",
-  "NE",
-  "NF",
-  "NG",
-  "NI",
-  "NL",
-  "NO",
-  "NP",
-  "NR",
-  "NU",
-  "NZ",
-  "OM",
-  "PA",
-  "PE",
-  "PF",
-  "PG",
-  "PH",
-  "PK",
-  "PL",
-  "PM",
-  "PN",
-  "PR",
-  "PS",
-  "PT",
-  "PW",
-  "PY",
-  "QA",
-  "RE",
-  "RO",
-  "RS",
-  "RU",
-  "RW",
-  "SA",
-  "SB",
-  "SC",
-  "SD",
-  "SE",
-  "SG",
-  "SH",
-  "SI",
-  "SJ",
-  "SK",
-  "SL",
-  "SM",
-  "SN",
-  "SO",
-  "SR",
-  "SS",
-  "ST",
-  "SV",
-  "SX",
-  "SY",
-  "SZ",
-  "TC",
-  "TD",
-  "TF",
-  "TG",
-  "TH",
-  "TJ",
-  "TK",
-  "TL",
-  "TM",
-  "TN",
-  "TO",
-  "TR",
-  "TT",
-  "TV",
-  "TW",
-  "TZ",
-  "UA",
-  "UG",
-  "UM",
-  "US",
-  "UY",
-  "UZ",
-  "VA",
-  "VC",
-  "VE",
-  "VG",
-  "VI",
-  "VN",
-  "VU",
-  "WF",
-  "WS",
-  "YE",
-  "YT",
-  "ZA",
-  "ZM",
-  "ZW",
+  'AE',
+  'AF',
+  'AL',
+  'AM',
+  'AO',
+  'AQ',
+  'AR',
+  'AS',
+  'AT',
+  'AU',
+  'AW',
+  'AX',
+  'AZ',
+  'BA',
+  'BB',
+  'BD',
+  'BE',
+  'BF',
+  'BG',
+  'BH',
+  'BI',
+  'BJ',
+  'BL',
+  'BM',
+  'BN',
+  'BO',
+  'BQ',
+  'BR',
+  'BS',
+  'BT',
+  'BV',
+  'BW',
+  'BY',
+  'BZ',
+  'CA',
+  'CC',
+  'CD',
+  'CF',
+  'CG',
+  'CH',
+  'CI',
+  'CK',
+  'CL',
+  'CM',
+  'CN',
+  'CO',
+  'CR',
+  'CU',
+  'CV',
+  'CW',
+  'CX',
+  'CY',
+  'CZ',
+  'DE',
+  'DJ',
+  'DK',
+  'DM',
+  'DO',
+  'DZ',
+  'EC',
+  'EE',
+  'EG',
+  'EH',
+  'ER',
+  'ES',
+  'ET',
+  'FI',
+  'FJ',
+  'FK',
+  'FM',
+  'FO',
+  'FR',
+  'GA',
+  'GB',
+  'GD',
+  'GE',
+  'GF',
+  'GG',
+  'GH',
+  'GI',
+  'GL',
+  'GM',
+  'GN',
+  'GP',
+  'GQ',
+  'GR',
+  'GS',
+  'GT',
+  'GU',
+  'GW',
+  'GY',
+  'HK',
+  'HM',
+  'HN',
+  'HR',
+  'HT',
+  'HU',
+  'ID',
+  'IE',
+  'IL',
+  'IM',
+  'IN',
+  'IO',
+  'IQ',
+  'IR',
+  'IS',
+  'IT',
+  'JE',
+  'JM',
+  'JO',
+  'JP',
+  'KE',
+  'KG',
+  'KH',
+  'KI',
+  'KM',
+  'KN',
+  'KP',
+  'KR',
+  'KW',
+  'KY',
+  'KZ',
+  'LA',
+  'LB',
+  'LC',
+  'LI',
+  'LK',
+  'LR',
+  'LS',
+  'LT',
+  'LU',
+  'LV',
+  'LY',
+  'MA',
+  'MC',
+  'MD',
+  'ME',
+  'MF',
+  'MG',
+  'MH',
+  'MK',
+  'ML',
+  'MM',
+  'MN',
+  'MO',
+  'MP',
+  'MQ',
+  'MR',
+  'MS',
+  'MT',
+  'MU',
+  'MV',
+  'MW',
+  'MX',
+  'MY',
+  'MZ',
+  'NA',
+  'NC',
+  'NE',
+  'NF',
+  'NG',
+  'NI',
+  'NL',
+  'NO',
+  'NP',
+  'NR',
+  'NU',
+  'NZ',
+  'OM',
+  'PA',
+  'PE',
+  'PF',
+  'PG',
+  'PH',
+  'PK',
+  'PL',
+  'PM',
+  'PN',
+  'PR',
+  'PS',
+  'PT',
+  'PW',
+  'PY',
+  'QA',
+  'RE',
+  'RO',
+  'RS',
+  'RU',
+  'RW',
+  'SA',
+  'SB',
+  'SC',
+  'SD',
+  'SE',
+  'SG',
+  'SH',
+  'SI',
+  'SJ',
+  'SK',
+  'SL',
+  'SM',
+  'SN',
+  'SO',
+  'SR',
+  'SS',
+  'ST',
+  'SV',
+  'SX',
+  'SY',
+  'SZ',
+  'TC',
+  'TD',
+  'TF',
+  'TG',
+  'TH',
+  'TJ',
+  'TK',
+  'TL',
+  'TM',
+  'TN',
+  'TO',
+  'TR',
+  'TT',
+  'TV',
+  'TW',
+  'TZ',
+  'UA',
+  'UG',
+  'UM',
+  'US',
+  'UY',
+  'UZ',
+  'VA',
+  'VC',
+  'VE',
+  'VG',
+  'VI',
+  'VN',
+  'VU',
+  'WF',
+  'WS',
+  'YE',
+  'YT',
+  'ZA',
+  'ZM',
+  'ZW',
 ]);
 
 /**
  * Supplier Type options
  */
 const SUPPLIER_TYPE_OPTIONS = [
-  { value: "", label: "Select Type" },
-  { value: "MILL", label: "Mill / Manufacturer" },
-  { value: "TRADER", label: "Trader / Distributor" },
-  { value: "STOCKIST", label: "Stockist" },
-  { value: "AGENT", label: "Agent / Broker" },
+  { value: '', label: 'Select Type' },
+  { value: 'MILL', label: 'Mill / Manufacturer' },
+  { value: 'TRADER', label: 'Trader / Distributor' },
+  { value: 'STOCKIST', label: 'Stockist' },
+  { value: 'AGENT', label: 'Agent / Broker' },
 ];
 
 /**
  * Supplier Category options
  */
 const SUPPLIER_CATEGORY_OPTIONS = [
-  { value: "", label: "Select Category" },
-  { value: "STAINLESS_STEEL", label: "Stainless Steel" },
-  { value: "CARBON_STEEL", label: "Carbon Steel" },
-  { value: "ALUMINUM", label: "Aluminum" },
-  { value: "COPPER", label: "Copper / Brass" },
-  { value: "SPECIALTY_ALLOYS", label: "Specialty Alloys" },
-  { value: "GENERAL", label: "General / Multi-Material" },
+  { value: '', label: 'Select Category' },
+  { value: 'STAINLESS_STEEL', label: 'Stainless Steel' },
+  { value: 'CARBON_STEEL', label: 'Carbon Steel' },
+  { value: 'ALUMINUM', label: 'Aluminum' },
+  { value: 'COPPER', label: 'Copper / Brass' },
+  { value: 'SPECIALTY_ALLOYS', label: 'Specialty Alloys' },
+  { value: 'GENERAL', label: 'General / Multi-Material' },
 ];
 
 /**
  * Material Grade options for stainless steel
  */
 const MATERIAL_GRADE_OPTIONS = [
-  { value: "304", label: "304 (18/8)" },
-  { value: "316L", label: "316L (Marine Grade)" },
-  { value: "310S", label: "310S (Heat Resistant)" },
-  { value: "410", label: "410 (Martensitic)" },
-  { value: "430", label: "430 (Ferritic)" },
-  { value: "DUPLEX", label: "Duplex (2205/2507)" },
-  { value: "904L", label: "904L (Super Austenitic)" },
+  { value: '304', label: '304 (18/8)' },
+  { value: '316L', label: '316L (Marine Grade)' },
+  { value: '310S', label: '310S (Heat Resistant)' },
+  { value: '410', label: '410 (Martensitic)' },
+  { value: '430', label: '430 (Ferritic)' },
+  { value: 'DUPLEX', label: 'Duplex (2205/2507)' },
+  { value: '904L', label: '904L (Super Austenitic)' },
 ];
 
 /**
  * Product Form Capabilities
  */
 const PRODUCT_FORM_OPTIONS = [
-  { value: "SHEETS", label: "Sheets" },
-  { value: "COILS", label: "Coils" },
-  { value: "PLATES", label: "Plates" },
-  { value: "PIPES", label: "Pipes" },
-  { value: "TUBES", label: "Tubes" },
-  { value: "BARS", label: "Bars / Rods" },
-  { value: "ANGLES", label: "Angles" },
-  { value: "CHANNELS", label: "Channels" },
+  { value: 'SHEETS', label: 'Sheets' },
+  { value: 'COILS', label: 'Coils' },
+  { value: 'PLATES', label: 'Plates' },
+  { value: 'PIPES', label: 'Pipes' },
+  { value: 'TUBES', label: 'Tubes' },
+  { value: 'BARS', label: 'Bars / Rods' },
+  { value: 'ANGLES', label: 'Angles' },
+  { value: 'CHANNELS', label: 'Channels' },
 ];
 
 /**
@@ -432,68 +432,68 @@ export function SupplierForm() {
 
   const [formData, setFormData] = useState({
     // Basic Information
-    name: "",
-    company: "",
-    email: "",
-    phone: "",
-    alternatePhone: "",
-    website: "",
-    street: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "UAE",
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    alternatePhone: '',
+    website: '',
+    street: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'UAE',
 
     // Contact Person
-    contactPerson: "",
-    contactEmail: "",
-    contactPhone: "",
+    contactPerson: '',
+    contactEmail: '',
+    contactPhone: '',
 
     // Tax & Compliance
-    taxId: "",
-    trnNumber: "",
-    vatNumber: "",
-    tradeLicenseNumber: "",
-    tradeLicenseExpiry: "",
+    taxId: '',
+    trnNumber: '',
+    vatNumber: '',
+    tradeLicenseNumber: '',
+    tradeLicenseExpiry: '',
     isDesignatedZone: false,
-    tradeLicenseFilePath: "",
-    vatCertificateFilePath: "",
+    tradeLicenseFilePath: '',
+    vatCertificateFilePath: '',
 
     // Supplier Classification
-    supplierLocation: "UAE_LOCAL",
+    supplierLocation: 'UAE_LOCAL',
     isMill: false,
-    primaryCountry: "UAE",
+    primaryCountry: 'UAE',
     typicalLeadTimeDays: 7,
-    supplierType: "",
-    category: "",
+    supplierType: '',
+    category: '',
 
     // Stainless Steel Specifications
     mtcRequirement: false,
     materialGradeSpecialization: [], // Array of grade codes
     productFormCapabilities: [], // Array of form types
-    minimumOrderQuantity: "",
+    minimumOrderQuantity: '',
     qualityCertifications: {
       iso9001: false,
       iso14001: false,
-      other: "",
+      other: '',
     },
-    isoCertificatesFilePath: "",
+    isoCertificatesFilePath: '',
 
     // Financial Terms
-    paymentTerms: "",
-    defaultCurrency: "AED",
-    creditLimit: "",
-    countryId: "",
-    businessLicense: "",
+    paymentTerms: '',
+    defaultCurrency: 'AED',
+    creditLimit: '',
+    countryId: '',
+    businessLicense: '',
     bankDetails: {
-      accountNumber: "",
-      bankName: "",
-      swiftCode: "",
-      iban: "",
+      accountNumber: '',
+      bankName: '',
+      swiftCode: '',
+      iban: '',
     },
 
     // Additional Information
-    notes: "",
+    notes: '',
     isActive: true,
     uploadedDocuments: [], // Array of document paths
   });
@@ -512,36 +512,36 @@ export function SupplierForm() {
       if (supplier) {
         // Parse JSON fields if they're strings
         const parseBankDetails = (data) => {
-          if (typeof data === "string") {
+          if (typeof data === 'string') {
             try {
               return JSON.parse(data);
             } catch {
               return {
-                accountNumber: "",
-                bankName: "",
-                swiftCode: "",
-                iban: "",
+                accountNumber: '',
+                bankName: '',
+                swiftCode: '',
+                iban: '',
               };
             }
           }
           return (
-            data || { accountNumber: "", bankName: "", swiftCode: "", iban: "" }
+            data || { accountNumber: '', bankName: '', swiftCode: '', iban: '' }
           );
         };
 
         const parseQualityCertifications = (data) => {
-          if (typeof data === "string") {
+          if (typeof data === 'string') {
             try {
               return JSON.parse(data);
             } catch {
-              return { iso9001: false, iso14001: false, other: "" };
+              return { iso9001: false, iso14001: false, other: '' };
             }
           }
-          return data || { iso9001: false, iso14001: false, other: "" };
+          return data || { iso9001: false, iso14001: false, other: '' };
         };
 
         const parseArray = (data) => {
-          if (typeof data === "string") {
+          if (typeof data === 'string') {
             try {
               return JSON.parse(data);
             } catch {
@@ -555,22 +555,22 @@ export function SupplierForm() {
         const parseAddress = (addressData) => {
           if (!addressData)
             return {
-              street: "",
-              city: "",
-              state: "",
-              postalCode: "",
-              country: "UAE",
+              street: '',
+              city: '',
+              state: '',
+              postalCode: '',
+              country: 'UAE',
             };
-          if (typeof addressData === "string") {
+          if (typeof addressData === 'string') {
             try {
               return JSON.parse(addressData);
             } catch {
               return {
                 street: addressData,
-                city: "",
-                state: "",
-                postalCode: "",
-                country: "UAE",
+                city: '',
+                state: '',
+                postalCode: '',
+                country: 'UAE',
               };
             }
           }
@@ -583,58 +583,58 @@ export function SupplierForm() {
 
         setFormData({
           // Basic Information
-          name: supplier.name || "",
-          company: supplier.company || "",
-          email: supplier.email || "",
-          phone: supplier.phone || "",
+          name: supplier.name || '',
+          company: supplier.company || '',
+          email: supplier.email || '',
+          phone: supplier.phone || '',
           alternatePhone:
-            supplier.alternatePhone || supplier.alternate_phone || "",
-          website: supplier.website || "",
-          street: addressParsed.street || "",
-          city: supplier.city || addressParsed.city || "",
-          state: addressParsed.state || "",
-          postalCode: addressParsed.postalCode || "",
-          country: supplier.country || addressParsed.country || "UAE",
+            supplier.alternatePhone || supplier.alternate_phone || '',
+          website: supplier.website || '',
+          street: addressParsed.street || '',
+          city: supplier.city || addressParsed.city || '',
+          state: addressParsed.state || '',
+          postalCode: addressParsed.postalCode || '',
+          country: supplier.country || addressParsed.country || 'UAE',
 
           // Contact Person
           contactPerson:
-            supplier.contactPerson || supplier.contact_person || "",
-          contactEmail: supplier.contactEmail || supplier.contact_email || "",
-          contactPhone: supplier.contactPhone || supplier.contact_phone || "",
+            supplier.contactPerson || supplier.contact_person || '',
+          contactEmail: supplier.contactEmail || supplier.contact_email || '',
+          contactPhone: supplier.contactPhone || supplier.contact_phone || '',
 
           // Tax & Compliance
-          taxId: supplier.taxId || supplier.tax_id || "",
-          trnNumber: supplier.trnNumber || supplier.trn_number || "",
-          vatNumber: supplier.vatNumber || supplier.vat_number || "",
+          taxId: supplier.taxId || supplier.tax_id || '',
+          trnNumber: supplier.trnNumber || supplier.trn_number || '',
+          vatNumber: supplier.vatNumber || supplier.vat_number || '',
           tradeLicenseNumber:
-            supplier.tradeLicenseNumber || supplier.trade_license_number || "",
+            supplier.tradeLicenseNumber || supplier.trade_license_number || '',
           tradeLicenseExpiry:
-            supplier.tradeLicenseExpiry || supplier.trade_license_expiry || "",
+            supplier.tradeLicenseExpiry || supplier.trade_license_expiry || '',
           isDesignatedZone:
             supplier.isDesignatedZone ?? supplier.is_designated_zone ?? false,
           tradeLicenseFilePath:
             supplier.tradeLicenseFilePath ||
             supplier.trade_license_file_path ||
-            "",
+            '',
           vatCertificateFilePath:
             supplier.vatCertificateFilePath ||
             supplier.vat_certificate_file_path ||
-            "",
+            '',
 
           // Supplier Classification
           supplierLocation:
             supplier.supplierLocation ||
             supplier.supplier_location ||
-            "UAE_LOCAL",
+            'UAE_LOCAL',
           isMill: supplier.isMill ?? supplier.is_mill ?? false,
           primaryCountry:
-            supplier.primaryCountry || supplier.primary_country || "UAE",
+            supplier.primaryCountry || supplier.primary_country || 'UAE',
           typicalLeadTimeDays:
             supplier.typicalLeadTimeDays ??
             supplier.typical_lead_time_days ??
             7,
-          supplierType: supplier.supplierType || supplier.supplier_type || "",
-          category: supplier.category || "",
+          supplierType: supplier.supplierType || supplier.supplier_type || '',
+          category: supplier.category || '',
 
           // Stainless Steel Specifications
           mtcRequirement:
@@ -650,29 +650,29 @@ export function SupplierForm() {
           minimumOrderQuantity:
             supplier.minimumOrderQuantity ||
             supplier.minimum_order_quantity ||
-            "",
+            '',
           qualityCertifications: parseQualityCertifications(
             supplier.qualityCertifications || supplier.quality_certifications,
           ),
           isoCertificatesFilePath:
             supplier.isoCertificatesFilePath ||
             supplier.iso_certificates_file_path ||
-            "",
+            '',
 
           // Financial Terms
-          paymentTerms: supplier.paymentTerms || supplier.payment_terms || "",
+          paymentTerms: supplier.paymentTerms || supplier.payment_terms || '',
           defaultCurrency:
-            supplier.defaultCurrency || supplier.default_currency || "AED",
-          creditLimit: supplier.creditLimit || supplier.credit_limit || "",
-          countryId: supplier.countryId || supplier.country_id || "",
+            supplier.defaultCurrency || supplier.default_currency || 'AED',
+          creditLimit: supplier.creditLimit || supplier.credit_limit || '',
+          countryId: supplier.countryId || supplier.country_id || '',
           businessLicense:
-            supplier.businessLicense || supplier.business_license || "",
+            supplier.businessLicense || supplier.business_license || '',
           bankDetails: parseBankDetails(
             supplier.bankDetails || supplier.bank_details,
           ),
 
           // Additional Information
-          notes: supplier.notes || "",
+          notes: supplier.notes || '',
           isActive: supplier.isActive ?? supplier.is_active ?? true,
           uploadedDocuments: parseArray(
             supplier.uploadedDocuments || supplier.uploaded_documents,
@@ -680,8 +680,8 @@ export function SupplierForm() {
         });
       }
     } catch (err) {
-      console.error("Failed to load supplier:", err);
-      notificationService.error("Failed to load supplier");
+      console.error('Failed to load supplier:', err);
+      notificationService.error('Failed to load supplier');
     } finally {
       setLoading(false);
     }
@@ -699,12 +699,12 @@ export function SupplierForm() {
     }
 
     // Auto-update primaryCountry when supplierLocation changes
-    if (field === "supplierLocation") {
-      if (value === "UAE_LOCAL") {
+    if (field === 'supplierLocation') {
+      if (value === 'UAE_LOCAL') {
         setFormData((prev) => ({
           ...prev,
           supplierLocation: value,
-          primaryCountry: "UAE",
+          primaryCountry: 'UAE',
           typicalLeadTimeDays: 7, // Local suppliers typically faster
         }));
       } else {
@@ -767,23 +767,23 @@ export function SupplierForm() {
 
     // Basic Information validation
     if (!formData.name?.trim()) {
-      newErrors.name = "Supplier name is required";
+      newErrors.name = 'Supplier name is required';
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = 'Invalid email format';
     }
 
     if (
       formData.contactEmail &&
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)
     ) {
-      newErrors.contactEmail = "Invalid contact email format";
+      newErrors.contactEmail = 'Invalid contact email format';
     }
 
     // Address validation - Country is required and must be ISO alpha-2 format (VAT compliance)
     if (!formData.country?.trim()) {
-      newErrors.country = "Country is required (ISO alpha-2 code)";
+      newErrors.country = 'Country is required (ISO alpha-2 code)';
     } else {
       const countryCode = formData.country.trim().toUpperCase();
       if (!VALID_ISO_COUNTRY_CODES.has(countryCode)) {
@@ -793,11 +793,11 @@ export function SupplierForm() {
 
     // Tax & Compliance validation
     if (formData.vatNumber && !/^[A-Z0-9]{15}$/.test(formData.vatNumber)) {
-      newErrors.vatNumber = "VAT number must be 15 alphanumeric characters";
+      newErrors.vatNumber = 'VAT number must be 15 alphanumeric characters';
     }
 
     if (formData.trnNumber && !/^\d{15}$/.test(formData.trnNumber)) {
-      newErrors.trnNumber = "TRN must be 15 digits";
+      newErrors.trnNumber = 'TRN must be 15 digits';
     }
 
     if (formData.tradeLicenseExpiry) {
@@ -805,23 +805,23 @@ export function SupplierForm() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (expiryDate < today) {
-        newErrors.tradeLicenseExpiry = "Trade license has expired";
+        newErrors.tradeLicenseExpiry = 'Trade license has expired';
       }
     }
 
     // Classification validation
-    if (formData.supplierLocation === "OVERSEAS" && !formData.primaryCountry) {
+    if (formData.supplierLocation === 'OVERSEAS' && !formData.primaryCountry) {
       newErrors.primaryCountry =
-        "Primary country is required for overseas suppliers";
+        'Primary country is required for overseas suppliers';
     }
 
     if (formData.typicalLeadTimeDays < 0) {
-      newErrors.typicalLeadTimeDays = "Lead time cannot be negative";
+      newErrors.typicalLeadTimeDays = 'Lead time cannot be negative';
     }
 
     // Financial validation
     if (formData.creditLimit && parseFloat(formData.creditLimit) < 0) {
-      newErrors.creditLimit = "Credit limit cannot be negative";
+      newErrors.creditLimit = 'Credit limit cannot be negative';
     }
 
     setErrors(newErrors);
@@ -832,7 +832,7 @@ export function SupplierForm() {
     e.preventDefault();
 
     if (!validate()) {
-      notificationService.error("Please fix the validation errors");
+      notificationService.error('Please fix the validation errors');
       return;
     }
 
@@ -846,13 +846,13 @@ export function SupplierForm() {
         if (file) {
           try {
             const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
+            formDataUpload.append('file', file);
 
             const uploadResult = await apiClient.post(
-              "/suppliers/upload-temp",
+              '/suppliers/upload-temp',
               formDataUpload,
               {
-                headers: { "Content-Type": "multipart/form-data" },
+                headers: { 'Content-Type': 'multipart/form-data' },
               },
             );
 
@@ -875,11 +875,11 @@ export function SupplierForm() {
         ...otherFields,
         // Structure address as an object (gRPC expects object, not string)
         address: JSON.stringify({
-          street: street || "",
-          city: city || "",
-          state: state || "",
-          postal_code: postalCode || "",
-          country: country || "",
+          street: street || '',
+          city: city || '',
+          state: state || '',
+          postal_code: postalCode || '',
+          country: country || '',
         }),
         typicalLeadTimeDays: parseInt(formData.typicalLeadTimeDays, 10) || 0,
         creditLimit: formData.creditLimit
@@ -910,16 +910,16 @@ export function SupplierForm() {
 
       if (isEditMode) {
         await supplierService.updateSupplier(id, payload);
-        notificationService.success("Supplier updated successfully");
+        notificationService.success('Supplier updated successfully');
       } else {
         await supplierService.createSupplier(payload);
-        notificationService.success("Supplier created successfully");
+        notificationService.success('Supplier created successfully');
       }
 
-      navigate("/suppliers");
+      navigate('/suppliers');
     } catch (err) {
-      console.error("Failed to save supplier:", err);
-      notificationService.error(err.message || "Failed to save supplier");
+      console.error('Failed to save supplier:', err);
+      notificationService.error(err.message || 'Failed to save supplier');
     } finally {
       setSaving(false);
     }
@@ -927,17 +927,17 @@ export function SupplierForm() {
 
   const inputClasses = `w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
     isDarkMode
-      ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
   }`;
 
-  const labelClasses = `block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
+  const labelClasses = `block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2
-          className={`h-8 w-8 animate-spin ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+          className={`h-8 w-8 animate-spin ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
         />
       </div>
     );
@@ -945,26 +945,26 @@ export function SupplierForm() {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-[#161A1D]" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-[#161A1D]' : 'bg-gray-50'}`}
     >
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate("/suppliers")}
+              onClick={() => navigate('/suppliers')}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode
-                  ? "hover:bg-gray-700 text-gray-300"
-                  : "hover:bg-gray-100 text-gray-600"
+                  ? 'hover:bg-gray-700 text-gray-300'
+                  : 'hover:bg-gray-100 text-gray-600'
               }`}
             >
               <ArrowLeft size={24} />
             </button>
             <h1
-              className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
-              {isEditMode ? "Edit Supplier" : "New Supplier"}
+              {isEditMode ? 'Edit Supplier' : 'New Supplier'}
             </h1>
           </div>
         </div>
@@ -974,12 +974,12 @@ export function SupplierForm() {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <h2
-              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               <Building2 size={20} />
               Basic Information
@@ -990,8 +990,8 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleChange("name", e.target.value)}
-                  className={`${inputClasses} ${errors.name ? "border-red-500" : ""}`}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  className={`${inputClasses} ${errors.name ? 'border-red-500' : ''}`}
                   placeholder="Enter supplier name"
                 />
                 {errors.name && (
@@ -1004,7 +1004,7 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.company}
-                  onChange={(e) => handleChange("company", e.target.value)}
+                  onChange={(e) => handleChange('company', e.target.value)}
                   className={inputClasses}
                   placeholder="Company / Trading name"
                 />
@@ -1015,8 +1015,8 @@ export function SupplierForm() {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  className={`${inputClasses} ${errors.email ? "border-red-500" : ""}`}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  className={`${inputClasses} ${errors.email ? 'border-red-500' : ''}`}
                   placeholder="supplier@example.com"
                 />
                 {errors.email && (
@@ -1029,7 +1029,7 @@ export function SupplierForm() {
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
+                  onChange={(e) => handleChange('phone', e.target.value)}
                   className={inputClasses}
                   placeholder="+971 XX XXX XXXX"
                 />
@@ -1041,7 +1041,7 @@ export function SupplierForm() {
                   type="tel"
                   value={formData.alternatePhone}
                   onChange={(e) =>
-                    handleChange("alternatePhone", e.target.value)
+                    handleChange('alternatePhone', e.target.value)
                   }
                   className={inputClasses}
                   placeholder="Secondary contact number"
@@ -1053,7 +1053,7 @@ export function SupplierForm() {
                 <input
                   type="url"
                   value={formData.website}
-                  onChange={(e) => handleChange("website", e.target.value)}
+                  onChange={(e) => handleChange('website', e.target.value)}
                   className={inputClasses}
                   placeholder="https://example.com"
                 />
@@ -1064,7 +1064,7 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.street}
-                  onChange={(e) => handleChange("street", e.target.value)}
+                  onChange={(e) => handleChange('street', e.target.value)}
                   className={inputClasses}
                   placeholder="Street address"
                 />
@@ -1075,7 +1075,7 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.city}
-                  onChange={(e) => handleChange("city", e.target.value)}
+                  onChange={(e) => handleChange('city', e.target.value)}
                   className={inputClasses}
                   placeholder="City"
                 />
@@ -1086,7 +1086,7 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.state}
-                  onChange={(e) => handleChange("state", e.target.value)}
+                  onChange={(e) => handleChange('state', e.target.value)}
                   className={inputClasses}
                   placeholder="State or Emirate"
                 />
@@ -1097,7 +1097,7 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.postalCode}
-                  onChange={(e) => handleChange("postalCode", e.target.value)}
+                  onChange={(e) => handleChange('postalCode', e.target.value)}
                   className={inputClasses}
                   placeholder="Postal code"
                 />
@@ -1114,8 +1114,8 @@ export function SupplierForm() {
                 <input
                   type="text"
                   value={formData.country}
-                  onChange={(e) => handleChange("country", e.target.value)}
-                  className={`${inputClasses} ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}
+                  onChange={(e) => handleChange('country', e.target.value)}
+                  className={`${inputClasses} ${errors.country ? 'border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="e.g., AE (UAE), IN (India), CN (China)"
                   maxLength={2}
                 />
@@ -1135,19 +1135,19 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <button
               type="button"
-              onClick={() => toggleSection("contact")}
+              onClick={() => toggleSection('contact')}
               className={`w-full p-6 flex items-center justify-between ${
-                isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
               } transition-colors rounded-xl`}
             >
               <h2
-                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 <User size={20} />
                 Contact Person
@@ -1155,12 +1155,12 @@ export function SupplierForm() {
               {expandedSections.contact ? (
                 <ChevronUp
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               ) : (
                 <ChevronDown
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               )}
             </button>
@@ -1172,7 +1172,7 @@ export function SupplierForm() {
                     type="text"
                     value={formData.contactPerson}
                     onChange={(e) =>
-                      handleChange("contactPerson", e.target.value)
+                      handleChange('contactPerson', e.target.value)
                     }
                     className={inputClasses}
                     placeholder="Primary contact name"
@@ -1185,9 +1185,9 @@ export function SupplierForm() {
                     type="email"
                     value={formData.contactEmail}
                     onChange={(e) =>
-                      handleChange("contactEmail", e.target.value)
+                      handleChange('contactEmail', e.target.value)
                     }
-                    className={`${inputClasses} ${errors.contactEmail ? "border-red-500" : ""}`}
+                    className={`${inputClasses} ${errors.contactEmail ? 'border-red-500' : ''}`}
                     placeholder="contact@example.com"
                   />
                   {errors.contactEmail && (
@@ -1203,7 +1203,7 @@ export function SupplierForm() {
                     type="tel"
                     value={formData.contactPhone}
                     onChange={(e) =>
-                      handleChange("contactPhone", e.target.value)
+                      handleChange('contactPhone', e.target.value)
                     }
                     className={inputClasses}
                     placeholder="+971 XX XXX XXXX"
@@ -1217,19 +1217,19 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <button
               type="button"
-              onClick={() => toggleSection("taxCompliance")}
+              onClick={() => toggleSection('taxCompliance')}
               className={`w-full p-6 flex items-center justify-between ${
-                isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
               } transition-colors rounded-xl`}
             >
               <h2
-                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 <Shield size={20} />
                 Tax & Compliance
@@ -1237,12 +1237,12 @@ export function SupplierForm() {
               {expandedSections.taxCompliance ? (
                 <ChevronUp
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               ) : (
                 <ChevronDown
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               )}
             </button>
@@ -1255,9 +1255,9 @@ export function SupplierForm() {
                       type="text"
                       value={formData.vatNumber}
                       onChange={(e) =>
-                        handleChange("vatNumber", e.target.value.toUpperCase())
+                        handleChange('vatNumber', e.target.value.toUpperCase())
                       }
-                      className={`${inputClasses} ${errors.vatNumber ? "border-red-500" : ""}`}
+                      className={`${inputClasses} ${errors.vatNumber ? 'border-red-500' : ''}`}
                       placeholder="15 alphanumeric characters"
                       maxLength={15}
                     />
@@ -1270,7 +1270,7 @@ export function SupplierForm() {
 
                   <TRNInput
                     value={formData.trnNumber}
-                    onChange={(value) => handleChange("trnNumber", value)}
+                    onChange={(value) => handleChange('trnNumber', value)}
                     label="TRN Number"
                     required={false}
                   />
@@ -1280,7 +1280,7 @@ export function SupplierForm() {
                     <input
                       type="text"
                       value={formData.taxId}
-                      onChange={(e) => handleChange("taxId", e.target.value)}
+                      onChange={(e) => handleChange('taxId', e.target.value)}
                       className={inputClasses}
                       placeholder="Tax identification number"
                     />
@@ -1292,7 +1292,7 @@ export function SupplierForm() {
                       type="text"
                       value={formData.tradeLicenseNumber}
                       onChange={(e) =>
-                        handleChange("tradeLicenseNumber", e.target.value)
+                        handleChange('tradeLicenseNumber', e.target.value)
                       }
                       className={inputClasses}
                       placeholder="Trade license no."
@@ -1305,9 +1305,9 @@ export function SupplierForm() {
                       type="date"
                       value={formData.tradeLicenseExpiry}
                       onChange={(e) =>
-                        handleChange("tradeLicenseExpiry", e.target.value)
+                        handleChange('tradeLicenseExpiry', e.target.value)
                       }
-                      className={`${inputClasses} ${errors.tradeLicenseExpiry ? "border-red-500" : ""}`}
+                      className={`${inputClasses} ${errors.tradeLicenseExpiry ? 'border-red-500' : ''}`}
                     />
                     {errors.tradeLicenseExpiry && (
                       <p className="text-red-500 text-sm mt-1">
@@ -1325,7 +1325,7 @@ export function SupplierForm() {
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>
-                        handleFileChange("tradeLicenseFile", e.target.files[0])
+                        handleFileChange('tradeLicenseFile', e.target.files[0])
                       }
                       className={inputClasses}
                     />
@@ -1352,7 +1352,7 @@ export function SupplierForm() {
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>
                         handleFileChange(
-                          "vatCertificateFile",
+                          'vatCertificateFile',
                           e.target.files[0],
                         )
                       }
@@ -1377,18 +1377,18 @@ export function SupplierForm() {
                         type="checkbox"
                         checked={formData.isDesignatedZone}
                         onChange={(e) =>
-                          handleChange("isDesignatedZone", e.target.checked)
+                          handleChange('isDesignatedZone', e.target.checked)
                         }
                         className="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                       <span
-                        className={isDarkMode ? "text-white" : "text-gray-900"}
+                        className={isDarkMode ? 'text-white' : 'text-gray-900'}
                       >
                         Designated Zone Supplier (Tax-Free)
                       </span>
                     </label>
                     <p
-                      className={`text-xs mt-1 ml-7 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ml-7 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       Check if supplier operates in a UAE designated/free zone
                     </p>
@@ -1402,19 +1402,19 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <button
               type="button"
-              onClick={() => toggleSection("classification")}
+              onClick={() => toggleSection('classification')}
               className={`w-full p-6 flex items-center justify-between ${
-                isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
               } transition-colors rounded-xl`}
             >
               <h2
-                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 <Globe size={20} />
                 Supplier Classification
@@ -1422,19 +1422,19 @@ export function SupplierForm() {
               {expandedSections.classification ? (
                 <ChevronUp
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               ) : (
                 <ChevronDown
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               )}
             </button>
             {expandedSections.classification && (
               <div className="px-6 pb-6 space-y-4">
                 <p
-                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
                   These fields help categorize suppliers for procurement channel
                   tracking and margin calculations.
@@ -1446,7 +1446,7 @@ export function SupplierForm() {
                       label="Supplier Type"
                       value={formData.supplierType}
                       onValueChange={(value) =>
-                        handleChange("supplierType", value)
+                        handleChange('supplierType', value)
                       }
                       required={false}
                       showValidation={false}
@@ -1464,7 +1464,7 @@ export function SupplierForm() {
                     <FormSelect
                       label="Category"
                       value={formData.category}
-                      onValueChange={(value) => handleChange("category", value)}
+                      onValueChange={(value) => handleChange('category', value)}
                       required={false}
                       showValidation={false}
                     >
@@ -1487,7 +1487,7 @@ export function SupplierForm() {
                       }
                       value={formData.supplierLocation}
                       onValueChange={(value) =>
-                        handleChange("supplierLocation", value)
+                        handleChange('supplierLocation', value)
                       }
                       required={true}
                       showValidation={false}
@@ -1499,11 +1499,11 @@ export function SupplierForm() {
                       ))}
                     </FormSelect>
                     <p
-                      className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
-                      {formData.supplierLocation === "UAE_LOCAL"
-                        ? "Local suppliers: faster delivery, lower margins (~8%)"
-                        : "Overseas suppliers: longer lead times, higher margins (~18%)"}
+                      {formData.supplierLocation === 'UAE_LOCAL'
+                        ? 'Local suppliers: faster delivery, lower margins (~8%)'
+                        : 'Overseas suppliers: longer lead times, higher margins (~18%)'}
                     </p>
                   </div>
 
@@ -1516,8 +1516,8 @@ export function SupplierForm() {
                     <div
                       className={`flex items-center gap-4 h-[52px] px-4 rounded-lg border ${
                         isDarkMode
-                          ? "bg-gray-800 border-gray-600"
-                          : "bg-white border-gray-300"
+                          ? 'bg-gray-800 border-gray-600'
+                          : 'bg-white border-gray-300'
                       }`}
                     >
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -1525,13 +1525,13 @@ export function SupplierForm() {
                           type="checkbox"
                           checked={formData.isMill}
                           onChange={(e) =>
-                            handleChange("isMill", e.target.checked)
+                            handleChange('isMill', e.target.checked)
                           }
                           className="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                         />
                         <span
                           className={
-                            isDarkMode ? "text-white" : "text-gray-900"
+                            isDarkMode ? 'text-white' : 'text-gray-900'
                           }
                         >
                           This is a Mill / Manufacturer
@@ -1539,7 +1539,7 @@ export function SupplierForm() {
                       </label>
                     </div>
                     <p
-                      className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       Mills produce steel directly; traders/distributors resell
                     </p>
@@ -1556,11 +1556,11 @@ export function SupplierForm() {
                       }
                       value={formData.primaryCountry}
                       onValueChange={(value) =>
-                        handleChange("primaryCountry", value)
+                        handleChange('primaryCountry', value)
                       }
-                      required={formData.supplierLocation === "OVERSEAS"}
-                      disabled={formData.supplierLocation === "UAE_LOCAL"}
-                      validationState={errors.primaryCountry ? "invalid" : null}
+                      required={formData.supplierLocation === 'OVERSEAS'}
+                      disabled={formData.supplierLocation === 'UAE_LOCAL'}
+                      validationState={errors.primaryCountry ? 'invalid' : null}
                       showValidation={true}
                     >
                       {COUNTRY_OPTIONS.map((opt) => (
@@ -1586,11 +1586,11 @@ export function SupplierForm() {
                       type="number"
                       value={formData.typicalLeadTimeDays}
                       onChange={(e) =>
-                        handleChange("typicalLeadTimeDays", e.target.value)
+                        handleChange('typicalLeadTimeDays', e.target.value)
                       }
                       min="0"
                       max="365"
-                      className={`${inputClasses} ${errors.typicalLeadTimeDays ? "border-red-500" : ""}`}
+                      className={`${inputClasses} ${errors.typicalLeadTimeDays ? 'border-red-500' : ''}`}
                       placeholder="Expected delivery days"
                     />
                     {errors.typicalLeadTimeDays && (
@@ -1599,7 +1599,7 @@ export function SupplierForm() {
                       </p>
                     )}
                     <p
-                      className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       Average days from order to delivery
                     </p>
@@ -1613,19 +1613,19 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <button
               type="button"
-              onClick={() => toggleSection("steelSpecs")}
+              onClick={() => toggleSection('steelSpecs')}
               className={`w-full p-6 flex items-center justify-between ${
-                isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
               } transition-colors rounded-xl`}
             >
               <h2
-                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 <Settings size={20} />
                 Stainless Steel Specifications
@@ -1633,12 +1633,12 @@ export function SupplierForm() {
               {expandedSections.steelSpecs ? (
                 <ChevronUp
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               ) : (
                 <ChevronDown
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               )}
             </button>
@@ -1652,18 +1652,18 @@ export function SupplierForm() {
                         type="checkbox"
                         checked={formData.mtcRequirement}
                         onChange={(e) =>
-                          handleChange("mtcRequirement", e.target.checked)
+                          handleChange('mtcRequirement', e.target.checked)
                         }
                         className="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                       <span
-                        className={isDarkMode ? "text-white" : "text-gray-900"}
+                        className={isDarkMode ? 'text-white' : 'text-gray-900'}
                       >
                         MTC (Mill Test Certificate) Required
                       </span>
                     </label>
                     <p
-                      className={`text-xs mt-1 ml-7 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ml-7 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       Supplier must provide mill test certificates with
                       shipments
@@ -1688,14 +1688,14 @@ export function SupplierForm() {
                             )}
                             onChange={() =>
                               handleArrayChange(
-                                "materialGradeSpecialization",
+                                'materialGradeSpecialization',
                                 grade.value,
                               )
                             }
                             className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                           />
                           <span
-                            className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                            className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                           >
                             {grade.label}
                           </span>
@@ -1722,14 +1722,14 @@ export function SupplierForm() {
                             )}
                             onChange={() =>
                               handleArrayChange(
-                                "productFormCapabilities",
+                                'productFormCapabilities',
                                 form.value,
                               )
                             }
                             className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                           />
                           <span
-                            className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                            className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                           >
                             {form.label}
                           </span>
@@ -1747,7 +1747,7 @@ export function SupplierForm() {
                       type="text"
                       value={formData.minimumOrderQuantity}
                       onChange={(e) =>
-                        handleChange("minimumOrderQuantity", e.target.value)
+                        handleChange('minimumOrderQuantity', e.target.value)
                       }
                       className={inputClasses}
                       placeholder="e.g., 1 ton, 500 kg, 100 pcs"
@@ -1767,15 +1767,15 @@ export function SupplierForm() {
                           checked={formData.qualityCertifications.iso9001}
                           onChange={(e) =>
                             handleNestedChange(
-                              "qualityCertifications",
-                              "iso9001",
+                              'qualityCertifications',
+                              'iso9001',
                               e.target.checked,
                             )
                           }
                           className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                         />
                         <span
-                          className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                          className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                         >
                           ISO 9001 (Quality Management)
                         </span>
@@ -1786,15 +1786,15 @@ export function SupplierForm() {
                           checked={formData.qualityCertifications.iso14001}
                           onChange={(e) =>
                             handleNestedChange(
-                              "qualityCertifications",
-                              "iso14001",
+                              'qualityCertifications',
+                              'iso14001',
                               e.target.checked,
                             )
                           }
                           className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                         />
                         <span
-                          className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                          className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                         >
                           ISO 14001 (Environmental)
                         </span>
@@ -1813,7 +1813,7 @@ export function SupplierForm() {
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>
                         handleFileChange(
-                          "isoCertificatesFile",
+                          'isoCertificatesFile',
                           e.target.files[0],
                         )
                       }
@@ -1840,8 +1840,8 @@ export function SupplierForm() {
                       value={formData.qualityCertifications.other}
                       onChange={(e) =>
                         handleNestedChange(
-                          "qualityCertifications",
-                          "other",
+                          'qualityCertifications',
+                          'other',
                           e.target.value,
                         )
                       }
@@ -1858,19 +1858,19 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <button
               type="button"
-              onClick={() => toggleSection("financial")}
+              onClick={() => toggleSection('financial')}
               className={`w-full p-6 flex items-center justify-between ${
-                isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
               } transition-colors rounded-xl`}
             >
               <h2
-                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 <DollarSign size={20} />
                 Financial Terms
@@ -1878,12 +1878,12 @@ export function SupplierForm() {
               {expandedSections.financial ? (
                 <ChevronUp
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               ) : (
                 <ChevronDown
                   size={20}
-                  className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                 />
               )}
             </button>
@@ -1896,7 +1896,7 @@ export function SupplierForm() {
                       label="Payment Terms"
                       value={formData.paymentTerms}
                       onValueChange={(value) =>
-                        handleChange("paymentTerms", value)
+                        handleChange('paymentTerms', value)
                       }
                       required={false}
                       showValidation={false}
@@ -1915,7 +1915,7 @@ export function SupplierForm() {
                       label="Default Currency"
                       value={formData.defaultCurrency}
                       onValueChange={(value) =>
-                        handleChange("defaultCurrency", value)
+                        handleChange('defaultCurrency', value)
                       }
                       required={false}
                       showValidation={false}
@@ -1935,9 +1935,9 @@ export function SupplierForm() {
                       type="number"
                       value={formData.creditLimit}
                       onChange={(e) =>
-                        handleChange("creditLimit", e.target.value)
+                        handleChange('creditLimit', e.target.value)
                       }
-                      className={`${inputClasses} ${errors.creditLimit ? "border-red-500" : ""}`}
+                      className={`${inputClasses} ${errors.creditLimit ? 'border-red-500' : ''}`}
                       placeholder="0.00"
                       step="0.01"
                       min="0"
@@ -1956,7 +1956,7 @@ export function SupplierForm() {
                       type="text"
                       value={formData.businessLicense}
                       onChange={(e) =>
-                        handleChange("businessLicense", e.target.value)
+                        handleChange('businessLicense', e.target.value)
                       }
                       className={inputClasses}
                       placeholder="Business license number"
@@ -1966,7 +1966,7 @@ export function SupplierForm() {
                   {/* Bank Details Section */}
                   <div className="md:col-span-2">
                     <h3
-                      className={`text-md font-semibold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-md font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Bank Account Details
                     </h3>
@@ -1978,8 +1978,8 @@ export function SupplierForm() {
                           value={formData.bankDetails.accountNumber}
                           onChange={(e) =>
                             handleNestedChange(
-                              "bankDetails",
-                              "accountNumber",
+                              'bankDetails',
+                              'accountNumber',
                               e.target.value,
                             )
                           }
@@ -1995,8 +1995,8 @@ export function SupplierForm() {
                           value={formData.bankDetails.bankName}
                           onChange={(e) =>
                             handleNestedChange(
-                              "bankDetails",
-                              "bankName",
+                              'bankDetails',
+                              'bankName',
                               e.target.value,
                             )
                           }
@@ -2012,8 +2012,8 @@ export function SupplierForm() {
                           value={formData.bankDetails.swiftCode}
                           onChange={(e) =>
                             handleNestedChange(
-                              "bankDetails",
-                              "swiftCode",
+                              'bankDetails',
+                              'swiftCode',
                               e.target.value.toUpperCase(),
                             )
                           }
@@ -2029,8 +2029,8 @@ export function SupplierForm() {
                           value={formData.bankDetails.iban}
                           onChange={(e) =>
                             handleNestedChange(
-                              "bankDetails",
-                              "iban",
+                              'bankDetails',
+                              'iban',
                               e.target.value.toUpperCase(),
                             )
                           }
@@ -2049,12 +2049,12 @@ export function SupplierForm() {
           <div
             className={`p-6 rounded-xl border ${
               isDarkMode
-                ? "bg-[#1E2328] border-[#37474F]"
-                : "bg-white border-gray-200"
+                ? 'bg-[#1E2328] border-[#37474F]'
+                : 'bg-white border-gray-200'
             }`}
           >
             <h2
-              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               <FileText size={20} />
               Additional Information
@@ -2063,7 +2063,7 @@ export function SupplierForm() {
               <label className={labelClasses}>Notes</label>
               <textarea
                 value={formData.notes}
-                onChange={(e) => handleChange("notes", e.target.value)}
+                onChange={(e) => handleChange('notes', e.target.value)}
                 rows={3}
                 className={inputClasses}
                 placeholder="Additional notes about this supplier..."
@@ -2075,10 +2075,10 @@ export function SupplierForm() {
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => handleChange("isActive", e.target.checked)}
+                  onChange={(e) => handleChange('isActive', e.target.checked)}
                   className="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                 />
-                <span className={isDarkMode ? "text-white" : "text-gray-900"}>
+                <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
                   Supplier is active
                 </span>
               </label>
@@ -2089,11 +2089,11 @@ export function SupplierForm() {
           <div className="flex justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/suppliers")}
+              onClick={() => navigate('/suppliers')}
               className={`px-6 py-3 rounded-lg border transition-colors ${
                 isDarkMode
-                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
               Cancel
@@ -2108,7 +2108,7 @@ export function SupplierForm() {
               ) : (
                 <Save size={20} />
               )}
-              {isEditMode ? "Update Supplier" : "Create Supplier"}
+              {isEditMode ? 'Update Supplier' : 'Create Supplier'}
             </button>
           </div>
         </form>

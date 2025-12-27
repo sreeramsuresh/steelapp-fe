@@ -6,8 +6,8 @@
  * Shows IN movements created when stock is received
  */
 
-import { useState, useEffect } from "react";
-import { Package, ChevronDown, ChevronUp, Truck } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Package, ChevronDown, ChevronUp, Truck } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -15,42 +15,42 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   stockMovementService,
   MOVEMENT_TYPES,
-} from "../../services/stockMovementService";
+} from '../../services/stockMovementService';
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return "-";
+  if (!dateValue) return '-';
   const date = dateValue.seconds
     ? new Date(dateValue.seconds * 1000)
     : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 };
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (quantity, unit = "KG") => {
+const formatQuantity = (quantity, unit = 'KG') => {
   const num = parseFloat(quantity) || 0;
-  return `${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
  * Get movement type display info
  */
 const getMovementTypeDisplay = (type) => {
-  const typeInfo = MOVEMENT_TYPES[type] || { label: type, color: "default" };
+  const typeInfo = MOVEMENT_TYPES[type] || { label: type, color: 'default' };
   return typeInfo;
 };
 
@@ -79,8 +79,8 @@ const POStockMovements = ({
         await stockMovementService.getByPurchaseOrder(purchaseOrderId);
       setMovements(result.data || []);
     } catch (err) {
-      console.error("Error fetching PO stock movements:", err);
-      setError("Failed to load stock movements");
+      console.error('Error fetching PO stock movements:', err);
+      setError('Failed to load stock movements');
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ const POStockMovements = ({
   const totals = movements.reduce(
     (acc, m) => {
       const qty = parseFloat(m.quantity) || 0;
-      if (m.movementType === "IN") {
+      if (m.movementType === 'IN') {
         acc.totalIn += qty;
       }
       return acc;
@@ -114,7 +114,7 @@ const POStockMovements = ({
             Stock Movements
             {movements.length > 0 && (
               <span className="ml-2 inline-flex items-center px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
-                {movements.length} movement{movements.length !== 1 ? "s" : ""}
+                {movements.length} movement{movements.length !== 1 ? 's' : ''}
               </span>
             )}
           </h3>
@@ -182,7 +182,7 @@ const POStockMovements = ({
                             </span>
                           </TableCell>
                           <TableCell>
-                            <div title={`SKU: ${movement.productSku || "N/A"}`}>
+                            <div title={`SKU: ${movement.productSku || 'N/A'}`}>
                               <span className="text-sm">
                                 {movement.productName ||
                                   `Product #${movement.productId}`}
@@ -193,12 +193,12 @@ const POStockMovements = ({
                             <span className="text-sm">
                               {movement.warehouseName ||
                                 movement.warehouseCode ||
-                                "-"}
+                                '-'}
                             </span>
                           </TableCell>
                           <TableCell>
                             <span
-                              className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${typeDisplay.color === "green" ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-700 border-gray-200"}`}
+                              className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${typeDisplay.color === 'green' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}
                             >
                               {typeDisplay.label}
                             </span>
@@ -219,7 +219,7 @@ const POStockMovements = ({
                           </TableCell>
                           <TableCell>
                             <span className="text-xs text-gray-600">
-                              {movement.notes || "-"}
+                              {movement.notes || '-'}
                             </span>
                           </TableCell>
                         </TableRow>
@@ -234,7 +234,7 @@ const POStockMovements = ({
                 <div className="text-right">
                   <p className="text-xs text-gray-600">Total Stock Received</p>
                   <p className="text-lg font-semibold text-green-600">
-                    +{formatQuantity(totals.totalIn, "KG")}
+                    +{formatQuantity(totals.totalIn, 'KG')}
                   </p>
                 </div>
               </div>

@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
-import { Loader2, Package } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import api from "../../services/api";
+import { useState, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
+import { Loader2, Package } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import api from '../../services/api';
 
 /**
  * WarehouseStockSummary Component
@@ -21,7 +21,7 @@ const WarehouseStockSummary = ({
 
   const fetchAllWarehouseStock = useCallback(async () => {
     const numericProductId =
-      typeof productId === "number" ? productId : parseInt(productId);
+      typeof productId === 'number' ? productId : parseInt(productId);
     if (!numericProductId || numericProductId <= 0 || !warehouses?.length) {
       setStockByWarehouse({});
       return;
@@ -32,7 +32,7 @@ const WarehouseStockSummary = ({
       // Fetch stock for all warehouses in parallel
       const stockPromises = warehouses.map(async (wh) => {
         try {
-          const response = await api.get("/stock-batches/available", {
+          const response = await api.get('/stock-batches/available', {
             params: { productId: numericProductId, warehouseId: wh.id },
           });
           const batches = response.batches || [];
@@ -52,7 +52,7 @@ const WarehouseStockSummary = ({
       });
       setStockByWarehouse(stockMap);
     } catch (err) {
-      console.error("Failed to fetch warehouse stock:", err);
+      console.error('Failed to fetch warehouse stock:', err);
       setStockByWarehouse({});
     } finally {
       setLoading(false);
@@ -64,7 +64,7 @@ const WarehouseStockSummary = ({
   }, [fetchAllWarehouseStock]);
 
   const formatQty = (qty) => {
-    return new Intl.NumberFormat("en-AE", {
+    return new Intl.NumberFormat('en-AE', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(qty || 0);
@@ -73,7 +73,7 @@ const WarehouseStockSummary = ({
   if (loading) {
     return (
       <div
-        className={`flex items-center gap-2 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+        className={`flex items-center gap-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
       >
         <Loader2 size={14} className="animate-spin" />
         <span>Loading stock...</span>
@@ -89,10 +89,10 @@ const WarehouseStockSummary = ({
     <div className="flex items-center gap-1 flex-wrap">
       <Package
         size={14}
-        className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+        className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
       />
       <span
-        className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+        className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
       >
         Stock:
       </span>
@@ -111,14 +111,14 @@ const WarehouseStockSummary = ({
               className={`text-xs px-2 py-0.5 rounded transition-colors ${
                 hasStock
                   ? isDarkMode
-                    ? "bg-green-900/30 text-green-300 hover:bg-green-900/50"
-                    : "bg-green-50 text-green-700 hover:bg-green-100"
+                    ? 'bg-green-900/30 text-green-300 hover:bg-green-900/50'
+                    : 'bg-green-50 text-green-700 hover:bg-green-100'
                   : isDarkMode
-                    ? "bg-gray-700/50 text-gray-500"
-                    : "bg-gray-100 text-gray-400"
-              } ${onWarehouseSelect ? "cursor-pointer" : "cursor-default"}`}
+                    ? 'bg-gray-700/50 text-gray-500'
+                    : 'bg-gray-100 text-gray-400'
+              } ${onWarehouseSelect ? 'cursor-pointer' : 'cursor-default'}`}
               title={
-                hasStock ? `Click to select ${wh.name}` : "No stock available"
+                hasStock ? `Click to select ${wh.name}` : 'No stock available'
               }
               disabled={!onWarehouseSelect}
             >
@@ -129,11 +129,11 @@ const WarehouseStockSummary = ({
                 className={`ml-1.5 font-bold ${
                   hasStock
                     ? isDarkMode
-                      ? "text-green-200"
-                      : "text-green-800"
+                      ? 'text-green-200'
+                      : 'text-green-800'
                     : isDarkMode
-                      ? "text-gray-600"
-                      : "text-gray-500"
+                      ? 'text-gray-600'
+                      : 'text-gray-500'
                 }`}
               >
                 {formatQty(stock)}

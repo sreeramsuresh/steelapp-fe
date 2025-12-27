@@ -5,8 +5,8 @@ import {
   useCallback,
   useRef,
   Fragment,
-} from "react";
-import { useParams, useNavigate } from "react-router-dom";
+} from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus,
   Trash2,
@@ -25,10 +25,10 @@ import {
   CheckCircle,
   DollarSign,
   FileText,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { createInvoice, createSteelItem, UAE_EMIRATES } from "../types";
-import { PAYMENT_MODES } from "../utils/paymentUtils";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { createInvoice, createSteelItem, UAE_EMIRATES } from '../types';
+import { PAYMENT_MODES } from '../utils/paymentUtils';
 import {
   calculateItemAmount,
   calculateSubtotal,
@@ -38,55 +38,55 @@ import {
   titleCase,
   normalizeLLC,
   calculateDiscountedTRN,
-} from "../utils/invoiceUtils";
-import InvoicePreview from "../components/InvoicePreview";
-import { invoiceService, companyService, commissionService } from "../services";
-import { customerService } from "../services/customerService";
-import { productService } from "../services/productService";
-import { pinnedProductsService } from "../services/pinnedProductsService";
-import pricelistService from "../services/pricelistService";
-import { stockBatchService } from "../services/stockBatchService";
-import { invoicesAPI } from "../services/api";
-import { useApiData, useApi } from "../hooks/useApi";
+} from '../utils/invoiceUtils';
+import InvoicePreview from '../components/InvoicePreview';
+import { invoiceService, companyService, commissionService } from '../services';
+import { customerService } from '../services/customerService';
+import { productService } from '../services/productService';
+import { pinnedProductsService } from '../services/pinnedProductsService';
+import pricelistService from '../services/pricelistService';
+import { stockBatchService } from '../services/stockBatchService';
+import { invoicesAPI } from '../services/api';
+import { useApiData, useApi } from '../hooks/useApi';
 import useKeyboardShortcuts, {
   getShortcutDisplayString,
   INVOICE_SHORTCUTS,
-} from "../hooks/useKeyboardShortcuts";
+} from '../hooks/useKeyboardShortcuts';
 // AutoSave removed - was causing status bug on new invoices
-import useDragReorder from "../hooks/useDragReorder";
-import useBulkActions from "../hooks/useBulkActions";
-import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
-import { useReducedMotion } from "../hooks/useAccessibility";
-import { notificationService } from "../services/notificationService";
-import LoadingOverlay from "../components/LoadingOverlay";
-import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
-import AllocationPanel from "../components/invoice/AllocationPanel";
-import AllocationDrawer from "../components/AllocationDrawer";
-import { batchReservationService } from "../services/batchReservationService";
-import { v4 as uuidv4 } from "uuid";
-import { FormSelect } from "@/components/ui/form-select";
-import { SelectItem } from "@/components/ui/select";
+import useDragReorder from '../hooks/useDragReorder';
+import useBulkActions from '../hooks/useBulkActions';
+import useInvoiceTemplates from '../hooks/useInvoiceTemplates';
+import { useReducedMotion } from '../hooks/useAccessibility';
+import { notificationService } from '../services/notificationService';
+import LoadingOverlay from '../components/LoadingOverlay';
+import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
+import AllocationPanel from '../components/invoice/AllocationPanel';
+import AllocationDrawer from '../components/AllocationDrawer';
+import { batchReservationService } from '../services/batchReservationService';
+import { v4 as uuidv4 } from 'uuid';
+import { FormSelect } from '@/components/ui/form-select';
+import { SelectItem } from '@/components/ui/select';
 
 // ==================== LAYOUT HELPERS (Updated: Theme-safe classes) ====================
 
 // Layout class helpers for consistent styling (NO hardcoded colors)
 const CARD_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+  `${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-2xl p-4`;
 
 const DRAWER_OVERLAY_CLASSES = (isOpen) =>
-  `fixed inset-0 bg-black/55 z-30 transition-opacity ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`;
+  `fixed inset-0 bg-black/55 z-30 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`;
 
 const DRAWER_PANEL_CLASSES = (isDarkMode, isOpen) =>
-  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${isOpen ? "translate-x-0" : "translate-x-full"}`;
+  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? 'bg-gray-800 border-l border-gray-700' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`;
 
 const QUICK_LINK_CLASSES = (isDarkMode) =>
-  `flex items-center gap-2 py-2 px-2.5 w-full text-left ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-teal-500 hover:text-teal-400`;
+  `flex items-center gap-2 py-2 px-2.5 w-full text-left ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-teal-500 hover:text-teal-400`;
 
 const BTN_PRIMARY_CLASSES =
-  "bg-teal-600 border-transparent text-white font-extrabold hover:bg-teal-500 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer";
+  'bg-teal-600 border-transparent text-white font-extrabold hover:bg-teal-500 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer';
 
 const DIVIDER_CLASSES = (isDarkMode) =>
-  `h-px ${isDarkMode ? "bg-gray-700" : "bg-gray-200"} my-3`;
+  `h-px ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} my-3`;
 
 // ==================== DRAWER COMPONENTS ====================
 
@@ -108,10 +108,10 @@ const ChargesDrawer = ({
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && isOpen) onClose();
+      if (e.key === 'Escape' && isOpen) onClose();
     };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
   return (
@@ -124,19 +124,19 @@ const ChargesDrawer = ({
         <div className="p-4">
           {/* Sticky Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white border-b border-gray-200'}`}
           >
             <div>
               <div className="text-sm font-extrabold">Charges & Discount</div>
               <div
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Configure freight, loading, and discount settings
               </div>
             </div>
             <button
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -144,23 +144,23 @@ const ChargesDrawer = ({
 
           {/* Discount Section */}
           <div
-            className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-4 mb-4`}
+            className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-4 mb-4`}
           >
             <h4
-              className={`text-xs font-bold uppercase tracking-wide mb-3 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`text-xs font-bold uppercase tracking-wide mb-3 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Discount
             </h4>
             <div className="grid grid-cols-2 gap-3">
               <FormSelect
                 label="Discount Type"
-                value={invoice.discountType || "amount"}
+                value={invoice.discountType || 'amount'}
                 onValueChange={(value) =>
                   setInvoice((prev) => ({
                     ...prev,
                     discountType: value,
-                    discountAmount: "",
-                    discountPercentage: "",
+                    discountAmount: '',
+                    discountPercentage: '',
                   }))
                 }
               >
@@ -168,17 +168,17 @@ const ChargesDrawer = ({
                 <SelectItem value="percentage">Percentage (%)</SelectItem>
               </FormSelect>
 
-              {invoice.discountType === "percentage" ? (
+              {invoice.discountType === 'percentage' ? (
                 <InputComponent
                   label="Discount %"
                   type="number"
-                  value={invoice.discountPercentage || ""}
+                  value={invoice.discountPercentage || ''}
                   onChange={(e) => {
                     const raw = e.target.value;
-                    if (raw === "") {
+                    if (raw === '') {
                       setInvoice((prev) => ({
                         ...prev,
-                        discountPercentage: "",
+                        discountPercentage: '',
                       }));
                       return;
                     }
@@ -199,11 +199,11 @@ const ChargesDrawer = ({
                 <InputComponent
                   label="Discount Amount"
                   type="number"
-                  value={invoice.discountAmount || ""}
+                  value={invoice.discountAmount || ''}
                   onChange={(e) => {
                     const raw = e.target.value;
-                    if (raw === "") {
-                      setInvoice((prev) => ({ ...prev, discountAmount: "" }));
+                    if (raw === '') {
+                      setInvoice((prev) => ({ ...prev, discountAmount: '' }));
                       return;
                     }
                     const num = Number(raw);
@@ -226,20 +226,20 @@ const ChargesDrawer = ({
             </div>
             {/* Discount Summary */}
             <div
-              className={`mt-3 pt-3 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}
+              className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-200'}`}
             >
               <div className="flex justify-between items-center">
                 <span
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   Discount Applied
                 </span>
                 <span
-                  className={`text-sm font-bold ${isDarkMode ? "text-[#f39c12]" : "text-amber-600"}`}
+                  className={`text-sm font-bold ${isDarkMode ? 'text-[#f39c12]' : 'text-amber-600'}`}
                 >
                   -
                   {formatCurrency(
-                    invoice.discountType === "percentage"
+                    invoice.discountType === 'percentage'
                       ? (computedSubtotal * (invoice.discountPercentage || 0)) /
                           100
                       : invoice.discountAmount || 0,
@@ -251,17 +251,17 @@ const ChargesDrawer = ({
 
           {/* Freight & Loading Charges Section */}
           <div
-            className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-4`}
+            className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-4`}
           >
             <div className="flex justify-between items-center mb-3">
               <h4
-                className={`text-xs font-bold uppercase tracking-wide flex items-center gap-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`text-xs font-bold uppercase tracking-wide flex items-center gap-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 <span>Freight & Loading Charges</span>
                 <VatHelpIconComponent
                   heading="Auxiliary Charges & VAT Treatment (Article 45)"
                   content={[
-                    "Add charges for services with supply: packing, freight, insurance, loading, other. These are taxable under UAE VAT Article 45.",
+                    'Add charges for services with supply: packing, freight, insurance, loading, other. These are taxable under UAE VAT Article 45.',
                     'All charges subject to 5% VAT by default. Check "Export Invoice" for zero-rated treatment.',
                   ]}
                 />
@@ -272,14 +272,14 @@ const ChargesDrawer = ({
                 className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                   showFreightCharges
                     ? isDarkMode
-                      ? "bg-teal-600 text-white"
-                      : "bg-teal-500 text-white"
+                      ? 'bg-teal-600 text-white'
+                      : 'bg-teal-500 text-white'
                     : isDarkMode
-                      ? "bg-gray-700 text-gray-300"
-                      : "bg-gray-200 text-gray-600"
+                      ? 'bg-gray-700 text-gray-300'
+                      : 'bg-gray-200 text-gray-600'
                 }`}
               >
-                {showFreightCharges ? "ON" : "OFF"}
+                {showFreightCharges ? 'ON' : 'OFF'}
               </button>
             </div>
 
@@ -287,7 +287,7 @@ const ChargesDrawer = ({
               <>
                 {/* Export Toggle */}
                 <label
-                  className={`flex items-center gap-2 cursor-pointer mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  className={`flex items-center gap-2 cursor-pointer mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   <input
                     type="checkbox"
@@ -328,7 +328,7 @@ const ChargesDrawer = ({
                     <InputComponent
                       label="Packing"
                       type="number"
-                      value={invoice.packingCharges || ""}
+                      value={invoice.packingCharges || ''}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
@@ -343,7 +343,7 @@ const ChargesDrawer = ({
                       placeholder="0.00"
                     />
                     <div
-                      className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       VAT: {formatCurrency(invoice.packingChargesVat || 0)}
                     </div>
@@ -354,7 +354,7 @@ const ChargesDrawer = ({
                     <InputComponent
                       label="Freight"
                       type="number"
-                      value={invoice.freightCharges || ""}
+                      value={invoice.freightCharges || ''}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
@@ -369,7 +369,7 @@ const ChargesDrawer = ({
                       placeholder="0.00"
                     />
                     <div
-                      className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       VAT: {formatCurrency(invoice.freightChargesVat || 0)}
                     </div>
@@ -380,7 +380,7 @@ const ChargesDrawer = ({
                     <InputComponent
                       label="Insurance"
                       type="number"
-                      value={invoice.insuranceCharges || ""}
+                      value={invoice.insuranceCharges || ''}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
@@ -395,7 +395,7 @@ const ChargesDrawer = ({
                       placeholder="0.00"
                     />
                     <div
-                      className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       VAT: {formatCurrency(invoice.insuranceChargesVat || 0)}
                     </div>
@@ -406,7 +406,7 @@ const ChargesDrawer = ({
                     <InputComponent
                       label="Loading"
                       type="number"
-                      value={invoice.loadingCharges || ""}
+                      value={invoice.loadingCharges || ''}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
@@ -421,7 +421,7 @@ const ChargesDrawer = ({
                       placeholder="0.00"
                     />
                     <div
-                      className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       VAT: {formatCurrency(invoice.loadingChargesVat || 0)}
                     </div>
@@ -432,7 +432,7 @@ const ChargesDrawer = ({
                     <InputComponent
                       label="Other Charges"
                       type="number"
-                      value={invoice.otherCharges || ""}
+                      value={invoice.otherCharges || ''}
                       onChange={(e) => {
                         const amount = parseFloat(e.target.value) || 0;
                         const vat = invoice.isExport ? 0 : amount * 0.05;
@@ -447,7 +447,7 @@ const ChargesDrawer = ({
                       placeholder="0.00"
                     />
                     <div
-                      className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       VAT: {formatCurrency(invoice.otherChargesVat || 0)}
                     </div>
@@ -456,16 +456,16 @@ const ChargesDrawer = ({
 
                 {/* Total Charges Summary */}
                 <div
-                  className={`mt-4 pt-3 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}
+                  className={`mt-4 pt-3 border-t ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-200'}`}
                 >
                   <div className="flex justify-between items-center mb-2">
                     <span
-                      className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       Total Charges
                     </span>
                     <span
-                      className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       {formatCurrency(
                         (invoice.packingCharges || 0) +
@@ -478,12 +478,12 @@ const ChargesDrawer = ({
                   </div>
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       Total Charges VAT
                     </span>
                     <span
-                      className={`text-sm font-bold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                      className={`text-sm font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                     >
                       {formatCurrency(
                         (invoice.packingChargesVat || 0) +
@@ -509,8 +509,8 @@ const ChargesDrawer = ({
             className="sticky bottom-0 pt-4 mt-4"
             style={{
               background: isDarkMode
-                ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-                : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+                ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
+                : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
             }}
           >
             <div className="flex justify-end gap-2">
@@ -518,8 +518,8 @@ const ChargesDrawer = ({
                 onClick={onClose}
                 className={`px-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-[#0f151b] border border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]"
-                    : "bg-white border border-gray-300 text-gray-900 hover:border-blue-500"
+                    ? 'bg-[#0f151b] border border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]'
+                    : 'bg-white border border-gray-300 text-gray-900 hover:border-blue-500'
                 }`}
               >
                 Close
@@ -545,10 +545,10 @@ const NotesDrawer = ({
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && isOpen) onClose();
+      if (e.key === 'Escape' && isOpen) onClose();
     };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
   return (
@@ -561,19 +561,19 @@ const NotesDrawer = ({
         <div className="p-4">
           {/* Sticky Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white border-b border-gray-200'}`}
           >
             <div>
               <div className="text-sm font-extrabold">Notes & Terms</div>
               <div
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Add invoice notes, VAT notes, and payment terms
               </div>
             </div>
             <button
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -581,15 +581,15 @@ const NotesDrawer = ({
 
           {/* Invoice Notes */}
           <div
-            className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-4 mb-4`}
+            className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-4 mb-4`}
           >
             <h4
-              className={`text-xs font-bold uppercase tracking-wide mb-3 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`text-xs font-bold uppercase tracking-wide mb-3 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Invoice Notes
             </h4>
             <TextareaComponent
-              value={invoice.notes || ""}
+              value={invoice.notes || ''}
               onChange={(e) =>
                 setInvoice((prev) => ({ ...prev, notes: e.target.value }))
               }
@@ -601,22 +601,22 @@ const NotesDrawer = ({
 
           {/* VAT Tax Notes */}
           <div
-            className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-4 mb-4`}
+            className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-4 mb-4`}
           >
             <h4
-              className={`text-xs font-bold uppercase tracking-wide mb-3 flex items-center gap-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`text-xs font-bold uppercase tracking-wide mb-3 flex items-center gap-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               <span>VAT Tax Notes</span>
               <VatHelpIconComponent
                 content={[
-                  "Required if supply is zero-rated or reverse charge applies.",
-                  "Must explain reason for 0% VAT treatment.",
-                  "Part of FTA Form 201 compliance documentation.",
+                  'Required if supply is zero-rated or reverse charge applies.',
+                  'Must explain reason for 0% VAT treatment.',
+                  'Part of FTA Form 201 compliance documentation.',
                 ]}
               />
             </h4>
             <TextareaComponent
-              value={invoice.taxNotes || ""}
+              value={invoice.taxNotes || ''}
               onChange={(e) =>
                 setInvoice((prev) => ({ ...prev, taxNotes: e.target.value }))
               }
@@ -625,7 +625,7 @@ const NotesDrawer = ({
               rows={2}
             />
             <p
-              className={`text-xs mt-2 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`text-xs mt-2 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Required when items are zero-rated or exempt from VAT
             </p>
@@ -633,15 +633,15 @@ const NotesDrawer = ({
 
           {/* Payment Terms & Conditions */}
           <div
-            className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-4`}
+            className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-4`}
           >
             <h4
-              className={`text-xs font-bold uppercase tracking-wide mb-3 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`text-xs font-bold uppercase tracking-wide mb-3 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Payment Terms & Conditions
             </h4>
             <TextareaComponent
-              value={invoice.terms || ""}
+              value={invoice.terms || ''}
               onChange={(e) =>
                 setInvoice((prev) => ({ ...prev, terms: e.target.value }))
               }
@@ -656,8 +656,8 @@ const NotesDrawer = ({
             className="sticky bottom-0 pt-4 mt-4"
             style={{
               background: isDarkMode
-                ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-                : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+                ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
+                : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
             }}
           >
             <div className="flex justify-end gap-2">
@@ -665,8 +665,8 @@ const NotesDrawer = ({
                 onClick={onClose}
                 className={`px-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-[#0f151b] border border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]"
-                    : "bg-white border border-gray-300 text-gray-900 hover:border-blue-500"
+                    ? 'bg-[#0f151b] border border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]'
+                    : 'bg-white border border-gray-300 text-gray-900 hover:border-blue-500'
                 }`}
               >
                 Close
@@ -694,10 +694,10 @@ const AddProductDrawer = ({
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && isOpen) onClose();
+      if (e.key === 'Escape' && isOpen) onClose();
     };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
   return (
@@ -710,19 +710,19 @@ const AddProductDrawer = ({
         <div className="p-4">
           {/* Sticky Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white border-b border-gray-200'}`}
           >
             <div>
               <div className="text-sm font-extrabold">Add Product Line</div>
               <div
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Search products, allocate batches, and add to invoice
               </div>
             </div>
             <button
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -751,57 +751,57 @@ const AddProductDrawer = ({
 // Custom Tailwind Components
 const Button = ({
   children,
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   disabled = false,
   onClick,
-  className = "",
+  className = '',
   ...props
 }) => {
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
 
   const getVariantClasses = () => {
-    if (variant === "primary") {
+    if (variant === 'primary') {
       return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${
-        isDarkMode ? "bg-gray-600" : "bg-gray-400"
+        isDarkMode ? 'bg-gray-600' : 'bg-gray-400'
       } disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${
-        isDarkMode ? "gray-800" : "white"
+        isDarkMode ? 'gray-800' : 'white'
       }`;
-    } else if (variant === "secondary") {
+    } else if (variant === 'secondary') {
       return `${
         isDarkMode
-          ? "bg-gray-700 hover:bg-gray-600"
-          : "bg-gray-200 hover:bg-gray-300"
-      } ${isDarkMode ? "text-white" : "text-gray-800"} focus:ring-${
-        isDarkMode ? "gray-500" : "gray-400"
+          ? 'bg-gray-700 hover:bg-gray-600'
+          : 'bg-gray-200 hover:bg-gray-300'
+      } ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-${
+        isDarkMode ? 'gray-500' : 'gray-400'
       } disabled:${
-        isDarkMode ? "bg-gray-800" : "bg-gray-100"
-      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+        isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+      } focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
     } else {
       // outline
       return `border ${
         isDarkMode
-          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-          : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+          ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
+          : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
       } focus:ring-teal-500 disabled:${
-        isDarkMode ? "bg-gray-800" : "bg-gray-50"
-      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+        isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+      } focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
     }
   };
 
   const sizes = {
-    sm: "px-2.5 py-1 text-xs",
-    md: "px-3 py-1.5 text-sm",
-    lg: "px-4 py-2 text-sm",
+    sm: 'px-2.5 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-4 py-2 text-sm',
   };
 
   return (
     <button
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
-        disabled ? "cursor-not-allowed" : ""
+        disabled ? 'cursor-not-allowed' : ''
       } ${className}`}
       disabled={disabled}
       onClick={onClick}
@@ -815,12 +815,12 @@ const Button = ({
 const Input = ({
   label,
   error,
-  className = "",
+  className = '',
   required = false,
   validationState = null,
   showValidation = true,
   id,
-  "data-testid": dataTestId,
+  'data-testid': dataTestId,
   ...props
 }) => {
   const { isDarkMode } = useTheme();
@@ -831,29 +831,29 @@ const Input = ({
     // If validation highlighting is disabled, show default styles
     if (!showValidation) {
       return isDarkMode
-        ? "border-gray-600 bg-gray-800"
-        : "border-gray-300 bg-white";
+        ? 'border-gray-600 bg-gray-800'
+        : 'border-gray-300 bg-white';
     }
 
-    if (error || validationState === "invalid") {
+    if (error || validationState === 'invalid') {
       return isDarkMode
-        ? "border-red-500 bg-red-900/10"
-        : "border-red-500 bg-red-50";
+        ? 'border-red-500 bg-red-900/10'
+        : 'border-red-500 bg-red-50';
     }
-    if (validationState === "valid") {
+    if (validationState === 'valid') {
       return isDarkMode
-        ? "border-green-500 bg-green-900/10"
-        : "border-green-500 bg-green-50";
+        ? 'border-green-500 bg-green-900/10'
+        : 'border-green-500 bg-green-50';
     }
     if (required && validationState === null) {
       // Untouched required field - show subtle indication
       return isDarkMode
-        ? "border-yellow-600/50 bg-yellow-900/5"
-        : "border-yellow-400/50 bg-yellow-50/30";
+        ? 'border-yellow-600/50 bg-yellow-900/5'
+        : 'border-yellow-400/50 bg-yellow-50/30';
     }
     return isDarkMode
-      ? "border-gray-600 bg-gray-800"
-      : "border-gray-300 bg-white";
+      ? 'border-gray-600 bg-gray-800'
+      : 'border-gray-300 bg-white';
   };
 
   return (
@@ -862,8 +862,8 @@ const Input = ({
         <label
           htmlFor={inputId}
           className={`block text-xs font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
+            isDarkMode ? 'text-gray-400' : 'text-gray-700'
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
         >
           {label}
         </label>
@@ -873,14 +873,14 @@ const Input = ({
         data-testid={dataTestId}
         className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
           isDarkMode
-            ? "text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
-            : "text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
+            ? 'text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
+            : 'text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
         } ${getValidationClasses()} ${className}`}
         {...props}
       />
       {error && (
         <p
-          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
         >
           {error}
         </p>
@@ -894,7 +894,7 @@ const Input = ({
 const Textarea = ({
   label,
   error,
-  className = "",
+  className = '',
   autoGrow = false,
   id,
   ...props
@@ -908,7 +908,7 @@ const Textarea = ({
     const textarea = textareaRef.current;
     if (textarea && autoGrow) {
       // Reset height to auto to get the correct scrollHeight
-      textarea.style.height = "auto";
+      textarea.style.height = 'auto';
       // Set the height to match content, with a minimum of one line
       textarea.style.height = `${Math.max(textarea.scrollHeight, 44)}px`;
     }
@@ -931,7 +931,7 @@ const Textarea = ({
         <label
           htmlFor={textareaId}
           className={`block text-sm font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
+            isDarkMode ? 'text-gray-400' : 'text-gray-700'
           }`}
         >
           {label}
@@ -942,16 +942,16 @@ const Textarea = ({
         ref={textareaRef}
         className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:-translate-y-0.5 transition-all duration-300 resize-none ${
           isDarkMode
-            ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
-            : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
-        } ${error ? "border-red-500" : ""} ${autoGrow ? "overflow-hidden" : ""} ${className}`}
+            ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
+            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+        } ${error ? 'border-red-500' : ''} ${autoGrow ? 'overflow-hidden' : ''} ${className}`}
         {...props}
         onChange={handleChange}
         rows={autoGrow ? 1 : props.rows}
       />
       {error && (
         <p
-          className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+          className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
         >
           {error}
         </p>
@@ -960,15 +960,15 @@ const Textarea = ({
   );
 };
 
-const Card = ({ children, className = "" }) => {
+const Card = ({ children, className = '' }) => {
   const { isDarkMode } = useTheme();
 
   return (
     <div
       className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${
         isDarkMode
-          ? "bg-gray-800 border border-gray-600"
-          : "bg-white border border-gray-200"
+          ? 'bg-gray-800 border border-gray-600'
+          : 'bg-white border border-gray-200'
       } ${className}`}
     >
       {children}
@@ -976,22 +976,22 @@ const Card = ({ children, className = "" }) => {
   );
 };
 
-const Alert = ({ variant = "info", children, onClose, className = "" }) => {
+const Alert = ({ variant = 'info', children, onClose, className = '' }) => {
   const { isDarkMode } = useTheme();
 
   const getVariantClasses = () => {
     const darkVariants = {
-      info: "bg-blue-900/20 border-blue-500/30 text-blue-300",
-      warning: "bg-yellow-900/20 border-yellow-500/30 text-yellow-300",
-      error: "bg-red-900/20 border-red-500/30 text-red-300",
-      success: "bg-green-900/20 border-green-500/30 text-green-300",
+      info: 'bg-blue-900/20 border-blue-500/30 text-blue-300',
+      warning: 'bg-yellow-900/20 border-yellow-500/30 text-yellow-300',
+      error: 'bg-red-900/20 border-red-500/30 text-red-300',
+      success: 'bg-green-900/20 border-green-500/30 text-green-300',
     };
 
     const lightVariants = {
-      info: "bg-blue-50 border-blue-200 text-blue-800",
-      warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
-      error: "bg-red-50 border-red-200 text-red-800",
-      success: "bg-green-50 border-green-200 text-green-800",
+      info: 'bg-blue-50 border-blue-200 text-blue-800',
+      warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+      error: 'bg-red-50 border-red-200 text-red-800',
+      success: 'bg-green-50 border-green-200 text-green-800',
     };
 
     return isDarkMode ? darkVariants[variant] : lightVariants[variant];
@@ -1003,8 +1003,8 @@ const Alert = ({ variant = "info", children, onClose, className = "" }) => {
     >
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          {variant === "warning" && <AlertTriangle className="h-5 w-5" />}
-          {variant === "info" && <Info className="h-5 w-5" />}
+          {variant === 'warning' && <AlertTriangle className="h-5 w-5" />}
+          {variant === 'info' && <Info className="h-5 w-5" />}
         </div>
         <div className="ml-3 flex-1">{children}</div>
         {onClose && (
@@ -1012,8 +1012,8 @@ const Alert = ({ variant = "info", children, onClose, className = "" }) => {
             onClick={onClose}
             className={`ml-3 flex-shrink-0 ${
               isDarkMode
-                ? "text-gray-400 hover:text-white"
-                : "text-gray-500 hover:text-gray-700"
+                ? 'text-gray-400 hover:text-white'
+                : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             <X className="h-4 w-4" />
@@ -1052,11 +1052,11 @@ const VatHelpIcon = ({ content, heading }) => {
           onClick={handleCloseModal}
           role="button"
           tabIndex={-1}
-          onKeyDown={(e) => e.key === "Escape" && handleCloseModal()}
+          onKeyDown={(e) => e.key === 'Escape' && handleCloseModal()}
         >
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
-            className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-6 max-w-xl mx-4 shadow-xl relative my-8`}
+            className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 max-w-xl mx-4 shadow-xl relative my-8`}
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
             role="dialog"
@@ -1065,25 +1065,25 @@ const VatHelpIcon = ({ content, heading }) => {
             <button
               type="button"
               onClick={handleCloseModal}
-              className={`absolute top-4 right-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`absolute top-4 right-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               <X className="w-4 h-4" />
             </button>
             {heading && (
               <h2
-                className={`text-sm font-bold mb-4 pr-4 ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}
+                className={`text-sm font-bold mb-4 pr-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}
               >
                 {heading}
               </h2>
             )}
             <div
-              className={`space-y-4 pr-4 normal-case ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              className={`space-y-4 pr-4 normal-case ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
               {Array.isArray(content) ? (
                 content.map((paragraph, idx) => (
                   <p
                     key={idx}
-                    className={`text-xs leading-relaxed normal-case ${idx === 0 ? "font-semibold" : ""}`}
+                    className={`text-xs leading-relaxed normal-case ${idx === 0 ? 'font-semibold' : ''}`}
                   >
                     {paragraph}
                   </p>
@@ -1109,14 +1109,14 @@ const Autocomplete = ({
   label,
   disabled = false,
   renderOption,
-  noOptionsText = "No options",
-  className = "",
+  noOptionsText = 'No options',
+  className = '',
   title,
   error,
   required = false,
   validationState = null,
   showValidation = true,
-  "data-testid": dataTestId,
+  'data-testid': dataTestId,
 }) => {
   const { isDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -1131,7 +1131,7 @@ const Autocomplete = ({
   }, [filteredOptions]);
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
-  const norm = (s) => (s || "").toString().toLowerCase().trim();
+  const norm = (s) => (s || '').toString().toLowerCase().trim();
   const ed1 = (a, b) => {
     // Early exits
     if (a === b) return 0;
@@ -1182,7 +1182,7 @@ const Autocomplete = ({
       const tokens = q.split(/\s+/).filter(Boolean);
       const scored = [];
       for (const o of opts) {
-        const optLabel = norm(o.label || o.name || "");
+        const optLabel = norm(o.label || o.name || '');
         if (!optLabel) continue;
         let ok = true;
         let score = 0;
@@ -1226,7 +1226,7 @@ const Autocomplete = ({
 
   const handleKeyDown = (e) => {
     if (!isOpen) {
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         setIsOpen(true);
         return;
       }
@@ -1234,19 +1234,19 @@ const Autocomplete = ({
     }
 
     switch (e.key) {
-      case "ArrowDown":
+      case 'ArrowDown':
         e.preventDefault();
         setHighlightedIndex((prev) =>
           prev < filteredOptions.length - 1 ? prev + 1 : 0,
         );
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         e.preventDefault();
         setHighlightedIndex((prev) =>
           prev > 0 ? prev - 1 : filteredOptions.length - 1,
         );
         break;
-      case "Enter":
+      case 'Enter':
         e.preventDefault();
         if (
           highlightedIndex >= 0 &&
@@ -1255,7 +1255,7 @@ const Autocomplete = ({
           handleOptionSelect(filteredOptions[highlightedIndex]);
         }
         break;
-      case "Escape":
+      case 'Escape':
         setIsOpen(false);
         setHighlightedIndex(-1);
         break;
@@ -1269,14 +1269,14 @@ const Autocomplete = ({
       const inputRect = inputRef.current.getBoundingClientRect();
       const dropdown = dropdownRef.current;
 
-      dropdown.style.position = "fixed";
+      dropdown.style.position = 'fixed';
       dropdown.style.top = `${inputRect.bottom + 4}px`;
       dropdown.style.left = `${inputRect.left}px`;
       // Make dropdown at least as wide as the input, but allow it to grow to fit contents
       dropdown.style.minWidth = `${inputRect.width}px`;
-      dropdown.style.width = "auto";
-      dropdown.style.maxWidth = "90vw";
-      dropdown.style.zIndex = "9999";
+      dropdown.style.width = 'auto';
+      dropdown.style.maxWidth = '90vw';
+      dropdown.style.zIndex = '9999';
     }
   }, [isOpen]);
 
@@ -1286,12 +1286,12 @@ const Autocomplete = ({
       const handleScroll = () => updateDropdownPosition();
       const handleResize = () => updateDropdownPosition();
 
-      window.addEventListener("scroll", handleScroll, true);
-      window.addEventListener("resize", handleResize);
+      window.addEventListener('scroll', handleScroll, true);
+      window.addEventListener('resize', handleResize);
 
       return () => {
-        window.removeEventListener("scroll", handleScroll, true);
-        window.removeEventListener("resize", handleResize);
+        window.removeEventListener('scroll', handleScroll, true);
+        window.removeEventListener('resize', handleResize);
       };
     }
   }, [isOpen, updateDropdownPosition]);
@@ -1301,7 +1301,7 @@ const Autocomplete = ({
       <div ref={inputRef}>
         <Input
           label={label}
-          value={inputValue || ""}
+          value={inputValue || ''}
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
@@ -1325,8 +1325,8 @@ const Autocomplete = ({
           role="listbox"
           className={`border rounded-lg shadow-xl max-h-60 overflow-auto ${
             isDarkMode
-              ? "bg-gray-800 border-gray-600"
-              : "bg-white border-gray-200"
+              ? 'bg-gray-800 border-gray-600'
+              : 'bg-white border-gray-200'
           }`}
         >
           {filteredOptions.length > 0 ? (
@@ -1339,11 +1339,11 @@ const Autocomplete = ({
                 className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
                   index === highlightedIndex
                     ? isDarkMode
-                      ? "bg-teal-700 text-white border-gray-700"
-                      : "bg-teal-100 text-gray-900 border-gray-100"
+                      ? 'bg-teal-700 text-white border-gray-700'
+                      : 'bg-teal-100 text-gray-900 border-gray-100'
                     : isDarkMode
-                      ? "hover:bg-gray-700 text-white border-gray-700"
-                      : "hover:bg-gray-50 text-gray-900 border-gray-100"
+                      ? 'hover:bg-gray-700 text-white border-gray-700'
+                      : 'hover:bg-gray-50 text-gray-900 border-gray-100'
                 }`}
                 role="option"
                 aria-selected={index === highlightedIndex}
@@ -1362,7 +1362,7 @@ const Autocomplete = ({
                     {option.subtitle && (
                       <div
                         className={`text-sm ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
                         }`}
                       >
                         {option.subtitle}
@@ -1375,7 +1375,7 @@ const Autocomplete = ({
           ) : (
             <div
               className={`px-3 py-2 text-sm ${
-                isDarkMode ? "text-gray-400" : "text-gray-500"
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
               }`}
             >
               {noOptionsText}
@@ -1387,16 +1387,16 @@ const Autocomplete = ({
   );
 };
 
-const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
+const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
   const { isDarkMode } = useTheme();
 
   if (!isOpen) return null;
 
   const sizes = {
-    sm: "max-w-md",
-    md: "max-w-lg",
-    lg: "max-w-2xl",
-    xl: "max-w-4xl",
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
   };
 
   return (
@@ -1407,11 +1407,11 @@ const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
           onClick={onClose}
           role="button"
           tabIndex={-1}
-          onKeyDown={(e) => e.key === "Escape" && onClose()}
+          onKeyDown={(e) => e.key === 'Escape' && onClose()}
         >
           <div
             className={`absolute inset-0 ${
-              isDarkMode ? "bg-gray-900" : "bg-black"
+              isDarkMode ? 'bg-gray-900' : 'bg-black'
             } opacity-75`}
           ></div>
         </div>
@@ -1421,14 +1421,14 @@ const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
             sizes[size]
           } sm:w-full sm:p-6 ${
             isDarkMode
-              ? "bg-gray-800 border-gray-600"
-              : "bg-white border-gray-200"
+              ? 'bg-gray-800 border-gray-600'
+              : 'bg-white border-gray-200'
           }`}
         >
           <div className="flex items-center justify-between mb-4">
             <h3
               className={`text-lg font-medium ${
-                isDarkMode ? "text-white" : "text-gray-900"
+                isDarkMode ? 'text-white' : 'text-gray-900'
               }`}
             >
               {title}
@@ -1437,8 +1437,8 @@ const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
               onClick={onClose}
               className={
                 isDarkMode
-                  ? "text-gray-400 hover:text-white"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? 'text-gray-400 hover:text-white'
+                  : 'text-gray-500 hover:text-gray-700'
               }
             >
               <X className="h-5 w-5" />
@@ -1451,19 +1451,19 @@ const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
   );
 };
 
-const LoadingSpinner = ({ size = "md" }) => {
+const LoadingSpinner = ({ size = 'md' }) => {
   const { isDarkMode } = useTheme();
   const sizes = {
-    sm: "h-4 w-4",
-    md: "h-6 w-6",
-    lg: "h-8 w-8",
+    sm: 'h-4 w-4',
+    md: 'h-6 w-6',
+    lg: 'h-8 w-8',
   };
 
   return (
     <div
       className={`animate-spin rounded-full border-2 border-t-blue-600 ${
         sizes[size]
-      } ${isDarkMode ? "border-gray-300" : "border-gray-200"}`}
+      } ${isDarkMode ? 'border-gray-300' : 'border-gray-200'}`}
     ></div>
   );
 };
@@ -1487,9 +1487,9 @@ const FormSettingsPanel = ({
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
       return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isOpen, onClose]);
 
@@ -1499,12 +1499,12 @@ const FormSettingsPanel = ({
     <div className="flex items-start justify-between py-3">
       <div className="flex-1 pr-4">
         <p
-          className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+          className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
         >
           {label}
         </p>
         <p
-          className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           {description}
         </p>
@@ -1512,12 +1512,12 @@ const FormSettingsPanel = ({
       <button
         onClick={onChange}
         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-          enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
+          enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
         }`}
       >
         <span
           className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-            enabled ? "translate-x-5" : "translate-x-0"
+            enabled ? 'translate-x-5' : 'translate-x-0'
           }`}
         />
       </button>
@@ -1528,23 +1528,23 @@ const FormSettingsPanel = ({
     <div
       ref={panelRef}
       className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
-        isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"
+        isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
       }`}
     >
       {/* Header */}
       <div
-        className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+        className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
       >
         <div className="flex items-center justify-between">
           <h3
-            className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+            className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
           >
             Form Settings
           </h3>
           <button
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`}
           >
             <X className="h-4 w-4" />
@@ -1558,7 +1558,7 @@ const FormSettingsPanel = ({
           enabled={preferences.showValidationHighlighting}
           onChange={() =>
             onPreferenceChange(
-              "showValidationHighlighting",
+              'showValidationHighlighting',
               !preferences.showValidationHighlighting,
             )
           }
@@ -1569,7 +1569,7 @@ const FormSettingsPanel = ({
           enabled={preferences.showSpeedButtons}
           onChange={() =>
             onPreferenceChange(
-              "showSpeedButtons",
+              'showSpeedButtons',
               !preferences.showSpeedButtons,
             )
           }
@@ -1580,7 +1580,7 @@ const FormSettingsPanel = ({
 
       {/* Footer note */}
       <div
-        className={`px-4 py-2 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"} border-t ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}
+        className={`px-4 py-2 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}
       >
         Settings are saved automatically
       </div>
@@ -1607,18 +1607,18 @@ const LineItemsTable = ({
     );
 
     if (required === 0)
-      return { cls: "warn", label: "No qty", text: "Set qty" };
+      return { cls: 'warn', label: 'No qty', text: 'Set qty' };
     if (allocated === 0)
-      return { cls: "warn", label: "Not allocated", text: `0/${required}` };
+      return { cls: 'warn', label: 'Not allocated', text: `0/${required}` };
     if (allocated < required)
       return {
-        cls: "warn",
-        label: "Partial",
+        cls: 'warn',
+        label: 'Partial',
         text: `${allocated}/${required}`,
       };
     if (allocated === required)
-      return { cls: "ok", label: "Allocated", text: `${required}/${required}` };
-    return { cls: "bad", label: "Over", text: `${allocated}/${required}` };
+      return { cls: 'ok', label: 'Allocated', text: `${required}/${required}` };
+    return { cls: 'bad', label: 'Over', text: `${allocated}/${required}` };
   };
 
   return (
@@ -1628,40 +1628,40 @@ const LineItemsTable = ({
           <tr
             className={
               isDarkMode
-                ? "border-b border-gray-700"
-                : "border-b border-gray-200"
+                ? 'border-b border-gray-700'
+                : 'border-b border-gray-200'
             }
           >
             <th
-              className={`text-left px-3 py-2 text-xs font-extrabold ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-left px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               Description
             </th>
             <th
-              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-              style={{ width: "110px" }}
+              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              style={{ width: '110px' }}
             >
               Qty
             </th>
             <th
-              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-              style={{ width: "140px" }}
+              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              style={{ width: '140px' }}
             >
               Rate
             </th>
             <th
-              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-              style={{ width: "150px" }}
+              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              style={{ width: '150px' }}
             >
               Amount
             </th>
             <th
-              className={`text-left px-3 py-2 text-xs font-extrabold ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-              style={{ width: "220px" }}
+              className={`text-left px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              style={{ width: '220px' }}
             >
               Allocation
             </th>
-            <th style={{ width: "92px" }}></th>
+            <th style={{ width: '92px' }}></th>
           </tr>
         </thead>
         <tbody>
@@ -1674,44 +1674,44 @@ const LineItemsTable = ({
                 key={index}
                 className={
                   isDarkMode
-                    ? "border-b border-gray-700"
-                    : "border-b border-gray-200"
+                    ? 'border-b border-gray-700'
+                    : 'border-b border-gray-200'
                 }
               >
                 <td className="px-3 py-2">
                   <input
                     type="text"
-                    value={item.name || ""}
+                    value={item.name || ''}
                     onChange={(e) => onDescriptionChange(index, e.target.value)}
-                    className={`w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
+                    className={`w-full ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
                     placeholder="Product description"
                   />
                 </td>
                 <td className="px-3 py-2 text-right">
                   <input
                     type="number"
-                    value={item.quantity || ""}
+                    value={item.quantity || ''}
                     onChange={(e) =>
                       onQuantityChange(index, parseFloat(e.target.value) || 0)
                     }
-                    className={`w-full text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
+                    className={`w-full text-right ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
                     inputMode="numeric"
                   />
                 </td>
                 <td className="px-3 py-2 text-right">
                   <input
                     type="number"
-                    value={item.rate || ""}
+                    value={item.rate || ''}
                     onChange={(e) =>
                       onRateChange(index, parseFloat(e.target.value) || 0)
                     }
-                    className={`w-full text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
+                    className={`w-full text-right ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
                     inputMode="decimal"
                   />
                 </td>
                 <td className="px-3 py-2 text-right">
                   <span
-                    className={`font-mono text-[13px] ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+                    className={`font-mono text-[13px] ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
                   >
                     {formatCurrency(amount)}
                   </span>
@@ -1720,21 +1720,21 @@ const LineItemsTable = ({
                   <div className="flex items-center gap-2">
                     <span
                       className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs border ${
-                        status.cls === "ok"
-                          ? "border-green-500/35 text-green-400"
-                          : status.cls === "warn"
-                            ? "border-yellow-500/35 text-yellow-400"
-                            : "border-red-500/35 text-red-400"
+                        status.cls === 'ok'
+                          ? 'border-green-500/35 text-green-400'
+                          : status.cls === 'warn'
+                            ? 'border-yellow-500/35 text-yellow-400'
+                            : 'border-red-500/35 text-red-400'
                       }`}
                     >
                       <span className="w-2 h-2 rounded-full bg-current" />
-                      {status.label}{" "}
+                      {status.label}{' '}
                       <span className="font-mono">({status.text})</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => onAllocate(index)}
-                      className={`px-2.5 py-1 text-xs rounded-lg border ${isDarkMode ? "border-gray-700 bg-gray-900 hover:border-teal-500" : "border-gray-300 bg-white hover:border-teal-500"} transition-colors`}
+                      className={`px-2.5 py-1 text-xs rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-900 hover:border-teal-500' : 'border-gray-300 bg-white hover:border-teal-500'} transition-colors`}
                     >
                       Allocate
                     </button>
@@ -1744,7 +1744,7 @@ const LineItemsTable = ({
                   <button
                     type="button"
                     onClick={() => onRemove(index)}
-                    className={`px-2.5 py-1 text-xs rounded-lg border ${isDarkMode ? "border-gray-700 bg-gray-900 hover:border-red-500 hover:text-red-400" : "border-gray-300 bg-white hover:border-red-500 hover:text-red-600"} transition-colors`}
+                    className={`px-2.5 py-1 text-xs rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-900 hover:border-red-500 hover:text-red-400' : 'border-gray-300 bg-white hover:border-red-500 hover:text-red-600'} transition-colors`}
                   >
                     Remove
                   </button>
@@ -1773,20 +1773,20 @@ const InvoiceForm = ({ onSave }) => {
     if (item.grade) {
       const g = String(item.grade)
         .trim()
-        .replace(/^(gr|ss)\s*/i, "")
+        .replace(/^(gr|ss)\s*/i, '')
         .toUpperCase();
       parts.push(g);
     }
     // Finish
     if (item.finish) parts.push(item.finish);
     // Size (add " for pipes/tubes)
-    const isPipeOrTube = /pipe|tube/i.test(item.productType || "");
+    const isPipeOrTube = /pipe|tube/i.test(item.productType || '');
     if (item.size) {
       parts.push(isPipeOrTube ? `${item.size}"` : item.size);
     }
     // Thickness
     if (item.thickness) parts.push(item.thickness);
-    return parts.join(" ");
+    return parts.join(' ');
   }, []);
 
   // Debounce timeout refs for charges fields
@@ -1809,13 +1809,13 @@ const InvoiceForm = ({ onSave }) => {
     let targetElement = null;
 
     // Map field names to refs
-    if (fieldName === "customer.name" || fieldName === "customer") {
+    if (fieldName === 'customer.name' || fieldName === 'customer') {
       targetRef = customerRef;
-    } else if (fieldName === "date") {
+    } else if (fieldName === 'date') {
       targetRef = dateRef;
-    } else if (fieldName === "dueDate") {
+    } else if (fieldName === 'dueDate') {
       targetRef = dueDateRef;
-    } else if (fieldName.startsWith("item.")) {
+    } else if (fieldName.startsWith('item.')) {
       // Extract item index: 'item.0.rate' -> 0
       const match = fieldName.match(/item\.(\d+)\./);
       if (match) {
@@ -1832,29 +1832,29 @@ const InvoiceForm = ({ onSave }) => {
 
     // Scroll to the target
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       // Highlight the element briefly
-      targetElement.classList.add("ring-2", "ring-red-500", "ring-offset-2");
+      targetElement.classList.add('ring-2', 'ring-red-500', 'ring-offset-2');
       setTimeout(() => {
         targetElement.classList.remove(
-          "ring-2",
-          "ring-red-500",
-          "ring-offset-2",
+          'ring-2',
+          'ring-red-500',
+          'ring-offset-2',
         );
       }, 2000);
     } else if (targetRef?.current) {
-      targetRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
       // Highlight the element briefly
       targetRef.current.classList.add(
-        "ring-2",
-        "ring-red-500",
-        "ring-offset-2",
+        'ring-2',
+        'ring-red-500',
+        'ring-offset-2',
       );
       setTimeout(() => {
         targetRef.current.classList.remove(
-          "ring-2",
-          "ring-red-500",
-          "ring-offset-2",
+          'ring-2',
+          'ring-red-500',
+          'ring-offset-2',
         );
       }, 2000);
     }
@@ -1870,7 +1870,7 @@ const InvoiceForm = ({ onSave }) => {
   const [isSaving, setIsSaving] = useState(false);
   // Removed unused state: selectedProductForRow, setSelectedProductForRow
   const [searchInputs, setSearchInputs] = useState({});
-  const [customerSearchInput, setCustomerSearchInput] = useState("");
+  const [customerSearchInput, setCustomerSearchInput] = useState('');
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
   const [showTradeLicenseAlert, setShowTradeLicenseAlert] = useState(false);
 
@@ -1894,19 +1894,19 @@ const InvoiceForm = ({ onSave }) => {
   const [showAddProductDrawer, setShowAddProductDrawer] = useState(false);
 
   const [formPreferences, setFormPreferences] = useState(() => {
-    const saved = localStorage.getItem("invoiceFormPreferences");
+    const saved = localStorage.getItem('invoiceFormPreferences');
     return saved
       ? JSON.parse(saved)
       : {
-          showValidationHighlighting: true,
-          showSpeedButtons: true,
-        };
+        showValidationHighlighting: true,
+        showSpeedButtons: true,
+      };
   });
 
   // Save preferences to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(
-      "invoiceFormPreferences",
+      'invoiceFormPreferences',
       JSON.stringify(formPreferences),
     );
   }, [formPreferences]);
@@ -1934,13 +1934,13 @@ const InvoiceForm = ({ onSave }) => {
   // Helper to enforce invoice number prefix by status
   const withStatusPrefix = (num, status) => {
     const desired =
-      status === "draft" ? "DFT" : status === "proforma" ? "PFM" : "INV";
+      status === 'draft' ? 'DFT' : status === 'proforma' ? 'PFM' : 'INV';
 
-    if (!num || typeof num !== "string") {
+    if (!num || typeof num !== 'string') {
       // Generate the base number format YYYYMM-NNNN from backend API
       const now = new Date();
       const year = now.getFullYear();
-      const month = (now.getMonth() + 1).toString().padStart(2, "0");
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
       return `${desired}-${year}${month}-0001`;
     }
 
@@ -1952,7 +1952,7 @@ const InvoiceForm = ({ onSave }) => {
     }
 
     // Handle legacy format or partial numbers - try to extract meaningful parts
-    const parts = num.split("-");
+    const parts = num.split('-');
     if (parts.length >= 2) {
       // If it looks like YYYYMM-NNNN format, use it
       const datePart = parts[parts.length - 2];
@@ -1965,7 +1965,7 @@ const InvoiceForm = ({ onSave }) => {
     // Fallback: generate new format
     const now = new Date();
     const year = now.getFullYear();
-    const month = (now.getMonth() + 1).toString().padStart(2, "0");
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
     return `${desired}-${year}${month}-0001`;
   };
 
@@ -1992,9 +1992,9 @@ const InvoiceForm = ({ onSave }) => {
   const [invoice, setInvoice] = useState(() => {
     const newInvoice = createInvoice();
     // Invoice number will be auto-generated by the database on save
-    newInvoice.invoiceNumber = "(Auto-assigned on save)";
+    newInvoice.invoiceNumber = '(Auto-assigned on save)';
     // Default status to 'draft'
-    newInvoice.status = "draft";
+    newInvoice.status = 'draft';
     // Start with one empty item row
     newInvoice.items = [createSteelItem()];
     return newInvoice;
@@ -2006,38 +2006,38 @@ const InvoiceForm = ({ onSave }) => {
       let isValid = false;
 
       switch (fieldName) {
-        case "customer":
+        case 'customer':
           isValid = value && value.id && value.name;
           break;
-        case "dueDate":
-          isValid = value && value.trim() !== "";
+        case 'dueDate':
+          isValid = value && value.trim() !== '';
           break;
-        case "status":
-          isValid = value && ["draft", "proforma", "issued"].includes(value);
+        case 'status':
+          isValid = value && ['draft', 'proforma', 'issued'].includes(value);
           break;
-        case "paymentMode":
-          isValid = value && value.trim() !== "";
+        case 'paymentMode':
+          isValid = value && value.trim() !== '';
           break;
-        case "warehouse": {
+        case 'warehouse': {
           // Warehouse is optional for drafts, required for issued/proforma
-          const invoiceStatus = invoice?.status || "draft";
-          if (invoiceStatus === "draft") {
+          const invoiceStatus = invoice?.status || 'draft';
+          if (invoiceStatus === 'draft') {
             isValid = true; // Optional for drafts
           } else {
-            isValid = value && String(value).trim() !== "";
+            isValid = value && String(value).trim() !== '';
           }
           break;
         }
-        case "currency":
-          isValid = value && value.trim() !== "";
+        case 'currency':
+          isValid = value && value.trim() !== '';
           break;
-        case "placeOfSupply":
-          isValid = value && value.trim() !== "";
+        case 'placeOfSupply':
+          isValid = value && value.trim() !== '';
           break;
-        case "supplyDate":
-          isValid = value && value.trim() !== "";
+        case 'supplyDate':
+          isValid = value && value.trim() !== '';
           break;
-        case "items":
+        case 'items':
           isValid =
             Array.isArray(value) &&
             value.length > 0 &&
@@ -2051,7 +2051,7 @@ const InvoiceForm = ({ onSave }) => {
 
       setFieldValidation((prev) => ({
         ...prev,
-        [fieldName]: isValid ? "valid" : "invalid",
+        [fieldName]: isValid ? 'valid' : 'invalid',
       }));
 
       return isValid;
@@ -2120,7 +2120,7 @@ const InvoiceForm = ({ onSave }) => {
     // Use the ORIGINAL saved status, not the current form state
     // This prevents locked banner from appearing when converting draft to final
     // The banner should only show for invoices that were ALREADY saved as 'issued'
-    if (originalSavedStatus !== "issued") return false;
+    if (originalSavedStatus !== 'issued') return false;
 
     // Check 24-hour edit window
     const issuedAt = invoice?.issuedAt;
@@ -2145,7 +2145,7 @@ const InvoiceForm = ({ onSave }) => {
     if (!id) return false;
 
     // Use original saved status - only in revision mode if invoice was SAVED as issued
-    if (originalSavedStatus !== "issued") return false;
+    if (originalSavedStatus !== 'issued') return false;
 
     const issuedAt = invoice?.issuedAt;
     if (!issuedAt) return false;
@@ -2173,7 +2173,7 @@ const InvoiceForm = ({ onSave }) => {
     // Check mandatory fields in order and focus the first unfilled one
     // 1. Customer (mandatory)
     if (!invoice.customer?.id) {
-      customerRef.current?.querySelector("input")?.focus();
+      customerRef.current?.querySelector('input')?.focus();
       return;
     }
 
@@ -2191,8 +2191,8 @@ const InvoiceForm = ({ onSave }) => {
       // Focus Add Item button if no items, or focus the items section
       addItemButtonRef.current?.focus();
       addItemButtonRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
+        behavior: 'smooth',
+        block: 'center',
       });
       return;
     }
@@ -2200,8 +2200,8 @@ const InvoiceForm = ({ onSave }) => {
     // All mandatory fields filled - focus Save button
     saveButtonRef.current?.focus();
     saveButtonRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
+      behavior: 'smooth',
+      block: 'center',
     });
   }, [invoice.customer?.id, invoice.modeOfPayment, invoice.items]);
 
@@ -2217,7 +2217,7 @@ const InvoiceForm = ({ onSave }) => {
       return true;
     }
     return invoice.items.some(
-      (item) => !item.sourceType || item.sourceType === "WAREHOUSE",
+      (item) => !item.sourceType || item.sourceType === 'WAREHOUSE',
     );
   }, [invoice.items]);
 
@@ -2243,7 +2243,7 @@ const InvoiceForm = ({ onSave }) => {
     !id,
   );
   const { data: customersData, loading: loadingCustomers } = useApiData(
-    () => customerService.getCustomers({ status: "active", limit: 1000 }),
+    () => customerService.getCustomers({ status: 'active', limit: 1000 }),
     [],
   );
   const { data: salesAgentsData, loading: loadingAgents } = useApiData(
@@ -2316,7 +2316,7 @@ const InvoiceForm = ({ onSave }) => {
   });
 
   // Invoice templates - read from company settings (edit in Company Settings page)
-  const { currentTemplate } = useInvoiceTemplates("standard", company);
+  const { currentTemplate } = useInvoiceTemplates('standard', company);
 
   // Template settings now managed in Company Settings only
 
@@ -2338,14 +2338,14 @@ const InvoiceForm = ({ onSave }) => {
         );
       } else {
         if (pinnedProductIds.length >= 10) {
-          notificationService.error("Maximum 10 products can be pinned");
+          notificationService.error('Maximum 10 products can be pinned');
           return;
         }
         await pinnedProductsService.pinProduct(productId);
         setPinnedProductIds((prev) => [...prev, productId]);
       }
     } catch (error) {
-      notificationService.error(error.message || "Failed to update pin");
+      notificationService.error(error.message || 'Failed to update pin');
     }
   };
 
@@ -2360,8 +2360,8 @@ const InvoiceForm = ({ onSave }) => {
     const handleFocus = () => {
       refetchProducts();
     };
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // refetchProducts is stable enough for event handlers
 
@@ -2370,8 +2370,8 @@ const InvoiceForm = ({ onSave }) => {
     const handleFocus = () => {
       refetchCompany();
     };
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // refetchCompany is stable enough for event handlers
 
@@ -2471,7 +2471,7 @@ const InvoiceForm = ({ onSave }) => {
 
         return batchData;
       } catch (error) {
-        console.error("Error fetching batches for product:", error);
+        console.error('Error fetching batches for product:', error);
         return { batches: [], stockByWarehouse: {}, totalStock: 0 };
       }
     },
@@ -2539,7 +2539,7 @@ const InvoiceForm = ({ onSave }) => {
           batch.created_at,
         warehouseId: batch.warehouseId || batch.warehouse_id,
         warehouseName:
-          batch.warehouseName || batch.warehouse_name || "Unknown Warehouse",
+          batch.warehouseName || batch.warehouse_name || 'Unknown Warehouse',
         availableQty: available,
         allocatedQty: allocateQty,
         unitCost: parseFloat(
@@ -2550,7 +2550,7 @@ const InvoiceForm = ({ onSave }) => {
             0,
         ),
         procurementChannel:
-          batch.procurementChannel || batch.procurement_channel || "LOCAL",
+          batch.procurementChannel || batch.procurement_channel || 'LOCAL',
       });
 
       remaining -= allocateQty;
@@ -2574,9 +2574,9 @@ const InvoiceForm = ({ onSave }) => {
       const currentItem = invoice.items[itemIndex];
 
       // P0: Only allocate for warehouse items
-      if (currentItem.sourceType !== "WAREHOUSE") {
+      if (currentItem.sourceType !== 'WAREHOUSE') {
         notificationService.info(
-          "Auto-allocation only available for Warehouse source type",
+          'Auto-allocation only available for Warehouse source type',
         );
         return;
       }
@@ -2594,7 +2594,7 @@ const InvoiceForm = ({ onSave }) => {
           const newItems = [...prev.items];
           newItems[itemIndex] = {
             ...newItems[itemIndex],
-            sourceType: "LOCAL_DROP_SHIP",
+            sourceType: 'LOCAL_DROP_SHIP',
             allocations: [],
             allocationMode: null,
           };
@@ -2631,9 +2631,9 @@ const InvoiceForm = ({ onSave }) => {
         const newItems = [...prev.items];
         newItems[itemIndex] = {
           ...newItems[itemIndex],
-          sourceType: "WAREHOUSE",
+          sourceType: 'WAREHOUSE',
           allocations: canonicalAllocations,
-          allocationMode: "AUTO_FIFO",
+          allocationMode: 'AUTO_FIFO',
           partialAllocation: totalAllocated < requiredQty,
           shortfallQty: requiredQty - totalAllocated,
         };
@@ -2668,8 +2668,8 @@ const InvoiceForm = ({ onSave }) => {
     const fetchWarehouses = async () => {
       try {
         const res = await (
-          await import("../services/api")
-        ).apiClient.get("/warehouses");
+          await import('../services/api')
+        ).apiClient.get('/warehouses');
         const list = res?.warehouses || res?.data?.warehouses || [];
         const active = list.filter((w) => w.isActive !== false);
         setWarehouses(active);
@@ -2679,21 +2679,21 @@ const InvoiceForm = ({ onSave }) => {
           // Try to find Sharjah warehouse, otherwise use first one
           const sharjahWarehouse = active.find(
             (w) =>
-              w.city?.toLowerCase().includes("sharjah") ||
-              w.name?.toLowerCase().includes("sharjah"),
+              w.city?.toLowerCase().includes('sharjah') ||
+              w.name?.toLowerCase().includes('sharjah'),
           );
           const defaultWarehouse = sharjahWarehouse || active[0];
 
           setInvoice((prev) => ({
             ...prev,
             warehouseId: defaultWarehouse.id.toString(),
-            warehouseName: defaultWarehouse.name || "",
-            warehouseCode: defaultWarehouse.code || "",
-            warehouseCity: defaultWarehouse.city || "",
+            warehouseName: defaultWarehouse.name || '',
+            warehouseCode: defaultWarehouse.code || '',
+            warehouseCity: defaultWarehouse.city || '',
           }));
         }
       } catch (err) {
-        console.warn("Failed to fetch warehouses:", err);
+        console.warn('Failed to fetch warehouses:', err);
         setWarehouses([]);
       }
     };
@@ -2724,7 +2724,7 @@ const InvoiceForm = ({ onSave }) => {
     const discountAmount = parseFloat(invoice.discountAmount) || 0;
     const discountPercentage = parseFloat(invoice.discountPercentage) || 0;
 
-    if (invoice.discountType === "percentage") {
+    if (invoice.discountType === 'percentage') {
       return (computedSubtotal * discountPercentage) / 100;
     } else {
       return discountAmount;
@@ -2742,7 +2742,7 @@ const InvoiceForm = ({ onSave }) => {
     const discountPercentage = parseFloat(invoice.discountPercentage) || 0;
 
     let totalDiscount = 0;
-    if (invoice.discountType === "percentage") {
+    if (invoice.discountType === 'percentage') {
       totalDiscount = (computedSubtotal * discountPercentage) / 100;
     } else {
       totalDiscount = discountAmount;
@@ -2776,9 +2776,9 @@ const InvoiceForm = ({ onSave }) => {
       // Check if invoice is deleted - prevent editing
       if (existingInvoice.deletedAt) {
         notificationService.error(
-          `This invoice has been deleted and cannot be edited. Reason: ${existingInvoice.deletionReason || "No reason provided"}`,
+          `This invoice has been deleted and cannot be edited. Reason: ${existingInvoice.deletionReason || 'No reason provided'}`,
         );
-        navigate("/invoices");
+        navigate('/invoices');
         return;
       }
       // Auto-populate date to today if empty (common in Odoo/Zoho)
@@ -2792,9 +2792,9 @@ const InvoiceForm = ({ onSave }) => {
 
       // Capture the original saved status for isLocked calculation
       // This prevents the locked banner from showing when just changing the dropdown
-      const savedStatus = (existingInvoice.status || "")
+      const savedStatus = (existingInvoice.status || '')
         .toLowerCase()
-        .replace("status_", "");
+        .replace('status_', '');
       setOriginalSavedStatus(savedStatus);
     }
   }, [existingInvoice, id, navigate]);
@@ -2806,9 +2806,9 @@ const InvoiceForm = ({ onSave }) => {
       // Only fetch for existing invoices that have been finalized (issued/proforma)
       if (!id || !existingInvoice) return;
 
-      const status = (existingInvoice.status || "").toLowerCase().replace("status_", "");
+      const status = (existingInvoice.status || '').toLowerCase().replace('status_', '');
       // Only fetch consumptions for invoices that have been through finalization
-      if (status !== "issued" && status !== "proforma") {
+      if (status !== 'issued' && status !== 'proforma') {
         setConsumptionsFetched(true);
         return;
       }
@@ -2821,8 +2821,8 @@ const InvoiceForm = ({ onSave }) => {
           response.items.forEach((item) => {
             byItemId[item.invoiceItemId] = {
               consumptions: item.consumptions || [],
-              totalQuantity: item.totalQuantity || "0",
-              totalCogs: item.totalCogs || "0",
+              totalQuantity: item.totalQuantity || '0',
+              totalCogs: item.totalCogs || '0',
               isDropShip: item.isDropShip || false,
             };
           });
@@ -2830,7 +2830,7 @@ const InvoiceForm = ({ onSave }) => {
         }
         setConsumptionsFetched(true);
       } catch (err) {
-        console.error("Failed to fetch batch consumptions:", err);
+        console.error('Failed to fetch batch consumptions:', err);
         // Don't block the form if consumption fetch fails
         setConsumptionsFetched(true);
       }
@@ -2842,15 +2842,15 @@ const InvoiceForm = ({ onSave }) => {
   // Validate fields on load and when invoice changes
   useEffect(() => {
     if (invoice) {
-      validateField("customer", invoice.customer);
-      validateField("dueDate", invoice.dueDate);
-      validateField("status", invoice.status);
-      validateField("paymentMode", invoice.modeOfPayment);
-      validateField("warehouse", invoice.warehouseId);
-      validateField("currency", invoice.currency);
-      validateField("placeOfSupply", invoice.placeOfSupply);
-      validateField("supplyDate", invoice.supplyDate);
-      validateField("items", invoice.items);
+      validateField('customer', invoice.customer);
+      validateField('dueDate', invoice.dueDate);
+      validateField('status', invoice.status);
+      validateField('paymentMode', invoice.modeOfPayment);
+      validateField('warehouse', invoice.warehouseId);
+      validateField('currency', invoice.currency);
+      validateField('placeOfSupply', invoice.placeOfSupply);
+      validateField('supplyDate', invoice.supplyDate);
+      validateField('items', invoice.items);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -2860,8 +2860,8 @@ const InvoiceForm = ({ onSave }) => {
     invoice.modeOfPayment,
     invoice.warehouseId,
     invoice.currency,
-    invoice.placeOfSupply || "",
-    invoice.supplyDate || "",
+    invoice.placeOfSupply || '',
+    invoice.supplyDate || '',
     invoice.items.length,
     validateField,
   ]);
@@ -2870,7 +2870,7 @@ const InvoiceForm = ({ onSave }) => {
   const checkTradeLicenseStatus = async (customerId) => {
     try {
       // Use axios-based client to benefit from auth + baseURL
-      const { apiClient } = await import("../services/api");
+      const { apiClient } = await import('../services/api');
       const licenseStatus = await apiClient.get(
         `/customers/${customerId}/trade-license-status`,
       );
@@ -2879,8 +2879,8 @@ const InvoiceForm = ({ onSave }) => {
         // Show alert for expired or expiring licenses
         if (
           licenseStatus.hasLicense &&
-          (licenseStatus.status === "expired" ||
-            licenseStatus.status === "expiring_soon")
+          (licenseStatus.status === 'expired' ||
+            licenseStatus.status === 'expiring_soon')
         ) {
           setShowTradeLicenseAlert(true);
         } else {
@@ -2893,12 +2893,12 @@ const InvoiceForm = ({ onSave }) => {
         const resp = await fetch(
           `/api/customers/${customerId}/trade-license-status`,
         );
-        const ct = resp.headers.get("content-type") || "";
+        const ct = resp.headers.get('content-type') || '';
         if (!resp.ok) {
           const txt = await resp.text();
           throw new Error(`HTTP ${resp.status}: ${txt.slice(0, 200)}`);
         }
-        if (!ct.includes("application/json")) {
+        if (!ct.includes('application/json')) {
           const txt = await resp.text();
           throw new SyntaxError(
             `Unexpected content-type: ${ct}. Body starts: ${txt.slice(0, 80)}`,
@@ -2924,16 +2924,16 @@ const InvoiceForm = ({ onSave }) => {
           customer: {
             id: selectedCustomer.id,
             name: selectedCustomer.name,
-            email: selectedCustomer.email || "",
-            phone: selectedCustomer.phone || "",
+            email: selectedCustomer.email || '',
+            phone: selectedCustomer.phone || '',
             // Use TRN number from customer data
             vatNumber:
-              selectedCustomer.trnNumber || selectedCustomer.vatNumber || "",
+              selectedCustomer.trnNumber || selectedCustomer.vatNumber || '',
             address: {
-              street: selectedCustomer.address?.street || "",
-              city: selectedCustomer.address?.city || "",
-              emirate: selectedCustomer.address?.emirate || "",
-              poBox: selectedCustomer.address?.poBox || "",
+              street: selectedCustomer.address?.street || '',
+              city: selectedCustomer.address?.city || '',
+              emirate: selectedCustomer.address?.emirate || '',
+              poBox: selectedCustomer.address?.poBox || '',
             },
           },
         }));
@@ -2955,26 +2955,26 @@ const InvoiceForm = ({ onSave }) => {
         } else {
           // Use default pricelist
           setSelectedPricelistId(null);
-          setPricelistName("Default Price List");
+          setPricelistName('Default Price List');
         }
 
         // Check trade license status
         checkTradeLicenseStatus(customerId);
 
         // Validate customer field
-        validateField("customer", {
+        validateField('customer', {
           id: selectedCustomer.id,
           name: selectedCustomer.name,
         });
 
         // Clear customer-related validation errors since user has now selected a customer
         setValidationErrors((prev) =>
-          prev.filter((err) => !err.toLowerCase().includes("customer")),
+          prev.filter((err) => !err.toLowerCase().includes('customer')),
         );
         setInvalidFields((prev) => {
           const newSet = new Set(prev);
-          newSet.delete("customer");
-          newSet.delete("customer.name");
+          newSet.delete('customer');
+          newSet.delete('customer.name');
           return newSet;
         });
 
@@ -2988,7 +2988,7 @@ const InvoiceForm = ({ onSave }) => {
   const handleSalesAgentSelect = useCallback((agentId) => {
     setInvoice((prev) => ({
       ...prev,
-      sales_agent_id: agentId && agentId !== "none" ? parseInt(agentId) : null,
+      sales_agent_id: agentId && agentId !== 'none' ? parseInt(agentId) : null,
     }));
   }, []);
 
@@ -3020,47 +3020,47 @@ const InvoiceForm = ({ onSave }) => {
   // For new invoices, hide the "Pending" status as it's just noise
   const _getAllocationStatusBadge = useCallback(
     (item) => {
-      const status = item.allocationStatus || "pending";
+      const status = item.allocationStatus || 'pending';
 
       // Don't show "Pending" badge on new/unsaved invoices - it's confusing
       // Only show meaningful statuses (allocated, partial, failed) on saved invoices
-      if (!id && status === "pending") {
+      if (!id && status === 'pending') {
         return null;
       }
 
-      if (status === "allocated") {
+      if (status === 'allocated') {
         return (
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
               isDarkMode
-                ? "bg-green-900/40 text-green-300 border border-green-700"
-                : "bg-green-50 text-green-700 border border-green-200"
+                ? 'bg-green-900/40 text-green-300 border border-green-700'
+                : 'bg-green-50 text-green-700 border border-green-200'
             }`}
           >
             <CheckCircle size={12} />
             Allocated
           </span>
         );
-      } else if (status === "partial") {
+      } else if (status === 'partial') {
         return (
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
               isDarkMode
-                ? "bg-amber-900/40 text-amber-300 border border-amber-700"
-                : "bg-amber-50 text-amber-700 border border-amber-200"
+                ? 'bg-amber-900/40 text-amber-300 border border-amber-700'
+                : 'bg-amber-50 text-amber-700 border border-amber-200'
             }`}
           >
             <AlertTriangle size={12} />
             Partial
           </span>
         );
-      } else if (status === "failed") {
+      } else if (status === 'failed') {
         return (
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
               isDarkMode
-                ? "bg-red-900/40 text-red-300 border border-red-700"
-                : "bg-red-50 text-red-700 border border-red-200"
+                ? 'bg-red-900/40 text-red-300 border border-red-700'
+                : 'bg-red-50 text-red-700 border border-red-200'
             }`}
           >
             <X size={12} />
@@ -3073,8 +3073,8 @@ const InvoiceForm = ({ onSave }) => {
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
               isDarkMode
-                ? "bg-gray-700 text-gray-300 border border-gray-600"
-                : "bg-gray-100 text-gray-600 border border-gray-300"
+                ? 'bg-gray-700 text-gray-300 border border-gray-600'
+                : 'bg-gray-100 text-gray-600 border border-gray-300'
             }`}
           >
             <Info size={12} />
@@ -3096,7 +3096,7 @@ const InvoiceForm = ({ onSave }) => {
     const factor = item.conversionFactor || 1;
     const convertedQty = qty * factor;
 
-    if (item.unitWeight && item.itemUom === "PCS" && item.primaryUom === "KG") {
+    if (item.unitWeight && item.itemUom === 'PCS' && item.primaryUom === 'KG') {
       return `${qty} PCS = ${convertedQty.toFixed(2)} KG (unit weight: ${item.unitWeight} kg)`;
     }
 
@@ -3123,7 +3123,7 @@ const InvoiceForm = ({ onSave }) => {
 
   const handleProductSelectInternal = useCallback(
     async (index, product, skipDuplicateCheck = false) => {
-      if (product && typeof product === "object") {
+      if (product && typeof product === 'object') {
         // Check for duplicate product (unless skipping)
         if (!skipDuplicateCheck) {
           const existingIndex = findDuplicateProduct(product.id, index);
@@ -3131,7 +3131,7 @@ const InvoiceForm = ({ onSave }) => {
             // Store pending selection and show warning
             pendingProductRef.current = { index, product };
             setDuplicateWarning({
-              productName: product.displayName || product.display_name || "N/A",
+              productName: product.displayName || product.display_name || 'N/A',
               existingIndex,
               existingQuantity: invoice.items[existingIndex]?.quantity || 0,
             });
@@ -3142,14 +3142,14 @@ const InvoiceForm = ({ onSave }) => {
         // Helper: extract thickness from product specs or size string
         const getThickness = (p) => {
           try {
-            const cat = (p?.category || "").toString().toLowerCase();
+            const cat = (p?.category || '').toString().toLowerCase();
             const isPipe = /pipe/.test(cat);
             const specThk =
               p?.specifications?.thickness || p?.specifications?.Thickness;
             if (specThk && String(specThk).trim())
               return String(specThk).trim();
-            if (isPipe) return ""; // avoid deriving thickness from pipe size
-            const sizeStr = p?.size ? String(p.size) : "";
+            if (isPipe) return ''; // avoid deriving thickness from pipe size
+            const sizeStr = p?.size ? String(p.size) : '';
             const mmMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*(mm)\b/i);
             if (mmMatch) return `${mmMatch[1]}mm`;
             const xParts = sizeStr
@@ -3162,9 +3162,9 @@ const InvoiceForm = ({ onSave }) => {
               if (numMatch) return `${numMatch[0]}mm`;
             }
           } catch (err) {
-            console.warn("Error extracting thickness from product:", err);
+            console.warn('Error extracting thickness from product:', err);
           }
-          return "";
+          return '';
         };
 
         // Fetch price from pricelist if available (with volume discount support)
@@ -3183,7 +3183,7 @@ const InvoiceForm = ({ onSave }) => {
               product.sellingPrice ||
               0;
           } catch (error) {
-            console.error("Error fetching pricelist price:", error);
+            console.error('Error fetching pricelist price:', error);
             // Fallback to default product price
             sellingPrice = product.sellingPrice || 0;
           }
@@ -3197,36 +3197,36 @@ const InvoiceForm = ({ onSave }) => {
           const primaryUom = (
             product.primaryUom ||
             product.primary_uom ||
-            ""
+            ''
           ).toUpperCase();
           let quantityUom;
-          if (primaryUom === "MT" || primaryUom === "KG") {
+          if (primaryUom === 'MT' || primaryUom === 'KG') {
             quantityUom = primaryUom; // Use product's declared UOM for coils/bulk
           } else {
             // Fallback: category-based detection for legacy products without primary_uom
-            const category = (product.category || "").toLowerCase();
-            const isCoil = category.includes("coil");
-            quantityUom = isCoil ? "MT" : "PCS";
+            const category = (product.category || '').toLowerCase();
+            const isCoil = category.includes('coil');
+            quantityUom = isCoil ? 'MT' : 'PCS';
           }
 
           // Get pricing basis and unit weight from product
           const pricingBasis =
-            product.pricingBasis || product.pricing_basis || "PER_MT";
+            product.pricingBasis || product.pricing_basis || 'PER_MT';
           const unitWeightKg =
             product.unitWeightKg || product.unit_weight_kg || null;
           const quantity = newItems[index].quantity || 1;
 
           // Flag if weight is missing for weight-based pricing (for UI warning)
           const missingWeightWarning =
-            (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") &&
-            quantityUom === "PCS" &&
+            (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG') &&
+            quantityUom === 'PCS' &&
             !unitWeightKg;
 
           // Calculate theoretical weight (for audit trail)
           let theoreticalWeightKg = null;
-          if (quantityUom === "MT") {
+          if (quantityUom === 'MT') {
             theoreticalWeightKg = quantity * 1000; // MT to KG
-          } else if (quantityUom === "KG") {
+          } else if (quantityUom === 'KG') {
             theoreticalWeightKg = quantity;
           } else if (unitWeightKg) {
             theoreticalWeightKg = quantity * unitWeightKg;
@@ -3250,14 +3250,14 @@ const InvoiceForm = ({ onSave }) => {
               product.display_name ||
               product.uniqueName ||
               product.unique_name,
-            category: product.category || "",
-            commodity: product.commodity || "SS",
-            grade: product.grade || "",
-            finish: product.finish || "",
-            size: product.size || "",
-            sizeInch: product.sizeInch || "",
-            od: product.od || "",
-            length: product.length || "",
+            category: product.category || '',
+            commodity: product.commodity || 'SS',
+            grade: product.grade || '',
+            finish: product.finish || '',
+            size: product.size || '',
+            sizeInch: product.sizeInch || '',
+            od: product.od || '',
+            length: product.length || '',
             thickness: getThickness(product),
             // unit removed from invoice UI
             rate: sellingPrice,
@@ -3279,7 +3279,7 @@ const InvoiceForm = ({ onSave }) => {
         });
 
         // Clear search input for this row
-        setSearchInputs((prev) => ({ ...prev, [index]: "" }));
+        setSearchInputs((prev) => ({ ...prev, [index]: '' }));
 
         // Auto-allocate batches using FIFO when product is selected
         const quantity = invoice.items[index]?.quantity || 1;
@@ -3318,11 +3318,11 @@ const InvoiceForm = ({ onSave }) => {
         const newQuantity = (existingItem.quantity || 0) + 1;
         // Recalculate theoretical weight
         let theoreticalWeightKg = existingItem.theoreticalWeightKg;
-        if (existingItem.unitWeightKg && existingItem.quantityUom === "PCS") {
+        if (existingItem.unitWeightKg && existingItem.quantityUom === 'PCS') {
           theoreticalWeightKg = newQuantity * existingItem.unitWeightKg;
-        } else if (existingItem.quantityUom === "MT") {
+        } else if (existingItem.quantityUom === 'MT') {
           theoreticalWeightKg = newQuantity * 1000;
-        } else if (existingItem.quantityUom === "KG") {
+        } else if (existingItem.quantityUom === 'KG') {
           theoreticalWeightKg = newQuantity;
         }
         newItems[existingIndex] = {
@@ -3352,7 +3352,7 @@ const InvoiceForm = ({ onSave }) => {
       pendingProductRef.current = null;
       setDuplicateWarning(null);
       notificationService.success(
-        `Quantity updated for ${product.displayName || product.display_name || "N/A"}`,
+        `Quantity updated for ${product.displayName || product.display_name || 'N/A'}`,
       );
     }
   }, [duplicateWarning, invoice.items]);
@@ -3395,7 +3395,7 @@ const InvoiceForm = ({ onSave }) => {
     try {
       if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
       searchTimerRef.current = setTimeout(async () => {
-        const term = (value || "").trim();
+        const term = (value || '').trim();
         if (!term) return;
         try {
           const resp = await productService.getProducts({
@@ -3410,25 +3410,25 @@ const InvoiceForm = ({ onSave }) => {
             __results: resp?.products || [],
           }));
         } catch (err) {
-          console.warn("Product search failed:", err);
+          console.warn('Product search failed:', err);
           setSearchInputs((prev) => ({ ...prev, __results: [] }));
         }
       }, 300);
     } catch (err) {
-      console.error("Error setting up product search timer:", err);
+      console.error('Error setting up product search timer:', err);
     }
   }, []);
 
   const handleItemChange = useCallback(
     async (index, field, value) => {
       // P0 CRITICAL: Handle sourceType changes with allocation release and stock validation
-      if (field === "sourceType") {
+      if (field === 'sourceType') {
         const currentItem = invoice.items[index];
-        const oldSourceType = currentItem.sourceType || "WAREHOUSE";
+        const oldSourceType = currentItem.sourceType || 'WAREHOUSE';
         const newSourceType = value;
 
         // P0: Validate stock when switching TO warehouse
-        if (newSourceType === "WAREHOUSE") {
+        if (newSourceType === 'WAREHOUSE') {
           const stockData = productBatchData[currentItem.productId];
           const totalStock =
             stockData?.batches?.reduce(
@@ -3438,7 +3438,7 @@ const InvoiceForm = ({ onSave }) => {
 
           if (totalStock === 0) {
             notificationService.error(
-              "Cannot switch to Warehouse - no stock available",
+              'Cannot switch to Warehouse - no stock available',
             );
             return; // Block the change
           }
@@ -3453,18 +3453,18 @@ const InvoiceForm = ({ onSave }) => {
         }
 
         // P0: Release allocations when switching FROM warehouse TO drop-ship
-        if (oldSourceType === "WAREHOUSE" && newSourceType !== "WAREHOUSE") {
+        if (oldSourceType === 'WAREHOUSE' && newSourceType !== 'WAREHOUSE') {
           setInvoice((prev) => {
             const newItems = [...prev.items];
             newItems[index] = {
               ...newItems[index],
               sourceType: newSourceType,
               manualAllocations: null,
-              allocationStatus: "pending",
+              allocationStatus: 'pending',
             };
             return { ...prev, items: newItems };
           });
-          notificationService.info("Warehouse allocations released");
+          notificationService.info('Warehouse allocations released');
           return;
         }
       }
@@ -3478,15 +3478,15 @@ const InvoiceForm = ({ onSave }) => {
         };
 
         // Auto-update VAT rate based on supply type
-        if (field === "supplyType") {
-          if (value === "standard") {
+        if (field === 'supplyType') {
+          if (value === 'standard') {
             newItems[index].vatRate = 5;
-          } else if (value === "zero_rated" || value === "exempt") {
+          } else if (value === 'zero_rated' || value === 'exempt') {
             newItems[index].vatRate = 0;
           }
         }
 
-        if (field === "quantity" || field === "rate") {
+        if (field === 'quantity' || field === 'rate') {
           const item = newItems[index];
           newItems[index].amount = calculateItemAmount(
             item.quantity,
@@ -3497,15 +3497,15 @@ const InvoiceForm = ({ onSave }) => {
           );
           // Update theoretical weight when quantity changes
           if (
-            field === "quantity" &&
+            field === 'quantity' &&
             item.unitWeightKg &&
-            item.quantityUom === "PCS"
+            item.quantityUom === 'PCS'
           ) {
             newItems[index].theoreticalWeightKg =
               item.quantity * item.unitWeightKg;
-          } else if (field === "quantity" && item.quantityUom === "MT") {
+          } else if (field === 'quantity' && item.quantityUom === 'MT') {
             newItems[index].theoreticalWeightKg = item.quantity * 1000;
-          } else if (field === "quantity" && item.quantityUom === "KG") {
+          } else if (field === 'quantity' && item.quantityUom === 'KG') {
             newItems[index].theoreticalWeightKg = item.quantity;
           }
         }
@@ -3519,7 +3519,7 @@ const InvoiceForm = ({ onSave }) => {
         ) {
           // Clear item-related validation errors
           setValidationErrors((errors) =>
-            errors.filter((err) => !err.toLowerCase().includes("item")),
+            errors.filter((err) => !err.toLowerCase().includes('item')),
           );
           // Note: Don't auto-focus away - user may want to add more items
         }
@@ -3531,7 +3531,7 @@ const InvoiceForm = ({ onSave }) => {
       });
 
       // If quantity changed and we have a pricelist, re-fetch price for volume discount
-      if (field === "quantity" && selectedPricelistId) {
+      if (field === 'quantity' && selectedPricelistId) {
         // Get current item to check if it has a product
         setInvoice((prev) => {
           const item = prev.items[index];
@@ -3580,15 +3580,15 @@ const InvoiceForm = ({ onSave }) => {
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || "N/A";
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
         // Normalize fields for consistent access
-        uniqueName: uniqueName || "",
-        displayName: displayName || "",
-        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
+        uniqueName: uniqueName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
     });
   }, [productsData]);
@@ -3601,15 +3601,15 @@ const InvoiceForm = ({ onSave }) => {
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || "N/A";
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
         // Normalize fields for consistent access
-        uniqueName: uniqueName || "",
-        displayName: displayName || "",
-        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
+        uniqueName: uniqueName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
     });
   }, [searchInputs.__results]);
@@ -3621,7 +3621,7 @@ const InvoiceForm = ({ onSave }) => {
     }));
     // Clear item-related validation errors since user is adding an item
     setValidationErrors((prev) =>
-      prev.filter((err) => !err.toLowerCase().includes("item is required")),
+      prev.filter((err) => !err.toLowerCase().includes('item is required')),
     );
   }, []);
 
@@ -3675,25 +3675,25 @@ const InvoiceForm = ({ onSave }) => {
         productId: lineItemData.productId,
         name: lineItemData.name,
         // Copy product details for display
-        category: lineItemData.product?.category || "",
-        commodity: lineItemData.product?.commodity || "",
-        grade: lineItemData.product?.grade || "",
-        finish: lineItemData.product?.finish || "",
-        size: lineItemData.product?.size || "",
-        thickness: lineItemData.product?.thickness || "",
-        origin: lineItemData.product?.origin || "",
+        category: lineItemData.product?.category || '',
+        commodity: lineItemData.product?.commodity || '',
+        grade: lineItemData.product?.grade || '',
+        finish: lineItemData.product?.finish || '',
+        size: lineItemData.product?.size || '',
+        thickness: lineItemData.product?.thickness || '',
+        origin: lineItemData.product?.origin || '',
         // Quantity and pricing
         quantity: parseFloat(lineItemData.quantity),
-        quantityUom: lineItemData.unit || "KG",
+        quantityUom: lineItemData.unit || 'KG',
         rate: parseFloat(lineItemData.rate),
-        pricingBasis: "PER_KG", // Default, will be updated
+        pricingBasis: 'PER_KG', // Default, will be updated
         amount: parseFloat(lineItemData.amount),
         // Stock source
         sourceType: lineItemData.sourceType,
         warehouseId: lineItemData.warehouseId,
         // CANONICAL allocation representation (single source of truth)
         allocations: lineItemData.allocations || [],
-        allocationMode: lineItemData.allocationMode || "AUTO_FIFO",
+        allocationMode: lineItemData.allocationMode || 'AUTO_FIFO',
         // Reservation tracking
         reservationId: lineItemData.reservationId,
         reservationExpiresAt: lineItemData.expiresAt,
@@ -3701,7 +3701,7 @@ const InvoiceForm = ({ onSave }) => {
         unitWeightKg: lineItemData.product?.unitWeightKg || 1,
         theoreticalWeightKg: parseFloat(lineItemData.quantity),
         // VAT (default 5%)
-        supplyType: "standard",
+        supplyType: 'standard',
       };
 
       return {
@@ -3731,14 +3731,14 @@ const InvoiceForm = ({ onSave }) => {
       );
 
       if (!itemToDelete) {
-        notificationService.error("Item not found");
+        notificationService.error('Item not found');
         return;
       }
 
       // Cancel reservations for this line item if it has any
       if (
         itemToDelete.lineItemTempId &&
-        itemToDelete.sourceType === "WAREHOUSE"
+        itemToDelete.sourceType === 'WAREHOUSE'
       ) {
         try {
           await batchReservationService.cancelLineItemReservations({
@@ -3746,7 +3746,7 @@ const InvoiceForm = ({ onSave }) => {
             lineItemTempId: itemToDelete.lineItemTempId,
           });
         } catch (err) {
-          console.warn("Failed to cancel reservation on delete:", err);
+          console.warn('Failed to cancel reservation on delete:', err);
           // Continue with deletion even if reservation cancel fails
         }
       }
@@ -3763,7 +3763,7 @@ const InvoiceForm = ({ onSave }) => {
         return { ...prev, items: newItems };
       });
 
-      notificationService.success("Line item deleted");
+      notificationService.success('Line item deleted');
       setFormDirty(true);
     },
     [invoice.id, invoice.items],
@@ -3775,22 +3775,22 @@ const InvoiceForm = ({ onSave }) => {
   const getLineItemStatusIcon = useCallback((item) => {
     // Drop-ship items show ship icon
     if (
-      item.sourceType === "LOCAL_DROP_SHIP" ||
-      item.sourceType === "IMPORT_DROP_SHIP"
+      item.sourceType === 'LOCAL_DROP_SHIP' ||
+      item.sourceType === 'IMPORT_DROP_SHIP'
     ) {
       return {
-        icon: "ship",
-        title: "Drop-ship order",
-        className: "text-blue-500",
+        icon: 'ship',
+        title: 'Drop-ship order',
+        className: 'text-blue-500',
       };
     }
 
     // Warehouse items - check allocation status
     if (!item.allocations || item.allocations.length === 0) {
       return {
-        icon: "empty",
-        title: "Not allocated",
-        className: "text-gray-400",
+        icon: 'empty',
+        title: 'Not allocated',
+        className: 'text-gray-400',
       };
     }
 
@@ -3802,24 +3802,24 @@ const InvoiceForm = ({ onSave }) => {
 
     if (Math.abs(allocatedQty - requiredQty) < 0.001) {
       return {
-        icon: "check",
-        title: "Fully allocated",
-        className: "text-green-500",
+        icon: 'check',
+        title: 'Fully allocated',
+        className: 'text-green-500',
       };
     }
 
     if (allocatedQty > 0 && allocatedQty < requiredQty) {
       return {
-        icon: "partial",
+        icon: 'partial',
         title: `Partially allocated (${allocatedQty.toFixed(2)}/${requiredQty.toFixed(2)})`,
-        className: "text-amber-500",
+        className: 'text-amber-500',
       };
     }
 
     return {
-      icon: "empty",
-      title: "Not allocated",
-      className: "text-gray-400",
+      icon: 'empty',
+      title: 'Not allocated',
+      className: 'text-gray-400',
     };
   }, []);
 
@@ -3834,7 +3834,7 @@ const InvoiceForm = ({ onSave }) => {
     }
 
     // For new invoices with Final Tax Invoice status, show confirmation first
-    if (!id && invoice.status === "issued") {
+    if (!id && invoice.status === 'issued') {
       setShowSaveConfirmDialog(true);
       return;
     }
@@ -3849,23 +3849,23 @@ const InvoiceForm = ({ onSave }) => {
     const invalidFieldsSet = new Set();
 
     // Check customer information
-    if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
-      errors.push("Customer name is required");
-      invalidFieldsSet.add("customer.name");
+    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
+      errors.push('Customer name is required');
+      invalidFieldsSet.add('customer.name');
     }
 
     // Check if there are any items (filter out empty placeholder items)
     // Placeholder items have no productId and no name - same logic as UI display
     const realItems = (invoice.items || []).filter(
-      (item) => item.productId || (item.name && item.name.trim() !== ""),
+      (item) => item.productId || (item.name && item.name.trim() !== ''),
     );
 
     if (realItems.length === 0) {
-      errors.push("At least one item is required");
+      errors.push('At least one item is required');
     } else {
       // Validate each real item
       realItems.forEach((item, index) => {
-        if (!item.name || item.name.trim() === "") {
+        if (!item.name || item.name.trim() === '') {
           errors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
         }
@@ -3890,21 +3890,21 @@ const InvoiceForm = ({ onSave }) => {
 
     // Check dates
     if (!invoice.date) {
-      errors.push("Invoice date is required");
-      invalidFieldsSet.add("date");
+      errors.push('Invoice date is required');
+      invalidFieldsSet.add('date');
     }
     if (!invoice.dueDate) {
-      errors.push("Due date is required");
-      invalidFieldsSet.add("dueDate");
+      errors.push('Due date is required');
+      invalidFieldsSet.add('dueDate');
     }
 
     // Check status (required field)
     if (
       !invoice.status ||
-      !["draft", "proforma", "issued"].includes(invoice.status)
+      !['draft', 'proforma', 'issued'].includes(invoice.status)
     ) {
-      errors.push("Invoice status is required");
-      invalidFieldsSet.add("status");
+      errors.push('Invoice status is required');
+      invalidFieldsSet.add('status');
     }
 
     return {
@@ -3919,20 +3919,20 @@ const InvoiceForm = ({ onSave }) => {
   const handleIssueInvoice = async () => {
     if (!invoice?.id) {
       notificationService.error(
-        "Please save the invoice first before issuing.",
+        'Please save the invoice first before issuing.',
       );
       return;
     }
 
     if (isLocked) {
-      notificationService.warning("This invoice has already been issued.");
+      notificationService.warning('This invoice has already been issued.');
       return;
     }
 
     // Validate allocation completeness for warehouse items
     const incompleteAllocations = [];
     (invoice.items || []).forEach((item, idx) => {
-      if (item.sourceType === "WAREHOUSE") {
+      if (item.sourceType === 'WAREHOUSE') {
         const allocatedQty = (item.allocations || []).reduce(
           (sum, a) => sum + parseFloat(a.quantity || 0),
           0,
@@ -3962,7 +3962,7 @@ const InvoiceForm = ({ onSave }) => {
 
     if (incompleteAllocations.length > 0) {
       console.error(
-        "[ISSUE BLOCKED] Incomplete allocations detected:",
+        '[ISSUE BLOCKED] Incomplete allocations detected:',
         incompleteAllocations,
       );
       const message = `Cannot issue invoice - incomplete allocations:\n\n${incompleteAllocations
@@ -3970,7 +3970,7 @@ const InvoiceForm = ({ onSave }) => {
           (ia) =>
             `Line ${ia.index}: ${ia.name}\n  Required: ${ia.required.toFixed(3)}\n  Allocated: ${ia.allocated.toFixed(3)}`,
         )
-        .join("\n\n")}`;
+        .join('\n\n')}`;
 
       notificationService.error(message);
       return;
@@ -3978,11 +3978,11 @@ const InvoiceForm = ({ onSave }) => {
 
     // Confirm with user - this is irreversible
     const confirmed = window.confirm(
-      "Issue Final Tax Invoice?\n\n" +
-        "WARNING: Once issued, this invoice cannot be modified.\n" +
-        "Any corrections must be made via Credit Note.\n\n" +
-        "This action cannot be undone.\n\n" +
-        "Are you sure you want to proceed?",
+      'Issue Final Tax Invoice?\n\n' +
+        'WARNING: Once issued, this invoice cannot be modified.\n' +
+        'Any corrections must be made via Credit Note.\n\n' +
+        'This action cannot be undone.\n\n' +
+        'Are you sure you want to proceed?',
     );
 
     if (!confirmed) return;
@@ -3995,14 +3995,14 @@ const InvoiceForm = ({ onSave }) => {
       setInvoice((prev) => ({
         ...prev,
         ...issuedInvoice,
-        status: "issued",
+        status: 'issued',
       }));
 
       notificationService.success(
-        "Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified.",
+        'Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified.',
       );
     } catch (error) {
-      console.error("Failed to issue invoice:", error);
+      console.error('Failed to issue invoice:', error);
       notificationService.error(
         `Failed to issue invoice: ${error.response?.data?.message || error.message}`,
       );
@@ -4015,7 +4015,7 @@ const InvoiceForm = ({ onSave }) => {
   const handlePreviewClick = async () => {
     if (!company) {
       notificationService.warning(
-        "Company data is still loading. Please wait...",
+        'Company data is still loading. Please wait...',
       );
       return;
     }
@@ -4024,7 +4024,7 @@ const InvoiceForm = ({ onSave }) => {
     try {
       await refetchCompany();
     } catch (error) {
-      console.warn("Failed to refresh company data:", error);
+      console.warn('Failed to refresh company data:', error);
       // Continue with cached data rather than blocking preview
     }
 
@@ -4052,7 +4052,7 @@ const InvoiceForm = ({ onSave }) => {
     // Placeholder items have no productId and no name - same logic as UI display
     // Note: Can't rely on quantity/rate since defaults are quantity=1, rate=0
     const nonBlankItems = (invoice.items || []).filter(
-      (item) => item.productId || (item.name && item.name.trim() !== ""),
+      (item) => item.productId || (item.name && item.name.trim() !== ''),
     );
 
     // Validate required fields before saving
@@ -4060,18 +4060,18 @@ const InvoiceForm = ({ onSave }) => {
     const invalidFieldsSet = new Set();
 
     // Check customer information
-    if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
-      errors.push("Customer name is required");
-      invalidFieldsSet.add("customer.name");
+    if (!invoice.customer?.name || invoice.customer.name.trim() === '') {
+      errors.push('Customer name is required');
+      invalidFieldsSet.add('customer.name');
     }
 
     // Check if there are any items after filtering blanks
     if (!nonBlankItems || nonBlankItems.length === 0) {
-      errors.push("At least one item is required");
+      errors.push('At least one item is required');
     } else {
       // Validate each non-blank item
       nonBlankItems.forEach((item, index) => {
-        if (!item.name || item.name.trim() === "") {
+        if (!item.name || item.name.trim() === '') {
           errors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
         }
@@ -4088,21 +4088,21 @@ const InvoiceForm = ({ onSave }) => {
 
     // Check dates
     if (!invoice.date) {
-      errors.push("Invoice date is required");
-      invalidFieldsSet.add("date");
+      errors.push('Invoice date is required');
+      invalidFieldsSet.add('date');
     }
     if (!invoice.dueDate) {
-      errors.push("Due date is required");
-      invalidFieldsSet.add("dueDate");
+      errors.push('Due date is required');
+      invalidFieldsSet.add('dueDate');
     }
 
     // Check status (required field) - use effectiveStatus for Final Tax Invoice flow
     if (
       !effectiveStatus ||
-      !["draft", "proforma", "issued"].includes(effectiveStatus)
+      !['draft', 'proforma', 'issued'].includes(effectiveStatus)
     ) {
-      errors.push("Invoice status is required");
-      invalidFieldsSet.add("status");
+      errors.push('Invoice status is required');
+      invalidFieldsSet.add('status');
     }
 
     // If there are validation errors, show them and stop
@@ -4112,9 +4112,9 @@ const InvoiceForm = ({ onSave }) => {
 
       // Scroll to the first error (save button area) - instant to prevent layout shift
       setTimeout(() => {
-        const errorAlert = document.getElementById("validation-errors-alert");
+        const errorAlert = document.getElementById('validation-errors-alert');
         if (errorAlert) {
-          errorAlert.scrollIntoView({ behavior: "instant", block: "center" });
+          errorAlert.scrollIntoView({ behavior: 'instant', block: 'center' });
         }
       }, 100);
 
@@ -4134,19 +4134,19 @@ const InvoiceForm = ({ onSave }) => {
         ...invoice,
         status: effectiveStatus, // Use effectiveStatus, not invoice.status (fixes DFT- prefix bug)
         discountAmount:
-          invoice.discountAmount === "" ? 0 : Number(invoice.discountAmount),
+          invoice.discountAmount === '' ? 0 : Number(invoice.discountAmount),
         discountPercentage:
-          invoice.discountPercentage === ""
+          invoice.discountPercentage === ''
             ? 0
             : Number(invoice.discountPercentage),
         items: nonBlankItems.map((item) => ({
           ...item,
-          quantity: item.quantity === "" ? 0 : Number(item.quantity),
-          rate: item.rate === "" ? 0 : Number(item.rate),
-          discount: item.discount === "" ? 0 : Number(item.discount),
-          vatRate: item.vatRate === "" ? 0 : Number(item.vatRate),
+          quantity: item.quantity === '' ? 0 : Number(item.quantity),
+          rate: item.rate === '' ? 0 : Number(item.rate),
+          discount: item.discount === '' ? 0 : Number(item.discount),
+          vatRate: item.vatRate === '' ? 0 : Number(item.vatRate),
           // Phase 2: Manual batch allocation - deterministic mapping from canonical allocations
-          allocation_mode: item.allocationMode || "AUTO_FIFO",
+          allocation_mode: item.allocationMode || 'AUTO_FIFO',
           manual_allocations: (item.allocations || []).map((a) => ({
             batch_id: a.batchId,
             quantity: a.quantity,
@@ -4155,7 +4155,7 @@ const InvoiceForm = ({ onSave }) => {
       };
 
       // VERIFICATION LOG: Save payload
-      console.log("[SAVE VERIFICATION] Processed invoice payload:", {
+      console.log('[SAVE VERIFICATION] Processed invoice payload:', {
         invoiceId: processedInvoice.id,
         status: processedInvoice.status,
         itemsCount: processedInvoice.items.length,
@@ -4186,7 +4186,7 @@ const InvoiceForm = ({ onSave }) => {
           updatedInvoice.newInvoiceId !== parseInt(id)
         ) {
           notificationService.success(
-            "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.",
+            'Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.',
           );
           // Navigate to new invoice ID with smooth transition (300ms)
           setTimeout(() => {
@@ -4194,7 +4194,7 @@ const InvoiceForm = ({ onSave }) => {
           }, 300);
         } else {
           notificationService.success(
-            "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.",
+            'Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data.',
           );
         }
       } else {
@@ -4217,7 +4217,7 @@ const InvoiceForm = ({ onSave }) => {
         // Phase 4: Finalize invoice with batch allocations
         // Check if invoice has warehouse items with allocations (lineItemTempId indicates Phase 3+ allocation)
         const warehouseItemsWithAllocations = invoice.items.filter(
-          (item) => item.sourceType === "WAREHOUSE" && item.lineItemTempId,
+          (item) => item.sourceType === 'WAREHOUSE' && item.lineItemTempId,
         );
 
         if (
@@ -4247,9 +4247,9 @@ const InvoiceForm = ({ onSave }) => {
 
             if (lineItemMappings.length > 0) {
               console.log(
-                "[InvoiceForm-Phase4] Finalizing invoice with",
+                '[InvoiceForm-Phase4] Finalizing invoice with',
                 lineItemMappings.length,
-                "line item mappings",
+                'line item mappings',
               );
 
               const finalizeResult =
@@ -4262,7 +4262,7 @@ const InvoiceForm = ({ onSave }) => {
 
               if (finalizeResult.success) {
                 console.log(
-                  "[InvoiceForm-Phase4] Finalization successful:",
+                  '[InvoiceForm-Phase4] Finalization successful:',
                   finalizeResult.invoiceNumber,
                 );
                 // Update invoice number if it was generated during finalization
@@ -4274,35 +4274,35 @@ const InvoiceForm = ({ onSave }) => {
                 }
               } else {
                 console.warn(
-                  "[InvoiceForm-Phase4] Finalization returned success=false:",
+                  '[InvoiceForm-Phase4] Finalization returned success=false:',
                   finalizeResult.message,
                 );
                 notificationService.warning(
-                  "Invoice saved but stock finalization incomplete. Please review.",
+                  'Invoice saved but stock finalization incomplete. Please review.',
                 );
               }
             }
           } catch (finalizeError) {
             console.error(
-              "[InvoiceForm-Phase4] Finalization error:",
+              '[InvoiceForm-Phase4] Finalization error:',
               finalizeError,
             );
             // Check for specific error types
             const errorMessage =
               finalizeError?.response?.data?.message ||
               finalizeError?.message ||
-              "Unknown error";
+              'Unknown error';
 
-            if (errorMessage.toLowerCase().includes("expired")) {
+            if (errorMessage.toLowerCase().includes('expired')) {
               notificationService.error(
-                "Some batch reservations have expired. Invoice saved but stock not deducted. Please re-allocate batches.",
+                'Some batch reservations have expired. Invoice saved but stock not deducted. Please re-allocate batches.',
               );
             } else if (
-              errorMessage.toLowerCase().includes("insufficient") ||
-              errorMessage.toLowerCase().includes("stock")
+              errorMessage.toLowerCase().includes('insufficient') ||
+              errorMessage.toLowerCase().includes('stock')
             ) {
               notificationService.error(
-                "Stock no longer available. Invoice saved but stock not deducted. Another user may have used the same batches.",
+                'Stock no longer available. Invoice saved but stock not deducted. Another user may have used the same batches.',
               );
             } else {
               notificationService.warning(
@@ -4317,7 +4317,7 @@ const InvoiceForm = ({ onSave }) => {
         // NOTE: This is from the old Phase 2 flow - now superseded by Phase 4 finalize
         if (newInvoice.expiresAt) {
           notificationService.success(
-            "Invoice created! Please confirm batch allocation within 5 minutes.",
+            'Invoice created! Please confirm batch allocation within 5 minutes.',
           );
           navigate(`/invoices/${newInvoice.id}/confirm-allocation`);
           return;
@@ -4337,10 +4337,10 @@ const InvoiceForm = ({ onSave }) => {
         // }, 1500);
       }
     } catch (error) {
-      console.error("Error saving invoice:", error);
+      console.error('Error saving invoice:', error);
 
       // Extract detailed error message
-      let errorMessage = "Failed to save invoice. Please try again.";
+      let errorMessage = 'Failed to save invoice. Please try again.';
 
       if (error?.response?.data?.error) {
         errorMessage = error.response.data.error;
@@ -4352,8 +4352,8 @@ const InvoiceForm = ({ onSave }) => {
 
       // Check for duplicate invoice number error (from database unique constraint)
       if (
-        errorMessage.toLowerCase().includes("duplicate") ||
-        errorMessage.toLowerCase().includes("unique_invoice_number") ||
+        errorMessage.toLowerCase().includes('duplicate') ||
+        errorMessage.toLowerCase().includes('unique_invoice_number') ||
         error?.response?.status === 409
       ) {
         // If this is a NEW invoice (not an edit), auto-fetch next available number
@@ -4365,7 +4365,7 @@ const InvoiceForm = ({ onSave }) => {
           try {
             await refetchNextInvoice();
             notificationService.success(
-              "New invoice number assigned. Please try saving again.",
+              'New invoice number assigned. Please try saving again.',
             );
             return; // Exit early so user can try again with new number
           } catch (refetchError) {
@@ -4380,11 +4380,11 @@ const InvoiceForm = ({ onSave }) => {
       if (error?.response?.data?.details) {
         const details = error.response.data.details;
         if (Array.isArray(details)) {
-          errorMessage += `\n${details.join("\n")}`;
-        } else if (typeof details === "object") {
+          errorMessage += `\n${details.join('\n')}`;
+        } else if (typeof details === 'object') {
           errorMessage += `\n${Object.entries(details)
             .map(([field, msg]) => `${field}: ${msg}`)
-            .join("\n")}`;
+            .join('\n')}`;
         }
       }
 
@@ -4399,7 +4399,7 @@ const InvoiceForm = ({ onSave }) => {
 
     // Pass 'issued' explicitly since user confirmed Final Tax Invoice dialog
     // This ensures status is correct regardless of React state timing
-    await performSave("issued");
+    await performSave('issued');
   };
 
   const handleCancelSave = () => {
@@ -4414,11 +4414,11 @@ const InvoiceForm = ({ onSave }) => {
     setTimeout(async () => {
       await handleDownloadPDF();
       notificationService.success(
-        "Invoice created successfully! PDF downloaded.",
+        'Invoice created successfully! PDF downloaded.',
       );
 
       // Navigate after PDF download completes (smooth transition)
-      navigate("/invoices");
+      navigate('/invoices');
     }, 300);
   };
 
@@ -4427,8 +4427,8 @@ const InvoiceForm = ({ onSave }) => {
 
     // Smooth transition delay for modal close animation
     setTimeout(() => {
-      notificationService.success("Invoice created successfully!");
-      navigate("/invoices");
+      notificationService.success('Invoice created successfully!');
+      navigate('/invoices');
     }, 300);
   };
 
@@ -4450,7 +4450,7 @@ const InvoiceForm = ({ onSave }) => {
     if (createdInvoiceId) {
       navigate(`/edit/${createdInvoiceId}`);
       notificationService.success(
-        "Invoice created successfully! Now in edit mode.",
+        'Invoice created successfully! Now in edit mode.',
       );
     }
   }, [createdInvoiceId, navigate]);
@@ -4460,9 +4460,9 @@ const InvoiceForm = ({ onSave }) => {
   // Handle ESC key to close success modal (only for Draft/Proforma, not Final Tax Invoice)
   useEffect(() => {
     const handleEscKey = (event) => {
-      if (event.key === "Escape" && showSuccessModal) {
+      if (event.key === 'Escape' && showSuccessModal) {
         // Only allow ESC to close for Draft and Proforma invoices
-        const isFinalTaxInvoice = invoice.status === "issued";
+        const isFinalTaxInvoice = invoice.status === 'issued';
         if (!isFinalTaxInvoice) {
           handleSuccessModalClose();
         }
@@ -4470,9 +4470,9 @@ const InvoiceForm = ({ onSave }) => {
     };
 
     if (showSuccessModal) {
-      document.addEventListener("keydown", handleEscKey);
+      document.addEventListener('keydown', handleEscKey);
       return () => {
-        document.removeEventListener("keydown", handleEscKey);
+        document.removeEventListener('keydown', handleEscKey);
       };
     }
   }, [
@@ -4489,7 +4489,7 @@ const InvoiceForm = ({ onSave }) => {
     // Require invoice to be saved first
     if (!invoiceId) {
       notificationService.warning(
-        "Please save the invoice first before downloading PDF",
+        'Please save the invoice first before downloading PDF',
       );
       return;
     }
@@ -4498,7 +4498,7 @@ const InvoiceForm = ({ onSave }) => {
     if (loadingCompany) {
       setPdfPending(true);
       notificationService.info(
-        "Loading company details… Will download when ready.",
+        'Loading company details… Will download when ready.',
       );
       return;
     }
@@ -4508,9 +4508,9 @@ const InvoiceForm = ({ onSave }) => {
     try {
       // Use backend API to generate searchable text PDF with proper fonts and margins
       await invoicesAPI.downloadPDF(invoiceId);
-      notificationService.success("PDF downloaded successfully!");
+      notificationService.success('PDF downloaded successfully!');
     } catch (error) {
-      console.error("PDF generation error:", error);
+      console.error('PDF generation error:', error);
       notificationService.error(`PDF generation failed: ${error.message}`);
     } finally {
       setIsGeneratingPDF(false);
@@ -4557,7 +4557,7 @@ const InvoiceForm = ({ onSave }) => {
     },
     {
       enabled: !showPreview, // Disable when preview is open (it has its own handlers)
-      allowInInputs: ["escape"], // Allow Escape in inputs to close modals
+      allowInInputs: ['escape'], // Allow Escape in inputs to close modals
     },
   );
 
@@ -4579,12 +4579,12 @@ const InvoiceForm = ({ onSave }) => {
     return (
       <div
         className={`h-full flex items-center justify-center ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-50"
+          isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
         }`}
       >
         <div className="flex items-center space-x-3">
           <LoadingSpinner size="lg" />
-          <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
             Loading invoice...
           </span>
         </div>
@@ -4596,26 +4596,26 @@ const InvoiceForm = ({ onSave }) => {
     <>
       <div
         className={`min-h-screen pb-32 md:pb-6 ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-50"
+          isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
         }`}
       >
         {/* Sticky Header - Mobile & Desktop */}
         <header
           className={`sticky top-0 z-20 backdrop-blur-md border-b ${
             isDarkMode
-              ? "bg-gray-900/92 border-gray-700"
-              : "bg-white/92 border-gray-200"
+              ? 'bg-gray-900/92 border-gray-700'
+              : 'bg-white/92 border-gray-200'
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate("/invoices")}
+                  onClick={() => navigate('/invoices')}
                   className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
                     isDarkMode
-                      ? "text-gray-300 hover:bg-gray-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? 'text-gray-300 hover:bg-gray-700'
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
                   aria-label="Back to invoices"
                 >
@@ -4624,17 +4624,17 @@ const InvoiceForm = ({ onSave }) => {
                 <div>
                   <h1
                     className={`text-lg md:text-xl font-bold ${
-                      isDarkMode ? "text-white" : "text-gray-900"
+                      isDarkMode ? 'text-white' : 'text-gray-900'
                     }`}
                   >
-                    {id ? "Edit Invoice" : "New Invoice"}
+                    {id ? 'Edit Invoice' : 'New Invoice'}
                   </h1>
                   <p
                     className={`text-xs md:text-sm ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                      isDarkMode ? 'text-gray-400' : 'text-gray-600'
                     }`}
                   >
-                    {invoice.invoiceNumber || "Invoice #"}
+                    {invoice.invoiceNumber || 'Invoice #'}
                   </p>
                 </div>
               </div>
@@ -4645,8 +4645,8 @@ const InvoiceForm = ({ onSave }) => {
                   onClick={() => setShowFormSettings(!showFormSettings)}
                   className={`p-2 rounded-lg transition-colors ${
                     isDarkMode
-                      ? "text-gray-300 hover:bg-gray-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? 'text-gray-300 hover:bg-gray-700'
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
                   aria-label="Form settings"
                   title="Form Settings"
@@ -4684,7 +4684,7 @@ const InvoiceForm = ({ onSave }) => {
                     }
                     title={
                       isLocked
-                        ? "Invoice is locked (24h edit window expired)"
+                        ? 'Invoice is locked (24h edit window expired)'
                         : isRevisionMode
                           ? `Save revision (${hoursRemainingInEditWindow}h remaining)`
                           : `Save as draft (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`
@@ -4696,14 +4696,14 @@ const InvoiceForm = ({ onSave }) => {
                       <Save className="h-4 w-4" />
                     )}
                     {savingInvoice || updatingInvoice || isSaving
-                      ? "Saving..."
+                      ? 'Saving...'
                       : isRevisionMode
-                        ? "Save Revision"
-                        : "Save Draft"}
+                        ? 'Save Revision'
+                        : 'Save Draft'}
                   </Button>
                   {isRevisionMode && (
                     <span
-                      className={`text-[10px] mt-1 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                      className={`text-[10px] mt-1 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
                     >
                       {hoursRemainingInEditWindow}h left to edit
                     </span>
@@ -4714,25 +4714,25 @@ const InvoiceForm = ({ onSave }) => {
                 {id &&
                   !isLocked &&
                   !isRevisionMode &&
-                  invoice.status !== "issued" && (
-                    <div className="flex flex-col items-center">
-                      <Button
-                        variant="success"
-                        onClick={handleIssueInvoice}
-                        disabled={savingInvoice || updatingInvoice || isSaving}
-                        title="Issue as Final Tax Invoice (locks invoice permanently)"
-                        className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
-                      >
-                        <Download className="h-4 w-4" />
+                  invoice.status !== 'issued' && (
+                  <div className="flex flex-col items-center">
+                    <Button
+                      variant="success"
+                      onClick={handleIssueInvoice}
+                      disabled={savingInvoice || updatingInvoice || isSaving}
+                      title="Issue as Final Tax Invoice (locks invoice permanently)"
+                      className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
+                    >
+                      <Download className="h-4 w-4" />
                         Issue Final Invoice
-                      </Button>
-                      <span
-                        className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-                      >
+                    </Button>
+                    <span
+                      className={`text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                    >
                         Once issued, cannot be edited
-                      </span>
-                    </div>
-                  )}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -4748,12 +4748,12 @@ const InvoiceForm = ({ onSave }) => {
                 <div
                   className={`p-4 rounded-lg border-2 flex items-start gap-3 ${
                     isDarkMode
-                      ? "bg-amber-900/20 border-amber-600 text-amber-200"
-                      : "bg-amber-50 border-amber-500 text-amber-800"
+                      ? 'bg-amber-900/20 border-amber-600 text-amber-200'
+                      : 'bg-amber-50 border-amber-500 text-amber-800'
                   }`}
                 >
                   <AlertTriangle
-                    className={`flex-shrink-0 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
+                    className={`flex-shrink-0 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
                     size={24}
                   />
                   <div className="flex-1">
@@ -4785,13 +4785,13 @@ const InvoiceForm = ({ onSave }) => {
                   id="validation-errors-alert"
                   className={`mt-6 p-4 rounded-lg border-2 ${
                     isDarkMode
-                      ? "bg-red-900/20 border-red-600 text-red-200"
-                      : "bg-red-50 border-red-500 text-red-800"
+                      ? 'bg-red-900/20 border-red-600 text-red-200'
+                      : 'bg-red-50 border-red-500 text-red-800'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <AlertTriangle
-                      className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+                      className={`flex-shrink-0 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
                       size={24}
                     />
                     <div className="flex-1">
@@ -4802,21 +4802,21 @@ const InvoiceForm = ({ onSave }) => {
                         {validationErrors.map((error, index) => {
                           // Parse error to extract field name for scrolling
                           let fieldName = null;
-                          if (error.includes("Customer"))
-                            fieldName = "customer.name";
-                          else if (error.includes("Invoice date"))
-                            fieldName = "date";
-                          else if (error.includes("Due date"))
-                            fieldName = "dueDate";
+                          if (error.includes('Customer'))
+                            fieldName = 'customer.name';
+                          else if (error.includes('Invoice date'))
+                            fieldName = 'date';
+                          else if (error.includes('Due date'))
+                            fieldName = 'dueDate';
                           else if (error.match(/Item \d+/)) {
                             const match = error.match(/Item (\d+)/);
                             if (match) {
                               const itemNum = parseInt(match[1], 10) - 1; // Convert to 0-indexed
-                              if (error.includes("Rate"))
+                              if (error.includes('Rate'))
                                 fieldName = `item.${itemNum}.rate`;
-                              else if (error.includes("Quantity"))
+                              else if (error.includes('Quantity'))
                                 fieldName = `item.${itemNum}.quantity`;
-                              else if (error.includes("Product"))
+                              else if (error.includes('Product'))
                                 fieldName = `item.${itemNum}.name`;
                               else fieldName = `item.${itemNum}`;
                             }
@@ -4829,9 +4829,9 @@ const InvoiceForm = ({ onSave }) => {
                                   fieldName && scrollToField(fieldName)
                                 }
                                 disabled={!fieldName}
-                                className={`flex items-center gap-2 w-full text-left ${fieldName ? "cursor-pointer hover:underline hover:text-red-400" : "opacity-60 cursor-default"}`}
+                                className={`flex items-center gap-2 w-full text-left ${fieldName ? 'cursor-pointer hover:underline hover:text-red-400' : 'opacity-60 cursor-default'}`}
                                 title={
-                                  fieldName ? "Click to scroll to field" : ""
+                                  fieldName ? 'Click to scroll to field' : ''
                                 }
                               >
                                 <span className="text-red-500">•</span>
@@ -4851,8 +4851,8 @@ const InvoiceForm = ({ onSave }) => {
                         }}
                         className={`mt-3 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                           isDarkMode
-                            ? "bg-red-800 hover:bg-red-700 text-white"
-                            : "bg-red-600 hover:bg-red-700 text-white"
+                            ? 'bg-red-800 hover:bg-red-700 text-white'
+                            : 'bg-red-600 hover:bg-red-700 text-white'
                         }`}
                       >
                         Dismiss
@@ -4867,14 +4867,14 @@ const InvoiceForm = ({ onSave }) => {
                 {/* LEFT COLUMN: Customer & Sales Information */}
                 <Card
                   className={`p-3 md:p-4 ${
-                    isDarkMode ? "bg-gray-800" : "bg-white"
+                    isDarkMode ? 'bg-gray-800' : 'bg-white'
                   }`}
                 >
                   {/* Customer Selection - Priority #1 */}
                   <div className="mb-4" ref={customerRef}>
                     <h3
                       className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
                       }`}
                     >
                       Customer Information
@@ -4886,7 +4886,7 @@ const InvoiceForm = ({ onSave }) => {
                         data-testid="customer-autocomplete"
                         options={(customersData?.customers || []).map((c) => ({
                           id: c.id,
-                          label: `${titleCase(normalizeLLC(c.name))} - ${c.email || "No email"}`,
+                          label: `${titleCase(normalizeLLC(c.name))} - ${c.email || 'No email'}`,
                           name: c.name,
                           email: c.email,
                           phone: c.phone,
@@ -4894,9 +4894,9 @@ const InvoiceForm = ({ onSave }) => {
                         value={
                           invoice.customer.id
                             ? {
-                                id: invoice.customer.id,
-                                label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || "No email"}`,
-                              }
+                              id: invoice.customer.id,
+                              label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || 'No email'}`,
+                            }
                             : null
                         }
                         onChange={(e, selected) => {
@@ -4904,7 +4904,7 @@ const InvoiceForm = ({ onSave }) => {
                             handleCustomerSelect(selected.id);
                             // Show selected customer name in the input field
                             setCustomerSearchInput(
-                              titleCase(normalizeLLC(selected.name || "")),
+                              titleCase(normalizeLLC(selected.name || '')),
                             );
                           }
                         }}
@@ -4916,10 +4916,10 @@ const InvoiceForm = ({ onSave }) => {
                         disabled={loadingCustomers}
                         noOptionsText={
                           loadingCustomers
-                            ? "Loading customers..."
-                            : "No customers found"
+                            ? 'Loading customers...'
+                            : 'No customers found'
                         }
-                        error={invalidFields.has("customer.name")}
+                        error={invalidFields.has('customer.name')}
                         className="text-base"
                         required={true}
                         validationState={fieldValidation.customer}
@@ -4927,9 +4927,9 @@ const InvoiceForm = ({ onSave }) => {
                           formPreferences.showValidationHighlighting
                         }
                       />
-                      {invalidFields.has("customer.name") && (
+                      {invalidFields.has('customer.name') && (
                         <p
-                          className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+                          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
                         >
                           Customer is required
                         </p>
@@ -4940,58 +4940,58 @@ const InvoiceForm = ({ onSave }) => {
                     <div
                       className={`p-4 rounded-lg border ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600"
-                          : "bg-gray-100 border-gray-200"
+                          ? 'bg-gray-700 border-gray-600'
+                          : 'bg-gray-100 border-gray-200'
                       }`}
                     >
                       <h4
                         className={`font-medium mb-2 ${
-                          isDarkMode ? "text-white" : "text-gray-900"
+                          isDarkMode ? 'text-white' : 'text-gray-900'
                         }`}
                       >
                         {invoice.customer.name
-                          ? "Selected Customer:"
-                          : "Customer Details:"}
+                          ? 'Selected Customer:'
+                          : 'Customer Details:'}
                       </h4>
                       <div
                         className={`space-y-1 text-sm ${
-                          isDarkMode ? "text-gray-300" : "text-gray-600"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-600'
                         }`}
                       >
                         <p>
-                          <span className="font-medium">Name:</span>{" "}
+                          <span className="font-medium">Name:</span>{' '}
                           {invoice.customer.name
                             ? titleCase(normalizeLLC(invoice.customer.name))
-                            : ""}
+                            : ''}
                         </p>
                         <p>
-                          <span className="font-medium">Email:</span>{" "}
-                          {invoice.customer.email || ""}
+                          <span className="font-medium">Email:</span>{' '}
+                          {invoice.customer.email || ''}
                         </p>
                         <p>
-                          <span className="font-medium">Phone:</span>{" "}
-                          {invoice.customer.phone || ""}
+                          <span className="font-medium">Phone:</span>{' '}
+                          {invoice.customer.phone || ''}
                         </p>
                         <p>
-                          <span className="font-medium">TRN:</span>{" "}
-                          {invoice.customer.vatNumber || ""}
+                          <span className="font-medium">TRN:</span>{' '}
+                          {invoice.customer.vatNumber || ''}
                         </p>
                         <p>
-                          <span className="font-medium">Address:</span>{" "}
+                          <span className="font-medium">Address:</span>{' '}
                           {invoice.customer.address?.street ||
                           invoice.customer.address?.city
                             ? [
-                                invoice.customer.address.street,
-                                invoice.customer.address.city,
-                                invoice.customer.address.emirate,
-                                invoice.customer.address.poBox,
-                              ]
-                                .filter(Boolean)
-                                .join(", ")
-                            : ""}
+                              invoice.customer.address.street,
+                              invoice.customer.address.city,
+                              invoice.customer.address.emirate,
+                              invoice.customer.address.poBox,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')
+                            : ''}
                         </p>
                         <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
-                          <span className="font-medium">Price List:</span>{" "}
+                          <span className="font-medium">Price List:</span>{' '}
                           {pricelistName && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
                               {pricelistName}
@@ -5018,13 +5018,13 @@ const InvoiceForm = ({ onSave }) => {
                             <p className="text-sm mt-1">
                               <span className="font-medium">
                                 License Number:
-                              </span>{" "}
+                              </span>{' '}
                               {tradeLicenseStatus.licenseNumber}
                             </p>
                           )}
                           {tradeLicenseStatus.expiryDate && (
                             <p className="text-sm">
-                              <span className="font-medium">Expiry Date:</span>{" "}
+                              <span className="font-medium">Expiry Date:</span>{' '}
                               {new Date(
                                 tradeLicenseStatus.expiryDate,
                               ).toLocaleDateString()}
@@ -5039,7 +5039,7 @@ const InvoiceForm = ({ onSave }) => {
                         <LoadingSpinner size="sm" />
                         <span
                           className={`text-sm ${
-                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                            isDarkMode ? 'text-gray-400' : 'text-gray-600'
                           }`}
                         >
                           Loading customers...
@@ -5053,20 +5053,20 @@ const InvoiceForm = ({ onSave }) => {
                     className="border-t pt-4 mt-4"
                     style={{
                       borderColor: isDarkMode
-                        ? "rgb(75 85 99)"
-                        : "rgb(229 231 235)",
+                        ? 'rgb(75 85 99)'
+                        : 'rgb(229 231 235)',
                     }}
                   >
                     <h3
                       className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
                       }`}
                     >
                       Sales Information
                     </h3>
                     <FormSelect
                       label="Sales Agent (Optional)"
-                      value={invoice.salesAgentId || "none"}
+                      value={invoice.salesAgentId || 'none'}
                       onValueChange={(value) => handleSalesAgentSelect(value)}
                       disabled={loadingAgents}
                       className="text-base"
@@ -5077,7 +5077,7 @@ const InvoiceForm = ({ onSave }) => {
                           {agent.fullName || agent.username}
                           {agent.defaultCommissionRate
                             ? ` (${agent.defaultCommissionRate}% commission)`
-                            : ""}
+                            : ''}
                         </SelectItem>
                       ))}
                     </FormSelect>
@@ -5086,7 +5086,7 @@ const InvoiceForm = ({ onSave }) => {
                         <LoadingSpinner size="sm" />
                         <span
                           className={`text-sm ${
-                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                            isDarkMode ? 'text-gray-400' : 'text-gray-600'
                           }`}
                         >
                           Loading sales agents...
@@ -5100,8 +5100,8 @@ const InvoiceForm = ({ onSave }) => {
                         className="border-t pt-4 mt-4"
                         style={{
                           borderColor: isDarkMode
-                            ? "rgb(75 85 99)"
-                            : "rgb(229 231 235)",
+                            ? 'rgb(75 85 99)'
+                            : 'rgb(229 231 235)',
                         }}
                       >
                         <div className="space-y-3">
@@ -5111,7 +5111,7 @@ const InvoiceForm = ({ onSave }) => {
                             value={invoice.commissionPercentage || 10}
                             onChange={(e) => {
                               const raw = e.target.value;
-                              if (raw === "") {
+                              if (raw === '') {
                                 setInvoice((prev) => ({
                                   ...prev,
                                   commissionPercentage: 0,
@@ -5132,7 +5132,7 @@ const InvoiceForm = ({ onSave }) => {
                             placeholder="10.00"
                             inputMode="decimal"
                             onKeyDown={(e) => {
-                              const blocked = ["e", "E", "+", "-"];
+                              const blocked = ['e', 'E', '+', '-'];
                               if (blocked.includes(e.key)) e.preventDefault();
                             }}
                             disabled={isLocked}
@@ -5140,22 +5140,22 @@ const InvoiceForm = ({ onSave }) => {
                           />
                           <div
                             className={`p-3 rounded ${
-                              isDarkMode ? "bg-gray-700" : "bg-gray-50"
+                              isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
                             }`}
                           >
                             <p
                               className={`text-xs ${
-                                isDarkMode ? "text-gray-400" : "text-gray-600"
+                                isDarkMode ? 'text-gray-400' : 'text-gray-600'
                               } mb-2`}
                             >
                               Commission Amount (Accrual)
                             </p>
                             <p
                               className={`text-lg font-bold ${
-                                isDarkMode ? "text-teal-400" : "text-teal-600"
+                                isDarkMode ? 'text-teal-400' : 'text-teal-600'
                               }`}
                             >
-                              AED{" "}
+                              AED{' '}
                               {(
                                 (computedTotal *
                                   (invoice.commissionPercentage || 10)) /
@@ -5164,7 +5164,7 @@ const InvoiceForm = ({ onSave }) => {
                             </p>
                             <p
                               className={`text-xs ${
-                                isDarkMode ? "text-gray-500" : "text-gray-500"
+                                isDarkMode ? 'text-gray-500' : 'text-gray-500'
                               } mt-2`}
                             >
                               Accrues when invoice is issued. 15-day grace
@@ -5175,26 +5175,26 @@ const InvoiceForm = ({ onSave }) => {
                             <div
                               className={`p-3 rounded border ${
                                 isDarkMode
-                                  ? "bg-gray-700 border-gray-600"
-                                  : "bg-blue-50 border-blue-200"
+                                  ? 'bg-gray-700 border-gray-600'
+                                  : 'bg-blue-50 border-blue-200'
                               }`}
                             >
                               <p
                                 className={`text-xs font-semibold ${
-                                  isDarkMode ? "text-blue-300" : "text-blue-800"
+                                  isDarkMode ? 'text-blue-300' : 'text-blue-800'
                                 } mb-1`}
                               >
                                 Commission Status
                               </p>
                               <p
                                 className={`text-sm font-medium ${
-                                  invoice.commissionStatus === "PAID"
-                                    ? "text-green-600"
-                                    : invoice.commissionStatus === "APPROVED"
-                                      ? "text-blue-600"
-                                      : invoice.commissionStatus === "PENDING"
-                                        ? "text-yellow-600"
-                                        : "text-red-600"
+                                  invoice.commissionStatus === 'PAID'
+                                    ? 'text-green-600'
+                                    : invoice.commissionStatus === 'APPROVED'
+                                      ? 'text-blue-600'
+                                      : invoice.commissionStatus === 'PENDING'
+                                        ? 'text-yellow-600'
+                                        : 'text-red-600'
                                 }`}
                               >
                                 {invoice.commissionStatus}
@@ -5210,12 +5210,12 @@ const InvoiceForm = ({ onSave }) => {
                 {/* RIGHT COLUMN: Invoice Details */}
                 <Card
                   className={`p-3 md:p-4 ${
-                    isDarkMode ? "bg-gray-800" : "bg-white"
+                    isDarkMode ? 'bg-gray-800' : 'bg-white'
                   }`}
                 >
                   <h3
                     className={`text-xs font-semibold uppercase tracking-wide mb-4 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
                     Invoice Details
@@ -5243,7 +5243,7 @@ const InvoiceForm = ({ onSave }) => {
                               ? withStatusPrefix(prev.invoiceNumber, newStatus)
                               : prev.invoiceNumber,
                           }));
-                          validateField("status", newStatus);
+                          validateField('status', newStatus);
                         }}
                         className="text-base"
                       >
@@ -5264,7 +5264,7 @@ const InvoiceForm = ({ onSave }) => {
                         type="date"
                         value={formatDateForInput(invoice.date)}
                         readOnly
-                        error={invalidFields.has("date")}
+                        error={invalidFields.has('date')}
                         className="text-base"
                       />
                       <div ref={dueDateRef}>
@@ -5279,7 +5279,7 @@ const InvoiceForm = ({ onSave }) => {
                           showValidation={
                             formPreferences.showValidationHighlighting
                           }
-                          error={invalidFields.has("dueDate")}
+                          error={invalidFields.has('dueDate')}
                           onChange={(e) => {
                             const v = e.target.value;
                             let validatedValue = v;
@@ -5289,7 +5289,7 @@ const InvoiceForm = ({ onSave }) => {
                               ...prev,
                               dueDate: validatedValue,
                             }));
-                            validateField("dueDate", validatedValue);
+                            validateField('dueDate', validatedValue);
                           }}
                           className="text-base"
                         />
@@ -5300,7 +5300,7 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <FormSelect
                         label="Payment Terms"
-                        value={invoice.modeOfPayment || ""}
+                        value={invoice.modeOfPayment || ''}
                         required={false}
                         validationState={fieldValidation.paymentMode}
                         onValueChange={(value) => {
@@ -5308,7 +5308,7 @@ const InvoiceForm = ({ onSave }) => {
                             ...prev,
                             modeOfPayment: value,
                           }));
-                          validateField("paymentMode", value);
+                          validateField('paymentMode', value);
                           // Auto-focus to next mandatory field after payment terms selection
                           if (value) {
                             setTimeout(() => focusNextMandatoryField(), 100);
@@ -5324,7 +5324,7 @@ const InvoiceForm = ({ onSave }) => {
                       </FormSelect>
                       <FormSelect
                         label="Currency"
-                        value={invoice.currency || "AED"}
+                        value={invoice.currency || 'AED'}
                         required={true}
                         validationState={fieldValidation.currency}
                         onValueChange={(value) => {
@@ -5332,7 +5332,7 @@ const InvoiceForm = ({ onSave }) => {
                             ...prev,
                             currency: value,
                           }));
-                          validateField("currency", value);
+                          validateField('currency', value);
                         }}
                         className="text-base"
                       >
@@ -5355,8 +5355,8 @@ const InvoiceForm = ({ onSave }) => {
                       <div className="grid grid-cols-1 gap-2">
                         <FormSelect
                           label="Warehouse"
-                          value={invoice.warehouseId || ""}
-                          required={invoice.status !== "draft"}
+                          value={invoice.warehouseId || ''}
+                          required={invoice.status !== 'draft'}
                           validationState={fieldValidation.warehouse}
                           onValueChange={(warehouseId) => {
                             const w = warehouses.find(
@@ -5365,11 +5365,11 @@ const InvoiceForm = ({ onSave }) => {
                             setInvoice((prev) => ({
                               ...prev,
                               warehouseId,
-                              warehouseName: w ? w.name : "",
-                              warehouseCode: w ? w.code : "",
-                              warehouseCity: w ? w.city : "",
+                              warehouseName: w ? w.name : '',
+                              warehouseCode: w ? w.code : '',
+                              warehouseCity: w ? w.city : '',
                             }));
-                            validateField("warehouse", warehouseId);
+                            validateField('warehouse', warehouseId);
                           }}
                           className="text-base"
                         >
@@ -5386,7 +5386,7 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <Input
                         label="Customer PO Number"
-                        value={invoice.customerPurchaseOrderNumber || ""}
+                        value={invoice.customerPurchaseOrderNumber || ''}
                         onChange={(e) =>
                           setInvoice((prev) => ({
                             ...prev,
@@ -5399,7 +5399,7 @@ const InvoiceForm = ({ onSave }) => {
                       <Input
                         label="Customer PO Date"
                         type="date"
-                        value={invoice.customerPurchaseOrderDate || ""}
+                        value={invoice.customerPurchaseOrderDate || ''}
                         onChange={(e) =>
                           setInvoice((prev) => ({
                             ...prev,
@@ -5417,27 +5417,27 @@ const InvoiceForm = ({ onSave }) => {
                           <span className="inline-flex items-center gap-1">
                             <span>
                               Place of Supply
-                              {invoice.status === "issued" && (
+                              {invoice.status === 'issued' && (
                                 <span className="text-red-500 ml-0.5">*</span>
                               )}
                             </span>
                             <VatHelpIcon
                               content={[
-                                "When required: Mandatory for all invoices.",
-                                "Specifies which Emirate the supply is made from.",
-                                "Used for compliance with FTA Form 201.",
+                                'When required: Mandatory for all invoices.',
+                                'Specifies which Emirate the supply is made from.',
+                                'Used for compliance with FTA Form 201.',
                               ]}
                             />
                           </span>
                         }
-                        value={invoice.placeOfSupply || ""}
+                        value={invoice.placeOfSupply || ''}
                         validationState={fieldValidation.placeOfSupply}
                         onValueChange={(value) => {
                           setInvoice((prev) => ({
                             ...prev,
                             placeOfSupply: value,
                           }));
-                          validateField("placeOfSupply", value);
+                          validateField('placeOfSupply', value);
                         }}
                         className="text-base"
                       >
@@ -5453,15 +5453,15 @@ const InvoiceForm = ({ onSave }) => {
                             <span>Supply Date</span>
                             <VatHelpIcon
                               content={[
-                                "When required: Mandatory. Determines VAT liability date.",
-                                "Must be the date supply is made (goods delivered/services rendered).",
-                                "Defaults to invoice date if empty.",
+                                'When required: Mandatory. Determines VAT liability date.',
+                                'Must be the date supply is made (goods delivered/services rendered).',
+                                'Defaults to invoice date if empty.',
                               ]}
                             />
                           </span>
                         }
                         type="date"
-                        value={invoice.supplyDate || ""}
+                        value={invoice.supplyDate || ''}
                         validationState={fieldValidation.supplyDate}
                         showValidation={
                           formPreferences.showValidationHighlighting
@@ -5471,18 +5471,18 @@ const InvoiceForm = ({ onSave }) => {
                             ...prev,
                             supplyDate: e.target.value,
                           }));
-                          validateField("supplyDate", e.target.value);
+                          validateField('supplyDate', e.target.value);
                         }}
                         className="text-base"
                       />
                     </div>
 
                     {/* Exchange Rate Date - Conditional (shown for foreign currency) */}
-                    {invoice.currency && invoice.currency !== "AED" && (
+                    {invoice.currency && invoice.currency !== 'AED' && (
                       <Input
                         label="Exchange Rate Date"
                         type="date"
-                        value={invoice.exchangeRateDate || ""}
+                        value={invoice.exchangeRateDate || ''}
                         onChange={(e) =>
                           setInvoice((prev) => ({
                             ...prev,
@@ -5498,23 +5498,23 @@ const InvoiceForm = ({ onSave }) => {
 
               {/* Items Section - Responsive */}
               <Card
-                className={`p-3 md:p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+                className={`p-3 md:p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                 ref={itemsRef}
               >
                 <div className="mb-4 flex justify-between items-center">
                   <h3
                     className={`text-xs font-semibold uppercase tracking-wide ${
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
                     Line Items
                     {useDrawerMode &&
                       invoice.items.filter((i) => i.productId).length > 0 && (
-                        <span className="ml-2 text-teal-600">
-                          ({invoice.items.filter((i) => i.productId).length}{" "}
+                      <span className="ml-2 text-teal-600">
+                          ({invoice.items.filter((i) => i.productId).length}{' '}
                           items)
-                        </span>
-                      )}
+                      </span>
+                    )}
                   </h3>
                   {useDrawerMode && (
                     <button
@@ -5522,8 +5522,8 @@ const InvoiceForm = ({ onSave }) => {
                       onClick={() => setShowAddProductDrawer(true)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                         isDarkMode
-                          ? "bg-teal-600 hover:bg-teal-500 text-white"
-                          : "bg-teal-600 hover:bg-teal-700 text-white"
+                          ? 'bg-teal-600 hover:bg-teal-500 text-white'
+                          : 'bg-teal-600 hover:bg-teal-700 text-white'
                       }`}
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -5538,220 +5538,220 @@ const InvoiceForm = ({ onSave }) => {
                     {/* Empty state when no items */}
                     {invoice.items.filter((item) => item.productId || item.name)
                       .length === 0 ? (
-                      <div
-                        className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
-                          isDarkMode
-                            ? "border-gray-600 text-gray-400"
-                            : "border-gray-300 text-gray-500"
-                        }`}
-                      >
-                        <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
-                        <p className="text-sm font-medium mb-1">
-                          No line items yet
-                        </p>
-                        <p className="text-xs opacity-75">
-                          Search for products in the panel on the right and
-                          click &quot;Add to Invoice&quot;
-                        </p>
-                      </div>
-                    ) : (
-                      <table
-                        className={`min-w-full table-fixed divide-y ${
-                          isDarkMode ? "divide-gray-600" : "divide-gray-200"
-                        }`}
-                      >
-                        <thead className="bg-teal-600">
-                          <tr className="h-10">
-                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
-                              #
-                            </th>
-                            <th
-                              className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
-                              style={{ width: "35%" }}
-                            >
-                              Product
-                            </th>
-                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                              Qty
-                            </th>
-                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                              Rate
-                            </th>
-                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                              Amount
-                            </th>
-                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
-                              Status
-                            </th>
-                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
-                          </tr>
-                        </thead>
-                        <tbody
-                          className={`divide-y ${
+                        <div
+                          className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
                             isDarkMode
-                              ? "bg-gray-800 divide-gray-600"
-                              : "bg-white divide-gray-200"
+                              ? 'border-gray-600 text-gray-400'
+                              : 'border-gray-300 text-gray-500'
                           }`}
                         >
-                          {invoice.items
-                            .filter((item) => item.productId || item.name)
-                            .map((item, index) => {
-                              const statusInfo = getLineItemStatusIcon(item);
-                              return (
-                                <tr
-                                  key={
-                                    item.lineItemTempId ||
+                          <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
+                          <p className="text-sm font-medium mb-1">
+                          No line items yet
+                          </p>
+                          <p className="text-xs opacity-75">
+                          Search for products in the panel on the right and
+                          click &quot;Add to Invoice&quot;
+                          </p>
+                        </div>
+                      ) : (
+                        <table
+                          className={`min-w-full table-fixed divide-y ${
+                            isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+                          }`}
+                        >
+                          <thead className="bg-teal-600">
+                            <tr className="h-10">
+                              <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                              #
+                              </th>
+                              <th
+                                className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
+                                style={{ width: '35%' }}
+                              >
+                              Product
+                              </th>
+                              <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                              Qty
+                              </th>
+                              <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                              Rate
+                              </th>
+                              <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                              Amount
+                              </th>
+                              <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
+                              Status
+                              </th>
+                              <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
+                            </tr>
+                          </thead>
+                          <tbody
+                            className={`divide-y ${
+                              isDarkMode
+                                ? 'bg-gray-800 divide-gray-600'
+                                : 'bg-white divide-gray-200'
+                            }`}
+                          >
+                            {invoice.items
+                              .filter((item) => item.productId || item.name)
+                              .map((item, index) => {
+                                const statusInfo = getLineItemStatusIcon(item);
+                                return (
+                                  <tr
+                                    key={
+                                      item.lineItemTempId ||
                                     item.id ||
                                     `item-${index}`
-                                  }
-                                  className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
-                                >
-                                  {/* # */}
-                                  <td className="py-2 px-2 text-center text-sm">
-                                    {index + 1}
-                                  </td>
-                                  {/* Product */}
-                                  <td className="pl-3 pr-2 py-2">
-                                    <div>
-                                      <div
-                                        className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                                      >
-                                        {item.name || "Unnamed Product"}
-                                      </div>
-                                      {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
-                                      {item.sourceType === "WAREHOUSE" && (() => {
+                                    }
+                                    className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
+                                  >
+                                    {/* # */}
+                                    <td className="py-2 px-2 text-center text-sm">
+                                      {index + 1}
+                                    </td>
+                                    {/* Product */}
+                                    <td className="pl-3 pr-2 py-2">
+                                      <div>
+                                        <div
+                                          className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                        >
+                                          {item.name || 'Unnamed Product'}
+                                        </div>
+                                        {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
+                                        {item.sourceType === 'WAREHOUSE' && (() => {
                                         // Use saved consumptions for finalized invoices, draft allocations otherwise
-                                        const savedConsumption = savedConsumptionsByItemId[item.id];
-                                        const displayAllocations = savedConsumption?.consumptions?.length > 0
-                                          ? savedConsumption.consumptions
-                                          : item.allocations || [];
+                                          const savedConsumption = savedConsumptionsByItemId[item.id];
+                                          const displayAllocations = savedConsumption?.consumptions?.length > 0
+                                            ? savedConsumption.consumptions
+                                            : item.allocations || [];
 
-                                        if (displayAllocations.length === 0) return null;
+                                          if (displayAllocations.length === 0) return null;
 
-                                        return (
-                                          <div className="text-xs text-gray-500 mt-0.5">
-                                            {displayAllocations
-                                              .slice(0, 2)
-                                              .map((alloc, i) => (
-                                                <span key={i}>
-                                                  {alloc.batchNumber || `Batch ${alloc.batchId}`}
-                                                  :{" "}
-                                                  {parseFloat(
-                                                    alloc.quantity || alloc.quantityConsumed || 0,
-                                                  ).toFixed(0)}{" "}
+                                          return (
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                              {displayAllocations
+                                                .slice(0, 2)
+                                                .map((alloc, i) => (
+                                                  <span key={i}>
+                                                    {alloc.batchNumber || `Batch ${alloc.batchId}`}
+                                                  :{' '}
+                                                    {parseFloat(
+                                                      alloc.quantity || alloc.quantityConsumed || 0,
+                                                    ).toFixed(0)}{' '}
                                                   kg
-                                                  {i <
+                                                    {i <
                                                     Math.min(
                                                       displayAllocations.length - 1,
                                                       1,
-                                                    ) && ", "}
-                                                </span>
-                                              ))}
-                                            {displayAllocations.length > 2 && (
-                                              <span className="text-teal-600">
-                                                {" "}
-                                                +{displayAllocations.length - 2}{" "}
+                                                    ) && ', '}
+                                                  </span>
+                                                ))}
+                                              {displayAllocations.length > 2 && (
+                                                <span className="text-teal-600">
+                                                  {' '}
+                                                +{displayAllocations.length - 2}{' '}
                                                 more
-                                              </span>
-                                            )}
-                                            {savedConsumption && (
-                                              <span className="ml-1 text-green-600" title="Saved to database">
+                                                </span>
+                                              )}
+                                              {savedConsumption && (
+                                                <span className="ml-1 text-green-600" title="Saved to database">
                                                 ✓
-                                              </span>
-                                            )}
-                                          </div>
-                                        );
-                                      })()}
-                                      {(item.sourceType === "LOCAL_DROP_SHIP" ||
+                                                </span>
+                                              )}
+                                            </div>
+                                          );
+                                        })()}
+                                        {(item.sourceType === 'LOCAL_DROP_SHIP' ||
                                         item.sourceType ===
-                                          "IMPORT_DROP_SHIP") && (
-                                        <div className="text-xs text-blue-500 mt-0.5">
-                                          {item.sourceType === "LOCAL_DROP_SHIP"
-                                            ? "Local Drop-Ship"
-                                            : "Import Drop-Ship"}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </td>
-                                  {/* Qty */}
-                                  <td className="px-2 py-2 text-center text-sm">
-                                    {item.quantity || 0}{" "}
-                                    {item.quantityUom || "KG"}
-                                  </td>
-                                  {/* Rate */}
-                                  <td className="px-2 py-2 text-right text-sm">
-                                    {formatCurrency(item.rate || 0)}
-                                  </td>
-                                  {/* Amount */}
-                                  <td className="px-2 py-2 text-right text-sm font-medium">
-                                    <div>
-                                      {formatCurrency(
-                                        item.amount ||
+                                          'IMPORT_DROP_SHIP') && (
+                                          <div className="text-xs text-blue-500 mt-0.5">
+                                            {item.sourceType === 'LOCAL_DROP_SHIP'
+                                              ? 'Local Drop-Ship'
+                                              : 'Import Drop-Ship'}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </td>
+                                    {/* Qty */}
+                                    <td className="px-2 py-2 text-center text-sm">
+                                      {item.quantity || 0}{' '}
+                                      {item.quantityUom || 'KG'}
+                                    </td>
+                                    {/* Rate */}
+                                    <td className="px-2 py-2 text-right text-sm">
+                                      {formatCurrency(item.rate || 0)}
+                                    </td>
+                                    {/* Amount */}
+                                    <td className="px-2 py-2 text-right text-sm font-medium">
+                                      <div>
+                                        {formatCurrency(
+                                          item.amount ||
                                           item.quantity * item.rate ||
                                           0,
-                                      )}
-                                    </div>
-                                    {/* Phase 7: Line item cost/margin display for confirmed invoices */}
-                                    {item.costPrice > 0 && (
-                                      <div className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? "text-green-500" : item.marginPercent >= 0 ? "text-yellow-500" : "text-red-500"}`}>
-                                        Cost: {formatCurrency(item.costPrice)} | {item.marginPercent?.toFixed(1) || 0}%
+                                        )}
                                       </div>
-                                    )}
-                                  </td>
-                                  {/* Status Icon */}
-                                  <td className="px-2 py-2 text-center">
-                                    <span
-                                      className={statusInfo.className}
-                                      title={statusInfo.title}
-                                    >
-                                      {statusInfo.icon === "check" && (
-                                        <CheckCircle className="w-5 h-5 inline" />
+                                      {/* Phase 7: Line item cost/margin display for confirmed invoices */}
+                                      {item.costPrice > 0 && (
+                                        <div className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? 'text-green-500' : item.marginPercent >= 0 ? 'text-yellow-500' : 'text-red-500'}`}>
+                                        Cost: {formatCurrency(item.costPrice)} | {item.marginPercent?.toFixed(1) || 0}%
+                                        </div>
                                       )}
-                                      {statusInfo.icon === "partial" && (
-                                        <AlertTriangle className="w-5 h-5 inline" />
-                                      )}
-                                      {statusInfo.icon === "empty" && (
-                                        <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
-                                      )}
-                                      {statusInfo.icon === "ship" && (
-                                        <span className="text-lg">🚢</span>
-                                      )}
-                                    </span>
-                                  </td>
-                                  {/* Delete */}
-                                  <td className="py-2 px-2 text-center">
-                                    <button
-                                      onClick={() => {
-                                        if (
-                                          window.confirm(
-                                            `Delete "${item.name}"?`,
-                                          )
-                                        ) {
-                                          if (item.lineItemTempId) {
-                                            handleDeleteLineItem(
-                                              item.lineItemTempId,
-                                            );
-                                          } else {
-                                            removeItem(
-                                              invoice.items.findIndex(
-                                                (i) => i.id === item.id,
-                                              ),
-                                            );
+                                    </td>
+                                    {/* Status Icon */}
+                                    <td className="px-2 py-2 text-center">
+                                      <span
+                                        className={statusInfo.className}
+                                        title={statusInfo.title}
+                                      >
+                                        {statusInfo.icon === 'check' && (
+                                          <CheckCircle className="w-5 h-5 inline" />
+                                        )}
+                                        {statusInfo.icon === 'partial' && (
+                                          <AlertTriangle className="w-5 h-5 inline" />
+                                        )}
+                                        {statusInfo.icon === 'empty' && (
+                                          <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
+                                        )}
+                                        {statusInfo.icon === 'ship' && (
+                                          <span className="text-lg">🚢</span>
+                                        )}
+                                      </span>
+                                    </td>
+                                    {/* Delete */}
+                                    <td className="py-2 px-2 text-center">
+                                      <button
+                                        onClick={() => {
+                                          if (
+                                            window.confirm(
+                                              `Delete "${item.name}"?`,
+                                            )
+                                          ) {
+                                            if (item.lineItemTempId) {
+                                              handleDeleteLineItem(
+                                                item.lineItemTempId,
+                                              );
+                                            } else {
+                                              removeItem(
+                                                invoice.items.findIndex(
+                                                  (i) => i.id === item.id,
+                                                ),
+                                              );
+                                            }
                                           }
-                                        }
-                                      }}
-                                      className="text-gray-400 hover:text-red-500 p-1 transition-colors"
-                                      title="Delete item"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                        </tbody>
-                      </table>
-                    )}
+                                        }}
+                                        className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                                        title="Delete item"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                          </tbody>
+                        </table>
+                      )}
                   </div>
                 ) : (
                   /* LEGACY MODE: Editable Line Items Table */
@@ -5760,7 +5760,7 @@ const InvoiceForm = ({ onSave }) => {
                     {formPreferences.showSpeedButtons && (
                       <div className="mb-4">
                         <p
-                          className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Quick Add (Pinned & Top Products)
                         </p>
@@ -5794,18 +5794,18 @@ const InvoiceForm = ({ onSave }) => {
                                           existingItem.theoreticalWeightKg;
                                         if (
                                           existingItem.unitWeightKg &&
-                                          existingItem.quantityUom === "PCS"
+                                          existingItem.quantityUom === 'PCS'
                                         ) {
                                           theoreticalWeightKg =
                                             newQuantity *
                                             existingItem.unitWeightKg;
                                         } else if (
-                                          existingItem.quantityUom === "MT"
+                                          existingItem.quantityUom === 'MT'
                                         ) {
                                           theoreticalWeightKg =
                                             newQuantity * 1000;
                                         } else if (
-                                          existingItem.quantityUom === "KG"
+                                          existingItem.quantityUom === 'KG'
                                         ) {
                                           theoreticalWeightKg = newQuantity;
                                         }
@@ -5858,21 +5858,21 @@ const InvoiceForm = ({ onSave }) => {
                                   className={`w-full px-3 py-2 pr-8 rounded-lg border text-xs font-medium transition-all duration-200 hover:scale-[1.02] truncate text-left ${
                                     isPinned
                                       ? isDarkMode
-                                        ? "border-gray-500 bg-gray-700 text-gray-200 hover:bg-gray-600 shadow-sm"
-                                        : "border-gray-400 bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm"
+                                        ? 'border-gray-500 bg-gray-700 text-gray-200 hover:bg-gray-600 shadow-sm'
+                                        : 'border-gray-400 bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm'
                                       : isDarkMode
-                                        ? "border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700"
-                                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                                        ? 'border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                   }`}
                                   title={
                                     product.displayName ||
                                     product.display_name ||
-                                    "N/A"
+                                    'N/A'
                                   }
                                 >
                                   {product.uniqueName ||
                                     product.unique_name ||
-                                    "N/A"}
+                                    'N/A'}
                                 </button>
                                 <button
                                   onClick={(e) =>
@@ -5881,14 +5881,14 @@ const InvoiceForm = ({ onSave }) => {
                                   className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                                     isPinned
                                       ? isDarkMode
-                                        ? "text-gray-300 hover:text-white"
-                                        : "text-gray-700 hover:text-gray-900"
+                                        ? 'text-gray-300 hover:text-white'
+                                        : 'text-gray-700 hover:text-gray-900'
                                       : isDarkMode
-                                        ? "text-gray-500 hover:text-gray-300"
-                                        : "text-gray-400 hover:text-gray-600"
+                                        ? 'text-gray-500 hover:text-gray-300'
+                                        : 'text-gray-400 hover:text-gray-600'
                                   }`}
                                   title={
-                                    isPinned ? "Unpin product" : "Pin product"
+                                    isPinned ? 'Unpin product' : 'Pin product'
                                   }
                                 >
                                   {isPinned ? (
@@ -5908,7 +5908,7 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="hidden md:block overflow-x-auto">
                       <table
                         className={`min-w-full table-fixed divide-y ${
-                          isDarkMode ? "divide-gray-600" : "divide-gray-200"
+                          isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
                         }`}
                       >
                         <thead className="bg-teal-600">
@@ -5920,7 +5920,7 @@ const InvoiceForm = ({ onSave }) => {
                             {/* Product Description */}
                             <th
                               className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
-                              style={{ width: "38%" }}
+                              style={{ width: '38%' }}
                             >
                               Product Description
                             </th>
@@ -5964,33 +5964,33 @@ const InvoiceForm = ({ onSave }) => {
                         <tbody
                           className={`divide-y ${
                             isDarkMode
-                              ? "bg-gray-800 divide-gray-600"
-                              : "bg-white divide-gray-200"
+                              ? 'bg-gray-800 divide-gray-600'
+                              : 'bg-white divide-gray-200'
                           }`}
                         >
                           {deferredItems.slice(0, 20).map((item, index) => {
                             const tooltip = [
-                              item.name ? `Name: ${item.name}` : "",
-                              item.category ? `Category: ${item.category}` : "",
+                              item.name ? `Name: ${item.name}` : '',
+                              item.category ? `Category: ${item.category}` : '',
                               item.commodity
                                 ? `Commodity: ${item.commodity}`
-                                : "",
-                              item.grade ? `Grade: ${item.grade}` : "",
-                              item.finish ? `Finish: ${item.finish}` : "",
-                              item.size ? `Size: ${item.size}` : "",
+                                : '',
+                              item.grade ? `Grade: ${item.grade}` : '',
+                              item.finish ? `Finish: ${item.finish}` : '',
+                              item.size ? `Size: ${item.size}` : '',
                               item.sizeInch
                                 ? `Size (Inch): ${item.sizeInch}`
-                                : "",
-                              item.od ? `OD: ${item.od}` : "",
-                              item.length ? `Length: ${item.length}` : "",
+                                : '',
+                              item.od ? `OD: ${item.od}` : '',
+                              item.length ? `Length: ${item.length}` : '',
                               item.thickness
                                 ? `Thickness: ${item.thickness}`
-                                : "",
-                              item.unit ? `Unit: ${item.unit}` : "",
-                              item.hsnCode ? `HSN: ${item.hsnCode}` : "",
+                                : '',
+                              item.unit ? `Unit: ${item.unit}` : '',
+                              item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                             ]
                               .filter(Boolean)
-                              .join("\n");
+                              .join('\n');
                             const isExpanded = expandedAllocations.has(index);
                             const hasAllocations =
                               item.allocations && item.allocations.length > 0;
@@ -6010,13 +6010,13 @@ const InvoiceForm = ({ onSave }) => {
                                         }
                                         className={
                                           isExpanded
-                                            ? "text-teal-600 p-0.5"
-                                            : "text-gray-400 hover:text-teal-600 p-0.5"
+                                            ? 'text-teal-600 p-0.5'
+                                            : 'text-gray-400 hover:text-teal-600 p-0.5'
                                         }
                                         title={
                                           isExpanded
-                                            ? "Collapse allocation details"
-                                            : "Expand allocation details"
+                                            ? 'Collapse allocation details'
+                                            : 'Expand allocation details'
                                         }
                                       >
                                         <svg
@@ -6031,8 +6031,8 @@ const InvoiceForm = ({ onSave }) => {
                                             strokeWidth="2"
                                             d={
                                               isExpanded
-                                                ? "M19 9l-7 7-7-7"
-                                                : "M9 5l7 7-7 7"
+                                                ? 'M19 9l-7 7-7-7'
+                                                : 'M9 5l7 7-7 7'
                                             }
                                           />
                                         </svg>
@@ -6053,12 +6053,12 @@ const InvoiceForm = ({ onSave }) => {
                                       value={
                                         item.productId
                                           ? productOptions.find(
-                                              (p) => p.id === item.productId,
-                                            )
+                                            (p) => p.id === item.productId,
+                                          )
                                           : null
                                       }
                                       inputValue={
-                                        searchInputs[index] || item.name || ""
+                                        searchInputs[index] || item.name || ''
                                       }
                                       onInputChange={(event, newInputValue) => {
                                         handleSearchInputChange(
@@ -6086,7 +6086,7 @@ const InvoiceForm = ({ onSave }) => {
                                           <div className="text-sm text-gray-500">
                                             {option.origin
                                               ? `${option.origin} • `
-                                              : ""}
+                                              : ''}
                                             {option.subtitle}
                                           </div>
                                         </div>
@@ -6100,13 +6100,13 @@ const InvoiceForm = ({ onSave }) => {
                                   <td className="px-2 py-2">
                                     <input
                                       type="number"
-                                      value={item.quantity || ""}
+                                      value={item.quantity || ''}
                                       onChange={(e) =>
                                         handleItemChange(
                                           index,
-                                          "quantity",
-                                          e.target.value === ""
-                                            ? ""
+                                          'quantity',
+                                          e.target.value === ''
+                                            ? ''
                                             : parseFloat(e.target.value),
                                         )
                                       }
@@ -6120,14 +6120,14 @@ const InvoiceForm = ({ onSave }) => {
                                       value={
                                         item.unitWeightKg ||
                                         item.unit_weight_kg ||
-                                        ""
+                                        ''
                                       }
                                       onChange={(e) =>
                                         handleItemChange(
                                           index,
-                                          "unitWeightKg",
-                                          e.target.value === ""
-                                            ? ""
+                                          'unitWeightKg',
+                                          e.target.value === ''
+                                            ? ''
                                             : parseFloat(e.target.value),
                                         )
                                       }
@@ -6140,7 +6140,7 @@ const InvoiceForm = ({ onSave }) => {
                                     <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-medium text-gray-700">
                                       {item.theoreticalWeightKg
                                         ? item.theoreticalWeightKg.toFixed(2)
-                                        : "0.00"}
+                                        : '0.00'}
                                     </div>
                                   </td>
 
@@ -6149,33 +6149,33 @@ const InvoiceForm = ({ onSave }) => {
                                     <div className="flex border border-gray-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
                                       <input
                                         type="number"
-                                        value={item.rate || ""}
+                                        value={item.rate || ''}
                                         onChange={(e) =>
                                           handleItemChange(
                                             index,
-                                            "rate",
-                                            e.target.value === ""
-                                              ? ""
+                                            'rate',
+                                            e.target.value === ''
+                                              ? ''
                                               : parseFloat(e.target.value),
                                           )
                                         }
                                         className="w-16 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
                                       />
                                       <select
-                                        value={item.pricingBasis || "PER_MT"}
+                                        value={item.pricingBasis || 'PER_MT'}
                                         onChange={(e) =>
                                           handleItemChange(
                                             index,
-                                            "pricingBasis",
+                                            'pricingBasis',
                                             e.target.value,
                                           )
                                         }
                                         className={`text-[10px] font-bold px-1.5 cursor-pointer outline-none ${
-                                          item.pricingBasis === "PER_KG"
-                                            ? "border-l border-blue-200 bg-blue-100 text-blue-700"
-                                            : item.pricingBasis === "PER_PCS"
-                                              ? "border-l border-emerald-200 bg-emerald-100 text-emerald-700"
-                                              : "border-l border-gray-200 bg-gray-50 text-gray-600"
+                                          item.pricingBasis === 'PER_KG'
+                                            ? 'border-l border-blue-200 bg-blue-100 text-blue-700'
+                                            : item.pricingBasis === 'PER_PCS'
+                                              ? 'border-l border-emerald-200 bg-emerald-100 text-emerald-700'
+                                              : 'border-l border-gray-200 bg-gray-50 text-gray-600'
                                         }`}
                                       >
                                         <option value="PER_MT">/MT</option>
@@ -6188,18 +6188,18 @@ const InvoiceForm = ({ onSave }) => {
                                   {/* Column 7: VAT % dropdown */}
                                   <td className="px-2 py-2">
                                     <select
-                                      value={item.supplyType || "standard"}
+                                      value={item.supplyType || 'standard'}
                                       onChange={(e) =>
                                         handleItemChange(
                                           index,
-                                          "supplyType",
+                                          'supplyType',
                                           e.target.value,
                                         )
                                       }
                                       className={`w-full px-1 py-1.5 border rounded text-sm focus:ring-2 focus:ring-teal-500 ${
                                         isDarkMode
-                                          ? "bg-gray-700 border-gray-600 text-white"
-                                          : "bg-white border-gray-300 text-gray-900"
+                                          ? 'bg-gray-700 border-gray-600 text-white'
+                                          : 'bg-white border-gray-300 text-gray-900'
                                       }`}
                                     >
                                       <option value="standard">5%</option>
@@ -6272,13 +6272,13 @@ const InvoiceForm = ({ onSave }) => {
                                                   stockData?.totalStock ?? 0;
 
                                                 return totalStock === 0
-                                                  ? "LOCAL_DROP_SHIP"
-                                                  : "WAREHOUSE";
+                                                  ? 'LOCAL_DROP_SHIP'
+                                                  : 'WAREHOUSE';
                                               })()}
                                               onChange={(sourceType) =>
                                                 handleItemChange(
                                                   index,
-                                                  "sourceType",
+                                                  'sourceType',
                                                   sourceType,
                                                 )
                                               }
@@ -6317,22 +6317,22 @@ const InvoiceForm = ({ onSave }) => {
                                                     data-testid={`stock-warehouse-${wh.id}`}
                                                     className={`text-xs font-medium ${
                                                       hasStock
-                                                        ? "text-gray-700"
-                                                        : "text-red-500"
+                                                        ? 'text-gray-700'
+                                                        : 'text-red-500'
                                                     }`}
                                                   >
-                                                    {wh.name || wh.code}{" "}
+                                                    {wh.name || wh.code}{' '}
                                                     <span
                                                       className={
                                                         hasStock
-                                                          ? "text-green-600 font-bold"
+                                                          ? 'text-green-600 font-bold'
                                                           : isLoading
-                                                            ? "text-gray-400 font-bold"
-                                                            : "text-red-500 font-bold"
+                                                            ? 'text-gray-400 font-bold'
+                                                            : 'text-red-500 font-bold'
                                                       }
                                                     >
                                                       {isLoading
-                                                        ? "..."
+                                                        ? '...'
                                                         : stockQty}
                                                     </span>
                                                   </span>
@@ -6343,275 +6343,275 @@ const InvoiceForm = ({ onSave }) => {
                                         </div>
 
                                         {/* P0: Conditional rendering based on sourceType */}
-                                        {(item.sourceType || "WAREHOUSE") ===
-                                        "WAREHOUSE" ? (
+                                        {(item.sourceType || 'WAREHOUSE') ===
+                                        'WAREHOUSE' ? (
                                           /* Batch Allocation Table - only show for WAREHOUSE */
                                           /* Phase 4: Use saved consumptions for finalized invoices, draft allocations otherwise */
-                                          (() => {
-                                            const savedConsumption = savedConsumptionsByItemId[item.id];
-                                            const hasSavedConsumptions = savedConsumption?.consumptions?.length > 0;
-                                            const displayAllocations = hasSavedConsumptions
-                                              ? savedConsumption.consumptions
-                                              : item.allocations || [];
-                                            const isReadOnly = hasSavedConsumptions;
+                                            (() => {
+                                              const savedConsumption = savedConsumptionsByItemId[item.id];
+                                              const hasSavedConsumptions = savedConsumption?.consumptions?.length > 0;
+                                              const displayAllocations = hasSavedConsumptions
+                                                ? savedConsumption.consumptions
+                                                : item.allocations || [];
+                                              const isReadOnly = hasSavedConsumptions;
 
-                                            return (
-                                              <div
-                                                className="border border-gray-200 rounded-lg overflow-hidden"
-                                                data-testid={`allocation-panel-${index}`}
-                                              >
-                                                <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
-                                                  <span className="text-xs font-semibold text-gray-600">
+                                              return (
+                                                <div
+                                                  className="border border-gray-200 rounded-lg overflow-hidden"
+                                                  data-testid={`allocation-panel-${index}`}
+                                                >
+                                                  <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
+                                                    <span className="text-xs font-semibold text-gray-600">
                                                     Batch Allocation
-                                                    {hasSavedConsumptions && (
-                                                      <span className="ml-2 text-green-600" title="Saved to database">
+                                                      {hasSavedConsumptions && (
+                                                        <span className="ml-2 text-green-600" title="Saved to database">
                                                         ✓ Finalized
-                                                      </span>
-                                                    )}
-                                                  </span>
-                                                  {(() => {
-                                                    const allocatedQty = hasSavedConsumptions
-                                                      ? parseFloat(savedConsumption.totalQuantity || 0)
-                                                      : displayAllocations.reduce(
+                                                        </span>
+                                                      )}
+                                                    </span>
+                                                    {(() => {
+                                                      const allocatedQty = hasSavedConsumptions
+                                                        ? parseFloat(savedConsumption.totalQuantity || 0)
+                                                        : displayAllocations.reduce(
                                                           (sum, a) =>
                                                             sum +
                                                             (parseFloat(a.quantity || a.quantityConsumed || 0)),
                                                           0,
                                                         );
-                                                    const requiredQty = item.quantity || 0;
+                                                      const requiredQty = item.quantity || 0;
 
-                                                    return (
-                                                      <span className="text-xs text-gray-500">
-                                                        {hasSavedConsumptions ? "Consumed" : "Allocated"}:{" "}
-                                                        <strong className="text-teal-600">
-                                                          {allocatedQty}
-                                                        </strong>{" "}
+                                                      return (
+                                                        <span className="text-xs text-gray-500">
+                                                          {hasSavedConsumptions ? 'Consumed' : 'Allocated'}:{' '}
+                                                          <strong className="text-teal-600">
+                                                            {allocatedQty}
+                                                          </strong>{' '}
                                                         / Required: {requiredQty}
-                                                        {hasSavedConsumptions && savedConsumption.totalCogs && parseFloat(savedConsumption.totalCogs) > 0 && (
-                                                          <span className="ml-2 text-gray-400">
+                                                          {hasSavedConsumptions && savedConsumption.totalCogs && parseFloat(savedConsumption.totalCogs) > 0 && (
+                                                            <span className="ml-2 text-gray-400">
                                                             COGS: {formatCurrency(parseFloat(savedConsumption.totalCogs))}
-                                                          </span>
-                                                        )}
-                                                      </span>
-                                                    );
-                                                  })()}
-                                                </div>
-                                                <table
-                                                  className="min-w-full text-xs"
-                                                  data-testid={`batch-allocation-table-${index}`}
-                                                >
-                                                  <thead className="bg-gray-50">
-                                                    <tr>
-                                                      <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                                        Batch #
-                                                      </th>
-                                                      <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                                        {hasSavedConsumptions ? "Warehouse" : "GRN Date"}
-                                                      </th>
-                                                      <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                                        Channel
-                                                      </th>
-                                                      {!hasSavedConsumptions && (
-                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                          Available
-                                                        </th>
-                                                      )}
-                                                      <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                        {hasSavedConsumptions ? "Consumed" : "Allocated"}
-                                                      </th>
-                                                      <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                        Cost/Unit
-                                                      </th>
-                                                      {hasSavedConsumptions && (
-                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                          Total COGS
-                                                        </th>
-                                                      )}
-                                                      {!isReadOnly && (
-                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                          Actions
-                                                        </th>
-                                                      )}
-                                                    </tr>
-                                                  </thead>
-                                                  <tbody className="divide-y divide-gray-100 bg-white">
-                                                    {displayAllocations.map(
-                                                      (allocation, allocIndex) => (
-                                                        <tr key={allocIndex}>
-                                                          <td className="px-3 py-2 font-mono text-gray-700">
-                                                            {allocation.batchNumber || "N/A"}
-                                                          </td>
-                                                          <td className="px-3 py-2 text-gray-600">
-                                                            {hasSavedConsumptions
-                                                              ? allocation.warehouseName || "N/A"
-                                                              : allocation.grnDate || "N/A"}
-                                                          </td>
-                                                          <td className="px-3 py-2">
-                                                            <span
-                                                              className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                                                (allocation.procurementChannel || "LOCAL") === "LOCAL"
-                                                                  ? "bg-green-100 text-green-800"
-                                                                  : allocation.procurementChannel === "DROP_SHIP"
-                                                                    ? "bg-purple-100 text-purple-800"
-                                                                    : "bg-blue-100 text-blue-800"
-                                                              }`}
-                                                            >
-                                                              {allocation.procurementChannel || "LOCAL"}
                                                             </span>
-                                                          </td>
-                                                          {!hasSavedConsumptions && (
-                                                            <td className="px-3 py-2 text-right text-gray-700">
-                                                              {allocation.availableQty || 0}
-                                                            </td>
                                                           )}
-                                                          <td className="px-3 py-2 text-right">
-                                                            {isReadOnly ? (
-                                                              <span className="font-medium text-gray-700">
-                                                                {parseFloat(
-                                                                  allocation.quantityConsumed || allocation.quantity || 0
-                                                                ).toFixed(3)}
-                                                              </span>
-                                                            ) : (
-                                                              <input
-                                                                type="number"
-                                                                value={allocation.quantity || 0}
-                                                                onChange={(e) => {
-                                                                  const newAllocations = [
-                                                                    ...(item.allocations || []),
-                                                                  ];
-                                                                  newAllocations[allocIndex] = {
-                                                                    ...newAllocations[allocIndex],
-                                                                    quantity:
-                                                                      parseFloat(e.target.value) || 0,
-                                                                  };
-                                                                  handleItemChange(
-                                                                    index,
-                                                                    "allocations",
-                                                                    newAllocations,
-                                                                  );
-                                                                }}
-                                                                className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
-                                                              />
-                                                            )}
-                                                          </td>
-                                                          <td className="px-3 py-2 text-right text-gray-600">
-                                                            {parseFloat(allocation.unitCost || 0).toFixed(2)}
-                                                          </td>
-                                                          {hasSavedConsumptions && (
-                                                            <td className="px-3 py-2 text-right text-gray-600 font-medium">
-                                                              {formatCurrency(parseFloat(allocation.totalCogs || 0))}
-                                                            </td>
-                                                          )}
-                                                          {!isReadOnly && (
-                                                            <td className="px-3 py-2 text-right">
-                                                              <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                  const newAllocations = (
-                                                                    item.allocations || []
-                                                                  ).filter((_, i) => i !== allocIndex);
-                                                                  handleItemChange(
-                                                                    index,
-                                                                    "allocations",
-                                                                    newAllocations,
-                                                                  );
-                                                                }}
-                                                                className="text-red-500 hover:text-red-700 text-xs"
-                                                              >
-                                                                Remove
-                                                              </button>
-                                                            </td>
-                                                          )}
-                                                        </tr>
-                                                      ),
-                                                    )}
-                                                    {displayAllocations.length === 0 && (
-                                                      <tr>
-                                                        <td
-                                                          colSpan={hasSavedConsumptions ? 6 : 7}
-                                                          className="px-3 py-4 text-center text-gray-500 text-xs"
-                                                        >
-                                                          {hasSavedConsumptions
-                                                            ? "No batch consumption records found."
-                                                            : "No batches allocated. Click \"Add Batch\" or \"Auto-Allocate (FIFO)\" below."}
-                                                        </td>
-                                                      </tr>
-                                                    )}
-                                                  </tbody>
-                                                </table>
-                                                {!isReadOnly && (
-                                                  <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => {
-                                                        // TODO: Implement add batch modal
-                                                        console.log(
-                                                          "Add batch clicked for item index:",
-                                                          index,
-                                                        );
-                                                      }}
-                                                      className="text-xs text-teal-600 hover:text-teal-800 font-medium"
-                                                    >
-                                                      + Add Batch
-                                                    </button>
-                                                    <button
-                                                      type="button"
-                                                      onClick={async () => {
-                                                        // Re-apply FIFO auto-allocation (useful after manual changes)
-                                                        await applyAutoAllocation(
-                                                          index,
-                                                          item.productId,
-                                                          item.quantity || 1,
-                                                        );
-                                                      }}
-                                                      disabled={
-                                                        (item.sourceType || "WAREHOUSE") !== "WAREHOUSE"
-                                                      }
-                                                      className={`text-xs px-3 py-1 rounded transition-colors ${
-                                                        (item.sourceType || "WAREHOUSE") === "WAREHOUSE"
-                                                          ? "bg-teal-600 text-white hover:bg-teal-700"
-                                                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                      }`}
-                                                    >
-                                                      Auto-Allocate (FIFO)
-                                                    </button>
+                                                        </span>
+                                                      );
+                                                    })()}
                                                   </div>
-                                                )}
-                                              </div>
-                                            );
-                                          })()
-                                        ) : (
+                                                  <table
+                                                    className="min-w-full text-xs"
+                                                    data-testid={`batch-allocation-table-${index}`}
+                                                  >
+                                                    <thead className="bg-gray-50">
+                                                      <tr>
+                                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                        Batch #
+                                                        </th>
+                                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                          {hasSavedConsumptions ? 'Warehouse' : 'GRN Date'}
+                                                        </th>
+                                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                        Channel
+                                                        </th>
+                                                        {!hasSavedConsumptions && (
+                                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                          Available
+                                                          </th>
+                                                        )}
+                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                          {hasSavedConsumptions ? 'Consumed' : 'Allocated'}
+                                                        </th>
+                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                        Cost/Unit
+                                                        </th>
+                                                        {hasSavedConsumptions && (
+                                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                          Total COGS
+                                                          </th>
+                                                        )}
+                                                        {!isReadOnly && (
+                                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                          Actions
+                                                          </th>
+                                                        )}
+                                                      </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100 bg-white">
+                                                      {displayAllocations.map(
+                                                        (allocation, allocIndex) => (
+                                                          <tr key={allocIndex}>
+                                                            <td className="px-3 py-2 font-mono text-gray-700">
+                                                              {allocation.batchNumber || 'N/A'}
+                                                            </td>
+                                                            <td className="px-3 py-2 text-gray-600">
+                                                              {hasSavedConsumptions
+                                                                ? allocation.warehouseName || 'N/A'
+                                                                : allocation.grnDate || 'N/A'}
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                              <span
+                                                                className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                                                  (allocation.procurementChannel || 'LOCAL') === 'LOCAL'
+                                                                    ? 'bg-green-100 text-green-800'
+                                                                    : allocation.procurementChannel === 'DROP_SHIP'
+                                                                      ? 'bg-purple-100 text-purple-800'
+                                                                      : 'bg-blue-100 text-blue-800'
+                                                                }`}
+                                                              >
+                                                                {allocation.procurementChannel || 'LOCAL'}
+                                                              </span>
+                                                            </td>
+                                                            {!hasSavedConsumptions && (
+                                                              <td className="px-3 py-2 text-right text-gray-700">
+                                                                {allocation.availableQty || 0}
+                                                              </td>
+                                                            )}
+                                                            <td className="px-3 py-2 text-right">
+                                                              {isReadOnly ? (
+                                                                <span className="font-medium text-gray-700">
+                                                                  {parseFloat(
+                                                                    allocation.quantityConsumed || allocation.quantity || 0,
+                                                                  ).toFixed(3)}
+                                                                </span>
+                                                              ) : (
+                                                                <input
+                                                                  type="number"
+                                                                  value={allocation.quantity || 0}
+                                                                  onChange={(e) => {
+                                                                    const newAllocations = [
+                                                                      ...(item.allocations || []),
+                                                                    ];
+                                                                    newAllocations[allocIndex] = {
+                                                                      ...newAllocations[allocIndex],
+                                                                      quantity:
+                                                                      parseFloat(e.target.value) || 0,
+                                                                    };
+                                                                    handleItemChange(
+                                                                      index,
+                                                                      'allocations',
+                                                                      newAllocations,
+                                                                    );
+                                                                  }}
+                                                                  className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                                                                />
+                                                              )}
+                                                            </td>
+                                                            <td className="px-3 py-2 text-right text-gray-600">
+                                                              {parseFloat(allocation.unitCost || 0).toFixed(2)}
+                                                            </td>
+                                                            {hasSavedConsumptions && (
+                                                              <td className="px-3 py-2 text-right text-gray-600 font-medium">
+                                                                {formatCurrency(parseFloat(allocation.totalCogs || 0))}
+                                                              </td>
+                                                            )}
+                                                            {!isReadOnly && (
+                                                              <td className="px-3 py-2 text-right">
+                                                                <button
+                                                                  type="button"
+                                                                  onClick={() => {
+                                                                    const newAllocations = (
+                                                                      item.allocations || []
+                                                                    ).filter((_, i) => i !== allocIndex);
+                                                                    handleItemChange(
+                                                                      index,
+                                                                      'allocations',
+                                                                      newAllocations,
+                                                                    );
+                                                                  }}
+                                                                  className="text-red-500 hover:text-red-700 text-xs"
+                                                                >
+                                                                Remove
+                                                                </button>
+                                                              </td>
+                                                            )}
+                                                          </tr>
+                                                        ),
+                                                      )}
+                                                      {displayAllocations.length === 0 && (
+                                                        <tr>
+                                                          <td
+                                                            colSpan={hasSavedConsumptions ? 6 : 7}
+                                                            className="px-3 py-4 text-center text-gray-500 text-xs"
+                                                          >
+                                                            {hasSavedConsumptions
+                                                              ? 'No batch consumption records found.'
+                                                              : 'No batches allocated. Click "Add Batch" or "Auto-Allocate (FIFO)" below.'}
+                                                          </td>
+                                                        </tr>
+                                                      )}
+                                                    </tbody>
+                                                  </table>
+                                                  {!isReadOnly && (
+                                                    <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
+                                                      <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                        // TODO: Implement add batch modal
+                                                          console.log(
+                                                            'Add batch clicked for item index:',
+                                                            index,
+                                                          );
+                                                        }}
+                                                        className="text-xs text-teal-600 hover:text-teal-800 font-medium"
+                                                      >
+                                                      + Add Batch
+                                                      </button>
+                                                      <button
+                                                        type="button"
+                                                        onClick={async () => {
+                                                        // Re-apply FIFO auto-allocation (useful after manual changes)
+                                                          await applyAutoAllocation(
+                                                            index,
+                                                            item.productId,
+                                                            item.quantity || 1,
+                                                          );
+                                                        }}
+                                                        disabled={
+                                                          (item.sourceType || 'WAREHOUSE') !== 'WAREHOUSE'
+                                                        }
+                                                        className={`text-xs px-3 py-1 rounded transition-colors ${
+                                                          (item.sourceType || 'WAREHOUSE') === 'WAREHOUSE'
+                                                            ? 'bg-teal-600 text-white hover:bg-teal-700'
+                                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                        }`}
+                                                      >
+                                                      Auto-Allocate (FIFO)
+                                                      </button>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              );
+                                            })()
+                                          ) : (
                                           /* P0: Drop-ship indicator for non-warehouse items */
-                                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                                            <div className="flex items-center gap-2">
-                                              <svg
-                                                className="w-5 h-5 text-blue-600"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                              >
-                                                <path
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                  strokeWidth={2}
-                                                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                                                />
-                                              </svg>
-                                              <span className="text-sm font-medium text-blue-800">
-                                                {(item.sourceType ||
-                                                  "WAREHOUSE") ===
-                                                "LOCAL_DROP_SHIP"
-                                                  ? "Local Drop Ship"
-                                                  : "Import Drop Ship"}
-                                              </span>
-                                            </div>
-                                            <p className="text-xs text-blue-700 mt-1 ml-7">
+                                            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                              <div className="flex items-center gap-2">
+                                                <svg
+                                                  className="w-5 h-5 text-blue-600"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                >
+                                                  <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                                                  />
+                                                </svg>
+                                                <span className="text-sm font-medium text-blue-800">
+                                                  {(item.sourceType ||
+                                                  'WAREHOUSE') ===
+                                                'LOCAL_DROP_SHIP'
+                                                    ? 'Local Drop Ship'
+                                                    : 'Import Drop Ship'}
+                                                </span>
+                                              </div>
+                                              <p className="text-xs text-blue-700 mt-1 ml-7">
                                               Goods will be shipped directly
                                               from supplier to customer. No
                                               warehouse allocation needed.
-                                            </p>
-                                          </div>
-                                        )}
+                                              </p>
+                                            </div>
+                                          )}
                                       </div>
                                     </td>
                                   </tr>
@@ -6687,21 +6687,21 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="md:hidden space-y-4">
                       {deferredItems.slice(0, 10).map((item, index) => {
                         const tooltip = [
-                          item.name ? `Name: ${item.name}` : "",
-                          item.category ? `Category: ${item.category}` : "",
-                          item.commodity ? `Commodity: ${item.commodity}` : "",
-                          item.grade ? `Grade: ${item.grade}` : "",
-                          item.finish ? `Finish: ${item.finish}` : "",
-                          item.size ? `Size: ${item.size}` : "",
-                          item.sizeInch ? `Size (Inch): ${item.sizeInch}` : "",
-                          item.od ? `OD: ${item.od}` : "",
-                          item.length ? `Length: ${item.length}` : "",
-                          item.thickness ? `Thickness: ${item.thickness}` : "",
-                          item.unit ? `Unit: ${item.unit}` : "",
-                          item.hsnCode ? `HSN: ${item.hsnCode}` : "",
+                          item.name ? `Name: ${item.name}` : '',
+                          item.category ? `Category: ${item.category}` : '',
+                          item.commodity ? `Commodity: ${item.commodity}` : '',
+                          item.grade ? `Grade: ${item.grade}` : '',
+                          item.finish ? `Finish: ${item.finish}` : '',
+                          item.size ? `Size: ${item.size}` : '',
+                          item.sizeInch ? `Size (Inch): ${item.sizeInch}` : '',
+                          item.od ? `OD: ${item.od}` : '',
+                          item.length ? `Length: ${item.length}` : '',
+                          item.thickness ? `Thickness: ${item.thickness}` : '',
+                          item.unit ? `Unit: ${item.unit}` : '',
+                          item.hsnCode ? `HSN: ${item.hsnCode}` : '',
                         ]
                           .filter(Boolean)
-                          .join("\n");
+                          .join('\n');
                         return (
                           <Card
                             key={item.id || `mobile-item-${index}`}
@@ -6711,7 +6711,7 @@ const InvoiceForm = ({ onSave }) => {
                             <div className="flex justify-between items-start mb-4">
                               <h4
                                 className={`font-medium ${
-                                  isDarkMode ? "text-white" : "text-gray-900"
+                                  isDarkMode ? 'text-white' : 'text-gray-900'
                                 }`}
                               >
                                 Item #{index + 1}
@@ -6719,7 +6719,7 @@ const InvoiceForm = ({ onSave }) => {
                               <button
                                 onClick={() => removeItem(index)}
                                 className={`hover:text-red-300 ${
-                                  isDarkMode ? "text-red-400" : "text-red-500"
+                                  isDarkMode ? 'text-red-400' : 'text-red-500'
                                 }`}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -6738,12 +6738,12 @@ const InvoiceForm = ({ onSave }) => {
                                 value={
                                   item.productId
                                     ? productOptions.find(
-                                        (p) => p.id === item.productId,
-                                      )
+                                      (p) => p.id === item.productId,
+                                    )
                                     : null
                                 }
                                 inputValue={
-                                  searchInputs[index] || item.name || ""
+                                  searchInputs[index] || item.name || ''
                                 }
                                 onInputChange={(event, newInputValue) => {
                                   handleSearchInputChange(index, newInputValue);
@@ -6770,7 +6770,7 @@ const InvoiceForm = ({ onSave }) => {
                                     <div className="text-sm text-gray-500">
                                       {option.origin
                                         ? `${option.origin} • `
-                                        : ""}
+                                        : ''}
                                       {option.subtitle}
                                     </div>
                                   </div>
@@ -6782,20 +6782,20 @@ const InvoiceForm = ({ onSave }) => {
 
                               <div className="grid grid-cols-2 gap-2">
                                 <div
-                                  className={`transition-all duration-300 ${blinkingRowIndex === index ? "ring-2 ring-red-400 rounded animate-pulse" : ""}`}
+                                  className={`transition-all duration-300 ${blinkingRowIndex === index ? 'ring-2 ring-red-400 rounded animate-pulse' : ''}`}
                                 >
                                   <Input
                                     label="Qty"
                                     type="number"
-                                    value={item.quantity || ""}
+                                    value={item.quantity || ''}
                                     onChange={(e) =>
                                       handleItemChange(
                                         index,
-                                        "quantity",
-                                        e.target.value === ""
-                                          ? ""
+                                        'quantity',
+                                        e.target.value === ''
+                                          ? ''
                                           : Number.isNaN(Number(e.target.value))
-                                            ? ""
+                                            ? ''
                                             : parseInt(e.target.value, 10),
                                       )
                                     }
@@ -6808,15 +6808,15 @@ const InvoiceForm = ({ onSave }) => {
                                     )}
                                     onKeyDown={(e) => {
                                       const allow = [
-                                        "Backspace",
-                                        "Delete",
-                                        "Tab",
-                                        "Escape",
-                                        "Enter",
-                                        "ArrowLeft",
-                                        "ArrowRight",
-                                        "Home",
-                                        "End",
+                                        'Backspace',
+                                        'Delete',
+                                        'Tab',
+                                        'Escape',
+                                        'Enter',
+                                        'ArrowLeft',
+                                        'ArrowRight',
+                                        'Home',
+                                        'End',
                                       ];
                                       if (
                                         allow.includes(e.key) ||
@@ -6833,30 +6833,30 @@ const InvoiceForm = ({ onSave }) => {
                                       e.preventDefault();
                                       const t = (
                                         e.clipboardData || window.clipboardData
-                                      ).getData("text");
-                                      const digits = (t || "").replace(
+                                      ).getData('text');
+                                      const digits = (t || '').replace(
                                         /\D/g,
-                                        "",
+                                        '',
                                       );
                                       handleItemChange(
                                         index,
-                                        "quantity",
-                                        digits ? parseInt(digits, 10) : "",
+                                        'quantity',
+                                        digits ? parseInt(digits, 10) : '',
                                       );
                                     }}
                                     onWheel={(e) => e.currentTarget.blur()}
                                   />
                                 </div>
                                 <Input
-                                  label={`Rate${item.pricingBasis && item.pricingBasis !== "PER_MT" ? ` (${item.pricingBasis.replace("PER_", "per ").replace("_", " ")})` : " (per MT)"}`}
+                                  label={`Rate${item.pricingBasis && item.pricingBasis !== 'PER_MT' ? ` (${item.pricingBasis.replace('PER_', 'per ').replace('_', ' ')})` : ' (per MT)'}`}
                                   type="number"
-                                  value={item.rate || ""}
+                                  value={item.rate || ''}
                                   onChange={(e) =>
                                     handleItemChange(
                                       index,
-                                      "rate",
-                                      e.target.value === ""
-                                        ? ""
+                                      'rate',
+                                      e.target.value === ''
+                                        ? ''
                                         : parseFloat(e.target.value),
                                     )
                                   }
@@ -6874,24 +6874,24 @@ const InvoiceForm = ({ onSave }) => {
                                 <div>
                                   <label
                                     htmlFor={`supply-type-${index}`}
-                                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                                   >
                                     Supply Type
                                   </label>
                                   <select
                                     id={`supply-type-${index}`}
-                                    value={item.supplyType || "standard"}
+                                    value={item.supplyType || 'standard'}
                                     onChange={(e) =>
                                       handleItemChange(
                                         index,
-                                        "supplyType",
+                                        'supplyType',
                                         e.target.value,
                                       )
                                     }
                                     className={`w-full px-3 py-2 border rounded ${
                                       isDarkMode
-                                        ? "bg-gray-700 border-gray-600 text-white"
-                                        : "bg-white border-gray-300 text-gray-900"
+                                        ? 'bg-gray-700 border-gray-600 text-white'
+                                        : 'bg-white border-gray-300 text-gray-900'
                                     }`}
                                   >
                                     <option value="standard">5% Std</option>
@@ -6902,13 +6902,13 @@ const InvoiceForm = ({ onSave }) => {
                                 <Input
                                   label="VAT %"
                                   type="number"
-                                  value={item.vatRate || ""}
+                                  value={item.vatRate || ''}
                                   onChange={(e) =>
                                     handleItemChange(
                                       index,
-                                      "vatRate",
-                                      e.target.value === ""
-                                        ? ""
+                                      'vatRate',
+                                      e.target.value === ''
+                                        ? ''
                                         : parseFloat(e.target.value),
                                     )
                                   }
@@ -6921,12 +6921,12 @@ const InvoiceForm = ({ onSave }) => {
 
                               <div
                                 className={`flex justify-end p-3 rounded-md ${
-                                  isDarkMode ? "bg-gray-700" : "bg-gray-100"
+                                  isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
                                 }`}
                               >
                                 <span
                                   className={`font-medium ${
-                                    isDarkMode ? "text-white" : "text-gray-900"
+                                    isDarkMode ? 'text-white' : 'text-gray-900'
                                   }`}
                                 >
                                   Amount: {formatCurrency(item.amount)}
@@ -6939,7 +6939,7 @@ const InvoiceForm = ({ onSave }) => {
                       {deferredItems.length > 10 && (
                         <div
                           className={`text-center py-4 text-sm ${
-                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                            isDarkMode ? 'text-gray-400' : 'text-gray-600'
                           }`}
                         >
                           Showing first 10 items. Add more items as needed.
@@ -6949,7 +6949,7 @@ const InvoiceForm = ({ onSave }) => {
 
                     {/* Add Item Button - Below Items for Easy Access (Legacy Mode Only) */}
                     <div
-                      className={`mt-4 pt-4 border-t border-dashed ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                      className={`mt-4 pt-4 border-t border-dashed ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
                     >
                       <Button
                         ref={addItemButtonRef}
@@ -6977,7 +6977,7 @@ const InvoiceForm = ({ onSave }) => {
                   <div>
                     <div className="text-sm font-extrabold">Summary</div>
                     <div
-                      className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                     >
                       Sticky on desktop
                     </div>
@@ -6988,12 +6988,12 @@ const InvoiceForm = ({ onSave }) => {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center py-1">
                     <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                     >
                       Subtotal
                     </span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
                     >
                       {formatCurrency(computedSubtotal)}
                     </span>
@@ -7003,7 +7003,7 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="flex justify-between items-center py-1">
                       <span
                         className={
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
                         }
                       >
                         Discount
@@ -7023,13 +7023,13 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="flex justify-between items-center py-1">
                       <span
                         className={
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
                         }
                       >
                         Charges
                       </span>
                       <span
-                        className={`font-mono ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+                        className={`font-mono ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
                       >
                         {formatCurrency(
                           (invoice.packingCharges || 0) +
@@ -7044,12 +7044,12 @@ const InvoiceForm = ({ onSave }) => {
 
                   <div className="flex justify-between items-center py-1">
                     <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
                     >
                       VAT (5%)
                     </span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
                     >
                       {formatCurrency(computedVatAmount)}
                     </span>
@@ -7059,7 +7059,7 @@ const InvoiceForm = ({ onSave }) => {
 
                   <div className="flex justify-between items-center py-2">
                     <span
-                      className={`font-extrabold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+                      className={`font-extrabold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
                     >
                       Total
                     </span>
@@ -7074,26 +7074,26 @@ const InvoiceForm = ({ onSave }) => {
                       <div className={DIVIDER_CLASSES(isDarkMode)} />
                       <div className="space-y-1">
                         <div className="flex justify-between items-center py-1">
-                          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             Cost of Goods
                           </span>
-                          <span className={`font-mono text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                          <span className={`font-mono text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                             {formatCurrency(invoice.totalCogs || 0)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center py-1">
-                          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             Gross Profit
                           </span>
-                          <span className={`font-mono text-xs ${(invoice.totalProfit || 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+                          <span className={`font-mono text-xs ${(invoice.totalProfit || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {formatCurrency(invoice.totalProfit || 0)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center py-1">
-                          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             Margin
                           </span>
-                          <span className={`font-mono text-xs font-semibold ${(invoice.grossMarginPercent || 0) >= 15 ? "text-green-400" : (invoice.grossMarginPercent || 0) >= 0 ? "text-yellow-400" : "text-red-400"}`}>
+                          <span className={`font-mono text-xs font-semibold ${(invoice.grossMarginPercent || 0) >= 15 ? 'text-green-400' : (invoice.grossMarginPercent || 0) >= 0 ? 'text-yellow-400' : 'text-red-400'}`}>
                             {(invoice.grossMarginPercent || 0).toFixed(1)}%
                           </span>
                         </div>
@@ -7108,7 +7108,7 @@ const InvoiceForm = ({ onSave }) => {
                 <div>
                   <h3
                     className={`text-xs font-extrabold uppercase tracking-wide mb-2 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
                     Quick Actions
@@ -7143,7 +7143,7 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
 
                   <p
-                    className={`text-xs mt-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-xs mt-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     Payments are recorded after invoice creation via the Payment
                     Drawer
@@ -7158,17 +7158,17 @@ const InvoiceForm = ({ onSave }) => {
         <div
           className={`md:hidden fixed bottom-0 left-0 right-0 z-20 border-t shadow-2xl ${
             isDarkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
+              ? 'bg-gray-800 border-gray-700'
+              : 'bg-white border-gray-200'
           }`}
-          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <div className="px-4 py-3">
             {/* Total Display */}
             <div className="flex justify-between items-center mb-3">
               <span
                 className={`text-sm font-medium ${
-                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                  isDarkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}
               >
                 Total Amount
@@ -7195,7 +7195,7 @@ const InvoiceForm = ({ onSave }) => {
                   savingInvoice ||
                   updatingInvoice ||
                   isSaving ||
-                  (id && invoice.status === "issued")
+                  (id && invoice.status === 'issued')
                 }
                 className="flex-1 min-h-[48px]"
               >
@@ -7205,8 +7205,8 @@ const InvoiceForm = ({ onSave }) => {
                   <Save className="h-4 w-4" />
                 )}
                 {savingInvoice || updatingInvoice || isSaving
-                  ? "Saving..."
-                  : "Save"}
+                  ? 'Saving...'
+                  : 'Save'}
               </Button>
             </div>
           </div>
@@ -7218,7 +7218,7 @@ const InvoiceForm = ({ onSave }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div
             className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
             }`}
           >
             <div className="flex items-start mb-4">
@@ -7231,7 +7231,7 @@ const InvoiceForm = ({ onSave }) => {
                   Confirm Final Tax Invoice Creation
                 </h3>
                 <p className="text-sm mb-4">
-                  You are about to create and save a{" "}
+                  You are about to create and save a{' '}
                   <strong>Final Tax Invoice</strong>.
                 </p>
                 <p className="text-sm mb-2">
@@ -7258,8 +7258,8 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleCancelSave}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
                 }`}
               >
                 Cancel
@@ -7279,7 +7279,7 @@ const InvoiceForm = ({ onSave }) => {
       {showSuccessModal &&
         (() => {
           // Check if this is a Final Tax Invoice (cannot be edited after creation)
-          const isFinalTaxInvoice = invoice.status === "issued";
+          const isFinalTaxInvoice = invoice.status === 'issued';
           const canContinueEditing = !isFinalTaxInvoice; // Draft and Proforma can be edited
 
           return (
@@ -7290,14 +7290,14 @@ const InvoiceForm = ({ onSave }) => {
               tabIndex={canContinueEditing ? 0 : -1}
               onKeyDown={(e) =>
                 canContinueEditing &&
-                e.key === "Escape" &&
+                e.key === 'Escape' &&
                 handleSuccessModalClose()
               }
             >
               {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
               <div
                 className={`max-w-md w-full mx-4 rounded-2xl shadow-2xl relative overflow-hidden ${
-                  isDarkMode ? "bg-gray-900" : "bg-white"
+                  isDarkMode ? 'bg-gray-900' : 'bg-white'
                 }`}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => e.stopPropagation()}
@@ -7328,10 +7328,10 @@ const InvoiceForm = ({ onSave }) => {
                       </h3>
                       <p className="text-emerald-100 text-sm mt-0.5">
                         {isFinalTaxInvoice
-                          ? `Final Tax Invoice ${invoice.invoiceNumber || ""}`
-                          : invoice.status === "proforma"
-                            ? "Proforma Invoice"
-                            : "Draft saved"}
+                          ? `Final Tax Invoice ${invoice.invoiceNumber || ''}`
+                          : invoice.status === 'proforma'
+                            ? 'Proforma Invoice'
+                            : 'Draft saved'}
                       </p>
                     </div>
                   </div>
@@ -7351,7 +7351,7 @@ const InvoiceForm = ({ onSave }) => {
                 {/* Action Buttons */}
                 <div className="p-6 space-y-3">
                   <p
-                    className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     What would you like to do next?
                   </p>
@@ -7395,19 +7395,19 @@ const InvoiceForm = ({ onSave }) => {
                     onClick={handleSuccessGoToList}
                     className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all border ${
                       isDarkMode
-                        ? "bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700"
-                        : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200"
+                        ? 'bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700'
+                        : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
                     }`}
                   >
                     <div
-                      className={`p-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
+                      className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
                     >
                       <List size={20} />
                     </div>
                     <div className="text-left">
                       <div className="font-semibold">Go to Invoice List</div>
                       <div
-                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                       >
                         View all invoices
                       </div>
@@ -7418,7 +7418,7 @@ const InvoiceForm = ({ onSave }) => {
                 {/* Continue editing hint - only show for Draft/Proforma */}
                 {canContinueEditing && (
                   <div
-                    className={`px-6 pb-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                    className={`px-6 pb-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                   >
                     <p className="text-xs text-center">
                       Press ESC or click outside to continue editing
@@ -7437,7 +7437,7 @@ const InvoiceForm = ({ onSave }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opa bg-opacity-50">
           <div
             className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
             }`}
           >
             <div className="flex items-start mb-4">
@@ -7449,7 +7449,7 @@ const InvoiceForm = ({ onSave }) => {
                   Duplicate Product Detected
                 </h3>
                 <p
-                  className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                  className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                 >
                   <strong>{duplicateWarning.productName}</strong> already exists
                   in this invoice (Row {duplicateWarning.existingIndex + 1},
@@ -7459,7 +7459,7 @@ const InvoiceForm = ({ onSave }) => {
             </div>
 
             <p
-              className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               What would you like to do?
             </p>
@@ -7475,8 +7475,8 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleDuplicateAddAnyway}
                 className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
                 }`}
               >
                 Add as Separate Line
@@ -7485,8 +7485,8 @@ const InvoiceForm = ({ onSave }) => {
                 onClick={handleDuplicateCancel}
                 className={`w-full px-4 py-2 text-sm rounded-lg transition-colors ${
                   isDarkMode
-                    ? "text-gray-400 hover:text-white hover:bg-gray-700"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                    ? 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
                 Cancel
@@ -7498,7 +7498,7 @@ const InvoiceForm = ({ onSave }) => {
 
       {/* Loading Overlay for Issued Invoice Saves */}
       <LoadingOverlay
-        show={isSaving && invoice.status === "issued"}
+        show={isSaving && invoice.status === 'issued'}
         message="Saving invoice..."
         detail="Updating inventory and generating records"
       />
@@ -7536,7 +7536,7 @@ const InvoiceForm = ({ onSave }) => {
           isOpen={showAddProductDrawer}
           onClose={() => setShowAddProductDrawer(false)}
           isDarkMode={isDarkMode}
-          draftInvoiceId={typeof invoice.id === "number" ? invoice.id : null}
+          draftInvoiceId={typeof invoice.id === 'number' ? invoice.id : null}
           warehouseId={
             invoice.warehouseId
               ? parseInt(invoice.warehouseId, 10)

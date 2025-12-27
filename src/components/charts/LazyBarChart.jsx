@@ -3,7 +3,7 @@
  * Lazy-loadable wrapper for recharts BarChart
  * Import this component with React.lazy() to defer recharts loading
  */
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import {
   BarChart,
   Bar,
@@ -13,17 +13,17 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts";
-import { useTheme } from "../../contexts/ThemeContext";
+} from 'recharts';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const LazyBarChart = ({
   data,
   bars,
-  xAxisKey = "name",
+  xAxisKey = 'name',
   height = 300,
   showGrid = true,
   showLegend = true,
-  layout = "horizontal",
+  layout = 'horizontal',
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -33,28 +33,28 @@ const LazyBarChart = ({
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke={isDarkMode ? "#374151" : "#E5E7EB"}
+            stroke={isDarkMode ? '#374151' : '#E5E7EB'}
           />
         )}
         <XAxis
-          dataKey={layout === "horizontal" ? xAxisKey : undefined}
-          type={layout === "horizontal" ? "category" : "number"}
-          stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
-          style={{ fontSize: "12px" }}
+          dataKey={layout === 'horizontal' ? xAxisKey : undefined}
+          type={layout === 'horizontal' ? 'category' : 'number'}
+          stroke={isDarkMode ? '#9CA3AF' : '#6B7280'}
+          style={{ fontSize: '12px' }}
         />
         <YAxis
-          dataKey={layout === "vertical" ? xAxisKey : undefined}
-          type={layout === "vertical" ? "category" : "number"}
-          stroke={isDarkMode ? "#9CA3AF" : "#6B7280"}
-          style={{ fontSize: "12px" }}
+          dataKey={layout === 'vertical' ? xAxisKey : undefined}
+          type={layout === 'vertical' ? 'category' : 'number'}
+          stroke={isDarkMode ? '#9CA3AF' : '#6B7280'}
+          style={{ fontSize: '12px' }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-            border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
-            borderRadius: "8px",
+            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+            border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
+            borderRadius: '8px',
           }}
-          labelStyle={{ color: isDarkMode ? "#F3F4F6" : "#111827" }}
+          labelStyle={{ color: isDarkMode ? '#F3F4F6' : '#111827' }}
         />
         {showLegend && <Legend />}
         {bars.map((bar, index) => (
@@ -79,13 +79,13 @@ LazyBarChart.propTypes = {
       color: PropTypes.string.isRequired,
       name: PropTypes.string,
       radius: PropTypes.array,
-    })
+    }),
   ).isRequired,
   xAxisKey: PropTypes.string,
   height: PropTypes.number,
   showGrid: PropTypes.bool,
   showLegend: PropTypes.bool,
-  layout: PropTypes.oneOf(["horizontal", "vertical"]),
+  layout: PropTypes.oneOf(['horizontal', 'vertical']),
 };
 
 export default LazyBarChart;

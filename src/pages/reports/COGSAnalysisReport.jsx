@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   BarChart,
   Bar,
@@ -14,7 +14,7 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts";
+} from 'recharts';
 import {
   Package,
   DollarSign,
@@ -23,12 +23,12 @@ import {
   RefreshCw,
   Filter,
   Calendar,
-} from "lucide-react";
-import api from "../../services/api";
-import toast from "react-hot-toast";
-import { toUAEDateForInput } from "../../utils/timezone";
-import { FormSelect } from "../../components/ui/form-select";
-import { SelectItem } from "../../components/ui/select";
+} from 'lucide-react';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
+import { toUAEDateForInput } from '../../utils/timezone';
+import { FormSelect } from '../../components/ui/form-select';
+import { SelectItem } from '../../components/ui/select';
 
 /**
  * COGS Analysis Dashboard
@@ -52,8 +52,8 @@ export default function COGSAnalysisReport() {
       endDate: toUAEDateForInput(now),
     };
   });
-  const [selectedCustomer, setSelectedCustomer] = useState("all");
-  const [selectedProduct, setSelectedProduct] = useState("all");
+  const [selectedCustomer, setSelectedCustomer] = useState('all');
+  const [selectedProduct, setSelectedProduct] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
   // Data
@@ -78,14 +78,14 @@ export default function COGSAnalysisReport() {
   const loadFilterOptions = async () => {
     try {
       // Load customers
-      const customersRes = await api.get("/api/customers");
+      const customersRes = await api.get('/api/customers');
       setCustomers(customersRes.data || []);
 
       // Load products
-      const productsRes = await api.get("/api/products");
+      const productsRes = await api.get('/api/products');
       setProducts(productsRes.data || []);
     } catch (error) {
-      console.error("Error loading filter options:", error);
+      console.error('Error loading filter options:', error);
     }
   };
 
@@ -103,10 +103,10 @@ export default function COGSAnalysisReport() {
       setBatchProfitability(mockData.batchProfitability);
       setProcurementComparison(mockData.procurementComparison);
 
-      toast.success("Report data loaded successfully");
+      toast.success('Report data loaded successfully');
     } catch (error) {
-      console.error("Error fetching COGS report:", error);
-      toast.error("Failed to load report data");
+      console.error('Error fetching COGS report:', error);
+      toast.error('Failed to load report data');
     } finally {
       setLoading(false);
     }
@@ -119,13 +119,13 @@ export default function COGSAnalysisReport() {
   };
 
   const handleExport = () => {
-    toast.info("Export functionality coming soon");
+    toast.info('Export functionality coming soon');
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount || 0);
@@ -145,49 +145,49 @@ export default function COGSAnalysisReport() {
         totalProfit: 550000,
       },
       cogsByBatch: [
-        { batch: "BTH-2024-001", cogs: 450000, revenue: 520000 },
-        { batch: "BTH-2024-002", cogs: 380000, revenue: 440000 },
-        { batch: "BTH-2024-003", cogs: 520000, revenue: 610000 },
-        { batch: "BTH-2024-004", cogs: 420000, revenue: 490000 },
-        { batch: "BTH-2024-005", cogs: 730000, revenue: 990000 },
+        { batch: 'BTH-2024-001', cogs: 450000, revenue: 520000 },
+        { batch: 'BTH-2024-002', cogs: 380000, revenue: 440000 },
+        { batch: 'BTH-2024-003', cogs: 520000, revenue: 610000 },
+        { batch: 'BTH-2024-004', cogs: 420000, revenue: 490000 },
+        { batch: 'BTH-2024-005', cogs: 730000, revenue: 990000 },
       ],
       costComponents: [
-        { name: "FOB Cost", value: 1500000, percent: 60 },
-        { name: "Freight", value: 500000, percent: 20 },
-        { name: "Customs Duty", value: 375000, percent: 15 },
-        { name: "Handling", value: 125000, percent: 5 },
+        { name: 'FOB Cost', value: 1500000, percent: 60 },
+        { name: 'Freight', value: 500000, percent: 20 },
+        { name: 'Customs Duty', value: 375000, percent: 15 },
+        { name: 'Handling', value: 125000, percent: 5 },
       ],
       batchProfitability: [
         {
-          batch: "BTH-2024-001",
+          batch: 'BTH-2024-001',
           cogs: 450000,
           revenue: 520000,
           profit: 70000,
           margin: 13.46,
         },
         {
-          batch: "BTH-2024-002",
+          batch: 'BTH-2024-002',
           cogs: 380000,
           revenue: 440000,
           profit: 60000,
           margin: 13.64,
         },
         {
-          batch: "BTH-2024-003",
+          batch: 'BTH-2024-003',
           cogs: 520000,
           revenue: 610000,
           profit: 90000,
           margin: 14.75,
         },
         {
-          batch: "BTH-2024-004",
+          batch: 'BTH-2024-004',
           cogs: 420000,
           revenue: 490000,
           profit: 70000,
           margin: 14.29,
         },
         {
-          batch: "BTH-2024-005",
+          batch: 'BTH-2024-005',
           cogs: 730000,
           revenue: 990000,
           profit: 260000,
@@ -195,26 +195,26 @@ export default function COGSAnalysisReport() {
         },
       ],
       procurementComparison: [
-        { month: "Jan", local: 120000, imported: 580000 },
-        { month: "Feb", local: 95000, imported: 620000 },
-        { month: "Mar", local: 110000, imported: 690000 },
-        { month: "Apr", local: 130000, imported: 750000 },
-        { month: "May", local: 85000, imported: 820000 },
-        { month: "Jun", local: 105000, imported: 890000 },
+        { month: 'Jan', local: 120000, imported: 580000 },
+        { month: 'Feb', local: 95000, imported: 620000 },
+        { month: 'Mar', local: 110000, imported: 690000 },
+        { month: 'Apr', local: 130000, imported: 750000 },
+        { month: 'May', local: 85000, imported: 820000 },
+        { month: 'Jun', local: 105000, imported: 890000 },
       ],
     };
   };
 
-  const CHART_COLORS = ["#14B8A6", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6"];
+  const CHART_COLORS = ['#14B8A6', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
       {/* Header */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} border-b ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-b ${
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
         }`}
       >
         <div className="px-6 py-4">
@@ -225,12 +225,12 @@ export default function COGSAnalysisReport() {
               </div>
               <div>
                 <h1
-                  className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   COGS Analysis Dashboard
                 </h1>
                 <p
-                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                 >
                   Cost of Goods Sold breakdown and profitability analysis
                 </p>
@@ -242,8 +242,8 @@ export default function COGSAnalysisReport() {
                 onClick={() => setShowFilters(!showFilters)}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                   isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 }`}
               >
                 <Filter size={18} />
@@ -254,13 +254,13 @@ export default function COGSAnalysisReport() {
                 disabled={refreshing}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                   isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                } ${refreshing ? "opacity-50 cursor-not-allowed" : ""}`}
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                } ${refreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <RefreshCw
                   size={18}
-                  className={refreshing ? "animate-spin" : ""}
+                  className={refreshing ? 'animate-spin' : ''}
                 />
                 <span>Refresh</span>
               </button>
@@ -278,7 +278,7 @@ export default function COGSAnalysisReport() {
           {showFilters && (
             <div
               className={`mt-4 p-4 rounded-lg ${
-                isDarkMode ? "bg-gray-700" : "bg-gray-100"
+                isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
               }`}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -286,7 +286,7 @@ export default function COGSAnalysisReport() {
                 <div>
                   <label
                     className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
                   >
                     <Calendar size={16} className="inline mr-1" />
@@ -300,15 +300,15 @@ export default function COGSAnalysisReport() {
                     }
                     className={`w-full px-3 py-2 rounded-lg ${
                       isDarkMode
-                        ? "bg-gray-800 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     } border focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
                 <div>
                   <label
                     className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
                   >
                     <Calendar size={16} className="inline mr-1" />
@@ -322,8 +322,8 @@ export default function COGSAnalysisReport() {
                     }
                     className={`w-full px-3 py-2 rounded-lg ${
                       isDarkMode
-                        ? "bg-gray-800 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
                     } border focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -414,11 +414,11 @@ export default function COGSAnalysisReport() {
             <div className="text-center">
               <RefreshCw
                 className={`mx-auto h-12 w-12 animate-spin ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}
               />
               <p
-                className={`mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
                 Loading report data...
               </p>
@@ -432,23 +432,23 @@ export default function COGSAnalysisReport() {
                 <BarChart data={cogsByBatch}>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke={isDarkMode ? "#37474F" : "#E0E0E0"}
+                    stroke={isDarkMode ? '#37474F' : '#E0E0E0'}
                   />
                   <XAxis
                     dataKey="batch"
-                    stroke={isDarkMode ? "#78909C" : "#9E9E9E"}
-                    tick={{ fill: isDarkMode ? "#B0BEC5" : "#757575" }}
+                    stroke={isDarkMode ? '#78909C' : '#9E9E9E'}
+                    tick={{ fill: isDarkMode ? '#B0BEC5' : '#757575' }}
                   />
                   <YAxis
-                    stroke={isDarkMode ? "#78909C" : "#9E9E9E"}
-                    tick={{ fill: isDarkMode ? "#B0BEC5" : "#757575" }}
+                    stroke={isDarkMode ? '#78909C' : '#9E9E9E'}
+                    tick={{ fill: isDarkMode ? '#B0BEC5' : '#757575' }}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: isDarkMode ? "#2E3B4E" : "#FFFFFF",
-                      border: `1px solid ${isDarkMode ? "#37474F" : "#E0E0E0"}`,
-                      borderRadius: "8px",
-                      color: isDarkMode ? "#FFFFFF" : "#212121",
+                      backgroundColor: isDarkMode ? '#2E3B4E' : '#FFFFFF',
+                      border: `1px solid ${isDarkMode ? '#37474F' : '#E0E0E0'}`,
+                      borderRadius: '8px',
+                      color: isDarkMode ? '#FFFFFF' : '#212121',
                     }}
                     formatter={(value) => formatCurrency(value)}
                   />
@@ -485,10 +485,10 @@ export default function COGSAnalysisReport() {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: isDarkMode ? "#2E3B4E" : "#FFFFFF",
-                      border: `1px solid ${isDarkMode ? "#37474F" : "#E0E0E0"}`,
-                      borderRadius: "8px",
-                      color: isDarkMode ? "#FFFFFF" : "#212121",
+                      backgroundColor: isDarkMode ? '#2E3B4E' : '#FFFFFF',
+                      border: `1px solid ${isDarkMode ? '#37474F' : '#E0E0E0'}`,
+                      borderRadius: '8px',
+                      color: isDarkMode ? '#FFFFFF' : '#212121',
                     }}
                     formatter={(value) => formatCurrency(value)}
                   />
@@ -505,23 +505,23 @@ export default function COGSAnalysisReport() {
                 <LineChart data={procurementComparison}>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke={isDarkMode ? "#37474F" : "#E0E0E0"}
+                    stroke={isDarkMode ? '#37474F' : '#E0E0E0'}
                   />
                   <XAxis
                     dataKey="month"
-                    stroke={isDarkMode ? "#78909C" : "#9E9E9E"}
-                    tick={{ fill: isDarkMode ? "#B0BEC5" : "#757575" }}
+                    stroke={isDarkMode ? '#78909C' : '#9E9E9E'}
+                    tick={{ fill: isDarkMode ? '#B0BEC5' : '#757575' }}
                   />
                   <YAxis
-                    stroke={isDarkMode ? "#78909C" : "#9E9E9E"}
-                    tick={{ fill: isDarkMode ? "#B0BEC5" : "#757575" }}
+                    stroke={isDarkMode ? '#78909C' : '#9E9E9E'}
+                    tick={{ fill: isDarkMode ? '#B0BEC5' : '#757575' }}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: isDarkMode ? "#2E3B4E" : "#FFFFFF",
-                      border: `1px solid ${isDarkMode ? "#37474F" : "#E0E0E0"}`,
-                      borderRadius: "8px",
-                      color: isDarkMode ? "#FFFFFF" : "#212121",
+                      backgroundColor: isDarkMode ? '#2E3B4E' : '#FFFFFF',
+                      border: `1px solid ${isDarkMode ? '#37474F' : '#E0E0E0'}`,
+                      borderRadius: '8px',
+                      color: isDarkMode ? '#FFFFFF' : '#212121',
                     }}
                     formatter={(value) => formatCurrency(value)}
                   />
@@ -554,40 +554,40 @@ export default function COGSAnalysisReport() {
                   <thead>
                     <tr
                       className={`${
-                        isDarkMode ? "bg-gray-800" : "bg-gray-100"
-                      } border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                        isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                      } border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                     >
                       <th
                         className={`px-4 py-2 text-left text-sm font-medium ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Batch
                       </th>
                       <th
                         className={`px-4 py-2 text-right text-sm font-medium ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         COGS
                       </th>
                       <th
                         className={`px-4 py-2 text-right text-sm font-medium ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Revenue
                       </th>
                       <th
                         className={`px-4 py-2 text-right text-sm font-medium ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Profit
                       </th>
                       <th
                         className={`px-4 py-2 text-right text-sm font-medium ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Margin %
@@ -599,32 +599,32 @@ export default function COGSAnalysisReport() {
                       <tr
                         key={batch.batch}
                         className={`border-b ${
-                          isDarkMode ? "border-gray-700" : "border-gray-200"
+                          isDarkMode ? 'border-gray-700' : 'border-gray-200'
                         } ${
                           index % 2 === 0
                             ? isDarkMode
-                              ? "bg-gray-800/50"
-                              : "bg-gray-50"
-                            : ""
+                              ? 'bg-gray-800/50'
+                              : 'bg-gray-50'
+                            : ''
                         }`}
                       >
                         <td
                           className={`px-4 py-2 text-sm font-medium ${
-                            isDarkMode ? "text-white" : "text-gray-900"
+                            isDarkMode ? 'text-white' : 'text-gray-900'
                           }`}
                         >
                           {batch.batch}
                         </td>
                         <td
                           className={`px-4 py-2 text-sm text-right ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
                           }`}
                         >
                           {formatCurrency(batch.cogs)}
                         </td>
                         <td
                           className={`px-4 py-2 text-sm text-right ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
                           }`}
                         >
                           {formatCurrency(batch.revenue)}
@@ -632,8 +632,8 @@ export default function COGSAnalysisReport() {
                         <td
                           className={`px-4 py-2 text-sm text-right font-medium ${
                             batch.profit >= 0
-                              ? "text-green-600"
-                              : "text-red-600"
+                              ? 'text-green-600'
+                              : 'text-red-600'
                           }`}
                         >
                           {formatCurrency(batch.profit)}
@@ -641,10 +641,10 @@ export default function COGSAnalysisReport() {
                         <td
                           className={`px-4 py-2 text-sm text-right font-medium ${
                             batch.margin >= 15
-                              ? "text-green-600"
+                              ? 'text-green-600'
                               : batch.margin >= 10
-                                ? "text-yellow-600"
-                                : "text-red-600"
+                                ? 'text-yellow-600'
+                                : 'text-red-600'
                           }`}
                         >
                           {formatPercent(batch.margin)}
@@ -667,18 +667,18 @@ function SummaryCard({ title, value, icon: Icon, color, isDarkMode }) {
   return (
     <div
       className={`rounded-xl border p-6 ${
-        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
       } hover:shadow-lg transition-all duration-300`}
     >
       <div className="flex items-center justify-between">
         <div>
           <p
-            className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
           >
             {title}
           </p>
           <p
-            className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             {value}
           </p>
@@ -696,11 +696,11 @@ function ChartCard({ title, children, isDarkMode }) {
   return (
     <div
       className={`rounded-xl border p-6 ${
-        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
       } hover:shadow-lg transition-all duration-300`}
     >
       <h3
-        className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+        className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
       >
         {title}
       </h3>

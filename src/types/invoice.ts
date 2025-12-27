@@ -120,8 +120,8 @@ export interface Invoice {
   advanceTaxInvoiceNumber?: string; // Tax invoice number issued for advance
 
   // Status fields
-  status: "draft" | "issued" | "cancelled" | "void";
-  paymentStatus: "unpaid" | "partially_paid" | "paid" | "overdue";
+  status: 'draft' | 'issued' | 'cancelled' | 'void';
+  paymentStatus: 'unpaid' | 'partially_paid' | 'paid' | 'overdue';
 
   // Items
   items: InvoiceItem[];
@@ -132,7 +132,7 @@ export interface Invoice {
   salesAgentName?: string;
   commissionPercentage?: number; // Phase 5: Commission rate (e.g., 10.00)
   commissionAmount?: number;
-  commissionStatus?: "PENDING" | "APPROVED" | "PAID" | "VOIDED"; // Phase 5: Commission status
+  commissionStatus?: 'PENDING' | 'APPROVED' | 'PAID' | 'VOIDED'; // Phase 5: Commission status
   commissionGracePeriodEndDate?: string | null; // Phase 5: Until when commission can be corrected
   commissionApprovedDate?: string | null; // Phase 5: When commission was approved
   commissionPayoutDate?: string | null; // Phase 5: When commission was paid
@@ -186,11 +186,11 @@ export interface Invoice {
  * Type guard to check if object is a valid Invoice
  */
 export function isInvoice(obj: unknown): obj is Invoice {
-  if (!obj || typeof obj !== "object") return false;
+  if (!obj || typeof obj !== 'object') return false;
   const record = obj as Record<string, unknown>;
   return (
-    typeof record.id === "number" &&
-    typeof record.invoiceNumber === "string" &&
-    typeof record.status === "string"
+    typeof record.id === 'number' &&
+    typeof record.invoiceNumber === 'string' &&
+    typeof record.status === 'string'
   );
 }

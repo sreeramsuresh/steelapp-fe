@@ -3,24 +3,24 @@
  * Complete business process: Quote → PO → Invoice → Delivery → Payment
  */
 
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import React from "react";
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
 import {
   findButtonByRole,
   assertSuccessToast,
   waitForApiCall,
-} from "../../../test/utils";
+} from '../../../test/utils';
 
-describe("E2E Workflow: Complete Sales Cycle", () => {
-  it("should execute full sales cycle: Quote → PO → Invoice → Delivery → Payment", async () => {
+describe('E2E Workflow: Complete Sales Cycle', () => {
+  it('should execute full sales cycle: Quote → PO → Invoice → Delivery → Payment', async () => {
     /**
      * STEP 1: Customer creates/accepts Quotation
      */
     const QuotationStep = () => {
       const [quote, setQuote] = React.useState({
-        status: "draft",
+        status: 'draft',
         items: [],
         total: 0,
       });
@@ -28,12 +28,12 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
       return (
         <>
           <div>Quotation Status: {quote.status}</div>
-          <button onClick={() => setQuote({ ...quote, status: "sent" })}>
+          <button onClick={() => setQuote({ ...quote, status: 'sent' })}>
             Send Quote
           </button>
           <button
-            onClick={() => setQuote({ ...quote, status: "accepted" })}
-            disabled={quote.status !== "sent"}
+            onClick={() => setQuote({ ...quote, status: 'accepted' })}
+            disabled={quote.status !== 'sent'}
           >
             Accept Quote
           </button>
@@ -46,14 +46,14 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
      */
     const PurchaseOrderStep = () => {
       const [po, setPO] = React.useState({
-        status: "draft",
-        fromQuoteId: "Q-001",
+        status: 'draft',
+        fromQuoteId: 'Q-001',
       });
 
       return (
         <>
           <div>Purchase Order Status: {po.status}</div>
-          <button onClick={() => setPO({ ...po, status: "confirmed" })}>
+          <button onClick={() => setPO({ ...po, status: 'confirmed' })}>
             Confirm PO
           </button>
         </>
@@ -65,14 +65,14 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
      */
     const InvoiceStep = () => {
       const [invoice, setInvoice] = React.useState({
-        status: "draft",
-        fromPOId: "PO-001",
+        status: 'draft',
+        fromPOId: 'PO-001',
       });
 
       return (
         <>
           <div>Invoice Status: {invoice.status}</div>
-          <button onClick={() => setInvoice({ ...invoice, status: "saved" })}>
+          <button onClick={() => setInvoice({ ...invoice, status: 'saved' })}>
             Save Invoice
           </button>
         </>
@@ -84,8 +84,8 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
      */
     const DeliveryStep = () => {
       const [delivery, setDelivery] = React.useState({
-        status: "draft",
-        fromInvoiceId: "INV-001",
+        status: 'draft',
+        fromInvoiceId: 'INV-001',
         stock: 100,
       });
 
@@ -97,7 +97,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
             onClick={() =>
               setDelivery({
                 ...delivery,
-                status: "delivered",
+                status: 'delivered',
                 stock: delivery.stock - 50,
               })
             }
@@ -113,7 +113,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
      */
     const PaymentStep = () => {
       const [payment, setPayment] = React.useState({
-        status: "unpaid",
+        status: 'unpaid',
         invoiceAmount: 5250,
       });
 
@@ -121,7 +121,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
 
       const handleRecordPayment = () => {
         setRecordedPayment(payment.invoiceAmount);
-        setPayment({ ...payment, status: "paid" });
+        setPayment({ ...payment, status: 'paid' });
       };
 
       return (
@@ -136,41 +136,41 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
 
     // Simulate complete workflow
     const CompleteWorkflow = () => {
-      const [step, setStep] = React.useState("quotation");
+      const [step, setStep] = React.useState('quotation');
 
       return (
         <>
-          {step === "quotation" && (
+          {step === 'quotation' && (
             <>
               <QuotationStep />
-              <button onClick={() => setStep("po")}>Proceed to PO</button>
+              <button onClick={() => setStep('po')}>Proceed to PO</button>
             </>
           )}
-          {step === "po" && (
+          {step === 'po' && (
             <>
               <PurchaseOrderStep />
-              <button onClick={() => setStep("invoice")}>
+              <button onClick={() => setStep('invoice')}>
                 Proceed to Invoice
               </button>
             </>
           )}
-          {step === "invoice" && (
+          {step === 'invoice' && (
             <>
               <InvoiceStep />
-              <button onClick={() => setStep("delivery")}>
+              <button onClick={() => setStep('delivery')}>
                 Proceed to Delivery
               </button>
             </>
           )}
-          {step === "delivery" && (
+          {step === 'delivery' && (
             <>
               <DeliveryStep />
-              <button onClick={() => setStep("payment")}>
+              <button onClick={() => setStep('payment')}>
                 Proceed to Payment
               </button>
             </>
           )}
-          {step === "payment" && (
+          {step === 'payment' && (
             <>
               <PaymentStep />
               <div className="alert-success">Sales Cycle Complete</div>
@@ -184,43 +184,43 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
 
     // Step 1: Quote
     expect(screen.getByText(/Quotation Status: draft/)).toBeInTheDocument();
-    let proceedBtn = findButtonByRole("Proceed to PO");
+    let proceedBtn = findButtonByRole('Proceed to PO');
     await userEvent.click(proceedBtn);
 
     // Step 2: PO
     expect(
       screen.getByText(/Purchase Order Status: draft/),
     ).toBeInTheDocument();
-    proceedBtn = findButtonByRole("Proceed to Invoice");
+    proceedBtn = findButtonByRole('Proceed to Invoice');
     await userEvent.click(proceedBtn);
 
     // Step 3: Invoice
     expect(screen.getByText(/Invoice Status: draft/)).toBeInTheDocument();
-    proceedBtn = findButtonByRole("Proceed to Delivery");
+    proceedBtn = findButtonByRole('Proceed to Delivery');
     await userEvent.click(proceedBtn);
 
     // Step 4: Delivery
     expect(screen.getByText(/Delivery Status: draft/)).toBeInTheDocument();
-    expect(screen.getByText("Stock Level: 100")).toBeInTheDocument();
-    proceedBtn = findButtonByRole("Proceed to Payment");
+    expect(screen.getByText('Stock Level: 100')).toBeInTheDocument();
+    proceedBtn = findButtonByRole('Proceed to Payment');
     await userEvent.click(proceedBtn);
 
     // Step 5: Payment
-    expect(screen.getByText("Invoice Amount: 5250")).toBeInTheDocument();
-    const paymentBtn = findButtonByRole("Record Payment");
+    expect(screen.getByText('Invoice Amount: 5250')).toBeInTheDocument();
+    const paymentBtn = findButtonByRole('Record Payment');
     await userEvent.click(paymentBtn);
 
     // Final verification
-    expect(screen.getByText("Status: paid")).toBeInTheDocument();
-    expect(screen.getByText("Paid Amount: 5250")).toBeInTheDocument();
+    expect(screen.getByText('Status: paid')).toBeInTheDocument();
+    expect(screen.getByText('Paid Amount: 5250')).toBeInTheDocument();
     expect(screen.getByText(/Sales Cycle Complete/)).toBeInTheDocument();
   });
 
-  it("should correctly handle multi-line items through entire sales cycle", async () => {
+  it('should correctly handle multi-line items through entire sales cycle', async () => {
     const MultiLineWorkflow = () => {
       const [items] = React.useState([
-        { sku: "SS-304-Sheet", qty: 50, unitPrice: 100 },
-        { sku: "SS-316-Pipe", qty: 30, unitPrice: 150 },
+        { sku: 'SS-304-Sheet', qty: 50, unitPrice: 100 },
+        { sku: 'SS-316-Pipe', qty: 30, unitPrice: 150 },
       ]);
 
       const subtotal = items.reduce(

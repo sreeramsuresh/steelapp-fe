@@ -1,159 +1,159 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
-import { lazy, Suspense } from "react";
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { lazy, Suspense } from 'react';
 
 // Layout Components
-import { CoreERPLayout } from "../layouts";
-const AnalyticsLayout = lazy(() => import("../layouts/AnalyticsLayout"));
+import { CoreERPLayout } from '../layouts';
+const AnalyticsLayout = lazy(() => import('../layouts/AnalyticsLayout'));
 
 // Loading Screen for Analytics
-import AnalyticsLoadingScreen from "./AnalyticsLoadingScreen";
+import AnalyticsLoadingScreen from './AnalyticsLoadingScreen';
 
 // Legacy Redirect Component
-import LegacyRedirect from "./LegacyRedirect";
+import LegacyRedirect from './LegacyRedirect';
 
 // Lazy loaded components
-const CustomerDetail = lazy(() => import("../pages/CustomerDetail"));
+const CustomerDetail = lazy(() => import('../pages/CustomerDetail'));
 
 // Core Components (converted to lazy loading)
-const Dashboard = lazy(() => import("./DashboardV2"));
-const InvoiceForm = lazy(() => import("../pages/InvoiceForm"));
+const Dashboard = lazy(() => import('./DashboardV2'));
+const InvoiceForm = lazy(() => import('../pages/InvoiceForm'));
 const InvoiceAllocationConfirmation = lazy(
-  () => import("./InvoiceAllocationConfirmation"),
+  () => import('./InvoiceAllocationConfirmation'),
 );
-const InvoiceList = lazy(() => import("../pages/InvoiceList"));
-const CustomerManagement = lazy(() => import("./CustomerManagement"));
-const SteelProducts = lazy(() => import("./SteelProducts"));
-const CompanySettings = lazy(() => import("./CompanySettings"));
-const SearchResults = lazy(() => import("./SearchResults"));
-const InventoryList = lazy(() => import("./InventoryList"));
-const DeliveryNoteList = lazy(() => import("../pages/DeliveryNoteList"));
-const DeliveryNoteForm = lazy(() => import("../pages/DeliveryNoteForm"));
-const DeliveryNoteDetails = lazy(() => import("../pages/DeliveryNoteDetails"));
-const PurchaseOrderForm = lazy(() => import("../pages/PurchaseOrderForm"));
-const Login = lazy(() => import("./Login"));
-const MarketingHome = lazy(() => import("../marketing/MarketingHome"));
-const MarketingProducts = lazy(() => import("../marketing/MarketingProducts"));
-const MarketingAbout = lazy(() => import("../marketing/MarketingAbout"));
-const MarketingContact = lazy(() => import("../marketing/MarketingContact"));
+const InvoiceList = lazy(() => import('../pages/InvoiceList'));
+const CustomerManagement = lazy(() => import('./CustomerManagement'));
+const SteelProducts = lazy(() => import('./SteelProducts'));
+const CompanySettings = lazy(() => import('./CompanySettings'));
+const SearchResults = lazy(() => import('./SearchResults'));
+const InventoryList = lazy(() => import('./InventoryList'));
+const DeliveryNoteList = lazy(() => import('../pages/DeliveryNoteList'));
+const DeliveryNoteForm = lazy(() => import('../pages/DeliveryNoteForm'));
+const DeliveryNoteDetails = lazy(() => import('../pages/DeliveryNoteDetails'));
+const PurchaseOrderForm = lazy(() => import('../pages/PurchaseOrderForm'));
+const Login = lazy(() => import('./Login'));
+const MarketingHome = lazy(() => import('../marketing/MarketingHome'));
+const MarketingProducts = lazy(() => import('../marketing/MarketingProducts'));
+const MarketingAbout = lazy(() => import('../marketing/MarketingAbout'));
+const MarketingContact = lazy(() => import('../marketing/MarketingContact'));
 const AccountStatementList = lazy(
-  () => import("../pages/AccountStatementList"),
+  () => import('../pages/AccountStatementList'),
 );
 const AccountStatementForm = lazy(
-  () => import("../pages/AccountStatementForm"),
+  () => import('../pages/AccountStatementForm'),
 );
 const AccountStatementDetails = lazy(
-  () => import("../pages/AccountStatementDetails"),
+  () => import('../pages/AccountStatementDetails'),
 );
-const QuotationList = lazy(() => import("../pages/QuotationList"));
-const QuotationForm = lazy(() => import("../pages/QuotationForm"));
-const CreditNoteList = lazy(() => import("../pages/CreditNoteList"));
-const CreditNoteForm = lazy(() => import("../pages/CreditNoteForm"));
-const CustomerPerspective = lazy(() => import("../pages/CustomerPerspective"));
-const ProtectedRoute = lazy(() => import("./ProtectedRoute"));
+const QuotationList = lazy(() => import('../pages/QuotationList'));
+const QuotationForm = lazy(() => import('../pages/QuotationForm'));
+const CreditNoteList = lazy(() => import('../pages/CreditNoteList'));
+const CreditNoteForm = lazy(() => import('../pages/CreditNoteForm'));
+const CustomerPerspective = lazy(() => import('../pages/CustomerPerspective'));
+const ProtectedRoute = lazy(() => import('./ProtectedRoute'));
 
 // Import/Export Components
 const ImportExportDashboard = lazy(
-  () => import("../pages/ImportExportDashboard"),
+  () => import('../pages/ImportExportDashboard'),
 );
-const ImportOrderForm = lazy(() => import("../pages/ImportOrderForm"));
-const ImportOrderDetails = lazy(() => import("../pages/ImportOrderDetails"));
-const ExportOrderForm = lazy(() => import("../pages/ExportOrderForm"));
-const ExportOrderDetails = lazy(() => import("../pages/ExportOrderDetails"));
-const TransitList = lazy(() => import("../pages/TransitList"));
+const ImportOrderForm = lazy(() => import('../pages/ImportOrderForm'));
+const ImportOrderDetails = lazy(() => import('../pages/ImportOrderDetails'));
+const ExportOrderForm = lazy(() => import('../pages/ExportOrderForm'));
+const ExportOrderDetails = lazy(() => import('../pages/ExportOrderDetails'));
+const TransitList = lazy(() => import('../pages/TransitList'));
 
 // Container Management Components
 const ContainerList = lazy(() =>
-  import("../pages/containers").then((m) => ({ default: m.ContainerList })),
+  import('../pages/containers').then((m) => ({ default: m.ContainerList })),
 );
 const ContainerForm = lazy(() =>
-  import("../pages/containers").then((m) => ({ default: m.ContainerForm })),
+  import('../pages/containers').then((m) => ({ default: m.ContainerForm })),
 );
 
 // Finance Components
-const FinanceDashboard = lazy(() => import("../pages/FinanceDashboard"));
-const Receivables = lazy(() => import("../pages/Receivables"));
-const Payables = lazy(() => import("../pages/Payables"));
+const FinanceDashboard = lazy(() => import('../pages/FinanceDashboard'));
+const Receivables = lazy(() => import('../pages/Receivables'));
+const Payables = lazy(() => import('../pages/Payables'));
 
 // Purchases Dashboard
-const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
+const PurchasesDashboard = lazy(() => import('../pages/PurchasesDashboard'));
 
 // Admin Components
-const AuditLogs = lazy(() => import("../pages/AuditLogs"));
+const AuditLogs = lazy(() => import('../pages/AuditLogs'));
 
 // Stock Movement Components
-const StockMovementPage = lazy(() => import("../pages/StockMovementPage"));
+const StockMovementPage = lazy(() => import('../pages/StockMovementPage'));
 
 // Warehouse Components
-const WarehouseList = lazy(() => import("../pages/warehouses/WarehouseList"));
+const WarehouseList = lazy(() => import('../pages/warehouses/WarehouseList'));
 const WarehouseDetail = lazy(
-  () => import("../pages/warehouses/WarehouseDetail"),
+  () => import('../pages/warehouses/WarehouseDetail'),
 );
 
 // Batch Analytics
-const BatchAnalyticsPage = lazy(() => import("../pages/BatchAnalyticsPage"));
+const BatchAnalyticsPage = lazy(() => import('../pages/BatchAnalyticsPage'));
 
 // Reports Components
-const ReportsDashboard = lazy(() => import("../pages/ReportsDashboard"));
+const ReportsDashboard = lazy(() => import('../pages/ReportsDashboard'));
 const ProfitAnalysisReport = lazy(
-  () => import("../pages/ProfitAnalysisReport"),
+  () => import('../pages/ProfitAnalysisReport'),
 );
-const PriceHistoryReport = lazy(() => import("../pages/PriceHistoryReport"));
-const StockMovementReport = lazy(() => import("../pages/StockMovementReport"));
-const VATReturnReport = lazy(() => import("./VATReturnReport"));
+const PriceHistoryReport = lazy(() => import('../pages/PriceHistoryReport'));
+const StockMovementReport = lazy(() => import('../pages/StockMovementReport'));
+const VATReturnReport = lazy(() => import('./VATReturnReport'));
 
 // Admin Components - Roles & Permissions
-const RolesPage = lazy(() => import("../pages/RolesPage"));
+const RolesPage = lazy(() => import('../pages/RolesPage'));
 
 // Purchases Components
 const SupplierBillList = lazy(() =>
-  import("../pages/purchases").then((m) => ({ default: m.SupplierBillList })),
+  import('../pages/purchases').then((m) => ({ default: m.SupplierBillList })),
 );
 const SupplierBillForm = lazy(() =>
-  import("../pages/purchases").then((m) => ({ default: m.SupplierBillForm })),
+  import('../pages/purchases').then((m) => ({ default: m.SupplierBillForm })),
 );
 const DebitNoteList = lazy(() =>
-  import("../pages/purchases").then((m) => ({ default: m.DebitNoteList })),
+  import('../pages/purchases').then((m) => ({ default: m.DebitNoteList })),
 );
 const DebitNoteForm = lazy(() =>
-  import("../pages/purchases").then((m) => ({ default: m.DebitNoteForm })),
+  import('../pages/purchases').then((m) => ({ default: m.DebitNoteForm })),
 );
 
 // Payments Components
 const AdvancePaymentList = lazy(() =>
-  import("../pages/payments").then((m) => ({ default: m.AdvancePaymentList })),
+  import('../pages/payments').then((m) => ({ default: m.AdvancePaymentList })),
 );
 const AdvancePaymentForm = lazy(() =>
-  import("../pages/payments").then((m) => ({ default: m.AdvancePaymentForm })),
+  import('../pages/payments').then((m) => ({ default: m.AdvancePaymentForm })),
 );
 
 // Price List Components
-const PriceListList = lazy(() => import("../pages/PriceListList"));
-const PriceListForm = lazy(() => import("../pages/PriceListForm"));
+const PriceListList = lazy(() => import('../pages/PriceListList'));
+const PriceListForm = lazy(() => import('../pages/PriceListForm'));
 
 // Commission Components
 const AgentCommissionDashboard = lazy(
-  () => import("../pages/AgentCommissionDashboard"),
+  () => import('../pages/AgentCommissionDashboard'),
 );
 // Phase 4 & 5 Dashboard Components
 const DeliveryVarianceDashboard = lazy(
-  () => import("../pages/DeliveryVarianceDashboard"),
+  () => import('../pages/DeliveryVarianceDashboard'),
 );
 const SupplierPerformanceDashboard = lazy(
-  () => import("../pages/SupplierPerformanceDashboard"),
+  () => import('../pages/SupplierPerformanceDashboard'),
 );
-const ARAgingReport = lazy(() => import("../pages/ARAgingReport"));
+const ARAgingReport = lazy(() => import('../pages/ARAgingReport'));
 
 // Masters Components
-const CountriesList = lazy(() => import("../pages/CountriesList"));
-const ExchangeRateList = lazy(() => import("../pages/ExchangeRateList"));
+const CountriesList = lazy(() => import('../pages/CountriesList'));
+const ExchangeRateList = lazy(() => import('../pages/ExchangeRateList'));
 
 // Supplier Components (Phase 4 Procurement)
 const SupplierList = lazy(() =>
-  import("../pages/SupplierList").then((m) => ({ default: m.SupplierList })),
+  import('../pages/SupplierList').then((m) => ({ default: m.SupplierList })),
 );
 const SupplierForm = lazy(() =>
-  import("../pages/SupplierForm").then((m) => ({ default: m.SupplierForm })),
+  import('../pages/SupplierForm').then((m) => ({ default: m.SupplierForm })),
 );
 
 // AnalyticsDashboard removed - /analytics now redirects to /analytics/dashboard
@@ -164,9 +164,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
   // Allow public marketing pages and login without auth
   const isMarketing =
-    location.pathname === "/" || location.pathname.startsWith("/marketing");
-  const isLoginPage = location.pathname === "/login";
-  const isAppRoute = location.pathname.startsWith("/app") || location.pathname.startsWith("/analytics");
+    location.pathname === '/' || location.pathname.startsWith('/marketing');
+  const isLoginPage = location.pathname === '/login';
+  const isAppRoute = location.pathname.startsWith('/app') || location.pathname.startsWith('/analytics');
 
   // Check if we need to redirect to login
   const needsAuth = !user && !isLoginPage && !isMarketing;
@@ -184,7 +184,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
   return (
     <div
-      className={`w-full ${isMarketing || isAppRoute ? "" : "p-2 sm:p-1 min-h-[calc(100vh-64px)]"} ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`w-full ${isMarketing || isAppRoute ? '' : 'p-2 sm:p-1 min-h-[calc(100vh-64px)]'} ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
     >
       <Suspense
         fallback={
@@ -204,7 +204,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           {/* Root - redirect to app or login */}
           <Route
             path="/"
-            element={<Navigate to={user ? "/app" : "/login"} replace />}
+            element={<Navigate to={user ? '/app' : '/login'} replace />}
           />
 
           {/* Marketing Pages */}
@@ -695,15 +695,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             {/* Inventory Analytics */}
             <Route path="batch-analytics" element={
               <ProtectedRoute user={user} requiredRoles={[
-                "warehouse_manager",
-                "inventory_controller",
-                "supervisor",
-                "manager",
-                "admin",
-                "super_admin",
-                "finance_manager",
-                "accountant",
-                "director",
+                'warehouse_manager',
+                'inventory_controller',
+                'supervisor',
+                'manager',
+                'admin',
+                'super_admin',
+                'finance_manager',
+                'accountant',
+                'director',
               ]}>
                 <BatchAnalyticsPage />
               </ProtectedRoute>

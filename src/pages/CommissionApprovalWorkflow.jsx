@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from 'react';
 import {
   CheckCircle,
   Clock,
@@ -6,11 +6,11 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-} from "lucide-react";
-import { commissionService } from "../services/commissionService";
-import { FormSelect } from "../components/ui/form-select";
-import { SelectItem } from "../components/ui/select";
-import { useTheme } from "../contexts/ThemeContext";
+} from 'lucide-react';
+import { commissionService } from '../services/commissionService';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function CommissionApprovalWorkflow() {
   const { isDarkMode } = useTheme();
@@ -19,7 +19,7 @@ export default function CommissionApprovalWorkflow() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
   const [salesPersonStats, setSalesPersonStats] = useState({});
 
   // Pagination state
@@ -68,9 +68,9 @@ export default function CommissionApprovalWorkflow() {
       }
     } catch (err) {
       const errorMsg =
-        err?.message || err?.toString?.() || String(err) || "Unknown error";
+        err?.message || err?.toString?.() || String(err) || 'Unknown error';
       setError(errorMsg);
-      console.error("[CommissionApprovalWorkflow] Error loading approvals:", {
+      console.error('[CommissionApprovalWorkflow] Error loading approvals:', {
         error: err,
         message: err?.message,
         stack: err?.stack,
@@ -84,7 +84,7 @@ export default function CommissionApprovalWorkflow() {
   const handleApproveCommission = async (commission) => {
     try {
       setUpdating(true);
-      const approvedByUserId = parseInt(localStorage.getItem("userId")) || 1;
+      const approvedByUserId = parseInt(localStorage.getItem('userId')) || 1;
 
       await commissionService.approveCommission(
         commission.invoiceId,
@@ -99,7 +99,7 @@ export default function CommissionApprovalWorkflow() {
       // Reload approvals
       setTimeout(() => {
         loadPendingApprovals();
-        setSuccessMessage("");
+        setSuccessMessage('');
       }, 2000);
     } catch (err) {
       setError(`Error approving commission: ${err.message}`);
@@ -129,35 +129,35 @@ export default function CommissionApprovalWorkflow() {
 
   return (
     <div
-      className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      className={`p-6 min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1
-              className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               ✅ Commission Approval Workflow
             </h1>
-            <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
               Manage and approve pending commission payouts
             </p>
           </div>
           <button
             onClick={loadPendingApprovals}
             disabled={loading}
-            className={`px-4 py-2 rounded-lg flex items-center space-x-2 disabled:opacity-50 ${isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}`}
+            className={`px-4 py-2 rounded-lg flex items-center space-x-2 disabled:opacity-50 ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
 
         {successMessage && (
           <div
-            className={`border rounded-lg p-4 mb-6 ${isDarkMode ? "bg-green-900 border-green-700" : "bg-green-50 border-green-200"}`}
+            className={`border rounded-lg p-4 mb-6 ${isDarkMode ? 'bg-green-900 border-green-700' : 'bg-green-50 border-green-200'}`}
           >
-            <p className={isDarkMode ? "text-green-200" : "text-green-800"}>
+            <p className={isDarkMode ? 'text-green-200' : 'text-green-800'}>
               {successMessage}
             </p>
           </div>
@@ -165,9 +165,9 @@ export default function CommissionApprovalWorkflow() {
 
         {error && (
           <div
-            className={`border rounded-lg p-4 mb-6 ${isDarkMode ? "bg-red-900 border-red-700" : "bg-red-50 border-red-200"}`}
+            className={`border rounded-lg p-4 mb-6 ${isDarkMode ? 'bg-red-900 border-red-700' : 'bg-red-50 border-red-200'}`}
           >
-            <p className={isDarkMode ? "text-red-200" : "text-red-800"}>
+            <p className={isDarkMode ? 'text-red-200' : 'text-red-800'}>
               {error}
             </p>
           </div>
@@ -176,10 +176,10 @@ export default function CommissionApprovalWorkflow() {
         {/* Stats Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div
-            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            className={`p-4 rounded-lg shadow ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
           >
             <div
-              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               Pending Approval
             </div>
@@ -188,10 +188,10 @@ export default function CommissionApprovalWorkflow() {
             </div>
           </div>
           <div
-            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            className={`p-4 rounded-lg shadow ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
           >
             <div
-              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               Total Pending Amount
             </div>
@@ -207,20 +207,20 @@ export default function CommissionApprovalWorkflow() {
             </div>
           </div>
           <div
-            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            className={`p-4 rounded-lg shadow ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
           >
             <div
-              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               Approval Deadline
             </div>
             <div className="text-lg font-bold text-red-600">15 days</div>
           </div>
           <div
-            className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+            className={`p-4 rounded-lg shadow ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
           >
             <div
-              className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               Sales Persons
             </div>
@@ -240,13 +240,13 @@ export default function CommissionApprovalWorkflow() {
 
         {/* Pending Approvals List */}
         <div
-          className={`rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          className={`rounded-lg shadow ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
         >
           <div
-            className={`p-6 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+            className={`p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
           >
             <h2
-              className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Pending Commissions
             </h2>
@@ -254,14 +254,14 @@ export default function CommissionApprovalWorkflow() {
 
           {pendingApprovals.length === 0 ? (
             <div
-              className={`p-6 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`p-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-500" />
               <p>No pending commissions - all approvals are up to date!</p>
             </div>
           ) : (
             <div
-              className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+              className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
             >
               {paginatedApprovals.map((commission, idx) => {
                 // Handle both snake_case and camelCase field names
@@ -287,21 +287,21 @@ export default function CommissionApprovalWorkflow() {
                     ? daysUntilDeadline
                     : gracePeriodEndDate
                       ? Math.ceil(
-                          (gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24),
-                        )
+                        (gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24),
+                      )
                       : 0;
 
                 return (
                   <div
                     key={idx}
-                    className={`p-4 cursor-pointer transition ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
+                    className={`p-4 cursor-pointer transition ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                     onClick={() => setSelectedCommission(commission)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div
-                            className={`font-semibold text-lg ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
                             Invoice {invoiceNumber}
                           </div>
@@ -310,21 +310,21 @@ export default function CommissionApprovalWorkflow() {
                           </span>
                         </div>
                         <div
-                          className={`grid grid-cols-3 gap-4 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          className={`grid grid-cols-3 gap-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           <div>
                             <span className="font-semibold">Amount:</span> $
                             {commissionAmount?.toFixed(2)}
                           </div>
                           <div>
-                            <span className="font-semibold">Accrued:</span>{" "}
+                            <span className="font-semibold">Accrued:</span>{' '}
                             {new Date().toLocaleDateString()}
                           </div>
                           <div
                             className={
                               daysRemaining < 3
-                                ? "text-red-600 font-semibold"
-                                : ""
+                                ? 'text-red-600 font-semibold'
+                                : ''
                             }
                           >
                             <Clock className="inline w-4 h-4 mr-1" />
@@ -342,7 +342,7 @@ export default function CommissionApprovalWorkflow() {
                           disabled={updating}
                           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 transition"
                         >
-                          {updating ? "Approving..." : "Approve"}
+                          {updating ? 'Approving...' : 'Approve'}
                         </button>
                       </div>
                     </div>
@@ -355,13 +355,13 @@ export default function CommissionApprovalWorkflow() {
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div
-              className={`px-6 py-4 border-t flex items-center justify-between ${isDarkMode ? "border-gray-700 bg-gray-700" : "border-gray-200 bg-gray-50"}`}
+              className={`px-6 py-4 border-t flex items-center justify-between ${isDarkMode ? 'border-gray-700 bg-gray-700' : 'border-gray-200 bg-gray-50'}`}
             >
               <div className="flex items-center space-x-2">
                 <span
-                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                 >
-                  Showing {(currentPage - 1) * pageSize + 1} to{" "}
+                  Showing {(currentPage - 1) * pageSize + 1} to{' '}
                   {Math.min(currentPage * pageSize, totalCount)} of {totalCount}
                 </span>
                 <FormSelect
@@ -383,12 +383,12 @@ export default function CommissionApprovalWorkflow() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-600 text-gray-400 disabled:text-gray-500" : "hover:bg-gray-200 text-gray-600 disabled:text-gray-300"} disabled:cursor-not-allowed`}
+                  className={`p-2 rounded ${isDarkMode ? 'hover:bg-gray-600 text-gray-400 disabled:text-gray-500' : 'hover:bg-gray-200 text-gray-600 disabled:text-gray-300'} disabled:cursor-not-allowed`}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <span
-                  className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Page {currentPage} of {totalPages}
                 </span>
@@ -397,7 +397,7 @@ export default function CommissionApprovalWorkflow() {
                     setCurrentPage((p) => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-600 text-gray-400 disabled:text-gray-500" : "hover:bg-gray-200 text-gray-600 disabled:text-gray-300"} disabled:cursor-not-allowed`}
+                  className={`p-2 rounded ${isDarkMode ? 'hover:bg-gray-600 text-gray-400 disabled:text-gray-500' : 'hover:bg-gray-200 text-gray-600 disabled:text-gray-300'} disabled:cursor-not-allowed`}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -423,13 +423,13 @@ export default function CommissionApprovalWorkflow() {
             return (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                 <div
-                  className={`rounded-lg shadow-lg max-w-2xl w-full ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+                  className={`rounded-lg shadow-lg max-w-2xl w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                 >
                   <div
-                    className={`p-6 border-b flex justify-between items-center ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                    className={`p-6 border-b flex justify-between items-center ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                   >
                     <h2
-                      className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       Commission Details
                     </h2>
@@ -437,8 +437,8 @@ export default function CommissionApprovalWorkflow() {
                       onClick={() => setSelectedCommission(null)}
                       className={
                         isDarkMode
-                          ? "text-gray-400 hover:text-gray-300"
-                          : "text-gray-500 hover:text-gray-700"
+                          ? 'text-gray-400 hover:text-gray-300'
+                          : 'text-gray-500 hover:text-gray-700'
                       }
                     >
                       ✕
@@ -449,19 +449,19 @@ export default function CommissionApprovalWorkflow() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label
-                          className={`block text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Invoice
                         </label>
                         <p
-                          className={`text-lg ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                          className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                         >
                           {invoiceNumber}
                         </p>
                       </div>
                       <div>
                         <label
-                          className={`block text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Status
                         </label>
@@ -471,7 +471,7 @@ export default function CommissionApprovalWorkflow() {
                       </div>
                       <div>
                         <label
-                          className={`block text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Commission Amount
                         </label>
@@ -481,28 +481,28 @@ export default function CommissionApprovalWorkflow() {
                       </div>
                       <div>
                         <label
-                          className={`block text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Grace Period End
                         </label>
                         <p
                           className={
-                            isDarkMode ? "text-gray-300" : "text-gray-900"
+                            isDarkMode ? 'text-gray-300' : 'text-gray-900'
                           }
                         >
                           {gracePeriodEndDate
                             ? new Date(gracePeriodEndDate).toLocaleDateString()
-                            : "N/A"}
+                            : 'N/A'}
                         </p>
                       </div>
                     </div>
 
                     {/* Approval Workflow */}
                     <div
-                      className={`border-t pt-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                      className={`border-t pt-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                     >
                       <h3
-                        className={`font-semibold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        className={`font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                       >
                         Approval Workflow
                       </h3>
@@ -511,12 +511,12 @@ export default function CommissionApprovalWorkflow() {
                           <Clock className="w-5 h-5 text-yellow-600" />
                           <div>
                             <p
-                              className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                              className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                             >
                               1. Pending Approval
                             </p>
                             <p
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                             >
                               Commission accrued, waiting for manager approval
                             </p>
@@ -526,12 +526,12 @@ export default function CommissionApprovalWorkflow() {
                           <CheckCircle className="w-5 h-5 text-gray-400" />
                           <div>
                             <p
-                              className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                              className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                             >
                               2. Approved
                             </p>
                             <p
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                             >
                               Manager approved, forwarded to finance
                             </p>
@@ -541,12 +541,12 @@ export default function CommissionApprovalWorkflow() {
                           <DollarSign className="w-5 h-5 text-gray-400" />
                           <div>
                             <p
-                              className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                              className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                             >
                               3. Paid
                             </p>
                             <p
-                              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                             >
                               Finance processed payment
                             </p>
@@ -557,11 +557,11 @@ export default function CommissionApprovalWorkflow() {
                   </div>
 
                   <div
-                    className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                    className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                   >
                     <button
                       onClick={() => setSelectedCommission(null)}
-                      className={`px-4 py-2 border rounded ${isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-300 hover:bg-gray-50 text-gray-700"}`}
+                      className={`px-4 py-2 border rounded ${isDarkMode ? 'border-gray-600 hover:bg-gray-700 text-gray-300' : 'border-gray-300 hover:bg-gray-50 text-gray-700'}`}
                     >
                       Close
                     </button>
@@ -572,7 +572,7 @@ export default function CommissionApprovalWorkflow() {
                       disabled={updating}
                       className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                     >
-                      {updating ? "Approving..." : "Approve Commission"}
+                      {updating ? 'Approving...' : 'Approve Commission'}
                     </button>
                   </div>
                 </div>

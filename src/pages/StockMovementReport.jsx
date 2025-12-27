@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Search, Download, FileText } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Search, Download, FileText } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -7,21 +7,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import {
   stockMovementService,
   MOVEMENT_TYPES,
-} from "../services/stockMovementService";
-import { warehouseService } from "../services/warehouseService";
-import { productService } from "../services/dataService";
-import toast from "react-hot-toast";
-import { toUAETime } from "../utils/timezone";
+} from '../services/stockMovementService';
+import { warehouseService } from '../services/warehouseService';
+import { productService } from '../services/dataService';
+import toast from 'react-hot-toast';
+import { toUAETime } from '../utils/timezone';
 
 const PROCUREMENT_CHANNELS = [
-  { value: "ALL", label: "All Channels" },
-  { value: "LOCAL", label: "Local" },
-  { value: "IMPORTED", label: "Imported" },
+  { value: 'ALL', label: 'All Channels' },
+  { value: 'LOCAL', label: 'Local' },
+  { value: 'IMPORTED', label: 'Imported' },
 ];
 
 export default function StockMovementReport() {
@@ -31,12 +31,12 @@ export default function StockMovementReport() {
   const [products, setProducts] = useState([]);
 
   // Filters
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [selectedWarehouse, setSelectedWarehouse] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedMovementTypes, setSelectedMovementTypes] = useState([]);
-  const [procurementChannel, setProcurementChannel] = useState("ALL");
+  const [procurementChannel, setProcurementChannel] = useState('ALL');
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -62,8 +62,8 @@ export default function StockMovementReport() {
       const response = await warehouseService.getAll();
       setWarehouses(response.data || []);
     } catch (error) {
-      console.error("Error fetching warehouses:", error);
-      toast.error("Failed to load warehouses");
+      console.error('Error fetching warehouses:', error);
+      toast.error('Failed to load warehouses');
     }
   };
 
@@ -72,14 +72,14 @@ export default function StockMovementReport() {
       const response = await productService.getAll();
       setProducts(response.data || []);
     } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Failed to load products");
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
     }
   };
 
   const fetchMovements = async (pageNum = 1) => {
     if (!dateFrom || !dateTo) {
-      toast.error("Please select both start and end dates");
+      toast.error('Please select both start and end dates');
       return;
     }
 
@@ -95,7 +95,7 @@ export default function StockMovementReport() {
         productId: selectedProduct || undefined,
         movementType:
           selectedMovementTypes.length > 0
-            ? selectedMovementTypes.join(",")
+            ? selectedMovementTypes.join(',')
             : undefined,
       };
 
@@ -104,7 +104,7 @@ export default function StockMovementReport() {
       let filteredMovements = response.data || [];
 
       // Apply procurement channel filter if needed (client-side for now)
-      if (procurementChannel !== "ALL") {
+      if (procurementChannel !== 'ALL') {
         filteredMovements = filteredMovements.filter((m) => {
           // This would require product procurement info - placeholder logic
           // In reality, you'd add this to the backend filter
@@ -120,8 +120,8 @@ export default function StockMovementReport() {
       // Calculate summary
       calculateSummary(filteredMovements);
     } catch (error) {
-      console.error("Error fetching stock movements:", error);
-      toast.error("Failed to load stock movements");
+      console.error('Error fetching stock movements:', error);
+      toast.error('Failed to load stock movements');
     } finally {
       setLoading(false);
     }
@@ -137,13 +137,13 @@ export default function StockMovementReport() {
       const cost = movement.totalCost || 0;
 
       if (
-        movement.movementType === "IN" ||
-        movement.movementType === "TRANSFER_IN"
+        movement.movementType === 'IN' ||
+        movement.movementType === 'TRANSFER_IN'
       ) {
         totalIn += qty;
       } else if (
-        movement.movementType === "OUT" ||
-        movement.movementType === "TRANSFER_OUT"
+        movement.movementType === 'OUT' ||
+        movement.movementType === 'TRANSFER_OUT'
       ) {
         totalOut += qty;
       }
@@ -170,77 +170,77 @@ export default function StockMovementReport() {
 
   const handleExportCSV = () => {
     if (movements.length === 0) {
-      toast.warning("No data to export");
+      toast.warning('No data to export');
       return;
     }
 
     try {
       // CSV Headers
       const headers = [
-        "Date",
-        "Product",
-        "SKU",
-        "Batch #",
-        "Type",
-        "Quantity",
-        "UOM",
-        "Unit Cost",
-        "Total Cost",
-        "Reference",
-        "Warehouse",
-        "Notes",
+        'Date',
+        'Product',
+        'SKU',
+        'Batch #',
+        'Type',
+        'Quantity',
+        'UOM',
+        'Unit Cost',
+        'Total Cost',
+        'Reference',
+        'Warehouse',
+        'Notes',
       ];
 
       // CSV Rows
       const rows = movements.map((m) => [
-        toUAETime(m.movementDate || m.createdAt, { format: "datetime" }),
-        m.productName || m.productDisplayName || "",
-        m.productSku || "",
-        m.batchNumber || "",
+        toUAETime(m.movementDate || m.createdAt, { format: 'datetime' }),
+        m.productName || m.productDisplayName || '',
+        m.productSku || '',
+        m.batchNumber || '',
         MOVEMENT_TYPES[m.movementType]?.label || m.movementType,
-        m.quantity?.toFixed(2) || "0.00",
-        m.unit || "KG",
-        m.unitCost?.toFixed(2) || "0.00",
-        m.totalCost?.toFixed(2) || "0.00",
-        m.referenceNumber || "",
-        m.warehouseName || "",
-        m.notes || "",
+        m.quantity?.toFixed(2) || '0.00',
+        m.unit || 'KG',
+        m.unitCost?.toFixed(2) || '0.00',
+        m.totalCost?.toFixed(2) || '0.00',
+        m.referenceNumber || '',
+        m.warehouseName || '',
+        m.notes || '',
       ]);
 
       // Build CSV content
       const csvContent = [
-        headers.join(","),
-        ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
-      ].join("\n");
+        headers.join(','),
+        ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+      ].join('\n');
 
       // Download
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
+      link.setAttribute('href', url);
       link.setAttribute(
-        "download",
+        'download',
         `stock-movements-${dateFrom}-to-${dateTo}.csv`,
       );
-      link.style.visibility = "hidden";
+      link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success("CSV exported successfully");
+      toast.success('CSV exported successfully');
     } catch (error) {
-      console.error("Error exporting CSV:", error);
-      toast.error("Failed to export CSV");
+      console.error('Error exporting CSV:', error);
+      toast.error('Failed to export CSV');
     }
   };
 
   const handleExportPDF = () => {
-    toast.info("PDF export coming soon");
+    toast.info('PDF export coming soon');
     // Placeholder for PDF export functionality
   };
 
   const getMovementTypeColor = (type) => {
-    return MOVEMENT_TYPES[type]?.color || "default";
+    return MOVEMENT_TYPES[type]?.color || 'default';
   };
 
   const getMovementTypeLabel = (type) => {
@@ -302,7 +302,7 @@ export default function StockMovementReport() {
                   {product.uniqueName ||
                     product.displayName ||
                     product.name ||
-                    "N/A"}
+                    'N/A'}
                 </option>
               ))}
             </select>
@@ -414,10 +414,10 @@ export default function StockMovementReport() {
             </p>
             <p
               className={`text-2xl font-bold ${
-                summary.netMovement >= 0 ? "text-green-600" : "text-red-600"
+                summary.netMovement >= 0 ? 'text-green-600' : 'text-red-600'
               }`}
             >
-              {summary.netMovement >= 0 ? "+" : ""}
+              {summary.netMovement >= 0 ? '+' : ''}
               {summary.netMovement.toFixed(2)} KG
             </p>
           </div>
@@ -477,7 +477,7 @@ export default function StockMovementReport() {
                         {toUAETime(
                           movement.movementDate || movement.createdAt,
                           {
-                            format: "date",
+                            format: 'date',
                           },
                         )}
                       </div>
@@ -485,7 +485,7 @@ export default function StockMovementReport() {
                         {toUAETime(
                           movement.movementDate || movement.createdAt,
                           {
-                            format: "time",
+                            format: 'time',
                           },
                         )}
                       </div>
@@ -494,7 +494,7 @@ export default function StockMovementReport() {
                       <div className="font-medium text-sm">
                         {movement.productName ||
                           movement.productDisplayName ||
-                          "N/A"}
+                          'N/A'}
                       </div>
                       {movement.productSku && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -504,7 +504,7 @@ export default function StockMovementReport() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {movement.batchNumber || "-"}
+                        {movement.batchNumber || '-'}
                       </div>
                       {movement.coilNumber && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -516,9 +516,9 @@ export default function StockMovementReport() {
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                           getMovementTypeColor(movement.movementType) ===
-                          "success"
-                            ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
-                            : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200"
+                          'success'
+                            ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200'
                         }`}
                       >
                         {getMovementTypeLabel(movement.movementType)}
@@ -526,15 +526,15 @@ export default function StockMovementReport() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="font-medium text-sm">
-                        {movement.quantity?.toFixed(2) || "0.00"}{" "}
-                        {movement.unit || "KG"}
+                        {movement.quantity?.toFixed(2) || '0.00'}{' '}
+                        {movement.unit || 'KG'}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="text-sm">
                         {movement.unitCost
                           ? `AED ${movement.unitCost.toFixed(2)}`
-                          : "-"}
+                          : '-'}
                       </div>
                       {movement.totalCost && movement.totalCost > 0 && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -544,7 +544,7 @@ export default function StockMovementReport() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {movement.referenceNumber || "-"}
+                        {movement.referenceNumber || '-'}
                       </div>
                       {movement.referenceType && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -554,7 +554,7 @@ export default function StockMovementReport() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {movement.warehouseName || "N/A"}
+                        {movement.warehouseName || 'N/A'}
                       </div>
                       {movement.destinationWarehouseName && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -587,8 +587,8 @@ export default function StockMovementReport() {
                       onClick={() => handlePageChange(null, pageNum)}
                       className={`px-3 py-1 rounded text-sm ${
                         page === pageNum
-                          ? "bg-blue-600 text-white"
-                          : "border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          ? 'bg-blue-600 text-white'
+                          : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       {pageNum}

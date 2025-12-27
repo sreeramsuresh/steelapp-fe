@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 /**
  * Custom hook for showing professional confirmation dialogs
@@ -23,36 +23,36 @@ import { useState, useCallback } from "react";
 export const useConfirm = () => {
   const [dialogState, setDialogState] = useState({
     open: false,
-    title: "",
-    message: "",
-    confirmText: "Confirm",
-    cancelText: "Cancel",
-    variant: "warning",
+    title: '',
+    message: '',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    variant: 'warning',
     resolve: null,
   });
 
   const confirm = useCallback((options) => {
     return new Promise((resolve) => {
       // Handle simple string message
-      if (typeof options === "string") {
+      if (typeof options === 'string') {
         setDialogState({
           open: true,
-          title: "Confirm Action",
+          title: 'Confirm Action',
           message: options,
-          confirmText: "OK",
-          cancelText: "Cancel",
-          variant: "warning",
+          confirmText: 'OK',
+          cancelText: 'Cancel',
+          variant: 'warning',
           resolve,
         });
       } else {
         // Handle advanced options object
         setDialogState({
           open: true,
-          title: options.title || "Confirm Action",
-          message: options.message || options.description || "",
-          confirmText: options.confirmText || options.okText || "Confirm",
-          cancelText: options.cancelText || "Cancel",
-          variant: options.variant || options.type || "warning",
+          title: options.title || 'Confirm Action',
+          message: options.message || options.description || '',
+          confirmText: options.confirmText || options.okText || 'Confirm',
+          cancelText: options.cancelText || 'Cancel',
+          variant: options.variant || options.type || 'warning',
           resolve,
         });
       }

@@ -5,7 +5,7 @@
  * Dashboard for stock reconciliation and audit trail
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   FileText,
   History,
@@ -14,35 +14,35 @@ import {
   RotateCcw,
   Loader2,
   X,
-} from "lucide-react";
-import { stockMovementService } from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
+} from 'lucide-react';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return "-";
+  if (!dateValue) return '-';
   const date =
-    typeof dateValue === "object" && dateValue.seconds
+    typeof dateValue === 'object' && dateValue.seconds
       ? new Date(dateValue.seconds * 1000)
       : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 };
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = "KG") => {
+const formatQuantity = (qty, unit = 'KG') => {
   const num = parseFloat(qty) || 0;
-  const sign = num >= 0 ? "" : "-";
-  return `${sign}${Math.abs(num).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  const sign = num >= 0 ? '' : '-';
+  return `${sign}${Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -59,9 +59,9 @@ const TabPanel = ({ children, value, index, ...other }) => (
  */
 const getStatusBadgeClasses = (color) => {
   const colorMap = {
-    success: "bg-green-500/20 text-green-400 border-green-500/30",
-    warning: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    error: "bg-red-500/20 text-red-400 border-red-500/30",
+    success: 'bg-green-500/20 text-green-400 border-green-500/30',
+    warning: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    error: 'bg-red-500/20 text-red-400 border-red-500/30',
   };
   return colorMap[color] || colorMap.success;
 };
@@ -69,7 +69,7 @@ const getStatusBadgeClasses = (color) => {
 const ReconciliationDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
 
   // Reconciliation state
@@ -84,8 +84,8 @@ const ReconciliationDashboard = () => {
   const [auditPage, setAuditPage] = useState(0);
   const [auditRowsPerPage, setAuditRowsPerPage] = useState(50);
   const [auditTotalCount, setAuditTotalCount] = useState(0);
-  const [auditStartDate, setAuditStartDate] = useState("");
-  const [auditEndDate, setAuditEndDate] = useState("");
+  const [auditStartDate, setAuditStartDate] = useState('');
+  const [auditEndDate, setAuditEndDate] = useState('');
 
   // Load warehouses
   useEffect(() => {
@@ -100,7 +100,7 @@ const ReconciliationDashboard = () => {
           setSelectedWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error("Error loading warehouses:", err);
+        console.error('Error loading warehouses:', err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -120,9 +120,9 @@ const ReconciliationDashboard = () => {
         await stockMovementService.getReconciliationReport(selectedWarehouseId);
       setReconciliationData(result);
     } catch (err) {
-      console.error("Error loading reconciliation:", err);
+      console.error('Error loading reconciliation:', err);
       setReconciliationError(
-        err.message || "Failed to load reconciliation report",
+        err.message || 'Failed to load reconciliation report',
       );
     } finally {
       setLoadingReconciliation(false);
@@ -148,8 +148,8 @@ const ReconciliationDashboard = () => {
         result.pagination?.totalItems || result.entries?.length || 0,
       );
     } catch (err) {
-      console.error("Error loading audit trail:", err);
-      setAuditError(err.message || "Failed to load audit trail");
+      console.error('Error loading audit trail:', err);
+      setAuditError(err.message || 'Failed to load audit trail');
     } finally {
       setLoadingAudit(false);
     }
@@ -204,8 +204,8 @@ const ReconciliationDashboard = () => {
             onClick={() => setActiveTab(0)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 0
-                ? "text-teal-400 border-b-2 border-teal-400 bg-[#252a30]"
-                : "text-gray-400 hover:text-gray-300 hover:bg-[#252a30]"
+                ? 'text-teal-400 border-b-2 border-teal-400 bg-[#252a30]'
+                : 'text-gray-400 hover:text-gray-300 hover:bg-[#252a30]'
             }`}
           >
             <FileText size={18} />
@@ -215,8 +215,8 @@ const ReconciliationDashboard = () => {
             onClick={() => setActiveTab(1)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 1
-                ? "text-teal-400 border-b-2 border-teal-400 bg-[#252a30]"
-                : "text-gray-400 hover:text-gray-300 hover:bg-[#252a30]"
+                ? 'text-teal-400 border-b-2 border-teal-400 bg-[#252a30]'
+                : 'text-gray-400 hover:text-gray-300 hover:bg-[#252a30]'
             }`}
           >
             <History size={18} />
@@ -238,7 +238,7 @@ const ReconciliationDashboard = () => {
             <option value="">Select Warehouse</option>
             {warehouses.map((wh) => (
               <option key={wh.id} value={wh.id}>
-                {wh.name} {wh.code ? `(${wh.code})` : ""}
+                {wh.name} {wh.code ? `(${wh.code})` : ''}
               </option>
             ))}
           </select>
@@ -295,8 +295,8 @@ const ReconciliationDashboard = () => {
               <div
                 className={`rounded-xl border p-4 ${
                   reconciliationData.discrepancyCount > 0
-                    ? "bg-yellow-500/10 border-yellow-500/30"
-                    : "bg-green-500/10 border-green-500/30"
+                    ? 'bg-yellow-500/10 border-yellow-500/30'
+                    : 'bg-green-500/10 border-green-500/30'
                 }`}
               >
                 <div className="text-sm text-gray-400 mb-1">Discrepancies</div>
@@ -361,14 +361,14 @@ const ReconciliationDashboard = () => {
                           <tr
                             key={idx}
                             className={`hover:bg-[#252a30] ${
-                              hasDiscrepancy ? "bg-yellow-500/5" : ""
+                              hasDiscrepancy ? 'bg-yellow-500/5' : ''
                             }`}
                           >
                             <td className="px-4 py-3 text-sm text-white">
                               {item.productName}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-300">
-                              {item.productSku || "-"}
+                              {item.productSku || '-'}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-300 text-right">
                               {formatQuantity(item.systemQuantity)}
@@ -380,8 +380,8 @@ const ReconciliationDashboard = () => {
                               <span
                                 className={`${
                                   hasDiscrepancy
-                                    ? "text-red-400 font-bold"
-                                    : "text-green-400"
+                                    ? 'text-red-400 font-bold'
+                                    : 'text-green-400'
                                 }`}
                               >
                                 {formatQuantity(discrepancy)}
@@ -393,10 +393,10 @@ const ReconciliationDashboard = () => {
                             <td className="px-4 py-3 text-sm">
                               <span
                                 className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
-                                  hasDiscrepancy ? "warning" : "success",
+                                  hasDiscrepancy ? 'warning' : 'success',
                                 )}`}
                               >
-                                {hasDiscrepancy ? "Discrepancy" : "OK"}
+                                {hasDiscrepancy ? 'Discrepancy' : 'OK'}
                               </span>
                             </td>
                           </tr>
@@ -551,7 +551,7 @@ const ReconciliationDashboard = () => {
                     const change = parseFloat(entry.quantityChange) || 0;
                     const isIncrease =
                       change > 0 ||
-                      ["IN", "TRANSFER_IN", "RELEASE"].includes(entry.action);
+                      ['IN', 'TRANSFER_IN', 'RELEASE'].includes(entry.action);
 
                     return (
                       <tr key={entry.id} className="hover:bg-[#252a30]">
@@ -561,7 +561,7 @@ const ReconciliationDashboard = () => {
                         <td className="px-4 py-3 text-sm">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
-                              isIncrease ? "success" : "error",
+                              isIncrease ? 'success' : 'error',
                             )}`}
                           >
                             {entry.action}
@@ -571,15 +571,15 @@ const ReconciliationDashboard = () => {
                           {entry.productName}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-300">
-                          {entry.warehouseName || "-"}
+                          {entry.warehouseName || '-'}
                         </td>
                         <td className="px-4 py-3 text-sm text-right font-medium">
                           <span
                             className={
-                              isIncrease ? "text-green-400" : "text-red-400"
+                              isIncrease ? 'text-green-400' : 'text-red-400'
                             }
                           >
-                            {isIncrease ? "+" : "-"}
+                            {isIncrease ? '+' : '-'}
                             {formatQuantity(Math.abs(change))}
                           </span>
                         </td>
@@ -590,10 +590,10 @@ const ReconciliationDashboard = () => {
                           {formatQuantity(entry.balanceAfter)}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-300">
-                          {entry.referenceNumber || entry.referenceType || "-"}
+                          {entry.referenceNumber || entry.referenceType || '-'}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-300">
-                          {entry.userName || "-"}
+                          {entry.userName || '-'}
                         </td>
                       </tr>
                     );
@@ -620,7 +620,7 @@ const ReconciliationDashboard = () => {
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-400">
                 {auditPage * auditRowsPerPage + 1}-
-                {Math.min((auditPage + 1) * auditRowsPerPage, auditTotalCount)}{" "}
+                {Math.min((auditPage + 1) * auditRowsPerPage, auditTotalCount)}{' '}
                 of {auditTotalCount}
               </span>
               <div className="flex gap-1">

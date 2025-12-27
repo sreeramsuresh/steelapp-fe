@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
-import AppRouter from "./components/AppRouter";
-import NotificationProvider from "./components/NotificationProvider";
-import { NotificationCenterProvider } from "./contexts/NotificationCenterContext";
-import { ApiHealthProvider } from "./contexts/ApiHealthContext";
-import { authService } from "./services/axiosAuthService";
-import ApiStatusBanner from "./components/common/ApiStatusBanner";
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import AppRouter from './components/AppRouter';
+import NotificationProvider from './components/NotificationProvider';
+import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
+import { ApiHealthProvider } from './contexts/ApiHealthContext';
+import { authService } from './services/axiosAuthService';
+import ApiStatusBanner from './components/common/ApiStatusBanner';
 
 // Initialize auth service on app load
 authService.initialize();
@@ -32,10 +32,10 @@ const ThemedApp = ({ isLoading, user, handleSaveInvoice, onLoginSuccess }) => {
   if (isLoading) {
     return (
       <div
-        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-        <span className={isDarkMode ? "text-white" : "text-gray-900"}>
+        <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
           Loading ULTIMATE STEELS...
         </span>
       </div>
@@ -70,7 +70,7 @@ function App() {
           setUser(null);
         }
       } catch (error) {
-        if (mounted) console.error("Failed to initialize app:", error);
+        if (mounted) console.error('Failed to initialize app:', error);
       } finally {
         if (mounted) {
           setLoading(false);

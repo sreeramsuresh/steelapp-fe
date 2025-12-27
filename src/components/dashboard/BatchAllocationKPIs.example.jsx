@@ -5,8 +5,8 @@
  * into your Stock Dashboard or any other dashboard page.
  */
 
-import { useState } from "react";
-import BatchAllocationKPIs from "./BatchAllocationKPIs";
+import { useState } from 'react';
+import BatchAllocationKPIs from './BatchAllocationKPIs';
 
 // Example 1: Basic usage
 function StockDashboard() {

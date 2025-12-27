@@ -38,29 +38,29 @@
  * @returns {JSX.Element} Customer detail page with tabbed interface
  */
 
-import { useState, useEffect, Suspense, lazy } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
-import { customerService } from "../services/customerService";
-import { FaHome, FaUsers, FaArrowLeft, FaSpinner } from "react-icons/fa";
-import CustomerOverviewTab from "../components/customers/tabs/CustomerOverviewTab";
-import { useCustomerTabPermissions } from "../hooks/useCustomerTabPermissions";
+import { useState, useEffect, Suspense, lazy } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { customerService } from '../services/customerService';
+import { FaHome, FaUsers, FaArrowLeft, FaSpinner } from 'react-icons/fa';
+import CustomerOverviewTab from '../components/customers/tabs/CustomerOverviewTab';
+import { useCustomerTabPermissions } from '../hooks/useCustomerTabPermissions';
 
 // Lazy-loaded tab components for performance optimization
 const CustomerARAgingDetail = lazy(
-  () => import("../components/customers/CustomerARAgingDetail"),
+  () => import('../components/customers/CustomerARAgingDetail'),
 );
 const CustomerInvoicesTab = lazy(
-  () => import("../components/customers/tabs/CustomerInvoicesTab"),
+  () => import('../components/customers/tabs/CustomerInvoicesTab'),
 );
 const CustomerPaymentsTab = lazy(
-  () => import("../components/customers/tabs/CustomerPaymentsTab"),
+  () => import('../components/customers/tabs/CustomerPaymentsTab'),
 );
 const CustomerCreditNotesTab = lazy(
-  () => import("../components/customers/tabs/CustomerCreditNotesTab"),
+  () => import('../components/customers/tabs/CustomerCreditNotesTab'),
 );
 const CustomerActivityTab = lazy(
-  () => import("../components/customers/tabs/CustomerActivityTab"),
+  () => import('../components/customers/tabs/CustomerActivityTab'),
 );
 
 export default function CustomerDetail() {
@@ -78,17 +78,17 @@ export default function CustomerDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(
-    searchParams.get("tab") || "overview",
+    searchParams.get('tab') || 'overview',
   );
 
   // Tab configuration - only show tabs user has permission to access
   const allTabs = [
-    { id: "overview", label: "Overview" },
-    { id: "ar-aging", label: "AR Aging" },
-    { id: "invoices", label: "Invoices" },
-    { id: "payments", label: "Payments" },
-    { id: "credit-notes", label: "Credit Notes" },
-    { id: "activity", label: "Activity" },
+    { id: 'overview', label: 'Overview' },
+    { id: 'ar-aging', label: 'AR Aging' },
+    { id: 'invoices', label: 'Invoices' },
+    { id: 'payments', label: 'Payments' },
+    { id: 'credit-notes', label: 'Credit Notes' },
+    { id: 'activity', label: 'Activity' },
   ];
 
   // Filter tabs based on permissions
@@ -103,7 +103,7 @@ export default function CustomerDetail() {
         const customer = await customerService.getCustomer(customerId);
         setCustomerData(customer);
       } catch (err) {
-        setError(err.message || "Failed to load customer data");
+        setError(err.message || 'Failed to load customer data');
       } finally {
         setLoading(false);
       }
@@ -122,11 +122,11 @@ export default function CustomerDetail() {
 
   // Sync active tab with URL on mount and when URL changes
   useEffect(() => {
-    const urlTab = searchParams.get("tab");
+    const urlTab = searchParams.get('tab');
     if (urlTab && tabs.some((t) => t.id === urlTab)) {
       setActiveTab(urlTab);
     } else if (!urlTab) {
-      setActiveTab("overview");
+      setActiveTab('overview');
     }
   }, [searchParams, tabs]);
 
@@ -153,16 +153,16 @@ export default function CustomerDetail() {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+          isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
         }`}
       >
         <div className="flex flex-col items-center gap-4">
           <FaSpinner
             className={`w-12 h-12 animate-spin ${
-              isDarkMode ? "text-teal-400" : "text-teal-600"
+              isDarkMode ? 'text-teal-400' : 'text-teal-600'
             }`}
           />
-          <p className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+          <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
             Loading customer details...
           </p>
         </div>
@@ -175,27 +175,27 @@ export default function CustomerDetail() {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+          isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
         }`}
       >
         <div className="flex flex-col items-center gap-4 max-w-md text-center">
           <div
-            className={`text-5xl ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+            className={`text-5xl ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
           >
             ⚠️
           </div>
           <h2
             className={`text-xl font-semibold ${
-              isDarkMode ? "text-gray-200" : "text-gray-800"
+              isDarkMode ? 'text-gray-200' : 'text-gray-800'
             }`}
           >
             Error Loading Customer
           </h2>
-          <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
             {error}
           </p>
           <button
-            onClick={() => navigate("/customers")}
+            onClick={() => navigate('/customers')}
             className="mt-4 px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
           >
             <FaArrowLeft />
@@ -211,27 +211,27 @@ export default function CustomerDetail() {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+          isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
         }`}
       >
         <div className="flex flex-col items-center gap-4 max-w-md text-center">
           <div
-            className={`text-5xl ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
+            className={`text-5xl ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
           >
             🔒
           </div>
           <h2
             className={`text-xl font-semibold ${
-              isDarkMode ? "text-gray-200" : "text-gray-800"
+              isDarkMode ? 'text-gray-200' : 'text-gray-800'
             }`}
           >
             Access Denied
           </h2>
-          <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
             You do not have permission to view customer details.
           </p>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/')}
             className="mt-4 px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
           >
             <FaHome />
@@ -247,10 +247,10 @@ export default function CustomerDetail() {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+          isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
         }`}
       >
-        <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+        <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
           Customer not found
         </p>
       </div>
@@ -259,51 +259,51 @@ export default function CustomerDetail() {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
     >
       {/* Breadcrumb Navigation */}
       <div
         className={`mb-6 p-4 ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-gray-200"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-gray-200'
         } border rounded-lg`}
       >
         <div className="flex items-center gap-2 text-sm">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/')}
             className={`flex items-center gap-1 hover:underline ${
-              isDarkMode ? "text-teal-400" : "text-teal-600"
+              isDarkMode ? 'text-teal-400' : 'text-teal-600'
             }`}
           >
             <FaHome />
             Home
           </button>
-          <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>
+          <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>
             /
           </span>
           <button
-            onClick={() => navigate("/customers")}
+            onClick={() => navigate('/customers')}
             className={`flex items-center gap-1 hover:underline ${
-              isDarkMode ? "text-teal-400" : "text-teal-600"
+              isDarkMode ? 'text-teal-400' : 'text-teal-600'
             }`}
           >
             <FaUsers />
             Customers
           </button>
-          <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>
+          <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>
             /
           </span>
-          <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
             {customerData.name}
           </span>
         </div>
         <button
-          onClick={() => navigate("/customers")}
+          onClick={() => navigate('/customers')}
           className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode
-              ? "bg-[#37474F] text-gray-300 hover:bg-[#455A64]"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? 'bg-[#37474F] text-gray-300 hover:bg-[#455A64]'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
           <FaArrowLeft />
@@ -315,27 +315,27 @@ export default function CustomerDetail() {
       <div
         className={`mb-6 p-6 ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-gray-200"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-gray-200'
         } border rounded-lg shadow-sm`}
       >
         <h1
           className={`text-3xl font-bold mb-2 ${
-            isDarkMode ? "text-gray-100" : "text-gray-900"
+            isDarkMode ? 'text-gray-100' : 'text-gray-900'
           }`}
         >
           {customerData.name}
         </h1>
         <p
-          className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+          className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
         >
           {customerData.company}
         </p>
         <span
           className={`inline-block mt-3 px-3 py-1 text-sm font-medium uppercase tracking-wider rounded-full ${
-            customerData.status === "active"
-              ? "bg-green-100 text-green-800 border border-green-200"
-              : "bg-gray-100 text-gray-600 border border-gray-200"
+            customerData.status === 'active'
+              ? 'bg-green-100 text-green-800 border border-green-200'
+              : 'bg-gray-100 text-gray-600 border border-gray-200'
           }`}
         >
           {customerData.status}
@@ -346,8 +346,8 @@ export default function CustomerDetail() {
       <div
         className={`mb-6 ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-gray-200"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-gray-200'
         } border rounded-lg overflow-hidden`}
       >
         <div className="flex overflow-x-auto">
@@ -358,11 +358,11 @@ export default function CustomerDetail() {
               className={`flex-1 min-w-[120px] px-6 py-4 text-sm font-medium transition-all ${
                 activeTab === tab.id
                   ? isDarkMode
-                    ? "bg-[#008B8B] text-white border-b-2 border-teal-400"
-                    : "bg-[#008B8B] text-white border-b-2 border-teal-600"
+                    ? 'bg-[#008B8B] text-white border-b-2 border-teal-400'
+                    : 'bg-[#008B8B] text-white border-b-2 border-teal-600'
                   : isDarkMode
-                    ? "text-gray-400 hover:bg-[#37474F] hover:text-gray-200"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? 'text-gray-400 hover:bg-[#37474F] hover:text-gray-200'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               {tab.label}
@@ -375,8 +375,8 @@ export default function CustomerDetail() {
       <div
         className={`p-6 ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-gray-200"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-gray-200'
         } border rounded-lg shadow-sm min-h-[400px]`}
       >
         <Suspense
@@ -384,25 +384,25 @@ export default function CustomerDetail() {
             <div className="flex items-center justify-center py-12">
               <FaSpinner
                 className={`w-8 h-8 animate-spin ${
-                  isDarkMode ? "text-teal-400" : "text-teal-600"
+                  isDarkMode ? 'text-teal-400' : 'text-teal-600'
                 }`}
               />
             </div>
           }
         >
-          {activeTab === "overview" && (
+          {activeTab === 'overview' && (
             <CustomerOverviewTab customer={customerData} />
           )}
-          {activeTab === "ar-aging" && (
+          {activeTab === 'ar-aging' && (
             <Suspense
               fallback={
                 <div
-                  className={`flex items-center justify-center py-12 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                  className={`flex items-center justify-center py-12 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
                 >
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                     <p
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                     >
                       Loading AR aging details...
                     </p>
@@ -413,16 +413,16 @@ export default function CustomerDetail() {
               <CustomerARAgingDetail customerId={parseInt(customerId)} />
             </Suspense>
           )}
-          {activeTab === "invoices" && (
+          {activeTab === 'invoices' && (
             <Suspense
               fallback={
                 <div
-                  className={`flex items-center justify-center py-12 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                  className={`flex items-center justify-center py-12 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
                 >
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                     <p
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                     >
                       Loading invoices...
                     </p>
@@ -433,16 +433,16 @@ export default function CustomerDetail() {
               <CustomerInvoicesTab customerId={parseInt(customerId)} />
             </Suspense>
           )}
-          {activeTab === "payments" && (
+          {activeTab === 'payments' && (
             <Suspense
               fallback={
                 <div
-                  className={`flex items-center justify-center py-12 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                  className={`flex items-center justify-center py-12 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
                 >
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                     <p
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                     >
                       Loading payments...
                     </p>
@@ -453,16 +453,16 @@ export default function CustomerDetail() {
               <CustomerPaymentsTab customerId={parseInt(customerId)} />
             </Suspense>
           )}
-          {activeTab === "credit-notes" && (
+          {activeTab === 'credit-notes' && (
             <Suspense
               fallback={
                 <div
-                  className={`flex items-center justify-center py-12 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                  className={`flex items-center justify-center py-12 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
                 >
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                     <p
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                     >
                       Loading credit notes...
                     </p>
@@ -473,16 +473,16 @@ export default function CustomerDetail() {
               <CustomerCreditNotesTab customerId={parseInt(customerId)} />
             </Suspense>
           )}
-          {activeTab === "activity" && (
+          {activeTab === 'activity' && (
             <Suspense
               fallback={
                 <div
-                  className={`flex items-center justify-center py-12 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                  className={`flex items-center justify-center py-12 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
                 >
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                     <p
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                      className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
                     >
                       Loading activity...
                     </p>

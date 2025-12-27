@@ -26,10 +26,10 @@
  * @returns {JSX.Element} Activity timeline with filters and add form
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useTheme } from "../../../contexts/ThemeContext";
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTheme } from '../../../contexts/ThemeContext';
 // import { apiClient } from '../../../services/api'; // TODO: Uncomment when backend API is ready
-import { formatDate } from "../../../utils/invoiceUtils";
+import { formatDate } from '../../../utils/invoiceUtils';
 import {
   MessageSquare,
   Phone,
@@ -42,7 +42,7 @@ import {
   Search,
   X,
   Calendar,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function CustomerActivityTab({ customerId }) {
   const { isDarkMode } = useTheme();
@@ -60,14 +60,14 @@ export default function CustomerActivityTab({ customerId }) {
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Filters
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // New activity form
   const [newActivity, setNewActivity] = useState({
-    type: "note",
-    content: "",
-    tags: "",
+    type: 'note',
+    content: '',
+    tags: '',
   });
 
   // TODO: Replace with actual API call when backend is ready
@@ -76,57 +76,57 @@ export default function CustomerActivityTab({ customerId }) {
     () => [
       {
         id: 1,
-        type: "note",
-        date: "2025-01-15T10:30:00Z",
-        user: "John Doe",
+        type: 'note',
+        date: '2025-01-15T10:30:00Z',
+        user: 'John Doe',
         content:
-          "Called customer regarding overdue invoice INV-2025-001. Customer promised payment by end of week.",
-        tags: ["follow-up", "payment-issue"],
+          'Called customer regarding overdue invoice INV-2025-001. Customer promised payment by end of week.',
+        tags: ['follow-up', 'payment-issue'],
       },
       {
         id: 2,
-        type: "call",
-        date: "2025-01-10T14:20:00Z",
-        user: "Sarah Smith",
+        type: 'call',
+        date: '2025-01-10T14:20:00Z',
+        user: 'Sarah Smith',
         content:
-          "Outbound call to discuss new product catalog. Customer expressed interest in stainless steel sheets.",
-        tags: ["sales", "product-inquiry"],
+          'Outbound call to discuss new product catalog. Customer expressed interest in stainless steel sheets.',
+        tags: ['sales', 'product-inquiry'],
       },
       {
         id: 3,
-        type: "email",
-        date: "2025-01-08T09:15:00Z",
-        user: "Mike Johnson",
+        type: 'email',
+        date: '2025-01-08T09:15:00Z',
+        user: 'Mike Johnson',
         content:
-          "Sent monthly statement and aging report. Highlighted overdue amounts.",
-        tags: ["statement", "ar-aging"],
+          'Sent monthly statement and aging report. Highlighted overdue amounts.',
+        tags: ['statement', 'ar-aging'],
       },
       {
         id: 4,
-        type: "follow-up",
-        date: "2025-01-05T16:45:00Z",
-        user: "John Doe",
+        type: 'follow-up',
+        date: '2025-01-05T16:45:00Z',
+        user: 'John Doe',
         content:
-          "Follow-up on payment promise. Customer confirmed payment is being processed.",
-        tags: ["follow-up", "payment-confirmation"],
+          'Follow-up on payment promise. Customer confirmed payment is being processed.',
+        tags: ['follow-up', 'payment-confirmation'],
       },
       {
         id: 5,
-        type: "promise-to-pay",
-        date: "2025-01-03T11:00:00Z",
-        user: "Sarah Smith",
+        type: 'promise-to-pay',
+        date: '2025-01-03T11:00:00Z',
+        user: 'Sarah Smith',
         content:
-          "Customer committed to pay AED 50,000 by January 10th for invoices INV-2024-458 and INV-2024-461.",
-        tags: ["payment-promise", "commitment"],
+          'Customer committed to pay AED 50,000 by January 10th for invoices INV-2024-458 and INV-2024-461.',
+        tags: ['payment-promise', 'commitment'],
       },
       {
         id: 6,
-        type: "dispute",
-        date: "2024-12-28T13:30:00Z",
-        user: "Mike Johnson",
+        type: 'dispute',
+        date: '2024-12-28T13:30:00Z',
+        user: 'Mike Johnson',
         content:
-          "Customer disputed invoice INV-2024-445 due to quality issue with delivered materials. Investigating with warehouse team.",
-        tags: ["dispute", "quality-issue", "investigation"],
+          'Customer disputed invoice INV-2024-445 due to quality issue with delivered materials. Investigating with warehouse team.',
+        tags: ['dispute', 'quality-issue', 'investigation'],
       },
     ],
     [],
@@ -161,8 +161,8 @@ export default function CustomerActivityTab({ customerId }) {
         setLoading(false);
       }, 500);
     } catch (err) {
-      console.error("Failed to fetch activities:", err);
-      setError(err.message || "Failed to load activities");
+      console.error('Failed to fetch activities:', err);
+      setError(err.message || 'Failed to load activities');
       setLoading(false);
     }
   }, [mockActivities]);
@@ -194,7 +194,7 @@ export default function CustomerActivityTab({ customerId }) {
     let filtered = [...activities];
 
     // Type filter
-    if (typeFilter !== "all") {
+    if (typeFilter !== 'all') {
       filtered = filtered.filter((activity) => activity.type === typeFilter);
     }
 
@@ -216,39 +216,39 @@ export default function CustomerActivityTab({ customerId }) {
   const activityTypeConfig = {
     note: {
       icon: MessageSquare,
-      color: "text-blue-500",
-      bgColor: isDarkMode ? "bg-blue-900/30" : "bg-blue-100",
-      label: "Note",
+      color: 'text-blue-500',
+      bgColor: isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100',
+      label: 'Note',
     },
     call: {
       icon: Phone,
-      color: "text-green-500",
-      bgColor: isDarkMode ? "bg-green-900/30" : "bg-green-100",
-      label: "Call",
+      color: 'text-green-500',
+      bgColor: isDarkMode ? 'bg-green-900/30' : 'bg-green-100',
+      label: 'Call',
     },
     email: {
       icon: Mail,
-      color: "text-purple-500",
-      bgColor: isDarkMode ? "bg-purple-900/30" : "bg-purple-100",
-      label: "Email",
+      color: 'text-purple-500',
+      bgColor: isDarkMode ? 'bg-purple-900/30' : 'bg-purple-100',
+      label: 'Email',
     },
-    "follow-up": {
+    'follow-up': {
       icon: Bell,
-      color: "text-yellow-500",
-      bgColor: isDarkMode ? "bg-yellow-900/30" : "bg-yellow-100",
-      label: "Follow-up",
+      color: 'text-yellow-500',
+      bgColor: isDarkMode ? 'bg-yellow-900/30' : 'bg-yellow-100',
+      label: 'Follow-up',
     },
-    "promise-to-pay": {
+    'promise-to-pay': {
       icon: DollarSign,
-      color: "text-teal-500",
-      bgColor: isDarkMode ? "bg-teal-900/30" : "bg-teal-100",
-      label: "Promise to Pay",
+      color: 'text-teal-500',
+      bgColor: isDarkMode ? 'bg-teal-900/30' : 'bg-teal-100',
+      label: 'Promise to Pay',
     },
     dispute: {
       icon: AlertTriangle,
-      color: "text-red-500",
-      bgColor: isDarkMode ? "bg-red-900/30" : "bg-red-100",
-      label: "Dispute",
+      color: 'text-red-500',
+      bgColor: isDarkMode ? 'bg-red-900/30' : 'bg-red-100',
+      label: 'Dispute',
     },
   };
 
@@ -279,26 +279,26 @@ export default function CustomerActivityTab({ customerId }) {
       id: activities.length + 1,
       type: newActivity.type,
       date: new Date().toISOString(),
-      user: "Current User", // TODO: Get from auth context
+      user: 'Current User', // TODO: Get from auth context
       content: newActivity.content,
       tags: newActivity.tags
-        .split(",")
+        .split(',')
         .map((tag) => tag.trim())
         .filter((tag) => tag),
     };
 
     setActivities([mockNewActivity, ...activities]);
     setIsAddingActivity(false);
-    setNewActivity({ type: "note", content: "", tags: "" });
+    setNewActivity({ type: 'note', content: '', tags: '' });
   };
 
   // Styling
-  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
-  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-200";
-  const primaryText = isDarkMode ? "text-gray-100" : "text-gray-900";
-  const secondaryText = isDarkMode ? "text-gray-400" : "text-gray-600";
-  const mutedText = isDarkMode ? "text-gray-500" : "text-gray-400";
-  const hoverBg = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
+  const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const primaryText = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+  const secondaryText = isDarkMode ? 'text-gray-400' : 'text-gray-600';
+  const mutedText = isDarkMode ? 'text-gray-500' : 'text-gray-400';
+  const hoverBg = isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50';
 
   // Loading state
   if (loading) {
@@ -313,18 +313,18 @@ export default function CustomerActivityTab({ customerId }) {
   if (error) {
     return (
       <div
-        className={`p-6 rounded-lg ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"} border`}
+        className={`p-6 rounded-lg ${isDarkMode ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-200'} border`}
       >
         <div className="flex items-center gap-3 mb-2">
           <AlertTriangle size={20} className="text-red-500" />
           <p
-            className={`font-medium ${isDarkMode ? "text-red-400" : "text-red-700"}`}
+            className={`font-medium ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}
           >
             Error Loading Activities
           </p>
         </div>
         <p
-          className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}
+          className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}
         >
           {error}
         </p>
@@ -350,30 +350,30 @@ export default function CustomerActivityTab({ customerId }) {
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode
-              ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400"
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400'
           }`}
           title="Refresh activity data"
         >
-          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           Refresh
         </button>
       </div>
 
       {/* TODO: Backend Integration Notice */}
       <div
-        className={`p-4 rounded-lg border ${isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-200"}`}
+        className={`p-4 rounded-lg border ${isDarkMode ? 'bg-yellow-900/20 border-yellow-700' : 'bg-yellow-50 border-yellow-200'}`}
       >
         <div className="flex items-start gap-3">
           <AlertTriangle size={18} className="text-yellow-500 mt-0.5" />
           <div>
             <p
-              className={`text-sm font-medium ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}
+              className={`text-sm font-medium ${isDarkMode ? 'text-yellow-400' : 'text-yellow-700'}`}
             >
               Development Mode - Mock Data
             </p>
             <p
-              className={`text-xs ${isDarkMode ? "text-yellow-300" : "text-yellow-600"} mt-1`}
+              className={`text-xs ${isDarkMode ? 'text-yellow-300' : 'text-yellow-600'} mt-1`}
             >
               This tab is using mock data. Backend API integration needed at GET
               /api/activities and POST /api/activities
@@ -555,7 +555,7 @@ export default function CustomerActivityTab({ customerId }) {
           <div className={`text-center py-12 ${secondaryText}`}>
             <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
             <p>No activities found</p>
-            {(typeFilter !== "all" || searchQuery) && (
+            {(typeFilter !== 'all' || searchQuery) && (
               <p className="text-sm mt-2">Try adjusting your filters</p>
             )}
           </div>
@@ -563,7 +563,7 @@ export default function CustomerActivityTab({ customerId }) {
           <div className="space-y-6">
             {filteredActivities.map((activity, index) => {
               const config =
-                activityTypeConfig[activity.type] || activityTypeConfig["note"];
+                activityTypeConfig[activity.type] || activityTypeConfig['note'];
               const Icon = config.icon;
 
               return (
@@ -572,7 +572,7 @@ export default function CustomerActivityTab({ customerId }) {
                   {index < filteredActivities.length - 1 && (
                     <div
                       className={`absolute left-6 top-12 bottom-0 w-0.5 ${
-                        isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                        isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
                       }`}
                     />
                   )}
@@ -618,8 +618,8 @@ export default function CustomerActivityTab({ customerId }) {
                               key={idx}
                               className={`px-2 py-0.5 rounded text-xs ${
                                 isDarkMode
-                                  ? "bg-gray-700 text-gray-300"
-                                  : "bg-gray-200 text-gray-700"
+                                  ? 'bg-gray-700 text-gray-300'
+                                  : 'bg-gray-200 text-gray-700'
                               }`}
                             >
                               {tag}

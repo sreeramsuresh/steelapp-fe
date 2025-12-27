@@ -87,7 +87,7 @@ export function getRedirectPath(oldPath) {
 
   // Check if oldPath starts with any redirect key (for nested routes)
   for (const [oldRoute, newRoute] of Object.entries(REDIRECTS)) {
-    if (oldPath.startsWith(oldRoute + '/')) {
+    if (oldPath.startsWith(`${oldRoute  }/`)) {
       const suffix = oldPath.slice(oldRoute.length);
       return newRoute + suffix;
     }

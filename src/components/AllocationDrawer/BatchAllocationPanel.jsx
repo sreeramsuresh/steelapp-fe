@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import PropTypes from "prop-types";
-import { batchReservationService } from "../../services/batchReservationService";
-import useBulkActions, { BulkCheckbox } from "../../hooks/useBulkActions";
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import PropTypes from 'prop-types';
+import { batchReservationService } from '../../services/batchReservationService';
+import useBulkActions, { BulkCheckbox } from '../../hooks/useBulkActions';
 
 /**
  * BatchAllocationPanel Component
@@ -22,7 +22,7 @@ const BatchAllocationPanel = ({
   draftInvoiceId,
   _lineItemTempId,
   requiredQuantity,
-  unit = "KG",
+  unit = 'KG',
   _companyId,
   _onAllocationsChange,
   reserveFIFO,
@@ -68,8 +68,8 @@ const BatchAllocationPanel = ({
 
       setBatches(response.batches || []);
     } catch (err) {
-      console.error("Failed to fetch available batches:", err);
-      setFetchError("Failed to load available batches");
+      console.error('Failed to fetch available batches:', err);
+      setFetchError('Failed to load available batches');
       setBatches([]);
     } finally {
       setFetchingBatches(false);
@@ -95,23 +95,23 @@ const BatchAllocationPanel = ({
     const errors = [];
 
     if (!productId) {
-      errors.push("• Product: Please select a product first.");
+      errors.push('• Product: Please select a product first.');
     }
     if (!warehouseId) {
       errors.push(
-        "• Warehouse: Please select a warehouse from the list above.",
+        '• Warehouse: Please select a warehouse from the list above.',
       );
     }
     if (!requiredQuantity || requiredQuantity <= 0) {
-      errors.push("• Quantity: Please enter a quantity greater than 0.");
+      errors.push('• Quantity: Please enter a quantity greater than 0.');
     }
     if (!unit) {
-      errors.push("• Unit: Please select a unit (KG/PCS/MT/M).");
+      errors.push('• Unit: Please select a unit (KG/PCS/MT/M).');
     }
 
     if (errors.length > 0) {
       setFetchError(
-        `Cannot allocate - Missing required fields:\n\n${errors.join("\n")}`,
+        `Cannot allocate - Missing required fields:\n\n${errors.join('\n')}`,
       );
       return;
     }
@@ -124,7 +124,7 @@ const BatchAllocationPanel = ({
 
     if (totalAvailable === 0) {
       setFetchError(
-        "Cannot allocate - Selected warehouse has 0 stock available.\n\nPlease select a different warehouse or use drop-ship source type.",
+        'Cannot allocate - Selected warehouse has 0 stock available.\n\nPlease select a different warehouse or use drop-ship source type.',
       );
       return;
     }
@@ -135,10 +135,10 @@ const BatchAllocationPanel = ({
       // Refresh batches to get updated availability
       await fetchBatches();
     } catch (err) {
-      console.error("FIFO allocation failed:", err);
+      console.error('FIFO allocation failed:', err);
       // Format backend error nicely
       const backendError =
-        err.response?.data?.message || err.message || "Unknown error";
+        err.response?.data?.message || err.message || 'Unknown error';
       setFetchError(`Allocation failed:\n\n${backendError}`);
     } finally {
       setIsAllocating(false);
@@ -158,7 +158,7 @@ const BatchAllocationPanel = ({
     (batchId, value) => {
       // Parse and validate value
       let qty = 0;
-      if (value !== "") {
+      if (value !== '') {
         qty = parseFloat(value);
         if (isNaN(qty) || qty < 0) return;
       }
@@ -204,7 +204,7 @@ const BatchAllocationPanel = ({
       clearSelection(); // Clear selection after successful allocation
       await fetchBatches();
     } catch (err) {
-      console.error("Manual allocation failed:", err);
+      console.error('Manual allocation failed:', err);
     } finally {
       setIsAllocating(false);
     }
@@ -234,11 +234,11 @@ const BatchAllocationPanel = ({
 
   // Format date for display
   const _formatDate = (dateStr) => {
-    if (!dateStr) return "N/A";
+    if (!dateStr) return 'N/A';
     try {
       return new Date(dateStr).toLocaleDateString();
     } catch (_e) {
-      return "N/A";
+      return 'N/A';
     }
   };
 
@@ -265,7 +265,7 @@ const BatchAllocationPanel = ({
           onClick={handleAutoFIFO}
           disabled={loading || isAllocating}
         >
-          {isAllocating ? "Allocating..." : "Auto-Fill FIFO"}
+          {isAllocating ? 'Allocating...' : 'Auto-Fill FIFO'}
         </button>
       </div>
 
@@ -304,14 +304,14 @@ const BatchAllocationPanel = ({
                   const allocatedQty = currentAlloc
                     ? parseFloat(currentAlloc.quantity)
                     : 0;
-                  const manualQty = manualAllocations[batch.id] || "";
+                  const manualQty = manualAllocations[batch.id] || '';
                   const batchSelected = isSelected(batch);
                   const canEnterQty = batchSelected && allocatedQty === 0;
 
                   return (
                     <tr
                       key={batch.id}
-                      className={`${allocatedQty > 0 ? "allocated-row" : ""} ${batchSelected ? "selected-row" : ""}`}
+                      className={`${allocatedQty > 0 ? 'allocated-row' : ''} ${batchSelected ? 'selected-row' : ''}`}
                     >
                       <td className="checkbox-col">
                         <BulkCheckbox
@@ -325,10 +325,10 @@ const BatchAllocationPanel = ({
                       <td>
                         <div className="batch-info">
                           <span className="batch-number">
-                            {batch.batchNumber || "N/A"}
+                            {batch.batchNumber || 'N/A'}
                           </span>
                           <span className="batch-channel">
-                            {batch.procurementChannel || "LOCAL"}
+                            {batch.procurementChannel || 'LOCAL'}
                           </span>
                           {batch.daysInStock !== undefined && (
                             <span className="batch-age">
@@ -377,9 +377,9 @@ const BatchAllocationPanel = ({
                                 e.target.value,
                               )
                             }
-                            placeholder={canEnterQty ? "0" : "-"}
+                            placeholder={canEnterQty ? '0' : '-'}
                             disabled={loading || isAllocating || !canEnterQty}
-                            title={canEnterQty ? "Enter quantity to allocate" : "Select batch first to enter quantity"}
+                            title={canEnterQty ? 'Enter quantity to allocate' : 'Select batch first to enter quantity'}
                           />
                         )}
                       </td>
@@ -403,7 +403,7 @@ const BatchAllocationPanel = ({
             <div className="manual-actions">
               {hasSelection && (
                 <span className="selection-info">
-                  {selectedCount} batch{selectedCount !== 1 ? "es" : ""} selected
+                  {selectedCount} batch{selectedCount !== 1 ? 'es' : ''} selected
                   <button
                     type="button"
                     className="btn-clear-selection"
@@ -432,7 +432,7 @@ const BatchAllocationPanel = ({
             <div className="total-row">
               <span>Allocated:</span>
               <strong>
-                {totalAllocated.toFixed(3)} / {requiredQuantity.toFixed(3)}{" "}
+                {totalAllocated.toFixed(3)} / {requiredQuantity.toFixed(3)}{' '}
                 {unit}
               </strong>
             </div>

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useTheme } from "../../../../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useTheme } from '../../../../contexts/ThemeContext';
 import {
   TrendingUp,
   TrendingDown,
@@ -7,7 +7,7 @@ import {
   ArrowDownRight,
   RefreshCw,
   Info,
-} from "lucide-react";
+} from 'lucide-react';
 
 const CashFlowWidget = ({
   data: propData,
@@ -16,7 +16,7 @@ const CashFlowWidget = ({
 }) => {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
-  const [period, setPeriod] = useState("mtd");
+  const [period, setPeriod] = useState('mtd');
   const [data, setData] = useState(propData || null);
 
   useEffect(() => {
@@ -42,9 +42,9 @@ const CashFlowWidget = ({
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(safeAmount);
@@ -62,9 +62,9 @@ const CashFlowWidget = ({
   };
 
   const periodLabels = {
-    mtd: "Month to Date",
-    qtd: "Quarter to Date",
-    ytd: "Year to Date",
+    mtd: 'Month to Date',
+    qtd: 'Quarter to Date',
+    ytd: 'Year to Date',
   };
 
   // Check if we have valid data
@@ -76,8 +76,8 @@ const CashFlowWidget = ({
       <div
         className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-[#E0E0E0]"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-[#E0E0E0]'
         }`}
       >
         {/* Header */}
@@ -85,7 +85,7 @@ const CashFlowWidget = ({
           <div className="flex items-center gap-2">
             <TrendingUp size={20} className="text-blue-500" />
             <h3
-              className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Cash Flow
               <span className="relative group">
@@ -104,15 +104,15 @@ const CashFlowWidget = ({
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
-                ? "hover:bg-gray-700 text-gray-400 hover:text-white"
-                : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            } ${isLoading ? "animate-spin" : ""}`}
+                ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+            } ${isLoading ? 'animate-spin' : ''}`}
           >
             <RefreshCw size={16} />
           </button>
         </div>
         <div
-          className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           <span className="text-sm">No data available</span>
         </div>
@@ -124,18 +124,18 @@ const CashFlowWidget = ({
   const maxValue =
     currentData?.trend?.length > 0
       ? Math.max(
-          ...currentData.trend.map((d) =>
-            Math.max(d.inflow || 0, d.outflow || 0),
-          ),
-        )
+        ...currentData.trend.map((d) =>
+          Math.max(d.inflow || 0, d.outflow || 0),
+        ),
+      )
       : 0;
 
   return (
     <div
       className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
         isDarkMode
-          ? "bg-[#1E2328] border-[#37474F]"
-          : "bg-white border-[#E0E0E0]"
+          ? 'bg-[#1E2328] border-[#37474F]'
+          : 'bg-white border-[#E0E0E0]'
       }`}
     >
       {/* Header */}
@@ -143,7 +143,7 @@ const CashFlowWidget = ({
         <div className="flex items-center gap-2">
           <TrendingUp size={20} className="text-blue-500" />
           <h3
-            className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
             Cash Flow
             <span className="relative group">
@@ -160,7 +160,7 @@ const CashFlowWidget = ({
         <div className="flex items-center gap-2">
           {/* Period Selector */}
           <div
-            className={`flex rounded-lg overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+            className={`flex rounded-lg overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
           >
             {Object.keys(periodLabels).map((p) => (
               <button
@@ -168,10 +168,10 @@ const CashFlowWidget = ({
                 onClick={() => setPeriod(p)}
                 className={`px-2 py-1 text-xs font-medium transition-colors ${
                   period === p
-                    ? "bg-teal-600 text-white"
+                    ? 'bg-teal-600 text-white'
                     : isDarkMode
-                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 {p.toUpperCase()}
@@ -183,9 +183,9 @@ const CashFlowWidget = ({
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
-                ? "hover:bg-gray-700 text-gray-400 hover:text-white"
-                : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            } ${isLoading ? "animate-spin" : ""}`}
+                ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+            } ${isLoading ? 'animate-spin' : ''}`}
           >
             <RefreshCw size={16} />
           </button>
@@ -197,13 +197,13 @@ const CashFlowWidget = ({
         {/* Inflows */}
         <div
           className={`p-3 rounded-lg ${
-            isDarkMode ? "bg-green-900/20" : "bg-green-50"
+            isDarkMode ? 'bg-green-900/20' : 'bg-green-50'
           }`}
         >
           <div className="flex items-center gap-1 mb-1">
             <ArrowUpRight size={14} className="text-green-500" />
             <span
-              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               Inflows
             </span>
@@ -216,13 +216,13 @@ const CashFlowWidget = ({
         {/* Outflows */}
         <div
           className={`p-3 rounded-lg ${
-            isDarkMode ? "bg-red-900/20" : "bg-red-50"
+            isDarkMode ? 'bg-red-900/20' : 'bg-red-50'
           }`}
         >
           <div className="flex items-center gap-1 mb-1">
             <ArrowDownRight size={14} className="text-red-500" />
             <span
-              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               Outflows
             </span>
@@ -237,11 +237,11 @@ const CashFlowWidget = ({
           className={`p-3 rounded-lg ${
             (currentData?.netCashFlow || 0) >= 0
               ? isDarkMode
-                ? "bg-blue-900/20"
-                : "bg-blue-50"
+                ? 'bg-blue-900/20'
+                : 'bg-blue-50'
               : isDarkMode
-                ? "bg-orange-900/20"
-                : "bg-orange-50"
+                ? 'bg-orange-900/20'
+                : 'bg-orange-50'
           }`}
         >
           <div className="flex items-center gap-1 mb-1">
@@ -251,7 +251,7 @@ const CashFlowWidget = ({
               <TrendingDown size={14} className="text-orange-500" />
             )}
             <span
-              className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
             >
               Net
             </span>
@@ -259,8 +259,8 @@ const CashFlowWidget = ({
           <p
             className={`text-sm sm:text-base font-bold ${
               (currentData?.netCashFlow || 0) >= 0
-                ? "text-blue-600"
-                : "text-orange-600"
+                ? 'text-blue-600'
+                : 'text-orange-600'
             }`}
           >
             {formatCurrency(currentData?.netCashFlow || 0)}
@@ -275,17 +275,17 @@ const CashFlowWidget = ({
             {/* Y-axis labels */}
             <div className="absolute left-0 top-0 bottom-6 w-10 flex flex-col justify-between text-right pr-2">
               <span
-                className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
               >
                 {formatCompactCurrency(maxValue)}
               </span>
               <span
-                className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
               >
                 {formatCompactCurrency(maxValue / 2)}
               </span>
               <span
-                className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
               >
                 0
               </span>
@@ -308,8 +308,8 @@ const CashFlowWidget = ({
                     <div
                       className={`hidden group-hover:block absolute -top-20 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg text-xs z-10 shadow-lg ${
                         isDarkMode
-                          ? "bg-gray-700 text-white"
-                          : "bg-gray-900 text-white"
+                          ? 'bg-gray-700 text-white'
+                          : 'bg-gray-900 text-white'
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
@@ -338,7 +338,7 @@ const CashFlowWidget = ({
 
                     {/* X-axis label */}
                     <span
-                      className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                      className={`text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                     >
                       {item.day}
                     </span>
@@ -350,12 +350,12 @@ const CashFlowWidget = ({
 
           {/* Legend */}
           <div
-            className={`flex justify-center gap-4 mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+            className={`flex justify-center gap-4 mt-3 pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
           >
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded bg-gradient-to-r from-green-600 to-green-400"></span>
               <span
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Inflows
               </span>
@@ -363,7 +363,7 @@ const CashFlowWidget = ({
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded bg-gradient-to-r from-red-600 to-red-400"></span>
               <span
-                className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
               >
                 Outflows
               </span>
@@ -372,7 +372,7 @@ const CashFlowWidget = ({
         </>
       ) : (
         <div
-          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           <span className="text-sm">No trend data available</span>
         </div>

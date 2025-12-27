@@ -8,38 +8,38 @@
  * - Advance Payments (supplier deposits)
  */
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   ShoppingCart,
   FileText,
   Receipt,
   FileMinus,
   Coins,
-} from "lucide-react";
+} from 'lucide-react';
 
-import PurchaseOrderList from "./PurchaseOrderList";
-import { SupplierBillList, DebitNoteList } from "./purchases";
-import { AdvancePaymentList } from "./payments";
+import PurchaseOrderList from './PurchaseOrderList';
+import { SupplierBillList, DebitNoteList } from './purchases';
+import { AdvancePaymentList } from './payments';
 
 const PurchasesDashboard = () => {
   const { isDarkMode } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState("purchase-orders");
+  const [activeTab, setActiveTab] = useState('purchase-orders');
 
   // Auto-open tab if navigated with tab parameter
   useEffect(() => {
-    const tabParam = searchParams.get("tab");
+    const tabParam = searchParams.get('tab');
     // Support both supplier-bills and legacy vendor-bills
-    const normalizedTab = tabParam === "vendor-bills" ? "supplier-bills" : tabParam;
+    const normalizedTab = tabParam === 'vendor-bills' ? 'supplier-bills' : tabParam;
     if (
       normalizedTab &&
       [
-        "purchase-orders",
-        "supplier-bills",
-        "debit-notes",
-        "advance-payments",
+        'purchase-orders',
+        'supplier-bills',
+        'debit-notes',
+        'advance-payments',
       ].includes(normalizedTab)
     ) {
       setActiveTab(normalizedTab);
@@ -48,26 +48,26 @@ const PurchasesDashboard = () => {
 
   const tabs = [
     {
-      id: "purchase-orders",
-      label: "Purchase Orders",
+      id: 'purchase-orders',
+      label: 'Purchase Orders',
       icon: ShoppingCart,
       component: PurchaseOrderList,
     },
     {
-      id: "supplier-bills",
-      label: "Supplier Bills",
+      id: 'supplier-bills',
+      label: 'Supplier Bills',
       icon: Receipt,
       component: SupplierBillList,
     },
     {
-      id: "debit-notes",
-      label: "Debit Notes",
+      id: 'debit-notes',
+      label: 'Debit Notes',
       icon: FileMinus,
       component: DebitNoteList,
     },
     {
-      id: "advance-payments",
-      label: "Advance Payments",
+      id: 'advance-payments',
+      label: 'Advance Payments',
       icon: Coins,
       component: AdvancePaymentList,
     },
@@ -77,12 +77,12 @@ const PurchasesDashboard = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
       {/* Header */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} border-b ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-b ${
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
         }`}
       >
         <div className="px-6 py-4">
@@ -92,12 +92,12 @@ const PurchasesDashboard = () => {
             </div>
             <div>
               <h1
-                className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 🛒 Purchases Dashboard
               </h1>
               <p
-                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
                 Manage purchase orders, supplier bills, debit notes, and advance
                 payments
@@ -119,8 +119,8 @@ const PurchasesDashboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
                     isActive
-                      ? `border-teal-600 ${isDarkMode ? "bg-gray-700 text-teal-400" : "bg-gray-50 text-teal-600"}`
-                      : `border-transparent ${isDarkMode ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`
+                      ? `border-teal-600 ${isDarkMode ? 'bg-gray-700 text-teal-400' : 'bg-gray-50 text-teal-600'}`
+                      : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
                   }`}
                 >
                   <Icon size={18} />
@@ -136,9 +136,9 @@ const PurchasesDashboard = () => {
       <div className="flex-1">
         {ActiveComponent && (
           <ActiveComponent
-            preSelectedSupplierId={searchParams.get("supplierId")}
-            preSelectedSupplierName={searchParams.get("supplierName")}
-            preSelectedPurchaseOrderId={searchParams.get("purchaseOrderId")}
+            preSelectedSupplierId={searchParams.get('supplierId')}
+            preSelectedSupplierName={searchParams.get('supplierName')}
+            preSelectedPurchaseOrderId={searchParams.get('purchaseOrderId')}
           />
         )}
       </div>

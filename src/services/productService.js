@@ -1,13 +1,13 @@
-import { apiClient } from "./api";
+import { apiClient } from './api';
 
 export const productService = {
   // Alias for backwards compatibility with components using getAll
   async getAll(params = {}) {
-    return apiClient.get("/products", params);
+    return apiClient.get('/products', params);
   },
 
   async getProducts(params = {}) {
-    return apiClient.get("/products", params);
+    return apiClient.get('/products', params);
   },
 
   async getProduct(id) {
@@ -15,7 +15,7 @@ export const productService = {
   },
 
   async createProduct(productData) {
-    return apiClient.post("/products", productData);
+    return apiClient.post('/products', productData);
   },
 
   async updateProduct(id, productData) {
@@ -35,42 +35,42 @@ export const productService = {
   },
 
   async getProductAnalytics() {
-    return apiClient.get("/products/analytics");
+    return apiClient.get('/products/analytics');
   },
 
   async searchProducts(searchTerm, filters = {}) {
-    return apiClient.get("/products", {
+    return apiClient.get('/products', {
       search: searchTerm,
       ...filters,
     });
   },
 
   async getProductsByCategory(category) {
-    return apiClient.get("/products", { category });
+    return apiClient.get('/products', { category });
   },
 
   async getLowStockProducts() {
-    return apiClient.get("/products", { stock_status: "low" });
+    return apiClient.get('/products', { stock_status: 'low' });
   },
 
   async getWarehouseStock(productId) {
     // companyId is automatically added by backend from authenticated user context
-    return apiClient.get("/products/warehouse-stock", {
+    return apiClient.get('/products/warehouse-stock', {
       productId,
     });
   },
 
   async downloadProducts() {
-    const { apiService } = await import("./axiosApi");
+    const { apiService } = await import('./axiosApi');
     const blob = await apiService.request({
-      method: "GET",
-      url: "/products/download",
-      responseType: "blob",
+      method: 'GET',
+      url: '/products/download',
+      responseType: 'blob',
     });
     const downloadUrl = window.URL.createObjectURL(blob);
-    const filename = `products_${new Date().toISOString().split("T")[0]}.xlsx`;
+    const filename = `products_${new Date().toISOString().split('T')[0]}.xlsx`;
 
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);

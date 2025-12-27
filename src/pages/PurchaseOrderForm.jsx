@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus,
   Trash2,
@@ -19,80 +19,80 @@ import {
   ClipboardCheck,
   User,
   CreditCard,
-} from "lucide-react";
+} from 'lucide-react';
 
 // ==================== DESIGN TOKENS ====================
 const COLORS = {
-  bg: "#0b0f14",
-  card: "#141a20",
-  border: "#2a3640",
-  text: "#e6edf3",
-  muted: "#93a4b4",
-  good: "#2ecc71",
-  warn: "#f39c12",
-  bad: "#e74c3c",
-  accent: "#4aa3ff",
-  accentHover: "#5bb2ff",
-  inputBg: "#0f151b",
+  bg: '#0b0f14',
+  card: '#141a20',
+  border: '#2a3640',
+  text: '#e6edf3',
+  muted: '#93a4b4',
+  good: '#2ecc71',
+  warn: '#f39c12',
+  bad: '#e74c3c',
+  accent: '#4aa3ff',
+  accentHover: '#5bb2ff',
+  inputBg: '#0f151b',
 };
 
 // Layout classes (use with isDarkMode ternary)
 const CARD_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+  `${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20`;
+  `w-full ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20`;
 
 const LABEL_CLASSES = (isDarkMode) =>
-  `block text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-1.5`;
+  `block text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'} mb-1.5`;
 
 const BTN_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
+  `${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]' : 'bg-white border-gray-300 text-gray-900 hover:border-blue-500'} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
 
 const BTN_PRIMARY =
-  "bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer";
+  'bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer';
 
 const BTN_SMALL = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-[10px] py-2 px-2.5 text-xs cursor-pointer transition-colors`;
+  `${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]' : 'bg-white border-gray-300 text-gray-900 hover:border-blue-500'} border rounded-[10px] py-2 px-2.5 text-xs cursor-pointer transition-colors`;
 
 const QUICK_LINK_CLASSES = (isDarkMode) =>
-  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-[#4aa3ff] hover:text-[#4aa3ff] w-full`;
+  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-[#4aa3ff] hover:text-[#4aa3ff] w-full`;
 
 const DIVIDER_CLASSES = (isDarkMode) =>
-  `h-px ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"} my-3`;
+  `h-px ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'} my-3`;
 
-const DRAWER_OVERLAY = "fixed inset-0 bg-black/55 z-30 transition-opacity";
+const DRAWER_OVERLAY = 'fixed inset-0 bg-black/55 z-30 transition-opacity';
 
 const DRAWER_PANEL = (isDarkMode) =>
-  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform`;
+  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform`;
 
 const DRAWER_HEADER = (isDarkMode) =>
-  `sticky top-0 flex justify-between items-start gap-2.5 p-4 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`;
+  `sticky top-0 flex justify-between items-start gap-2.5 p-4 ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'} z-[1]`;
 
 const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
   isDarkMode
-    ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-    : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))";
-import { useTheme } from "../contexts/ThemeContext";
+    ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
+    : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   formatCurrency,
   calculateItemAmount,
   calculateSubtotal,
   generatePONumber,
   formatAddress,
-} from "../utils/invoiceUtils";
-import { purchaseOrderService } from "../services/purchaseOrderService";
-import { productService, payablesService } from "../services/dataService";
-import { PRODUCT_TYPES, FINISHES } from "../types";
-import { useApiData } from "../hooks/useApi";
-import { supplierService } from "../services/supplierService";
-import { notificationService } from "../services/notificationService";
-import { pinnedProductsService } from "../services/pinnedProductsService";
-import { importContainerService } from "../services/importContainerService";
-import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
-import TRNInput from "../components/TRNInput";
-import { FormSelect } from "../components/ui/form-select";
-import { SelectItem } from "../components/ui/select";
+} from '../utils/invoiceUtils';
+import { purchaseOrderService } from '../services/purchaseOrderService';
+import { productService, payablesService } from '../services/dataService';
+import { PRODUCT_TYPES, FINISHES } from '../types';
+import { useApiData } from '../hooks/useApi';
+import { supplierService } from '../services/supplierService';
+import { notificationService } from '../services/notificationService';
+import { pinnedProductsService } from '../services/pinnedProductsService';
+import { importContainerService } from '../services/importContainerService';
+import PurchaseOrderPreview from '../components/purchase-orders/PurchaseOrderPreview';
+import TRNInput from '../components/TRNInput';
+import { FormSelect } from '../components/ui/form-select';
+import { SelectItem } from '../components/ui/select';
 const { PAYMENT_MODES } = payablesService;
 
 // Payment Form Component
@@ -105,10 +105,10 @@ const PaymentForm = ({
 }) => {
   const [formData, setFormData] = useState({
     paymentDate: new Date().toISOString().slice(0, 10),
-    amount: "",
-    paymentMethod: "cash",
-    referenceNumber: "",
-    notes: "",
+    amount: '',
+    paymentMethod: 'cash',
+    referenceNumber: '',
+    notes: '',
   });
 
   const maxAmount = totalAmount - paidAmount;
@@ -118,7 +118,7 @@ const PaymentForm = ({
     const amount = parseFloat(formData.amount);
 
     if (!amount || amount <= 0) {
-      alert("Please enter a valid amount");
+      alert('Please enter a valid amount');
       return;
     }
 
@@ -136,7 +136,7 @@ const PaymentForm = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`w-full max-w-md p-6 rounded-xl shadow-xl ${
-          isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
+          isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
         }`}
       >
         <h3 className="text-lg font-semibold mb-4">Add Payment</h3>
@@ -145,7 +145,7 @@ const PaymentForm = ({
             <label
               htmlFor="payment-date"
               className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               Payment Date
@@ -159,8 +159,8 @@ const PaymentForm = ({
               }
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
               }`}
               required
             />
@@ -170,7 +170,7 @@ const PaymentForm = ({
             <label
               htmlFor="payment-amount"
               className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               Amount (Max: {formatCurrency(maxAmount)})
@@ -185,8 +185,8 @@ const PaymentForm = ({
               }
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
               }`}
               placeholder="0.00"
               required
@@ -211,7 +211,7 @@ const PaymentForm = ({
             <label
               htmlFor="payment-reference"
               className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               Reference Number
@@ -225,8 +225,8 @@ const PaymentForm = ({
               }
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
               placeholder="Transaction reference, cheque number, etc."
             />
@@ -236,7 +236,7 @@ const PaymentForm = ({
             <label
               htmlFor="payment-notes"
               className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               Notes
@@ -249,8 +249,8 @@ const PaymentForm = ({
               }
               className={`w-full px-3 py-2 border rounded-lg ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
               rows={2}
               placeholder="Additional notes about this payment"
@@ -263,8 +263,8 @@ const PaymentForm = ({
               onClick={onCancel}
               className={`px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
-                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
               Cancel
@@ -292,8 +292,8 @@ const Autocomplete = ({
   label,
   disabled = false,
   renderOption,
-  noOptionsText = "No options",
-  className = "",
+  noOptionsText = 'No options',
+  className = '',
   error = false,
   id,
 }) => {
@@ -306,7 +306,7 @@ const Autocomplete = ({
     id || `autocomplete-${Math.random().toString(36).substr(2, 9)}`;
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
-  const norm = (s) => (s || "").toString().toLowerCase().trim();
+  const norm = (s) => (s || '').toString().toLowerCase().trim();
   const ed1 = (a, b) => {
     // Early exits
     if (a === b) return 0;
@@ -355,7 +355,7 @@ const Autocomplete = ({
     const tokens = q.split(/\s+/).filter(Boolean);
     const scored = [];
     for (const o of opts) {
-      const optLabel = norm(o.label || o.name || "");
+      const optLabel = norm(o.label || o.name || '');
       if (!optLabel) continue;
       let ok = true;
       let score = 0;
@@ -400,13 +400,13 @@ const Autocomplete = ({
       const inputRect = inputRef.current.getBoundingClientRect();
       const dropdown = dropdownRef.current;
 
-      dropdown.style.position = "fixed";
+      dropdown.style.position = 'fixed';
       dropdown.style.top = `${inputRect.bottom + 4}px`;
       dropdown.style.left = `${inputRect.left}px`;
       dropdown.style.minWidth = `${inputRect.width}px`;
-      dropdown.style.width = "auto";
-      dropdown.style.maxWidth = "90vw";
-      dropdown.style.zIndex = "9999";
+      dropdown.style.width = 'auto';
+      dropdown.style.maxWidth = '90vw';
+      dropdown.style.zIndex = '9999';
     }
   }, [isOpen]);
 
@@ -426,14 +426,14 @@ const Autocomplete = ({
         }
       };
 
-      window.addEventListener("scroll", handleScroll, true);
-      window.addEventListener("resize", handleResize);
-      document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener('scroll', handleScroll, true);
+      window.addEventListener('resize', handleResize);
+      document.addEventListener('mousedown', handleClickOutside);
 
       return () => {
-        window.removeEventListener("scroll", handleScroll, true);
-        window.removeEventListener("resize", handleResize);
-        document.removeEventListener("mousedown", handleClickOutside);
+        window.removeEventListener('scroll', handleScroll, true);
+        window.removeEventListener('resize', handleResize);
+        document.removeEventListener('mousedown', handleClickOutside);
       };
     }
   }, [isOpen, updateDropdownPosition]);
@@ -443,7 +443,7 @@ const Autocomplete = ({
       {label && (
         <label
           htmlFor={inputId}
-          className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+          className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
         >
           {label}
         </label>
@@ -452,24 +452,24 @@ const Autocomplete = ({
         id={inputId}
         ref={inputRef}
         type="text"
-        value={inputValue || ""}
+        value={inputValue || ''}
         onChange={handleInputChange}
         onFocus={() => setIsOpen(true)}
         placeholder={placeholder}
         disabled={disabled}
         className={`w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
           isDarkMode
-            ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-            : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-        } ${error ? "border-red-500" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+        } ${error ? 'border-red-500' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       />
       {isOpen && (
         <div
           ref={dropdownRef}
           className={`border rounded-md shadow-lg max-h-60 overflow-y-auto ${
             isDarkMode
-              ? "bg-gray-800 border-gray-600"
-              : "bg-white border-gray-300"
+              ? 'bg-gray-800 border-gray-600'
+              : 'bg-white border-gray-300'
           }`}
         >
           {filteredOptions.length > 0 ? (
@@ -481,12 +481,12 @@ const Autocomplete = ({
                 aria-selected={false}
                 className={`px-3 py-2 cursor-pointer border-b last:border-b-0 ${
                   isDarkMode
-                    ? "hover:bg-gray-700 text-white border-gray-700"
-                    : "hover:bg-gray-50 text-gray-900 border-gray-100"
+                    ? 'hover:bg-gray-700 text-white border-gray-700'
+                    : 'hover:bg-gray-50 text-gray-900 border-gray-100'
                 }`}
                 onMouseDown={() => handleOptionSelect(option)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
+                  if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     handleOptionSelect(option);
                   }
@@ -500,7 +500,7 @@ const Autocomplete = ({
                     {option.subtitle && (
                       <div
                         className={`text-sm ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                          isDarkMode ? 'text-gray-400' : 'text-gray-500'
                         }`}
                       >
                         {option.subtitle}
@@ -513,7 +513,7 @@ const Autocomplete = ({
           ) : (
             <div
               className={`px-3 py-2 text-sm ${
-                isDarkMode ? "text-gray-400" : "text-gray-500"
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
               }`}
             >
               {noOptionsText}
@@ -543,9 +543,9 @@ const FormSettingsPanel = ({
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
       return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isOpen, onClose]);
 
@@ -555,12 +555,12 @@ const FormSettingsPanel = ({
     <div className="flex items-start justify-between py-3">
       <div className="flex-1 pr-4">
         <p
-          className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+          className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
         >
           {label}
         </p>
         <p
-          className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
         >
           {description}
         </p>
@@ -568,12 +568,12 @@ const FormSettingsPanel = ({
       <button
         onClick={onChange}
         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-          enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
+          enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
         }`}
       >
         <span
           className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-            enabled ? "translate-x-5" : "translate-x-0"
+            enabled ? 'translate-x-5' : 'translate-x-0'
           }`}
         />
       </button>
@@ -584,22 +584,22 @@ const FormSettingsPanel = ({
     <div
       ref={panelRef}
       className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
-        isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"
+        isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
       }`}
     >
       <div
-        className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+        className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
       >
         <div className="flex items-center justify-between">
           <h3
-            className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}
+            className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
           >
             Form Settings
           </h3>
           <button
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`}
           >
             <X className="h-4 w-4" />
@@ -612,7 +612,7 @@ const FormSettingsPanel = ({
           enabled={preferences.showValidationHighlighting}
           onChange={() =>
             onPreferenceChange(
-              "showValidationHighlighting",
+              'showValidationHighlighting',
               !preferences.showValidationHighlighting,
             )
           }
@@ -623,7 +623,7 @@ const FormSettingsPanel = ({
           enabled={preferences.showSpeedButtons}
           onChange={() =>
             onPreferenceChange(
-              "showSpeedButtons",
+              'showSpeedButtons',
               !preferences.showSpeedButtons,
             )
           }
@@ -633,7 +633,7 @@ const FormSettingsPanel = ({
       </div>
 
       <div
-        className={`px-4 py-2 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"} border-t ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}
+        className={`px-4 py-2 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}
       >
         Settings are saved automatically
       </div>
@@ -647,52 +647,52 @@ const PurchaseOrderForm = () => {
   const { isDarkMode } = useTheme();
   const [purchaseOrder, setPurchaseOrder] = useState({
     poNumber: generatePONumber(), // Fallback PO number generation
-    supplierName: "",
-    supplierEmail: "",
-    supplierPhone: "",
-    supplierAddress: "",
-    supplierTRN: "", // Tax Registration Number (UAE requirement)
-    poDate: new Date().toISOString().split("T")[0],
-    expectedDeliveryDate: "",
+    supplierName: '',
+    supplierEmail: '',
+    supplierPhone: '',
+    supplierAddress: '',
+    supplierTRN: '', // Tax Registration Number (UAE requirement)
+    poDate: new Date().toISOString().split('T')[0],
+    expectedDeliveryDate: '',
     gracePeriodDays: 5, // Phase 4: Grace period for on-time delivery evaluation (default 5 days)
-    status: "draft",
-    stockStatus: "retain", // Default to 'retain' (form-level, deprecated for new POs)
+    status: 'draft',
+    stockStatus: 'retain', // Default to 'retain' (form-level, deprecated for new POs)
     // Exchange rate for multi-currency POs
     exchangeRate: null, // Exchange rate to AED (null when currency is AED)
     // Incoterms and delivery
-    incoterms: "", // FOB, CIF, EXW, etc.
+    incoterms: '', // FOB, CIF, EXW, etc.
     // Buyer/Purchaser information
-    buyerName: "",
-    buyerEmail: "",
-    buyerPhone: "",
-    buyerDepartment: "",
+    buyerName: '',
+    buyerEmail: '',
+    buyerPhone: '',
+    buyerDepartment: '',
     // Approval workflow
-    approvalStatus: "pending", // pending/approved/rejected
-    approvedBy: "",
-    approvalDate: "",
-    approvalComments: "",
+    approvalStatus: 'pending', // pending/approved/rejected
+    approvedBy: '',
+    approvalDate: '',
+    approvalComments: '',
     items: [
       {
-        productType: "",
-        name: "", // This will be same as productType for consistency
+        productType: '',
+        name: '', // This will be same as productType for consistency
         productId: null, // Product ID for lookup
-        grade: "",
-        thickness: "",
-        size: "",
-        finish: "",
-        specification: "", // Keep for backward compatibility
-        itemDescription: "", // Detailed description
-        hsnCode: "", // HSN/SAC code
-        unit: "kg", // Unit of Measure (kg, mt, pcs, sqm, etc.)
+        grade: '',
+        thickness: '',
+        size: '',
+        finish: '',
+        specification: '', // Keep for backward compatibility
+        itemDescription: '', // Detailed description
+        hsnCode: '', // HSN/SAC code
+        unit: 'kg', // Unit of Measure (kg, mt, pcs, sqm, etc.)
         quantity: 0,
         rate: 0,
-        discountType: "amount", // amount or percentage
+        discountType: 'amount', // amount or percentage
         discount: 0,
         vatRate: 5, // Configurable VAT rate per item (default 5%)
-        supplyType: "standard", // standard, zero_rated, exempt (matching Invoice form)
+        supplyType: 'standard', // standard, zero_rated, exempt (matching Invoice form)
         amount: 0,
         // Phase 4: Stock-In Enhancements - Line-level fields
-        lineStockStatus: "PENDING", // PENDING, PARTIAL, RECEIVED - supports partial receipts
+        lineStockStatus: 'PENDING', // PENDING, PARTIAL, RECEIVED - supports partial receipts
         expectedWeightKg: null, // Expected weight at PO time for variance tracking
         // GRN linkage fields (populated when GRN is created)
         grnId: null,
@@ -703,7 +703,7 @@ const PurchaseOrderForm = () => {
     ],
     subtotal: 0,
     // Order-level discount
-    discountType: "amount", // amount or percentage
+    discountType: 'amount', // amount or percentage
     discountPercentage: 0,
     discountAmount: 0,
     // Additional charges
@@ -713,14 +713,14 @@ const PurchaseOrderForm = () => {
     otherCharges: 0,
     vatAmount: 0,
     total: 0,
-    notes: "",
-    terms: "", // General terms and conditions
-    paymentTerms: "Net 30", // Standardized payment terms
-    dueDate: "",
-    currency: "AED",
-    supplierContactName: "",
-    supplierContactEmail: "",
-    supplierContactPhone: "",
+    notes: '',
+    terms: '', // General terms and conditions
+    paymentTerms: 'Net 30', // Standardized payment terms
+    dueDate: '',
+    currency: 'AED',
+    supplierContactName: '',
+    supplierContactEmail: '',
+    supplierContactPhone: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -729,12 +729,12 @@ const PurchaseOrderForm = () => {
   const [availableProducts, setAvailableProducts] = useState([]);
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWarehouse, setSelectedWarehouse] = useState("");
-  const [selectedSupplierId, setSelectedSupplierId] = useState("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [importContainers, setImportContainers] = useState([]);
   const [searchInputs, setSearchInputs] = useState({});
   const [payments, setPayments] = useState([]);
-  const [paymentStatus, setPaymentStatus] = useState("unpaid");
+  const [paymentStatus, setPaymentStatus] = useState('unpaid');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [_expandedItems, _setExpandedItems] = useState({});
   const [showPreview, setShowPreview] = useState(false);
@@ -760,19 +760,19 @@ const PurchaseOrderForm = () => {
 
   // Form preferences state (with localStorage persistence)
   const [formPreferences, setFormPreferences] = useState(() => {
-    const saved = localStorage.getItem("purchaseOrderFormPreferences");
+    const saved = localStorage.getItem('purchaseOrderFormPreferences');
     return saved
       ? JSON.parse(saved)
       : {
-          showValidationHighlighting: true,
-          showSpeedButtons: true,
-        };
+        showValidationHighlighting: true,
+        showSpeedButtons: true,
+      };
   });
 
   // Save preferences to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(
-      "purchaseOrderFormPreferences",
+      'purchaseOrderFormPreferences',
       JSON.stringify(formPreferences),
     );
   }, [formPreferences]);
@@ -795,14 +795,14 @@ const PurchaseOrderForm = () => {
         );
       } else {
         if (pinnedProductIds.length >= 10) {
-          notificationService.error("Maximum 10 products can be pinned");
+          notificationService.error('Maximum 10 products can be pinned');
           return;
         }
         await pinnedProductsService.pinProduct(productId);
         setPinnedProductIds((prev) => [...prev, productId]);
       }
     } catch (error) {
-      notificationService.error(error.message || "Failed to update pin");
+      notificationService.error(error.message || 'Failed to update pin');
     }
   };
 
@@ -827,27 +827,27 @@ const PurchaseOrderForm = () => {
       productType: productDisplayName,
       name: productDisplayName,
       productId: product.id,
-      grade: product.grade || "",
-      finish: product.finish || "",
-      size: product.size || "",
-      thickness: product.thickness || "",
-      specification: product.specifications || product.description || "",
-      itemDescription: "",
-      hsnCode: product.hsnCode || "",
-      unit: product.unit || "kg",
+      grade: product.grade || '',
+      finish: product.finish || '',
+      size: product.size || '',
+      thickness: product.thickness || '',
+      specification: product.specifications || product.description || '',
+      itemDescription: '',
+      hsnCode: product.hsnCode || '',
+      unit: product.unit || 'kg',
       quantity: 0,
       rate: product.sellingPrice || product.purchasePrice || 0,
-      discountType: "amount",
+      discountType: 'amount',
       discount: 0,
       vatRate: 5,
-      supplyType: "standard",
+      supplyType: 'standard',
       amount: 0,
       // Procurement channel fields (v2)
-      procurementChannel: "LOCAL",
+      procurementChannel: 'LOCAL',
       importContainerId: null,
       expectedMarginPct: 8,
       // Phase 4: Stock-In Enhancements - Line-level fields
-      lineStockStatus: "PENDING",
+      lineStockStatus: 'PENDING',
       expectedWeightKg: null,
       grnId: null,
       grnNumber: null,
@@ -882,9 +882,9 @@ const PurchaseOrderForm = () => {
       .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
     const outstanding = Math.max(0, total - totalPaid);
 
-    let status = "unpaid";
-    if (outstanding === 0 && total > 0) status = "paid";
-    else if (outstanding < total && outstanding > 0) status = "partially_paid";
+    let status = 'unpaid';
+    if (outstanding === 0 && total > 0) status = 'paid';
+    else if (outstanding < total && outstanding > 0) status = 'partially_paid';
 
     setPaymentStatus(status);
     return { totalPaid, outstanding, status };
@@ -915,14 +915,14 @@ const PurchaseOrderForm = () => {
   };
 
   const calculateDueDate = (poDate, terms) => {
-    if (!poDate || !terms) return "";
+    if (!poDate || !terms) return '';
     const date = new Date(poDate);
     const match = terms.match(/(\d+)/);
     if (match) {
       date.setDate(date.getDate() + parseInt(match[1]));
       return date.toISOString().slice(0, 10);
     }
-    return "";
+    return '';
   };
 
   // Auto-calculate due date when PO date or payment terms change
@@ -933,7 +933,7 @@ const PurchaseOrderForm = () => {
         purchaseOrder.paymentTerms,
       );
       if (calculatedDueDate && calculatedDueDate !== purchaseOrder.dueDate) {
-        handleInputChange("dueDate", calculatedDueDate);
+        handleInputChange('dueDate', calculatedDueDate);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -949,20 +949,20 @@ const PurchaseOrderForm = () => {
 
   // Normalize date value for <input type="date">
   const toDateInput = (d) => {
-    if (!d) return "";
+    if (!d) return '';
     try {
-      if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}/.test(d))
+      if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d))
         return d.slice(0, 10);
       const dt = new Date(d);
-      if (isNaN(dt.getTime())) return "";
+      if (isNaN(dt.getTime())) return '';
       return dt.toISOString().slice(0, 10);
     } catch {
-      return "";
+      return '';
     }
   };
   // Suppliers
   const { data: suppliersData, loading: loadingSuppliers } = useApiData(
-    () => supplierService.getSuppliers({ status: "active" }),
+    () => supplierService.getSuppliers({ status: 'active' }),
     [],
   );
 
@@ -973,7 +973,7 @@ const PurchaseOrderForm = () => {
       name: supplier.name,
       email: supplier.email,
       phone: supplier.phone,
-      address: supplier.address || supplier.company || "",
+      address: supplier.address || supplier.company || '',
       paymentTerms: supplier.paymentTerms || supplier.payment_terms,
       defaultCurrency: supplier.defaultCurrency || supplier.default_currency,
       contactName: supplier.contactName || supplier.contact_name,
@@ -990,14 +990,14 @@ const PurchaseOrderForm = () => {
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || "N/A";
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
-        uniqueName: uniqueName || "",
-        displayName: displayName || "",
-        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
+        uniqueName: uniqueName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
     });
   }, [availableProducts]);
@@ -1010,14 +1010,14 @@ const PurchaseOrderForm = () => {
       const displayName = product.displayName || product.display_name;
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || "N/A";
+      const label = uniqueName || displayName || 'N/A';
       return {
         ...product,
         label,
         searchDisplay: label,
-        uniqueName: uniqueName || "",
-        displayName: displayName || "",
-        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
+        uniqueName: uniqueName || '',
+        displayName: displayName || '',
+        subtitle: `${product.category} • ${product.grade || 'N/A'} • د.إ${sellingPrice}`,
       };
     });
   }, [searchInputs.__results]);
@@ -1033,52 +1033,52 @@ const PurchaseOrderForm = () => {
         setPurchaseOrder((prev) => ({
           ...prev,
           poNumber: data.poNumber || prev.poNumber,
-          supplierName: data.supplierName || "",
-          supplierEmail: data.supplierEmail || "",
-          supplierPhone: data.supplierPhone || "",
-          supplierAddress: data.supplierAddress || "",
+          supplierName: data.supplierName || '',
+          supplierEmail: data.supplierEmail || '',
+          supplierPhone: data.supplierPhone || '',
+          supplierAddress: data.supplierAddress || '',
           poDate: toDateInput(data.poDate) || prev.poDate,
-          expectedDeliveryDate: toDateInput(data.expectedDeliveryDate) || "",
-          status: data.status || "draft",
-          stockStatus: data.stockStatus || "retain",
+          expectedDeliveryDate: toDateInput(data.expectedDeliveryDate) || '',
+          status: data.status || 'draft',
+          stockStatus: data.stockStatus || 'retain',
           currency: data.currency || prev.currency,
-          supplierContactName: data.supplierContactName || "",
+          supplierContactName: data.supplierContactName || '',
           supplierContactEmail:
-            data.supplierContactEmail || data.supplierEmail || "",
+            data.supplierContactEmail || data.supplierEmail || '',
           supplierContactPhone:
-            data.supplierContactPhone || data.supplierPhone || "",
+            data.supplierContactPhone || data.supplierPhone || '',
           exchangeRate: data.exchangeRate || null,
           items: Array.isArray(data.items)
             ? data.items.map((it) => ({
-                productType: it.name || "",
-                name: it.name || "",
-                grade: "",
-                thickness: "",
-                size: "",
-                finish: "",
-                specification: it.specifications || "",
-                quantity: it.quantity || 0,
-                rate: it.rate || 0,
-                amount: it.amount || 0,
-                // Phase 4: Stock-In Enhancement fields
-                lineStockStatus:
-                  it.lineStockStatus || it.line_stock_status || "PENDING",
-                expectedWeightKg:
+              productType: it.name || '',
+              name: it.name || '',
+              grade: '',
+              thickness: '',
+              size: '',
+              finish: '',
+              specification: it.specifications || '',
+              quantity: it.quantity || 0,
+              rate: it.rate || 0,
+              amount: it.amount || 0,
+              // Phase 4: Stock-In Enhancement fields
+              lineStockStatus:
+                  it.lineStockStatus || it.line_stock_status || 'PENDING',
+              expectedWeightKg:
                   it.expectedWeightKg || it.expected_weight_kg || null,
-                grnId: it.grnId || it.grn_id || null,
-                grnNumber: it.grnNumber || it.grn_number || null,
-                receivedQty: it.receivedQty || it.received_qty || null,
-                receivedWeightKg:
+              grnId: it.grnId || it.grn_id || null,
+              grnNumber: it.grnNumber || it.grn_number || null,
+              receivedQty: it.receivedQty || it.received_qty || null,
+              receivedWeightKg:
                   it.receivedWeightKg || it.received_weight_kg || null,
-              }))
+            }))
             : prev.items,
           subtotal: data.subtotal || 0,
           vatAmount: data.vatAmount || data.taxAmount || 0,
           total: data.total || 0,
-          notes: data.notes || "",
-          terms: data.terms || "",
+          notes: data.notes || '',
+          terms: data.terms || '',
           paymentTerms: data.paymentTerms || prev.paymentTerms,
-          dueDate: toDateInput(data.dueDate) || "",
+          dueDate: toDateInput(data.dueDate) || '',
         }));
 
         // Load existing payments
@@ -1092,7 +1092,7 @@ const PurchaseOrderForm = () => {
           setSelectedWarehouse(data.warehouseId.toString());
         }
       } catch (e) {
-        notificationService.error("Failed to load purchase order");
+        notificationService.error('Failed to load purchase order');
       } finally {
         setLoading(false);
       }
@@ -1139,7 +1139,7 @@ const PurchaseOrderForm = () => {
       try {
         await purchaseOrderService.seedWarehouses();
         notificationService.success(
-          "Warehouses initialized successfully. Please try again.",
+          'Warehouses initialized successfully. Please try again.',
         );
         return;
       } catch (seedError) {
@@ -1150,27 +1150,27 @@ const PurchaseOrderForm = () => {
     // Fallback to sample warehouse data if API fails
     const sampleWarehouses = [
       {
-        id: "WH-MAIN",
-        name: "Main Warehouse",
-        city: "Sharjah",
+        id: 'WH-MAIN',
+        name: 'Main Warehouse',
+        city: 'Sharjah',
         isActive: true,
       },
       {
-        id: "WH-DBX",
-        name: "Dubai Branch Warehouse",
-        city: "Dubai",
+        id: 'WH-DBX',
+        name: 'Dubai Branch Warehouse',
+        city: 'Dubai',
         isActive: true,
       },
       {
-        id: "WH-AUH",
-        name: "Abu Dhabi Warehouse",
-        city: "Abu Dhabi",
+        id: 'WH-AUH',
+        name: 'Abu Dhabi Warehouse',
+        city: 'Abu Dhabi',
         isActive: true,
       },
     ];
     setWarehouses(sampleWarehouses.filter((w) => w.isActive));
     notificationService.warning(
-      "Using offline warehouse data. Some features may not work properly.",
+      'Using offline warehouse data. Some features may not work properly.',
     );
   };
 
@@ -1178,14 +1178,14 @@ const PurchaseOrderForm = () => {
   const fetchImportContainers = async () => {
     try {
       const response = await importContainerService.getContainers({
-        status: "PENDING", // Only show containers that can receive goods
+        status: 'PENDING', // Only show containers that can receive goods
         limit: 50,
       });
       const containers =
         response?.containers || response?.data || response || [];
       setImportContainers(Array.isArray(containers) ? containers : []);
     } catch (error) {
-      console.error("Failed to fetch import containers:", error);
+      console.error('Failed to fetch import containers:', error);
       setImportContainers([]);
     }
   };
@@ -1233,38 +1233,38 @@ const PurchaseOrderForm = () => {
     if (!found) {
       setPurchaseOrder((prev) => ({
         ...prev,
-        supplierName: "",
-        supplierEmail: "",
-        supplierPhone: "",
-        supplierAddress: "",
+        supplierName: '',
+        supplierEmail: '',
+        supplierPhone: '',
+        supplierAddress: '',
       }));
       return;
     }
     setPurchaseOrder((prev) => ({
       ...prev,
-      supplierName: found.name || "",
-      supplierEmail: found.email || "",
-      supplierPhone: found.phone || "",
-      supplierAddress: found.address || found.company || "",
-      terms: found.paymentTerms || prev.terms || "",
-      currency: found.defaultCurrency || prev.currency || "AED",
-      supplierContactName: found.contactName || "",
-      supplierContactEmail: found.contactEmail || found.email || "",
-      supplierContactPhone: found.contactPhone || found.phone || "",
+      supplierName: found.name || '',
+      supplierEmail: found.email || '',
+      supplierPhone: found.phone || '',
+      supplierAddress: found.address || found.company || '',
+      terms: found.paymentTerms || prev.terms || '',
+      currency: found.defaultCurrency || prev.currency || 'AED',
+      supplierContactName: found.contactName || '',
+      supplierContactEmail: found.contactEmail || found.email || '',
+      supplierContactPhone: found.contactPhone || found.phone || '',
     }));
   };
 
   // Helper function to extract thickness from product specs or size string
   const getThickness = (product) => {
     try {
-      const cat = (product?.category || "").toString().toLowerCase();
+      const cat = (product?.category || '').toString().toLowerCase();
       const isPipe = /pipe/.test(cat);
       const specThk =
         product?.specifications?.thickness ||
         product?.specifications?.Thickness;
       if (specThk && String(specThk).trim()) return String(specThk).trim();
-      if (isPipe) return ""; // avoid deriving thickness from pipe size
-      const sizeStr = product?.size ? String(product.size) : "";
+      if (isPipe) return ''; // avoid deriving thickness from pipe size
+      const sizeStr = product?.size ? String(product.size) : '';
       const mmMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*(mm)\b/i);
       if (mmMatch) return `${mmMatch[1]}mm`;
       const xParts = sizeStr
@@ -1279,28 +1279,28 @@ const PurchaseOrderForm = () => {
     } catch (err) {
       // Silently ignore parsing error
     }
-    return "";
+    return '';
   };
 
   const handleProductSelect = (index, selectedProduct) => {
     // Accept either a product object or a name string (backward compatibility)
     const product =
-      typeof selectedProduct === "object" && selectedProduct !== null
+      typeof selectedProduct === 'object' && selectedProduct !== null
         ? selectedProduct
         : availableProducts.find(
-            (p) => p.id === selectedProduct || p.name === selectedProduct,
-          );
+          (p) => p.id === selectedProduct || p.name === selectedProduct,
+        );
 
-    if (product && typeof product === "object") {
+    if (product && typeof product === 'object') {
       const updatedItems = [...purchaseOrder.items];
 
       // Try multiple possible field names for finish and thickness
       const rawFinish =
-        product.finish || product.surfaceFinish || product.finishType || "";
+        product.finish || product.surfaceFinish || product.finishType || '';
 
       // Match finish with predefined FINISHES options (case-insensitive)
       const finish = (() => {
-        if (!rawFinish) return "";
+        if (!rawFinish) return '';
         const rawFinishLower = rawFinish.toLowerCase();
         const matchedFinish = FINISHES.find(
           (f) => f.toLowerCase() === rawFinishLower,
@@ -1321,27 +1321,27 @@ const PurchaseOrderForm = () => {
       const primaryUom = (
         product.primaryUom ||
         product.primary_uom ||
-        ""
+        ''
       ).toUpperCase();
       let quantityUom;
-      if (primaryUom === "MT" || primaryUom === "KG") {
+      if (primaryUom === 'MT' || primaryUom === 'KG') {
         quantityUom = primaryUom;
       } else {
-        const category = (product.category || "").toLowerCase();
-        const isCoil = category.includes("coil");
-        quantityUom = isCoil ? "MT" : "PCS";
+        const category = (product.category || '').toLowerCase();
+        const isCoil = category.includes('coil');
+        quantityUom = isCoil ? 'MT' : 'PCS';
       }
 
       // Get pricing basis and unit weight from product
       const pricingBasis =
-        product.pricingBasis || product.pricing_basis || "PER_MT";
+        product.pricingBasis || product.pricing_basis || 'PER_MT';
       const unitWeightKg =
         product.unitWeightKg || product.unit_weight_kg || null;
 
       // Flag if weight is missing for weight-based pricing
       const missingWeightWarning =
-        (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") &&
-        quantityUom === "PCS" &&
+        (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG') &&
+        quantityUom === 'PCS' &&
         !unitWeightKg;
 
       const quantity = updatedItems[index].quantity || 0;
@@ -1350,9 +1350,9 @@ const PurchaseOrderForm = () => {
 
       // Calculate theoretical weight
       let theoreticalWeightKg = null;
-      if (quantityUom === "MT") {
+      if (quantityUom === 'MT') {
         theoreticalWeightKg = quantity * 1000;
-      } else if (quantityUom === "KG") {
+      } else if (quantityUom === 'KG') {
         theoreticalWeightKg = quantity;
       } else if (unitWeightKg) {
         theoreticalWeightKg = quantity * unitWeightKg;
@@ -1372,15 +1372,15 @@ const PurchaseOrderForm = () => {
         productType: productDisplayName,
         name: productDisplayName,
         productId: product.id,
-        grade: product.grade || product.steelGrade || "",
+        grade: product.grade || product.steelGrade || '',
         finish,
-        size: product.size || product.dimensions || "",
+        size: product.size || product.dimensions || '',
         thickness,
-        specification: product.specifications || product.description || "",
-        hsnCode: product.hsnCode || "",
-        unit: product.unit || "kg",
+        specification: product.specifications || product.description || '',
+        hsnCode: product.hsnCode || '',
+        unit: product.unit || 'kg',
         rate,
-        supplyType: updatedItems[index].supplyType || "standard",
+        supplyType: updatedItems[index].supplyType || 'standard',
         vatRate: updatedItems[index].vatRate || 5,
         amount,
         // Pricing & Commercial Fields
@@ -1409,7 +1409,7 @@ const PurchaseOrderForm = () => {
       }));
 
       // Clear search input for this row
-      setSearchInputs((prev) => ({ ...prev, [index]: "" }));
+      setSearchInputs((prev) => ({ ...prev, [index]: '' }));
     }
   };
 
@@ -1434,7 +1434,7 @@ const PurchaseOrderForm = () => {
 
     // Debounced search
     clearTimeout(searchTimerRef.current);
-    const term = (value || "").trim();
+    const term = (value || '').trim();
     try {
       searchTimerRef.current = setTimeout(async () => {
         if (!term) {
@@ -1467,17 +1467,17 @@ const PurchaseOrderForm = () => {
     };
 
     // Auto-update VAT rate based on supply type (matching Invoice form)
-    if (field === "supplyType") {
-      if (value === "standard") {
+    if (field === 'supplyType') {
+      if (value === 'standard') {
         updatedItems[index].vatRate = 5;
-      } else if (value === "zero_rated" || value === "exempt") {
+      } else if (value === 'zero_rated' || value === 'exempt') {
         updatedItems[index].vatRate = 0;
       }
     }
 
     // Auto-update expected margin based on procurement channel
-    if (field === "procurementChannel") {
-      if (value === "IMPORTED") {
+    if (field === 'procurementChannel') {
+      if (value === 'IMPORTED') {
         updatedItems[index].expectedMarginPct = 18; // Default 18% for imports
       } else {
         updatedItems[index].expectedMarginPct = 8; // Default 8% for local
@@ -1487,30 +1487,30 @@ const PurchaseOrderForm = () => {
 
     // Calculate amount when quantity, rate, discount, unitWeightKg, or pricingBasis changes
     if (
-      field === "quantity" ||
-      field === "rate" ||
-      field === "discount" ||
-      field === "discountType" ||
-      field === "vatRate" ||
-      field === "supplyType" ||
-      field === "unitWeightKg" ||
-      field === "pricingBasis"
+      field === 'quantity' ||
+      field === 'rate' ||
+      field === 'discount' ||
+      field === 'discountType' ||
+      field === 'vatRate' ||
+      field === 'supplyType' ||
+      field === 'unitWeightKg' ||
+      field === 'pricingBasis'
     ) {
       const item = updatedItems[index];
       const quantity =
-        field === "quantity" ? parseFloat(value) || 0 : item.quantity || 0;
-      const rate = field === "rate" ? parseFloat(value) || 0 : item.rate || 0;
+        field === 'quantity' ? parseFloat(value) || 0 : item.quantity || 0;
+      const rate = field === 'rate' ? parseFloat(value) || 0 : item.rate || 0;
       const discount =
-        field === "discount" ? parseFloat(value) || 0 : item.discount || 0;
+        field === 'discount' ? parseFloat(value) || 0 : item.discount || 0;
       const discountType =
-        field === "discountType" ? value : item.discountType || "amount";
+        field === 'discountType' ? value : item.discountType || 'amount';
       const unitWeightKg =
-        field === "unitWeightKg"
+        field === 'unitWeightKg'
           ? parseFloat(value) || null
           : item.unitWeightKg;
       const pricingBasis =
-        field === "pricingBasis" ? value : item.pricingBasis || "PER_MT";
-      const quantityUom = item.quantityUom || "PCS";
+        field === 'pricingBasis' ? value : item.pricingBasis || 'PER_MT';
+      const quantityUom = item.quantityUom || 'PCS';
 
       // Calculate gross amount using pricing-aware function
       const grossAmount = calculateItemAmount(
@@ -1523,7 +1523,7 @@ const PurchaseOrderForm = () => {
 
       // Apply item-level discount
       const discountAmount =
-        discountType === "percentage"
+        discountType === 'percentage'
           ? (grossAmount * discount) / 100
           : discount;
 
@@ -1531,10 +1531,10 @@ const PurchaseOrderForm = () => {
       updatedItems[index].amount = grossAmount - discountAmount;
 
       // Update theoretical weight when quantity or unitWeightKg changes
-      if (field === "quantity" || field === "unitWeightKg") {
-        if (quantityUom === "MT") {
+      if (field === 'quantity' || field === 'unitWeightKg') {
+        if (quantityUom === 'MT') {
           updatedItems[index].theoreticalWeightKg = quantity * 1000;
-        } else if (quantityUom === "KG") {
+        } else if (quantityUom === 'KG') {
           updatedItems[index].theoreticalWeightKg = quantity;
         } else if (unitWeightKg) {
           updatedItems[index].theoreticalWeightKg = quantity * unitWeightKg;
@@ -1542,10 +1542,10 @@ const PurchaseOrderForm = () => {
       }
 
       // Update missing weight warning
-      if (field === "unitWeightKg" || field === "pricingBasis") {
+      if (field === 'unitWeightKg' || field === 'pricingBasis') {
         updatedItems[index].missingWeightWarning =
-          (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") &&
-          quantityUom === "PCS" &&
+          (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG') &&
+          quantityUom === 'PCS' &&
           !unitWeightKg;
       }
     }
@@ -1561,7 +1561,7 @@ const PurchaseOrderForm = () => {
 
       // Apply order-level discount
       const orderDiscountAmount =
-        prev.discountType === "percentage"
+        prev.discountType === 'percentage'
           ? (itemsSubtotal * (prev.discountPercentage || 0)) / 100
           : prev.discountAmount || 0;
 
@@ -1598,36 +1598,36 @@ const PurchaseOrderForm = () => {
       items: [
         ...prev.items,
         {
-          productType: "",
-          name: "",
+          productType: '',
+          name: '',
           productId: null,
-          grade: "",
-          thickness: "",
-          size: "",
-          finish: "",
-          specification: "",
-          itemDescription: "",
-          hsnCode: "",
-          unit: "kg",
+          grade: '',
+          thickness: '',
+          size: '',
+          finish: '',
+          specification: '',
+          itemDescription: '',
+          hsnCode: '',
+          unit: 'kg',
           quantity: 0,
           rate: 0,
-          discountType: "amount",
+          discountType: 'amount',
           discount: 0,
           vatRate: 5,
-          supplyType: "standard",
+          supplyType: 'standard',
           amount: 0,
           // Procurement channel fields (v2)
-          procurementChannel: "LOCAL",
+          procurementChannel: 'LOCAL',
           importContainerId: null,
           expectedMarginPct: 8, // Default 8% for LOCAL, 18% for IMPORTED
           // Pricing & Commercial Fields
-          pricingBasis: "PER_MT",
+          pricingBasis: 'PER_MT',
           unitWeightKg: null,
-          quantityUom: "PCS",
+          quantityUom: 'PCS',
           theoreticalWeightKg: null,
           missingWeightWarning: false,
           // Phase 4: Stock-In Enhancements - Line-level fields
-          lineStockStatus: "PENDING", // PENDING, PARTIAL, RECEIVED - supports partial receipts
+          lineStockStatus: 'PENDING', // PENDING, PARTIAL, RECEIVED - supports partial receipts
           expectedWeightKg: null, // Expected weight at PO time for variance tracking
           // GRN linkage fields (populated when GRN is created)
           grnId: null,
@@ -1663,7 +1663,7 @@ const PurchaseOrderForm = () => {
     }
   };
 
-  const handleSubmit = async (status = "draft") => {
+  const handleSubmit = async (status = 'draft') => {
     // STEP 1: Validate all required fields
     const submitValidationErrors = [];
     const invalidFieldsSet = new Set();
@@ -1671,24 +1671,24 @@ const PurchaseOrderForm = () => {
     const poData = { ...purchaseOrder, status };
 
     // Supplier validation
-    if (!poData.supplierName || poData.supplierName.trim() === "") {
-      submitValidationErrors.push("Supplier name is required");
-      invalidFieldsSet.add("supplierName");
+    if (!poData.supplierName || poData.supplierName.trim() === '') {
+      submitValidationErrors.push('Supplier name is required');
+      invalidFieldsSet.add('supplierName');
     }
 
     // Warehouse validation
     if (!selectedWarehouse) {
-      submitValidationErrors.push("Please select a destination warehouse");
-      invalidFieldsSet.add("warehouse");
+      submitValidationErrors.push('Please select a destination warehouse');
+      invalidFieldsSet.add('warehouse');
     }
 
     // Items validation
     if (!poData.items || poData.items.length === 0) {
-      submitValidationErrors.push("At least one item is required");
+      submitValidationErrors.push('At least one item is required');
     } else {
       let hasValidItem = false;
       poData.items.forEach((item, index) => {
-        if (!item.name || item.name.trim() === "") {
+        if (!item.name || item.name.trim() === '') {
           submitValidationErrors.push(
             `Item ${index + 1}: Product name is required`,
           );
@@ -1722,7 +1722,7 @@ const PurchaseOrderForm = () => {
 
       if (!hasValidItem) {
         submitValidationErrors.push(
-          "At least one item must have a valid quantity",
+          'At least one item must have a valid quantity',
         );
       }
     }
@@ -1734,9 +1734,9 @@ const PurchaseOrderForm = () => {
 
       // Auto-scroll to error alert
       setTimeout(() => {
-        const errorAlert = document.getElementById("validation-errors-alert");
+        const errorAlert = document.getElementById('validation-errors-alert');
         if (errorAlert) {
-          errorAlert.scrollIntoView({ behavior: "instant", block: "center" });
+          errorAlert.scrollIntoView({ behavior: 'instant', block: 'center' });
         }
       }, 100);
 
@@ -1758,7 +1758,7 @@ const PurchaseOrderForm = () => {
       // If using sample data, remove warehouse_id to avoid FK constraint error
       const useApiWarehouse =
         selectedWarehouseDetails?.id &&
-        !selectedWarehouseDetails.id.toString().startsWith("WH-");
+        !selectedWarehouseDetails.id.toString().startsWith('WH-');
 
       // Transform data to match backend expectations (snake_case)
       const transformedData = {
@@ -1773,7 +1773,7 @@ const PurchaseOrderForm = () => {
         grace_period_days: poData.gracePeriodDays || 5, // Phase 4: Grace period for on-time delivery
         status: poData.status,
         stock_status: poData.stockStatus,
-        currency: poData.currency || "AED",
+        currency: poData.currency || 'AED',
         exchange_rate: poData.exchangeRate || null, // Phase 4: Exchange rate for multi-currency POs
         payment_terms: poData.paymentTerms || poData.terms || null,
         due_date: poData.dueDate || null,
@@ -1788,14 +1788,14 @@ const PurchaseOrderForm = () => {
         // Trade terms
         incoterms: poData.incoterms || null,
         // Approval workflow
-        approval_status: poData.approvalStatus || "pending",
+        approval_status: poData.approvalStatus || 'pending',
         // Additional charges
         freight_charges: parseFloat(poData.freightCharges) || 0,
         shipping_charges: parseFloat(poData.shippingCharges) || 0,
         handling_charges: parseFloat(poData.handlingCharges) || 0,
         other_charges: parseFloat(poData.otherCharges) || 0,
         // Order-level discount
-        discount_type: poData.discountType || "amount",
+        discount_type: poData.discountType || 'amount',
         discount_percentage: parseFloat(poData.discountPercentage) || 0,
         discount_amount: parseFloat(poData.discountAmount) || 0,
         // Only include warehouse_id if it's a real warehouse from API
@@ -1804,7 +1804,7 @@ const PurchaseOrderForm = () => {
           : {}),
         warehouse_name: selectedWarehouseDetails
           ? `${selectedWarehouseDetails.name} (${selectedWarehouseDetails.city})`
-          : "",
+          : '',
         notes: poData.notes || null,
         terms: poData.terms || null,
         subtotal: parseFloat(poData.subtotal) || 0,
@@ -1825,8 +1825,8 @@ const PurchaseOrderForm = () => {
         payment_status: paymentStatus,
         // Transform items array
         items: poData.items.map((item) => ({
-          product_type: item.productType || item.name || "",
-          name: item.name || item.productType || "",
+          product_type: item.productType || item.name || '',
+          name: item.name || item.productType || '',
           grade: item.grade || null,
           thickness: item.thickness || null,
           size: item.size || null,
@@ -1836,18 +1836,18 @@ const PurchaseOrderForm = () => {
           rate: parseFloat(item.rate) || 0,
           amount: parseFloat(item.amount) || 0,
           vat_rate: parseFloat(item.vatRate) || 5,
-          unit: item.unit || "kg",
+          unit: item.unit || 'kg',
           // Pricing & Commercial Fields
-          pricing_basis: item.pricingBasis || "PER_MT",
+          pricing_basis: item.pricingBasis || 'PER_MT',
           unit_weight_kg: item.unitWeightKg
             ? parseFloat(item.unitWeightKg)
             : null,
-          quantity_uom: item.quantityUom || "PCS",
+          quantity_uom: item.quantityUom || 'PCS',
           theoretical_weight_kg: item.theoreticalWeightKg
             ? parseFloat(item.theoreticalWeightKg)
             : null,
           // Phase 4: Stock-In Enhancement fields
-          line_stock_status: item.lineStockStatus || "PENDING",
+          line_stock_status: item.lineStockStatus || 'PENDING',
           expected_weight_kg: item.expectedWeightKg
             ? parseFloat(item.expectedWeightKg)
             : null,
@@ -1870,36 +1870,36 @@ const PurchaseOrderForm = () => {
       }
 
       // If stock status is received, trigger inventory creation via the stock-status endpoint
-      if (poData.stockStatus === "received") {
+      if (poData.stockStatus === 'received') {
         try {
           const stockStatusResponse = await (
-            await import("../services/api")
+            await import('../services/api')
           ).apiClient.patch(`/purchase-orders/${savedPO.id}/stock-status`, {
-            stock_status: "received",
+            stock_status: 'received',
           });
 
           if (stockStatusResponse.inventoryCreated) {
             notificationService.success(
-              "Inventory items created successfully!",
+              'Inventory items created successfully!',
             );
           }
         } catch (stockError) {
           notificationService.warning(
-            "Purchase order saved but inventory creation failed. Please check the inventory manually.",
+            'Purchase order saved but inventory creation failed. Please check the inventory manually.',
           );
         }
       }
 
       // Show success notification
-      const action = id ? "updated" : "created";
+      const action = id ? 'updated' : 'created';
       notificationService.success(`Purchase order ${action} successfully!`);
 
-      navigate("/purchase-orders");
+      navigate('/purchase-orders');
     } catch (error) {
-      const _action = id ? "update" : "create";
+      const _action = id ? 'update' : 'create';
 
       // Extract more detailed error message
-      let errorMessage = "Unknown error";
+      let errorMessage = 'Unknown error';
       const errorData = error.response?.data;
 
       // Check for validation errors array
@@ -1907,16 +1907,16 @@ const PurchaseOrderForm = () => {
         // Join all error messages
         errorMessage = errorData.errors
           .map((err) =>
-            typeof err === "string"
+            typeof err === 'string'
               ? err
               : err.message || err.msg || JSON.stringify(err),
           )
-          .join(", ");
+          .join(', ');
 
         // Show each error as a separate notification
         errorData.errors.forEach((err) => {
           const msg =
-            typeof err === "string"
+            typeof err === 'string'
               ? err
               : err.message || err.msg || JSON.stringify(err);
           notificationService.error(msg);
@@ -1932,11 +1932,11 @@ const PurchaseOrderForm = () => {
       // Handle specific warehouse foreign key error
       if (
         errorData?.message &&
-        errorData.message.includes("Warehouse with ID")
+        errorData.message.includes('Warehouse with ID')
       ) {
         notificationService.error(
-          "Database setup required: Warehouses not initialized. " +
-            "Please start PostgreSQL service and refresh the page to auto-initialize warehouses.",
+          'Database setup required: Warehouses not initialized. ' +
+            'Please start PostgreSQL service and refresh the page to auto-initialize warehouses.',
         );
       } else {
         setErrors({ submit: errorMessage });
@@ -1948,38 +1948,38 @@ const PurchaseOrderForm = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
     >
       {/* ==================== STICKY HEADER ==================== */}
       <div
         className={`sticky top-0 z-20 backdrop-blur-md ${
           isDarkMode
-            ? "bg-[#0f151b]/94 border-b border-[#2a3640]"
-            : "bg-white/94 border-b border-gray-200"
+            ? 'bg-[#0f151b]/94 border-b border-[#2a3640]'
+            : 'bg-white/94 border-b border-gray-200'
         } px-4 py-3`}
       >
         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate("/purchase-orders")}
+              onClick={() => navigate('/purchase-orders')}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkMode
-                  ? "hover:bg-[#1a2129] text-[#93a4b4]"
-                  : "hover:bg-gray-100 text-gray-600"
+                  ? 'hover:bg-[#1a2129] text-[#93a4b4]'
+                  : 'hover:bg-gray-100 text-gray-600'
               }`}
             >
               <ArrowLeft size={20} />
             </button>
             <div>
               <h1
-                className={`text-lg font-extrabold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                className={`text-lg font-extrabold ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
               >
-                {id ? "Edit" : "Create"} Purchase Order
+                {id ? 'Edit' : 'Create'} Purchase Order
               </h1>
               <div
-                className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
-                {purchaseOrder.poNumber || "New PO"}
+                {purchaseOrder.poNumber || 'New PO'}
               </div>
             </div>
           </div>
@@ -1987,16 +1987,16 @@ const PurchaseOrderForm = () => {
             {/* Status Pill */}
             <span
               className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                purchaseOrder.status === "draft"
-                  ? "bg-gray-500/20 text-gray-400"
-                  : purchaseOrder.status === "pending"
-                    ? "bg-yellow-500/20 text-yellow-400"
-                    : purchaseOrder.status === "approved"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-gray-500/20 text-gray-400"
+                purchaseOrder.status === 'draft'
+                  ? 'bg-gray-500/20 text-gray-400'
+                  : purchaseOrder.status === 'pending'
+                    ? 'bg-yellow-500/20 text-yellow-400'
+                    : purchaseOrder.status === 'approved'
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-gray-500/20 text-gray-400'
               }`}
             >
-              {purchaseOrder.status?.toUpperCase() || "DRAFT"}
+              {purchaseOrder.status?.toUpperCase() || 'DRAFT'}
             </span>
 
             <button
@@ -2026,9 +2026,9 @@ const PurchaseOrderForm = () => {
               Preview
             </button>
             <button
-              onClick={() => handleSubmit("draft")}
+              onClick={() => handleSubmit('draft')}
               disabled={isSaving}
-              className={`${BTN_CLASSES(isDarkMode)} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`${BTN_CLASSES(isDarkMode)} ${isSaving ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
@@ -2036,9 +2036,9 @@ const PurchaseOrderForm = () => {
               Save Draft
             </button>
             <button
-              onClick={() => handleSubmit("pending")}
+              onClick={() => handleSubmit('pending')}
               disabled={isSaving}
-              className={`${BTN_PRIMARY} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`${BTN_PRIMARY} ${isSaving ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
@@ -2059,13 +2059,13 @@ const PurchaseOrderForm = () => {
             id="validation-errors-alert"
             className={`mb-4 p-4 rounded-2xl border-2 ${
               isDarkMode
-                ? "bg-red-900/20 border-red-600 text-red-200"
-                : "bg-red-50 border-red-500 text-red-800"
+                ? 'bg-red-900/20 border-red-600 text-red-200'
+                : 'bg-red-50 border-red-500 text-red-800'
             }`}
           >
             <div className="flex items-start gap-3">
               <AlertTriangle
-                className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+                className={`flex-shrink-0 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
                 size={20}
               />
               <div className="flex-1">
@@ -2084,8 +2084,8 @@ const PurchaseOrderForm = () => {
                   }}
                   className={`mt-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                     isDarkMode
-                      ? "bg-red-800 hover:bg-red-700 text-white"
-                      : "bg-red-600 hover:bg-red-700 text-white"
+                      ? 'bg-red-800 hover:bg-red-700 text-white'
+                      : 'bg-red-600 hover:bg-red-700 text-white'
                   }`}
                 >
                   Dismiss
@@ -2113,7 +2113,7 @@ const PurchaseOrderForm = () => {
                     type="text"
                     value={purchaseOrder.poNumber}
                     onChange={(e) =>
-                      handleInputChange("poNumber", e.target.value)
+                      handleInputChange('poNumber', e.target.value)
                     }
                     placeholder="PO-2024-001"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -2126,7 +2126,7 @@ const PurchaseOrderForm = () => {
                     type="date"
                     value={purchaseOrder.poDate}
                     onChange={(e) =>
-                      handleInputChange("poDate", e.target.value)
+                      handleInputChange('poDate', e.target.value)
                     }
                     className={INPUT_CLASSES(isDarkMode)}
                   />
@@ -2140,7 +2140,7 @@ const PurchaseOrderForm = () => {
                     type="date"
                     value={purchaseOrder.expectedDeliveryDate}
                     onChange={(e) =>
-                      handleInputChange("expectedDeliveryDate", e.target.value)
+                      handleInputChange('expectedDeliveryDate', e.target.value)
                     }
                     className={INPUT_CLASSES(isDarkMode)}
                   />
@@ -2148,13 +2148,13 @@ const PurchaseOrderForm = () => {
                 <div className="col-span-6 sm:col-span-3">
                   <FormSelect
                     label="Warehouse"
-                    value={selectedWarehouse || "none"}
+                    value={selectedWarehouse || 'none'}
                     onValueChange={(value) =>
-                      setSelectedWarehouse(value === "none" ? "" : value)
+                      setSelectedWarehouse(value === 'none' ? '' : value)
                     }
                     required={true}
                     validationState={
-                      invalidFields.has("warehouse") ? "invalid" : null
+                      invalidFields.has('warehouse') ? 'invalid' : null
                     }
                   >
                     <SelectItem value="none">Select Warehouse</SelectItem>
@@ -2180,16 +2180,16 @@ const PurchaseOrderForm = () => {
                     <div className="flex-1">
                       <FormSelect
                         label="Supplier"
-                        value={selectedSupplierId || "none"}
+                        value={selectedSupplierId || 'none'}
                         onValueChange={(value) => {
-                          const supplierId = value === "none" ? "" : value;
+                          const supplierId = value === 'none' ? '' : value;
                           setSelectedSupplierId(supplierId);
                           handleSupplierSelect(supplierId);
                         }}
                         disabled={loadingSuppliers}
                         required={true}
                         validationState={
-                          invalidFields.has("supplier") ? "invalid" : null
+                          invalidFields.has('supplier') ? 'invalid' : null
                         }
                       >
                         <SelectItem value="none">Select Supplier</SelectItem>
@@ -2216,7 +2216,7 @@ const PurchaseOrderForm = () => {
                   </div>
                   {purchaseOrder.supplierTRN && (
                     <div
-                      className={`text-xs mt-1 font-mono ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                      className={`text-xs mt-1 font-mono ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
                       TRN: {purchaseOrder.supplierTRN}
                     </div>
@@ -2227,7 +2227,7 @@ const PurchaseOrderForm = () => {
                     label="Stock Status"
                     value={purchaseOrder.stockStatus}
                     onValueChange={(value) =>
-                      handleInputChange("stockStatus", value)
+                      handleInputChange('stockStatus', value)
                     }
                   >
                     <SelectItem value="retain">
@@ -2240,11 +2240,11 @@ const PurchaseOrderForm = () => {
                 <div className="col-span-6 sm:col-span-3">
                   <FormSelect
                     label="Incoterms"
-                    value={purchaseOrder.incoterms || "none"}
+                    value={purchaseOrder.incoterms || 'none'}
                     onValueChange={(value) =>
                       handleInputChange(
-                        "incoterms",
-                        value === "none" ? "" : value,
+                        'incoterms',
+                        value === 'none' ? '' : value,
                       )
                     }
                   >
@@ -2284,7 +2284,7 @@ const PurchaseOrderForm = () => {
               {formPreferences.showSpeedButtons && (
                 <div className="mb-3">
                   <p
-                    className={`text-xs font-medium mb-2 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                    className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}
                   >
                     Quick Add (Pinned & Top Products)
                   </p>
@@ -2298,32 +2298,32 @@ const PurchaseOrderForm = () => {
                             className={`w-full px-2.5 py-2 pr-7 rounded-[10px] border text-xs font-medium transition-all truncate text-left ${
                               isPinned
                                 ? isDarkMode
-                                  ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60"
-                                  : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200"
+                                  ? 'border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60'
+                                  : 'border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200'
                                 : isDarkMode
-                                  ? "border-[#2a3640] bg-[#0f151b] text-[#93a4b4] hover:border-[#4aa3ff]"
-                                  : "border-gray-300 bg-white text-gray-700 hover:border-blue-500"
+                                  ? 'border-[#2a3640] bg-[#0f151b] text-[#93a4b4] hover:border-[#4aa3ff]'
+                                  : 'border-gray-300 bg-white text-gray-700 hover:border-blue-500'
                             }`}
                             title={
                               product.displayName ||
                               product.display_name ||
-                              "N/A"
+                              'N/A'
                             }
                           >
-                            {product.uniqueName || product.unique_name || "N/A"}
+                            {product.uniqueName || product.unique_name || 'N/A'}
                           </button>
                           <button
                             onClick={(e) => handleTogglePin(e, product.id)}
                             className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all ${
                               isPinned
                                 ? isDarkMode
-                                  ? "text-teal-300"
-                                  : "text-teal-700"
+                                  ? 'text-teal-300'
+                                  : 'text-teal-700'
                                 : isDarkMode
-                                  ? "text-gray-500 hover:text-teal-400"
-                                  : "text-gray-400 hover:text-teal-600"
+                                  ? 'text-gray-500 hover:text-teal-400'
+                                  : 'text-gray-400 hover:text-teal-600'
                             }`}
-                            title={isPinned ? "Unpin product" : "Pin product"}
+                            title={isPinned ? 'Unpin product' : 'Pin product'}
                           >
                             {isPinned ? (
                               <Pin size={12} fill="currentColor" />
@@ -2341,90 +2341,90 @@ const PurchaseOrderForm = () => {
               {/* Desktop Table - preserve existing table structure but remove duplicate */}
               <div className="hidden md:block overflow-x-auto">
                 <table
-                  className={`min-w-full table-fixed ${isDarkMode ? "divide-gray-600" : "divide-gray-200"}`}
+                  className={`min-w-full table-fixed ${isDarkMode ? 'divide-gray-600' : 'divide-gray-200'}`}
                 >
-                  <thead className={isDarkMode ? "bg-[#0f151b]" : "bg-gray-50"}>
+                  <thead className={isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50'}>
                     <tr>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "18%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '18%' }}
                       >
                         Product
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '5%' }}
                       >
                         Qty
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '5%' }}
                       >
                         Unit Wt
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '5%' }}
                       >
                         Exp. Wt
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '8%' }}
                       >
                         Rate
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '8%' }}
                       >
                         Channel
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '8%' }}
                       >
                         Supply Type
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '5%' }}
                       >
                         VAT %
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '8%' }}
                       >
                         Amount
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "7%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '7%' }}
                       >
                         Stock
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '8%' }}
                       >
                         GRN
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
-                        style={{ width: "4%" }}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
+                        style={{ width: '4%' }}
                       ></th>
                     </tr>
                   </thead>
                   <tbody
-                    className={`divide-y ${isDarkMode ? "divide-[#2a3640]" : "divide-gray-200"}`}
+                    className={`divide-y ${isDarkMode ? 'divide-[#2a3640]' : 'divide-gray-200'}`}
                   >
                     {purchaseOrder.items.map((item, index) => (
                       <tr
                         key={index}
                         data-item-index={index}
-                        className={isDarkMode ? "bg-[#141a20]" : "bg-white"}
+                        className={isDarkMode ? 'bg-[#141a20]' : 'bg-white'}
                       >
                         <td className="px-2 py-2 align-middle">
                           <Autocomplete
@@ -2438,11 +2438,11 @@ const PurchaseOrderForm = () => {
                             value={
                               item.productId
                                 ? productOptions.find(
-                                    (p) => p.id === item.productId,
-                                  )
+                                  (p) => p.id === item.productId,
+                                )
                                 : null
                             }
-                            inputValue={searchInputs[index] || item.name || ""}
+                            inputValue={searchInputs[index] || item.name || ''}
                             onInputChange={(event, newInputValue) =>
                               handleSearchInputChange(index, newInputValue)
                             }
@@ -2462,9 +2462,9 @@ const PurchaseOrderForm = () => {
                                     option.display_name}
                                 </div>
                                 <div
-                                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                                 >
-                                  {option.origin ? `${option.origin} • ` : ""}
+                                  {option.origin ? `${option.origin} • ` : ''}
                                   {option.subtitle}
                                 </div>
                               </div>
@@ -2475,43 +2475,43 @@ const PurchaseOrderForm = () => {
                         <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
-                            value={item.quantity || ""}
+                            value={item.quantity || ''}
                             onChange={(e) => {
                               const allowDecimal =
-                                item.quantityUom === "MT" ||
-                                item.quantityUom === "KG";
+                                item.quantityUom === 'MT' ||
+                                item.quantityUom === 'KG';
                               const val = allowDecimal
                                 ? parseFloat(e.target.value)
                                 : parseInt(e.target.value, 10);
                               handleItemChange(
                                 index,
-                                "quantity",
-                                e.target.value === ""
-                                  ? ""
+                                'quantity',
+                                e.target.value === ''
+                                  ? ''
                                   : isNaN(val)
-                                    ? ""
+                                    ? ''
                                     : val,
                               );
                             }}
                             min="0"
                             step={
-                              item.quantityUom === "MT" ||
-                              item.quantityUom === "KG"
-                                ? "0.001"
-                                : "1"
+                              item.quantityUom === 'MT' ||
+                              item.quantityUom === 'KG'
+                                ? '0.001'
+                                : '1'
                             }
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'} ${invalidFields.has(`item.${index}.quantity`) ? 'border-red-500' : ''}`}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
-                            value={item.unitWeightKg || ""}
+                            value={item.unitWeightKg || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "unitWeightKg",
-                                e.target.value === ""
+                                'unitWeightKg',
+                                e.target.value === ''
                                   ? null
                                   : parseFloat(e.target.value),
                               )
@@ -2519,18 +2519,18 @@ const PurchaseOrderForm = () => {
                             min="0"
                             step="0.01"
                             placeholder="0.00"
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${item.missingWeightWarning ? "border-red-500" : ""}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'} ${item.missingWeightWarning ? 'border-red-500' : ''}`}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
-                            value={item.expectedWeightKg || ""}
+                            value={item.expectedWeightKg || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "expectedWeightKg",
-                                e.target.value === ""
+                                'expectedWeightKg',
+                                e.target.value === ''
                                   ? null
                                   : parseFloat(e.target.value),
                               )
@@ -2541,49 +2541,49 @@ const PurchaseOrderForm = () => {
                               const calcWt =
                                 item.theoreticalWeightKg ||
                                 item.quantity * (item.unitWeightKg || 0);
-                              return calcWt ? calcWt.toFixed(2) : "0.00";
+                              return calcWt ? calcWt.toFixed(2) : '0.00';
                             })()}
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                           />
                         </td>
                         <td className="px-1 py-2 align-middle">
                           <div
-                            className={`flex rounded-[10px] overflow-hidden border ${isDarkMode ? "border-[#2a3640]" : "border-gray-300"}`}
+                            className={`flex rounded-[10px] overflow-hidden border ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-300'}`}
                           >
                             <input
                               type="number"
-                              value={item.rate || ""}
+                              value={item.rate || ''}
                               onChange={(e) =>
                                 handleItemChange(
                                   index,
-                                  "rate",
-                                  e.target.value === ""
-                                    ? ""
+                                  'rate',
+                                  e.target.value === ''
+                                    ? ''
                                     : parseFloat(e.target.value),
                                 )
                               }
                               min="0"
                               step="0.01"
-                              className={`flex-1 w-full px-2 py-1.5 text-xs border-0 outline-none text-right ${isDarkMode ? "bg-[#0f151b] text-[#e6edf3]" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "border-red-500" : ""}`}
+                              className={`flex-1 w-full px-2 py-1.5 text-xs border-0 outline-none text-right ${isDarkMode ? 'bg-[#0f151b] text-[#e6edf3]' : 'bg-white text-gray-900'} ${invalidFields.has(`item.${index}.rate`) ? 'border-red-500' : ''}`}
                               style={{ minWidth: 0 }}
                             />
                             <select
-                              value={item.pricingBasis || "PER_MT"}
+                              value={item.pricingBasis || 'PER_MT'}
                               onChange={(e) =>
                                 handleItemChange(
                                   index,
-                                  "pricingBasis",
+                                  'pricingBasis',
                                   e.target.value,
                                 )
                               }
                               className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
-                                item.pricingBasis === "PER_KG"
-                                  ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                                  : item.pricingBasis === "PER_PCS"
-                                    ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
+                                item.pricingBasis === 'PER_KG'
+                                  ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700'
+                                  : item.pricingBasis === 'PER_PCS'
+                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700'
                                     : isDarkMode
-                                      ? "bg-[#1a2129] text-[#93a4b4] border-[#2a3640]"
-                                      : "bg-gray-50 text-gray-600 border-gray-300"
+                                      ? 'bg-[#1a2129] text-[#93a4b4] border-[#2a3640]'
+                                      : 'bg-gray-50 text-gray-600 border-gray-300'
                               }`}
                             >
                               <option value="PER_MT">/MT</option>
@@ -2595,38 +2595,38 @@ const PurchaseOrderForm = () => {
                         <td className="px-2 py-2 align-middle">
                           <div className="space-y-1">
                             <select
-                              value={item.procurementChannel || "LOCAL"}
+                              value={item.procurementChannel || 'LOCAL'}
                               onChange={(e) =>
                                 handleItemChange(
                                   index,
-                                  "procurementChannel",
+                                  'procurementChannel',
                                   e.target.value,
                                 )
                               }
-                              className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${
-                                item.procurementChannel === "IMPORTED"
+                              className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'} ${
+                                item.procurementChannel === 'IMPORTED'
                                   ? isDarkMode
-                                    ? "border-emerald-600"
-                                    : "border-emerald-400"
+                                    ? 'border-emerald-600'
+                                    : 'border-emerald-400'
                                   : isDarkMode
-                                    ? "border-blue-600"
-                                    : "border-blue-400"
+                                    ? 'border-blue-600'
+                                    : 'border-blue-400'
                               }`}
                             >
                               <option value="LOCAL">LOCAL</option>
                               <option value="IMPORTED">IMPORTED</option>
                             </select>
-                            {item.procurementChannel === "IMPORTED" && (
+                            {item.procurementChannel === 'IMPORTED' && (
                               <select
-                                value={item.importContainerId || ""}
+                                value={item.importContainerId || ''}
                                 onChange={(e) =>
                                   handleItemChange(
                                     index,
-                                    "importContainerId",
+                                    'importContainerId',
                                     e.target.value || null,
                                   )
                                 }
-                                className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"}`}
+                                className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'}`}
                               >
                                 <option value="">No container</option>
                                 {importContainers.map((container) => (
@@ -2644,15 +2644,15 @@ const PurchaseOrderForm = () => {
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <select
-                            value={item.supplyType || "standard"}
+                            value={item.supplyType || 'standard'}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "supplyType",
+                                'supplyType',
                                 e.target.value,
                               )
                             }
-                            className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"}`}
+                            className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'}`}
                           >
                             <option value="standard">Standard (5%)</option>
                             <option value="zero_rated">Zero-Rated (0%)</option>
@@ -2662,13 +2662,13 @@ const PurchaseOrderForm = () => {
                         <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
-                            value={item.vatRate || ""}
+                            value={item.vatRate || ''}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "vatRate",
-                                e.target.value === ""
-                                  ? ""
+                                'vatRate',
+                                e.target.value === ''
+                                  ? ''
                                   : parseFloat(e.target.value),
                               )
                             }
@@ -2676,32 +2676,32 @@ const PurchaseOrderForm = () => {
                             max="15"
                             step="0.01"
                             placeholder="5.00"
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'}`}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <div
-                            className={`font-mono text-xs text-right ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                            className={`font-mono text-xs text-right ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                           >
                             {formatCurrency(item.amount)}
                           </div>
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <select
-                            value={item.lineStockStatus || "PENDING"}
+                            value={item.lineStockStatus || 'PENDING'}
                             onChange={(e) =>
                               handleItemChange(
                                 index,
-                                "lineStockStatus",
+                                'lineStockStatus',
                                 e.target.value,
                               )
                             }
-                            className={`w-full px-1 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${
-                              item.lineStockStatus === "RECEIVED"
-                                ? "bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700"
-                                : item.lineStockStatus === "PARTIAL"
-                                  ? "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700"
-                                  : ""
+                            className={`w-full px-1 py-1 border rounded-[10px] text-xs ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3]' : 'bg-white border-gray-300 text-gray-900'} ${
+                              item.lineStockStatus === 'RECEIVED'
+                                ? 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700'
+                                : item.lineStockStatus === 'PARTIAL'
+                                  ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700'
+                                  : ''
                             }`}
                           >
                             <option value="PENDING">Pending</option>
@@ -2712,23 +2712,23 @@ const PurchaseOrderForm = () => {
                         <td className="px-2 py-2 align-middle">
                           {item.grnNumber ? (
                             <div
-                              className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                              className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-700'}`}
                             >
                               <span className="font-medium text-teal-500">
                                 {item.grnNumber}
                               </span>
                               {item.receivedQty && (
                                 <div className="text-[10px]">
-                                  Rcvd: {item.receivedQty}{" "}
+                                  Rcvd: {item.receivedQty}{' '}
                                   {item.receivedWeightKg
                                     ? `(${item.receivedWeightKg}kg)`
-                                    : ""}
+                                    : ''}
                                 </div>
                               )}
                             </div>
                           ) : (
                             <span
-                              className={`text-xs ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                              className={`text-xs ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                             >
                               -
                             </span>
@@ -2738,7 +2738,7 @@ const PurchaseOrderForm = () => {
                           <button
                             onClick={() => removeItem(index)}
                             disabled={purchaseOrder.items.length === 1}
-                            className={`hover:text-red-300 ${isDarkMode ? "text-red-400 disabled:text-gray-600" : "text-red-500 disabled:text-gray-400"}`}
+                            className={`hover:text-red-300 ${isDarkMode ? 'text-red-400 disabled:text-gray-600' : 'text-red-500 disabled:text-gray-400'}`}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -2756,20 +2756,20 @@ const PurchaseOrderForm = () => {
 
               {/* Inline Totals (visible on left column, quick reference) */}
               <div
-                className={`mt-4 pt-4 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}
+                className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-[#2a3640]' : 'border-gray-200'}`}
               >
                 <div className="flex justify-end">
                   <div className="w-full max-w-xs space-y-1">
                     <div className="flex justify-between text-xs">
                       <span
                         className={
-                          isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                          isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                         }
                       >
                         Subtotal:
                       </span>
                       <span
-                        className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                        className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                       >
                         {formatCurrency(purchaseOrder.subtotal)}
                       </span>
@@ -2777,24 +2777,24 @@ const PurchaseOrderForm = () => {
                     <div className="flex justify-between text-xs">
                       <span
                         className={
-                          isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                          isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                         }
                       >
                         VAT (5%):
                       </span>
                       <span
-                        className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                        className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                       >
                         {formatCurrency(purchaseOrder.vatAmount)}
                       </span>
                     </div>
                     <div
-                      className={`h-px my-1 ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"}`}
+                      className={`h-px my-1 ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'}`}
                     />
                     <div className="flex justify-between text-sm font-bold">
                       <span
                         className={
-                          isDarkMode ? "text-[#e6edf3]" : "text-gray-900"
+                          isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'
                         }
                       >
                         Total:
@@ -2821,13 +2821,13 @@ const PurchaseOrderForm = () => {
                   <div className="flex justify-between text-xs">
                     <span
                       className={
-                        isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                        isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                       }
                     >
                       Items
                     </span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                     >
                       {purchaseOrder.items.length}
                     </span>
@@ -2835,13 +2835,13 @@ const PurchaseOrderForm = () => {
                   <div className="flex justify-between text-xs">
                     <span
                       className={
-                        isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                        isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                       }
                     >
                       Subtotal
                     </span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                     >
                       {formatCurrency(purchaseOrder.subtotal)}
                     </span>
@@ -2853,13 +2853,13 @@ const PurchaseOrderForm = () => {
                     <div className="flex justify-between text-xs">
                       <span
                         className={
-                          isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                          isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                         }
                       >
                         Charges
                       </span>
                       <span
-                        className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                        className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                       >
                         {formatCurrency(
                           (parseFloat(purchaseOrder.freightCharges) || 0) +
@@ -2877,7 +2877,7 @@ const PurchaseOrderForm = () => {
                       <span className="font-mono">
                         -
                         {formatCurrency(
-                          purchaseOrder.discountType === "percentage"
+                          purchaseOrder.discountType === 'percentage'
                             ? (purchaseOrder.subtotal *
                                 (parseFloat(purchaseOrder.discountPercentage) ||
                                   0)) /
@@ -2890,13 +2890,13 @@ const PurchaseOrderForm = () => {
                   <div className="flex justify-between text-xs">
                     <span
                       className={
-                        isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                        isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                       }
                     >
                       VAT (5%)
                     </span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
                     >
                       {formatCurrency(purchaseOrder.vatAmount)}
                     </span>
@@ -2905,7 +2905,7 @@ const PurchaseOrderForm = () => {
                   <div className="flex justify-between font-bold">
                     <span
                       className={
-                        isDarkMode ? "text-[#e6edf3]" : "text-gray-900"
+                        isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'
                       }
                     >
                       Grand Total
@@ -2923,25 +2923,25 @@ const PurchaseOrderForm = () => {
                   <div className="text-sm font-extrabold">Payment</div>
                   <span
                     className={`px-2 py-1 rounded-full text-[11px] font-medium ${
-                      paymentStatus === "paid"
-                        ? "bg-green-500/20 text-green-400"
-                        : paymentStatus === "partially_paid"
-                          ? "bg-yellow-500/20 text-yellow-400"
-                          : "bg-red-500/20 text-red-400"
+                      paymentStatus === 'paid'
+                        ? 'bg-green-500/20 text-green-400'
+                        : paymentStatus === 'partially_paid'
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-red-500/20 text-red-400'
                     }`}
                   >
-                    {paymentStatus === "paid"
-                      ? "Paid"
-                      : paymentStatus === "partially_paid"
-                        ? "Partial"
-                        : "Unpaid"}
+                    {paymentStatus === 'paid'
+                      ? 'Paid'
+                      : paymentStatus === 'partially_paid'
+                        ? 'Partial'
+                        : 'Unpaid'}
                   </span>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span
                       className={
-                        isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                        isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                       }
                     >
                       Paid
@@ -2957,7 +2957,7 @@ const PurchaseOrderForm = () => {
                   <div className="flex justify-between text-xs">
                     <span
                       className={
-                        isDarkMode ? "text-[#93a4b4]" : "text-gray-600"
+                        isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
                       }
                     >
                       Outstanding
@@ -2979,7 +2979,7 @@ const PurchaseOrderForm = () => {
                   </div>
                   {/* Progress bar */}
                   <div
-                    className={`w-full rounded-full h-1.5 ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"}`}
+                    className={`w-full rounded-full h-1.5 ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'}`}
                   >
                     <div
                       className="bg-[#4aa3ff] h-1.5 rounded-full transition-all"
@@ -3051,18 +3051,18 @@ const PurchaseOrderForm = () => {
       {/* Charges & Discount Drawer */}
       <>
         <div
-          className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setChargesDrawerOpen(false)}
         />
         <div
-          className={`${DRAWER_PANEL(isDarkMode)} ${chargesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`${DRAWER_PANEL(isDarkMode)} ${chargesDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="p-4">
             <div className={DRAWER_HEADER(isDarkMode)}>
               <div>
                 <div className="text-sm font-extrabold">Charges & Discount</div>
                 <div
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   Add freight, shipping, handling, or discounts
                 </div>
@@ -3086,7 +3086,7 @@ const PurchaseOrderForm = () => {
                     step="0.01"
                     value={purchaseOrder.freightCharges}
                     onChange={(e) =>
-                      handleInputChange("freightCharges", e.target.value)
+                      handleInputChange('freightCharges', e.target.value)
                     }
                     placeholder="0.00"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3101,7 +3101,7 @@ const PurchaseOrderForm = () => {
                     step="0.01"
                     value={purchaseOrder.shippingCharges}
                     onChange={(e) =>
-                      handleInputChange("shippingCharges", e.target.value)
+                      handleInputChange('shippingCharges', e.target.value)
                     }
                     placeholder="0.00"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3116,7 +3116,7 @@ const PurchaseOrderForm = () => {
                     step="0.01"
                     value={purchaseOrder.handlingCharges}
                     onChange={(e) =>
-                      handleInputChange("handlingCharges", e.target.value)
+                      handleInputChange('handlingCharges', e.target.value)
                     }
                     placeholder="0.00"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3131,7 +3131,7 @@ const PurchaseOrderForm = () => {
                     step="0.01"
                     value={purchaseOrder.otherCharges}
                     onChange={(e) =>
-                      handleInputChange("otherCharges", e.target.value)
+                      handleInputChange('otherCharges', e.target.value)
                     }
                     placeholder="0.00"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3146,7 +3146,7 @@ const PurchaseOrderForm = () => {
                     label="Discount Type"
                     value={purchaseOrder.discountType}
                     onValueChange={(value) =>
-                      handleInputChange("discountType", value)
+                      handleInputChange('discountType', value)
                     }
                   >
                     <SelectItem value="amount">Amount</SelectItem>
@@ -3155,29 +3155,29 @@ const PurchaseOrderForm = () => {
                 </div>
                 <div>
                   <label className={LABEL_CLASSES(isDarkMode)}>
-                    {purchaseOrder.discountType === "percentage"
-                      ? "Discount %"
-                      : "Discount Amount"}
+                    {purchaseOrder.discountType === 'percentage'
+                      ? 'Discount %'
+                      : 'Discount Amount'}
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
                     max={
-                      purchaseOrder.discountType === "percentage"
+                      purchaseOrder.discountType === 'percentage'
                         ? 100
                         : undefined
                     }
                     value={
-                      purchaseOrder.discountType === "percentage"
+                      purchaseOrder.discountType === 'percentage'
                         ? purchaseOrder.discountPercentage
                         : purchaseOrder.discountAmount
                     }
                     onChange={(e) =>
                       handleInputChange(
-                        purchaseOrder.discountType === "percentage"
-                          ? "discountPercentage"
-                          : "discountAmount",
+                        purchaseOrder.discountType === 'percentage'
+                          ? 'discountPercentage'
+                          : 'discountAmount',
                         e.target.value,
                       )
                     }
@@ -3207,18 +3207,18 @@ const PurchaseOrderForm = () => {
       {/* Delivery Terms Drawer */}
       <>
         <div
-          className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setDeliveryDrawerOpen(false)}
         />
         <div
-          className={`${DRAWER_PANEL(isDarkMode)} ${deliveryDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`${DRAWER_PANEL(isDarkMode)} ${deliveryDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="p-4">
             <div className={DRAWER_HEADER(isDarkMode)}>
               <div>
                 <div className="text-sm font-extrabold">Delivery Terms</div>
                 <div
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   Shipping, warehouse, and delivery settings
                 </div>
@@ -3234,11 +3234,11 @@ const PurchaseOrderForm = () => {
               <div>
                 <FormSelect
                   label="Incoterms"
-                  value={purchaseOrder.incoterms || "none"}
+                  value={purchaseOrder.incoterms || 'none'}
                   onValueChange={(value) =>
                     handleInputChange(
-                      "incoterms",
-                      value === "none" ? "" : value,
+                      'incoterms',
+                      value === 'none' ? '' : value,
                     )
                   }
                 >
@@ -3260,9 +3260,9 @@ const PurchaseOrderForm = () => {
               <div>
                 <FormSelect
                   label="Destination Warehouse"
-                  value={selectedWarehouse || "none"}
+                  value={selectedWarehouse || 'none'}
                   onValueChange={(value) =>
-                    setSelectedWarehouse(value === "none" ? "" : value)
+                    setSelectedWarehouse(value === 'none' ? '' : value)
                   }
                 >
                   <SelectItem value="none">Select Warehouse</SelectItem>
@@ -3285,7 +3285,7 @@ const PurchaseOrderForm = () => {
                     type="date"
                     value={purchaseOrder.expectedDeliveryDate}
                     onChange={(e) =>
-                      handleInputChange("expectedDeliveryDate", e.target.value)
+                      handleInputChange('expectedDeliveryDate', e.target.value)
                     }
                     className={INPUT_CLASSES(isDarkMode)}
                   />
@@ -3301,7 +3301,7 @@ const PurchaseOrderForm = () => {
                     value={purchaseOrder.gracePeriodDays}
                     onChange={(e) =>
                       handleInputChange(
-                        "gracePeriodDays",
+                        'gracePeriodDays',
                         parseInt(e.target.value) || 5,
                       )
                     }
@@ -3314,7 +3314,7 @@ const PurchaseOrderForm = () => {
                   label="Stock Status"
                   value={purchaseOrder.stockStatus}
                   onValueChange={(value) =>
-                    handleInputChange("stockStatus", value)
+                    handleInputChange('stockStatus', value)
                   }
                 >
                   <SelectItem value="retain">
@@ -3347,18 +3347,18 @@ const PurchaseOrderForm = () => {
       {/* Notes & Terms Drawer */}
       <>
         <div
-          className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setNotesDrawerOpen(false)}
         />
         <div
-          className={`${DRAWER_PANEL(isDarkMode)} ${notesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`${DRAWER_PANEL(isDarkMode)} ${notesDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="p-4">
             <div className={DRAWER_HEADER(isDarkMode)}>
               <div>
                 <div className="text-sm font-extrabold">Notes & Terms</div>
                 <div
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   Internal notes and payment terms
                 </div>
@@ -3376,7 +3376,7 @@ const PurchaseOrderForm = () => {
                 <textarea
                   rows={4}
                   value={purchaseOrder.notes}
-                  onChange={(e) => handleInputChange("notes", e.target.value)}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="Additional notes..."
                   className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
                 />
@@ -3388,7 +3388,7 @@ const PurchaseOrderForm = () => {
                 <textarea
                   rows={4}
                   value={purchaseOrder.terms}
-                  onChange={(e) => handleInputChange("terms", e.target.value)}
+                  onChange={(e) => handleInputChange('terms', e.target.value)}
                   placeholder="Terms and conditions..."
                   className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
                 />
@@ -3414,11 +3414,11 @@ const PurchaseOrderForm = () => {
       {/* Buyer Info Drawer (also used for Supplier details) */}
       <>
         <div
-          className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setBuyerDrawerOpen(false)}
         />
         <div
-          className={`${DRAWER_PANEL(isDarkMode)} ${buyerDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`${DRAWER_PANEL(isDarkMode)} ${buyerDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="p-4">
             <div className={DRAWER_HEADER(isDarkMode)}>
@@ -3427,7 +3427,7 @@ const PurchaseOrderForm = () => {
                   Buyer & Supplier Info
                 </div>
                 <div
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   Contact details for this order
                 </div>
@@ -3442,7 +3442,7 @@ const PurchaseOrderForm = () => {
             <div className="mt-4 space-y-4">
               {/* Supplier Section */}
               <div
-                className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Supplier Details
               </div>
@@ -3454,7 +3454,7 @@ const PurchaseOrderForm = () => {
                   type="text"
                   value={purchaseOrder.supplierName}
                   onChange={(e) =>
-                    handleInputChange("supplierName", e.target.value)
+                    handleInputChange('supplierName', e.target.value)
                   }
                   placeholder="Supplier company name"
                   className={INPUT_CLASSES(isDarkMode)}
@@ -3468,7 +3468,7 @@ const PurchaseOrderForm = () => {
                   rows={2}
                   value={purchaseOrder.supplierAddress}
                   onChange={(e) =>
-                    handleInputChange("supplierAddress", e.target.value)
+                    handleInputChange('supplierAddress', e.target.value)
                   }
                   placeholder="Full address"
                   className={INPUT_CLASSES(isDarkMode)}
@@ -3477,7 +3477,7 @@ const PurchaseOrderForm = () => {
               <div>
                 <TRNInput
                   value={purchaseOrder.supplierTRN}
-                  onChange={(value) => handleInputChange("supplierTRN", value)}
+                  onChange={(value) => handleInputChange('supplierTRN', value)}
                   label="Supplier TRN"
                   required={true}
                 />
@@ -3485,7 +3485,7 @@ const PurchaseOrderForm = () => {
               <div className={DIVIDER_CLASSES(isDarkMode)} />
               {/* Buyer Section */}
               <div
-                className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Buyer Details
               </div>
@@ -3498,7 +3498,7 @@ const PurchaseOrderForm = () => {
                     type="text"
                     value={purchaseOrder.buyerName}
                     onChange={(e) =>
-                      handleInputChange("buyerName", e.target.value)
+                      handleInputChange('buyerName', e.target.value)
                     }
                     placeholder="Name of person placing order"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3512,7 +3512,7 @@ const PurchaseOrderForm = () => {
                     type="text"
                     value={purchaseOrder.buyerDepartment}
                     onChange={(e) =>
-                      handleInputChange("buyerDepartment", e.target.value)
+                      handleInputChange('buyerDepartment', e.target.value)
                     }
                     placeholder="e.g., Procurement"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3528,7 +3528,7 @@ const PurchaseOrderForm = () => {
                     type="email"
                     value={purchaseOrder.buyerEmail}
                     onChange={(e) =>
-                      handleInputChange("buyerEmail", e.target.value)
+                      handleInputChange('buyerEmail', e.target.value)
                     }
                     placeholder="buyer@company.com"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3542,7 +3542,7 @@ const PurchaseOrderForm = () => {
                     type="tel"
                     value={purchaseOrder.buyerPhone}
                     onChange={(e) =>
-                      handleInputChange("buyerPhone", e.target.value)
+                      handleInputChange('buyerPhone', e.target.value)
                     }
                     placeholder="+971 XX XXX XXXX"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3570,18 +3570,18 @@ const PurchaseOrderForm = () => {
       {/* Payment Drawer */}
       <>
         <div
-          className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setPaymentDrawerOpen(false)}
         />
         <div
-          className={`${DRAWER_PANEL(isDarkMode)} ${paymentDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`${DRAWER_PANEL(isDarkMode)} ${paymentDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="p-4">
             <div className={DRAWER_HEADER(isDarkMode)}>
               <div>
                 <div className="text-sm font-extrabold">Payment Details</div>
                 <div
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   Payment terms, history, and status
                 </div>
@@ -3601,7 +3601,7 @@ const PurchaseOrderForm = () => {
                     label="Payment Terms"
                     value={purchaseOrder.paymentTerms}
                     onValueChange={(value) =>
-                      handleInputChange("paymentTerms", value)
+                      handleInputChange('paymentTerms', value)
                     }
                   >
                     <SelectItem value="Net 7">Net 7 days</SelectItem>
@@ -3627,7 +3627,7 @@ const PurchaseOrderForm = () => {
                     type="date"
                     value={purchaseOrder.dueDate}
                     onChange={(e) =>
-                      handleInputChange("dueDate", e.target.value)
+                      handleInputChange('dueDate', e.target.value)
                     }
                     className={INPUT_CLASSES(isDarkMode)}
                   />
@@ -3636,10 +3636,10 @@ const PurchaseOrderForm = () => {
               {/* Payment Summary */}
               <div className="grid grid-cols-3 gap-2.5">
                 <div
-                  className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                  className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-2.5`}
                 >
                   <div
-                    className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                    className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                   >
                     Total
                   </div>
@@ -3648,10 +3648,10 @@ const PurchaseOrderForm = () => {
                   </div>
                 </div>
                 <div
-                  className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                  className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-2.5`}
                 >
                   <div
-                    className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                    className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                   >
                     Paid
                   </div>
@@ -3664,10 +3664,10 @@ const PurchaseOrderForm = () => {
                   </div>
                 </div>
                 <div
-                  className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                  className={`${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-50 border-gray-200'} border rounded-[14px] p-2.5`}
                 >
                   <div
-                    className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                    className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                   >
                     Outstanding
                   </div>
@@ -3703,7 +3703,7 @@ const PurchaseOrderForm = () => {
               {payments.length > 0 && (
                 <>
                   <div
-                    className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                    className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                   >
                     Payment History
                   </div>
@@ -3713,15 +3713,15 @@ const PurchaseOrderForm = () => {
                         key={payment.id}
                         className={`p-3 rounded-[14px] border flex justify-between items-center ${
                           payment.voided
-                            ? `opacity-60 ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-100 border-gray-300"}`
+                            ? `opacity-60 ${isDarkMode ? 'bg-[#0f151b] border-[#2a3640]' : 'bg-gray-100 border-gray-300'}`
                             : isDarkMode
-                              ? "bg-[#0f151b] border-[#2a3640]"
-                              : "bg-gray-50 border-gray-200"
+                              ? 'bg-[#0f151b] border-[#2a3640]'
+                              : 'bg-gray-50 border-gray-200'
                         }`}
                       >
                         <div>
                           <div
-                            className={`font-medium text-sm ${payment.voided ? "line-through" : ""}`}
+                            className={`font-medium text-sm ${payment.voided ? 'line-through' : ''}`}
                           >
                             {formatCurrency(payment.amount)}
                             {payment.voided && (
@@ -3731,7 +3731,7 @@ const PurchaseOrderForm = () => {
                             )}
                           </div>
                           <div
-                            className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                            className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'}`}
                           >
                             {payment.paymentMethod} - {payment.paymentDate}
                             {payment.referenceNumber &&
@@ -3772,18 +3772,18 @@ const PurchaseOrderForm = () => {
       {/* Approval Workflow Drawer */}
       <>
         <div
-          className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setApprovalDrawerOpen(false)}
         />
         <div
-          className={`${DRAWER_PANEL(isDarkMode)} ${approvalDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`${DRAWER_PANEL(isDarkMode)} ${approvalDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="p-4">
             <div className={DRAWER_HEADER(isDarkMode)}>
               <div>
                 <div className="text-sm font-extrabold">Approval Workflow</div>
                 <div
-                  className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                 >
                   Manage approval status and comments
                 </div>
@@ -3802,7 +3802,7 @@ const PurchaseOrderForm = () => {
                     label="Approval Status"
                     value={purchaseOrder.approvalStatus}
                     onValueChange={(value) =>
-                      handleInputChange("approvalStatus", value)
+                      handleInputChange('approvalStatus', value)
                     }
                   >
                     <SelectItem value="pending">Pending</SelectItem>
@@ -3818,7 +3818,7 @@ const PurchaseOrderForm = () => {
                     type="text"
                     value={purchaseOrder.approvedBy}
                     onChange={(e) =>
-                      handleInputChange("approvedBy", e.target.value)
+                      handleInputChange('approvedBy', e.target.value)
                     }
                     placeholder="Name of approver"
                     className={INPUT_CLASSES(isDarkMode)}
@@ -3833,7 +3833,7 @@ const PurchaseOrderForm = () => {
                   type="date"
                   value={purchaseOrder.approvalDate}
                   onChange={(e) =>
-                    handleInputChange("approvalDate", e.target.value)
+                    handleInputChange('approvalDate', e.target.value)
                   }
                   className={INPUT_CLASSES(isDarkMode)}
                 />
@@ -3846,7 +3846,7 @@ const PurchaseOrderForm = () => {
                   rows={4}
                   value={purchaseOrder.approvalComments}
                   onChange={(e) =>
-                    handleInputChange("approvalComments", e.target.value)
+                    handleInputChange('approvalComments', e.target.value)
                   }
                   placeholder="Comments from approver..."
                   className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}

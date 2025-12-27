@@ -6,7 +6,7 @@
  * Used in ExportOrderForm, ReservationForm, and TransferForm.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Package,
   TrendingUp,
@@ -16,22 +16,22 @@ import {
   CheckCircle,
   X,
   Sparkles,
-} from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import { batchReservationService } from "../../services/batchReservationService";
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { batchReservationService } from '../../services/batchReservationService';
 
 const formatDate = (dateStr) => {
-  if (!dateStr) return "N/A";
+  if (!dateStr) return 'N/A';
   const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
   });
 };
 
 const formatNumber = (num) => {
-  return parseFloat(num || 0).toLocaleString("en-US", {
+  return parseFloat(num || 0).toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -45,7 +45,7 @@ const BatchAllocator = ({
   requiredQuantity,
   currentAllocations = [],
   onAllocate,
-  mode = "export", // "export" | "reservation" | "transfer"
+  mode = 'export', // "export" | "reservation" | "transfer"
   draftInvoiceId = null,
 }) => {
   const { isDarkMode } = useTheme();
@@ -78,7 +78,7 @@ const BatchAllocator = ({
 
         setBatches(availableBatches);
       } catch (err) {
-        console.error("Error loading batches:", err);
+        console.error('Error loading batches:', err);
       } finally {
         setLoading(false);
       }
@@ -116,7 +116,7 @@ const BatchAllocator = ({
           batch.batchNumber || batch.batch_number || `BATCH-${batch.id}`,
         quantity: allocQty,
         unitCost: batch.unitCost || batch.unit_cost || 0,
-        supplier: batch.supplier || batch.supplierName || "N/A",
+        supplier: batch.supplier || batch.supplierName || 'N/A',
         procurementDate: batch.procurementDate || batch.created_at,
       });
 
@@ -163,7 +163,7 @@ const BatchAllocator = ({
             batch.batchNumber || batch.batch_number || `BATCH-${batch.id}`,
           quantity: qty,
           unitCost: batch.unitCost || batch.unit_cost || 0,
-          supplier: batch.supplier || batch.supplierName || "N/A",
+          supplier: batch.supplier || batch.supplierName || 'N/A',
           procurementDate: batch.procurementDate || batch.created_at,
         },
       ]);
@@ -182,15 +182,15 @@ const BatchAllocator = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-lg shadow-2xl ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
         }`}
       >
         {/* Header */}
         <div
           className={`flex items-center justify-between px-6 py-4 border-b ${
             isDarkMode
-              ? "border-gray-700 bg-gray-900"
-              : "border-gray-200 bg-gray-50"
+              ? 'border-gray-700 bg-gray-900'
+              : 'border-gray-200 bg-gray-50'
           }`}
         >
           <div className="flex items-center gap-3">
@@ -212,8 +212,8 @@ const BatchAllocator = ({
             <div
               className={`p-4 rounded-lg border ${
                 isDarkMode
-                  ? "bg-gray-900 border-gray-700"
-                  : "bg-blue-50 border-blue-200"
+                  ? 'bg-gray-900 border-gray-700'
+                  : 'bg-blue-50 border-blue-200'
               }`}
             >
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -226,8 +226,8 @@ const BatchAllocator = ({
             <div
               className={`p-4 rounded-lg border ${
                 isDarkMode
-                  ? "bg-gray-900 border-gray-700"
-                  : "bg-green-50 border-green-200"
+                  ? 'bg-gray-900 border-gray-700'
+                  : 'bg-green-50 border-green-200'
               }`}
             >
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -240,10 +240,10 @@ const BatchAllocator = ({
             <div
               className={`p-4 rounded-lg border ${
                 isDarkMode
-                  ? "bg-gray-900 border-gray-700"
+                  ? 'bg-gray-900 border-gray-700'
                   : remainingQuantity > 0.01
-                    ? "bg-orange-50 border-orange-200"
-                    : "bg-teal-50 border-teal-200"
+                    ? 'bg-orange-50 border-orange-200'
+                    : 'bg-teal-50 border-teal-200'
               }`}
             >
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -252,8 +252,8 @@ const BatchAllocator = ({
               <div
                 className={`text-2xl font-bold ${
                   remainingQuantity > 0.01
-                    ? "text-orange-600 dark:text-orange-400"
-                    : "text-teal-600 dark:text-teal-400"
+                    ? 'text-orange-600 dark:text-orange-400'
+                    : 'text-teal-600 dark:text-teal-400'
                 }`}
               >
                 {formatNumber(remainingQuantity)} KG
@@ -268,8 +268,8 @@ const BatchAllocator = ({
               disabled={loading || batches.length === 0}
               className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
                 isDarkMode
-                  ? "bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white disabled:opacity-50"
-                  : "bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-white disabled:opacity-50"
+                  ? 'bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white disabled:opacity-50'
+                  : 'bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-white disabled:opacity-50'
               }`}
             >
               <Sparkles className="w-5 h-5" />
@@ -289,8 +289,8 @@ const BatchAllocator = ({
             <div
               className={`flex flex-col items-center justify-center py-12 rounded-lg border ${
                 isDarkMode
-                  ? "bg-gray-900 border-gray-700"
-                  : "bg-gray-50 border-gray-200"
+                  ? 'bg-gray-900 border-gray-700'
+                  : 'bg-gray-50 border-gray-200'
               }`}
             >
               <AlertTriangle className="w-12 h-12 text-orange-500 mb-3" />
@@ -319,11 +319,11 @@ const BatchAllocator = ({
                     className={`p-4 rounded-lg border transition-all ${
                       allocated > 0
                         ? isDarkMode
-                          ? "bg-teal-900 bg-opacity-30 border-teal-600"
-                          : "bg-teal-50 border-teal-300"
+                          ? 'bg-teal-900 bg-opacity-30 border-teal-600'
+                          : 'bg-teal-50 border-teal-300'
                         : isDarkMode
-                          ? "bg-gray-900 border-gray-700 hover:border-gray-600"
-                          : "bg-gray-50 border-gray-200 hover:border-gray-300"
+                          ? 'bg-gray-900 border-gray-700 hover:border-gray-600'
+                          : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -346,7 +346,7 @@ const BatchAllocator = ({
                           </div>
                           <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                             <TrendingUp className="w-3 h-3" />
-                            Cost: AED{" "}
+                            Cost: AED{' '}
                             {formatNumber(
                               batch.unitCost || batch.unit_cost || 0,
                             )}
@@ -358,8 +358,8 @@ const BatchAllocator = ({
                             )}
                           </div>
                           <div className="text-gray-600 dark:text-gray-400">
-                            Supplier:{" "}
-                            {batch.supplier || batch.supplierName || "N/A"}
+                            Supplier:{' '}
+                            {batch.supplier || batch.supplierName || 'N/A'}
                           </div>
                         </div>
                       </div>
@@ -370,15 +370,15 @@ const BatchAllocator = ({
                           step="0.01"
                           min="0"
                           max={available}
-                          value={allocated || ""}
+                          value={allocated || ''}
                           onChange={(e) =>
                             handleAllocationChange(batchId, e.target.value)
                           }
                           placeholder="0.00"
                           className={`w-28 px-3 py-2 text-sm border rounded-md focus:ring-1 focus:ring-teal-500 focus:border-teal-500 ${
                             isDarkMode
-                              ? "bg-gray-800 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
+                              ? 'bg-gray-800 border-gray-600 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
                           }`}
                         />
                         <span className="text-xs font-medium text-gray-500">
@@ -397,13 +397,13 @@ const BatchAllocator = ({
             <div
               className={`mt-6 p-4 rounded-lg border ${
                 isDarkMode
-                  ? "bg-gray-900 border-gray-700"
-                  : "bg-gray-50 border-gray-200"
+                  ? 'bg-gray-900 border-gray-700'
+                  : 'bg-gray-50 border-gray-200'
               }`}
             >
               <h3 className="text-sm font-semibold mb-3">
                 Current Allocations ({allocations.length} batch
-                {allocations.length !== 1 ? "es" : ""})
+                {allocations.length !== 1 ? 'es' : ''})
               </h3>
               <div className="space-y-2">
                 {allocations.map((alloc) => (
@@ -413,21 +413,21 @@ const BatchAllocator = ({
                   >
                     <span className="font-mono">{alloc.batchNumber}</span>
                     <span className="font-semibold">
-                      {formatNumber(alloc.quantity)} KG × AED{" "}
-                      {formatNumber(alloc.unitCost)} = AED{" "}
+                      {formatNumber(alloc.quantity)} KG × AED{' '}
+                      {formatNumber(alloc.unitCost)} = AED{' '}
                       {formatNumber(alloc.quantity * alloc.unitCost)}
                     </span>
                   </div>
                 ))}
                 <div
                   className={`pt-2 border-t ${
-                    isDarkMode ? "border-gray-700" : "border-gray-300"
+                    isDarkMode ? 'border-gray-700' : 'border-gray-300'
                   }`}
                 >
                   <div className="flex items-center justify-between font-semibold">
                     <span>Total Cost:</span>
                     <span className="text-teal-600 dark:text-teal-400">
-                      AED{" "}
+                      AED{' '}
                       {formatNumber(
                         allocations.reduce(
                           (sum, a) => sum + a.quantity * a.unitCost,
@@ -439,15 +439,15 @@ const BatchAllocator = ({
                   <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
                     <span>Weighted Avg Cost:</span>
                     <span>
-                      AED{" "}
+                      AED{' '}
                       {allocatedQuantity > 0
                         ? formatNumber(
-                            allocations.reduce(
-                              (sum, a) => sum + a.quantity * a.unitCost,
-                              0,
-                            ) / allocatedQuantity,
-                          )
-                        : "0.00"}
+                          allocations.reduce(
+                            (sum, a) => sum + a.quantity * a.unitCost,
+                            0,
+                          ) / allocatedQuantity,
+                        )
+                        : '0.00'}
                       /KG
                     </span>
                   </div>
@@ -461,8 +461,8 @@ const BatchAllocator = ({
         <div
           className={`flex items-center justify-between px-6 py-4 border-t ${
             isDarkMode
-              ? "border-gray-700 bg-gray-900"
-              : "border-gray-200 bg-gray-50"
+              ? 'border-gray-700 bg-gray-900'
+              : 'border-gray-200 bg-gray-50'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -486,8 +486,8 @@ const BatchAllocator = ({
               onClick={onClose}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-white"
-                  : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
               }`}
             >
               Cancel
@@ -497,8 +497,8 @@ const BatchAllocator = ({
               disabled={!isFullyAllocated}
               className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
                 isFullyAllocated
-                  ? "bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white"
-                  : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  ? 'bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white'
+                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
               }`}
             >
               Save Allocations

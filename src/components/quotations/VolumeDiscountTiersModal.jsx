@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { X, Plus, Trash2 } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useState } from 'react';
+import { X, Plus, Trash2 } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function VolumeDiscountTiersModal({
   isOpen,
@@ -14,7 +14,7 @@ export default function VolumeDiscountTiersModal({
   const addTier = () => {
     setLocalTiers([
       ...localTiers,
-      { minQuantity: 0, discountPercentage: 0, description: "" },
+      { minQuantity: 0, discountPercentage: 0, description: '' },
     ]);
   };
 
@@ -48,26 +48,26 @@ export default function VolumeDiscountTiersModal({
 
         <div
           className={`inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full ${
-            isDarkMode ? "bg-gray-800" : "bg-white"
+            isDarkMode ? 'bg-gray-800' : 'bg-white'
           }`}
         >
           <div className={`px-4 pt-5 pb-4 sm:p-6 sm:pb-4`}>
             <div className="flex items-center justify-between mb-4">
               <h3
-                className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
                 Volume Discount Tiers
               </h3>
               <button
                 onClick={onClose}
-                className={`p-1 rounded-lg hover:bg-gray-100 ${isDarkMode ? "hover:bg-gray-700" : ""}`}
+                className={`p-1 rounded-lg hover:bg-gray-100 ${isDarkMode ? 'hover:bg-gray-700' : ''}`}
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <p
-              className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               Define pricing breaks based on order quantity. Customers will see
               these tiers on the quotation.
@@ -79,15 +79,15 @@ export default function VolumeDiscountTiersModal({
                   key={index}
                   className={`flex gap-3 items-start p-3 rounded-lg border ${
                     isDarkMode
-                      ? "border-gray-600 bg-gray-700"
-                      : "border-gray-200 bg-gray-50"
+                      ? 'border-gray-600 bg-gray-700'
+                      : 'border-gray-200 bg-gray-50'
                   }`}
                 >
                   <div className="flex-1 grid grid-cols-3 gap-3">
                     <div>
                       <label
                         className={`block text-xs font-medium mb-1 ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Min Quantity (kg/MT)
@@ -98,14 +98,14 @@ export default function VolumeDiscountTiersModal({
                         onChange={(e) =>
                           updateTier(
                             index,
-                            "minQuantity",
+                            'minQuantity',
                             parseFloat(e.target.value) || 0,
                           )
                         }
                         className={`w-full px-2 py-1 text-sm rounded border ${
                           isDarkMode
-                            ? "bg-gray-800 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-900"
+                            ? 'bg-gray-800 border-gray-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-900'
                         }`}
                         placeholder="5000"
                       />
@@ -113,7 +113,7 @@ export default function VolumeDiscountTiersModal({
                     <div>
                       <label
                         className={`block text-xs font-medium mb-1 ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Discount %
@@ -125,14 +125,14 @@ export default function VolumeDiscountTiersModal({
                         onChange={(e) =>
                           updateTier(
                             index,
-                            "discountPercentage",
+                            'discountPercentage',
                             parseFloat(e.target.value) || 0,
                           )
                         }
                         className={`w-full px-2 py-1 text-sm rounded border ${
                           isDarkMode
-                            ? "bg-gray-800 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-900"
+                            ? 'bg-gray-800 border-gray-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-900'
                         }`}
                         placeholder="5"
                       />
@@ -140,7 +140,7 @@ export default function VolumeDiscountTiersModal({
                     <div>
                       <label
                         className={`block text-xs font-medium mb-1 ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         Description (optional)
@@ -149,12 +149,12 @@ export default function VolumeDiscountTiersModal({
                         type="text"
                         value={tier.description}
                         onChange={(e) =>
-                          updateTier(index, "description", e.target.value)
+                          updateTier(index, 'description', e.target.value)
                         }
                         className={`w-full px-2 py-1 text-sm rounded border ${
                           isDarkMode
-                            ? "bg-gray-800 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-900"
+                            ? 'bg-gray-800 border-gray-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-900'
                         }`}
                         placeholder="Bulk order"
                       />
@@ -182,8 +182,8 @@ export default function VolumeDiscountTiersModal({
           <div
             className={`px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t ${
               isDarkMode
-                ? "bg-gray-700 border-gray-600"
-                : "bg-gray-50 border-gray-200"
+                ? 'bg-gray-700 border-gray-600'
+                : 'bg-gray-50 border-gray-200'
             }`}
           >
             <button
@@ -196,8 +196,8 @@ export default function VolumeDiscountTiersModal({
               onClick={onClose}
               className={`mt-3 sm:mt-0 sm:mr-3 w-full sm:w-auto px-4 py-2 rounded-lg font-medium ${
                 isDarkMode
-                  ? "bg-gray-600 text-white hover:bg-gray-500"
-                  : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                  ? 'bg-gray-600 text-white hover:bg-gray-500'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
               }`}
             >
               Cancel

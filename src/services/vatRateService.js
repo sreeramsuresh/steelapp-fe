@@ -1,10 +1,10 @@
-import { api } from "./api";
+import { api } from './api';
 
 const vatRateService = {
   // Get all VAT rates for the authenticated user's company
   async getAll() {
     try {
-      const data = await api.get("/vat-rates");
+      const data = await api.get('/vat-rates');
       // Handle different response formats
 
       // If data is wrapped in a 'rates' or 'data' property
@@ -22,10 +22,10 @@ const vatRateService = {
         return data.data;
       }
 
-      console.warn("VAT rates API returned unexpected format:", data);
+      console.warn('VAT rates API returned unexpected format:', data);
       return [];
     } catch (error) {
-      console.error("Error fetching VAT rates:", error);
+      console.error('Error fetching VAT rates:', error);
       throw error;
     }
   },
@@ -43,9 +43,9 @@ const vatRateService = {
   // Create a new VAT rate
   async create(vatRateData) {
     try {
-      return await api.post("/vat-rates", vatRateData);
+      return await api.post('/vat-rates', vatRateData);
     } catch (error) {
-      console.error("Error creating VAT rate:", error);
+      console.error('Error creating VAT rate:', error);
       throw error;
     }
   },

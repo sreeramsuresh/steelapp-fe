@@ -6,7 +6,7 @@
  * Lists all stock reservations with filtering and actions
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   Plus,
   Eye,
@@ -15,34 +15,34 @@ import {
   RotateCcw,
   Search,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   stockMovementService,
   RESERVATION_STATUSES,
-} from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
+} from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return "-";
+  if (!dateValue) return '-';
   const date =
-    typeof dateValue === "object" && dateValue.seconds
+    typeof dateValue === 'object' && dateValue.seconds
       ? new Date(dateValue.seconds * 1000)
       : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 };
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = "KG") => {
-  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = 'KG') => {
+  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -51,7 +51,7 @@ const formatQuantity = (qty, unit = "KG") => {
 const getStatusChip = (status) => {
   const statusInfo = RESERVATION_STATUSES[status] || {
     label: status,
-    color: "default",
+    color: 'default',
   };
   return statusInfo;
 };
@@ -61,12 +61,12 @@ const getStatusChip = (status) => {
  */
 const getStatusBadgeClasses = (color) => {
   const colorMap = {
-    default: "bg-gray-500/20 text-gray-400 border-gray-500/30",
-    primary: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    success: "bg-green-500/20 text-green-400 border-green-500/30",
-    warning: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    error: "bg-red-500/20 text-red-400 border-red-500/30",
-    info: "bg-teal-500/20 text-teal-400 border-teal-500/30",
+    default: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    primary: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    success: 'bg-green-500/20 text-green-400 border-green-500/30',
+    warning: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    error: 'bg-red-500/20 text-red-400 border-red-500/30',
+    info: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
   };
   return colorMap[color] || colorMap.default;
 };
@@ -83,9 +83,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [warehouseFilter, setWarehouseFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [warehouseFilter, setWarehouseFilter] = useState('');
   const [includeExpired, setIncludeExpired] = useState(false);
 
   // Action dialogs
@@ -97,8 +97,8 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
     open: false,
     reservation: null,
   });
-  const [fulfillQuantity, setFulfillQuantity] = useState("");
-  const [cancelReason, setCancelReason] = useState("");
+  const [fulfillQuantity, setFulfillQuantity] = useState('');
+  const [cancelReason, setCancelReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   // Load warehouses for filter dropdown
@@ -108,7 +108,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
-        console.error("Error loading warehouses:", err);
+        console.error('Error loading warehouses:', err);
       }
     };
     loadWarehouses();
@@ -148,8 +148,8 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       setReservations(filteredData);
       setTotalCount(result.pagination?.totalItems || filteredData.length || 0);
     } catch (err) {
-      console.error("Error loading reservations:", err);
-      setError("Failed to load reservations");
+      console.error('Error loading reservations:', err);
+      setError('Failed to load reservations');
     } finally {
       setLoading(false);
     }
@@ -196,11 +196,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         },
       );
       setFulfillDialog({ open: false, reservation: null });
-      setFulfillQuantity("");
+      setFulfillQuantity('');
       loadReservations();
     } catch (err) {
-      console.error("Error fulfilling reservation:", err);
-      setError(err.message || "Failed to fulfill reservation");
+      console.error('Error fulfilling reservation:', err);
+      setError(err.message || 'Failed to fulfill reservation');
     } finally {
       setActionLoading(false);
     }
@@ -208,7 +208,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
   // Open cancel dialog
   const handleOpenCancelDialog = (reservation) => {
-    setCancelReason("");
+    setCancelReason('');
     setCancelDialog({ open: true, reservation });
   };
 
@@ -223,11 +223,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         cancelReason,
       );
       setCancelDialog({ open: false, reservation: null });
-      setCancelReason("");
+      setCancelReason('');
       loadReservations();
     } catch (err) {
-      console.error("Error cancelling reservation:", err);
-      setError(err.message || "Failed to cancel reservation");
+      console.error('Error cancelling reservation:', err);
+      setError(err.message || 'Failed to cancel reservation');
     } finally {
       setActionLoading(false);
     }
@@ -310,9 +310,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           </select>
 
           <select
-            value={includeExpired ? "yes" : "no"}
+            value={includeExpired ? 'yes' : 'no'}
             onChange={(e) => {
-              setIncludeExpired(e.target.value === "yes");
+              setIncludeExpired(e.target.value === 'yes');
               setPage(0);
             }}
             className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
@@ -404,10 +404,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 reservations.map((reservation) => {
                   const statusInfo = getStatusChip(reservation.status);
                   const progress = getFulfillmentProgress(reservation);
-                  const canFulfill = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                  const canFulfill = ['ACTIVE', 'PARTIALLY_FULFILLED'].includes(
                     reservation.status,
                   );
-                  const canCancel = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(
+                  const canCancel = ['ACTIVE', 'PARTIALLY_FULFILLED'].includes(
                     reservation.status,
                   );
 
@@ -427,7 +427,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                         )}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-300">
-                        {reservation.warehouseName || "-"}
+                        {reservation.warehouseName || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-300 text-right">
                         {formatQuantity(
@@ -442,7 +442,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                         <div className="flex items-center gap-2 mb-1">
                           <div className="flex-1 bg-gray-700 rounded-full h-2 overflow-hidden">
                             <div
-                              className={`h-full ${progress === 100 ? "bg-green-500" : "bg-blue-500"}`}
+                              className={`h-full ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -454,8 +454,8 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                           {formatQuantity(
                             reservation.quantityFulfilled,
                             reservation.unit,
-                          )}{" "}
-                          /{" "}
+                          )}{' '}
+                          /{' '}
                           {formatQuantity(
                             reservation.quantityReserved,
                             reservation.unit,
@@ -568,19 +568,19 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             </h3>
             <div className="space-y-3 mb-6 text-gray-300">
               <p>
-                Reservation:{" "}
+                Reservation:{' '}
                 <strong className="text-white">
                   {fulfillDialog.reservation?.reservationNumber}
                 </strong>
               </p>
               <p>
-                Product:{" "}
+                Product:{' '}
                 <strong className="text-white">
                   {fulfillDialog.reservation?.productName}
                 </strong>
               </p>
               <p>
-                Remaining:{" "}
+                Remaining:{' '}
                 <strong className="text-white">
                   {formatQuantity(
                     fulfillDialog.reservation?.quantityRemaining,
@@ -602,8 +602,8 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   className="w-full px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 <p className="mt-1 text-xs text-gray-400">
-                  Max: {fulfillDialog.reservation?.quantityRemaining || 0}{" "}
-                  {fulfillDialog.reservation?.unit || "KG"}
+                  Max: {fulfillDialog.reservation?.quantityRemaining || 0}{' '}
+                  {fulfillDialog.reservation?.unit || 'KG'}
                 </p>
               </div>
             </div>
@@ -649,18 +649,18 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             </h3>
             <div className="space-y-3 mb-6">
               <p className="text-gray-300">
-                Are you sure you want to cancel reservation{" "}
+                Are you sure you want to cancel reservation{' '}
                 <strong className="text-white">
                   {cancelDialog.reservation?.reservationNumber}
                 </strong>
                 ?
               </p>
               <p className="text-gray-400">
-                This will release{" "}
+                This will release{' '}
                 {formatQuantity(
                   cancelDialog.reservation?.quantityRemaining,
                   cancelDialog.reservation?.unit,
-                )}{" "}
+                )}{' '}
                 of reserved stock.
               </p>
               <div>

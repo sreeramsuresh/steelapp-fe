@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Users, Lock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2, Users, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { roleService } from "../services/roleService";
+} from '@/components/ui/table';
+import { roleService } from '../services/roleService';
 
 export default function RolesPage() {
   const [roles, setRoles] = useState([]);
@@ -18,9 +18,9 @@ export default function RolesPage() {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    displayName: "",
-    description: "",
+    name: '',
+    displayName: '',
+    description: '',
     isDirector: false,
   });
 
@@ -45,17 +45,17 @@ export default function RolesPage() {
     if (role) {
       setEditingRole(role);
       setFormData({
-        name: role.name || "",
-        displayName: role.display_name || "",
-        description: role.description || "",
+        name: role.name || '',
+        displayName: role.display_name || '',
+        description: role.description || '',
         isDirector: role.is_director || false,
       });
     } else {
       setEditingRole(null);
       setFormData({
-        name: "",
-        displayName: "",
-        description: "",
+        name: '',
+        displayName: '',
+        description: '',
         isDirector: false,
       });
     }
@@ -66,9 +66,9 @@ export default function RolesPage() {
     setOpenDialog(false);
     setEditingRole(null);
     setFormData({
-      name: "",
-      displayName: "",
-      description: "",
+      name: '',
+      displayName: '',
+      description: '',
       isDirector: false,
     });
   };
@@ -96,7 +96,7 @@ export default function RolesPage() {
   };
 
   const handleDelete = async (roleId) => {
-    if (!window.confirm("Are you sure you want to delete this role?")) return;
+    if (!window.confirm('Are you sure you want to delete this role?')) return;
 
     try {
       await roleService.deleteRole(roleId);
@@ -157,7 +157,7 @@ export default function RolesPage() {
                     <div className="font-semibold">{role.display_name}</div>
                     <div className="text-xs text-gray-500">{role.name}</div>
                   </TableCell>
-                  <TableCell>{role.description || "-"}</TableCell>
+                  <TableCell>{role.description || '-'}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
                       <Users className="w-3 h-3" /> {role.user_count || 0}
@@ -212,7 +212,7 @@ export default function RolesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
             <h2 className="text-lg font-semibold mb-4">
-              {editingRole ? "Edit Role" : "Create New Role"}
+              {editingRole ? 'Edit Role' : 'Create New Role'}
             </h2>
             <div className="space-y-4 mb-6">
               <div>
@@ -288,7 +288,7 @@ export default function RolesPage() {
                 Cancel
               </Button>
               <Button onClick={handleSave}>
-                {editingRole ? "Update" : "Create"}
+                {editingRole ? 'Update' : 'Create'}
               </Button>
             </div>
           </div>

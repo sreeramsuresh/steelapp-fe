@@ -6,4 +6,4 @@ export {
   isNetworkError,
   ErrorTypes,
   DisplayTypes,
-} from "./errorHandler";
+} from './errorHandler';

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   Plus,
   Search,
@@ -23,138 +23,138 @@ import {
   Beaker,
   Activity,
   FileCheck,
-} from "lucide-react";
-import { materialCertificateService } from "../services/materialCertificateService";
-import { importOrderService } from "../services/importOrderService";
-import { useTheme } from "../contexts/ThemeContext";
-import ConfirmDialog from "../components/ConfirmDialog";
-import { useConfirm } from "../hooks/useConfirm";
+} from 'lucide-react';
+import { materialCertificateService } from '../services/materialCertificateService';
+import { importOrderService } from '../services/importOrderService';
+import { useTheme } from '../contexts/ThemeContext';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
 // Certificate Type Configuration
 const CERTIFICATE_TYPES = [
   {
-    value: "mill_test_certificate",
-    label: "Mill Test Certificate (MTC)",
+    value: 'mill_test_certificate',
+    label: 'Mill Test Certificate (MTC)',
     icon: FileText,
-    color: "blue",
+    color: 'blue',
   },
   {
-    value: "certificate_of_origin",
-    label: "Certificate of Origin (COO)",
+    value: 'certificate_of_origin',
+    label: 'Certificate of Origin (COO)',
     icon: Award,
-    color: "green",
+    color: 'green',
   },
   {
-    value: "certificate_of_analysis",
-    label: "Certificate of Analysis (COA)",
+    value: 'certificate_of_analysis',
+    label: 'Certificate of Analysis (COA)',
     icon: Beaker,
-    color: "purple",
+    color: 'purple',
   },
   {
-    value: "inspection_report",
-    label: "Inspection Report",
+    value: 'inspection_report',
+    label: 'Inspection Report',
     icon: FileCheck,
-    color: "orange",
+    color: 'orange',
   },
   {
-    value: "quality_certificate",
-    label: "Quality Certificate",
+    value: 'quality_certificate',
+    label: 'Quality Certificate',
     icon: Shield,
-    color: "teal",
+    color: 'teal',
   },
 ];
 
 // Verification Status Configuration
 const VERIFICATION_STATUS = {
   pending: {
-    label: "Pending",
-    color: "yellow",
-    bgLight: "bg-yellow-100",
-    bgDark: "bg-yellow-900/30",
-    textLight: "text-yellow-700",
-    textDark: "text-yellow-300",
+    label: 'Pending',
+    color: 'yellow',
+    bgLight: 'bg-yellow-100',
+    bgDark: 'bg-yellow-900/30',
+    textLight: 'text-yellow-700',
+    textDark: 'text-yellow-300',
     icon: Clock,
   },
   verified: {
-    label: "Verified",
-    color: "green",
-    bgLight: "bg-green-100",
-    bgDark: "bg-green-900/30",
-    textLight: "text-green-700",
-    textDark: "text-green-300",
+    label: 'Verified',
+    color: 'green',
+    bgLight: 'bg-green-100',
+    bgDark: 'bg-green-900/30',
+    textLight: 'text-green-700',
+    textDark: 'text-green-300',
     icon: CheckCircle,
   },
   rejected: {
-    label: "Rejected",
-    color: "red",
-    bgLight: "bg-red-100",
-    bgDark: "bg-red-900/30",
-    textLight: "text-red-700",
-    textDark: "text-red-300",
+    label: 'Rejected',
+    color: 'red',
+    bgLight: 'bg-red-100',
+    bgDark: 'bg-red-900/30',
+    textLight: 'text-red-700',
+    textDark: 'text-red-300',
     icon: XCircle,
   },
 };
 
 // Common Steel Grades
 const STEEL_GRADES = [
-  { value: "SS304", label: "SS304 (1.4301)" },
-  { value: "SS304L", label: "SS304L (1.4307)" },
-  { value: "SS316", label: "SS316 (1.4401)" },
-  { value: "SS316L", label: "SS316L (1.4404)" },
-  { value: "SS321", label: "SS321 (1.4541)" },
-  { value: "SS310S", label: "SS310S (1.4845)" },
-  { value: "SS409", label: "SS409 (1.4512)" },
-  { value: "SS430", label: "SS430 (1.4016)" },
-  { value: "SS201", label: "SS201" },
-  { value: "SS202", label: "SS202" },
-  { value: "EN8", label: "EN8" },
-  { value: "EN9", label: "EN9" },
-  { value: "EN24", label: "EN24" },
-  { value: "ASTM_A36", label: "ASTM A36" },
-  { value: "ASTM_A572", label: "ASTM A572" },
-  { value: "S235JR", label: "S235JR" },
-  { value: "S275JR", label: "S275JR" },
-  { value: "S355JR", label: "S355JR" },
-  { value: "OTHER", label: "Other" },
+  { value: 'SS304', label: 'SS304 (1.4301)' },
+  { value: 'SS304L', label: 'SS304L (1.4307)' },
+  { value: 'SS316', label: 'SS316 (1.4401)' },
+  { value: 'SS316L', label: 'SS316L (1.4404)' },
+  { value: 'SS321', label: 'SS321 (1.4541)' },
+  { value: 'SS310S', label: 'SS310S (1.4845)' },
+  { value: 'SS409', label: 'SS409 (1.4512)' },
+  { value: 'SS430', label: 'SS430 (1.4016)' },
+  { value: 'SS201', label: 'SS201' },
+  { value: 'SS202', label: 'SS202' },
+  { value: 'EN8', label: 'EN8' },
+  { value: 'EN9', label: 'EN9' },
+  { value: 'EN24', label: 'EN24' },
+  { value: 'ASTM_A36', label: 'ASTM A36' },
+  { value: 'ASTM_A572', label: 'ASTM A572' },
+  { value: 'S235JR', label: 'S235JR' },
+  { value: 'S275JR', label: 'S275JR' },
+  { value: 'S355JR', label: 'S355JR' },
+  { value: 'OTHER', label: 'Other' },
 ];
 
 // Empty form state
 const EMPTY_FORM = {
-  certificate_type: "mill_test_certificate",
-  certificate_number: "",
-  import_order_id: "",
-  import_order_item_id: "",
-  mill_name: "",
-  heat_number: "",
-  coil_id: "",
-  grade: "",
-  grade_other: "",
-  country_of_origin: "",
-  issuing_authority: "",
-  issue_date: "",
-  expiry_date: "",
+  certificate_type: 'mill_test_certificate',
+  certificate_number: '',
+  import_order_id: '',
+  import_order_item_id: '',
+  mill_name: '',
+  heat_number: '',
+  coil_id: '',
+  grade: '',
+  grade_other: '',
+  country_of_origin: '',
+  issuing_authority: '',
+  issue_date: '',
+  expiry_date: '',
   // Chemical Composition (for MTC)
-  chemical_c: "",
-  chemical_si: "",
-  chemical_mn: "",
-  chemical_p: "",
-  chemical_s: "",
-  chemical_cr: "",
-  chemical_ni: "",
-  chemical_mo: "",
-  chemical_cu: "",
-  chemical_n: "",
+  chemical_c: '',
+  chemical_si: '',
+  chemical_mn: '',
+  chemical_p: '',
+  chemical_s: '',
+  chemical_cr: '',
+  chemical_ni: '',
+  chemical_mo: '',
+  chemical_cu: '',
+  chemical_n: '',
   // Mechanical Properties (for MTC)
-  yield_strength: "",
-  tensile_strength: "",
-  elongation: "",
-  hardness: "",
+  yield_strength: '',
+  tensile_strength: '',
+  elongation: '',
+  hardness: '',
   // Verification
-  verification_status: "pending",
-  verified_by: "",
-  verified_date: "",
-  rejection_reason: "",
-  notes: "",
+  verification_status: 'pending',
+  verified_by: '',
+  verified_date: '',
+  rejection_reason: '',
+  notes: '',
 };
 
 const MaterialCertificateList = () => {
@@ -165,7 +165,7 @@ const MaterialCertificateList = () => {
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 25,
@@ -175,18 +175,18 @@ const MaterialCertificateList = () => {
 
   // Filter State
   const [filters, setFilters] = useState({
-    search: "",
-    certificate_type: "",
-    verification_status: "",
-    grade: "",
-    start_date: "",
-    end_date: "",
+    search: '',
+    certificate_type: '',
+    verification_status: '',
+    grade: '',
+    start_date: '',
+    end_date: '',
   });
   const [showFilters, setShowFilters] = useState(false);
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState("create"); // 'create', 'edit', 'view'
+  const [modalMode, setModalMode] = useState('create'); // 'create', 'edit', 'view'
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [formData, setFormData] = useState({ ...EMPTY_FORM });
   const [formErrors, setFormErrors] = useState({});
@@ -194,8 +194,8 @@ const MaterialCertificateList = () => {
 
   // Verification Modal State
   const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const [verifyAction, setVerifyAction] = useState("verify"); // 'verify' or 'reject'
-  const [verifyNotes, setVerifyNotes] = useState("");
+  const [verifyAction, setVerifyAction] = useState('verify'); // 'verify' or 'reject'
+  const [verifyNotes, setVerifyNotes] = useState('');
   const [verifyingId, setVerifyingId] = useState(null);
 
   // Import Orders for linking
@@ -213,7 +213,7 @@ const MaterialCertificateList = () => {
           page,
           limit: pagination.per_page,
           ...Object.fromEntries(
-            Object.entries(filters).filter(([_, v]) => v !== ""),
+            Object.entries(filters).filter(([_, v]) => v !== ''),
           ),
         };
 
@@ -224,8 +224,8 @@ const MaterialCertificateList = () => {
           setPagination(response.pagination);
         }
       } catch (err) {
-        console.error("Error loading certificates:", err);
-        setError(err.message || "Failed to load material certificates");
+        console.error('Error loading certificates:', err);
+        setError(err.message || 'Failed to load material certificates');
       } finally {
         setLoading(false);
       }
@@ -239,7 +239,7 @@ const MaterialCertificateList = () => {
       const response = await importOrderService.getImportOrders({ limit: 100 });
       setImportOrders(response.orders || []);
     } catch (err) {
-      console.error("Error loading import orders:", err);
+      console.error('Error loading import orders:', err);
     }
   };
 
@@ -254,7 +254,7 @@ const MaterialCertificateList = () => {
   // Clear messages after timeout
   useEffect(() => {
     if (successMessage) {
-      const timer = setTimeout(() => setSuccessMessage(""), 5000);
+      const timer = setTimeout(() => setSuccessMessage(''), 5000);
       return () => clearTimeout(timer);
     }
   }, [successMessage]);
@@ -272,12 +272,12 @@ const MaterialCertificateList = () => {
   // Clear filters
   const handleClearFilters = () => {
     setFilters({
-      search: "",
-      certificate_type: "",
-      verification_status: "",
-      grade: "",
-      start_date: "",
-      end_date: "",
+      search: '',
+      certificate_type: '',
+      verification_status: '',
+      grade: '',
+      start_date: '',
+      end_date: '',
     });
     setTimeout(() => loadCertificates(1), 0);
   };
@@ -287,7 +287,7 @@ const MaterialCertificateList = () => {
     setFormData({ ...EMPTY_FORM });
     setFormErrors({});
     setSelectedCertificate(null);
-    setModalMode("create");
+    setModalMode('create');
     setShowModal(true);
     setOrderItems([]);
   };
@@ -295,52 +295,52 @@ const MaterialCertificateList = () => {
   // Open modal for edit
   const handleEdit = (cert) => {
     setFormData({
-      certificate_type: cert.certificate_type || "mill_test_certificate",
-      certificate_number: cert.certificate_number || "",
-      import_order_id: cert.import_order_id || "",
-      import_order_item_id: cert.import_order_item_id || "",
-      mill_name: cert.mill_name || "",
-      heat_number: cert.heat_number || "",
-      coil_id: cert.coil_id || "",
-      grade: cert.grade || "",
-      grade_other: cert.grade_other || "",
-      country_of_origin: cert.country_of_origin || "",
-      issuing_authority: cert.issuing_authority || "",
-      issue_date: cert.issue_date ? cert.issue_date.split("T")[0] : "",
-      expiry_date: cert.expiry_date ? cert.expiry_date.split("T")[0] : "",
+      certificate_type: cert.certificate_type || 'mill_test_certificate',
+      certificate_number: cert.certificate_number || '',
+      import_order_id: cert.import_order_id || '',
+      import_order_item_id: cert.import_order_item_id || '',
+      mill_name: cert.mill_name || '',
+      heat_number: cert.heat_number || '',
+      coil_id: cert.coil_id || '',
+      grade: cert.grade || '',
+      grade_other: cert.grade_other || '',
+      country_of_origin: cert.country_of_origin || '',
+      issuing_authority: cert.issuing_authority || '',
+      issue_date: cert.issue_date ? cert.issue_date.split('T')[0] : '',
+      expiry_date: cert.expiry_date ? cert.expiry_date.split('T')[0] : '',
       // Chemical Composition
-      chemical_c: cert.chemical_c || "",
-      chemical_si: cert.chemical_si || "",
-      chemical_mn: cert.chemical_mn || "",
-      chemical_p: cert.chemical_p || "",
-      chemical_s: cert.chemical_s || "",
-      chemical_cr: cert.chemical_cr || "",
-      chemical_ni: cert.chemical_ni || "",
-      chemical_mo: cert.chemical_mo || "",
-      chemical_cu: cert.chemical_cu || "",
-      chemical_n: cert.chemical_n || "",
+      chemical_c: cert.chemical_c || '',
+      chemical_si: cert.chemical_si || '',
+      chemical_mn: cert.chemical_mn || '',
+      chemical_p: cert.chemical_p || '',
+      chemical_s: cert.chemical_s || '',
+      chemical_cr: cert.chemical_cr || '',
+      chemical_ni: cert.chemical_ni || '',
+      chemical_mo: cert.chemical_mo || '',
+      chemical_cu: cert.chemical_cu || '',
+      chemical_n: cert.chemical_n || '',
       // Mechanical Properties
-      yield_strength: cert.yield_strength || "",
-      tensile_strength: cert.tensile_strength || "",
-      elongation: cert.elongation || "",
-      hardness: cert.hardness || "",
+      yield_strength: cert.yield_strength || '',
+      tensile_strength: cert.tensile_strength || '',
+      elongation: cert.elongation || '',
+      hardness: cert.hardness || '',
       // Verification
-      verification_status: cert.verification_status || "pending",
-      verified_by: cert.verified_by || "",
-      verified_date: cert.verified_date ? cert.verified_date.split("T")[0] : "",
-      rejection_reason: cert.rejection_reason || "",
-      notes: cert.notes || "",
+      verification_status: cert.verification_status || 'pending',
+      verified_by: cert.verified_by || '',
+      verified_date: cert.verified_date ? cert.verified_date.split('T')[0] : '',
+      rejection_reason: cert.rejection_reason || '',
+      notes: cert.notes || '',
     });
     setFormErrors({});
     setSelectedCertificate(cert);
-    setModalMode("edit");
+    setModalMode('edit');
     setShowModal(true);
   };
 
   // Open modal for view
   const handleView = (cert) => {
     setSelectedCertificate(cert);
-    setModalMode("view");
+    setModalMode('view');
     setShowModal(true);
   };
 
@@ -357,25 +357,25 @@ const MaterialCertificateList = () => {
     const errors = {};
 
     if (!formData.certificate_number.trim()) {
-      errors.certificate_number = "Certificate number is required";
+      errors.certificate_number = 'Certificate number is required';
     }
     if (!formData.certificate_type) {
-      errors.certificate_type = "Certificate type is required";
+      errors.certificate_type = 'Certificate type is required';
     }
     if (!formData.mill_name.trim()) {
-      errors.mill_name = "Mill name is required";
+      errors.mill_name = 'Mill name is required';
     }
     if (!formData.issue_date) {
-      errors.issue_date = "Issue date is required";
+      errors.issue_date = 'Issue date is required';
     }
     if (
-      formData.certificate_type === "mill_test_certificate" &&
+      formData.certificate_type === 'mill_test_certificate' &&
       !formData.heat_number.trim()
     ) {
-      errors.heat_number = "Heat number is required for MTC";
+      errors.heat_number = 'Heat number is required for MTC';
     }
-    if (formData.grade === "OTHER" && !formData.grade_other.trim()) {
-      errors.grade_other = "Please specify the grade";
+    if (formData.grade === 'OTHER' && !formData.grade_other.trim()) {
+      errors.grade_other = 'Please specify the grade';
     }
 
     setFormErrors(errors);
@@ -392,15 +392,15 @@ const MaterialCertificateList = () => {
 
   // Handle import order selection - load order items
   const handleOrderChange = async (orderId) => {
-    handleInputChange("import_order_id", orderId);
-    handleInputChange("import_order_item_id", "");
+    handleInputChange('import_order_id', orderId);
+    handleInputChange('import_order_item_id', '');
 
     if (orderId) {
       try {
         const order = await importOrderService.getImportOrder(orderId);
         setOrderItems(order.items || []);
       } catch (err) {
-        console.error("Error loading order items:", err);
+        console.error('Error loading order items:', err);
         setOrderItems([]);
       }
     } else {
@@ -460,22 +460,22 @@ const MaterialCertificateList = () => {
         import_order_item_id: formData.import_order_item_id || null,
       };
 
-      if (modalMode === "create") {
+      if (modalMode === 'create') {
         await materialCertificateService.createMaterialCertificate(dataToSend);
-        setSuccessMessage("Material certificate created successfully");
-      } else if (modalMode === "edit") {
+        setSuccessMessage('Material certificate created successfully');
+      } else if (modalMode === 'edit') {
         await materialCertificateService.updateMaterialCertificate(
           selectedCertificate.id,
           dataToSend,
         );
-        setSuccessMessage("Material certificate updated successfully");
+        setSuccessMessage('Material certificate updated successfully');
       }
 
       handleCloseModal();
       loadCertificates(pagination.current_page);
     } catch (err) {
-      console.error("Error saving certificate:", err);
-      setError(err.message || "Failed to save material certificate");
+      console.error('Error saving certificate:', err);
+      setError(err.message || 'Failed to save material certificate');
     } finally {
       setSaving(false);
     }
@@ -484,21 +484,21 @@ const MaterialCertificateList = () => {
   // Handle delete
   const handleDelete = async (cert) => {
     const confirmed = await confirm({
-      title: "Delete Material Certificate?",
+      title: 'Delete Material Certificate?',
       message: `Are you sure you want to delete certificate "${cert.certificate_number}"? This action cannot be undone.`,
-      confirmText: "Delete",
-      variant: "danger",
+      confirmText: 'Delete',
+      variant: 'danger',
     });
 
     if (!confirmed) return;
 
     try {
       await materialCertificateService.deleteMaterialCertificate(cert.id);
-      setSuccessMessage("Material certificate deleted successfully");
+      setSuccessMessage('Material certificate deleted successfully');
       loadCertificates(pagination.current_page);
     } catch (err) {
-      console.error("Error deleting certificate:", err);
-      setError(err.message || "Failed to delete material certificate");
+      console.error('Error deleting certificate:', err);
+      setError(err.message || 'Failed to delete material certificate');
     }
   };
 
@@ -506,7 +506,7 @@ const MaterialCertificateList = () => {
   const openVerifyModal = (cert, action) => {
     setVerifyingId(cert.id);
     setVerifyAction(action);
-    setVerifyNotes("");
+    setVerifyNotes('');
     setSelectedCertificate(cert);
     setShowVerifyModal(true);
   };
@@ -514,7 +514,7 @@ const MaterialCertificateList = () => {
   // Handle verification submit
   const handleVerifySubmit = async () => {
     try {
-      const status = verifyAction === "verify" ? "verified" : "rejected";
+      const status = verifyAction === 'verify' ? 'verified' : 'rejected';
       await materialCertificateService.updateVerification(
         verifyingId,
         status,
@@ -523,11 +523,11 @@ const MaterialCertificateList = () => {
       setSuccessMessage(`Certificate ${status} successfully`);
       setShowVerifyModal(false);
       setVerifyingId(null);
-      setVerifyNotes("");
+      setVerifyNotes('');
       loadCertificates(pagination.current_page);
     } catch (err) {
-      console.error("Error updating verification:", err);
-      setError(err.message || "Failed to update verification status");
+      console.error('Error updating verification:', err);
+      setError(err.message || 'Failed to update verification status');
     }
   };
 
@@ -540,19 +540,19 @@ const MaterialCertificateList = () => {
 
   // Format date
   const formatDate = (dateStr) => {
-    if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
     });
   };
 
   // Get grade label
   const getGradeLabel = (grade, gradeOther) => {
-    if (grade === "OTHER") return gradeOther || "Other";
+    if (grade === 'OTHER') return gradeOther || 'Other';
     const found = STEEL_GRADES.find((g) => g.value === grade);
-    return found ? found.label : grade || "-";
+    return found ? found.label : grade || '-';
   };
 
   // Status Badge Component
@@ -582,7 +582,7 @@ const MaterialCertificateList = () => {
 
   return (
     <div
-      className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+      className={`p-6 min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}
     >
       {/* Header */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
@@ -626,7 +626,7 @@ const MaterialCertificateList = () => {
 
       {/* Filters */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 mb-6 shadow-sm`}
       >
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
@@ -640,12 +640,12 @@ const MaterialCertificateList = () => {
                 type="text"
                 placeholder="Search by certificate number, heat number, mill name..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange("search", e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                    : "bg-white border-gray-300 placeholder-gray-500"
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                    : 'bg-white border-gray-300 placeholder-gray-500'
                 } focus:ring-2 focus:ring-teal-500 focus:border-transparent`}
               />
             </div>
@@ -656,9 +656,9 @@ const MaterialCertificateList = () => {
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode
-                ? "border-gray-600 hover:bg-gray-700"
-                : "border-gray-300 hover:bg-gray-50"
-            } ${showFilters ? "bg-teal-50 border-teal-500 text-teal-600" : ""}`}
+                ? 'border-gray-600 hover:bg-gray-700'
+                : 'border-gray-300 hover:bg-gray-50'
+            } ${showFilters ? 'bg-teal-50 border-teal-500 text-teal-600' : ''}`}
           >
             <Filter size={20} />
             Filters
@@ -677,11 +677,11 @@ const MaterialCertificateList = () => {
             onClick={() => loadCertificates(pagination.current_page)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode
-                ? "border-gray-600 hover:bg-gray-700"
-                : "border-gray-300 hover:bg-gray-50"
+                ? 'border-gray-600 hover:bg-gray-700'
+                : 'border-gray-300 hover:bg-gray-50'
             }`}
           >
-            <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
 
@@ -697,12 +697,12 @@ const MaterialCertificateList = () => {
                 <select
                   value={filters.certificate_type}
                   onChange={(e) =>
-                    handleFilterChange("certificate_type", e.target.value)
+                    handleFilterChange('certificate_type', e.target.value)
                   }
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300"
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300'
                   }`}
                 >
                   <option value="">All Types</option>
@@ -722,12 +722,12 @@ const MaterialCertificateList = () => {
                 <select
                   value={filters.verification_status}
                   onChange={(e) =>
-                    handleFilterChange("verification_status", e.target.value)
+                    handleFilterChange('verification_status', e.target.value)
                   }
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300"
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300'
                   }`}
                 >
                   <option value="">All Statuses</option>
@@ -746,11 +746,11 @@ const MaterialCertificateList = () => {
                 <label className="block text-sm font-medium mb-1">Grade</label>
                 <select
                   value={filters.grade}
-                  onChange={(e) => handleFilterChange("grade", e.target.value)}
+                  onChange={(e) => handleFilterChange('grade', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300"
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300'
                   }`}
                 >
                   <option value="">All Grades</option>
@@ -771,12 +771,12 @@ const MaterialCertificateList = () => {
                   type="date"
                   value={filters.start_date}
                   onChange={(e) =>
-                    handleFilterChange("start_date", e.target.value)
+                    handleFilterChange('start_date', e.target.value)
                   }
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300"
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300'
                   }`}
                 />
               </div>
@@ -788,12 +788,12 @@ const MaterialCertificateList = () => {
                   type="date"
                   value={filters.end_date}
                   onChange={(e) =>
-                    handleFilterChange("end_date", e.target.value)
+                    handleFilterChange('end_date', e.target.value)
                   }
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-300"
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300'
                   }`}
                 />
               </div>
@@ -811,8 +811,8 @@ const MaterialCertificateList = () => {
                 onClick={handleClearFilters}
                 className={`px-4 py-2 border rounded-lg ${
                   isDarkMode
-                    ? "border-gray-600 hover:bg-gray-700"
-                    : "border-gray-300 hover:bg-gray-50"
+                    ? 'border-gray-600 hover:bg-gray-700'
+                    : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Clear
@@ -824,7 +824,7 @@ const MaterialCertificateList = () => {
 
       {/* Certificates Table */}
       <div
-        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}
+        className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm overflow-hidden`}
       >
         {loading ? (
           <div className="p-8 text-center">
@@ -845,7 +845,7 @@ const MaterialCertificateList = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+              <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Certificate
@@ -874,12 +874,12 @@ const MaterialCertificateList = () => {
                 </tr>
               </thead>
               <tbody
-                className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
+                className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
               >
                 {certificates.map((cert) => (
                   <tr
                     key={cert.id}
-                    className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`}
+                    className={`hover:${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors`}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -902,7 +902,7 @@ const MaterialCertificateList = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm">{cert.mill_name || "-"}</div>
+                      <div className="text-sm">{cert.mill_name || '-'}</div>
                       {cert.heat_number && (
                         <div className="text-xs text-gray-500">
                           Heat: {cert.heat_number}
@@ -929,8 +929,8 @@ const MaterialCertificateList = () => {
                         className={`text-sm ${
                           cert.expiry_date &&
                           new Date(cert.expiry_date) < new Date()
-                            ? "text-red-500 font-medium"
-                            : ""
+                            ? 'text-red-500 font-medium'
+                            : ''
                         }`}
                       >
                         {formatDate(cert.expiry_date)}
@@ -955,17 +955,17 @@ const MaterialCertificateList = () => {
                         >
                           <Edit size={16} />
                         </button>
-                        {cert.verification_status === "pending" && (
+                        {cert.verification_status === 'pending' && (
                           <>
                             <button
-                              onClick={() => openVerifyModal(cert, "verify")}
+                              onClick={() => openVerifyModal(cert, 'verify')}
                               className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-green-600"
                               title="Verify"
                             >
                               <CheckCircle size={16} />
                             </button>
                             <button
-                              onClick={() => openVerifyModal(cert, "reject")}
+                              onClick={() => openVerifyModal(cert, 'reject')}
                               className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-orange-600"
                               title="Reject"
                             >
@@ -993,16 +993,16 @@ const MaterialCertificateList = () => {
         {pagination.total_pages > 1 && (
           <div
             className={`px-6 py-3 flex items-center justify-between border-t ${
-              isDarkMode ? "border-gray-700" : "border-gray-200"
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
             }`}
           >
             <div className="text-sm text-gray-500">
-              Showing {(pagination.current_page - 1) * pagination.per_page + 1}{" "}
-              to{" "}
+              Showing {(pagination.current_page - 1) * pagination.per_page + 1}{' '}
+              to{' '}
               {Math.min(
                 pagination.current_page * pagination.per_page,
                 pagination.total,
-              )}{" "}
+              )}{' '}
               of {pagination.total} results
             </div>
             <div className="flex space-x-2">
@@ -1010,7 +1010,7 @@ const MaterialCertificateList = () => {
                 onClick={() => loadCertificates(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
-                  isDarkMode ? "border-gray-600" : "border-gray-300"
+                  isDarkMode ? 'border-gray-600' : 'border-gray-300'
                 }`}
               >
                 Previous
@@ -1019,7 +1019,7 @@ const MaterialCertificateList = () => {
                 onClick={() => loadCertificates(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
-                  isDarkMode ? "border-gray-600" : "border-gray-300"
+                  isDarkMode ? 'border-gray-600' : 'border-gray-300'
                 }`}
               >
                 Next
@@ -1030,19 +1030,19 @@ const MaterialCertificateList = () => {
       </div>
 
       {/* Create/Edit Modal */}
-      {showModal && (modalMode === "create" || modalMode === "edit") && (
+      {showModal && (modalMode === 'create' || modalMode === 'edit') && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div
             className={`relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
             }`}
           >
             {/* Modal Header */}
             <div
               className={`sticky top-0 flex items-center justify-between p-6 border-b ${
                 isDarkMode
-                  ? "border-gray-700 bg-gray-800"
-                  : "border-gray-200 bg-white"
+                  ? 'border-gray-700 bg-gray-800'
+                  : 'border-gray-200 bg-white'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -1051,13 +1051,13 @@ const MaterialCertificateList = () => {
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold">
-                    {modalMode === "create"
-                      ? "New Material Certificate"
-                      : "Edit Material Certificate"}
+                    {modalMode === 'create'
+                      ? 'New Material Certificate'
+                      : 'Edit Material Certificate'}
                   </h2>
                   <p className="text-sm text-gray-500">
-                    {modalMode === "create"
-                      ? "Create a new MTC, COO, COA or other certificate"
+                    {modalMode === 'create'
+                      ? 'Create a new MTC, COO, COA or other certificate'
                       : `Editing ${selectedCertificate?.certificate_number}`}
                   </p>
                 </div>
@@ -1066,8 +1066,8 @@ const MaterialCertificateList = () => {
                 onClick={handleCloseModal}
                 className={`p-1 rounded-lg transition-colors ${
                   isDarkMode
-                    ? "hover:bg-gray-700 text-gray-400"
-                    : "hover:bg-gray-100 text-gray-500"
+                    ? 'hover:bg-gray-700 text-gray-400'
+                    : 'hover:bg-gray-100 text-gray-500'
                 }`}
               >
                 <X className="h-5 w-5" />
@@ -1078,7 +1078,7 @@ const MaterialCertificateList = () => {
             <div className="p-6 space-y-6">
               {/* Basic Information */}
               <div
-                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+                className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
               >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <FileText size={18} />
@@ -1092,13 +1092,13 @@ const MaterialCertificateList = () => {
                     <select
                       value={formData.certificate_type}
                       onChange={(e) =>
-                        handleInputChange("certificate_type", e.target.value)
+                        handleInputChange('certificate_type', e.target.value)
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300"
-                      } ${formErrors.certificate_type ? "border-red-500" : ""}`}
+                          ? 'bg-gray-700 border-gray-600 text-white'
+                          : 'bg-white border-gray-300'
+                      } ${formErrors.certificate_type ? 'border-red-500' : ''}`}
                     >
                       {CERTIFICATE_TYPES.map((type) => (
                         <option key={type.value} value={type.value}>
@@ -1121,14 +1121,14 @@ const MaterialCertificateList = () => {
                       type="text"
                       value={formData.certificate_number}
                       onChange={(e) =>
-                        handleInputChange("certificate_number", e.target.value)
+                        handleInputChange('certificate_number', e.target.value)
                       }
                       placeholder="e.g., MTC-2024-001234"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                          : "bg-white border-gray-300 placeholder-gray-500"
-                      } ${formErrors.certificate_number ? "border-red-500" : ""}`}
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 placeholder-gray-500'
+                      } ${formErrors.certificate_number ? 'border-red-500' : ''}`}
                     />
                     {formErrors.certificate_number && (
                       <p className="text-red-500 text-xs mt-1">
@@ -1145,14 +1145,14 @@ const MaterialCertificateList = () => {
                       type="text"
                       value={formData.mill_name}
                       onChange={(e) =>
-                        handleInputChange("mill_name", e.target.value)
+                        handleInputChange('mill_name', e.target.value)
                       }
                       placeholder="e.g., POSCO, Tisco, Jindal"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                          : "bg-white border-gray-300 placeholder-gray-500"
-                      } ${formErrors.mill_name ? "border-red-500" : ""}`}
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 placeholder-gray-500'
+                      } ${formErrors.mill_name ? 'border-red-500' : ''}`}
                     />
                     {formErrors.mill_name && (
                       <p className="text-red-500 text-xs mt-1">
@@ -1165,7 +1165,7 @@ const MaterialCertificateList = () => {
 
               {/* Link to Import Order */}
               <div
-                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+                className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
               >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <Award size={18} />
@@ -1181,14 +1181,14 @@ const MaterialCertificateList = () => {
                       onChange={(e) => handleOrderChange(e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300"
+                          ? 'bg-gray-700 border-gray-600 text-white'
+                          : 'bg-white border-gray-300'
                       }`}
                     >
                       <option value="">No linked order</option>
                       {importOrders.map((order) => (
                         <option key={order.id} value={order.id}>
-                          {order.import_order_number || order.importOrderNumber}{" "}
+                          {order.import_order_number || order.importOrderNumber}{' '}
                           - {order.supplier_name || order.supplierName}
                         </option>
                       ))}
@@ -1203,7 +1203,7 @@ const MaterialCertificateList = () => {
                       value={formData.import_order_item_id}
                       onChange={(e) =>
                         handleInputChange(
-                          "import_order_item_id",
+                          'import_order_item_id',
                           e.target.value,
                         )
                       }
@@ -1212,14 +1212,14 @@ const MaterialCertificateList = () => {
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300"
-                      } ${!formData.import_order_id || orderItems.length === 0 ? "opacity-60" : ""}`}
+                          ? 'bg-gray-700 border-gray-600 text-white'
+                          : 'bg-white border-gray-300'
+                      } ${!formData.import_order_id || orderItems.length === 0 ? 'opacity-60' : ''}`}
                     >
                       <option value="">Select line item</option>
                       {orderItems.map((item) => (
                         <option key={item.id} value={item.id}>
-                          {item.product_name || item.productName} -{" "}
+                          {item.product_name || item.productName} -{' '}
                           {item.quantity} {item.unit}
                         </option>
                       ))}
@@ -1230,7 +1230,7 @@ const MaterialCertificateList = () => {
 
               {/* Material Details */}
               <div
-                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+                className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
               >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <Activity size={18} />
@@ -1239,9 +1239,9 @@ const MaterialCertificateList = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Heat Number{" "}
+                      Heat Number{' '}
                       {formData.certificate_type ===
-                        "mill_test_certificate" && (
+                        'mill_test_certificate' && (
                         <span className="text-red-500">*</span>
                       )}
                     </label>
@@ -1249,14 +1249,14 @@ const MaterialCertificateList = () => {
                       type="text"
                       value={formData.heat_number}
                       onChange={(e) =>
-                        handleInputChange("heat_number", e.target.value)
+                        handleInputChange('heat_number', e.target.value)
                       }
                       placeholder="e.g., H123456"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                          : "bg-white border-gray-300 placeholder-gray-500"
-                      } ${formErrors.heat_number ? "border-red-500" : ""}`}
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 placeholder-gray-500'
+                      } ${formErrors.heat_number ? 'border-red-500' : ''}`}
                     />
                     {formErrors.heat_number && (
                       <p className="text-red-500 text-xs mt-1">
@@ -1273,13 +1273,13 @@ const MaterialCertificateList = () => {
                       type="text"
                       value={formData.coil_id}
                       onChange={(e) =>
-                        handleInputChange("coil_id", e.target.value)
+                        handleInputChange('coil_id', e.target.value)
                       }
                       placeholder="e.g., C789012"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                          : "bg-white border-gray-300 placeholder-gray-500"
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 placeholder-gray-500'
                       }`}
                     />
                   </div>
@@ -1291,12 +1291,12 @@ const MaterialCertificateList = () => {
                     <select
                       value={formData.grade}
                       onChange={(e) =>
-                        handleInputChange("grade", e.target.value)
+                        handleInputChange('grade', e.target.value)
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300"
+                          ? 'bg-gray-700 border-gray-600 text-white'
+                          : 'bg-white border-gray-300'
                       }`}
                     >
                       <option value="">Select grade</option>
@@ -1308,7 +1308,7 @@ const MaterialCertificateList = () => {
                     </select>
                   </div>
 
-                  {formData.grade === "OTHER" && (
+                  {formData.grade === 'OTHER' && (
                     <div>
                       <label className="block text-sm font-medium mb-1">
                         Specify Grade <span className="text-red-500">*</span>
@@ -1317,14 +1317,14 @@ const MaterialCertificateList = () => {
                         type="text"
                         value={formData.grade_other}
                         onChange={(e) =>
-                          handleInputChange("grade_other", e.target.value)
+                          handleInputChange('grade_other', e.target.value)
                         }
                         placeholder="Enter grade name"
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 placeholder-gray-500"
-                        } ${formErrors.grade_other ? "border-red-500" : ""}`}
+                            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                            : 'bg-white border-gray-300 placeholder-gray-500'
+                        } ${formErrors.grade_other ? 'border-red-500' : ''}`}
                       />
                       {formErrors.grade_other && (
                         <p className="text-red-500 text-xs mt-1">
@@ -1338,7 +1338,7 @@ const MaterialCertificateList = () => {
 
               {/* Certificate Details */}
               <div
-                className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}
+                className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
               >
                 <h3 className="font-medium mb-4 flex items-center gap-2">
                   <Shield size={18} />
@@ -1353,13 +1353,13 @@ const MaterialCertificateList = () => {
                       type="text"
                       value={formData.country_of_origin}
                       onChange={(e) =>
-                        handleInputChange("country_of_origin", e.target.value)
+                        handleInputChange('country_of_origin', e.target.value)
                       }
                       placeholder="e.g., China, India, Japan"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                          : "bg-white border-gray-300 placeholder-gray-500"
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 placeholder-gray-500'
                       }`}
                     />
                   </div>
@@ -1372,13 +1372,13 @@ const MaterialCertificateList = () => {
                       type="text"
                       value={formData.issuing_authority}
                       onChange={(e) =>
-                        handleInputChange("issuing_authority", e.target.value)
+                        handleInputChange('issuing_authority', e.target.value)
                       }
                       placeholder="e.g., Bureau Veritas, SGS"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                          : "bg-white border-gray-300 placeholder-gray-500"
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 placeholder-gray-500'
                       }`}
                     />
                   </div>
@@ -1391,13 +1391,13 @@ const MaterialCertificateList = () => {
                       type="date"
                       value={formData.issue_date}
                       onChange={(e) =>
-                        handleInputChange("issue_date", e.target.value)
+                        handleInputChange('issue_date', e.target.value)
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300"
-                      } ${formErrors.issue_date ? "border-red-500" : ""}`}
+                          ? 'bg-gray-700 border-gray-600 text-white'
+                          : 'bg-white border-gray-300'
+                      } ${formErrors.issue_date ? 'border-red-500' : ''}`}
                     />
                     {formErrors.issue_date && (
                       <p className="text-red-500 text-xs mt-1">
@@ -1414,12 +1414,12 @@ const MaterialCertificateList = () => {
                       type="date"
                       value={formData.expiry_date}
                       onChange={(e) =>
-                        handleInputChange("expiry_date", e.target.value)
+                        handleInputChange('expiry_date', e.target.value)
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300"
+                          ? 'bg-gray-700 border-gray-600 text-white'
+                          : 'bg-white border-gray-300'
                       }`}
                     />
                   </div>
@@ -1427,9 +1427,9 @@ const MaterialCertificateList = () => {
               </div>
 
               {/* Chemical Composition (for MTC) */}
-              {formData.certificate_type === "mill_test_certificate" && (
+              {formData.certificate_type === 'mill_test_certificate' && (
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-800" : "bg-blue-50 border border-blue-200"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-blue-900/20 border border-blue-800' : 'bg-blue-50 border border-blue-200'}`}
                 >
                   <h3 className="font-medium mb-4 flex items-center gap-2">
                     <Beaker size={18} className="text-blue-500" />
@@ -1437,16 +1437,16 @@ const MaterialCertificateList = () => {
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {[
-                      { key: "chemical_c", label: "C (Carbon)" },
-                      { key: "chemical_si", label: "Si (Silicon)" },
-                      { key: "chemical_mn", label: "Mn (Manganese)" },
-                      { key: "chemical_p", label: "P (Phosphorus)" },
-                      { key: "chemical_s", label: "S (Sulfur)" },
-                      { key: "chemical_cr", label: "Cr (Chromium)" },
-                      { key: "chemical_ni", label: "Ni (Nickel)" },
-                      { key: "chemical_mo", label: "Mo (Molybdenum)" },
-                      { key: "chemical_cu", label: "Cu (Copper)" },
-                      { key: "chemical_n", label: "N (Nitrogen)" },
+                      { key: 'chemical_c', label: 'C (Carbon)' },
+                      { key: 'chemical_si', label: 'Si (Silicon)' },
+                      { key: 'chemical_mn', label: 'Mn (Manganese)' },
+                      { key: 'chemical_p', label: 'P (Phosphorus)' },
+                      { key: 'chemical_s', label: 'S (Sulfur)' },
+                      { key: 'chemical_cr', label: 'Cr (Chromium)' },
+                      { key: 'chemical_ni', label: 'Ni (Nickel)' },
+                      { key: 'chemical_mo', label: 'Mo (Molybdenum)' },
+                      { key: 'chemical_cu', label: 'Cu (Copper)' },
+                      { key: 'chemical_n', label: 'N (Nitrogen)' },
                     ].map(({ key, label }) => (
                       <div key={key}>
                         <label className="block text-xs font-medium mb-1">
@@ -1462,8 +1462,8 @@ const MaterialCertificateList = () => {
                           placeholder="0.000"
                           className={`w-full px-3 py-2 border rounded-lg text-sm ${
                             isDarkMode
-                              ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                              : "bg-white border-gray-300 placeholder-gray-500"
+                              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                              : 'bg-white border-gray-300 placeholder-gray-500'
                           }`}
                         />
                       </div>
@@ -1473,9 +1473,9 @@ const MaterialCertificateList = () => {
               )}
 
               {/* Mechanical Properties (for MTC) */}
-              {formData.certificate_type === "mill_test_certificate" && (
+              {formData.certificate_type === 'mill_test_certificate' && (
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-purple-900/20 border border-purple-800" : "bg-purple-50 border border-purple-200"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-purple-900/20 border border-purple-800' : 'bg-purple-50 border border-purple-200'}`}
                 >
                   <h3 className="font-medium mb-4 flex items-center gap-2">
                     <Activity size={18} className="text-purple-500" />
@@ -1491,13 +1491,13 @@ const MaterialCertificateList = () => {
                         step="0.1"
                         value={formData.yield_strength}
                         onChange={(e) =>
-                          handleInputChange("yield_strength", e.target.value)
+                          handleInputChange('yield_strength', e.target.value)
                         }
                         placeholder="e.g., 205"
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 placeholder-gray-500"
+                            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                            : 'bg-white border-gray-300 placeholder-gray-500'
                         }`}
                       />
                     </div>
@@ -1510,13 +1510,13 @@ const MaterialCertificateList = () => {
                         step="0.1"
                         value={formData.tensile_strength}
                         onChange={(e) =>
-                          handleInputChange("tensile_strength", e.target.value)
+                          handleInputChange('tensile_strength', e.target.value)
                         }
                         placeholder="e.g., 520"
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 placeholder-gray-500"
+                            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                            : 'bg-white border-gray-300 placeholder-gray-500'
                         }`}
                       />
                     </div>
@@ -1529,13 +1529,13 @@ const MaterialCertificateList = () => {
                         step="0.1"
                         value={formData.elongation}
                         onChange={(e) =>
-                          handleInputChange("elongation", e.target.value)
+                          handleInputChange('elongation', e.target.value)
                         }
                         placeholder="e.g., 40"
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 placeholder-gray-500"
+                            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                            : 'bg-white border-gray-300 placeholder-gray-500'
                         }`}
                       />
                     </div>
@@ -1548,13 +1548,13 @@ const MaterialCertificateList = () => {
                         step="0.1"
                         value={formData.hardness}
                         onChange={(e) =>
-                          handleInputChange("hardness", e.target.value)
+                          handleInputChange('hardness', e.target.value)
                         }
                         placeholder="e.g., 85"
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 placeholder-gray-500"
+                            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                            : 'bg-white border-gray-300 placeholder-gray-500'
                         }`}
                       />
                     </div>
@@ -1567,13 +1567,13 @@ const MaterialCertificateList = () => {
                 <label className="block text-sm font-medium mb-1">Notes</label>
                 <textarea
                   value={formData.notes}
-                  onChange={(e) => handleInputChange("notes", e.target.value)}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="Additional notes or remarks"
                   rows={3}
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                      : "bg-white border-gray-300 placeholder-gray-500"
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 placeholder-gray-500'
                   }`}
                 />
               </div>
@@ -1586,21 +1586,21 @@ const MaterialCertificateList = () => {
                 <div
                   className={`border-2 border-dashed rounded-lg p-6 text-center ${
                     isDarkMode
-                      ? "border-gray-600 hover:border-gray-500"
-                      : "border-gray-300 hover:border-gray-400"
+                      ? 'border-gray-600 hover:border-gray-500'
+                      : 'border-gray-300 hover:border-gray-400'
                   } cursor-pointer`}
                 >
                   <Upload
-                    className={`mx-auto mb-2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                    className={`mx-auto mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                     size={32}
                   />
                   <p
-                    className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     Click to upload or drag and drop certificate PDF
                   </p>
                   <p
-                    className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                    className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                   >
                     PDF up to 10MB
                   </p>
@@ -1612,8 +1612,8 @@ const MaterialCertificateList = () => {
             <div
               className={`sticky bottom-0 flex gap-3 p-6 border-t ${
                 isDarkMode
-                  ? "border-gray-700 bg-gray-800"
-                  : "border-gray-200 bg-white"
+                  ? 'border-gray-700 bg-gray-800'
+                  : 'border-gray-200 bg-white'
               }`}
             >
               <button
@@ -1621,9 +1621,9 @@ const MaterialCertificateList = () => {
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-gray-700 text-white hover:bg-gray-600"
-                    : "bg-gray-200 text-gray-900 hover:bg-gray-300"
-                } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
+                    ? 'bg-gray-700 text-white hover:bg-gray-600'
+                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 Cancel
               </button>
@@ -1631,14 +1631,14 @@ const MaterialCertificateList = () => {
                 onClick={handleSubmit}
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-teal-600 text-white hover:bg-teal-700 ${
-                  saving ? "opacity-50 cursor-not-allowed" : ""
+                  saving ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
                 {saving
-                  ? "Saving..."
-                  : modalMode === "create"
-                    ? "Create Certificate"
-                    : "Save Changes"}
+                  ? 'Saving...'
+                  : modalMode === 'create'
+                    ? 'Create Certificate'
+                    : 'Save Changes'}
               </button>
             </div>
           </div>
@@ -1646,19 +1646,19 @@ const MaterialCertificateList = () => {
       )}
 
       {/* View Modal */}
-      {showModal && modalMode === "view" && selectedCertificate && (
+      {showModal && modalMode === 'view' && selectedCertificate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div
             className={`relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
             }`}
           >
             {/* Header */}
             <div
               className={`sticky top-0 flex items-center justify-between p-6 border-b ${
                 isDarkMode
-                  ? "border-gray-700 bg-gray-800"
-                  : "border-gray-200 bg-white"
+                  ? 'border-gray-700 bg-gray-800'
+                  : 'border-gray-200 bg-white'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -1684,8 +1684,8 @@ const MaterialCertificateList = () => {
                   onClick={handleCloseModal}
                   className={`p-1 rounded-lg transition-colors ${
                     isDarkMode
-                      ? "hover:bg-gray-700 text-gray-400"
-                      : "hover:bg-gray-100 text-gray-500"
+                      ? 'hover:bg-gray-700 text-gray-400'
+                      : 'hover:bg-gray-100 text-gray-500'
                   }`}
                 >
                   <X className="h-5 w-5" />
@@ -1698,33 +1698,33 @@ const MaterialCertificateList = () => {
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}
                 >
                   <h3 className="font-medium mb-3">Mill Information</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Mill Name:</span>
                       <span className="font-medium">
-                        {selectedCertificate.mill_name || "-"}
+                        {selectedCertificate.mill_name || '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Heat Number:</span>
                       <span className="font-medium">
-                        {selectedCertificate.heat_number || "-"}
+                        {selectedCertificate.heat_number || '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Coil ID:</span>
                       <span className="font-medium">
-                        {selectedCertificate.coil_id || "-"}
+                        {selectedCertificate.coil_id || '-'}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}
                 >
                   <h3 className="font-medium mb-3">Material</h3>
                   <div className="space-y-2 text-sm">
@@ -1740,20 +1740,20 @@ const MaterialCertificateList = () => {
                     <div className="flex justify-between">
                       <span className="text-gray-500">Country of Origin:</span>
                       <span className="font-medium">
-                        {selectedCertificate.country_of_origin || "-"}
+                        {selectedCertificate.country_of_origin || '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Issuing Authority:</span>
                       <span className="font-medium">
-                        {selectedCertificate.issuing_authority || "-"}
+                        {selectedCertificate.issuing_authority || '-'}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}
                 >
                   <h3 className="font-medium mb-3">Dates</h3>
                   <div className="space-y-2 text-sm">
@@ -1769,8 +1769,8 @@ const MaterialCertificateList = () => {
                         className={`font-medium ${
                           selectedCertificate.expiry_date &&
                           new Date(selectedCertificate.expiry_date) < new Date()
-                            ? "text-red-500"
-                            : ""
+                            ? 'text-red-500'
+                            : ''
                         }`}
                       >
                         {formatDate(selectedCertificate.expiry_date)}
@@ -1782,9 +1782,9 @@ const MaterialCertificateList = () => {
 
               {/* Chemical Composition (for MTC) */}
               {selectedCertificate.certificate_type ===
-                "mill_test_certificate" && (
+                'mill_test_certificate' && (
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-800" : "bg-blue-50 border border-blue-200"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-blue-900/20 border border-blue-800' : 'bg-blue-50 border border-blue-200'}`}
                 >
                   <h3 className="font-medium mb-4 flex items-center gap-2">
                     <Beaker size={18} className="text-blue-500" />
@@ -1792,16 +1792,16 @@ const MaterialCertificateList = () => {
                   </h3>
                   <div className="grid grid-cols-5 md:grid-cols-10 gap-4">
                     {[
-                      { key: "chemical_c", label: "C" },
-                      { key: "chemical_si", label: "Si" },
-                      { key: "chemical_mn", label: "Mn" },
-                      { key: "chemical_p", label: "P" },
-                      { key: "chemical_s", label: "S" },
-                      { key: "chemical_cr", label: "Cr" },
-                      { key: "chemical_ni", label: "Ni" },
-                      { key: "chemical_mo", label: "Mo" },
-                      { key: "chemical_cu", label: "Cu" },
-                      { key: "chemical_n", label: "N" },
+                      { key: 'chemical_c', label: 'C' },
+                      { key: 'chemical_si', label: 'Si' },
+                      { key: 'chemical_mn', label: 'Mn' },
+                      { key: 'chemical_p', label: 'P' },
+                      { key: 'chemical_s', label: 'S' },
+                      { key: 'chemical_cr', label: 'Cr' },
+                      { key: 'chemical_ni', label: 'Ni' },
+                      { key: 'chemical_mo', label: 'Mo' },
+                      { key: 'chemical_cu', label: 'Cu' },
+                      { key: 'chemical_n', label: 'N' },
                     ].map(({ key, label }) => (
                       <div key={key} className="text-center">
                         <div className="text-xs text-gray-500 mb-1">
@@ -1810,7 +1810,7 @@ const MaterialCertificateList = () => {
                         <div className="font-mono font-medium">
                           {selectedCertificate[key]
                             ? selectedCertificate[key].toFixed(3)
-                            : "-"}
+                            : '-'}
                         </div>
                       </div>
                     ))}
@@ -1820,9 +1820,9 @@ const MaterialCertificateList = () => {
 
               {/* Mechanical Properties (for MTC) */}
               {selectedCertificate.certificate_type ===
-                "mill_test_certificate" && (
+                'mill_test_certificate' && (
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-purple-900/20 border border-purple-800" : "bg-purple-50 border border-purple-200"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-purple-900/20 border border-purple-800' : 'bg-purple-50 border border-purple-200'}`}
                 >
                   <h3 className="font-medium mb-4 flex items-center gap-2">
                     <Activity size={18} className="text-purple-500" />
@@ -1836,7 +1836,7 @@ const MaterialCertificateList = () => {
                       <div className="text-lg font-medium">
                         {selectedCertificate.yield_strength
                           ? `${selectedCertificate.yield_strength} MPa`
-                          : "-"}
+                          : '-'}
                       </div>
                     </div>
                     <div className="text-center">
@@ -1846,7 +1846,7 @@ const MaterialCertificateList = () => {
                       <div className="text-lg font-medium">
                         {selectedCertificate.tensile_strength
                           ? `${selectedCertificate.tensile_strength} MPa`
-                          : "-"}
+                          : '-'}
                       </div>
                     </div>
                     <div className="text-center">
@@ -1856,13 +1856,13 @@ const MaterialCertificateList = () => {
                       <div className="text-lg font-medium">
                         {selectedCertificate.elongation
                           ? `${selectedCertificate.elongation}%`
-                          : "-"}
+                          : '-'}
                       </div>
                     </div>
                     <div className="text-center">
                       <div className="text-xs text-gray-500 mb-1">Hardness</div>
                       <div className="text-lg font-medium">
-                        {selectedCertificate.hardness || "-"}
+                        {selectedCertificate.hardness || '-'}
                       </div>
                     </div>
                   </div>
@@ -1870,20 +1870,20 @@ const MaterialCertificateList = () => {
               )}
 
               {/* Verification Info */}
-              {selectedCertificate.verification_status !== "pending" && (
+              {selectedCertificate.verification_status !== 'pending' && (
                 <div
                   className={`p-4 rounded-lg ${
-                    selectedCertificate.verification_status === "verified"
+                    selectedCertificate.verification_status === 'verified'
                       ? isDarkMode
-                        ? "bg-green-900/20 border border-green-800"
-                        : "bg-green-50 border border-green-200"
+                        ? 'bg-green-900/20 border border-green-800'
+                        : 'bg-green-50 border border-green-200'
                       : isDarkMode
-                        ? "bg-red-900/20 border border-red-800"
-                        : "bg-red-50 border border-red-200"
+                        ? 'bg-red-900/20 border border-red-800'
+                        : 'bg-red-50 border border-red-200'
                   }`}
                 >
                   <h3 className="font-medium mb-3 flex items-center gap-2">
-                    {selectedCertificate.verification_status === "verified" ? (
+                    {selectedCertificate.verification_status === 'verified' ? (
                       <CheckCircle size={18} className="text-green-500" />
                     ) : (
                       <XCircle size={18} className="text-red-500" />
@@ -1894,7 +1894,7 @@ const MaterialCertificateList = () => {
                     <div>
                       <span className="text-gray-500">Verified By:</span>
                       <span className="font-medium ml-2">
-                        {selectedCertificate.verified_by || "-"}
+                        {selectedCertificate.verified_by || '-'}
                       </span>
                     </div>
                     <div>
@@ -1918,7 +1918,7 @@ const MaterialCertificateList = () => {
               {/* Notes */}
               {selectedCertificate.notes && (
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/30" : "bg-gray-50"}`}
+                  className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}
                 >
                   <h3 className="font-medium mb-2">Notes</h3>
                   <p className="text-sm">{selectedCertificate.notes}</p>
@@ -1930,16 +1930,16 @@ const MaterialCertificateList = () => {
             <div
               className={`sticky bottom-0 flex gap-3 p-6 border-t ${
                 isDarkMode
-                  ? "border-gray-700 bg-gray-800"
-                  : "border-gray-200 bg-white"
+                  ? 'border-gray-700 bg-gray-800'
+                  : 'border-gray-200 bg-white'
               }`}
             >
               <button
                 onClick={handleCloseModal}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-gray-700 text-white hover:bg-gray-600"
-                    : "bg-gray-200 text-gray-900 hover:bg-gray-300"
+                    ? 'bg-gray-700 text-white hover:bg-gray-600'
+                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                 }`}
               >
                 Close
@@ -1953,12 +1953,12 @@ const MaterialCertificateList = () => {
               >
                 Edit Certificate
               </button>
-              {selectedCertificate.verification_status === "pending" && (
+              {selectedCertificate.verification_status === 'pending' && (
                 <>
                   <button
                     onClick={() => {
                       handleCloseModal();
-                      openVerifyModal(selectedCertificate, "verify");
+                      openVerifyModal(selectedCertificate, 'verify');
                     }}
                     className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-green-600 text-white hover:bg-green-700"
                   >
@@ -1967,7 +1967,7 @@ const MaterialCertificateList = () => {
                   <button
                     onClick={() => {
                       handleCloseModal();
-                      openVerifyModal(selectedCertificate, "reject");
+                      openVerifyModal(selectedCertificate, 'reject');
                     }}
                     className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-red-600 text-white hover:bg-red-700"
                   >
@@ -1985,24 +1985,24 @@ const MaterialCertificateList = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div
             className={`relative w-full max-w-md rounded-lg shadow-xl ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
             }`}
           >
             {/* Header */}
             <div
               className={`flex items-center justify-between p-6 border-b ${
-                isDarkMode ? "border-gray-700" : "border-gray-200"
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
                   className={`p-2 rounded-lg ${
-                    verifyAction === "verify"
-                      ? "bg-green-100 dark:bg-green-900/30"
-                      : "bg-red-100 dark:bg-red-900/30"
+                    verifyAction === 'verify'
+                      ? 'bg-green-100 dark:bg-green-900/30'
+                      : 'bg-red-100 dark:bg-red-900/30'
                   }`}
                 >
-                  {verifyAction === "verify" ? (
+                  {verifyAction === 'verify' ? (
                     <CheckCircle className="h-6 w-6 text-green-600" />
                   ) : (
                     <XCircle className="h-6 w-6 text-red-600" />
@@ -2010,9 +2010,9 @@ const MaterialCertificateList = () => {
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold">
-                    {verifyAction === "verify"
-                      ? "Verify Certificate"
-                      : "Reject Certificate"}
+                    {verifyAction === 'verify'
+                      ? 'Verify Certificate'
+                      : 'Reject Certificate'}
                   </h2>
                   <p className="text-sm text-gray-500">
                     {selectedCertificate.certificate_number}
@@ -2023,8 +2023,8 @@ const MaterialCertificateList = () => {
                 onClick={() => setShowVerifyModal(false)}
                 className={`p-1 rounded-lg transition-colors ${
                   isDarkMode
-                    ? "hover:bg-gray-700 text-gray-400"
-                    : "hover:bg-gray-100 text-gray-500"
+                    ? 'hover:bg-gray-700 text-gray-400'
+                    : 'hover:bg-gray-100 text-gray-500'
                 }`}
               >
                 <X className="h-5 w-5" />
@@ -2034,19 +2034,19 @@ const MaterialCertificateList = () => {
             {/* Body */}
             <div className="p-6">
               <p
-                className={`mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
               >
-                {verifyAction === "verify"
-                  ? "Please confirm that you have verified all details on this certificate."
-                  : "Please provide a reason for rejecting this certificate."}
+                {verifyAction === 'verify'
+                  ? 'Please confirm that you have verified all details on this certificate.'
+                  : 'Please provide a reason for rejecting this certificate.'}
               </p>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {verifyAction === "verify"
-                    ? "Notes (Optional)"
-                    : "Rejection Reason"}
-                  {verifyAction === "reject" && (
+                  {verifyAction === 'verify'
+                    ? 'Notes (Optional)'
+                    : 'Rejection Reason'}
+                  {verifyAction === 'reject' && (
                     <span className="text-red-500">*</span>
                   )}
                 </label>
@@ -2054,15 +2054,15 @@ const MaterialCertificateList = () => {
                   value={verifyNotes}
                   onChange={(e) => setVerifyNotes(e.target.value)}
                   placeholder={
-                    verifyAction === "verify"
-                      ? "Add any verification notes..."
-                      : "Enter reason for rejection..."
+                    verifyAction === 'verify'
+                      ? 'Add any verification notes...'
+                      : 'Enter reason for rejection...'
                   }
                   rows={4}
                   className={`w-full px-3 py-2 border rounded-lg ${
                     isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                      : "bg-white border-gray-300 placeholder-gray-500"
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 placeholder-gray-500'
                   }`}
                 />
               </div>
@@ -2071,31 +2071,31 @@ const MaterialCertificateList = () => {
             {/* Footer */}
             <div
               className={`flex gap-3 p-6 border-t ${
-                isDarkMode ? "border-gray-700" : "border-gray-200"
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
               }`}
             >
               <button
                 onClick={() => setShowVerifyModal(false)}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
-                    ? "bg-gray-700 text-white hover:bg-gray-600"
-                    : "bg-gray-200 text-gray-900 hover:bg-gray-300"
+                    ? 'bg-gray-700 text-white hover:bg-gray-600'
+                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                 }`}
               >
                 Cancel
               </button>
               <button
                 onClick={handleVerifySubmit}
-                disabled={verifyAction === "reject" && !verifyNotes.trim()}
+                disabled={verifyAction === 'reject' && !verifyNotes.trim()}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors text-white ${
-                  verifyAction === "verify"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-red-600 hover:bg-red-700"
-                } ${verifyAction === "reject" && !verifyNotes.trim() ? "opacity-50 cursor-not-allowed" : ""}`}
+                  verifyAction === 'verify'
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-red-600 hover:bg-red-700'
+                } ${verifyAction === 'reject' && !verifyNotes.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {verifyAction === "verify"
-                  ? "Confirm Verification"
-                  : "Confirm Rejection"}
+                {verifyAction === 'verify'
+                  ? 'Confirm Verification'
+                  : 'Confirm Rejection'}
               </button>
             </div>
           </div>

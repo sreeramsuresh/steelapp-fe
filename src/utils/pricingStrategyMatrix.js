@@ -1,81 +1,27 @@
 /**
- * Category-Based Pricing Strategy Matrix
- * Epic 8: Enforces product category-based pricing strategies
+ * Margin Thresholds Configuration
+ * Epic 8: Channel-specific margin thresholds for price validation
  *
- * Business Rules:
- * - COILS → WEIGHT_BASED (per kg)
- * - SHEETS → AREA_BASED (per m²)
- * - PIPES/TUBES → PIECE_BASED (per unit)
- * - FITTINGS → PIECE_BASED (per unit)
- * - RODS/BARS → WEIGHT_BASED (per kg)
- * - FASTENERS → PIECE_BASED (per box/kg)
+ * PHASE 0 SSOT NOTE:
+ * Pricing policy (category → pricing unit mapping) has moved to the database.
+ * Use the `usePricingPolicy` hook from "../hooks/usePricingPolicy" instead of
+ * the deprecated functions in this file.
+ *
+ * This file now contains ONLY margin threshold logic which is UI-specific
+ * and not yet migrated to the database.
  */
-
-/**
- * Product categories
- */
-export const PRODUCT_CATEGORIES = {
-  COILS: "COILS",
-  SHEETS: "SHEETS",
-  PIPES: "PIPES",
-  TUBES: "TUBES",
-  FITTINGS: "FITTINGS",
-  RODS: "RODS",
-  BARS: "BARS",
-  FASTENERS: "FASTENERS",
-  ANGLES: "ANGLES",
-  CHANNELS: "CHANNELS",
-  BEAMS: "BEAMS",
-};
-
-/**
- * Pricing unit types
- */
-export const PRICING_UNITS = {
-  WEIGHT: "WEIGHT", // per kg/MT
-  AREA: "AREA", // per m²
-  PIECE: "PIECE", // per unit/piece
-  LENGTH: "LENGTH", // per meter
-};
-
-/**
- * Category to Pricing Unit Mapping Matrix
- * Defines the mandatory pricing unit for each product category
- */
-export const CATEGORY_PRICING_MATRIX = {
-  [PRODUCT_CATEGORIES.COILS]: PRICING_UNITS.WEIGHT,
-  [PRODUCT_CATEGORIES.SHEETS]: PRICING_UNITS.AREA,
-  [PRODUCT_CATEGORIES.PIPES]: PRICING_UNITS.PIECE,
-  [PRODUCT_CATEGORIES.TUBES]: PRICING_UNITS.PIECE,
-  [PRODUCT_CATEGORIES.FITTINGS]: PRICING_UNITS.PIECE,
-  [PRODUCT_CATEGORIES.RODS]: PRICING_UNITS.WEIGHT,
-  [PRODUCT_CATEGORIES.BARS]: PRICING_UNITS.WEIGHT,
-  [PRODUCT_CATEGORIES.FASTENERS]: PRICING_UNITS.PIECE,
-  [PRODUCT_CATEGORIES.ANGLES]: PRICING_UNITS.WEIGHT,
-  [PRODUCT_CATEGORIES.CHANNELS]: PRICING_UNITS.WEIGHT,
-  [PRODUCT_CATEGORIES.BEAMS]: PRICING_UNITS.WEIGHT,
-};
-
-/**
- * Pricing unit display labels
- */
-export const PRICING_UNIT_LABELS = {
-  [PRICING_UNITS.WEIGHT]: "Per Kilogram (KG)",
-  [PRICING_UNITS.AREA]: "Per Square Meter (m²)",
-  [PRICING_UNITS.PIECE]: "Per Piece/Unit",
-  [PRICING_UNITS.LENGTH]: "Per Meter",
-};
 
 /**
  * Procurement channels
  */
 export const PROCUREMENT_CHANNELS = {
-  LOCAL: "LOCAL",
-  IMPORTED: "IMPORTED",
+  LOCAL: 'LOCAL',
+  IMPORTED: 'IMPORTED',
 };
 
 /**
  * Margin thresholds per procurement channel
+ * These define the color coding for margin warnings in the UI
  */
 export const MARGIN_THRESHOLDS = {
   [PROCUREMENT_CHANNELS.LOCAL]: {
@@ -89,62 +35,6 @@ export const MARGIN_THRESHOLDS = {
     good: 10, // Green if >= 10%
   },
 };
-
-/**
- * Get the mandatory pricing unit for a product category
- * @param {string} category - Product category
- * @returns {string|null} Pricing unit or null if invalid category
- */
-export function getPricingUnitForCategory(category) {
-  if (!category) return null;
-  const upperCategory = category.toUpperCase();
-  return CATEGORY_PRICING_MATRIX[upperCategory] || null;
-}
-
-/**
- * Validate if a pricing unit is compatible with a category
- * @param {string} category - Product category
- * @param {string} pricingUnit - Pricing unit to validate
- * @returns {Object} Validation result with isValid and error message
- */
-export function validateCategoryPricingUnit(category, pricingUnit) {
-  if (!category) {
-    return {
-      isValid: false,
-      error: "Product category is required",
-    };
-  }
-
-  if (!pricingUnit) {
-    return {
-      isValid: false,
-      error: "Pricing unit is required",
-    };
-  }
-
-  const expectedUnit = getPricingUnitForCategory(category);
-  if (!expectedUnit) {
-    return {
-      isValid: false,
-      error: `Unknown product category: ${category}`,
-    };
-  }
-
-  const upperPricingUnit = pricingUnit.toUpperCase();
-  if (upperPricingUnit !== expectedUnit) {
-    return {
-      isValid: false,
-      error: `Invalid pricing unit for ${category}. Expected: ${PRICING_UNIT_LABELS[expectedUnit]}`,
-      expectedUnit,
-    };
-  }
-
-  return {
-    isValid: true,
-    error: null,
-    expectedUnit,
-  };
-}
 
 /**
  * Get margin threshold configuration for a procurement channel
@@ -170,12 +60,12 @@ export function getMarginColor(margin, channel = PROCUREMENT_CHANNELS.LOCAL) {
   const marginValue = parseFloat(margin) || 0;
 
   if (marginValue < thresholds.minimum) {
-    return "red";
+    return 'red';
   }
   if (marginValue < thresholds.warning) {
-    return "amber";
+    return 'amber';
   }
-  return "green";
+  return 'green';
 }
 
 /**
@@ -192,81 +82,125 @@ export function getMarginStatusMessage(
   const marginValue = parseFloat(margin) || 0;
   const color = getMarginColor(margin, channel);
 
-  if (color === "red") {
+  if (color === 'red') {
     return `Below ${thresholds.minimum}% minimum for ${channel} products`;
   }
-  if (color === "amber") {
+  if (color === 'amber') {
     return `Below ${thresholds.warning}% recommended for ${channel} products`;
   }
   return `Good margin for ${channel} products`;
 }
 
+// =============================================================================
+// DEPRECATED EXPORTS - Use usePricingPolicy hook instead
+// These are kept for backwards compatibility during Phase 0 transition
+// =============================================================================
+
 /**
- * Auto-suggest pricing unit based on category
- * @param {string} category - Product category
- * @returns {Object} Suggested pricing unit with label and rationale
+ * @deprecated Use usePricingPolicy hook instead. Will be removed in Phase 1.
  */
-export function suggestPricingUnit(category) {
-  const unit = getPricingUnitForCategory(category);
-  if (!unit) {
-    return {
-      unit: null,
-      label: null,
-      rationale: "Unknown category",
-    };
-  }
+export const PRODUCT_CATEGORIES = {
+  COILS: 'COILS',
+  SHEETS: 'SHEETS',
+  PIPES: 'PIPES',
+  TUBES: 'TUBES',
+  FITTINGS: 'FITTINGS',
+  RODS: 'RODS',
+  BARS: 'BARS',
+  FASTENERS: 'FASTENERS',
+  ANGLES: 'ANGLES',
+  CHANNELS: 'CHANNELS',
+  BEAMS: 'BEAMS',
+};
 
-  const rationale = getCategoryRationale(category, unit);
+/**
+ * @deprecated Use usePricingPolicy hook instead. Will be removed in Phase 1.
+ */
+export const PRICING_UNITS = {
+  WEIGHT: 'WEIGHT',
+  AREA: 'AREA',
+  PIECE: 'PIECE',
+  LENGTH: 'LENGTH',
+};
 
-  return {
-    unit,
-    label: PRICING_UNIT_LABELS[unit],
-    rationale,
-  };
+/**
+ * @deprecated Use usePricingPolicy hook instead. Will be removed in Phase 1.
+ */
+export const CATEGORY_PRICING_MATRIX = {
+  [PRODUCT_CATEGORIES.COILS]: PRICING_UNITS.WEIGHT,
+  [PRODUCT_CATEGORIES.SHEETS]: PRICING_UNITS.AREA,
+  [PRODUCT_CATEGORIES.PIPES]: PRICING_UNITS.PIECE,
+  [PRODUCT_CATEGORIES.TUBES]: PRICING_UNITS.PIECE,
+  [PRODUCT_CATEGORIES.FITTINGS]: PRICING_UNITS.PIECE,
+  [PRODUCT_CATEGORIES.RODS]: PRICING_UNITS.WEIGHT,
+  [PRODUCT_CATEGORIES.BARS]: PRICING_UNITS.WEIGHT,
+  [PRODUCT_CATEGORIES.FASTENERS]: PRICING_UNITS.PIECE,
+  [PRODUCT_CATEGORIES.ANGLES]: PRICING_UNITS.WEIGHT,
+  [PRODUCT_CATEGORIES.CHANNELS]: PRICING_UNITS.WEIGHT,
+  [PRODUCT_CATEGORIES.BEAMS]: PRICING_UNITS.WEIGHT,
+};
+
+/**
+ * @deprecated Use usePricingPolicy hook instead. Will be removed in Phase 1.
+ */
+export const PRICING_UNIT_LABELS = {
+  [PRICING_UNITS.WEIGHT]: 'Per Kilogram (KG)',
+  [PRICING_UNITS.AREA]: 'Per Square Meter (m2)',
+  [PRICING_UNITS.PIECE]: 'Per Piece/Unit',
+  [PRICING_UNITS.LENGTH]: 'Per Meter',
+};
+
+/**
+ * @deprecated Use usePricingPolicy hook's getPricingUnitForCategory instead.
+ */
+export function getPricingUnitForCategory(category) {
+  console.warn(
+    '[DEPRECATED] getPricingUnitForCategory from pricingStrategyMatrix.js is deprecated. Use usePricingPolicy hook instead.',
+  );
+  if (!category) return null;
+  const upperCategory = category.toUpperCase();
+  return CATEGORY_PRICING_MATRIX[upperCategory] || null;
 }
 
 /**
- * Get rationale for category-pricing unit pairing
- * @param {string} category - Product category
- * @param {string} unit - Pricing unit
- * @returns {string} Business rationale
+ * @deprecated Use usePricingPolicy hook's validateCategoryPricingUnit instead.
  */
-function getCategoryRationale(category, unit) {
-  const rationales = {
-    [PRODUCT_CATEGORIES.COILS]:
-      "Coils are priced by weight due to variable dimensions",
-    [PRODUCT_CATEGORIES.SHEETS]:
-      "Sheets are priced by area (m²) for consistent pricing across sizes",
-    [PRODUCT_CATEGORIES.PIPES]:
-      "Pipes are priced per piece based on standard lengths",
-    [PRODUCT_CATEGORIES.TUBES]:
-      "Tubes are priced per piece based on standard lengths",
-    [PRODUCT_CATEGORIES.FITTINGS]:
-      "Fittings are priced per piece as discrete units",
-    [PRODUCT_CATEGORIES.RODS]:
-      "Rods are priced by weight due to variable lengths",
-    [PRODUCT_CATEGORIES.BARS]:
-      "Bars are priced by weight due to variable lengths",
-    [PRODUCT_CATEGORIES.FASTENERS]: "Fasteners are priced per piece or box",
-    [PRODUCT_CATEGORIES.ANGLES]: "Angles are priced by weight",
-    [PRODUCT_CATEGORIES.CHANNELS]: "Channels are priced by weight",
-    [PRODUCT_CATEGORIES.BEAMS]: "Beams are priced by weight",
-  };
-
-  return rationales[category] || `Auto-determined pricing unit: ${unit}`;
+export function validateCategoryPricingUnit(category, pricingUnit) {
+  console.warn(
+    '[DEPRECATED] validateCategoryPricingUnit from pricingStrategyMatrix.js is deprecated. Use usePricingPolicy hook instead.',
+  );
+  if (!category) {
+    return { isValid: false, error: 'Product category is required' };
+  }
+  if (!pricingUnit) {
+    return { isValid: false, error: 'Pricing unit is required' };
+  }
+  const expectedUnit = CATEGORY_PRICING_MATRIX[category.toUpperCase()];
+  if (!expectedUnit) {
+    return { isValid: false, error: `Unknown product category: ${category}` };
+  }
+  if (pricingUnit.toUpperCase() !== expectedUnit) {
+    return {
+      isValid: false,
+      error: `Invalid pricing unit for ${category}. Expected: ${PRICING_UNIT_LABELS[expectedUnit]}`,
+      expectedUnit,
+    };
+  }
+  return { isValid: true, error: null, expectedUnit };
 }
 
 export default {
+  // Active exports
+  PROCUREMENT_CHANNELS,
+  MARGIN_THRESHOLDS,
+  getMarginThresholds,
+  getMarginColor,
+  getMarginStatusMessage,
+  // Deprecated exports (kept for backwards compatibility)
   PRODUCT_CATEGORIES,
   PRICING_UNITS,
   CATEGORY_PRICING_MATRIX,
   PRICING_UNIT_LABELS,
-  PROCUREMENT_CHANNELS,
-  MARGIN_THRESHOLDS,
   getPricingUnitForCategory,
   validateCategoryPricingUnit,
-  getMarginThresholds,
-  getMarginColor,
-  getMarginStatusMessage,
-  suggestPricingUnit,
 };

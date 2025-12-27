@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -11,15 +11,15 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext";
-import { tokenUtils } from "../../services/axiosApi";
-import { importContainerService } from "../../services/importContainerService";
-import { suppliersAPI } from "../../services/api";
-import { ContainerStatusBadge } from "../../components/ContainerStatusBadge";
-import { ContainerForm } from "./ContainerForm";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { tokenUtils } from '../../services/axiosApi';
+import { importContainerService } from '../../services/importContainerService';
+import { suppliersAPI } from '../../services/api';
+import { ContainerStatusBadge } from '../../components/ContainerStatusBadge';
+import { ContainerForm } from './ContainerForm';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -27,23 +27,23 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 const CONTAINER_STATUSES = [
-  { value: "", label: "All Statuses" },
-  { value: "BOOKED", label: "Booked" },
-  { value: "IN_TRANSIT", label: "In Transit" },
-  { value: "ARRIVED", label: "Arrived" },
-  { value: "CUSTOMS", label: "Customs" },
-  { value: "CLEARED", label: "Cleared" },
-  { value: "DELIVERED", label: "Delivered" },
+  { value: '', label: 'All Statuses' },
+  { value: 'BOOKED', label: 'Booked' },
+  { value: 'IN_TRANSIT', label: 'In Transit' },
+  { value: 'ARRIVED', label: 'Arrived' },
+  { value: 'CUSTOMS', label: 'Customs' },
+  { value: 'CLEARED', label: 'Cleared' },
+  { value: 'DELIVERED', label: 'Delivered' },
 ];
 
 /**
@@ -70,11 +70,11 @@ export function ContainerList() {
   // Filters
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    status: "",
-    supplierId: "",
-    etaFrom: "",
-    etaTo: "",
-    search: "",
+    status: '',
+    supplierId: '',
+    etaFrom: '',
+    etaTo: '',
+    search: '',
   });
 
   // Modal state
@@ -103,7 +103,7 @@ export function ContainerList() {
 
       // Remove empty filter values
       Object.keys(params).forEach((key) => {
-        if (params[key] === "" || params[key] === null) {
+        if (params[key] === '' || params[key] === null) {
           delete params[key];
         }
       });
@@ -116,8 +116,8 @@ export function ContainerList() {
         setTotalItems(response.pageInfo.totalItems || 0);
       }
     } catch (err) {
-      console.error("Failed to load containers:", err);
-      setError(err.message || "Failed to load containers");
+      console.error('Failed to load containers:', err);
+      setError(err.message || 'Failed to load containers');
     } finally {
       setLoading(false);
       loadingRef.current = false;
@@ -130,7 +130,7 @@ export function ContainerList() {
       const response = await suppliersAPI.getAll();
       setSuppliers(response || []);
     } catch (err) {
-      console.error("Failed to load suppliers:", err);
+      console.error('Failed to load suppliers:', err);
     }
   }, []);
 
@@ -150,17 +150,17 @@ export function ContainerList() {
 
   const handleClearFilters = () => {
     setFilters({
-      status: "",
-      supplierId: "",
-      etaFrom: "",
-      etaTo: "",
-      search: "",
+      status: '',
+      supplierId: '',
+      etaFrom: '',
+      etaTo: '',
+      search: '',
     });
     setPage(1);
   };
 
   const handleSearch = (e) => {
-    handleFilterChange("search", e.target.value);
+    handleFilterChange('search', e.target.value);
   };
 
   const handleAddContainer = () => {
@@ -184,8 +184,8 @@ export function ContainerList() {
       setDeleteConfirm(null);
       loadContainers();
     } catch (err) {
-      console.error("Failed to delete container:", err);
-      setError(err.message || "Failed to delete container");
+      console.error('Failed to delete container:', err);
+      setError(err.message || 'Failed to delete container');
     }
   };
 
@@ -201,12 +201,12 @@ export function ContainerList() {
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return "-";
+    if (!dateStr) return '-';
     try {
-      return new Date(dateStr).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
+      return new Date(dateStr).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
       });
     } catch {
       return dateStr;
@@ -214,33 +214,33 @@ export function ContainerList() {
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return "-";
+    if (!amount) return '-';
     const num = parseFloat(amount);
-    if (isNaN(num)) return "-";
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
+    if (isNaN(num)) return '-';
+    return new Intl.NumberFormat('en-AE', {
+      style: 'currency',
+      currency: 'AED',
       minimumFractionDigits: 2,
     }).format(num);
   };
 
-  const hasActiveFilters = Object.values(filters).some((v) => v !== "");
+  const hasActiveFilters = Object.values(filters).some((v) => v !== '');
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-4`}
+      className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} p-4`}
     >
       {/* Header */}
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1
-              className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               📦 Import Containers
             </h1>
             <p
-              className={`mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              className={`mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
             >
               Manage import containers and landed costs
             </p>
@@ -250,10 +250,10 @@ export function ContainerList() {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 hasActiveFilters
-                  ? "border-teal-500 bg-teal-500/10 text-teal-600 dark:text-teal-400"
+                  ? 'border-teal-500 bg-teal-500/10 text-teal-600 dark:text-teal-400'
                   : isDarkMode
-                    ? "border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
-                    : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
+                    ? 'border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400'
+                    : 'bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600'
               }`}
             >
               <Filter className="h-4 w-4" />
@@ -277,7 +277,7 @@ export function ContainerList() {
 
       {/* Search Section */}
       <div
-        className={`p-6 rounded-xl mb-6 border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        className={`p-6 rounded-xl mb-6 border ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}
       >
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
@@ -288,7 +288,7 @@ export function ContainerList() {
                 placeholder="Search by container number..."
                 value={filters.search}
                 onChange={handleSearch}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}`}
               />
             </div>
           </div>
@@ -299,8 +299,8 @@ export function ContainerList() {
       <div
         className={`rounded-xl border overflow-hidden ${
           isDarkMode
-            ? "bg-[#1E2328] border-[#37474F]"
-            : "bg-white border-gray-200"
+            ? 'bg-[#1E2328] border-[#37474F]'
+            : 'bg-white border-gray-200'
         }`}
       >
         <div className="p-6">
@@ -309,8 +309,8 @@ export function ContainerList() {
             <div
               className={`mb-4 p-4 rounded-lg border ${
                 isDarkMode
-                  ? "bg-[#0F1419] border-[#37474F]"
-                  : "bg-gray-50 border-gray-200"
+                  ? 'bg-[#0F1419] border-[#37474F]'
+                  : 'bg-gray-50 border-gray-200'
               }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -334,7 +334,7 @@ export function ContainerList() {
                   <Select
                     value={filters.status}
                     onValueChange={(value) =>
-                      handleFilterChange("status", value)
+                      handleFilterChange('status', value)
                     }
                   >
                     <SelectTrigger>
@@ -356,7 +356,7 @@ export function ContainerList() {
                   <Select
                     value={filters.supplierId}
                     onValueChange={(value) =>
-                      handleFilterChange("supplierId", value)
+                      handleFilterChange('supplierId', value)
                     }
                   >
                     <SelectTrigger>
@@ -383,7 +383,7 @@ export function ContainerList() {
                     type="date"
                     value={filters.etaFrom}
                     onChange={(e) =>
-                      handleFilterChange("etaFrom", e.target.value)
+                      handleFilterChange('etaFrom', e.target.value)
                     }
                   />
                 </div>
@@ -395,7 +395,7 @@ export function ContainerList() {
                     type="date"
                     value={filters.etaTo}
                     onChange={(e) =>
-                      handleFilterChange("etaTo", e.target.value)
+                      handleFilterChange('etaTo', e.target.value)
                     }
                   />
                 </div>
@@ -406,7 +406,7 @@ export function ContainerList() {
           {/* Error State */}
           {error && (
             <div
-              className={`mb-4 p-4 rounded border ${isDarkMode ? "bg-red-900/20 text-red-300 border-red-700" : "bg-red-50 text-red-800 border-red-200"}`}
+              className={`mb-4 p-4 rounded border ${isDarkMode ? 'bg-red-900/20 text-red-300 border-red-700' : 'bg-red-50 text-red-800 border-red-200'}`}
             >
               {error}
               <Button
@@ -428,26 +428,26 @@ export function ContainerList() {
           ) : containers.length === 0 ? (
             /* Empty State */
             <div
-              className={`rounded-lg border overflow-hidden ${isDarkMode ? "bg-[#0F1419] border-[#37474F]" : "bg-gray-50 border-gray-200"}`}
+              className={`rounded-lg border overflow-hidden ${isDarkMode ? 'bg-[#0F1419] border-[#37474F]' : 'bg-gray-50 border-gray-200'}`}
             >
               <div className="p-8 text-center">
                 <div
-                  className={`w-16 h-16 mx-auto mb-4 rounded-full ${isDarkMode ? "bg-gray-800" : "bg-gray-200"} flex items-center justify-center`}
+                  className={`w-16 h-16 mx-auto mb-4 rounded-full ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} flex items-center justify-center`}
                 >
                   <div
-                    className={`w-8 h-8 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    className={`w-8 h-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     📦
                   </div>
                 </div>
                 <h3
-                  className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                 >
                   No containers found
                 </h3>
-                <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
                   {hasActiveFilters
-                    ? "Try adjusting your filters"
+                    ? 'Try adjusting your filters'
                     : 'Click "Add Container" to create your first container'}
                 </p>
               </div>
@@ -475,9 +475,9 @@ export function ContainerList() {
                           {container.containerNumber}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {container.billOfLading || "-"}
+                          {container.billOfLading || '-'}
                         </TableCell>
-                        <TableCell>{container.supplierName || "-"}</TableCell>
+                        <TableCell>{container.supplierName || '-'}</TableCell>
                         <TableCell>
                           <ContainerStatusBadge status={container.status} />
                         </TableCell>
@@ -523,10 +523,10 @@ export function ContainerList() {
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
                 <p
-                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 >
-                  Showing {(page - 1) * itemsPerPage + 1} to{" "}
-                  {Math.min(page * itemsPerPage, totalItems)} of {totalItems}{" "}
+                  Showing {(page - 1) * itemsPerPage + 1} to{' '}
+                  {Math.min(page * itemsPerPage, totalItems)} of {totalItems}{' '}
                   containers
                 </p>
                 <div className="flex gap-2">
@@ -570,12 +570,12 @@ export function ContainerList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div
             className={`w-full max-w-md p-6 rounded-xl shadow-xl ${
-              isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
+              isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
             }`}
           >
             <h3 className="text-lg font-semibold mb-4">Delete Container</h3>
             <p className="mb-6">
-              Are you sure you want to delete container{" "}
+              Are you sure you want to delete container{' '}
               <strong>{deleteConfirm.containerNumber}</strong>? This action
               cannot be undone.
             </p>

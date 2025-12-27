@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { Banknote, AlertTriangle, CheckCircle } from "lucide-react";
-import { PAYMENT_MODES } from "../../services/dataService";
-import { formatCurrency } from "../../utils/invoiceUtils";
-import { toUAEDateForInput } from "../../utils/timezone";
-import CurrencyInput from "../forms/CurrencyInput";
-import { customerCreditService } from "../../services/customerCreditService";
+import { useState, useEffect } from 'react';
+import { Banknote, AlertTriangle, CheckCircle } from 'lucide-react';
+import { PAYMENT_MODES } from '../../services/dataService';
+import { formatCurrency } from '../../utils/invoiceUtils';
+import { toUAEDateForInput } from '../../utils/timezone';
+import CurrencyInput from '../forms/CurrencyInput';
+import { customerCreditService } from '../../services/customerCreditService';
 
 /**
  * AddPaymentForm - Unified payment form component with multi-currency support
@@ -29,24 +29,24 @@ const AddPaymentForm = ({
   onSave,
   isSaving = false,
   onCancel,
-  entityType = "invoice",
-  defaultCurrency = "AED",
+  entityType = 'invoice',
+  defaultCurrency = 'AED',
   customerId = null,
   invoiceVatAmount = null,
 }) => {
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
-  const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState("cash");
-  const [reference, setReference] = useState("");
-  const [notes, setNotes] = useState("");
+  const [amount, setAmount] = useState('');
+  const [method, setMethod] = useState('cash');
+  const [reference, setReference] = useState('');
+  const [notes, setNotes] = useState('');
 
   // Multi-currency fields (Phase 1 Enhancement)
   const [currency, setCurrency] = useState(defaultCurrency);
-  const [exchangeRate, setExchangeRate] = useState("1.0000");
+  const [exchangeRate, setExchangeRate] = useState('1.0000');
 
   // VAT tracking fields (Epic 9 - PAYM-003)
-  const [vatRate, setVatRate] = useState("5");
+  const [vatRate, setVatRate] = useState('5');
   const [reverseCharge, setReverseCharge] = useState(false);
 
   // Credit limit state (Epic 2 - PAYM-001)
@@ -69,8 +69,8 @@ const AddPaymentForm = ({
           await customerCreditService.getCustomerCreditSummary(customerId);
         setCreditSummary(summary);
       } catch (error) {
-        console.error("Error fetching customer credit summary:", error);
-        setCreditError("Unable to load credit information");
+        console.error('Error fetching customer credit summary:', error);
+        setCreditError('Unable to load credit information');
         setCreditSummary(null);
       } finally {
         setLoadingCredit(false);
@@ -84,10 +84,10 @@ const AddPaymentForm = ({
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
 
   // Helper for number input
-  const numberInput = (v) => (v === "" || isNaN(Number(v)) ? "" : v);
+  const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
 
   // Check if using foreign currency (non-AED)
-  const isForeignCurrency = currency !== "AED";
+  const isForeignCurrency = currency !== 'AED';
 
   // Calculate AED equivalent when using foreign currency
   const amountInAed = isForeignCurrency
@@ -133,7 +133,7 @@ const AddPaymentForm = ({
     !isSaving &&
     Number(amount) > 0 &&
     Number(amount) <= Number(outstanding || 0) &&
-    (!modeConfig.requiresRef || (reference && reference.trim() !== "")) &&
+    (!modeConfig.requiresRef || (reference && reference.trim() !== '')) &&
     (!isForeignCurrency || parseFloat(exchangeRate) > 0);
 
   const handleSave = () => {
@@ -165,17 +165,17 @@ const AddPaymentForm = ({
 
     // Clear form after successful save - reset to today's date in UAE timezone
     setDate(toUAEDateForInput(new Date()));
-    setAmount("");
-    setMethod("cash");
-    setReference("");
-    setNotes("");
+    setAmount('');
+    setMethod('cash');
+    setReference('');
+    setNotes('');
     setCurrency(defaultCurrency);
-    setExchangeRate("1.0000");
-    setVatRate("5");
+    setExchangeRate('1.0000');
+    setVatRate('5');
     setReverseCharge(false);
   };
 
-  const balanceLabel = entityType === "po" ? "Balance" : "Outstanding Balance";
+  const balanceLabel = entityType === 'po' ? 'Balance' : 'Outstanding Balance';
 
   return (
     <div className="p-4 rounded-lg border-2 border-teal-200 bg-teal-50">
@@ -264,7 +264,7 @@ const AddPaymentForm = ({
                 <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
                 <div>
                   <strong>Low Credit Warning:</strong> This payment will leave
-                  the customer with only {formatCurrency(newAvailableCredit)}{" "}
+                  the customer with only {formatCurrency(newAvailableCredit)}{' '}
                   available credit (
                   {((newAvailableCredit / creditLimit) * 100).toFixed(1)}% of
                   limit).
@@ -316,7 +316,7 @@ const AddPaymentForm = ({
             value={method}
             onChange={(e) => {
               setMethod(e.target.value);
-              setReference("");
+              setReference('');
             }}
           >
             {Object.values(PAYMENT_MODES).map((m) => (
@@ -328,7 +328,7 @@ const AddPaymentForm = ({
         </div>
         <div>
           <div className="text-xs opacity-70 mb-1">
-            {modeConfig.refLabel || "Reference #"}
+            {modeConfig.refLabel || 'Reference #'}
             {modeConfig.requiresRef && <span className="text-red-500"> *</span>}
           </div>
           <input
@@ -337,17 +337,17 @@ const AddPaymentForm = ({
             onChange={(e) => setReference(e.target.value)}
             placeholder={
               modeConfig.requiresRef
-                ? `Enter ${modeConfig.refLabel || "reference"}`
-                : "Optional"
+                ? `Enter ${modeConfig.refLabel || 'reference'}`
+                : 'Optional'
             }
             required={modeConfig.requiresRef}
           />
           {modeConfig.requiresRef &&
-            (!reference || reference.trim() === "") && (
-              <div className="text-xs text-red-600 mt-1">
+            (!reference || reference.trim() === '') && (
+            <div className="text-xs text-red-600 mt-1">
                 Reference is required for {modeConfig.label}
-              </div>
-            )}
+            </div>
+          )}
         </div>
         <div className="sm:col-span-2">
           <div className="text-xs opacity-70 mb-1">Notes</div>
@@ -387,7 +387,7 @@ const AddPaymentForm = ({
             <div className="flex justify-between">
               <span className="text-purple-700">VAT Rate:</span>
               <span className="font-bold text-purple-900">
-                {reverseCharge ? "0%" : `${vatRate}%`}
+                {reverseCharge ? '0%' : `${vatRate}%`}
               </span>
             </div>
             <div className="flex justify-between">
@@ -427,11 +427,11 @@ const AddPaymentForm = ({
           onClick={handleSave}
           className={`px-4 py-2.5 rounded-lg font-semibold transition-all ${
             canSave
-              ? "bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg"
-              : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg'
+              : 'bg-gray-300 text-gray-600 cursor-not-allowed'
           }`}
         >
-          {isSaving ? "Saving..." : "Save Payment"}
+          {isSaving ? 'Saving...' : 'Save Payment'}
         </button>
       </div>
     </div>

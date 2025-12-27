@@ -5,4 +5,4 @@
  * These are the canonical types that match the backend schema.
  */
 
-export * from "./common";
+export * from './common';

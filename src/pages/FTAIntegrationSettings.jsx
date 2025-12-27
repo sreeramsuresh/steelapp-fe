@@ -16,7 +16,7 @@
  * - Right 40%: Help documentation (full height, always visible)
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Shield,
   Key,
@@ -39,14 +39,14 @@ import {
   X,
   Info,
   ArrowRight,
-} from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
-import { integrationService } from "../services/integrationService";
-import FTAHelpPanel from "../components/FTAHelpPanel";
-import ConfirmDialog from "../components/ConfirmDialog";
-import { useConfirm } from "../hooks/useConfirm";
+} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { integrationService } from '../services/integrationService';
+import FTAHelpPanel from '../components/FTAHelpPanel';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
 
-const INTEGRATION_TYPE = "fta_trn";
+const INTEGRATION_TYPE = 'fta_trn';
 
 const FTAIntegrationSettings = ({ embedded = false }) => {
   const { isDarkMode } = useTheme();
@@ -66,8 +66,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
 
   // Form state
   const [formData, setFormData] = useState({
-    api_url: "",
-    api_key: "",
+    api_url: '',
+    api_key: '',
   });
   const [showApiKey, setShowApiKey] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -99,27 +99,27 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
         setIntegration(response.integration);
         setIsConfigured(true);
         setFormData({
-          api_url: response.integration.api_url || "",
-          api_key: "", // Don't populate - show masked version
+          api_url: response.integration.api_url || '',
+          api_key: '', // Don't populate - show masked version
         });
         setTestResult(
           response.integration.last_test_at
             ? {
-                success: response.integration.last_test_success,
-                message: response.integration.last_test_message,
-                tested_at: response.integration.last_test_at,
-              }
+              success: response.integration.last_test_success,
+              message: response.integration.last_test_message,
+              tested_at: response.integration.last_test_at,
+            }
             : null,
         );
       } else {
         setIntegration(null);
         setIsConfigured(false);
-        setFormData({ api_url: "", api_key: "" });
+        setFormData({ api_url: '', api_key: '' });
       }
 
       setHasChanges(false);
     } catch (err) {
-      setError(err.message || "Failed to load integration settings");
+      setError(err.message || 'Failed to load integration settings');
     } finally {
       setLoading(false);
     }
@@ -139,13 +139,13 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   // Save integration
   const handleSave = async () => {
     if (!formData.api_url) {
-      setError("API URL is required");
+      setError('API URL is required');
       return;
     }
 
     // For new integrations, require API key
     if (!isConfigured && !formData.api_key) {
-      setError("API Key is required");
+      setError('API Key is required');
       return;
     }
 
@@ -158,14 +158,14 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
         api_key: formData.api_key || undefined, // Only send if provided
       });
 
-      setSuccess("Settings saved successfully");
+      setSuccess('Settings saved successfully');
       setHasChanges(false);
       await loadIntegration();
 
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(
-        err.response?.data?.error || err.message || "Failed to save settings",
+        err.response?.data?.error || err.message || 'Failed to save settings',
       );
     } finally {
       setSaving(false);
@@ -184,7 +184,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
       setTestResult(result);
 
       if (result.success) {
-        setSuccess("Connection successful! Settings have been locked.");
+        setSuccess('Connection successful! Settings have been locked.');
         await loadIntegration(); // Refresh to get locked state
       }
 
@@ -195,7 +195,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
         message:
           err.response?.data?.message ||
           err.message ||
-          "Connection test failed",
+          'Connection test failed',
       });
     } finally {
       setTesting(false);
@@ -205,11 +205,11 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   // Unlock integration
   const handleUnlock = async () => {
     const confirmed = await confirm({
-      title: "Unlock Integration Settings?",
+      title: 'Unlock Integration Settings?',
       message:
-        "This will allow you to modify the API credentials. Make sure to test the connection after making changes.",
-      confirmText: "Unlock",
-      variant: "warning",
+        'This will allow you to modify the API credentials. Make sure to test the connection after making changes.',
+      confirmText: 'Unlock',
+      variant: 'warning',
     });
 
     if (!confirmed) return;
@@ -218,10 +218,10 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
       setUnlocking(true);
       await integrationService.unlock(INTEGRATION_TYPE);
       await loadIntegration();
-      setSuccess("Settings unlocked. You can now make changes.");
+      setSuccess('Settings unlocked. You can now make changes.');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err.message || "Failed to unlock settings");
+      setError(err.message || 'Failed to unlock settings');
     } finally {
       setUnlocking(false);
     }
@@ -230,11 +230,11 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   // Delete integration
   const handleDelete = async () => {
     const confirmed = await confirm({
-      title: "Delete Integration?",
+      title: 'Delete Integration?',
       message:
-        "This will remove all FTA integration settings including API credentials. TRN verification will fall back to manual mode.",
-      confirmText: "Delete",
-      variant: "danger",
+        'This will remove all FTA integration settings including API credentials. TRN verification will fall back to manual mode.',
+      confirmText: 'Delete',
+      variant: 'danger',
     });
 
     if (!confirmed) return;
@@ -243,10 +243,10 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
       setLoading(true);
       await integrationService.delete(INTEGRATION_TYPE);
       await loadIntegration();
-      setSuccess("Integration deleted");
+      setSuccess('Integration deleted');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err.message || "Failed to delete integration");
+      setError(err.message || 'Failed to delete integration');
     } finally {
       setLoading(false);
     }
@@ -261,7 +261,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
       });
       setAuditLog(response.audit_log || []);
     } catch (err) {
-      console.error("Failed to load audit log:", err);
+      console.error('Failed to load audit log:', err);
     } finally {
       setLoadingAudit(false);
     }
@@ -275,10 +275,10 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
 
   // Format date
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString("en-AE", {
-      dateStyle: "medium",
-      timeStyle: "short",
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString('en-AE', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
     });
   };
 
@@ -286,44 +286,44 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   const getStatusInfo = () => {
     if (!isConfigured) {
       return {
-        status: "not_configured",
+        status: 'not_configured',
         icon: AlertCircle,
-        title: "Not Configured",
-        bgClass: isDarkMode ? "bg-gray-700/50" : "bg-gray-100",
-        iconColorClass: isDarkMode ? "text-gray-400" : "text-gray-500",
-        textColorClass: isDarkMode ? "text-gray-400" : "text-gray-500",
+        title: 'Not Configured',
+        bgClass: isDarkMode ? 'bg-gray-700/50' : 'bg-gray-100',
+        iconColorClass: isDarkMode ? 'text-gray-400' : 'text-gray-500',
+        textColorClass: isDarkMode ? 'text-gray-400' : 'text-gray-500',
       };
     }
 
     if (integration?.last_test_success) {
       return {
-        status: "connected",
+        status: 'connected',
         icon: CheckCircle,
-        title: "Connected",
-        bgClass: isDarkMode ? "bg-green-900/20" : "bg-green-50",
-        iconColorClass: isDarkMode ? "text-green-400" : "text-green-600",
-        textColorClass: isDarkMode ? "text-green-400" : "text-green-600",
+        title: 'Connected',
+        bgClass: isDarkMode ? 'bg-green-900/20' : 'bg-green-50',
+        iconColorClass: isDarkMode ? 'text-green-400' : 'text-green-600',
+        textColorClass: isDarkMode ? 'text-green-400' : 'text-green-600',
       };
     }
 
     if (integration?.last_test_success === false) {
       return {
-        status: "failed",
+        status: 'failed',
         icon: XCircle,
-        title: "Connection Failed",
-        bgClass: isDarkMode ? "bg-red-900/20" : "bg-red-50",
-        iconColorClass: isDarkMode ? "text-red-400" : "text-red-600",
-        textColorClass: isDarkMode ? "text-red-400" : "text-red-600",
+        title: 'Connection Failed',
+        bgClass: isDarkMode ? 'bg-red-900/20' : 'bg-red-50',
+        iconColorClass: isDarkMode ? 'text-red-400' : 'text-red-600',
+        textColorClass: isDarkMode ? 'text-red-400' : 'text-red-600',
       };
     }
 
     return {
-      status: "not_tested",
+      status: 'not_tested',
       icon: Clock,
-      title: "Not Tested",
-      bgClass: isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50",
-      iconColorClass: isDarkMode ? "text-yellow-400" : "text-yellow-600",
-      textColorClass: isDarkMode ? "text-yellow-400" : "text-yellow-600",
+      title: 'Not Tested',
+      bgClass: isDarkMode ? 'bg-yellow-900/20' : 'bg-yellow-50',
+      iconColorClass: isDarkMode ? 'text-yellow-400' : 'text-yellow-600',
+      textColorClass: isDarkMode ? 'text-yellow-400' : 'text-yellow-600',
     };
   };
 
@@ -331,10 +331,10 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
 
   // Get current status key for legend highlighting
   const getCurrentStatus = () => {
-    if (!isConfigured) return "not_configured";
-    if (integration?.last_test_success === true) return "connected";
-    if (integration?.last_test_success === false) return "failed";
-    return "not_tested"; // configured but never tested
+    if (!isConfigured) return 'not_configured';
+    if (integration?.last_test_success === true) return 'connected';
+    if (integration?.last_test_success === false) return 'failed';
+    return 'not_tested'; // configured but never tested
   };
 
   const currentStatus = getCurrentStatus();
@@ -342,32 +342,32 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   // Status legend data with iOS-style icon squares
   const statusLegend = [
     {
-      key: "connected",
-      label: "Connected",
+      key: 'connected',
+      label: 'Connected',
       icon: CheckCircle,
-      iconBg: "bg-green-500",
-      description: "Working, all good",
+      iconBg: 'bg-green-500',
+      description: 'Working, all good',
     },
     {
-      key: "failed",
-      label: "Connection Failed",
+      key: 'failed',
+      label: 'Connection Failed',
       icon: XCircle,
-      iconBg: "bg-red-500",
-      description: "Error, needs attention",
+      iconBg: 'bg-red-500',
+      description: 'Error, needs attention',
     },
     {
-      key: "not_configured",
-      label: "Not Configured",
+      key: 'not_configured',
+      label: 'Not Configured',
       icon: Circle,
-      iconBg: "bg-gray-400",
-      description: "Neutral, not set up yet",
+      iconBg: 'bg-gray-400',
+      description: 'Neutral, not set up yet',
     },
     {
-      key: "not_tested",
-      label: "Not Tested",
+      key: 'not_tested',
+      label: 'Not Tested',
       icon: AlertCircle,
-      iconBg: "bg-amber-500",
-      description: "Warning, needs testing",
+      iconBg: 'bg-amber-500',
+      description: 'Warning, needs testing',
     },
   ];
 
@@ -376,8 +376,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
       <div
         className={
           embedded
-            ? ""
-            : `min-h-screen p-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`
+            ? ''
+            : `min-h-screen p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`
         }
       >
         <div className="flex items-center justify-center h-64">
@@ -391,11 +391,11 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
     <div
       className={
         embedded
-          ? ""
-          : `min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`
+          ? ''
+          : `min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`
       }
     >
-      <div className={embedded ? "" : "p-6"}>
+      <div className={embedded ? '' : 'p-6'}>
         {/* Two-Column Layout - Starting from the very top */}
         <div className="flex flex-col lg:flex-row gap-6 items-stretch">
           {/* Left Column - Header + Actionable Items (60%) */}
@@ -404,14 +404,14 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
             <div
               className={`relative overflow-hidden rounded-xl ${
                 isDarkMode
-                  ? "bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900"
-                  : "bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500"
+                  ? 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900'
+                  : 'bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500'
               }`}
             >
               <div className="relative px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`p-2 rounded-lg ${isDarkMode ? "bg-white/10" : "bg-white/20"}`}
+                    className={`p-2 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-white/20'}`}
                   >
                     <Shield className="h-5 w-5 text-white" />
                   </div>
@@ -423,7 +423,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                 {/* UAE Badge - Inline */}
                 <div
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md ${
-                    isDarkMode ? "bg-white/10" : "bg-white/20"
+                    isDarkMode ? 'bg-white/10' : 'bg-white/20'
                   }`}
                 >
                   <CheckCircle className="h-3.5 w-3.5 text-white" />
@@ -438,20 +438,20 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
             <div
               className={`px-4 py-2.5 rounded-lg flex items-center gap-3 ${
                 isDarkMode
-                  ? "bg-teal-900/30 border border-teal-800"
-                  : "bg-teal-50 border border-teal-200"
+                  ? 'bg-teal-900/30 border border-teal-800'
+                  : 'bg-teal-50 border border-teal-200'
               }`}
             >
               <Info
-                className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
               />
               <span
-                className={`text-sm ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}
+                className={`text-sm ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
               >
                 First time setting up? See the guide on the right
               </span>
               <ArrowRight
-                className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
               />
             </div>
 
@@ -480,22 +480,22 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
             {integration?.is_locked && (
               <div
                 className={`p-4 rounded-lg border-l-4 border-yellow-500 ${
-                  isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50"
+                  isDarkMode ? 'bg-yellow-900/20' : 'bg-yellow-50'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Lock
-                      className={`h-5 w-5 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
+                      className={`h-5 w-5 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
                     />
                     <div>
                       <p
-                        className={`font-medium ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}
+                        className={`font-medium ${isDarkMode ? 'text-yellow-300' : 'text-yellow-800'}`}
                       >
                         Settings are locked
                       </p>
                       <p
-                        className={`text-sm ${isDarkMode ? "text-yellow-400/70" : "text-yellow-600"}`}
+                        className={`text-sm ${isDarkMode ? 'text-yellow-400/70' : 'text-yellow-600'}`}
                       >
                         Connection tested successfully. Unlock to make changes.
                       </p>
@@ -506,8 +506,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     disabled={unlocking}
                     className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
                       isDarkMode
-                        ? "bg-yellow-600 hover:bg-yellow-500 text-white"
-                        : "bg-yellow-500 hover:bg-yellow-400 text-white"
+                        ? 'bg-yellow-600 hover:bg-yellow-500 text-white'
+                        : 'bg-yellow-500 hover:bg-yellow-400 text-white'
                     } disabled:opacity-50`}
                   >
                     {unlocking ? (
@@ -535,7 +535,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
               </div>
               {integration?.last_test_at && (
                 <span
-                  className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                  className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                 >
                   Last tested: {formatDate(integration.last_test_at)}
                 </span>
@@ -549,17 +549,17 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                 <div
                   className={`h-full rounded-xl shadow-sm border ${
                     isDarkMode
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-white border-gray-200"
+                      ? 'bg-gray-800 border-gray-700'
+                      : 'bg-white border-gray-200'
                   }`}
                 >
                   {/* Card Header */}
                   <div
-                    className={`px-5 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                    className={`px-5 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                   >
                     <div className="flex items-center gap-2">
                       <Settings
-                        className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                        className={`h-4 w-4 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                       />
                       <h2 className="text-base font-semibold">
                         API Configuration
@@ -573,7 +573,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     <div>
                       <label
                         className={`block text-sm font-medium mb-1.5 ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -586,18 +586,18 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                         type="url"
                         value={formData.api_url}
                         onChange={(e) =>
-                          handleChange("api_url", e.target.value)
+                          handleChange('api_url', e.target.value)
                         }
                         disabled={integration?.is_locked}
                         placeholder="https://api.tax.gov.ae/v1/trn/verify"
                         className={`w-full px-3 py-2 rounded-lg border transition-colors text-sm ${
                           isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-500 disabled:bg-gray-800 disabled:text-gray-500"
-                            : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
+                            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500 disabled:bg-gray-800 disabled:text-gray-500'
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
                         } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
                       />
                       <p
-                        className={`mt-1 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                        className={`mt-1 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                       >
                         Enter the exact URL from your FTA API credentials
                       </p>
@@ -607,7 +607,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     <div>
                       <label
                         className={`block text-sm font-medium mb-1.5 ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -620,22 +620,22 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                       </label>
                       <div className="relative">
                         <input
-                          type={showApiKey ? "text" : "password"}
+                          type={showApiKey ? 'text' : 'password'}
                           value={formData.api_key}
                           onChange={(e) =>
-                            handleChange("api_key", e.target.value)
+                            handleChange('api_key', e.target.value)
                           }
                           disabled={integration?.is_locked}
                           placeholder={
                             isConfigured
                               ? integration?.api_key_masked ||
-                                "Key configured (hidden)"
-                              : "Enter your FTA API key"
+                                'Key configured (hidden)'
+                              : 'Enter your FTA API key'
                           }
                           className={`w-full px-3 py-2 pr-10 rounded-lg border transition-colors text-sm ${
                             isDarkMode
-                              ? "bg-gray-700 border-gray-600 text-white placeholder-gray-500 disabled:bg-gray-800 disabled:text-gray-500"
-                              : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
+                              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500 disabled:bg-gray-800 disabled:text-gray-500'
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
                           } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
                         />
                         <button
@@ -643,8 +643,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                           onClick={() => setShowApiKey(!showApiKey)}
                           className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded ${
                             isDarkMode
-                              ? "text-gray-400 hover:text-gray-300"
-                              : "text-gray-500 hover:text-gray-700"
+                              ? 'text-gray-400 hover:text-gray-300'
+                              : 'text-gray-500 hover:text-gray-700'
                           }`}
                         >
                           {showApiKey ? (
@@ -655,11 +655,11 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                         </button>
                       </div>
                       <p
-                        className={`mt-1 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                        className={`mt-1 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                       >
                         {isConfigured
-                          ? "Leave empty to keep existing key, or enter new key to update"
-                          : "Paste your API key exactly as provided by FTA"}
+                          ? 'Leave empty to keep existing key, or enter new key to update'
+                          : 'Paste your API key exactly as provided by FTA'}
                       </p>
                     </div>
 
@@ -669,24 +669,24 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                         className={`p-3 rounded-lg ${
                           testResult.success
                             ? isDarkMode
-                              ? "bg-green-900/30 border border-green-700"
-                              : "bg-green-50 border border-green-200"
+                              ? 'bg-green-900/30 border border-green-700'
+                              : 'bg-green-50 border border-green-200'
                             : isDarkMode
-                              ? "bg-red-900/30 border border-red-700"
-                              : "bg-red-50 border border-red-200"
+                              ? 'bg-red-900/30 border border-red-700'
+                              : 'bg-red-50 border border-red-200'
                         }`}
                       >
                         <div className="flex items-start gap-2">
                           {testResult.success ? (
                             <CheckCircle
                               className={`h-4 w-4 mt-0.5 ${
-                                isDarkMode ? "text-green-400" : "text-green-600"
+                                isDarkMode ? 'text-green-400' : 'text-green-600'
                               }`}
                             />
                           ) : (
                             <XCircle
                               className={`h-4 w-4 mt-0.5 ${
-                                isDarkMode ? "text-red-400" : "text-red-600"
+                                isDarkMode ? 'text-red-400' : 'text-red-600'
                               }`}
                             />
                           )}
@@ -695,33 +695,33 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                               className={`text-sm font-medium ${
                                 testResult.success
                                   ? isDarkMode
-                                    ? "text-green-300"
-                                    : "text-green-800"
+                                    ? 'text-green-300'
+                                    : 'text-green-800'
                                   : isDarkMode
-                                    ? "text-red-300"
-                                    : "text-red-800"
+                                    ? 'text-red-300'
+                                    : 'text-red-800'
                               }`}
                             >
                               {testResult.success
-                                ? "Connection Successful"
-                                : "Connection Failed"}
+                                ? 'Connection Successful'
+                                : 'Connection Failed'}
                             </p>
                             <p
                               className={`text-xs mt-0.5 ${
                                 testResult.success
                                   ? isDarkMode
-                                    ? "text-green-400"
-                                    : "text-green-600"
+                                    ? 'text-green-400'
+                                    : 'text-green-600'
                                   : isDarkMode
-                                    ? "text-red-400"
-                                    : "text-red-600"
+                                    ? 'text-red-400'
+                                    : 'text-red-600'
                               }`}
                             >
                               {testResult.message}
                             </p>
                             {testResult.tested_at && (
                               <p
-                                className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                               >
                                 Tested: {formatDate(testResult.tested_at)}
                               </p>
@@ -739,8 +739,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                             onClick={handleDelete}
                             className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
                               isDarkMode
-                                ? "text-red-400 hover:bg-red-900/30"
-                                : "text-red-600 hover:bg-red-50"
+                                ? 'text-red-400 hover:bg-red-900/30'
+                                : 'text-red-600 hover:bg-red-50'
                             }`}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -761,10 +761,10 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                           }
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
                             isDarkMode
-                              ? "bg-gray-700 hover:bg-gray-600 text-white disabled:bg-gray-800 disabled:text-gray-600"
-                              : "bg-gray-100 hover:bg-gray-200 text-gray-700 disabled:bg-gray-100 disabled:text-gray-400"
+                              ? 'bg-gray-700 hover:bg-gray-600 text-white disabled:bg-gray-800 disabled:text-gray-600'
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-700 disabled:bg-gray-100 disabled:text-gray-400'
                           } disabled:cursor-not-allowed`}
-                          title={hasChanges ? "Save changes first" : ""}
+                          title={hasChanges ? 'Save changes first' : ''}
                         >
                           {testing ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -798,16 +798,16 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
               {/* Status Legend - fixed width on right */}
               <div className="lg:w-72">
                 <div
-                  className={`h-full rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+                  className={`h-full rounded-xl border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
                 >
                   <div
-                    className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                    className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                   >
                     <h3
-                      className={`text-sm font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       <Info
-                        className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                        className={`h-4 w-4 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                       />
                       Status Legend
                     </h3>
@@ -822,32 +822,32 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                           className={`flex items-center gap-3 p-2 rounded-lg ${
                             isCurrent
                               ? isDarkMode
-                                ? "bg-teal-900/20"
-                                : "bg-teal-50"
-                              : ""
-                          } ${!isCurrent ? "opacity-50" : ""}`}
+                                ? 'bg-teal-900/20'
+                                : 'bg-teal-50'
+                              : ''
+                          } ${!isCurrent ? 'opacity-50' : ''}`}
                         >
                           {/* iOS-style rounded square icon */}
                           <div
                             className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center ${
                               isCurrent
                                 ? item.iconBg
-                                : "bg-gray-300 dark:bg-gray-600"
+                                : 'bg-gray-300 dark:bg-gray-600'
                             }`}
                           >
                             <Icon className="h-4 w-4 text-white" />
                           </div>
                           <div className="min-w-0">
                             <p
-                              className={`text-sm ${isCurrent ? "font-medium" : ""} ${
-                                isDarkMode ? "text-gray-300" : "text-gray-700"
+                              className={`text-sm ${isCurrent ? 'font-medium' : ''} ${
+                                isDarkMode ? 'text-gray-300' : 'text-gray-700'
                               }`}
                             >
                               {item.label}
                             </p>
                             <p
                               className={`text-xs ${
-                                isDarkMode ? "text-gray-500" : "text-gray-400"
+                                isDarkMode ? 'text-gray-500' : 'text-gray-400'
                               }`}
                             >
                               {item.description}
@@ -866,25 +866,25 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
               <div
                 className={`rounded-xl shadow-sm border ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-700"
-                    : "bg-white border-gray-200"
+                    ? 'bg-gray-800 border-gray-700'
+                    : 'bg-white border-gray-200'
                 }`}
               >
                 <div
-                  className={`px-5 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                  className={`px-5 py-3 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <History
-                        className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                        className={`h-4 w-4 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                       />
                       <h2 className="text-base font-semibold">Usage & Audit</h2>
                     </div>
                     <button
                       onClick={() => setShowAuditLog(!showAuditLog)}
-                      className={`text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"} hover:underline`}
+                      className={`text-xs ${isDarkMode ? 'text-teal-400' : 'text-teal-600'} hover:underline`}
                     >
-                      {showAuditLog ? "Hide Log" : "View Audit Log"}
+                      {showAuditLog ? 'Hide Log' : 'View Audit Log'}
                     </button>
                   </div>
                 </div>
@@ -893,19 +893,19 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <p
-                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                       >
                         Last Used
                       </p>
                       <p className="text-sm font-medium mt-0.5">
                         {integration?.last_used_at
                           ? formatDate(integration.last_used_at)
-                          : "Never"}
+                          : 'Never'}
                       </p>
                     </div>
                     <div>
                       <p
-                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                       >
                         Total Verifications
                       </p>
@@ -915,14 +915,14 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     </div>
                     <div>
                       <p
-                        className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                       >
                         Last Test
                       </p>
                       <p className="text-sm font-medium mt-0.5">
                         {integration?.last_test_at
                           ? formatDate(integration.last_test_at)
-                          : "Never"}
+                          : 'Never'}
                       </p>
                     </div>
                   </div>
@@ -939,7 +939,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                         </div>
                       ) : auditLog.length === 0 ? (
                         <p
-                          className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                          className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                         >
                           No activity recorded yet.
                         </p>
@@ -949,28 +949,28 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                             <div
                               key={entry.id}
                               className={`flex items-start gap-2 p-2 rounded-lg ${
-                                isDarkMode ? "bg-gray-700/50" : "bg-gray-50"
+                                isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'
                               }`}
                             >
                               <div
                                 className={`p-1 rounded-full ${
-                                  entry.action === "tested" &&
+                                  entry.action === 'tested' &&
                                   entry.action_details?.success
-                                    ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                                    : entry.action === "tested"
-                                      ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                                      : "bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
+                                    ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                                    : entry.action === 'tested'
+                                      ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                      : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
                                 }`}
                               >
-                                {entry.action === "tested" ? (
+                                {entry.action === 'tested' ? (
                                   entry.action_details?.success ? (
                                     <CheckCircle className="h-3 w-3" />
                                   ) : (
                                     <XCircle className="h-3 w-3" />
                                   )
-                                ) : entry.action === "locked" ? (
+                                ) : entry.action === 'locked' ? (
                                   <Lock className="h-3 w-3" />
-                                ) : entry.action === "unlocked" ? (
+                                ) : entry.action === 'unlocked' ? (
                                   <Unlock className="h-3 w-3" />
                                 ) : (
                                   <Settings className="h-3 w-3" />
@@ -979,17 +979,17 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                               <div className="flex-1 min-w-0">
                                 <p
                                   className={`text-xs font-medium capitalize ${
-                                    isDarkMode ? "text-white" : "text-gray-900"
+                                    isDarkMode ? 'text-white' : 'text-gray-900'
                                   }`}
                                 >
-                                  {entry.action.replace("_", " ")}
+                                  {entry.action.replace('_', ' ')}
                                 </p>
                                 {entry.action_details?.message && (
                                   <p
                                     className={`text-xs mt-0.5 ${
                                       isDarkMode
-                                        ? "text-gray-400"
-                                        : "text-gray-500"
+                                        ? 'text-gray-400'
+                                        : 'text-gray-500'
                                     }`}
                                   >
                                     {entry.action_details.message}
@@ -998,11 +998,11 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                                 <p
                                   className={`text-xs mt-0.5 ${
                                     isDarkMode
-                                      ? "text-gray-500"
-                                      : "text-gray-400"
+                                      ? 'text-gray-500'
+                                      : 'text-gray-400'
                                   }`}
                                 >
-                                  {entry.performed_by_name || "System"} -{" "}
+                                  {entry.performed_by_name || 'System'} -{' '}
                                   {formatDate(entry.performed_at)}
                                 </p>
                               </div>
@@ -1022,8 +1022,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
             <div
               className={`h-full rounded-xl shadow-sm border overflow-hidden ${
                 isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-white border-gray-200'
               }`}
             >
               <div className="h-full max-h-[calc(100vh-120px)] overflow-y-auto lg:sticky lg:top-6">

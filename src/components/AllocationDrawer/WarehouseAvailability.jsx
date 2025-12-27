@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import { productService } from "../../services/productService";
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { productService } from '../../services/productService';
 
 /**
  * WarehouseAvailability Component
@@ -39,8 +39,8 @@ const WarehouseAvailability = ({
         // productService returns { data: [...] } via axios
         setWarehouses(response.data || []);
       } catch (err) {
-        console.error("Failed to fetch warehouse stock:", err);
-        setError("Failed to load warehouse availability");
+        console.error('Failed to fetch warehouse stock:', err);
+        setError('Failed to load warehouse availability');
         setWarehouses([]);
       } finally {
         setLoading(false);
@@ -120,9 +120,9 @@ const WarehouseAvailability = ({
           return (
             <div
               key={warehouse.warehouseId}
-              className={`warehouse-item ${isSelected ? "selected" : ""} ${hasStock ? "has-stock" : "no-stock"}`}
+              className={`warehouse-item ${isSelected ? 'selected' : ''} ${hasStock ? 'has-stock' : 'no-stock'}`}
               onClick={() => handleWarehouseClick(warehouse)}
-              style={{ cursor: onWarehouseSelect ? "pointer" : "default" }}
+              style={{ cursor: onWarehouseSelect ? 'pointer' : 'default' }}
             >
               <div className="warehouse-info">
                 <span className="warehouse-name">

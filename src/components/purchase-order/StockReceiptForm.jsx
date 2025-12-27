@@ -12,8 +12,8 @@
  * Refactored: Tailwind CSS with dark mode support
  */
 
-import { useState, useEffect, useMemo } from "react";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useState, useEffect, useMemo } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   X,
   Package,
@@ -25,16 +25,16 @@ import {
   FileText,
   Shield,
   AlertCircle,
-} from "lucide-react";
-import { stockMovementService } from "../../services/stockMovementService";
-import { warehouseService } from "../../services/warehouseService";
+} from 'lucide-react';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (quantity, unit = "KG") => {
+const formatQuantity = (quantity, unit = 'KG') => {
   const num = parseFloat(quantity) || 0;
-  return `${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -45,11 +45,11 @@ const getReceivingStatus = (item) => {
   const received = parseFloat(item.receivedQuantity) || 0;
 
   if (received >= ordered) {
-    return { status: "complete", label: "Complete", color: "green" };
+    return { status: 'complete', label: 'Complete', color: 'green' };
   } else if (received > 0) {
-    return { status: "partial", label: "Partial", color: "yellow" };
+    return { status: 'partial', label: 'Partial', color: 'yellow' };
   }
-  return { status: "pending", label: "Pending", color: "gray" };
+  return { status: 'pending', label: 'Pending', color: 'gray' };
 };
 
 const StockReceiptForm = ({
@@ -64,42 +64,42 @@ const StockReceiptForm = ({
   const { isDarkMode } = useTheme();
 
   // Theme classes
-  const overlayBg = "bg-black/60";
-  const modalBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
-  const modalBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const cardBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
-  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
-  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
-  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
-  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
-  const tableBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const tableHeaderBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
-  const tableRowHover = isDarkMode ? "hover:bg-[#1a2129]" : "hover:bg-gray-50";
+  const overlayBg = 'bg-black/60';
+  const modalBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
+  const modalBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const cardBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
+  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
+  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
+  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
+  const tableBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
+  const tableHeaderBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
+  const tableRowHover = isDarkMode ? 'hover:bg-[#1a2129]' : 'hover:bg-gray-50';
   const inputFocus =
-    "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
+    'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
 
   // State
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState(
-    defaultWarehouseId || "",
+    defaultWarehouseId || '',
   );
   const [selectedItems, setSelectedItems] = useState({});
   const [quantities, setQuantities] = useState({});
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
   // GRN State (Epic 3 - RECV-001)
-  const [grnNumber, setGrnNumber] = useState("");
-  const [grnStatus, setGrnStatus] = useState("draft"); // draft, pending_approval, approved
+  const [grnNumber, setGrnNumber] = useState('');
+  const [grnStatus, setGrnStatus] = useState('draft'); // draft, pending_approval, approved
   const [grnDate, setGrnDate] = useState(
-    new Date().toISOString().split("T")[0],
+    new Date().toISOString().split('T')[0],
   );
-  const [approvedBy, setApprovedBy] = useState("");
-  const [approvalDate, setApprovalDate] = useState("");
+  const [approvedBy, setApprovedBy] = useState('');
+  const [approvalDate, setApprovalDate] = useState('');
 
   // Weight Variance State (Epic 3 - RECV-002)
   const [expectedWeights, setExpectedWeights] = useState({});
@@ -126,7 +126,7 @@ const StockReceiptForm = ({
           setSelectedWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error("Error fetching warehouses:", err);
+        console.error('Error fetching warehouses:', err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -149,7 +149,7 @@ const StockReceiptForm = ({
       const initialSupplierBatchRefs = {};
       const initialMfgDates = {};
 
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString().split('T')[0];
 
       poItems.forEach((item) => {
         const pending =
@@ -170,8 +170,8 @@ const StockReceiptForm = ({
             .substring(2, 6)
             .toUpperCase();
           initialBatchNumbers[item.id] =
-            `IMP-${purchaseOrderId || "PO"}-${item.id}-${randomSuffix}`;
-          initialSupplierBatchRefs[item.id] = "";
+            `IMP-${purchaseOrderId || 'PO'}-${item.id}-${randomSuffix}`;
+          initialSupplierBatchRefs[item.id] = '';
           initialMfgDates[item.id] = today;
         }
       });
@@ -203,12 +203,12 @@ const StockReceiptForm = ({
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && open && !loading) {
+      if (e.key === 'Escape' && open && !loading) {
         onClose();
       }
     };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [open, onClose, loading]);
 
   // Filter items to only those with products (can create stock movements)
@@ -324,9 +324,9 @@ const StockReceiptForm = ({
 
   // Handle GRN approval (Epic 3 - RECV-001)
   const handleApproveGRN = () => {
-    setGrnStatus("approved");
-    setApprovedBy("Current User"); // TODO: Get from auth context
-    setApprovalDate(new Date().toISOString().split("T")[0]);
+    setGrnStatus('approved');
+    setApprovedBy('Current User'); // TODO: Get from auth context
+    setApprovalDate(new Date().toISOString().split('T')[0]);
   };
 
   // Handle submit
@@ -337,15 +337,15 @@ const StockReceiptForm = ({
       setLoading(true);
 
       // Validate GRN approval (Epic 3 - RECV-001)
-      if (grnStatus !== "approved") {
-        setError("GRN must be approved before receiving stock");
+      if (grnStatus !== 'approved') {
+        setError('GRN must be approved before receiving stock');
         setLoading(false);
         return;
       }
 
       // Validate
       if (!selectedWarehouseId) {
-        setError("Please select a warehouse");
+        setError('Please select a warehouse');
         setLoading(false);
         return;
       }
@@ -370,11 +370,11 @@ const StockReceiptForm = ({
                 actualWeight: parseFloat(actualWeights[itemId]) || qty,
                 weightVariance: variance,
                 variancePercentage: percentage,
-                varianceReason: varianceReasons[itemId] || "accepted_tolerance",
+                varianceReason: varianceReasons[itemId] || 'accepted_tolerance',
                 // Batch data (Epic 6 - RECV-003)
-                batchNumber: batchNumbers[itemId] || "",
-                supplierBatchRef: supplierBatchRefs[itemId] || "",
-                mfgDate: mfgDates[itemId] || "",
+                batchNumber: batchNumbers[itemId] || '',
+                supplierBatchRef: supplierBatchRefs[itemId] || '',
+                mfgDate: mfgDates[itemId] || '',
               });
             }
           }
@@ -382,7 +382,7 @@ const StockReceiptForm = ({
       });
 
       if (itemsToReceive.length === 0) {
-        setError("No items selected for receiving");
+        setError('No items selected for receiving');
         setLoading(false);
         return;
       }
@@ -415,11 +415,11 @@ const StockReceiptForm = ({
           onClose();
         }, 1500);
       } else if (result.errors && result.errors.length > 0) {
-        setError(result.errors.join(", "));
+        setError(result.errors.join(', '));
       }
     } catch (err) {
-      console.error("Error receiving stock:", err);
-      setError(err.message || "Failed to receive stock");
+      console.error('Error receiving stock:', err);
+      setError(err.message || 'Failed to receive stock');
     } finally {
       setLoading(false);
     }
@@ -513,17 +513,17 @@ const StockReceiptForm = ({
                   <FileText className="w-4 h-4" />
                   Goods Receipt Note (GRN)
                 </label>
-                {grnStatus === "draft" && (
+                {grnStatus === 'draft' && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500 text-white">
                     Draft
                   </span>
                 )}
-                {grnStatus === "pending_approval" && (
+                {grnStatus === 'pending_approval' && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500 text-white">
                     Pending Approval
                   </span>
                 )}
-                {grnStatus === "approved" && (
+                {grnStatus === 'approved' && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Approved
@@ -551,15 +551,15 @@ const StockReceiptForm = ({
                     type="date"
                     value={grnDate}
                     onChange={(e) => setGrnDate(e.target.value)}
-                    disabled={grnStatus === "approved"}
+                    disabled={grnStatus === 'approved'}
                     className={`w-full ${inputBg} border ${inputBorder} rounded-lg py-2 px-3 text-sm ${textPrimary} ${inputFocus} outline-none disabled:opacity-70`}
                   />
                 </div>
               </div>
 
-              {grnStatus === "approved" && approvedBy && (
+              {grnStatus === 'approved' && approvedBy && (
                 <div
-                  className={`p-3 ${isDarkMode ? "bg-green-900/20" : "bg-green-50"} border ${isDarkMode ? "border-green-700/30" : "border-green-200"} rounded-lg flex items-center gap-2`}
+                  className={`p-3 ${isDarkMode ? 'bg-green-900/20' : 'bg-green-50'} border ${isDarkMode ? 'border-green-700/30' : 'border-green-200'} rounded-lg flex items-center gap-2`}
                 >
                   <Shield className="w-4 h-4 text-green-500" />
                   <div className="flex-1">
@@ -570,7 +570,7 @@ const StockReceiptForm = ({
                 </div>
               )}
 
-              {grnStatus !== "approved" && (
+              {grnStatus !== 'approved' && (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleApproveGRN}
@@ -582,9 +582,9 @@ const StockReceiptForm = ({
                 </div>
               )}
 
-              {grnStatus !== "approved" && (
+              {grnStatus !== 'approved' && (
                 <div
-                  className={`mt-3 p-2.5 ${isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50"} border ${isDarkMode ? "border-yellow-700/30" : "border-yellow-200"} rounded-lg flex items-start gap-2`}
+                  className={`mt-3 p-2.5 ${isDarkMode ? 'bg-yellow-900/20' : 'bg-yellow-50'} border ${isDarkMode ? 'border-yellow-700/30' : 'border-yellow-200'} rounded-lg flex items-start gap-2`}
                 >
                   <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-yellow-600 dark:text-yellow-400">
@@ -612,8 +612,8 @@ const StockReceiptForm = ({
                   <option value="">Select warehouse...</option>
                   {warehouses.map((wh) => (
                     <option key={wh.id} value={wh.id}>
-                      {wh.name} {wh.code ? `(${wh.code})` : ""}{" "}
-                      {wh.isDefault && "(Default)"}
+                      {wh.name} {wh.code ? `(${wh.code})` : ''}{' '}
+                      {wh.isDefault && '(Default)'}
                     </option>
                   ))}
                 </select>
@@ -760,18 +760,18 @@ const StockReceiptForm = ({
 
                           const statusColors = {
                             green:
-                              "bg-green-500/15 text-green-400 border-green-500/30",
+                              'bg-green-500/15 text-green-400 border-green-500/30',
                             yellow:
-                              "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+                              'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
                             gray: isDarkMode
-                              ? "bg-[#2a3640] text-[#93a4b4] border-[#3a4650]"
-                              : "bg-gray-100 text-gray-500 border-gray-300",
+                              ? 'bg-[#2a3640] text-[#93a4b4] border-[#3a4650]'
+                              : 'bg-gray-100 text-gray-500 border-gray-300',
                           };
 
                           return (
                             <tr
                               key={item.id}
-                              className={`${isComplete ? "opacity-50" : ""} ${isSelected && !isComplete ? (isDarkMode ? "bg-[#4aa3ff]/5" : "bg-blue-50") : ""} ${tableRowHover} transition-colors`}
+                              className={`${isComplete ? 'opacity-50' : ''} ${isSelected && !isComplete ? (isDarkMode ? 'bg-[#4aa3ff]/5' : 'bg-blue-50') : ''} ${tableRowHover} transition-colors`}
                             >
                               <td className={`p-3 border-b ${tableBorder}`}>
                                 <input
@@ -809,7 +809,7 @@ const StockReceiptForm = ({
                                 {formatQuantity(received, item.unit)}
                               </td>
                               <td
-                                className={`p-3 border-b ${tableBorder} text-right font-mono ${pending > 0 ? "text-yellow-400" : textMuted}`}
+                                className={`p-3 border-b ${tableBorder} text-right font-mono ${pending > 0 ? 'text-yellow-400' : textMuted}`}
                               >
                                 {formatQuantity(pending, item.unit)}
                               </td>
@@ -827,7 +827,7 @@ const StockReceiptForm = ({
                                   <div className="flex items-center gap-2 justify-end">
                                     <input
                                       type="number"
-                                      value={quantities[item.id] || ""}
+                                      value={quantities[item.id] || ''}
                                       onChange={(e) =>
                                         handleQuantityChange(
                                           item.id,
@@ -864,7 +864,7 @@ const StockReceiptForm = ({
                                 {!isComplete && isSelected ? (
                                   <input
                                     type="number"
-                                    value={actualWeights[item.id] || ""}
+                                    value={actualWeights[item.id] || ''}
                                     onChange={(e) =>
                                       handleActualWeightChange(
                                         item.id,
@@ -894,12 +894,12 @@ const StockReceiptForm = ({
                                       Math.abs(percentage) > 5;
                                     return (
                                       <span
-                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${isHighVariance ? "bg-red-500/15 text-red-400" : percentage === 0 ? "bg-gray-500/15 text-gray-400" : "bg-blue-500/15 text-blue-400"}`}
+                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${isHighVariance ? 'bg-red-500/15 text-red-400' : percentage === 0 ? 'bg-gray-500/15 text-gray-400' : 'bg-blue-500/15 text-blue-400'}`}
                                       >
                                         {isHighVariance && (
                                           <AlertTriangle className="w-3 h-3" />
                                         )}
-                                        {percentage > 0 ? "+" : ""}
+                                        {percentage > 0 ? '+' : ''}
                                         {percentage.toFixed(2)}%
                                       </span>
                                     );
@@ -913,7 +913,7 @@ const StockReceiptForm = ({
                                   <select
                                     value={
                                       varianceReasons[item.id] ||
-                                      "accepted_tolerance"
+                                      'accepted_tolerance'
                                     }
                                     onChange={(e) =>
                                       handleVarianceReasonChange(
