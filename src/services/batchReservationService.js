@@ -186,6 +186,39 @@ export const batchReservationService = {
   },
 
   /**
+   * Get batch consumption details for a specific invoice line item
+   * Phase 3: Batch Allocation API Exposure
+   *
+   * Returns all batches allocated to this line item with COGS info.
+   * Supports both warehouse stock and drop-ship items.
+   *
+   * @param {number} invoiceItemId - The invoice item ID
+   * @returns {Promise<Object>} Consumption details with totals
+   */
+  async getLineItemBatchConsumption(invoiceItemId) {
+    const response = await apiClient.get(
+      `/batch-reservations/consumption/item/${invoiceItemId}`,
+    );
+    return response;
+  },
+
+  /**
+   * Get batch consumption details for all items in an invoice
+   * Phase 3: Batch Allocation API Exposure
+   *
+   * Returns consumptions grouped by invoice_item_id with COGS totals.
+   *
+   * @param {number} invoiceId - The invoice ID
+   * @returns {Promise<Object>} Consumption details grouped by item
+   */
+  async getInvoiceBatchConsumptions(invoiceId) {
+    const response = await apiClient.get(
+      `/batch-reservations/consumption/invoice/${invoiceId}`,
+    );
+    return response;
+  },
+
+  /**
    * Finalize invoice with batch allocations (Phase 4 - Complete Save Flow)
    *
    * This is the atomic operation that:

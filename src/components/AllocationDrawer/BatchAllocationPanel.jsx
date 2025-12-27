@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import { batchReservationService } from "../../services/batchReservationService";
+import useBulkActions, { BulkCheckbox } from "../../hooks/useBulkActions";
 
 /**
  * BatchAllocationPanel Component
@@ -35,6 +36,21 @@ const BatchAllocationPanel = ({
   const [fetchingBatches, setFetchingBatches] = useState(false);
   const [fetchError, setFetchError] = useState(null);
   const [isAllocating, setIsAllocating] = useState(false);
+
+  // Multi-select for manual batch allocation (Phase 4)
+  const {
+    isSelected,
+    toggleSelect,
+    toggleSelectAll,
+    clearSelection,
+    isAllSelected,
+    isSomeSelected,
+    selectedCount,
+    hasSelection,
+  } = useBulkActions({
+    items: batches,
+    getId: (batch) => batch.id,
+  });
 
   // Fetch available batches
   const fetchBatches = useCallback(async () => {
@@ -164,10 +180,14 @@ const BatchAllocationPanel = ({
     [batches],
   );
 
-  // Apply manual allocations
+  // Apply manual allocations (only for selected batches with quantities)
   const handleApplyManual = useCallback(async () => {
     const allocs = Object.entries(manualAllocations)
-      .filter(([, qty]) => qty && qty > 0)
+      .filter(([batchId, qty]) => {
+        // Only include batches that are selected AND have a quantity
+        const batch = batches.find((b) => b.id === parseInt(batchId));
+        return batch && isSelected(batch) && qty && qty > 0;
+      })
       .map(([batchId, qty]) => ({
         batchId: parseInt(batchId),
         quantity: qty,
@@ -181,13 +201,14 @@ const BatchAllocationPanel = ({
     try {
       await reserveManual(allocs);
       setManualAllocations({});
+      clearSelection(); // Clear selection after successful allocation
       await fetchBatches();
     } catch (err) {
       console.error("Manual allocation failed:", err);
     } finally {
       setIsAllocating(false);
     }
-  }, [manualAllocations, reserveManual, fetchBatches]);
+  }, [manualAllocations, batches, isSelected, reserveManual, fetchBatches, clearSelection]);
 
   // Calculate totals from current allocations
   const { totalAllocated, totalCost } = useMemo(() => {
@@ -261,6 +282,15 @@ const BatchAllocationPanel = ({
             <table className="batch-table">
               <thead>
                 <tr>
+                  <th className="checkbox-col">
+                    <BulkCheckbox
+                      checked={isAllSelected}
+                      indeterminate={isSomeSelected}
+                      onChange={toggleSelectAll}
+                      size="sm"
+                      aria-label="Select all batches"
+                    />
+                  </th>
                   <th>Batch</th>
                   <th>Available</th>
                   <th>Reserved</th>
@@ -275,12 +305,23 @@ const BatchAllocationPanel = ({
                     ? parseFloat(currentAlloc.quantity)
                     : 0;
                   const manualQty = manualAllocations[batch.id] || "";
+                  const batchSelected = isSelected(batch);
+                  const canEnterQty = batchSelected && allocatedQty === 0;
 
                   return (
                     <tr
                       key={batch.id}
-                      className={allocatedQty > 0 ? "allocated-row" : ""}
+                      className={`${allocatedQty > 0 ? "allocated-row" : ""} ${batchSelected ? "selected-row" : ""}`}
                     >
+                      <td className="checkbox-col">
+                        <BulkCheckbox
+                          checked={batchSelected}
+                          onChange={() => toggleSelect(batch)}
+                          size="sm"
+                          disabled={allocatedQty > 0}
+                          aria-label={`Select batch ${batch.batchNumber}`}
+                        />
+                      </td>
                       <td>
                         <div className="batch-info">
                           <span className="batch-number">
@@ -336,8 +377,9 @@ const BatchAllocationPanel = ({
                                 e.target.value,
                               )
                             }
-                            placeholder="0"
-                            disabled={loading || isAllocating}
+                            placeholder={canEnterQty ? "0" : "-"}
+                            disabled={loading || isAllocating || !canEnterQty}
+                            title={canEnterQty ? "Enter quantity to allocate" : "Select batch first to enter quantity"}
                           />
                         )}
                       </td>
@@ -356,17 +398,32 @@ const BatchAllocationPanel = ({
             </table>
           </div>
 
-          {/* Manual allocation apply button */}
-          {hasPendingManual && (
+          {/* Selection info and manual allocation apply button */}
+          {(hasSelection || hasPendingManual) && (
             <div className="manual-actions">
-              <button
-                type="button"
-                className="btn-apply-manual"
-                onClick={handleApplyManual}
-                disabled={loading || isAllocating}
-              >
-                Apply Manual Allocations
-              </button>
+              {hasSelection && (
+                <span className="selection-info">
+                  {selectedCount} batch{selectedCount !== 1 ? "es" : ""} selected
+                  <button
+                    type="button"
+                    className="btn-clear-selection"
+                    onClick={clearSelection}
+                    title="Clear selection"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {hasPendingManual && (
+                <button
+                  type="button"
+                  className="btn-apply-manual"
+                  onClick={handleApplyManual}
+                  disabled={loading || isAllocating}
+                >
+                  Apply Manual Allocations
+                </button>
+              )}
             </div>
           )}
 
