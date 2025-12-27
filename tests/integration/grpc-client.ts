@@ -144,16 +144,16 @@ export async function postInvoiceViaGrpc(params: {
 }
 
 /**
- * Call CreateVendorBill via API Gateway
+ * Call CreateSupplierBill via API Gateway
  * Used for FK integrity testing (SF-5)
  */
-export async function createVendorBillViaGrpc(params: {
+export async function createSupplierBillViaGrpc(params: {
   supplier_id: string;
   company_id: string;
   amount: number;
   bill_date?: string;
 }): Promise<any> {
-  const response = await fetch(`${apiBaseUrl}/vendor-bills`, {
+  const response = await fetch(`${apiBaseUrl}/supplier-bills`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ export async function createVendorBillViaGrpc(params: {
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`CreateVendorBill failed: ${response.status} - ${error}`);
+    throw new Error(`CreateSupplierBill failed: ${response.status} - ${error}`);
   }
 
   return await response.json();

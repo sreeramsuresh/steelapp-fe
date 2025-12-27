@@ -10,8 +10,8 @@
 import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest';
 import { setupDatabase, cleanDatabase, teardownDatabase, dbQuery } from '../setup';
 import { createCompany, createSupplier, resetCounters } from '../factories';
-import { getVendorBill } from '../helpers/db';
-import { createVendorBillViaGrpc } from '../grpc-client';
+import { getSupplierBill } from '../helpers/db';
+import { createSupplierBillViaGrpc } from '../grpc-client';
 
 describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
   beforeAll(async () => {
@@ -27,18 +27,18 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     await teardownDatabase();
   });
 
-  it('should prevent creating vendor bill with non-existent supplier', async () => {
+  it('should prevent creating supplier bill with non-existent supplier', async () => {
     // Given: Create company but NO supplier
     const company = await createCompany();
     const nonExistentSupplierId = 'SUP-DOES-NOT-EXIST';
 
-    // When: Call CreateVendorBill service with non-existent supplier
+    // When: Call CreateSupplierBill service with non-existent supplier
     // This must fail - either reject from API or fail FK constraint
     let error: any = null;
     let createdBill: any = null;
 
     try {
-      createdBill = await createVendorBillViaGrpc({
+      createdBill = await createSupplierBillViaGrpc({
         supplier_id: nonExistentSupplierId,
         company_id: company.company_id,
         amount: 5000,
@@ -56,7 +56,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     } else if (createdBill?.id) {
       // Service allowed creation - FK constraint must prevent it
       const bill = await dbQuery(
-        `SELECT * FROM vendor_bills WHERE id = $1`,
+        `SELECT * FROM supplier_bills WHERE id = $1`,
         [createdBill.id],
       );
       expect(bill).toHaveLength(0);
@@ -76,7 +76,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
      */
   });
 
-  it('should allow vendor bill only with valid existing supplier', async () => {
+  it('should allow supplier bill only with valid existing supplier', async () => {
     // Given: Create company and supplier
     const company = await createCompany();
     const supplier = await createSupplier({
@@ -84,12 +84,12 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
       name: 'SUP-VALID',
     });
 
-    // When: Call CreateVendorBill service with valid supplier
+    // When: Call CreateSupplierBill service with valid supplier
     let error: any = null;
     let createdBill: any = null;
 
     try {
-      createdBill = await createVendorBillViaGrpc({
+      createdBill = await createSupplierBillViaGrpc({
         supplier_id: supplier.id.toString(),
         company_id: company.company_id,
         amount: 5000,
@@ -101,11 +101,11 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     // Then: No error - FK is valid
     expect(error).toBeNull();
     expect(createdBill).not.toBeNull();
-    expect(createdBill.vendor_id).toBe(supplier.id);
+    expect(createdBill.supplier_id).toBe(supplier.id);
 
     // ASSERTION: Bill is in database
     const retrievedBill = await dbQuery(
-      `SELECT * FROM vendor_bills WHERE vendor_id = $1`,
+      `SELECT * FROM supplier_bills WHERE supplier_id = $1`,
       [supplier.id],
     );
     expect(retrievedBill.length).toBeGreaterThan(0);
@@ -119,15 +119,15 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     });
 
     // Create bill referencing supplier
-    const billId = `VB-CASCADE-${Date.now()}`;
+    const billId = `SB-CASCADE-${Date.now()}`;
     await dbQuery(
-      `INSERT INTO vendor_bills (bill_id, supplier_id, company_id, amount, status, created_at)
+      `INSERT INTO supplier_bills (bill_id, supplier_id, company_id, amount, status, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())`,
       [billId, supplier.supplier_id, company.company_id, 5000, 'draft'],
     );
 
     // Verify bill exists
-    let bill = await getVendorBill(billId);
+    let bill = await getSupplierBill(billId);
     expect(bill).not.toBeNull();
 
     // Try to delete supplier (should fail or cascade)
@@ -139,7 +139,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     }
 
     // After deletion attempt, check bill status
-    bill = await getVendorBill(billId);
+    bill = await getSupplierBill(billId);
 
     // ASSERTION: Either deletion failed (FK constraint) or bill was cascaded
     if (deleteError) {

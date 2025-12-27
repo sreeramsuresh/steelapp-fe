@@ -172,12 +172,12 @@ export async function getCompany(companyId: string) {
 }
 
 /**
- * Get a vendor bill
+ * Get a supplier bill
  */
-export async function getVendorBill(billId: string) {
+export async function getSupplierBill(billId: string) {
   const rows = await dbQuery(
     `SELECT id, bill_id, supplier_id, company_id, amount, status, created_at
-     FROM vendor_bills
+     FROM supplier_bills
      WHERE bill_id = $1`,
     [billId],
   );

@@ -94,7 +94,7 @@ export async function cleanDatabase() {
     'invoices',
     'purchase_order_items',
     'purchase_orders',
-    'vendor_bills',
+    'supplier_bills',
     'customers',
     'suppliers',
     'companies',

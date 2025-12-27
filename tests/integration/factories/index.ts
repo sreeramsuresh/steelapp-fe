@@ -206,15 +206,15 @@ export async function createDeliveryNote(overrides?: Partial<any>) {
 }
 
 /**
- * Create a vendor bill
+ * Create a supplier bill
  */
-export async function createVendorBill(overrides?: Partial<any>) {
-  const billId = overrides?.bill_id || `VB-${Date.now()}`;
+export async function createSupplierBill(overrides?: Partial<any>) {
+  const billId = overrides?.bill_id || `SB-${Date.now()}`;
   const supplierId = overrides?.supplier_id || 'SUP-0001';
   const companyId = overrides?.company_id || 'CO-0001';
 
   const rows = await dbQuery(
-    `INSERT INTO vendor_bills (bill_id, supplier_id, company_id, amount, status, created_at)
+    `INSERT INTO supplier_bills (bill_id, supplier_id, company_id, amount, status, created_at)
      VALUES ($1, $2, $3, $4, $5, NOW())
      RETURNING id, bill_id, supplier_id, company_id, amount, status`,
     [
