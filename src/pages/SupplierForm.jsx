@@ -986,8 +986,9 @@ export function SupplierForm() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={labelClasses}>Supplier Name *</label>
+                <label htmlFor="supplier-name" className={labelClasses}>Supplier Name *</label>
                 <input
+                  id="supplier-name"
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleChange('name', e.target.value)}
@@ -1000,8 +1001,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>Company</label>
+                <label htmlFor="supplier-company" className={labelClasses}>Company</label>
                 <input
+                  id="supplier-company"
                   type="text"
                   value={formData.company}
                   onChange={(e) => handleChange('company', e.target.value)}
@@ -1011,8 +1013,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>Email</label>
+                <label htmlFor="supplier-email" className={labelClasses}>Email</label>
                 <input
+                  id="supplier-email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
@@ -1025,8 +1028,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>Phone</label>
+                <label htmlFor="supplier-phone" className={labelClasses}>Phone</label>
                 <input
+                  id="supplier-phone"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
@@ -1036,8 +1040,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>Alternate Phone</label>
+                <label htmlFor="supplier-alternate-phone" className={labelClasses}>Alternate Phone</label>
                 <input
+                  id="supplier-alternate-phone"
                   type="tel"
                   value={formData.alternatePhone}
                   onChange={(e) =>
@@ -1049,8 +1054,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>Website</label>
+                <label htmlFor="supplier-website" className={labelClasses}>Website</label>
                 <input
+                  id="supplier-website"
                   type="url"
                   value={formData.website}
                   onChange={(e) => handleChange('website', e.target.value)}
@@ -1060,8 +1066,9 @@ export function SupplierForm() {
               </div>
 
               <div className="md:col-span-2">
-                <label className={labelClasses}>Street Address</label>
+                <label htmlFor="supplier-street" className={labelClasses}>Street Address</label>
                 <input
+                  id="supplier-street"
                   type="text"
                   value={formData.street}
                   onChange={(e) => handleChange('street', e.target.value)}
@@ -1071,8 +1078,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>City</label>
+                <label htmlFor="supplier-city" className={labelClasses}>City</label>
                 <input
+                  id="supplier-city"
                   type="text"
                   value={formData.city}
                   onChange={(e) => handleChange('city', e.target.value)}
@@ -1082,8 +1090,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>State/Emirate</label>
+                <label htmlFor="supplier-state" className={labelClasses}>State/Emirate</label>
                 <input
+                  id="supplier-state"
                   type="text"
                   value={formData.state}
                   onChange={(e) => handleChange('state', e.target.value)}
@@ -1093,8 +1102,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>Postal Code</label>
+                <label htmlFor="supplier-postal-code" className={labelClasses}>Postal Code</label>
                 <input
+                  id="supplier-postal-code"
                   type="text"
                   value={formData.postalCode}
                   onChange={(e) => handleChange('postalCode', e.target.value)}
@@ -1104,7 +1114,7 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label className={labelClasses}>
+                <label htmlFor="supplier-country" className={labelClasses}>
                   Country
                   <span className="text-red-500 ml-1">*</span>
                   <span className="text-xs text-gray-500 ml-1">
@@ -1112,6 +1122,7 @@ export function SupplierForm() {
                   </span>
                 </label>
                 <input
+                  id="supplier-country"
                   type="text"
                   value={formData.country}
                   onChange={(e) => handleChange('country', e.target.value)}
@@ -1167,8 +1178,9 @@ export function SupplierForm() {
             {expandedSections.contact && (
               <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClasses}>Contact Person Name</label>
+                  <label htmlFor="contact-person-name" className={labelClasses}>Contact Person Name</label>
                   <input
+                    id="contact-person-name"
                     type="text"
                     value={formData.contactPerson}
                     onChange={(e) =>
@@ -1180,8 +1192,9 @@ export function SupplierForm() {
                 </div>
 
                 <div>
-                  <label className={labelClasses}>Contact Email</label>
+                  <label htmlFor="contact-email" className={labelClasses}>Contact Email</label>
                   <input
+                    id="contact-email"
                     type="email"
                     value={formData.contactEmail}
                     onChange={(e) =>
@@ -1198,8 +1211,9 @@ export function SupplierForm() {
                 </div>
 
                 <div>
-                  <label className={labelClasses}>Contact Phone</label>
+                  <label htmlFor="contact-phone" className={labelClasses}>Contact Phone</label>
                   <input
+                    id="contact-phone"
                     type="tel"
                     value={formData.contactPhone}
                     onChange={(e) =>
@@ -1250,8 +1264,9 @@ export function SupplierForm() {
               <div className="px-6 pb-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelClasses}>VAT Number</label>
+                    <label htmlFor="supplier-vat-number" className={labelClasses}>VAT Number</label>
                     <input
+                      id="supplier-vat-number"
                       type="text"
                       value={formData.vatNumber}
                       onChange={(e) =>
@@ -1276,8 +1291,9 @@ export function SupplierForm() {
                   />
 
                   <div>
-                    <label className={labelClasses}>Tax ID (Legacy)</label>
+                    <label htmlFor="supplier-tax-id" className={labelClasses}>Tax ID (Legacy)</label>
                     <input
+                      id="supplier-tax-id"
                       type="text"
                       value={formData.taxId}
                       onChange={(e) => handleChange('taxId', e.target.value)}
@@ -1287,8 +1303,9 @@ export function SupplierForm() {
                   </div>
 
                   <div>
-                    <label className={labelClasses}>Trade License Number</label>
+                    <label htmlFor="trade-license-number" className={labelClasses}>Trade License Number</label>
                     <input
+                      id="trade-license-number"
                       type="text"
                       value={formData.tradeLicenseNumber}
                       onChange={(e) =>
@@ -1300,8 +1317,9 @@ export function SupplierForm() {
                   </div>
 
                   <div>
-                    <label className={labelClasses}>Trade License Expiry</label>
+                    <label htmlFor="trade-license-expiry" className={labelClasses}>Trade License Expiry</label>
                     <input
+                      id="trade-license-expiry"
                       type="date"
                       value={formData.tradeLicenseExpiry}
                       onChange={(e) =>
@@ -1740,10 +1758,11 @@ export function SupplierForm() {
 
                   {/* Minimum Order Quantity */}
                   <div>
-                    <label className={labelClasses}>
+                    <label htmlFor="min-order-qty" className={labelClasses}>
                       Minimum Order Quantity
                     </label>
                     <input
+                      id="min-order-qty"
                       type="text"
                       value={formData.minimumOrderQuantity}
                       onChange={(e) =>
@@ -1834,8 +1853,9 @@ export function SupplierForm() {
 
                   {/* Other Certifications */}
                   <div className="md:col-span-2">
-                    <label className={labelClasses}>Other Certifications</label>
+                    <label htmlFor="other-certifications" className={labelClasses}>Other Certifications</label>
                     <input
+                      id="other-certifications"
                       type="text"
                       value={formData.qualityCertifications.other}
                       onChange={(e) =>
@@ -1930,8 +1950,9 @@ export function SupplierForm() {
 
                   {/* Credit Limit */}
                   <div>
-                    <label className={labelClasses}>Credit Limit</label>
+                    <label htmlFor="supplier-credit-limit" className={labelClasses}>Credit Limit</label>
                     <input
+                      id="supplier-credit-limit"
                       type="number"
                       value={formData.creditLimit}
                       onChange={(e) =>
@@ -1951,8 +1972,9 @@ export function SupplierForm() {
 
                   {/* Business License */}
                   <div>
-                    <label className={labelClasses}>Business License</label>
+                    <label htmlFor="business-license" className={labelClasses}>Business License</label>
                     <input
+                      id="business-license"
                       type="text"
                       value={formData.businessLicense}
                       onChange={(e) =>
@@ -1972,8 +1994,9 @@ export function SupplierForm() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className={labelClasses}>Account Number</label>
+                        <label htmlFor="bank-account-number" className={labelClasses}>Account Number</label>
                         <input
+                          id="bank-account-number"
                           type="text"
                           value={formData.bankDetails.accountNumber}
                           onChange={(e) =>
@@ -1989,8 +2012,9 @@ export function SupplierForm() {
                       </div>
 
                       <div>
-                        <label className={labelClasses}>Bank Name</label>
+                        <label htmlFor="bank-name" className={labelClasses}>Bank Name</label>
                         <input
+                          id="bank-name"
                           type="text"
                           value={formData.bankDetails.bankName}
                           onChange={(e) =>
@@ -2006,8 +2030,9 @@ export function SupplierForm() {
                       </div>
 
                       <div>
-                        <label className={labelClasses}>SWIFT Code</label>
+                        <label htmlFor="bank-swift-code" className={labelClasses}>SWIFT Code</label>
                         <input
+                          id="bank-swift-code"
                           type="text"
                           value={formData.bankDetails.swiftCode}
                           onChange={(e) =>
@@ -2023,8 +2048,9 @@ export function SupplierForm() {
                       </div>
 
                       <div>
-                        <label className={labelClasses}>IBAN</label>
+                        <label htmlFor="bank-iban" className={labelClasses}>IBAN</label>
                         <input
+                          id="bank-iban"
                           type="text"
                           value={formData.bankDetails.iban}
                           onChange={(e) =>
@@ -2060,8 +2086,9 @@ export function SupplierForm() {
               Additional Information
             </h2>
             <div>
-              <label className={labelClasses}>Notes</label>
+              <label htmlFor="supplier-notes" className={labelClasses}>Notes</label>
               <textarea
+                id="supplier-notes"
                 value={formData.notes}
                 onChange={(e) => handleChange('notes', e.target.value)}
                 rows={3}

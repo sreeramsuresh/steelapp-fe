@@ -40,7 +40,7 @@ const StockMovement = () => {
   // Product catalog search state
   const [productQuery, setProductQuery] = useState('');
   const [productOptions, setProductOptions] = useState([]);
-  const [productSearching, setProductSearching] = useState(false);
+  const [_productSearching, setProductSearching] = useState(false);
 
   useEffect(() => {
     fetchMovements();
@@ -70,9 +70,9 @@ const StockMovement = () => {
         allPOs = poResponse.purchaseOrders;
       }
       // Filter for in-transit purchase orders.
-      // Backend doesn&apos;t expose transit_status; use stock_status === 'transit'
+      // Backend doesn't expose transit_status; use stock_status === 'transit'
       // and exclude ones already received/cancelled.
-      const _inTransitPOs = allPOs.filter(
+      allPOs.filter(
         (po) =>
           po.stockStatus === 'transit' &&
           po.status !== 'received' &&
@@ -708,6 +708,7 @@ const StockMovement = () => {
                   {/* Product Catalog Search - spans full width */}
                   <div className="md:col-span-2">
                     <label
+                      htmlFor="product-catalog"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Product (from Catalog)
@@ -736,6 +737,7 @@ const StockMovement = () => {
                     ) : (
                       <div className="relative">
                         <input
+                          id="product-catalog"
                           type="text"
                           value={productQuery}
                           onChange={(e) => setProductQuery(e.target.value)}
@@ -796,11 +798,13 @@ const StockMovement = () => {
 
                   <div>
                     <label
+                      htmlFor="date"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Date
                     </label>
                     <input
+                      id="date"
                       type="date"
                       value={formData.date}
                       onChange={(e) =>
@@ -815,11 +819,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="movement-type"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Movement Type
                     </label>
                     <select
+                      id="movement-type"
                       value={formData.movement}
                       onChange={(e) =>
                         handleInputChange('movement', e.target.value)
@@ -839,11 +845,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="product-type"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Product Type
                     </label>
                     <select
+                      id="product-type"
                       value={formData.productType}
                       onChange={(e) =>
                         handleInputChange('productType', e.target.value)
@@ -863,11 +871,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="grade"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Grade
                     </label>
                     <select
+                      id="grade"
                       value={formData.grade}
                       onChange={(e) =>
                         handleInputChange('grade', e.target.value)
@@ -887,11 +897,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="thickness"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Thickness
                     </label>
                     <input
+                      id="thickness"
                       type="text"
                       value={formData.thickness}
                       onChange={(e) =>
@@ -906,11 +918,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="size"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Size
                     </label>
                     <input
+                      id="size"
                       type="text"
                       value={formData.size}
                       onChange={(e) =>
@@ -925,11 +939,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="finish"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Finish
                     </label>
                     <select
+                      id="finish"
                       value={formData.finish}
                       onChange={(e) =>
                         handleInputChange('finish', e.target.value)
@@ -949,11 +965,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="invoice-no"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Invoice No
                     </label>
                     <input
+                      id="invoice-no"
                       type="text"
                       value={formData.invoiceNo}
                       onChange={(e) =>
@@ -968,12 +986,14 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="quantity"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Quantity{' '}
                       {formData.primaryUom ? `(${formData.primaryUom})` : ''}
                     </label>
                     <input
+                      id="quantity"
                       type="number"
                       step={formData.allowDecimalQuantity ? '0.001' : '1'}
                       value={formData.quantity || ''}
@@ -1021,11 +1041,13 @@ const StockMovement = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="current-stock"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Current Stock
                     </label>
                     <input
+                      id="current-stock"
                       type="number"
                       value={formData.currentStock || ''}
                       onChange={(e) =>
@@ -1045,11 +1067,13 @@ const StockMovement = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label
+                      htmlFor="seller"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Seller
                     </label>
                     <input
+                      id="seller"
                       type="text"
                       value={formData.seller}
                       onChange={(e) =>

@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -16,7 +15,6 @@ import {
   Upload,
   ChevronDown,
   ChevronUp,
-  Calendar,
   Building2,
   DollarSign,
   FileWarning,
@@ -1552,11 +1550,13 @@ const TradeFinanceList = () => {
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
+                htmlFor="filter-start-date"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issue Date From
               </label>
               <input
+                id="filter-start-date"
                 type="date"
                 value={filters.start_date}
                 onChange={(e) =>
@@ -1571,11 +1571,13 @@ const TradeFinanceList = () => {
             </div>
             <div>
               <label
+                htmlFor="filter-end-date"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issue Date To
               </label>
               <input
+                id="filter-end-date"
                 type="date"
                 value={filters.end_date}
                 onChange={(e) => handleFilterChange('end_date', e.target.value)}

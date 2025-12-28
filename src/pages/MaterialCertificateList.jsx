@@ -690,10 +690,11 @@ const MaterialCertificateList = () => {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Certificate Type */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="filter-certificate-type" className="block text-sm font-medium mb-1">
                   Certificate Type
                 </label>
                 <select
+                  id="filter-certificate-type"
                   value={filters.certificate_type}
                   onChange={(e) =>
                     handleFilterChange('certificate_type', e.target.value)
@@ -715,10 +716,11 @@ const MaterialCertificateList = () => {
 
               {/* Verification Status */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="filter-verification-status" className="block text-sm font-medium mb-1">
                   Verification Status
                 </label>
                 <select
+                  id="filter-verification-status"
                   value={filters.verification_status}
                   onChange={(e) =>
                     handleFilterChange('verification_status', e.target.value)
@@ -742,8 +744,9 @@ const MaterialCertificateList = () => {
 
               {/* Grade */}
               <div>
-                <label className="block text-sm font-medium mb-1">Grade</label>
+                <label htmlFor="filter-grade" className="block text-sm font-medium mb-1">Grade</label>
                 <select
+                  id="filter-grade"
                   value={filters.grade}
                   onChange={(e) => handleFilterChange('grade', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg ${
@@ -763,10 +766,11 @@ const MaterialCertificateList = () => {
 
               {/* Date Range */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="filter-start-date" className="block text-sm font-medium mb-1">
                   From Date
                 </label>
                 <input
+                  id="filter-start-date"
                   type="date"
                   value={filters.start_date}
                   onChange={(e) =>
@@ -780,10 +784,11 @@ const MaterialCertificateList = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="filter-end-date" className="block text-sm font-medium mb-1">
                   To Date
                 </label>
                 <input
+                  id="filter-end-date"
                   type="date"
                   value={filters.end_date}
                   onChange={(e) =>
@@ -1085,10 +1090,11 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-certificate-type" className="block text-sm font-medium mb-1">
                       Certificate Type <span className="text-red-500">*</span>
                     </label>
                     <select
+                      id="modal-certificate-type"
                       value={formData.certificate_type}
                       onChange={(e) =>
                         handleInputChange('certificate_type', e.target.value)
@@ -1113,10 +1119,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-certificate-number" className="block text-sm font-medium mb-1">
                       Certificate Number <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="modal-certificate-number"
                       type="text"
                       value={formData.certificate_number}
                       onChange={(e) =>
@@ -1137,10 +1144,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-mill-name" className="block text-sm font-medium mb-1">
                       Mill Name <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="modal-mill-name"
                       type="text"
                       value={formData.mill_name}
                       onChange={(e) =>
@@ -1172,10 +1180,11 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-import-order" className="block text-sm font-medium mb-1">
                       Import Order
                     </label>
                     <select
+                      id="modal-import-order"
                       value={formData.import_order_id}
                       onChange={(e) => handleOrderChange(e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
@@ -1195,10 +1204,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-line-item" className="block text-sm font-medium mb-1">
                       Line Item (Product)
                     </label>
                     <select
+                      id="modal-line-item"
                       value={formData.import_order_item_id}
                       onChange={(e) =>
                         handleInputChange(
@@ -1237,7 +1247,7 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-heat-number" className="block text-sm font-medium mb-1">
                       Heat Number{' '}
                       {formData.certificate_type ===
                         'mill_test_certificate' && (
@@ -1245,6 +1255,7 @@ const MaterialCertificateList = () => {
                       )}
                     </label>
                     <input
+                      id="modal-heat-number"
                       type="text"
                       value={formData.heat_number}
                       onChange={(e) =>
@@ -1265,10 +1276,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-coil-id" className="block text-sm font-medium mb-1">
                       Coil ID (Optional)
                     </label>
                     <input
+                      id="modal-coil-id"
                       type="text"
                       value={formData.coil_id}
                       onChange={(e) =>
@@ -1284,10 +1296,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-grade" className="block text-sm font-medium mb-1">
                       Grade
                     </label>
                     <select
+                      id="modal-grade"
                       value={formData.grade}
                       onChange={(e) =>
                         handleInputChange('grade', e.target.value)
@@ -1309,10 +1322,11 @@ const MaterialCertificateList = () => {
 
                   {formData.grade === 'OTHER' && (
                     <div>
-                      <label className="block text-sm font-medium mb-1">
+                      <label htmlFor="modal-grade-other" className="block text-sm font-medium mb-1">
                         Specify Grade <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="modal-grade-other"
                         type="text"
                         value={formData.grade_other}
                         onChange={(e) =>
@@ -1345,10 +1359,11 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-country-of-origin" className="block text-sm font-medium mb-1">
                       Country of Origin
                     </label>
                     <input
+                      id="modal-country-of-origin"
                       type="text"
                       value={formData.country_of_origin}
                       onChange={(e) =>
@@ -1364,10 +1379,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-issuing-authority" className="block text-sm font-medium mb-1">
                       Issuing Authority
                     </label>
                     <input
+                      id="modal-issuing-authority"
                       type="text"
                       value={formData.issuing_authority}
                       onChange={(e) =>
@@ -1383,10 +1399,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-issue-date" className="block text-sm font-medium mb-1">
                       Issue Date <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="modal-issue-date"
                       type="date"
                       value={formData.issue_date}
                       onChange={(e) =>
@@ -1406,10 +1423,11 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-expiry-date" className="block text-sm font-medium mb-1">
                       Expiry Date
                     </label>
                     <input
+                      id="modal-expiry-date"
                       type="date"
                       value={formData.expiry_date}
                       onChange={(e) =>
@@ -1448,10 +1466,11 @@ const MaterialCertificateList = () => {
                       { key: 'chemical_n', label: 'N (Nitrogen)' },
                     ].map(({ key, label }) => (
                       <div key={key}>
-                        <label className="block text-xs font-medium mb-1">
+                        <label htmlFor={`modal-${key}`} className="block text-xs font-medium mb-1">
                           {label}
                         </label>
                         <input
+                          id={`modal-${key}`}
                           type="number"
                           step="0.001"
                           value={formData[key]}
@@ -1482,10 +1501,11 @@ const MaterialCertificateList = () => {
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">
+                      <label htmlFor="modal-yield-strength" className="block text-sm font-medium mb-1">
                         Yield Strength (MPa)
                       </label>
                       <input
+                        id="modal-yield-strength"
                         type="number"
                         step="0.1"
                         value={formData.yield_strength}
@@ -1501,10 +1521,11 @@ const MaterialCertificateList = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">
+                      <label htmlFor="modal-tensile-strength" className="block text-sm font-medium mb-1">
                         Tensile Strength (MPa)
                       </label>
                       <input
+                        id="modal-tensile-strength"
                         type="number"
                         step="0.1"
                         value={formData.tensile_strength}
@@ -1520,10 +1541,11 @@ const MaterialCertificateList = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">
+                      <label htmlFor="modal-elongation" className="block text-sm font-medium mb-1">
                         Elongation (%)
                       </label>
                       <input
+                        id="modal-elongation"
                         type="number"
                         step="0.1"
                         value={formData.elongation}
@@ -1539,10 +1561,11 @@ const MaterialCertificateList = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">
+                      <label htmlFor="modal-hardness" className="block text-sm font-medium mb-1">
                         Hardness (HRB/HRC)
                       </label>
                       <input
+                        id="modal-hardness"
                         type="number"
                         step="0.1"
                         value={formData.hardness}
@@ -1563,8 +1586,9 @@ const MaterialCertificateList = () => {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium mb-1">Notes</label>
+                <label htmlFor="modal-notes" className="block text-sm font-medium mb-1">Notes</label>
                 <textarea
+                  id="modal-notes"
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="Additional notes or remarks"
@@ -1579,7 +1603,7 @@ const MaterialCertificateList = () => {
 
               {/* File Upload Placeholder */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="modal-certificate-pdf" className="block text-sm font-medium mb-1">
                   Certificate PDF
                 </label>
                 <div
@@ -2041,7 +2065,7 @@ const MaterialCertificateList = () => {
               </p>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="verify-notes" className="block text-sm font-medium mb-1">
                   {verifyAction === 'verify'
                     ? 'Notes (Optional)'
                     : 'Rejection Reason'}
@@ -2050,6 +2074,7 @@ const MaterialCertificateList = () => {
                   )}
                 </label>
                 <textarea
+                  id="verify-notes"
                   value={verifyNotes}
                   onChange={(e) => setVerifyNotes(e.target.value)}
                   placeholder={

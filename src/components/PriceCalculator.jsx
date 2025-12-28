@@ -273,7 +273,7 @@ const PriceCalculator = () => {
     }
 
     return weightPerUnit * quantity;
-  }, [selectedProduct, dimensions, productTypes, steelDensity]);
+  }, [selectedProduct, dimensions, productTypes]);
 
   const calculatePrice = useMemo(() => {
     const basePrice = basePrices[selectedProduct][selectedGrade] || 50;
@@ -489,11 +489,13 @@ const PriceCalculator = () => {
           <div className="space-y-4">
             <div>
               <label
+                htmlFor="product-type"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Product Type
               </label>
               <select
+                id="product-type"
                 value={selectedProduct}
                 onChange={(e) => setSelectedProduct(e.target.value)}
                 className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
@@ -514,11 +516,13 @@ const PriceCalculator = () => {
             </div>
             <div>
               <label
+                htmlFor="grade"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Grade
               </label>
               <select
+                id="grade"
                 value={selectedGrade}
                 onChange={(e) => setSelectedGrade(e.target.value)}
                 className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
@@ -556,11 +560,13 @@ const PriceCalculator = () => {
             {productTypes[selectedProduct].dimensions.includes('diameter') && (
               <div>
                 <label
+                  htmlFor="diameter"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Diameter (mm)
                 </label>
                 <input
+                  id="diameter"
                   type="number"
                   value={dimensions.diameter || ''}
                   onChange={(e) =>
@@ -584,11 +590,13 @@ const PriceCalculator = () => {
             {productTypes[selectedProduct].dimensions.includes('length') && (
               <div>
                 <label
+                  htmlFor="length"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Length (m)
                 </label>
                 <input
+                  id="length"
                   type="number"
                   value={dimensions.length || ''}
                   onChange={(e) =>
@@ -612,11 +620,13 @@ const PriceCalculator = () => {
             {productTypes[selectedProduct].dimensions.includes('width') && (
               <div>
                 <label
+                  htmlFor="width"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Width (mm)
                 </label>
                 <input
+                  id="width"
                   type="number"
                   value={dimensions.width || ''}
                   onChange={(e) =>
@@ -640,11 +650,13 @@ const PriceCalculator = () => {
             {productTypes[selectedProduct].dimensions.includes('thickness') && (
               <div>
                 <label
+                  htmlFor="thickness"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Thickness (mm)
                 </label>
                 <input
+                  id="thickness"
                   type="number"
                   value={dimensions.thickness || ''}
                   onChange={(e) =>
@@ -667,11 +679,13 @@ const PriceCalculator = () => {
             )}
             <div>
               <label
+                htmlFor="quantity"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Quantity
               </label>
               <input
+                id="quantity"
                 type="number"
                 min="1"
                 value={dimensions.quantity || ''}
@@ -1131,11 +1145,13 @@ const PriceCalculator = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="col-span-full">
                     <label
+                      htmlFor="rule-name"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Rule Name
                     </label>
                     <input
+                      id="rule-name"
                       type="text"
                       value={newRule.name}
                       onChange={(e) =>
@@ -1151,11 +1167,13 @@ const PriceCalculator = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="rule-condition"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Condition
                     </label>
                     <select
+                      id="rule-condition"
                       value={newRule.condition}
                       onChange={(e) =>
                         setNewRule({ ...newRule, condition: e.target.value })
@@ -1174,11 +1192,13 @@ const PriceCalculator = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="rule-operator"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Operator
                     </label>
                     <select
+                      id="rule-operator"
                       value={newRule.operator}
                       onChange={(e) =>
                         setNewRule({ ...newRule, operator: e.target.value })
@@ -1196,12 +1216,14 @@ const PriceCalculator = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="rule-value"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Value
                     </label>
                     {newRule.condition === 'grade' ? (
                       <select
+                        id="rule-value"
                         value={newRule.value}
                         onChange={(e) =>
                           setNewRule({ ...newRule, value: e.target.value })
@@ -1223,6 +1245,7 @@ const PriceCalculator = () => {
                       </select>
                     ) : (
                       <input
+                        id="rule-value"
                         type="number"
                         value={newRule.value || ''}
                         onChange={(e) =>
@@ -1245,11 +1268,13 @@ const PriceCalculator = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="rule-adjustment-type"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Adjustment Type
                     </label>
                     <select
+                      id="rule-adjustment-type"
                       value={newRule.adjustmentType}
                       onChange={(e) =>
                         setNewRule({
@@ -1269,6 +1294,7 @@ const PriceCalculator = () => {
                   </div>
                   <div className="col-span-full">
                     <label
+                      htmlFor="rule-adjustment-value"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Adjustment Value{' '}
@@ -1277,6 +1303,7 @@ const PriceCalculator = () => {
                         : '(AED)'}
                     </label>
                     <input
+                      id="rule-adjustment-value"
                       type="number"
                       value={newRule.adjustmentValue || ''}
                       onChange={(e) =>
@@ -1361,11 +1388,13 @@ const PriceCalculator = () => {
               <div className="p-6 space-y-4">
                 <div>
                   <label
+                    htmlFor="discount-name"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Discount Name
                   </label>
                   <input
+                    id="discount-name"
                     type="text"
                     value={newDiscount.name}
                     onChange={(e) =>
@@ -1381,11 +1410,13 @@ const PriceCalculator = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="discount-min-quantity"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Minimum Quantity (kg)
                   </label>
                   <input
+                    id="discount-min-quantity"
                     type="number"
                     value={newDiscount.minQuantity || ''}
                     onChange={(e) =>
@@ -1407,11 +1438,13 @@ const PriceCalculator = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="discount-percentage"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Discount Percentage (%)
                   </label>
                   <input
+                    id="discount-percentage"
                     type="number"
                     min="0"
                     max="100"

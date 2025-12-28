@@ -17,15 +17,12 @@ import {
   Loader2,
   Package,
   ChevronDown,
-  Layers,
-  Circle,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { stockMovementService } from '../../services/stockMovementService';
 import { warehouseService } from '../../services/warehouseService';
 import { productService } from '../../services/dataService';
 import { validateSsotPattern } from '../../utils/productSsotValidation';
-import { batchReservationService } from '../../services/batchReservationService';
 
 /**
  * Format quantity with unit
@@ -41,7 +38,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   const [products, setProducts] = useState([]);
   const [stockLevels, setStockLevels] = useState({});
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
-  const [_loadingProducts, setLoadingProducts] = useState(true);
+  const [, setLoadingProducts] = useState(true);
 
   const [sourceWarehouseId, setSourceWarehouseId] = useState('');
   const [destinationWarehouseId, setDestinationWarehouseId] = useState('');
@@ -51,21 +48,21 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   const [transferType, setTransferType] = useState('REGULAR'); // Epic 7: Transfer type
 
   // Epic 10: TRAN-003 - Transfer approval workflow
-  const [transferStatus, setTransferStatus] = useState('DRAFT');
+  const [transferStatus] = useState('DRAFT');
 
   // Epic 10: TRAN-005 - Transporter details
-  const [driverId, setDriverId] = useState('');
-  const [driverName, setDriverName] = useState('');
-  const [vehicleNumber, setVehicleNumber] = useState('');
-  const [vehiclePlate, setVehiclePlate] = useState('');
-  const [departureTime, setDepartureTime] = useState('');
-  const [expectedArrivalTime, setExpectedArrivalTime] = useState('');
+  const [driverId] = useState('');
+  const [driverName] = useState('');
+  const [vehicleNumber] = useState('');
+  const [vehiclePlate] = useState('');
+  const [departureTime] = useState('');
+  const [expectedArrivalTime] = useState('');
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
   // Epic 4: Batch allocation state
-  const [batchesPerItem, setBatchesPerItem] = useState({}); // Map of itemId -> batches[]
+  const [, setBatchesPerItem] = useState({}); // Map of itemId -> batches[]
 
   // Product autocomplete state
   const [activeItemId, setActiveItemId] = useState(null);

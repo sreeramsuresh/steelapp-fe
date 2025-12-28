@@ -140,7 +140,7 @@ const PaymentForm = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="payment-date"
+              htmlFor="po-payment-date"
               className={`block text-sm font-medium mb-2 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -148,7 +148,7 @@ const PaymentForm = ({
               Payment Date
             </label>
             <input
-              id="payment-date"
+              id="po-payment-date"
               type="date"
               value={formData.paymentDate}
               onChange={(e) =>
@@ -165,7 +165,7 @@ const PaymentForm = ({
 
           <div>
             <label
-              htmlFor="payment-amount"
+              htmlFor="po-payment-amount"
               className={`block text-sm font-medium mb-2 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -173,7 +173,7 @@ const PaymentForm = ({
               Amount (Max: {formatCurrency(maxAmount)})
             </label>
             <input
-              id="payment-amount"
+              id="po-payment-amount"
               type="number"
               step="0.01"
               value={formData.amount}
@@ -206,7 +206,7 @@ const PaymentForm = ({
 
           <div>
             <label
-              htmlFor="payment-reference"
+              htmlFor="po-payment-reference"
               className={`block text-sm font-medium mb-2 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -214,7 +214,7 @@ const PaymentForm = ({
               Reference Number
             </label>
             <input
-              id="payment-reference"
+              id="po-payment-reference"
               type="text"
               value={formData.referenceNumber}
               onChange={(e) =>
@@ -231,7 +231,7 @@ const PaymentForm = ({
 
           <div>
             <label
-              htmlFor="payment-notes"
+              htmlFor="po-payment-notes"
               className={`block text-sm font-medium mb-2 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
@@ -239,7 +239,7 @@ const PaymentForm = ({
               Notes
             </label>
             <textarea
-              id="payment-notes"
+              id="po-payment-notes"
               value={formData.notes}
               onChange={(e) =>
                 setFormData({ ...formData, notes: e.target.value })

@@ -644,10 +644,11 @@ const AdvancePaymentForm = () => {
                 <div className="grid grid-cols-12 gap-3">
                   {/* Receipt Number */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="receiptNumber" className={`block text-xs ${textMuted} mb-1.5`}>
                       Receipt Number <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="receiptNumber"
                       name="receiptNumber"
                       type="text"
                       value={payment.receiptNumber}
@@ -663,10 +664,11 @@ const AdvancePaymentForm = () => {
 
                   {/* Payment Date */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="paymentDate" className={`block text-xs ${textMuted} mb-1.5`}>
                       Payment Date <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="paymentDate"
                       name="paymentDate"
                       type="date"
                       value={payment.paymentDate}
@@ -705,7 +707,7 @@ const AdvancePaymentForm = () => {
 
                   {/* Amount (VAT Inclusive) */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="totalAmount" className={`block text-xs ${textMuted} mb-1.5`}>
                       Amount Received (VAT Incl.){' '}
                       <span className="text-red-500">*</span>
                     </label>
@@ -716,6 +718,7 @@ const AdvancePaymentForm = () => {
                         AED
                       </span>
                       <input
+                        id="totalAmount"
                         name="totalAmount"
                         type="number"
                         min="0"
@@ -732,10 +735,11 @@ const AdvancePaymentForm = () => {
 
                   {/* Reference Number */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="referenceNumber" className={`block text-xs ${textMuted} mb-1.5`}>
                       Reference Number
                     </label>
                     <input
+                      id="referenceNumber"
                       name="referenceNumber"
                       type="text"
                       value={payment.referenceNumber}
@@ -773,10 +777,11 @@ const AdvancePaymentForm = () => {
 
                   {/* Purpose */}
                   <div className="col-span-12">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="purpose" className={`block text-xs ${textMuted} mb-1.5`}>
                       Purpose
                     </label>
                     <input
+                      id="purpose"
                       name="purpose"
                       type="text"
                       value={payment.purpose}
@@ -838,10 +843,11 @@ const AdvancePaymentForm = () => {
                     {/* Exchange Rate - show only if not AED */}
                     {payment.currency !== 'AED' && (
                       <div className="col-span-6">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="exchangeRate" className={`block text-xs ${textMuted} mb-1.5`}>
                           Exchange Rate (to AED)
                         </label>
                         <input
+                          id="exchangeRate"
                           name="exchangeRate"
                           type="number"
                           min="0"
@@ -901,10 +907,11 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Bank Name */}
                     <div className="col-span-6">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="bankName" className={`block text-xs ${textMuted} mb-1.5`}>
                         Bank Name
                       </label>
                       <input
+                        id="bankName"
                         name="bankName"
                         type="text"
                         value={payment.bankName}
@@ -921,10 +928,11 @@ const AdvancePaymentForm = () => {
 
                     {/* Cheque Number */}
                     <div className="col-span-6">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="chequeNumber" className={`block text-xs ${textMuted} mb-1.5`}>
                         Cheque Number
                       </label>
                       <input
+                        id="chequeNumber"
                         name="chequeNumber"
                         type="text"
                         value={payment.chequeNumber}
@@ -941,10 +949,11 @@ const AdvancePaymentForm = () => {
 
                     {/* Transaction ID */}
                     <div className="col-span-12">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="transactionId" className={`block text-xs ${textMuted} mb-1.5`}>
                         Transaction ID
                       </label>
                       <input
+                        id="transactionId"
                         name="transactionId"
                         type="text"
                         value={payment.transactionId}
@@ -1114,10 +1123,11 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Official Receipt Number */}
                     <div className="col-span-6">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="receiptNumberOfficial" className={`block text-xs ${textMuted} mb-1.5`}>
                         Official Receipt Number
                       </label>
                       <input
+                        id="receiptNumberOfficial"
                         name="receiptNumberOfficial"
                         type="text"
                         value={payment.receiptNumberOfficial}
@@ -1134,10 +1144,11 @@ const AdvancePaymentForm = () => {
 
                     {/* Attachment URLs - text input for now */}
                     <div className="col-span-12">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="attachmentUrls" className={`block text-xs ${textMuted} mb-1.5`}>
                         Attachment URLs (comma-separated)
                       </label>
                       <input
+                        id="attachmentUrls"
                         name="attachmentUrls"
                         type="text"
                         value={
@@ -1183,10 +1194,11 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Project ID */}
                     <div className="col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="projectId" className={`block text-xs ${textMuted} mb-1.5`}>
                         Project ID
                       </label>
                       <input
+                        id="projectId"
                         name="projectId"
                         type="text"
                         value={payment.projectId || ''}
@@ -1203,10 +1215,11 @@ const AdvancePaymentForm = () => {
 
                     {/* Cost Center */}
                     <div className="col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="costCenter" className={`block text-xs ${textMuted} mb-1.5`}>
                         Cost Center
                       </label>
                       <input
+                        id="costCenter"
                         name="costCenter"
                         type="text"
                         value={payment.costCenter}
@@ -1223,10 +1236,11 @@ const AdvancePaymentForm = () => {
 
                     {/* Sales Person ID */}
                     <div className="col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="salesPersonId" className={`block text-xs ${textMuted} mb-1.5`}>
                         Sales Person ID
                       </label>
                       <input
+                        id="salesPersonId"
                         name="salesPersonId"
                         type="text"
                         value={payment.salesPersonId || ''}
@@ -1307,10 +1321,11 @@ const AdvancePaymentForm = () => {
 
                     {/* Valid Until */}
                     <div className="col-span-6">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="validUntil" className={`block text-xs ${textMuted} mb-1.5`}>
                         Valid Until (Expiry Date)
                       </label>
                       <input
+                        id="validUntil"
                         name="validUntil"
                         type="date"
                         value={payment.validUntil || ''}
@@ -1370,7 +1385,7 @@ const AdvancePaymentForm = () => {
                     <div className="grid grid-cols-12 gap-3">
                       {/* Refund Amount */}
                       <div className="col-span-4">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="refundAmount" className={`block text-xs ${textMuted} mb-1.5`}>
                           Refund Amount
                         </label>
                         <div className="relative">
@@ -1380,6 +1395,7 @@ const AdvancePaymentForm = () => {
                             AED
                           </span>
                           <input
+                            id="refundAmount"
                             name="refundAmount"
                             type="number"
                             min="0"
@@ -1400,10 +1416,11 @@ const AdvancePaymentForm = () => {
 
                       {/* Refund Method */}
                       <div className="col-span-4">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="refundMethod" className={`block text-xs ${textMuted} mb-1.5`}>
                           Refund Method
                         </label>
                         <input
+                          id="refundMethod"
                           name="refundMethod"
                           type="text"
                           value={payment.refundMethod || ''}
@@ -1420,10 +1437,11 @@ const AdvancePaymentForm = () => {
 
                       {/* Refund Reference */}
                       <div className="col-span-4">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="refundReference" className={`block text-xs ${textMuted} mb-1.5`}>
                           Refund Reference
                         </label>
                         <input
+                          id="refundReference"
                           name="refundReference"
                           type="text"
                           value={payment.refundReference}
@@ -1460,7 +1478,9 @@ const AdvancePaymentForm = () => {
                   />
                 </summary>
                 <div className={`p-3 border-t ${cardBorder}`}>
+                  <label htmlFor="notes" className="sr-only">Additional Notes</label>
                   <textarea
+                    id="notes"
                     name="notes"
                     value={payment.notes}
                     onChange={(e) =>

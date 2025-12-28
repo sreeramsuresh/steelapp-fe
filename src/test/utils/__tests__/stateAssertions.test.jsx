@@ -3,6 +3,9 @@
  * Verifies observable state change assertions
  */
 
+/* eslint-disable local-rules/no-dead-button */
+// Test fixtures render buttons without handlers to test assertion failure paths
+
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

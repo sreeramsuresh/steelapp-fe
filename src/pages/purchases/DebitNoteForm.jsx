@@ -676,10 +676,11 @@ const DebitNoteForm = () => {
                 <div className="grid grid-cols-12 gap-3">
                   {/* Debit Note Number */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="debitNoteNumber" className={`block text-xs ${textMuted} mb-1.5`}>
                       Debit Note Number <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="debitNoteNumber"
                       type="text"
                       value={debitNote.debitNoteNumber}
                       onChange={(e) =>
@@ -694,10 +695,11 @@ const DebitNoteForm = () => {
 
                   {/* Date */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="debitNoteDate" className={`block text-xs ${textMuted} mb-1.5`}>
                       Date <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="debitNoteDate"
                       type="date"
                       value={debitNote.debitNoteDate}
                       onChange={(e) =>

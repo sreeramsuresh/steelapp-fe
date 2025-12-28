@@ -523,6 +523,7 @@ const CustomsDocumentList = () => {
   };
 
   // Handle status update
+  // Prefixed with underscore to indicate intentionally unused (future feature)
   const _handleStatusUpdate = async (document, newStatus) => {
     try {
       await customsDocumentService.updateClearance(
@@ -878,11 +879,13 @@ const CustomsDocumentList = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div>
               <label
+                htmlFor="filter-document-type"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Document Type
               </label>
               <select
+                id="filter-document-type"
                 value={filters.document_type}
                 onChange={(e) =>
                   setFilters((prev) => ({
@@ -907,11 +910,13 @@ const CustomsDocumentList = () => {
 
             <div>
               <label
+                htmlFor="filter-status"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Status
               </label>
               <select
+                id="filter-status"
                 value={filters.status}
                 onChange={(e) =>
                   setFilters((prev) => ({ ...prev, status: e.target.value }))
@@ -933,11 +938,13 @@ const CustomsDocumentList = () => {
 
             <div>
               <label
+                htmlFor="filter-start-date"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 From Date
               </label>
               <input
+                id="filter-start-date"
                 type="date"
                 value={filters.start_date}
                 onChange={(e) =>
@@ -956,11 +963,13 @@ const CustomsDocumentList = () => {
 
             <div>
               <label
+                htmlFor="filter-end-date"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 To Date
               </label>
               <input
+                id="filter-end-date"
                 type="date"
                 value={filters.end_date}
                 onChange={(e) =>

@@ -3,6 +3,9 @@
  * Verifies async operation and timing utilities
  */
 
+/* eslint-disable local-rules/no-dead-button */
+// Test fixtures intentionally render buttons without handlers to test utility functions
+
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

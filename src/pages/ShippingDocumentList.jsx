@@ -202,7 +202,7 @@ const ShippingDocumentList = () => {
 
   // Orders for linking
   const [importOrders, setImportOrders] = useState([]);
-  const [exportOrders, setExportOrders] = useState([]);
+  const [exportOrders, _setExportOrders] = useState([]);
 
   // Load documents
   const loadDocuments = useCallback(
@@ -612,10 +612,11 @@ const ShippingDocumentList = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Document Type */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="filter-document-type" className="block text-sm font-medium mb-1">
                   Document Type
                 </label>
                 <select
+                  id="filter-document-type"
                   value={filters.document_type}
                   onChange={(e) =>
                     handleFilterChange('document_type', e.target.value)
@@ -637,8 +638,9 @@ const ShippingDocumentList = () => {
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
+                <label htmlFor="filter-status" className="block text-sm font-medium mb-1">Status</label>
                 <select
+                  id="filter-status"
                   value={filters.status}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg ${
@@ -658,10 +660,11 @@ const ShippingDocumentList = () => {
 
               {/* Date Range */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="filter-start-date" className="block text-sm font-medium mb-1">
                   From Date
                 </label>
                 <input
+                  id="filter-start-date"
                   type="date"
                   value={filters.start_date}
                   onChange={(e) =>
@@ -675,10 +678,11 @@ const ShippingDocumentList = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="filter-end-date" className="block text-sm font-medium mb-1">
                   To Date
                 </label>
                 <input
+                  id="filter-end-date"
                   type="date"
                   value={filters.end_date}
                   onChange={(e) =>
@@ -964,10 +968,11 @@ const ShippingDocumentList = () => {
               {/* Document Type & Number */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label htmlFor="modal-document-type" className="block text-sm font-medium mb-1">
                     Document Type <span className="text-red-500">*</span>
                   </label>
                   <select
+                    id="modal-document-type"
                     value={formData.document_type}
                     onChange={(e) =>
                       handleInputChange('document_type', e.target.value)
@@ -992,10 +997,11 @@ const ShippingDocumentList = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label htmlFor="modal-document-number" className="block text-sm font-medium mb-1">
                     Document Number <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="modal-document-number"
                     type="text"
                     value={formData.document_number}
                     onChange={(e) =>
@@ -1019,10 +1025,11 @@ const ShippingDocumentList = () => {
               {/* Linked Order & Status */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label htmlFor="modal-import-order" className="block text-sm font-medium mb-1">
                     Link to Import Order
                   </label>
                   <select
+                    id="modal-import-order"
                     value={formData.import_order_id}
                     onChange={(e) =>
                       handleInputChange('import_order_id', e.target.value)
@@ -1044,10 +1051,11 @@ const ShippingDocumentList = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label htmlFor="modal-status" className="block text-sm font-medium mb-1">
                     Status
                   </label>
                   <select
+                    id="modal-status"
                     value={formData.status}
                     onChange={(e) =>
                       handleInputChange('status', e.target.value)
@@ -1077,10 +1085,11 @@ const ShippingDocumentList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-vessel-name" className="block text-sm font-medium mb-1">
                       Vessel / Flight Name
                     </label>
                     <input
+                      id="modal-vessel-name"
                       type="text"
                       value={formData.vessel_name}
                       onChange={(e) =>
@@ -1095,10 +1104,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-voyage-number" className="block text-sm font-medium mb-1">
                       Voyage / Flight Number
                     </label>
                     <input
+                      id="modal-voyage-number"
                       type="text"
                       value={formData.voyage_number}
                       onChange={(e) =>
@@ -1113,10 +1123,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-carrier-name" className="block text-sm font-medium mb-1">
                       Carrier Name
                     </label>
                     <input
+                      id="modal-carrier-name"
                       type="text"
                       value={formData.carrier_name}
                       onChange={(e) =>
@@ -1136,10 +1147,11 @@ const ShippingDocumentList = () => {
               {/* Container & Seal Numbers */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label htmlFor="modal-container-numbers" className="block text-sm font-medium mb-1">
                     Container Numbers
                   </label>
                   <textarea
+                    id="modal-container-numbers"
                     value={formData.container_numbers}
                     onChange={(e) =>
                       handleInputChange('container_numbers', e.target.value)
@@ -1154,10 +1166,11 @@ const ShippingDocumentList = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label htmlFor="modal-seal-numbers" className="block text-sm font-medium mb-1">
                     Seal Numbers
                   </label>
                   <textarea
+                    id="modal-seal-numbers"
                     value={formData.seal_numbers}
                     onChange={(e) =>
                       handleInputChange('seal_numbers', e.target.value)
@@ -1183,10 +1196,11 @@ const ShippingDocumentList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-origin-port" className="block text-sm font-medium mb-1">
                       Origin Port <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="modal-origin-port"
                       type="text"
                       value={formData.origin_port}
                       onChange={(e) =>
@@ -1206,10 +1220,11 @@ const ShippingDocumentList = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-destination-port" className="block text-sm font-medium mb-1">
                       Destination Port <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="modal-destination-port"
                       type="text"
                       value={formData.destination_port}
                       onChange={(e) =>
@@ -1241,10 +1256,11 @@ const ShippingDocumentList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-etd" className="block text-sm font-medium mb-1">
                       ETD
                     </label>
                     <input
+                      id="modal-etd"
                       type="date"
                       value={formData.etd}
                       onChange={(e) => handleInputChange('etd', e.target.value)}
@@ -1256,10 +1272,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-eta" className="block text-sm font-medium mb-1">
                       ETA
                     </label>
                     <input
+                      id="modal-eta"
                       type="date"
                       value={formData.eta}
                       onChange={(e) => handleInputChange('eta', e.target.value)}
@@ -1271,10 +1288,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-actual-departure" className="block text-sm font-medium mb-1">
                       Actual Departure
                     </label>
                     <input
+                      id="modal-actual-departure"
                       type="date"
                       value={formData.actual_departure}
                       onChange={(e) =>
@@ -1288,10 +1306,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-actual-arrival" className="block text-sm font-medium mb-1">
                       Actual Arrival
                     </label>
                     <input
+                      id="modal-actual-arrival"
                       type="date"
                       value={formData.actual_arrival}
                       onChange={(e) =>
@@ -1317,10 +1336,11 @@ const ShippingDocumentList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-shipper" className="block text-sm font-medium mb-1">
                       Shipper
                     </label>
                     <input
+                      id="modal-shipper"
                       type="text"
                       value={formData.shipper_name}
                       onChange={(e) =>
@@ -1335,10 +1355,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-consignee" className="block text-sm font-medium mb-1">
                       Consignee
                     </label>
                     <input
+                      id="modal-consignee"
                       type="text"
                       value={formData.consignee_name}
                       onChange={(e) =>
@@ -1353,10 +1374,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-notify-party" className="block text-sm font-medium mb-1">
                       Notify Party
                     </label>
                     <input
+                      id="modal-notify-party"
                       type="text"
                       value={formData.notify_party}
                       onChange={(e) =>
@@ -1371,10 +1393,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-freight-terms" className="block text-sm font-medium mb-1">
                       Freight Terms
                     </label>
                     <select
+                      id="modal-freight-terms"
                       value={formData.freight_terms}
                       onChange={(e) =>
                         handleInputChange('freight_terms', e.target.value)
@@ -1404,11 +1427,13 @@ const ShippingDocumentList = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label
+                        htmlFor="modal-freight-vat-treatment"
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}
                       >
                         Freight VAT Treatment
                       </label>
                       <select
+                        id="modal-freight-vat-treatment"
                         value={formData.freight_vat_treatment || 'zero_rated'}
                         onChange={(e) =>
                           handleInputChange(
@@ -1431,11 +1456,13 @@ const ShippingDocumentList = () => {
                     </div>
                     <div>
                       <label
+                        htmlFor="modal-freight-value"
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}
                       >
                         Freight Value (AED)
                       </label>
                       <input
+                        id="modal-freight-value"
                         type="number"
                         value={formData.freight_value || ''}
                         onChange={(e) => {
@@ -1461,11 +1488,13 @@ const ShippingDocumentList = () => {
                     </div>
                     <div>
                       <label
+                        htmlFor="modal-freight-vat-amount"
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-700'}`}
                       >
                         VAT Amount (AED)
                       </label>
                       <input
+                        id="modal-freight-vat-amount"
                         type="number"
                         value={formData.freight_vat_amount || 0}
                         disabled
@@ -1497,10 +1526,11 @@ const ShippingDocumentList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-weight-kg" className="block text-sm font-medium mb-1">
                       Weight (KG)
                     </label>
                     <input
+                      id="modal-weight-kg"
                       type="number"
                       value={formData.weight_kg}
                       onChange={(e) =>
@@ -1516,10 +1546,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-volume-cbm" className="block text-sm font-medium mb-1">
                       Volume (CBM)
                     </label>
                     <input
+                      id="modal-volume-cbm"
                       type="number"
                       value={formData.volume_cbm}
                       onChange={(e) =>
@@ -1535,10 +1566,11 @@ const ShippingDocumentList = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label htmlFor="modal-num-packages" className="block text-sm font-medium mb-1">
                       Number of Packages
                     </label>
                     <input
+                      id="modal-num-packages"
                       type="number"
                       value={formData.number_of_packages}
                       onChange={(e) =>
@@ -1554,10 +1586,11 @@ const ShippingDocumentList = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label htmlFor="modal-goods-description" className="block text-sm font-medium mb-1">
                     Goods Description
                   </label>
                   <textarea
+                    id="modal-goods-description"
                     value={formData.goods_description}
                     onChange={(e) =>
                       handleInputChange('goods_description', e.target.value)
@@ -1575,8 +1608,9 @@ const ShippingDocumentList = () => {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium mb-1">Notes</label>
+                <label htmlFor="modal-notes" className="block text-sm font-medium mb-1">Notes</label>
                 <textarea
+                  id="modal-notes"
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="Additional notes or remarks"

@@ -202,10 +202,11 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="name" className={labelClass}>
                     Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="name"
                     type="text"
                     name="name"
                     value={formData.name}
@@ -219,10 +220,11 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="code" className={labelClass}>
                     Code <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="code"
                     type="text"
                     name="code"
                     value={formData.code}
@@ -236,8 +238,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className={labelClass}>Description</label>
+                  <label htmlFor="description" className={labelClass}>Description</label>
                   <textarea
+                    id="description"
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
@@ -260,8 +263,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className={labelClass}>Address</label>
+                  <label htmlFor="address" className={labelClass}>Address</label>
                   <input
+                    id="address"
                     type="text"
                     name="address"
                     value={formData.address}
@@ -272,10 +276,11 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="city" className={labelClass}>
                     City <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="city"
                     type="text"
                     name="city"
                     value={formData.city}
@@ -289,8 +294,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>State / Emirate</label>
+                  <label htmlFor="state" className={labelClass}>State / Emirate</label>
                   <input
+                    id="state"
                     type="text"
                     name="state"
                     value={formData.state}
@@ -301,8 +307,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>Country</label>
+                  <label htmlFor="country" className={labelClass}>Country</label>
                   <input
+                    id="country"
                     type="text"
                     name="country"
                     value={formData.country}
@@ -312,8 +319,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>Postal Code</label>
+                  <label htmlFor="postalCode" className={labelClass}>Postal Code</label>
                   <input
+                    id="postalCode"
                     type="text"
                     name="postalCode"
                     value={formData.postalCode}
@@ -336,8 +344,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Contact Person</label>
+                  <label htmlFor="contactPerson" className={labelClass}>Contact Person</label>
                   <input
+                    id="contactPerson"
                     type="text"
                     name="contactPerson"
                     value={formData.contactPerson}
@@ -348,8 +357,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>Phone</label>
+                  <label htmlFor="phone" className={labelClass}>Phone</label>
                   <input
+                    id="phone"
                     type="text"
                     name="phone"
                     value={formData.phone}
@@ -360,8 +370,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className={labelClass}>Email</label>
+                  <label htmlFor="email" className={labelClass}>Email</label>
                   <input
+                    id="email"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -387,8 +398,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className={labelClass}>Capacity</label>
+                  <label htmlFor="capacity" className={labelClass}>Capacity</label>
                   <input
+                    id="capacity"
                     type="text"
                     name="capacity"
                     value={formData.capacity}
@@ -404,8 +416,9 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label className={labelClass}>Unit</label>
+                  <label htmlFor="capacityUnit" className={labelClass}>Unit</label>
                   <select
+                    id="capacityUnit"
                     name="capacityUnit"
                     value={formData.capacityUnit}
                     onChange={handleChange}
@@ -419,11 +432,13 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
 
                 <div className="flex items-end">
                   <label
+                    htmlFor="isActive"
                     className={`flex items-center gap-2 cursor-pointer ${
                       isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
                   >
                     <input
+                      id="isActive"
                       type="checkbox"
                       name="isActive"
                       checked={formData.isActive}
