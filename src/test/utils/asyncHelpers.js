@@ -20,7 +20,6 @@ import {
   waitForButtonDisabled,
   waitForButtonEnabled,
 } from './buttonTestUtils';
-import { waitForLoadingComplete } from './stateAssertions';
 
 /**
  * Click button and wait for mock API function to be called

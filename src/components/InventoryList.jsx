@@ -972,6 +972,7 @@ const InventoryList = () => {
                   {/* Product Catalog Link */}
                   <div className="sm:col-span-2">
                     <label
+                      htmlFor="productSearch"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Product (Catalog)
@@ -1001,6 +1002,7 @@ const InventoryList = () => {
                       <div className="relative">
                         <input
                           type="text"
+                          id="productSearch"
                           value={productQuery}
                           onChange={(e) => setProductQuery(e.target.value)}
                           placeholder="Search and select a product to link (optional)"
@@ -1059,12 +1061,14 @@ const InventoryList = () => {
                   </div>
                   <div className="sm:col-span-2">
                     <label
+                      htmlFor="description"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Description
                     </label>
                     <input
                       type="text"
+                      id="description"
                       value={formData.description}
                       onChange={(e) =>
                         handleInputChange('description', e.target.value)
@@ -1079,12 +1083,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="productType"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Product Type
                     </label>
                     <div className="relative">
                       <select
+                        id="productType"
                         value={formData.productType}
                         onChange={(e) =>
                           handleInputChange('productType', e.target.value)
@@ -1114,12 +1120,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="grade"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Grade
                     </label>
                     <input
                       type="text"
+                      id="grade"
                       value={formData.grade}
                       onChange={(e) =>
                         handleInputChange('grade', e.target.value)
@@ -1145,12 +1153,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="finish"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Finish
                     </label>
                     <input
                       type="text"
+                      id="finish"
                       value={formData.finish}
                       onChange={(e) =>
                         handleInputChange(
@@ -1179,12 +1189,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="size"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Size
                     </label>
                     <input
                       type="text"
+                      id="size"
                       value={formData.size}
                       onChange={(e) =>
                         handleInputChange('size', e.target.value)
@@ -1199,12 +1211,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="thickness"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Thickness
                     </label>
                     <input
                       type="text"
+                      id="thickness"
                       value={formData.thickness}
                       onChange={(e) =>
                         handleInputChange('thickness', e.target.value)
@@ -1219,12 +1233,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="quantity"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Quantity
                     </label>
                     <input
                       type="number"
+                      id="quantity"
                       value={formData.quantity || ''}
                       onChange={(e) =>
                         handleInputChange(
@@ -1243,12 +1259,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="minStock"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Minimum Stock
                     </label>
                     <input
                       type="number"
+                      id="minStock"
                       value={formData.minStock || ''}
                       onChange={(e) =>
                         handleInputChange(
@@ -1267,6 +1285,7 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="pricePurchased"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Purchase Price
@@ -1281,6 +1300,7 @@ const InventoryList = () => {
                       </span>
                       <input
                         type="number"
+                        id="pricePurchased"
                         value={formData.pricePurchased || ''}
                         onChange={(e) =>
                           handleInputChange(
@@ -1300,6 +1320,7 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="sellingPrice"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Selling Price
@@ -1314,6 +1335,7 @@ const InventoryList = () => {
                       </span>
                       <input
                         type="number"
+                        id="sellingPrice"
                         value={formData.sellingPrice || ''}
                         onChange={(e) =>
                           handleInputChange(
@@ -1333,6 +1355,7 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="landedCost"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Landed Cost
@@ -1347,6 +1370,7 @@ const InventoryList = () => {
                       </span>
                       <input
                         type="number"
+                        id="landedCost"
                         value={formData.landedCost || ''}
                         onChange={(e) =>
                           handleInputChange(
@@ -1366,12 +1390,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="warehouseId"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Warehouse
                     </label>
                     <div className="relative">
                       <select
+                        id="warehouseId"
                         value={formData.warehouseId}
                         onChange={(e) => handleWarehouseChange(e.target.value)}
                         className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
@@ -1399,12 +1425,14 @@ const InventoryList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="location"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Specific Location
                     </label>
                     <input
                       type="text"
+                      id="location"
                       value={formData.location}
                       onChange={(e) =>
                         handleInputChange('location', e.target.value)
@@ -1430,11 +1458,13 @@ const InventoryList = () => {
                   {/* Status Dropdown */}
                   <div>
                     <label
+                      htmlFor="status"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Status
                     </label>
                     <select
+                      id="status"
                       value={formData.status || 'AVAILABLE'}
                       onChange={(e) =>
                         handleInputChange('status', e.target.value)
@@ -1455,12 +1485,14 @@ const InventoryList = () => {
                   {/* Quantity On Hand */}
                   <div>
                     <label
+                      htmlFor="quantityOnHand"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Quantity On Hand (KG)
                     </label>
                     <input
                       type="number"
+                      id="quantityOnHand"
                       step="0.001"
                       value={formData.quantityOnHand}
                       onChange={(e) =>
@@ -1478,12 +1510,14 @@ const InventoryList = () => {
                   {/* Quantity Reserved */}
                   <div>
                     <label
+                      htmlFor="quantityReserved"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Quantity Reserved (KG)
                     </label>
                     <input
                       type="number"
+                      id="quantityReserved"
                       step="0.001"
                       value={formData.quantityReserved}
                       onChange={(e) =>
@@ -1501,12 +1535,14 @@ const InventoryList = () => {
                   {/* Unit Cost */}
                   <div>
                     <label
+                      htmlFor="unitCost"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Unit Cost (AED/KG)
                     </label>
                     <input
                       type="number"
+                      id="unitCost"
                       step="0.01"
                       value={formData.unitCost}
                       onChange={(e) =>
@@ -1524,12 +1560,14 @@ const InventoryList = () => {
                   {/* Batch Number */}
                   <div>
                     <label
+                      htmlFor="batchNumber"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Batch Number
                     </label>
                     <input
                       type="text"
+                      id="batchNumber"
                       value={formData.batchNumber}
                       onChange={(e) =>
                         handleInputChange('batchNumber', e.target.value)
@@ -1546,12 +1584,14 @@ const InventoryList = () => {
                   {/* Coil Number */}
                   <div>
                     <label
+                      htmlFor="coilNumber"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Coil Number
                     </label>
                     <input
                       type="text"
+                      id="coilNumber"
                       value={formData.coilNumber}
                       onChange={(e) =>
                         handleInputChange('coilNumber', e.target.value)
@@ -1568,12 +1608,14 @@ const InventoryList = () => {
                   {/* Heat Number */}
                   <div>
                     <label
+                      htmlFor="heatNumber"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Heat Number (Mill Certificate)
                     </label>
                     <input
                       type="text"
+                      id="heatNumber"
                       value={formData.heatNumber}
                       onChange={(e) =>
                         handleInputChange('heatNumber', e.target.value)
@@ -1590,12 +1632,14 @@ const InventoryList = () => {
                   {/* Bundle Number */}
                   <div>
                     <label
+                      htmlFor="bundleNumber"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Bundle Number
                     </label>
                     <input
                       type="text"
+                      id="bundleNumber"
                       value={formData.bundleNumber}
                       onChange={(e) =>
                         handleInputChange('bundleNumber', e.target.value)

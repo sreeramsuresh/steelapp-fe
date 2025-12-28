@@ -346,7 +346,7 @@ export async function assertListItemRemoved(
 export async function assertTableRowCountChanges(
   expectedCount,
   operator = '=',
-  tableSelector = 'table',
+  _tableSelector = 'table',
   timeout = 5000,
 ) {
   let table;

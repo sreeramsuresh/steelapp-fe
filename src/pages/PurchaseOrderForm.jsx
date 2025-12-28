@@ -6,8 +6,6 @@ import {
   Save,
   ArrowLeft,
   X,
-  AlertCircle,
-  ChevronDown,
   AlertTriangle,
   Loader2,
   Eye,
@@ -22,19 +20,19 @@ import {
 } from 'lucide-react';
 
 // ==================== DESIGN TOKENS ====================
-const COLORS = {
-  bg: '#0b0f14',
-  card: '#141a20',
-  border: '#2a3640',
-  text: '#e6edf3',
-  muted: '#93a4b4',
-  good: '#2ecc71',
-  warn: '#f39c12',
-  bad: '#e74c3c',
-  accent: '#4aa3ff',
-  accentHover: '#5bb2ff',
-  inputBg: '#0f151b',
-};
+// const COLORS = {
+//   bg: '#0b0f14',
+//   card: '#141a20',
+//   border: '#2a3640',
+//   text: '#e6edf3',
+//   muted: '#93a4b4',
+//   good: '#2ecc71',
+//   warn: '#f39c12',
+//   bad: '#e74c3c',
+//   accent: '#4aa3ff',
+//   accentHover: '#5bb2ff',
+//   inputBg: '#0f151b',
+// };
 
 // Layout classes (use with isDarkMode ternary)
 const CARD_CLASSES = (isDarkMode) =>
@@ -79,7 +77,6 @@ import {
   calculateItemAmount,
   calculateSubtotal,
   generatePONumber,
-  formatAddress,
 } from '../utils/invoiceUtils';
 import { purchaseOrderService } from '../services/purchaseOrderService';
 import { productService, payablesService } from '../services/dataService';
@@ -1228,8 +1225,8 @@ const PurchaseOrderForm = () => {
   };
 
   const handleSupplierSelect = (supplierId) => {
-    const suppliers = suppliersData?.suppliers || [];
-    const found = suppliers.find((s) => String(s.id) === String(supplierId));
+    const suppliersList = suppliersData?.suppliers || [];
+    const found = suppliersList.find((s) => String(s.id) === String(supplierId));
     if (!found) {
       setPurchaseOrder((prev) => ({
         ...prev,

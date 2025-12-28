@@ -27,19 +27,19 @@ import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePrevie
 import AllocationPanel from '../components/invoice/AllocationPanel';
 
 // ==================== DESIGN TOKENS ====================
-const COLORS = {
-  bg: '#0b0f14',
-  card: '#141a20',
-  border: '#2a3640',
-  text: '#e6edf3',
-  muted: '#93a4b4',
-  good: '#2ecc71',
-  warn: '#f39c12',
-  bad: '#e74c3c',
-  accent: '#4aa3ff',
-  accentHover: '#5bb2ff',
-  inputBg: '#0f151b',
-};
+// const COLORS = {
+//   bg: '#0b0f14',
+//   card: '#141a20',
+//   border: '#2a3640',
+//   text: '#e6edf3',
+//   muted: '#93a4b4',
+//   good: '#2ecc71',
+//   warn: '#f39c12',
+//   bad: '#e74c3c',
+//   accent: '#4aa3ff',
+//   accentHover: '#5bb2ff',
+//   inputBg: '#0f151b',
+// };
 
 // Layout classes (use with isDarkMode ternary)
 const CARD_CLASSES = (isDarkMode) =>

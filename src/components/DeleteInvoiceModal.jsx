@@ -153,17 +153,19 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
 
           {/* Reason Selection */}
           <div>
-            <label
+            <div
               className={`block text-sm font-medium mb-2 ${
                 isDarkMode ? 'text-gray-200' : 'text-gray-700'
               }`}
             >
               Reason for Deletion <span className="text-red-500">*</span>
-            </label>
+            </div>
             <div className="space-y-2">
               {DELETION_REASONS.map((reason) => (
                 <label
                   key={reason.value}
+                  htmlFor={`reason-${reason.value}`}
+                  aria-label={reason.label}
                   className={`flex items-start p-3 rounded-lg border cursor-pointer transition-all ${
                     selectedReason === reason.value
                       ? isDarkMode
@@ -176,6 +178,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
                 >
                   <input
                     type="radio"
+                    id={`reason-${reason.value}`}
                     name="deleteReason"
                     value={reason.value}
                     checked={selectedReason === reason.value}
@@ -201,6 +204,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
           {selectedReason === 'other' && (
             <div>
               <label
+                htmlFor="customReason"
                 className={`block text-sm font-medium mb-2 ${
                   isDarkMode ? 'text-gray-200' : 'text-gray-700'
                 }`}
@@ -208,6 +212,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
                 Custom Reason <span className="text-red-500">*</span>
               </label>
               <textarea
+                id="customReason"
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Please provide a detailed reason for deletion..."

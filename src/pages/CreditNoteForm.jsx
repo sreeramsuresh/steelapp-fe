@@ -102,7 +102,6 @@ import { creditNoteService } from '../services/creditNoteService';
 import { invoiceService } from '../services/invoiceService';
 import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
-import { FormSelect } from '../components/ui/form-select';
 import {
   Select,
   SelectContent,
@@ -1074,18 +1073,18 @@ const CreditNoteForm = () => {
       };
 
       // [DEBUG-CN-TYPE] Log credit note type before sending
-      console.log(
-        '[DEBUG-CN-TYPE] Frontend - creditNote.creditNoteType:',
-        creditNote.creditNoteType,
-      );
-      console.log(
-        '[DEBUG-CN-TYPE] Frontend - creditNoteData.creditNoteType:',
-        creditNoteData.creditNoteType,
-      );
-      console.log(
-        '[DEBUG-CN-TYPE] Frontend - Full payload:',
-        JSON.stringify(creditNoteData, null, 2),
-      );
+      // console.log(
+      //   '[DEBUG-CN-TYPE] Frontend - creditNote.creditNoteType:',
+      //   creditNote.creditNoteType,
+      // );
+      // console.log(
+      //   '[DEBUG-CN-TYPE] Frontend - creditNoteData.creditNoteType:',
+      //   creditNoteData.creditNoteType,
+      // );
+      // console.log(
+      //   '[DEBUG-CN-TYPE] Frontend - Full payload:',
+      //   JSON.stringify(creditNoteData, null, 2),
+      // );
 
       if (id) {
         await creditNoteService.updateCreditNote(id, creditNoteData);

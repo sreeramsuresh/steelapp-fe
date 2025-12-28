@@ -156,16 +156,16 @@ const FormSettingsPanel = ({
 };
 
 // ==================== DESIGN TOKENS ====================
-const COLORS = {
-  bg: '#0b0f14',
-  card: '#141a20',
-  border: '#2a3640',
-  text: '#e6edf3',
-  muted: '#93a4b4',
-  accent: '#0d9488', // teal-600
-  accentHover: '#14b8a6', // teal-500
-  inputBg: '#0f151b',
-};
+// const COLORS = {
+//   bg: '#0b0f14',
+//   card: '#141a20',
+//   border: '#2a3640',
+//   text: '#e6edf3',
+//   muted: '#93a4b4',
+//   accent: '#0d9488', // teal-600
+//   accentHover: '#14b8a6', // teal-500
+//   inputBg: '#0f151b',
+// };
 
 // Drawer Component for secondary content
 const Drawer = ({

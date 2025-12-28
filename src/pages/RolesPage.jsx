@@ -265,7 +265,7 @@ export default function RolesPage() {
                   rows={3}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Brief description of this role's purpose
+                  Brief description of this role&apos;s purpose
                 </p>
               </div>
               <div className="flex items-center gap-2">

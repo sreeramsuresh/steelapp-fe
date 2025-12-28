@@ -4,7 +4,6 @@ import {
   Plus,
   Trash2,
   Save,
-  ChevronDown,
   X,
   AlertTriangle,
   ArrowLeft,
@@ -25,7 +24,6 @@ import {
   Truck,
   Plane,
   Layers,
-  User,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { exportOrderService } from '../services/exportOrderService';
@@ -36,10 +34,7 @@ import pricelistService from '../services/pricelistService';
 import { supplierService } from '../services/supplierService';
 import { FormSelect } from '../components/ui/form-select';
 import { SelectItem, SelectGroup, SelectLabel } from '../components/ui/select';
-import {
-  validateSsotPattern,
-  getSsotErrorMessage,
-} from '../utils/productSsotValidation';
+import { validateSsotPattern } from '../utils/productSsotValidation';
 import BatchAllocator from '../components/batch/BatchAllocator';
 
 // ============================================================
@@ -3142,7 +3137,7 @@ const ExportOrderForm = () => {
                     </td>
                     <td className="py-2 pr-2">
                       <div className="space-y-1">
-                        <Select
+                        <select
                           value={item.product_id}
                           onChange={(e) =>
                             handleProductSelect(index, e.target.value)
@@ -3159,7 +3154,7 @@ const ExportOrderForm = () => {
                                 'N/A'}
                             </option>
                           ))}
-                        </Select>
+                        </select>
                         <input
                           type="text"
                           value={item.unique_name}

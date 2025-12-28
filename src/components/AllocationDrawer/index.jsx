@@ -525,7 +525,7 @@ const AllocationDrawer = ({
       const qty = parseFloat(drawerState.quantity) || 1;
       fetchProductPrice(drawerState.productId, qty);
     }
-  }, [drawerState.productId, fetchProductPrice]);
+  }, [drawerState.productId, drawerState.quantity, drawerState.unitPriceOverridden, fetchProductPrice]);
 
   // Re-fetch price on quantity change (volume discounts) with debounce
   useEffect(() => {
@@ -770,10 +770,6 @@ const AllocationDrawer = ({
 
         // Cancel reservation if switching away from warehouse
         if (reservationId) {
-          console.log(
-            '[SOURCE TYPE CHANGE] Cancelling reservation:',
-            reservationId,
-          );
           try {
             await cancelReservation();
           } catch (err) {
@@ -828,10 +824,6 @@ const AllocationDrawer = ({
 
       // Cancel existing reservations
       if (reservationId) {
-        console.log(
-          '[WAREHOUSE CHANGE] Cancelling reservation:',
-          reservationId,
-        );
         try {
           await cancelReservation();
         } catch (err) {
@@ -964,19 +956,6 @@ const AllocationDrawer = ({
       expiresAt,
     };
 
-    // VERIFICATION LOG: Line item added to invoice
-    console.log('[ADD LINE ITEM] Sending to parent:', {
-      lineItemTempId,
-      name: lineItem.name,
-      quantity: lineItem.quantity,
-      unit: lineItem.unit,
-      sourceType: lineItem.sourceType,
-      allocationMode: lineItem.allocationMode,
-      allocationsCount: lineItem.allocations?.length || 0,
-      allocations: lineItem.allocations,
-      reservationId: lineItem.reservationId,
-    });
-
     onAddLineItem(lineItem);
 
     // Clear the drawer for next item
@@ -997,21 +976,14 @@ const AllocationDrawer = ({
   // Wrap onCancel to cancel reservation on drawer close
   const handleCancel = useCallback(async () => {
     if (reservationId) {
-      console.log('[DRAWER CLOSE] Cancelling active reservation:', {
-        reservationId,
-        lineItemTempId,
-      });
       try {
         await cancelReservation();
-        console.log('[DRAWER CLOSE] Reservation cancelled successfully');
       } catch (err) {
         console.warn('[DRAWER CLOSE] Failed to cancel reservation:', err);
       }
-    } else {
-      console.log('[DRAWER CLOSE] No active reservation to cancel');
     }
     if (onCancel) onCancel();
-  }, [reservationId, lineItemTempId, cancelReservation, onCancel]);
+  }, [reservationId, cancelReservation, onCancel]);
 
   if (!visible) return null;
 

@@ -105,7 +105,7 @@ export default function DeliveryVarianceDashboard() {
       count: r.count,
     }));
 
-  const breakdownColors = ['#ffc107', '#ff9800', '#ff5722', '#f44336'];
+  // const breakdownColors = ['#ffc107', '#ff9800', '#ff5722', '#f44336'];
 
   const comparisonChartData =
     comparison?.suppliers?.length > 0 &&

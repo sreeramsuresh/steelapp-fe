@@ -82,9 +82,6 @@ const DRAWER_PANEL_CLASSES = (isDarkMode, isOpen) =>
 const QUICK_LINK_CLASSES = (isDarkMode) =>
   `flex items-center gap-2 py-2 px-2.5 w-full text-left ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-teal-500 hover:text-teal-400`;
 
-const BTN_PRIMARY_CLASSES =
-  'bg-teal-600 border-transparent text-white font-extrabold hover:bg-teal-500 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer';
-
 const DIVIDER_CLASSES = (isDarkMode) =>
   `h-px ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} my-3`;
 
@@ -97,12 +94,11 @@ const ChargesDrawer = ({
   isDarkMode,
   invoice,
   setInvoice,
-  formatCurrency,
+  formatCurrency: formatCurrencyFn,
   computedSubtotal,
   showFreightCharges,
   setShowFreightCharges,
   Input: InputComponent,
-  Select: SelectComponent,
   VatHelpIcon: VatHelpIconComponent,
 }) => {
   // Close on escape key
@@ -117,7 +113,19 @@ const ChargesDrawer = ({
   return (
     <>
       {/* Overlay */}
-      <div className={DRAWER_OVERLAY_CLASSES(isOpen)} onClick={onClose} />
+      <div
+        className={DRAWER_OVERLAY_CLASSES(isOpen)}
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={isOpen ? 0 : -1}
+        aria-label="Close drawer"
+      />
 
       {/* Drawer Panel */}
       <div className={DRAWER_PANEL_CLASSES(isDarkMode, isOpen)}>
@@ -238,7 +246,7 @@ const ChargesDrawer = ({
                   className={`text-sm font-bold ${isDarkMode ? 'text-[#f39c12]' : 'text-amber-600'}`}
                 >
                   -
-                  {formatCurrency(
+                  {formatCurrencyFn(
                     invoice.discountType === 'percentage'
                       ? (computedSubtotal * (invoice.discountPercentage || 0)) /
                           100
@@ -345,7 +353,7 @@ const ChargesDrawer = ({
                     <div
                       className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
-                      VAT: {formatCurrency(invoice.packingChargesVat || 0)}
+                      VAT: {formatCurrencyFn(invoice.packingChargesVat || 0)}
                     </div>
                   </div>
 
@@ -371,7 +379,7 @@ const ChargesDrawer = ({
                     <div
                       className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
-                      VAT: {formatCurrency(invoice.freightChargesVat || 0)}
+                      VAT: {formatCurrencyFn(invoice.freightChargesVat || 0)}
                     </div>
                   </div>
 
@@ -397,7 +405,7 @@ const ChargesDrawer = ({
                     <div
                       className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
-                      VAT: {formatCurrency(invoice.insuranceChargesVat || 0)}
+                      VAT: {formatCurrencyFn(invoice.insuranceChargesVat || 0)}
                     </div>
                   </div>
 
@@ -423,7 +431,7 @@ const ChargesDrawer = ({
                     <div
                       className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
-                      VAT: {formatCurrency(invoice.loadingChargesVat || 0)}
+                      VAT: {formatCurrencyFn(invoice.loadingChargesVat || 0)}
                     </div>
                   </div>
 
@@ -449,7 +457,7 @@ const ChargesDrawer = ({
                     <div
                       className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
                     >
-                      VAT: {formatCurrency(invoice.otherChargesVat || 0)}
+                      VAT: {formatCurrencyFn(invoice.otherChargesVat || 0)}
                     </div>
                   </div>
                 </div>
@@ -467,7 +475,7 @@ const ChargesDrawer = ({
                     <span
                       className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
-                      {formatCurrency(
+                      {formatCurrencyFn(
                         (invoice.packingCharges || 0) +
                           (invoice.freightCharges || 0) +
                           (invoice.insuranceCharges || 0) +
@@ -485,7 +493,7 @@ const ChargesDrawer = ({
                     <span
                       className={`text-sm font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                     >
-                      {formatCurrency(
+                      {formatCurrencyFn(
                         (invoice.packingChargesVat || 0) +
                           (invoice.freightChargesVat || 0) +
                           (invoice.insuranceChargesVat || 0) +
@@ -554,7 +562,19 @@ const NotesDrawer = ({
   return (
     <>
       {/* Overlay */}
-      <div className={DRAWER_OVERLAY_CLASSES(isOpen)} onClick={onClose} />
+      <div
+        className={DRAWER_OVERLAY_CLASSES(isOpen)}
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={isOpen ? 0 : -1}
+        aria-label="Close drawer"
+      />
 
       {/* Drawer Panel */}
       <div className={DRAWER_PANEL_CLASSES(isDarkMode, isOpen)}>
@@ -703,7 +723,19 @@ const AddProductDrawer = ({
   return (
     <>
       {/* Overlay */}
-      <div className={DRAWER_OVERLAY_CLASSES(isOpen)} onClick={onClose} />
+      <div
+        className={DRAWER_OVERLAY_CLASSES(isOpen)}
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={isOpen ? 0 : -1}
+        aria-label="Close drawer"
+      />
 
       {/* Drawer Panel */}
       <div className={DRAWER_PANEL_CLASSES(isDarkMode, isOpen)}>
@@ -1584,176 +1616,6 @@ const FormSettingsPanel = ({
       >
         Settings are saved automatically
       </div>
-    </div>
-  );
-};
-
-// ==================== LINE ITEMS TABLE COMPONENT ====================
-const LineItemsTable = ({
-  items,
-  isDarkMode,
-  onQuantityChange,
-  onRateChange,
-  onDescriptionChange,
-  onRemove,
-  onAllocate,
-  formatCurrency,
-}) => {
-  const getAllocationStatus = (item) => {
-    const required = item.quantity || 0;
-    const allocated = (item.allocations || []).reduce(
-      (sum, alloc) => sum + (parseFloat(alloc.quantity) || 0),
-      0,
-    );
-
-    if (required === 0)
-      return { cls: 'warn', label: 'No qty', text: 'Set qty' };
-    if (allocated === 0)
-      return { cls: 'warn', label: 'Not allocated', text: `0/${required}` };
-    if (allocated < required)
-      return {
-        cls: 'warn',
-        label: 'Partial',
-        text: `${allocated}/${required}`,
-      };
-    if (allocated === required)
-      return { cls: 'ok', label: 'Allocated', text: `${required}/${required}` };
-    return { cls: 'bad', label: 'Over', text: `${allocated}/${required}` };
-  };
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr
-            className={
-              isDarkMode
-                ? 'border-b border-gray-700'
-                : 'border-b border-gray-200'
-            }
-          >
-            <th
-              className={`text-left px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Description
-            </th>
-            <th
-              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              style={{ width: '110px' }}
-            >
-              Qty
-            </th>
-            <th
-              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              style={{ width: '140px' }}
-            >
-              Rate
-            </th>
-            <th
-              className={`text-right px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              style={{ width: '150px' }}
-            >
-              Amount
-            </th>
-            <th
-              className={`text-left px-3 py-2 text-xs font-extrabold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              style={{ width: '220px' }}
-            >
-              Allocation
-            </th>
-            <th style={{ width: '92px' }}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, index) => {
-            const amount = (item.quantity || 0) * (item.rate || 0);
-            const status = getAllocationStatus(item);
-
-            return (
-              <tr
-                key={index}
-                className={
-                  isDarkMode
-                    ? 'border-b border-gray-700'
-                    : 'border-b border-gray-200'
-                }
-              >
-                <td className="px-3 py-2">
-                  <input
-                    type="text"
-                    value={item.name || ''}
-                    onChange={(e) => onDescriptionChange(index, e.target.value)}
-                    className={`w-full ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
-                    placeholder="Product description"
-                  />
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <input
-                    type="number"
-                    value={item.quantity || ''}
-                    onChange={(e) =>
-                      onQuantityChange(index, parseFloat(e.target.value) || 0)
-                    }
-                    className={`w-full text-right ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
-                    inputMode="numeric"
-                  />
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <input
-                    type="number"
-                    value={item.rate || ''}
-                    onChange={(e) =>
-                      onRateChange(index, parseFloat(e.target.value) || 0)
-                    }
-                    className={`w-full text-right ${isDarkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-white border-gray-300 text-gray-900'} border rounded-xl py-2.5 px-3 text-[13px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`}
-                    inputMode="decimal"
-                  />
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <span
-                    className={`font-mono text-[13px] ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
-                  >
-                    {formatCurrency(amount)}
-                  </span>
-                </td>
-                <td className="px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs border ${
-                        status.cls === 'ok'
-                          ? 'border-green-500/35 text-green-400'
-                          : status.cls === 'warn'
-                            ? 'border-yellow-500/35 text-yellow-400'
-                            : 'border-red-500/35 text-red-400'
-                      }`}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-current" />
-                      {status.label}{' '}
-                      <span className="font-mono">({status.text})</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onAllocate(index)}
-                      className={`px-2.5 py-1 text-xs rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-900 hover:border-teal-500' : 'border-gray-300 bg-white hover:border-teal-500'} transition-colors`}
-                    >
-                      Allocate
-                    </button>
-                  </div>
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <button
-                    type="button"
-                    onClick={() => onRemove(index)}
-                    className={`px-2.5 py-1 text-xs rounded-lg border ${isDarkMode ? 'border-gray-700 bg-gray-900 hover:border-red-500 hover:text-red-400' : 'border-gray-300 bg-white hover:border-red-500 hover:text-red-600'} transition-colors`}
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </div>
   );
 };
@@ -2840,6 +2702,10 @@ const InvoiceForm = ({ onSave }) => {
   }, [id, existingInvoice]);
 
   // Validate fields on load and when invoice changes
+  // Extract complex expressions for dependency array
+  const placeOfSupply = invoice.placeOfSupply || '';
+  const supplyDate = invoice.supplyDate || '';
+
   useEffect(() => {
     if (invoice) {
       validateField('customer', invoice.customer);
@@ -2860,8 +2726,8 @@ const InvoiceForm = ({ onSave }) => {
     invoice.modeOfPayment,
     invoice.warehouseId,
     invoice.currency,
-    invoice.placeOfSupply || '',
-    invoice.supplyDate || '',
+    placeOfSupply,
+    supplyDate,
     invoice.items.length,
     validateField,
   ]);
@@ -3569,7 +3435,7 @@ const InvoiceForm = ({ onSave }) => {
         });
       }
     },
-    [selectedPricelistId],
+    [selectedPricelistId, invoice.items, productBatchData],
   );
 
   const productOptions = useMemo(() => {
@@ -3939,16 +3805,6 @@ const InvoiceForm = ({ onSave }) => {
         );
         const requiredQty = parseFloat(item.quantity) || 0;
 
-        // VERIFICATION LOG: Allocation validation
-        console.log(`[ISSUE VALIDATION] Line ${idx + 1}: ${item.name}`, {
-          sourceType: item.sourceType,
-          requiredQty,
-          allocatedQty,
-          allocations: item.allocations,
-          allocationMode: item.allocationMode,
-          shortfall: requiredQty - allocatedQty,
-        });
-
         if (Math.abs(allocatedQty - requiredQty) > 0.001) {
           incompleteAllocations.push({
             index: idx + 1,
@@ -3961,10 +3817,6 @@ const InvoiceForm = ({ onSave }) => {
     });
 
     if (incompleteAllocations.length > 0) {
-      console.error(
-        '[ISSUE BLOCKED] Incomplete allocations detected:',
-        incompleteAllocations,
-      );
       const message = `Cannot issue invoice - incomplete allocations:\n\n${incompleteAllocations
         .map(
           (ia) =>
@@ -4154,22 +4006,6 @@ const InvoiceForm = ({ onSave }) => {
         })),
       };
 
-      // VERIFICATION LOG: Save payload
-      console.log('[SAVE VERIFICATION] Processed invoice payload:', {
-        invoiceId: processedInvoice.id,
-        status: processedInvoice.status,
-        itemsCount: processedInvoice.items.length,
-        items: processedInvoice.items.map((item, idx) => ({
-          index: idx + 1,
-          name: item.name,
-          quantity: item.quantity,
-          sourceType: item.sourceType,
-          allocation_mode: item.allocation_mode,
-          manual_allocations_count: item.manual_allocations?.length || 0,
-          manual_allocations: item.manual_allocations,
-        })),
-      });
-
       if (id) {
         // Update existing invoice using cancel and recreate approach
         const updatedInvoice = await updateInvoice(
@@ -4246,12 +4082,6 @@ const InvoiceForm = ({ onSave }) => {
               .filter(Boolean);
 
             if (lineItemMappings.length > 0) {
-              console.log(
-                '[InvoiceForm-Phase4] Finalizing invoice with',
-                lineItemMappings.length,
-                'line item mappings',
-              );
-
               const finalizeResult =
                 await batchReservationService.finalizeInvoice({
                   draftInvoiceId: newInvoice.id,
@@ -4261,10 +4091,6 @@ const InvoiceForm = ({ onSave }) => {
                 });
 
               if (finalizeResult.success) {
-                console.log(
-                  '[InvoiceForm-Phase4] Finalization successful:',
-                  finalizeResult.invoiceNumber,
-                );
                 // Update invoice number if it was generated during finalization
                 if (finalizeResult.invoiceNumber) {
                   setInvoice((prev) => ({
@@ -4273,20 +4099,12 @@ const InvoiceForm = ({ onSave }) => {
                   }));
                 }
               } else {
-                console.warn(
-                  '[InvoiceForm-Phase4] Finalization returned success=false:',
-                  finalizeResult.message,
-                );
                 notificationService.warning(
                   'Invoice saved but stock finalization incomplete. Please review.',
                 );
               }
             }
           } catch (finalizeError) {
-            console.error(
-              '[InvoiceForm-Phase4] Finalization error:',
-              finalizeError,
-            );
             // Check for specific error types
             const errorMessage =
               finalizeError?.response?.data?.message ||
@@ -6543,14 +6361,9 @@ const InvoiceForm = ({ onSave }) => {
                                                     <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
                                                       <button
                                                         type="button"
-                                                        onClick={() => {
-                                                        // TODO: Implement add batch modal
-                                                          console.log(
-                                                            'Add batch clicked for item index:',
-                                                            index,
-                                                          );
-                                                        }}
-                                                        className="text-xs text-teal-600 hover:text-teal-800 font-medium"
+                                                        disabled
+                                                        className="text-xs text-gray-400 cursor-not-allowed font-medium"
+                                                        title="Feature coming soon"
                                                       >
                                                       + Add Batch
                                                       </button>

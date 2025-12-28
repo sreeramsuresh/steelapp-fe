@@ -79,7 +79,6 @@ export function getMarginStatusMessage(
   channel = PROCUREMENT_CHANNELS.LOCAL,
 ) {
   const thresholds = getMarginThresholds(channel);
-  const marginValue = parseFloat(margin) || 0;
   const color = getMarginColor(margin, channel);
 
   if (color === 'red') {

@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   Banknote,
-  TrendingUp,
   RotateCcw,
   FileText,
   DollarSign,

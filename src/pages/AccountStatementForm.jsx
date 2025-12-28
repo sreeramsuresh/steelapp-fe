@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, FileText, ChevronDown } from 'lucide-react';
+import { Calendar, FileText } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { accountStatementService } from '../services/accountStatementService';
 import { apiClient } from '../services/api';

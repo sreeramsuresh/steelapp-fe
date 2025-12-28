@@ -9,12 +9,9 @@ import {
   Copy,
   CheckCircle,
   XCircle,
-  Calendar,
   DollarSign,
-  Package,
   Star,
   Filter,
-  Download,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import pricelistService from '../services/pricelistService';

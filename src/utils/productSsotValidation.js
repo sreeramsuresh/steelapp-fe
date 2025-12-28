@@ -111,7 +111,7 @@ export function validateSsotPattern(productName) {
     };
   }
 
-  const [prefix, grade, form, finish] = parts;
+  const [_prefix, grade, form, finish] = parts;
 
   // Validate grade
   if (!VALID_GRADES.includes(grade.toUpperCase())) {

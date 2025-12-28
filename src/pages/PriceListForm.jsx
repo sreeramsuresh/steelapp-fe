@@ -8,11 +8,9 @@ import {
   Search,
   Package,
   CheckCircle,
-  Star,
   Tag,
   Percent,
   X,
-  Boxes,
   ExternalLink,
   Layers,
   Globe,
@@ -85,89 +83,89 @@ const BTN_SMALL = (isDarkMode) =>
 const DIVIDER_CLASSES = (isDarkMode) =>
   `h-px ${isDarkMode ? 'bg-[#2a3640]' : 'bg-gray-200'} my-3`;
 
-// Custom Button component
-const Button = ({
-  children,
-  variant = 'primary',
-  size = 'md',
-  disabled = false,
-  onClick,
-  className = '',
-  type = 'button',
-  ...props
-}) => {
-  const { isDarkMode } = useTheme();
+// Custom Button component (currently unused)
+// const Button = ({
+//   children,
+//   variant = 'primary',
+//   size = 'md',
+//   disabled = false,
+//   onClick,
+//   className = '',
+//   type = 'button',
+//   ...props
+// }) => {
+//   const { isDarkMode } = useTheme();
+//
+//   const baseClasses =
+//     'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+//
+//   const getVariantClasses = () => {
+//     if (variant === 'primary') {
+//       return isDarkMode
+//         ? `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-gray-800`
+//         : `bg-gradient-to-br from-teal-500 to-teal-600 text-white hover:from-teal-400 hover:to-teal-500 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-white`;
+//     } else if (variant === 'secondary') {
+//       return `${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-gray-400`;
+//     } else if (variant === 'danger') {
+//       return isDarkMode
+//         ? 'bg-red-600 hover:bg-red-500 text-white focus:ring-red-500'
+//         : 'bg-red-500 hover:bg-red-400 text-white focus:ring-red-500';
+//     } else {
+//       // outline
+//       return `border ${isDarkMode ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500`;
+//     }
+//   };
+//
+//   const sizes = {
+//     sm: 'px-3 py-1.5 text-sm',
+//     md: 'px-4 py-2 text-sm',
+//     lg: 'px-6 py-3 text-base',
+//   };
+//
+//   return (
+//     <button
+//       type={type}
+//       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
+//       disabled={disabled}
+//       onClick={onClick}
+//       {...props}
+//     >
+//       {children}
+//     </button>
+//   );
+// };
 
-  const baseClasses =
-    'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
-
-  const getVariantClasses = () => {
-    if (variant === 'primary') {
-      return isDarkMode
-        ? `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-gray-800`
-        : `bg-gradient-to-br from-teal-500 to-teal-600 text-white hover:from-teal-400 hover:to-teal-500 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-white`;
-    } else if (variant === 'secondary') {
-      return `${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-gray-400`;
-    } else if (variant === 'danger') {
-      return isDarkMode
-        ? 'bg-red-600 hover:bg-red-500 text-white focus:ring-red-500'
-        : 'bg-red-500 hover:bg-red-400 text-white focus:ring-red-500';
-    } else {
-      // outline
-      return `border ${isDarkMode ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'} focus:ring-teal-500`;
-    }
-  };
-
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-  };
-
-  return (
-    <button
-      type={type}
-      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
-      disabled={disabled}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
-
-// Custom Input component
-const Input = ({
-  label,
-  error,
-  className = '',
-  type = 'text',
-  isDarkMode,
-  ...props
-}) => {
-  return (
-    <div className="space-y-1">
-      {label && (
-        <label
-          className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-        >
-          {label}
-        </label>
-      )}
-      <input
-        type={type}
-        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-          isDarkMode
-            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
-            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-        } ${error ? 'border-red-500' : ''} ${className}`}
-        {...props}
-      />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
-  );
-};
+// Custom Input component (currently unused)
+// const Input = ({
+//   label,
+//   error,
+//   className = '',
+//   type = 'text',
+//   isDarkMode,
+//   ...props
+// }) => {
+//   return (
+//     <div className="space-y-1">
+//       {label && (
+//         <label
+//           className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+//         >
+//           {label}
+//         </label>
+//       )}
+//       <input
+//         type={type}
+//         className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+//           isDarkMode
+//             ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
+//             : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+//         } ${error ? 'border-red-500' : ''} ${className}`}
+//         {...props}
+//       />
+//       {error && <p className="text-red-500 text-sm">{error}</p>}
+//     </div>
+//   );
+// };
 
 // Custom Toggle component
 const Toggle = ({ checked, onChange, label, isDarkMode }) => {
@@ -810,8 +808,8 @@ export default function PriceListForm() {
   // companyId=1 for single-tenant (will be dynamic in multi-tenant setup)
   const {
     getPricingUnitForCategory,
-    loading: policyLoading,
-    error: policyError,
+    loading: _policyLoading,
+    error: _policyError,
   } = usePricingPolicy(1);
 
   const [loading, setLoading] = useState(false);
@@ -831,10 +829,10 @@ export default function PriceListForm() {
   const [showDateWarning, setShowDateWarning] = useState(false);
   const [dateValidationError, setDateValidationError] = useState('');
 
-  // Epic 14 - PRICE-007: Currency conversion
-  const [exchangeRates, setExchangeRates] = useState({});
-  const [rateMetadata, setRateMetadata] = useState({});
-  const [showCurrencySection, setShowCurrencySection] = useState(false);
+  // Epic 14 - PRICE-007: Currency conversion (feature not yet used)
+  const [_exchangeRates, _setExchangeRates] = useState({});
+  const [_rateMetadata, _setRateMetadata] = useState({});
+  const [_showCurrencySection, _setShowCurrencySection] = useState(false);
   const [manualRateOverride, setManualRateOverride] = useState({});
   const [currencyModalProduct, setCurrencyModalProduct] = useState(null);
   const [currencyConversionData, setCurrencyConversionData] = useState(null);
@@ -1122,7 +1120,7 @@ export default function PriceListForm() {
   };
 
   // Epic 14 - PRICE-007: Calculate margin with currency conversion
-  const calculateMarginWithConversion = async (productId, sellingPrice) => {
+  const _calculateMarginWithConversion = async (productId, sellingPrice) => {
     const conversionData = await convertCostToBaseCurrency(productId);
     if (!conversionData) return null;
 
@@ -1138,7 +1136,7 @@ export default function PriceListForm() {
   };
 
   // Epic 14 - PRICE-007: Check if exchange rate is old (>7 days)
-  const isExchangeRateOld = (rateDate) => {
+  const _isExchangeRateOld = (rateDate) => {
     if (!rateDate) return false;
     const rateDateObj = new Date(rateDate);
     const today = new Date();
@@ -1428,7 +1426,7 @@ export default function PriceListForm() {
   };
 
   // Legacy function for backwards compatibility (non-channel-specific)
-  const getMarginColor = (marginPercent) => {
+  const _getMarginColor = (marginPercent) => {
     if (marginPercent === null) return '';
     const margin = parseFloat(marginPercent);
     if (margin < 5) return COLORS.bad; // Red for <5%

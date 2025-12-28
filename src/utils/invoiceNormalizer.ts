@@ -141,8 +141,8 @@ export function normalizeInvoice(
 
   try {
     // Helper to safely parse dates
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parseDate = (value: any, fieldName: string): string => {
-      // eslint-disable-line @typescript-eslint/no-explicit-any -- raw date value
       if (!value) return new Date().toISOString();
 
       // Handle Timestamp objects from Firestore/backend

@@ -17,12 +17,11 @@ import {
   ThumbsUp,
   ThumbsDown,
   Clock,
-  Ban,
   FileCheck,
   FileText,
   Loader2,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/axiosAuthService';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';

@@ -74,7 +74,7 @@ const WarehouseAvailability = ({
   if (loading) {
     return (
       <div className="warehouse-availability">
-        <label className="availability-label">Warehouse Availability</label>
+        <div className="availability-label">Warehouse Availability</div>
         <div className="availability-loading">Loading warehouse stock...</div>
       </div>
     );
@@ -83,7 +83,7 @@ const WarehouseAvailability = ({
   if (error) {
     return (
       <div className="warehouse-availability">
-        <label className="availability-label">Warehouse Availability</label>
+        <div className="availability-label">Warehouse Availability</div>
         <div className="availability-error">{error}</div>
       </div>
     );
@@ -92,7 +92,7 @@ const WarehouseAvailability = ({
   if (warehouses.length === 0) {
     return (
       <div className="warehouse-availability">
-        <label className="availability-label">Warehouse Availability</label>
+        <div className="availability-label">Warehouse Availability</div>
         <div className="availability-empty">No warehouses found</div>
       </div>
     );
@@ -122,6 +122,14 @@ const WarehouseAvailability = ({
               key={warehouse.warehouseId}
               className={`warehouse-item ${isSelected ? 'selected' : ''} ${hasStock ? 'has-stock' : 'no-stock'}`}
               onClick={() => handleWarehouseClick(warehouse)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleWarehouseClick(warehouse);
+                }
+              }}
+              role="button"
+              tabIndex={0}
               style={{ cursor: onWarehouseSelect ? 'pointer' : 'default' }}
             >
               <div className="warehouse-info">

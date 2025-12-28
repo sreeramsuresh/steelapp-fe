@@ -44,9 +44,9 @@ const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
 
   return (
     <div className="source-type-selector">
-      <label className="source-type-label">
+      <div className="source-type-label">
         Source Type <span className="required">*</span>
-      </label>
+      </div>
       <div className="source-type-options">
         {sourceTypes.map((sourceType) => (
           <label

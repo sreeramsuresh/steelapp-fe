@@ -14,7 +14,6 @@ import {
   ChevronDown,
   ChevronUp,
   Upload,
-  Download,
   Award,
   Shield,
   CheckCircle,

@@ -158,13 +158,13 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
 
           {/* Quick Date Ranges */}
           <div>
-            <label
+            <div
               className={`block text-sm font-medium mb-2 ${
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               Quick Selection
-            </label>
+            </div>
             <div className="grid grid-cols-4 gap-2">
               {[
                 { label: '1M', months: 1 },
@@ -192,6 +192,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
+                htmlFor="start_date"
                 className={`block text-sm font-medium mb-2 ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}
@@ -201,6 +202,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
               <div className="relative">
                 <input
                   type="date"
+                  id="start_date"
                   name="start_date"
                   value={formData.start_date}
                   onChange={handleChange}
@@ -221,6 +223,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
 
             <div>
               <label
+                htmlFor="end_date"
                 className={`block text-sm font-medium mb-2 ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}
@@ -230,6 +233,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
               <div className="relative">
                 <input
                   type="date"
+                  id="end_date"
                   name="end_date"
                   value={formData.end_date}
                   onChange={handleChange}

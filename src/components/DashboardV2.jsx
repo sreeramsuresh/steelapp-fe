@@ -198,7 +198,9 @@ const SectionHeader = ({
         </div>
       </div>
       <button
+        onClick={onToggle}
         className={`p-1 rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
+        aria-label={isExpanded ? 'Collapse section' : 'Expand section'}
       >
         {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </button>
