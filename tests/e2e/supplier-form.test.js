@@ -22,8 +22,20 @@
 
 import puppeteer from 'puppeteer';
 
-const CHROME_EXECUTABLE =
-  '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome';
+// Platform-aware Chromium path
+function getChromiumPath() {
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+  // If running in Windows (PowerShell), let Puppeteer use its bundled Chromium
+  if (process.platform === 'win32') {
+    return undefined;
+  }
+  // WSL/Linux path
+  return '/mnt/d/Ultimate Steel/steelapp-fe/chromium/linux-1559273/chrome-linux/chrome';
+}
+
+const CHROME_EXECUTABLE = getChromiumPath();
 const BASE_URL = 'http://localhost:5173';
 const SUPPLIER_URL = `${BASE_URL}/suppliers/new`;
 
@@ -872,12 +884,15 @@ async function runTests() {
   try {
     // Launch browser once, reuse for all tests
     console.log(`${colors.cyan}Launching Chrome...${colors.reset}`);
-    browser = await puppeteer.launch({
+    const launchOptions = {
       headless: true,
-      executablePath: CHROME_EXECUTABLE,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
       timeout: 30000,
-    });
+    };
+    if (CHROME_EXECUTABLE) {
+      launchOptions.executablePath = CHROME_EXECUTABLE;
+    }
+    browser = await puppeteer.launch(launchOptions);
     console.log(
       `${colors.green}✓${colors.reset} Chrome launched (PID: ${browser.process()?.pid})\n`,
     );

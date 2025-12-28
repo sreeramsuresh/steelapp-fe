@@ -53,7 +53,7 @@ const BatchAllocator = ({
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [allocations, setAllocations] = useState(currentAllocations);
-  const [fifoSuggested, _setFifoSuggested] = useState(false);
+  const [_fifoSuggested, _setFifoSuggested] = useState(false);
 
   // Load available batches
   useEffect(() => {

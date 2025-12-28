@@ -533,7 +533,7 @@ const SupplierBillForm = () => {
     supplierId: null,
     supplier: null,
     billNumber: '',
-    vendorInvoiceNumber: '',
+    supplierInvoiceNumber: '',
     billDate: formatDateForInput(new Date()),
     dueDate: '',
     receivedDate: formatDateForInput(new Date()),
@@ -690,7 +690,7 @@ const SupplierBillForm = () => {
     } catch (error) {
       console.error('Error loading supplier bill:', error);
       notificationService.error('Failed to load supplier bill');
-      navigate('/purchases/supplier-bills');
+      navigate('/app/supplier-bills');
     } finally {
       setLoading(false);
     }
@@ -1235,7 +1235,7 @@ const SupplierBillForm = () => {
         notificationService.success('Supplier bill created successfully');
       }
 
-      navigate('/purchases/supplier-bills');
+      navigate('/app/supplier-bills');
     } catch (error) {
       console.error('Error saving supplier bill:', error);
       notificationService.error(error.message || 'Failed to save supplier bill');
@@ -1277,7 +1277,7 @@ const SupplierBillForm = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate('/purchases/supplier-bills')}
+                onClick={() => navigate('/app/supplier-bills')}
                 className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
                   isDarkMode
                     ? 'text-gray-300 hover:bg-gray-700'
@@ -1492,20 +1492,20 @@ const SupplierBillForm = () => {
                 {/* Vendor Invoice Number */}
                 <div>
                   <label
-                    htmlFor="vendor-invoice-number"
+                    htmlFor="supplier-invoice-number"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Supplier Invoice # (Reference)
                   </label>
                   <input
-                    id="vendor-invoice-number"
-                    data-testid="vendor-invoice-number"
+                    id="supplier-invoice-number"
+                    data-testid="supplier-invoice-number"
                     type="text"
-                    value={bill.vendorInvoiceNumber}
+                    value={bill.supplierInvoiceNumber}
                     onChange={(e) =>
                       setBill((prev) => ({
                         ...prev,
-                        vendorInvoiceNumber: e.target.value,
+                        supplierInvoiceNumber: e.target.value,
                       }))
                     }
                     placeholder="Supplier's invoice number"

@@ -106,7 +106,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
 
   const [formData, setFormData] = useState({
     billNumber: '',
-    vendorInvoiceNumber: '',
+    supplierInvoiceNumber: '',
     receivedDate: new Date().toISOString().split('T')[0],
     supplierId: '',
     supplierName: '',
@@ -247,7 +247,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
     if (supplierBill) {
       setFormData({
         billNumber: supplierBill.billNumber || '',
-        vendorInvoiceNumber: supplierBill.vendorInvoiceNumber || '',
+        supplierInvoiceNumber: supplierBill.supplierInvoiceNumber || '',
         receivedDate: supplierBill.receivedDate?.split('T')[0] || '',
         supplierId: supplierBill.supplierId?.toString() || '',
         supplierName: supplierBill.supplierName || '',
@@ -361,8 +361,8 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
 
   const validate = () => {
     const errors = {};
-    if (!formData.vendorInvoiceNumber.trim()) {
-      errors.vendorInvoiceNumber = 'Vendor invoice number is required';
+    if (!formData.supplierInvoiceNumber.trim()) {
+      errors.supplierInvoiceNumber = 'Supplier invoice number is required';
     }
     if (!formData.supplierId) {
       errors.supplierId = 'Supplier is required';
@@ -393,7 +393,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
     try {
       const payload = {
         companyId,
-        vendorInvoiceNumber: formData.vendorInvoiceNumber.trim(),
+        supplierInvoiceNumber: formData.supplierInvoiceNumber.trim(),
         receivedDate: formData.receivedDate || null,
         supplierId: formData.supplierId ? parseInt(formData.supplierId) : null,
         billDate: formData.billDate || null,
@@ -535,18 +535,18 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                     <span className="text-red-500">*</span>
                   </Label>
                   <Input
-                    name="vendorInvoiceNumber"
-                    data-testid="vendor-invoice-number"
-                    value={formData.vendorInvoiceNumber}
+                    name="supplierInvoiceNumber"
+                    data-testid="supplier-invoice-number"
+                    value={formData.supplierInvoiceNumber}
                     onChange={(e) =>
-                      handleChange('vendorInvoiceNumber', e.target.value)
+                      handleChange('supplierInvoiceNumber', e.target.value)
                     }
                     placeholder="Supplier's invoice number"
                     className={inputClass}
                   />
-                  {validationErrors.vendorInvoiceNumber && (
+                  {validationErrors.supplierInvoiceNumber && (
                     <p className="text-red-500 text-sm mt-1">
-                      {validationErrors.vendorInvoiceNumber}
+                      {validationErrors.supplierInvoiceNumber}
                     </p>
                   )}
                 </div>

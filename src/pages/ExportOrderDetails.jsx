@@ -962,6 +962,9 @@ const ExportOrderDetails = () => {
                   <div
                     className="fixed inset-0 z-10"
                     onClick={() => setStatusDropdownOpen(false)}
+                    onKeyDown={(e) => e.key === 'Escape' && setStatusDropdownOpen(false)}
+                    role="button"
+                    tabIndex={-1}
                   />
                   <div
                     className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg z-20 border ${
@@ -1625,11 +1628,11 @@ const ExportOrderDetails = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Export VAT Treatment */}
                     <div>
-                      <label
+                      <div
                         className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                       >
                         VAT Treatment
-                      </label>
+                      </div>
                       <p
                         className={`font-semibold text-lg ${
                           orderData.exportVatTreatment === 'zero_rated'
@@ -1646,11 +1649,11 @@ const ExportOrderDetails = () => {
 
                     {/* Export Type */}
                     <div>
-                      <label
+                      <div
                         className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                       >
                         Export Type
-                      </label>
+                      </div>
                       <p
                         className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                       >
@@ -1660,11 +1663,11 @@ const ExportOrderDetails = () => {
 
                     {/* Form 201 Box Mapping */}
                     <div>
-                      <label
+                      <div
                         className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                       >
                         Form 201 VAT Return Mapping
-                      </label>
+                      </div>
                       <p
                         className={`font-mono px-3 py-1.5 rounded inline-block mt-1 ${
                           isDarkMode
@@ -1680,11 +1683,11 @@ const ExportOrderDetails = () => {
                     {orderData.isDesignatedZoneExport &&
                       orderData.designatedZoneOrigin && (
                       <div>
-                        <label
+                        <div
                           className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                         >
                             Designated Zone Origin
-                        </label>
+                        </div>
                         <p
                           className={`font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                         >
@@ -1759,11 +1762,11 @@ const ExportOrderDetails = () => {
                     {expandedSections.reExport && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                         <div>
-                          <label
+                          <div
                             className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
                             Original Import BOE
-                          </label>
+                          </div>
                           <p
                             className={`font-mono font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
@@ -1771,11 +1774,11 @@ const ExportOrderDetails = () => {
                           </p>
                         </div>
                         <div>
-                          <label
+                          <div
                             className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
                             Original Import Date
-                          </label>
+                          </div>
                           <p
                             className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
@@ -1783,11 +1786,11 @@ const ExportOrderDetails = () => {
                           </p>
                         </div>
                         <div>
-                          <label
+                          <div
                             className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
                             Original Import Value
-                          </label>
+                          </div>
                           <p
                             className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
@@ -1841,11 +1844,11 @@ const ExportOrderDetails = () => {
                     {expandedSections.gcc && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div>
-                          <label
+                          <div
                             className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
                             GCC Country
-                          </label>
+                          </div>
                           <p
                             className={`font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
@@ -1862,11 +1865,11 @@ const ExportOrderDetails = () => {
                         </div>
                         {orderData.customerGccVatId && (
                           <div>
-                            <label
+                            <div
                               className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Customer GCC VAT ID
-                            </label>
+                            </div>
                             <p
                               className={`font-mono font-medium flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                             >
@@ -2467,6 +2470,10 @@ const ExportOrderDetails = () => {
                                   : 'hover:bg-gray-200 text-gray-600'
                               }`}
                               title="View"
+                              onClick={() => {
+                                // TODO: Implement document view
+                                console.log('View document:', doc.name);
+                              }}
                             >
                               <Eye size={16} />
                             </button>
@@ -2477,6 +2484,10 @@ const ExportOrderDetails = () => {
                                   : 'hover:bg-gray-200 text-gray-600'
                               }`}
                               title="Download"
+                              onClick={() => {
+                                // TODO: Implement document download
+                                console.log('Download document:', doc.name);
+                              }}
                             >
                               <Download size={16} />
                             </button>
@@ -3121,11 +3132,13 @@ const ExportOrderDetails = () => {
                   })()}
               </div>
               <label
+                htmlFor="export-status-update-notes"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Notes (optional)
               </label>
               <textarea
+                id="export-status-update-notes"
                 value={statusUpdateNotes}
                 onChange={(e) => setStatusUpdateNotes(e.target.value)}
                 placeholder="Add any notes about this status change..."

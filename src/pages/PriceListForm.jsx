@@ -169,6 +169,13 @@ const DIVIDER_CLASSES = (isDarkMode) =>
 
 // Custom Toggle component
 const Toggle = ({ checked, onChange, label, isDarkMode }) => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onChange(!checked);
+    }
+  };
+
   return (
     <label className="flex items-center gap-3 cursor-pointer">
       <div
@@ -176,6 +183,9 @@ const Toggle = ({ checked, onChange, label, isDarkMode }) => {
           checked ? 'bg-teal-500' : isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
         }`}
         onClick={() => onChange(!checked)}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
       >
         <div
           className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
@@ -239,10 +249,23 @@ const CurrencyConversionModal = ({
       ).toFixed(1)
       : null;
 
+  const handleOverlayKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/55" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/55"
+        onClick={onClose}
+        onKeyDown={handleOverlayKeyDown}
+        role="button"
+        tabIndex={0}
+      />
       {/* Modal */}
       <div
         className={`relative z-10 w-full max-w-lg rounded-2xl p-4 ${
@@ -500,6 +523,13 @@ const ProductDetailDrawer = ({
     </div>
   );
 
+  const handleDrawerOverlayKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -508,6 +538,9 @@ const ProductDetailDrawer = ({
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
+        onKeyDown={handleDrawerOverlayKeyDown}
+        role="button"
+        tabIndex={0}
       />
       {/* Drawer */}
       <div
@@ -865,6 +898,7 @@ export default function PriceListForm() {
       // New pricelist - load default prices as starting point
       loadDefaultPrices();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, copyFromId]);
 
   const fetchProducts = async () => {
@@ -1487,6 +1521,7 @@ export default function PriceListForm() {
         return item.sellingPrice < currentPrice && item.sellingPrice > 0;
       }).length,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [formData.items, products],
   );
 
@@ -1666,10 +1701,11 @@ export default function PriceListForm() {
                 <div className="grid grid-cols-12 gap-3">
                   {/* Name - full width */}
                   <div className="col-span-12 sm:col-span-6">
-                    <label className={LABEL_CLASSES(isDarkMode)}>
+                    <label htmlFor="pricelist-name" className={LABEL_CLASSES(isDarkMode)}>
                       Price List Name *
                     </label>
                     <input
+                      id="pricelist-name"
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
@@ -1731,10 +1767,11 @@ export default function PriceListForm() {
 
                   {/* Description */}
                   <div className="col-span-12 sm:col-span-6">
-                    <label className={LABEL_CLASSES(isDarkMode)}>
+                    <label htmlFor="pricelist-description" className={LABEL_CLASSES(isDarkMode)}>
                       Description
                     </label>
                     <textarea
+                      id="pricelist-description"
                       value={formData.description}
                       onChange={(e) =>
                         handleChange('description', e.target.value)
@@ -1747,10 +1784,11 @@ export default function PriceListForm() {
 
                   {/* Effective From */}
                   <div className="col-span-6 sm:col-span-3">
-                    <label className={LABEL_CLASSES(isDarkMode)}>
+                    <label htmlFor="pricelist-effective-from" className={LABEL_CLASSES(isDarkMode)}>
                       Effective From
                     </label>
                     <input
+                      id="pricelist-effective-from"
                       type="date"
                       value={formData.effectiveFrom}
                       onChange={(e) =>
@@ -1762,10 +1800,11 @@ export default function PriceListForm() {
 
                   {/* Effective To */}
                   <div className="col-span-6 sm:col-span-3">
-                    <label className={LABEL_CLASSES(isDarkMode)}>
+                    <label htmlFor="pricelist-effective-to" className={LABEL_CLASSES(isDarkMode)}>
                       Effective To *
                     </label>
                     <input
+                      id="pricelist-effective-to"
                       type="date"
                       value={formData.effectiveTo}
                       onChange={(e) =>
@@ -2509,6 +2548,14 @@ export default function PriceListForm() {
           <div
             className="absolute inset-0 bg-black/55"
             onClick={() => setShowBulkDialog(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setShowBulkDialog(false);
+              }
+            }}
+            role="button"
+            tabIndex={0}
           />
           {/* Modal */}
           <div
@@ -2560,10 +2607,11 @@ export default function PriceListForm() {
               </div>
 
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="bulk-percentage" className={LABEL_CLASSES(isDarkMode)}>
                   Percentage (%) - Max: 20%
                 </label>
                 <input
+                  id="bulk-percentage"
                   type="number"
                   min="0"
                   max="20"

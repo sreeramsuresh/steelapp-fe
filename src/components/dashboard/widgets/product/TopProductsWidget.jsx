@@ -195,6 +195,14 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
               isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'
             }`}
             onClick={() => onProductClick?.(product)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onProductClick?.(product);
+              }
+            }}
           >
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2 flex-1 min-w-0">

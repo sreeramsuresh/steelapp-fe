@@ -741,10 +741,11 @@ const DeliveryNoteForm = () => {
               <div className="grid grid-cols-12 gap-3">
                 {/* DN Number */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="dn-number" className={LABEL_CLASSES(isDarkMode)}>
                     DN Number <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="dn-number"
                     type="text"
                     value={formData.deliveryNoteNumber}
                     onChange={(e) =>
@@ -757,10 +758,11 @@ const DeliveryNoteForm = () => {
 
                 {/* Delivery Date */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="delivery-date" className={LABEL_CLASSES(isDarkMode)}>
                     Delivery Date <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="delivery-date"
                     type="date"
                     value={formData.deliveryDate}
                     onChange={(e) =>
@@ -772,10 +774,11 @@ const DeliveryNoteForm = () => {
 
                 {/* GRN Date */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="goods-receipt-date" className={LABEL_CLASSES(isDarkMode)}>
                     Goods Receipt Date
                   </label>
                   <input
+                    id="goods-receipt-date"
                     type="date"
                     value={formData.goodsReceiptDate}
                     onChange={(e) =>
@@ -787,10 +790,11 @@ const DeliveryNoteForm = () => {
 
                 {/* Inspection Date */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="inspection-date" className={LABEL_CLASSES(isDarkMode)}>
                     Inspection Date
                   </label>
                   <input
+                    id="inspection-date"
                     type="date"
                     value={formData.inspectionDate}
                     onChange={(e) =>
@@ -802,11 +806,12 @@ const DeliveryNoteForm = () => {
 
                 {/* Invoice Selection */}
                 <div className="col-span-12">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="invoice-select" className={LABEL_CLASSES(isDarkMode)}>
                     Invoice <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2">
                     <input
+                      id="invoice-select"
                       type="text"
                       value={
                         selectedInvoice
@@ -928,6 +933,16 @@ const DeliveryNoteForm = () => {
                       <div
                         className={`p-3 cursor-pointer transition-colors ${isDarkMode ? 'hover:bg-[#141a20]' : 'hover:bg-gray-100'}`}
                         onClick={() => toggleItemExpansion(index)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleItemExpansion(index);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={expandedItems.has(index)}
+                        aria-label={`Toggle details for ${item.name}`}
                       >
                         <div className="grid grid-cols-12 gap-3 items-center">
                           <div className="col-span-5">
@@ -1371,6 +1386,15 @@ const DeliveryNoteForm = () => {
         <div
           className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showDeliveryAddressDrawer ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setShowDeliveryAddressDrawer(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setShowDeliveryAddressDrawer(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close delivery address drawer"
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform ${showDeliveryAddressDrawer ? 'translate-x-0' : 'translate-x-full'}`}
@@ -1399,10 +1423,11 @@ const DeliveryNoteForm = () => {
             {/* Drawer Content */}
             <div className="space-y-3">
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="delivery-street" className={LABEL_CLASSES(isDarkMode)}>
                   Street Address
                 </label>
                 <input
+                  id="delivery-street"
                   type="text"
                   value={formData.deliveryAddress.street}
                   onChange={(e) =>
@@ -1414,8 +1439,9 @@ const DeliveryNoteForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>City</label>
+                  <label htmlFor="delivery-city" className={LABEL_CLASSES(isDarkMode)}>City</label>
                   <input
+                    id="delivery-city"
                     type="text"
                     value={formData.deliveryAddress.city}
                     onChange={(e) =>
@@ -1426,8 +1452,9 @@ const DeliveryNoteForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>PO Box</label>
+                  <label htmlFor="delivery-pobox" className={LABEL_CLASSES(isDarkMode)}>PO Box</label>
                   <input
+                    id="delivery-pobox"
                     type="text"
                     value={formData.deliveryAddress.poBox}
                     onChange={(e) =>
@@ -1467,6 +1494,15 @@ const DeliveryNoteForm = () => {
         <div
           className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showTransportDrawer ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setShowTransportDrawer(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setShowTransportDrawer(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close transport details drawer"
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform ${showTransportDrawer ? 'translate-x-0' : 'translate-x-full'}`}
@@ -1495,10 +1531,11 @@ const DeliveryNoteForm = () => {
             {/* Drawer Content */}
             <div className="space-y-3">
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="vehicle-number" className={LABEL_CLASSES(isDarkMode)}>
                   Vehicle Number <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="vehicle-number"
                   type="text"
                   value={formData.vehicleNumber}
                   onChange={(e) =>
@@ -1509,10 +1546,11 @@ const DeliveryNoteForm = () => {
                 />
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="driver-name" className={LABEL_CLASSES(isDarkMode)}>
                   Driver Name <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="driver-name"
                   type="text"
                   value={formData.driverName}
                   onChange={(e) =>
@@ -1523,10 +1561,11 @@ const DeliveryNoteForm = () => {
                 />
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="driver-phone" className={LABEL_CLASSES(isDarkMode)}>
                   Driver Phone
                 </label>
                 <input
+                  id="driver-phone"
                   type="tel"
                   value={formData.driverPhone}
                   onChange={(e) =>
@@ -1565,6 +1604,15 @@ const DeliveryNoteForm = () => {
         <div
           className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showNotesDrawer ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setShowNotesDrawer(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setShowNotesDrawer(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close notes drawer"
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform ${showNotesDrawer ? 'translate-x-0' : 'translate-x-full'}`}
@@ -1592,10 +1640,11 @@ const DeliveryNoteForm = () => {
 
             {/* Drawer Content */}
             <div>
-              <label className={LABEL_CLASSES(isDarkMode)}>
+              <label htmlFor="delivery-notes" className={LABEL_CLASSES(isDarkMode)}>
                 Delivery Notes
               </label>
               <textarea
+                id="delivery-notes"
                 rows={6}
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}

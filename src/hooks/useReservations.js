@@ -121,7 +121,7 @@ export function useReservations({
         lineItemTempId,
       };
 
-      console.log('[FIFO Reserve] Request params:', requestParams);
+      // console.log('[FIFO Reserve] Request params:', requestParams);
 
       try {
         const response =

@@ -3214,6 +3214,7 @@ const SteelProducts = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <label
+                          htmlFor="thickness-input"
                           className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Thickness
@@ -3223,6 +3224,7 @@ const SteelProducts = () => {
                         </Tooltip>
                       </div>
                       <input
+                        id="thickness-input"
                         type="text"
                         value={newProduct.thickness}
                         onChange={(e) =>

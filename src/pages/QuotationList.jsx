@@ -21,7 +21,7 @@ import {
   FileText,
   Loader2,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/axiosAuthService';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
@@ -34,7 +34,7 @@ import { validateQuotationForDownload } from '../utils/recordUtils';
 import { notificationService } from '../services/notificationService';
 
 const QuotationList = () => {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
   // Initialize state
@@ -137,6 +137,7 @@ const QuotationList = () => {
 
   useEffect(() => {
     fetchQuotations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, searchTerm, statusFilter]);
 
   const { data: company } = useApiData(companyService.getCompany, [], true);
@@ -574,6 +575,7 @@ const QuotationList = () => {
                         {quotation.status !== 'converted' && (
                           <div className="relative group">
                             <button
+                              type="button"
                               className={`p-2 rounded-lg transition-colors ${
                                 isDarkMode
                                   ? 'text-gray-400 hover:text-white hover:bg-gray-700'

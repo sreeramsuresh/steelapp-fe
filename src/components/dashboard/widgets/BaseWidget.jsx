@@ -393,11 +393,11 @@ export const WidgetListItem = ({
       onKeyDown={
         onClick
           ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClick();
-              }
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onClick();
             }
+          }
           : undefined
       }
       className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${

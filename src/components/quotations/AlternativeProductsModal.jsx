@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Search, AlertCircle } from 'lucide-react';
+import { X, Trash2, Search, AlertCircle } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { productsAPI } from '../../services/api';
 

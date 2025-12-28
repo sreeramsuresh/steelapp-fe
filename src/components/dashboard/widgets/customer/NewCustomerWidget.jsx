@@ -486,11 +486,11 @@ const NewCustomerWidget = ({
                 onKeyDown={
                   onViewCustomer
                     ? (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          onViewCustomer(customer);
-                        }
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onViewCustomer(customer);
                       }
+                    }
                     : undefined
                 }
                 className={`p-2 rounded-lg flex items-center gap-2 transition-all ${

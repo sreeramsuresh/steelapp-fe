@@ -45,6 +45,7 @@ const DeliveryNoteDetails = () => {
 
   useEffect(() => {
     loadDeliveryNote();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const { data: _company } = useApiData(companyService.getCompany, [], true);
@@ -983,11 +984,13 @@ const DeliveryNoteDetails = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="quantity-to-deliver"
                       className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Quantity to Deliver
                     </label>
                     <input
+                      id="quantity-to-deliver"
                       type="number"
                       value={partialDialog.quantity}
                       onChange={(e) =>

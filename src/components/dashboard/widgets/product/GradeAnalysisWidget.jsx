@@ -217,6 +217,14 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
               isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'
             }`}
             onClick={() => onGradeClick?.(grade)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onGradeClick?.(grade);
+              }
+            }}
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-3">

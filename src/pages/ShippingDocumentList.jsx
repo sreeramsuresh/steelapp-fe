@@ -243,7 +243,7 @@ const ShippingDocumentList = () => {
       ]);
       setImportOrders(importRes.orders || []);
       // Export orders would be loaded similarly when available
-      setExportOrders([]);
+      _setExportOrders([]);
     } catch (err) {
       console.error('Error loading orders:', err);
     }

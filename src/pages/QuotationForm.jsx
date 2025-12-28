@@ -185,6 +185,13 @@ const Drawer = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  const handleOverlayKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
   return (
     <>
       <div
@@ -192,6 +199,9 @@ const Drawer = ({
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
+        onKeyDown={handleOverlayKeyDown}
+        role="button"
+        tabIndex={0}
       />
       <div
         className={`fixed top-0 right-0 h-full ${width} z-[31]
@@ -3000,11 +3010,13 @@ const QuotationForm = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label
+                htmlFor="quotation-packing-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Packing Charges
               </label>
               <input
+                id="quotation-packing-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3025,11 +3037,13 @@ const QuotationForm = () => {
             </div>
             <div>
               <label
+                htmlFor="quotation-freight-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Freight Charges
               </label>
               <input
+                id="quotation-freight-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3050,11 +3064,13 @@ const QuotationForm = () => {
             </div>
             <div>
               <label
+                htmlFor="quotation-insurance-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Insurance Charges
               </label>
               <input
+                id="quotation-insurance-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3075,11 +3091,13 @@ const QuotationForm = () => {
             </div>
             <div>
               <label
+                htmlFor="quotation-loading-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Loading Charges
               </label>
               <input
+                id="quotation-loading-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3100,11 +3118,13 @@ const QuotationForm = () => {
             </div>
             <div className="col-span-2">
               <label
+                htmlFor="quotation-other-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Other Charges
               </label>
               <input
+                id="quotation-other-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3292,11 +3312,13 @@ const QuotationForm = () => {
         <div className="space-y-4 mt-4">
           <div>
             <label
+              htmlFor="quotation-notes"
               className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Notes
             </label>
             <textarea
+              id="quotation-notes"
               value={formData.notes}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, notes: e.target.value }))
@@ -3312,11 +3334,13 @@ const QuotationForm = () => {
           </div>
           <div>
             <label
+              htmlFor="quotation-terms"
               className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Terms & Conditions
             </label>
             <textarea
+              id="quotation-terms"
               value={formData.termsAndConditions}
               onChange={(e) =>
                 setFormData((prev) => ({

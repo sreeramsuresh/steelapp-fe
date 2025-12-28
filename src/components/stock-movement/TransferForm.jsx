@@ -62,7 +62,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   const [error, setError] = useState(null);
 
   // Epic 4: Batch allocation state
-  const [, setBatchesPerItem] = useState({}); // Map of itemId -> batches[]
+  const [, _setBatchesPerItem] = useState({}); // Map of itemId -> batches[]
 
   // Product autocomplete state
   const [activeItemId, setActiveItemId] = useState(null);

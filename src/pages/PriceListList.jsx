@@ -248,6 +248,14 @@ export default function PriceListList() {
                   : 'bg-gray-300'
             }`}
             onClick={() => setShowFilters(!showFilters)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setShowFilters(!showFilters);
+              }
+            }}
+            role="button"
+            tabIndex={0}
           >
             <div
               className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
@@ -427,6 +435,14 @@ export default function PriceListList() {
               <div
                 key={pricelist.id}
                 onClick={() => navigate(`/pricelists/${pricelist.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/pricelists/${pricelist.id}`);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
                 className={`rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer flex flex-col ${
                   isDarkMode
                     ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500'

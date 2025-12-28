@@ -207,7 +207,7 @@ const DebitNoteForm = () => {
     } catch (error) {
       console.error('Error loading debit note:', error);
       notificationService.error('Failed to load debit note');
-      navigate('/purchases/debit-notes');
+      navigate('/app/debit-notes');
     } finally {
       setLoading(false);
     }
@@ -378,7 +378,7 @@ const DebitNoteForm = () => {
         notificationService.success('Debit note created successfully');
       }
 
-      navigate('/purchases/debit-notes');
+      navigate('/app/debit-notes');
     } catch (error) {
       console.error('Error saving debit note:', error);
       notificationService.error(error.message || 'Failed to save debit note');
@@ -432,7 +432,7 @@ const DebitNoteForm = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate('/purchases/debit-notes')}
+                  onClick={() => navigate('/app/debit-notes')}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode
                       ? 'hover:bg-[#141a20] text-[#93a4b4]'

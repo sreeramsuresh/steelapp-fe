@@ -196,6 +196,15 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
               setSelectedProduct(product);
               onProductClick?.(product);
             }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelectedProduct(product);
+                onProductClick?.(product);
+              }
+            }}
           >
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">

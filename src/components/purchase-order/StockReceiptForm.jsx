@@ -164,7 +164,7 @@ const StockReceiptForm = ({
           initialExpectedWeights[item.id] = pending;
           initialActualWeights[item.id] = pending;
           // Auto-generate batch number (Epic 6 - RECV-003)
-          const timestamp = Date.now();
+          const _timestamp = Date.now();
           const randomSuffix = Math.random()
             .toString(36)
             .substring(2, 6)

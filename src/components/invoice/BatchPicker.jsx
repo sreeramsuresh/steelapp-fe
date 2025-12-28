@@ -45,13 +45,13 @@ const BatchPicker = ({
   disabled = false,
 }) => {
   // Debug: Log props on every render
-  console.log('[BatchPicker] RENDER - Props received:', {
-    productId,
-    productIdType: typeof productId,
-    warehouseId,
-    requiredQty,
-    initialAllocationsLength: initialAllocations?.length,
-  });
+  // console.log('[BatchPicker] RENDER - Props received:', {
+  //   productId,
+  //   productIdType: typeof productId,
+  //   warehouseId,
+  //   requiredQty,
+  //   initialAllocationsLength: initialAllocations?.length,
+  // });
 
   const { isDarkMode } = useTheme();
   const [batches, setBatches] = useState([]);
@@ -77,15 +77,15 @@ const BatchPicker = ({
       typeof productId === 'number' ? productId : parseInt(productId);
     const validProductId = numericProductId && numericProductId > 0;
 
-    console.log('[BatchPicker] fetchBatches called:', {
-      productId,
-      numericProductId,
-      validProductId,
-      warehouseId,
-    });
+    // console.log('[BatchPicker] fetchBatches called:', {
+    //   productId,
+    //   numericProductId,
+    //   validProductId,
+    //   warehouseId,
+    // });
 
     if (!validProductId) {
-      console.log('[BatchPicker] Invalid productId, skipping fetch');
+      // console.log('[BatchPicker] Invalid productId, skipping fetch');
       setBatches([]);
       return;
     }

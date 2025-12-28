@@ -294,6 +294,18 @@ const LeaderboardWidget = ({
                     ? 'bg-[#2E3B4E] hover:bg-[#374151]'
                     : 'bg-gray-50 hover:bg-gray-100'
               }`}
+              role={onViewAgent ? 'button' : undefined}
+              tabIndex={onViewAgent ? 0 : undefined}
+              onKeyDown={
+                onViewAgent
+                  ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onViewAgent(agent);
+                    }
+                  }
+                  : undefined
+              }
             >
               <div className="flex items-center gap-3">
                 {/* Rank */}
@@ -464,6 +476,7 @@ const LeaderboardWidget = ({
       {/* View All Link */}
       {!compact && leaderboard.length > 5 && (
         <button
+          onClick={() => onViewAgent?.(null)}
           className={`mt-3 w-full py-2 text-sm font-medium rounded-lg transition-colors ${
             isDarkMode
               ? 'text-teal-400 hover:bg-[#2E3B4E]'

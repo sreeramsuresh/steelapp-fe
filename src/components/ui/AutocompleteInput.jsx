@@ -255,7 +255,7 @@ const AutocompleteInput = ({
 
   // Default item renderer
   const defaultRenderItem = useCallback(
-    (item, isSelected, isHighlighted) => (
+    (item, isSelected, _isHighlighted) => (
       <div className="flex items-center justify-between">
         <span>{getItemLabel(item)}</span>
         {isSelected && (

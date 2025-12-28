@@ -201,6 +201,7 @@ const ImportOrderDetails = () => {
     if (id) {
       loadOrder();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // Auto-dismiss success message
@@ -532,6 +533,9 @@ const ImportOrderDetails = () => {
                   <div
                     className="fixed inset-0 z-10"
                     onClick={() => setStatusDropdownOpen(false)}
+                    onKeyDown={(e) => e.key === 'Escape' && setStatusDropdownOpen(false)}
+                    role="button"
+                    tabIndex={-1}
                   />
                   <div
                     className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg z-20 border ${
@@ -1417,6 +1421,10 @@ const ImportOrderDetails = () => {
                                 : 'hover:bg-gray-200 text-gray-600'
                             }`}
                             title="View"
+                            onClick={() => {
+                              // TODO: Implement document view
+                              console.log('View document:', doc.name);
+                            }}
                           >
                             <Eye size={16} />
                           </button>
@@ -1427,6 +1435,10 @@ const ImportOrderDetails = () => {
                                 : 'hover:bg-gray-200 text-gray-600'
                             }`}
                             title="Download"
+                            onClick={() => {
+                              // TODO: Implement document download
+                              console.log('Download document:', doc.name);
+                            }}
                           >
                             <Download size={16} />
                           </button>
@@ -1945,11 +1957,13 @@ const ImportOrderDetails = () => {
                 </strong>
               </p>
               <label
+                htmlFor="status-update-notes"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Notes (optional)
               </label>
               <textarea
+                id="status-update-notes"
                 value={statusUpdateNotes}
                 onChange={(e) => setStatusUpdateNotes(e.target.value)}
                 placeholder="Add any notes about this status change..."

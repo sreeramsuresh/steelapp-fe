@@ -13,13 +13,13 @@ import {
   FileText,
   Package,
   Upload,
-  Calculator,
+  Calculator: _Calculator,
   Building2,
   Globe,
   Info,
   DollarSign,
   StickyNote,
-  Settings2,
+  Settings2: _Settings2,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { importOrderService } from '../services/importOrderService';
@@ -1416,11 +1416,11 @@ const ImportOrderForm = () => {
               <Card title="Goods Receipt Note (GRN)" icon={Package}>
                 <div className="grid grid-cols-12 gap-3">
                   <div className="col-span-6 sm:col-span-3">
-                    <label
+                    <div
                       className={`block text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-1.5`}
                     >
                       GRN Number
-                    </label>
+                    </div>
                     <div
                       className={`px-3 py-2.5 rounded-lg text-sm font-mono ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'}`}
                     >
@@ -1428,11 +1428,11 @@ const ImportOrderForm = () => {
                     </div>
                   </div>
                   <div className="col-span-6 sm:col-span-3">
-                    <label
+                    <div
                       className={`block text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-1.5`}
                     >
                       GRN Status
-                    </label>
+                    </div>
                     <div>
                       {order.grnStatus === 'not_created' && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500 text-white">
@@ -1601,6 +1601,9 @@ const ImportOrderForm = () => {
             <div
               className={`${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl p-4 cursor-pointer hover:border-[#4aa3ff] transition-colors`}
               onClick={() => setShippingDrawerOpen(true)}
+              onKeyDown={(e) => e.key === 'Enter' && setShippingDrawerOpen(true)}
+              role="button"
+              tabIndex={0}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -2265,6 +2268,9 @@ const ImportOrderForm = () => {
             shippingDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           onClick={() => setShippingDrawerOpen(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShippingDrawerOpen(false)}
+          role="button"
+          tabIndex={-1}
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
@@ -2597,6 +2603,9 @@ const ImportOrderForm = () => {
             costDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           onClick={() => setCostDrawerOpen(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setCostDrawerOpen(false)}
+          role="button"
+          tabIndex={-1}
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
@@ -2819,6 +2828,9 @@ const ImportOrderForm = () => {
             notesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           onClick={() => setNotesDrawerOpen(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setNotesDrawerOpen(false)}
+          role="button"
+          tabIndex={-1}
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31]

@@ -728,11 +728,11 @@ const SupplierBillList = () => {
                         className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                       >
                         <div className="font-medium">{bill.billNumber}</div>
-                        {bill.vendorInvoiceNumber && (
+                        {bill.supplierInvoiceNumber && (
                           <div
                             className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
-                            Ref: {bill.vendorInvoiceNumber}
+                            Ref: {bill.supplierInvoiceNumber}
                           </div>
                         )}
                       </td>
