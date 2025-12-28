@@ -21,7 +21,7 @@ import {
   FileText,
   Loader2,
 } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { authService } from '../services/axiosAuthService';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/invoiceUtils';
@@ -34,7 +34,6 @@ import { validateQuotationForDownload } from '../utils/recordUtils';
 import { notificationService } from '../services/notificationService';
 
 const QuotationList = () => {
-  const _navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
   // Initialize state
@@ -576,6 +575,9 @@ const QuotationList = () => {
                           <div className="relative group">
                             <button
                               type="button"
+                              aria-haspopup="true"
+                              aria-label="Update Status"
+                              onClick={(e) => e.currentTarget.focus()}
                               className={`p-2 rounded-lg transition-colors ${
                                 isDarkMode
                                   ? 'text-gray-400 hover:text-white hover:bg-gray-700'

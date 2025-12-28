@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { shippingDocumentService } from '../services/shippingDocumentService';
 import { importOrderService } from '../services/importOrderService';
+import { exportOrderService } from '../services/exportOrderService';
 import { useTheme } from '../contexts/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
@@ -202,7 +203,7 @@ const ShippingDocumentList = () => {
 
   // Orders for linking
   const [importOrders, setImportOrders] = useState([]);
-  const [exportOrders, _setExportOrders] = useState([]);
+  const [exportOrders, setExportOrders] = useState([]);
 
   // Load documents
   const loadDocuments = useCallback(
@@ -238,12 +239,12 @@ const ShippingDocumentList = () => {
   // Load orders for linking
   const loadOrders = async () => {
     try {
-      const [importRes] = await Promise.all([
+      const [importRes, exportRes] = await Promise.all([
         importOrderService.getImportOrders({ limit: 100 }),
+        exportOrderService.getExportOrders({ limit: 100 }),
       ]);
       setImportOrders(importRes.orders || []);
-      // Export orders would be loaded similarly when available
-      _setExportOrders([]);
+      setExportOrders(exportRes.orders || []);
     } catch (err) {
       console.error('Error loading orders:', err);
     }
@@ -1022,8 +1023,8 @@ const ShippingDocumentList = () => {
                 </div>
               </div>
 
-              {/* Linked Order & Status */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Linked Orders & Status */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="modal-import-order" className="block text-sm font-medium mb-1">
                     Link to Import Order
@@ -1045,6 +1046,32 @@ const ShippingDocumentList = () => {
                       <option key={order.id} value={order.id}>
                         {order.import_order_number || order.importOrderNumber} -{' '}
                         {order.supplier_name || order.supplierName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="modal-export-order" className="block text-sm font-medium mb-1">
+                    Link to Export Order
+                  </label>
+                  <select
+                    id="modal-export-order"
+                    value={formData.export_order_id}
+                    onChange={(e) =>
+                      handleInputChange('export_order_id', e.target.value)
+                    }
+                    className={`w-full px-3 py-2 border rounded-lg ${
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    <option value="">No linked order</option>
+                    {exportOrders.map((order) => (
+                      <option key={order.id} value={order.id}>
+                        {order.export_order_number || order.exportOrderNumber} -{' '}
+                        {order.customer_name || order.customerName}
                       </option>
                     ))}
                   </select>
