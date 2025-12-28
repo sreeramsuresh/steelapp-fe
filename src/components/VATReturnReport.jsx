@@ -106,6 +106,7 @@ const VATReturnReport = () => {
   // Load available periods on mount
   useEffect(() => {
     loadPeriods();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load data when period changes
@@ -412,8 +413,9 @@ const VATReturnReport = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Quick Period Select */}
           <div>
-            <label className={labelClass}>Quick Select Period</label>
+            <label htmlFor="quick-period-select" className={labelClass}>Quick Select Period</label>
             <select
+              id="quick-period-select"
               className={`mt-1 w-full rounded-md border ${
                 isDarkMode
                   ? 'bg-gray-700 border-gray-600 text-white'
@@ -447,8 +449,9 @@ const VATReturnReport = () => {
 
           {/* Custom Date Range */}
           <div>
-            <label className={labelClass}>From Date</label>
+            <label htmlFor="from-date-input" className={labelClass}>From Date</label>
             <input
+              id="from-date-input"
               type="date"
               className={`mt-1 w-full rounded-md border ${
                 isDarkMode
@@ -463,8 +466,9 @@ const VATReturnReport = () => {
           </div>
 
           <div>
-            <label className={labelClass}>To Date</label>
+            <label htmlFor="to-date-input" className={labelClass}>To Date</label>
             <input
+              id="to-date-input"
               type="date"
               className={`mt-1 w-full rounded-md border ${
                 isDarkMode

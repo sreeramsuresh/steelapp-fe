@@ -481,6 +481,18 @@ const NewCustomerWidget = ({
               <div
                 key={customer.id}
                 onClick={() => onViewCustomer && onViewCustomer(customer)}
+                role={onViewCustomer ? 'button' : undefined}
+                tabIndex={onViewCustomer ? 0 : undefined}
+                onKeyDown={
+                  onViewCustomer
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onViewCustomer(customer);
+                        }
+                      }
+                    : undefined
+                }
                 className={`p-2 rounded-lg flex items-center gap-2 transition-all ${
                   onViewCustomer ? 'cursor-pointer' : ''
                 } ${isDarkMode ? 'bg-[#2E3B4E] hover:bg-[#374151]' : 'bg-gray-50 hover:bg-gray-100'}`}

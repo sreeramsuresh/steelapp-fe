@@ -248,6 +248,15 @@ const WarehouseUtilizationWidget = ({
                 setSelectedWarehouse(isSelected ? null : warehouse);
                 onWarehouseClick?.(warehouse);
               }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedWarehouse(isSelected ? null : warehouse);
+                  onWarehouseClick?.(warehouse);
+                }
+              }}
             >
               <div className="flex items-start justify-between mb-2">
                 <div>

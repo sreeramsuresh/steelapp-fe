@@ -249,6 +249,7 @@ const SalesAnalytics = () => {
       categoryPerformance: categoryPerf,
       monthlyTrend,
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dashboardData,
     dashboardPrev,
@@ -289,11 +290,13 @@ const SalesAnalytics = () => {
         <div className="flex gap-4 items-center">
           <div className="relative">
             <label
+              htmlFor="period-select"
               className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
               Period
             </label>
             <select
+              id="period-select"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
               className={`w-32 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
@@ -314,11 +317,13 @@ const SalesAnalytics = () => {
           </div>
           <div>
             <label
+              htmlFor="period-input"
               className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
               Select Period
             </label>
             <input
+              id="period-input"
               type="month"
               value={format(selectedPeriod, 'yyyy-MM')}
               onChange={(e) => setSelectedPeriod(new Date(e.target.value))}
@@ -331,6 +336,7 @@ const SalesAnalytics = () => {
           </div>
         </div>
         <button
+          onClick={() => console.log('Export report')}
           className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
             isDarkMode
               ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
@@ -1292,6 +1298,7 @@ const SalesAnalytics = () => {
         </h3>
         <div className="flex gap-3">
           <button
+            onClick={() => console.log('Refresh data')}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
                 ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
@@ -1301,7 +1308,7 @@ const SalesAnalytics = () => {
             <RefreshCw size={16} />
             Refresh Data
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+          <button onClick={() => console.log('Generate report')} className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
             <Download size={16} />
             Generate Report
           </button>

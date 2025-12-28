@@ -212,7 +212,13 @@ const PaymentReminderModal = ({
   return (
     <div className="fixed inset-0 z-[1100] flex">
       {/* Backdrop */}
-      <div className="flex-1 bg-black/30" onClick={onClose}></div>
+      <div
+        className="flex-1 bg-black/30"
+        onClick={onClose}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && onClose()}
+      ></div>
 
       {/* Drawer */}
       <div className="w-full max-w-lg h-full overflow-auto bg-gradient-to-br from-orange-50 to-amber-50 dark:from-[#2A1E1A] dark:to-[#221A16] text-gray-900 dark:text-white shadow-xl border-l-2 border-orange-300 dark:border-orange-700">
@@ -410,11 +416,12 @@ const PaymentReminderModal = ({
               <div className="space-y-4">
                 {/* Date & Time */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <label htmlFor="contact-date-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
                     <Calendar size={16} />
                     Date & Time of Call
                   </label>
                   <input
+                    id="contact-date-input"
                     type="datetime-local"
                     value={formData.contact_date}
                     onChange={(e) =>
@@ -428,10 +435,11 @@ const PaymentReminderModal = ({
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label htmlFor="call-notes-textarea" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Call Notes
                   </label>
                   <textarea
+                    id="call-notes-textarea"
                     ref={notesTextareaRef}
                     value={formData.notes}
                     onChange={(e) =>

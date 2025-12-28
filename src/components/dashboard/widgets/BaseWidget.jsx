@@ -388,6 +388,18 @@ export const WidgetListItem = ({
   return (
     <div
       onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
         onClick ? 'cursor-pointer hover:translate-x-1' : ''
       } ${

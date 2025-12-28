@@ -358,6 +358,18 @@ const CustomerSegmentsWidget = ({
               onClick={() =>
                 onViewSegment && onViewSegment(segment, activeView)
               }
+              role={onViewSegment ? 'button' : undefined}
+              tabIndex={onViewSegment ? 0 : undefined}
+              onKeyDown={
+                onViewSegment
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onViewSegment(segment, activeView);
+                      }
+                    }
+                  : undefined
+              }
               className={`flex items-center gap-2 p-1 rounded transition-colors ${
                 onViewSegment ? 'cursor-pointer hover:bg-opacity-50' : ''
               } ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
@@ -394,6 +406,18 @@ const CustomerSegmentsWidget = ({
           <div
             key={idx}
             onClick={() => onViewSegment && onViewSegment(segment, activeView)}
+            role={onViewSegment ? 'button' : undefined}
+            tabIndex={onViewSegment ? 0 : undefined}
+            onKeyDown={
+              onViewSegment
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onViewSegment(segment, activeView);
+                    }
+                  }
+                : undefined
+            }
             className={`p-3 rounded-lg transition-all duration-200 ${
               onViewSegment ? 'cursor-pointer' : ''
             } ${isDarkMode ? 'bg-[#2E3B4E] hover:bg-[#374151]' : 'bg-gray-50 hover:bg-gray-100'}`}

@@ -254,11 +254,21 @@ const PayPeriodManager = () => {
                   className={`p-4 flex items-center justify-between cursor-pointer ${
                     isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
                   }`}
+                  role="button"
+                  tabIndex={0}
                   onClick={() =>
                     setSelectedPeriod(
                       selectedPeriod === period.id ? null : period.id,
                     )
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedPeriod(
+                        selectedPeriod === period.id ? null : period.id,
+                      );
+                    }
+                  }}
                 >
                   <div className="flex items-center space-x-4">
                     <div

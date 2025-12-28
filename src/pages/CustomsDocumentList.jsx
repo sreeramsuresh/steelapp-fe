@@ -1229,11 +1229,13 @@ const CustomsDocumentList = () => {
                 {/* Document Type */}
                 <div>
                   <label
+                    htmlFor="document-type"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Document Type *
                   </label>
                   <select
+                    id="document-type"
                     value={formData.document_type}
                     onChange={(e) =>
                       handleFormChange('document_type', e.target.value)
@@ -1267,11 +1269,13 @@ const CustomsDocumentList = () => {
                 {/* Document Number (BOE) */}
                 <div>
                   <label
+                    htmlFor="document-number"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Document Number (BOE) *
                   </label>
                   <input
+                    id="document-number"
                     type="text"
                     value={formData.document_number}
                     onChange={(e) =>
@@ -1301,11 +1305,13 @@ const CustomsDocumentList = () => {
                 {/* Link to Import Order */}
                 <div>
                   <label
+                    htmlFor="import-order-id"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Link to Import Order
                   </label>
                   <select
+                    id="import-order-id"
                     value={formData.import_order_id}
                     onChange={(e) =>
                       handleFormChange('import_order_id', e.target.value)
@@ -1330,11 +1336,13 @@ const CustomsDocumentList = () => {
                 {/* Declaration Date */}
                 <div>
                   <label
+                    htmlFor="declaration-date"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Declaration Date *
                   </label>
                   <input
+                    id="declaration-date"
                     type="date"
                     value={formData.declaration_date}
                     onChange={(e) =>
@@ -1363,11 +1371,13 @@ const CustomsDocumentList = () => {
                 {/* HS Code Selection */}
                 <div className="md:col-span-2">
                   <label
+                    htmlFor="hs-code"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     HS Code
                   </label>
                   <select
+                    id="hs-code"
                     value={formData.hs_codes?.[0] || ''}
                     onChange={(e) =>
                       handleFormChange(
@@ -1416,11 +1426,13 @@ const CustomsDocumentList = () => {
                   <>
                     <div className="md:col-span-2">
                       <label
+                        htmlFor="certificate-of-origin"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Certificate of Origin Reference
                       </label>
                       <input
+                        id="certificate-of-origin"
                         type="text"
                         value={formData.certificate_of_origin}
                         onChange={(e) =>
@@ -1447,11 +1459,13 @@ const CustomsDocumentList = () => {
                     {/* COO Issue Date */}
                     <div>
                       <label
+                        htmlFor="coo-issue-date"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         COO Issue Date *
                       </label>
                       <input
+                        id="coo-issue-date"
                         type="date"
                         value={formData.coo_issue_date}
                         onChange={(e) =>
@@ -1480,11 +1494,13 @@ const CustomsDocumentList = () => {
                     {/* Issuing Chamber */}
                     <div>
                       <label
+                        htmlFor="coo-issuing-chamber"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Issuing Chamber *
                       </label>
                       <input
+                        id="coo-issuing-chamber"
                         type="text"
                         value={formData.coo_issuing_chamber}
                         onChange={(e) =>
@@ -1523,11 +1539,13 @@ const CustomsDocumentList = () => {
                     {/* CIF Value */}
                     <div>
                       <label
+                        htmlFor="cif-value"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         CIF Value (AED) *
                       </label>
                       <input
+                        id="cif-value"
                         type="number"
                         step="0.01"
                         value={formData.cif_value}
@@ -1558,11 +1576,13 @@ const CustomsDocumentList = () => {
                     {/* Duty Rate */}
                     <div>
                       <label
+                        htmlFor="duty-rate"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Duty Rate (%)
                       </label>
                       <input
+                        id="duty-rate"
                         type="number"
                         step="0.01"
                         value={formData.duty_rate}
@@ -1581,11 +1601,13 @@ const CustomsDocumentList = () => {
                     {/* Duty Amount */}
                     <div>
                       <label
+                        htmlFor="duty-amount"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Duty Amount (AED)
                       </label>
                       <input
+                        id="duty-amount"
                         type="text"
                         value={formatCurrency(formData.duty_amount)}
                         disabled
@@ -1600,11 +1622,13 @@ const CustomsDocumentList = () => {
                     {/* VAT Rate */}
                     <div>
                       <label
+                        htmlFor="vat-rate"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         VAT Rate (%)
                       </label>
                       <input
+                        id="vat-rate"
                         type="number"
                         step="0.01"
                         value={formData.vat_rate}
@@ -1623,11 +1647,13 @@ const CustomsDocumentList = () => {
                     {/* VAT Amount */}
                     <div>
                       <label
+                        htmlFor="vat-amount"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         VAT Amount (AED)
                       </label>
                       <input
+                        id="vat-amount"
                         type="text"
                         value={formatCurrency(formData.vat_amount)}
                         disabled
@@ -1642,11 +1668,13 @@ const CustomsDocumentList = () => {
                     {/* Total Payable */}
                     <div>
                       <label
+                        htmlFor="total-payable"
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}
                       >
                         Total Payable (AED)
                       </label>
                       <input
+                        id="total-payable"
                         type="text"
                         value={formatCurrency(formData.total_payable)}
                         disabled
@@ -1663,11 +1691,13 @@ const CustomsDocumentList = () => {
                 {/* Payment Reference */}
                 <div>
                   <label
+                    htmlFor="payment-reference"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Payment Reference
                   </label>
                   <input
+                    id="payment-reference"
                     type="text"
                     value={formData.payment_reference}
                     onChange={(e) =>
@@ -1686,11 +1716,13 @@ const CustomsDocumentList = () => {
                 {/* Clearance Date */}
                 <div>
                   <label
+                    htmlFor="clearance-date"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Clearance Date
                   </label>
                   <input
+                    id="clearance-date"
                     type="date"
                     value={formData.clearance_date}
                     onChange={(e) =>
@@ -1708,11 +1740,13 @@ const CustomsDocumentList = () => {
                 {/* Status */}
                 <div>
                   <label
+                    htmlFor="status"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Status
                   </label>
                   <select
+                    id="status"
                     value={formData.status}
                     onChange={(e) => handleFormChange('status', e.target.value)}
                     disabled={modalMode === 'view'}
@@ -1733,11 +1767,13 @@ const CustomsDocumentList = () => {
                 {/* Notes */}
                 <div className="md:col-span-2">
                   <label
+                    htmlFor="notes"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Notes
                   </label>
                   <textarea
+                    id="notes"
                     value={formData.notes}
                     onChange={(e) => handleFormChange('notes', e.target.value)}
                     disabled={modalMode === 'view'}
@@ -1754,11 +1790,13 @@ const CustomsDocumentList = () => {
                 {/* File Upload Placeholder */}
                 <div className="md:col-span-2">
                   <label
+                    htmlFor="scanned-documents"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Scanned Documents
                   </label>
                   <div
+                    id="scanned-documents"
                     className={`border-2 border-dashed rounded-lg p-6 text-center ${
                       isDarkMode
                         ? 'border-gray-600 hover:border-gray-500'
@@ -1852,11 +1890,13 @@ const CustomsDocumentList = () => {
                 {/* CIF Value Input */}
                 <div>
                   <label
+                    htmlFor="calc-cif-value"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     CIF Value (AED)
                   </label>
                   <input
+                    id="calc-cif-value"
                     type="number"
                     step="0.01"
                     value={calculatorData.cif_value}
@@ -1878,11 +1918,13 @@ const CustomsDocumentList = () => {
                 {/* HS Code */}
                 <div>
                   <label
+                    htmlFor="calc-hs-code"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     HS Code (Optional)
                   </label>
                   <select
+                    id="calc-hs-code"
                     value={calculatorData.hs_code}
                     onChange={(e) =>
                       setCalculatorData((prev) => ({
@@ -1931,11 +1973,13 @@ const CustomsDocumentList = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label
+                      htmlFor="calc-duty-rate"
                       className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Duty Rate (%)
                     </label>
                     <input
+                      id="calc-duty-rate"
                       type="number"
                       step="0.01"
                       value={calculatorData.duty_rate}
@@ -1955,11 +1999,13 @@ const CustomsDocumentList = () => {
                   </div>
                   <div>
                     <label
+                      htmlFor="calc-vat-rate"
                       className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       VAT Rate (%)
                     </label>
                     <input
+                      id="calc-vat-rate"
                       type="number"
                       step="0.01"
                       value={calculatorData.vat_rate}

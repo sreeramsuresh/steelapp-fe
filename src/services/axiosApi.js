@@ -105,15 +105,7 @@ api.interceptors.request.use((config) => {
 
   // For FormData, let the browser set the Content-Type with boundary
   if (config.data instanceof FormData) {
-    /* eslint-disable no-console */
-    console.log(
-      '[axios interceptor] Detected FormData, deleting Content-Type header',
-    );
-    console.log('[axios interceptor] Request URL:', config.url);
-    console.log('[axios interceptor] Headers before deletion:', config.headers);
     delete config.headers['Content-Type'];
-    console.log('[axios interceptor] Headers after deletion:', config.headers);
-    /* eslint-enable no-console */
   }
 
   return config;
@@ -141,14 +133,11 @@ api.interceptors.response.use(
       }
 
       try {
-        console.log('[Interceptor] Attempting token refresh'); // eslint-disable-line no-console
         const { data } = await axios.post(
           `${API_BASE_URL}${REFRESH_ENDPOINT}`,
           { refreshToken },
           { withCredentials: true },
         );
-
-        console.log('[Interceptor] Refresh response:', data); // eslint-disable-line no-console
 
         // Backend already sends camelCase
         const newAccessToken = data.accessToken || data.token;
@@ -168,7 +157,6 @@ api.interceptors.response.use(
           throw new Error('No tokens in refresh response');
         }
       } catch (refreshError) {
-        console.error('[Interceptor] Token refresh failed:', refreshError); // eslint-disable-line no-console
         // Clear tokens on refresh failure
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
@@ -276,18 +264,6 @@ export const apiService = {
           guard.validateRequestContract(config);
         }
       } catch (validationError) {
-        // Enhanced logging for contract violations
-        const guard = await getContractGuard();
-        if (guard && validationError instanceof guard.ContractViolationError) {
-          console.groupCollapsed(
-            `%c[Contract Violation] REQUEST %c${config.method || 'GET'} ${config.url}`,
-            'color: red; font-weight: bold',
-            'color: orange; font-weight: normal',
-          );
-          console.error('Validation Issues:', validationError.formatIssues());
-          console.error('Request Data:', config.data);
-          console.groupEnd();
-        }
         // Re-throw to prevent invalid request from being sent
         throw validationError;
       }
@@ -314,21 +290,6 @@ export const apiService = {
             });
           }
         } catch (validationError) {
-          // Enhanced logging for contract violations
-          const guard = await getContractGuard();
-          if (
-            guard &&
-            validationError instanceof guard.ContractViolationError
-          ) {
-            console.groupCollapsed(
-              `%c[Contract Violation] RESPONSE %c${config.method || 'GET'} ${config.url}`,
-              'color: red; font-weight: bold',
-              'color: orange; font-weight: normal',
-            );
-            console.error('Validation Issues:', validationError.formatIssues());
-            console.error('Response Data:', response.data);
-            console.groupEnd();
-          }
           // Re-throw to alert developer of contract mismatch
           throw validationError;
         }
@@ -352,7 +313,6 @@ export const apiService = {
       }
 
       // Original error logging for network/server errors
-      console.error(`${label} error:`, error.response?.data || error.message); // eslint-disable-line no-console
       throw error;
     }
   },

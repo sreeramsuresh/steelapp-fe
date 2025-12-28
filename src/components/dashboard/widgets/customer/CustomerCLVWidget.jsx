@@ -333,6 +333,18 @@ const CustomerCLVWidget = ({
               <div
                 key={customer.id}
                 onClick={() => onViewCustomer && onViewCustomer(customer)}
+                role={onViewCustomer ? 'button' : undefined}
+                tabIndex={onViewCustomer ? 0 : undefined}
+                onKeyDown={
+                  onViewCustomer
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onViewCustomer(customer);
+                        }
+                      }
+                    : undefined
+                }
                 className={`group p-3 rounded-lg transition-all duration-200 ${
                   onViewCustomer ? 'cursor-pointer' : ''
                 } ${

@@ -217,6 +217,14 @@ const ReorderAlertsWidget = ({
                 isDarkMode ? 'hover:ring-1' : 'hover:ring-2'
               } hover:${priority.ringColor}`}
               onClick={() => onProductClick?.(product)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onProductClick?.(product);
+                }
+              }}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">

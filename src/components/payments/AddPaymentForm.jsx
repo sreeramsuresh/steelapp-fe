@@ -32,7 +32,7 @@ const AddPaymentForm = ({
   entityType = 'invoice',
   defaultCurrency = 'AED',
   customerId = null,
-  invoiceVatAmount = null,
+  invoiceVatAmount: _invoiceVatAmount = null,
 }) => {
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
@@ -84,7 +84,7 @@ const AddPaymentForm = ({
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
 
   // Helper for number input
-  const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
+  const _numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
 
   // Check if using foreign currency (non-AED)
   const isForeignCurrency = currency !== 'AED';
@@ -113,7 +113,7 @@ const AddPaymentForm = ({
   const newAvailableCredit = creditLimit - newUsageAfterPayment;
 
   // Check if payment would improve or worsen credit position
-  const creditImpactPositive = paymentAmount > 0; // Payment always improves credit
+  const _creditImpactPositive = paymentAmount > 0; // Payment always improves credit
   const creditUtilizationAfterPayment =
     creditLimit > 0
       ? ((newUsageAfterPayment / creditLimit) * 100).toFixed(1)

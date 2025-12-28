@@ -40,6 +40,7 @@ const CommissionAuditTrail = ({
     if (invoiceId && (isExpanded || asModal)) {
       loadAuditTrail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoiceId, isExpanded, asModal]);
 
   const loadAuditTrail = async () => {

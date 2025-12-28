@@ -377,6 +377,14 @@ const AtRiskCustomersWidget = ({
                 onClick={() =>
                   setExpandedCustomer(isExpanded ? null : customer.id)
                 }
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setExpandedCustomer(isExpanded ? null : customer.id);
+                  }
+                }}
                 className="p-3 cursor-pointer"
               >
                 <div className="flex items-center gap-3">

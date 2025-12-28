@@ -433,6 +433,7 @@ const CreditManagementPanel = ({
           <div className="space-y-4">
             <div>
               <label
+                htmlFor="credit-limit"
                 className={`block text-sm font-medium mb-2 ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}
@@ -440,6 +441,7 @@ const CreditManagementPanel = ({
                 New Credit Limit (AED)
               </label>
               <input
+                id="credit-limit"
                 type="number"
                 value={newCreditLimit}
                 onChange={(e) => setNewCreditLimit(e.target.value)}
@@ -453,6 +455,7 @@ const CreditManagementPanel = ({
             </div>
             <div>
               <label
+                htmlFor="credit-reason"
                 className={`block text-sm font-medium mb-2 ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}
@@ -460,6 +463,7 @@ const CreditManagementPanel = ({
                 Reason for Update
               </label>
               <textarea
+                id="credit-reason"
                 value={updateReason}
                 onChange={(e) => setUpdateReason(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg ${

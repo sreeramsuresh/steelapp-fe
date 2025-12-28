@@ -584,11 +584,13 @@ const WarehouseManagement = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label
+                    htmlFor="warehouse-name-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Warehouse Name *
                   </label>
                   <input
+                    id="warehouse-name-input"
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
@@ -601,11 +603,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="warehouse-code-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Warehouse Code *
                   </label>
                   <input
+                    id="warehouse-code-input"
                     type="text"
                     value={formData.code}
                     onChange={(e) => handleInputChange('code', e.target.value)}
@@ -619,11 +623,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div className="sm:col-span-2">
                   <label
+                    htmlFor="address-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Address
                   </label>
                   <input
+                    id="address-input"
                     type="text"
                     value={formData.address}
                     onChange={(e) =>
@@ -638,11 +644,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="city-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     City
                   </label>
                   <input
+                    id="city-input"
                     type="text"
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
@@ -655,11 +663,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="state-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     State/Emirate
                   </label>
                   <input
+                    id="state-input"
                     type="text"
                     value={formData.state}
                     onChange={(e) => handleInputChange('state', e.target.value)}
@@ -672,11 +682,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="contact-person-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Contact Person
                   </label>
                   <input
+                    id="contact-person-input"
                     type="text"
                     value={formData.contactPerson}
                     onChange={(e) =>
@@ -691,11 +703,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="phone-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Phone
                   </label>
                   <input
+                    id="phone-input"
                     type="text"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
@@ -709,11 +723,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="email-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Email
                   </label>
                   <input
+                    id="email-input"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
@@ -726,11 +742,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="capacity-input"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Capacity
                   </label>
                   <input
+                    id="capacity-input"
                     type="text"
                     value={formData.capacity}
                     onChange={(e) =>
@@ -746,11 +764,13 @@ const WarehouseManagement = () => {
                 </div>
                 <div className="sm:col-span-2">
                   <label
+                    htmlFor="description-textarea"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Description
                   </label>
                   <textarea
+                    id="description-textarea"
                     value={formData.description}
                     onChange={(e) =>
                       handleInputChange('description', e.target.value)

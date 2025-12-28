@@ -203,6 +203,14 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
                 isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'
               }`}
               onClick={() => onProductClick?.(product)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onProductClick?.(product);
+                }
+              }}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">

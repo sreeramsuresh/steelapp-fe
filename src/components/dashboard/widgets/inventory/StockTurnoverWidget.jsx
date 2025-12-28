@@ -183,6 +183,14 @@ const StockTurnoverWidget = ({
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 } group-hover:text-teal-500`}
                 onClick={() => onProductClick?.(product)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onProductClick?.(product);
+                  }
+                }}
                 title={product.displayName || product.display_name || 'N/A'}
               >
                 {product.displayName || product.display_name || 'N/A'}

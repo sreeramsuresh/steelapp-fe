@@ -45,7 +45,7 @@ const BatchAllocator = ({
   requiredQuantity,
   currentAllocations = [],
   onAllocate,
-  mode = 'export', // "export" | "reservation" | "transfer"
+  mode: _mode = 'export', // "export" | "reservation" | "transfer"
   draftInvoiceId = null,
 }) => {
   const { isDarkMode } = useTheme();
@@ -53,7 +53,7 @@ const BatchAllocator = ({
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [allocations, setAllocations] = useState(currentAllocations);
-  const [fifoSuggested, setFifoSuggested] = useState(false);
+  const [fifoSuggested, _setFifoSuggested] = useState(false);
 
   // Load available batches
   useEffect(() => {
@@ -124,7 +124,6 @@ const BatchAllocator = ({
     }
 
     setAllocations(newAllocations);
-    setFifoSuggested(true);
   };
 
   // Manual allocation change

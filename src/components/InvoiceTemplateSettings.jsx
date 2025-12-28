@@ -1429,11 +1429,13 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
                 <div className="mb-4">
                   <label
+                    htmlFor="font-family-display"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Font Family
                   </label>
                   <p
+                    id="font-family-display"
                     className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     PDF uses: {PDF_FONT_FAMILIES.base}
@@ -1829,11 +1831,13 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               >
                 <div className="mb-4">
                   <label
+                    htmlFor="currency-symbol"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Currency Symbol
                   </label>
                   <input
+                    id="currency-symbol"
                     type="text"
                     value={settings.formatting.currencySymbol}
                     onChange={(e) =>
@@ -1861,11 +1865,13 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
                 <div className="mb-4">
                   <label
+                    htmlFor="date-format"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Date Format
                   </label>
                   <select
+                    id="date-format"
                     value={settings.formatting.dateFormat}
                     onChange={(e) =>
                       updateSetting('formatting.dateFormat', e.target.value)

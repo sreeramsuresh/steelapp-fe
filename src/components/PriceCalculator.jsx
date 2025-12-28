@@ -46,7 +46,7 @@ const PriceCalculator = () => {
   });
 
   // Base steel prices per kg (these would normally come from an API)
-  const basePrices = {
+  const basePrices = useMemo(() => ({
     rebar: { fe415: 48, fe500: 52, fe550: 55 },
     structural: { ms: 55, ss304: 180, ss316: 220 },
     sheet: { ms: 62, galvanized: 75, ss304: 190 },
@@ -55,12 +55,12 @@ const PriceCalculator = () => {
     round: { ms: 53, ss304: 175 },
     flat: { ms: 54, ss304: 178 },
     wire: { ms: 60, galvanized: 72 },
-  };
+  }), []);
 
   // Steel density and weight calculations
   const steelDensity = 7850; // kg/m³
 
-  const productTypes = {
+  const productTypes = useMemo(() => ({
     rebar: {
       name: 'TMT Rebar',
       grades: ['fe415', 'fe500', 'fe550'],
@@ -109,7 +109,7 @@ const PriceCalculator = () => {
       weightFormula: 'circular',
       dimensions: ['diameter', 'length'],
     },
-  };
+  }), []);
 
   const [selectedGrade, setSelectedGrade] = useState(
     productTypes[selectedProduct].grades[0],
@@ -206,6 +206,7 @@ const PriceCalculator = () => {
 
     // Reset grade when product changes
     setSelectedGrade(productTypes[selectedProduct].grades[0]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProduct, productTypes]);
 
   const calculateWeight = useMemo(() => {
@@ -273,6 +274,7 @@ const PriceCalculator = () => {
     }
 
     return weightPerUnit * quantity;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProduct, dimensions, productTypes]);
 
   const calculatePrice = useMemo(() => {
@@ -361,6 +363,7 @@ const PriceCalculator = () => {
       total: subtotal,
       pricePerKg: totalWeight > 0 ? subtotal / totalWeight : 0,
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedProduct,
     selectedGrade,

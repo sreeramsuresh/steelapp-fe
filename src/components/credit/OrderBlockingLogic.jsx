@@ -111,7 +111,14 @@ const OrderBlockingLogic = ({
       {/* Modal Backdrop */}
       <div
         className={`fixed inset-0 z-50 ${isDarkMode ? 'bg-black/60' : 'bg-black/40'}`}
+        role="button"
+        tabIndex={0}
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            onClose();
+          }
+        }}
       />
 
       {/* Modal Container */}

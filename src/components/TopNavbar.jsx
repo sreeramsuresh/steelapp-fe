@@ -245,6 +245,14 @@ const TopNavbar = ({
                         markAsRead(n.id);
                         if (n.link) window.location.href = n.link;
                       }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          markAsRead(n.id);
+                          if (n.link) window.location.href = n.link;
+                        }
+                      }}
                     >
                       <h4
                         className={`text-sm font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
@@ -272,6 +280,7 @@ const TopNavbar = ({
                   className={`p-4 border-t text-center ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
                 >
                   <button
+                    onClick={() => console.log('View all notifications')}
                     className={`text-sm font-medium transition-colors duration-200 hover:underline ${
                       isDarkMode
                         ? 'text-teal-400 hover:text-teal-300'

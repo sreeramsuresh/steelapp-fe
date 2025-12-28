@@ -345,6 +345,7 @@ const SalesAgentsManagement = () => {
               {/* Commission Rate */}
               <div>
                 <label
+                  htmlFor="commission-rate-input"
                   className={`block text-sm font-medium mb-1 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}
@@ -352,6 +353,7 @@ const SalesAgentsManagement = () => {
                   Commission Rate (%)
                 </label>
                 <input
+                  id="commission-rate-input"
                   type="number"
                   step="0.01"
                   min="0"
@@ -375,6 +377,7 @@ const SalesAgentsManagement = () => {
               {/* Employee Code */}
               <div>
                 <label
+                  htmlFor="employee-code-input"
                   className={`block text-sm font-medium mb-1 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}
@@ -382,6 +385,7 @@ const SalesAgentsManagement = () => {
                   Employee Code
                 </label>
                 <input
+                  id="employee-code-input"
                   type="text"
                   value={editForm.employeeCode}
                   onChange={(e) =>
@@ -399,6 +403,7 @@ const SalesAgentsManagement = () => {
               {/* Hire Date */}
               <div>
                 <label
+                  htmlFor="hire-date-input"
                   className={`block text-sm font-medium mb-1 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}
@@ -406,6 +411,7 @@ const SalesAgentsManagement = () => {
                   Hire Date
                 </label>
                 <input
+                  id="hire-date-input"
                   type="date"
                   value={editForm.hireDate}
                   onChange={(e) =>
@@ -422,6 +428,7 @@ const SalesAgentsManagement = () => {
               {/* Department */}
               <div>
                 <label
+                  htmlFor="department-input"
                   className={`block text-sm font-medium mb-1 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}
@@ -429,6 +436,7 @@ const SalesAgentsManagement = () => {
                   Department
                 </label>
                 <input
+                  id="department-input"
                   type="text"
                   value={editForm.department}
                   onChange={(e) =>

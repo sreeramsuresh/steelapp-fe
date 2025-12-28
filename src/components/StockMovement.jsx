@@ -365,6 +365,7 @@ const StockMovement = () => {
               />
             </div>
             <button
+              onClick={() => console.log('Apply filter')}
               className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
                 isDarkMode
                   ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
@@ -686,6 +687,9 @@ const StockMovement = () => {
             <div
               className="fixed inset-0 bg-black bg-opacity-50"
               onClick={handleCloseDialog}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleCloseDialog()}
             />
             <div
               className={`relative max-w-2xl w-full rounded-2xl shadow-xl ${
@@ -748,7 +752,7 @@ const StockMovement = () => {
                               : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                           }`}
                         />
-                        {productSearching && (
+                        {_productSearching && (
                           <div
                             className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >

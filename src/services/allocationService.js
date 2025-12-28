@@ -16,7 +16,7 @@ export const allocationService = {
    * @param {Object} params - Additional query parameters
    * @returns {Promise<Array>} Array of available batches with FIFO ordering
    */
-  async getAvailableBatches(productId, warehouseId, params = {}) {
+  async getAvailableBatches(productId, warehouseId, _params = {}) {
     const queryParams = {
       productId,
       warehouseId,
@@ -39,7 +39,7 @@ export const allocationService = {
    * @param {Object} params - Additional parameters
    * @returns {Promise<Object>} Allocation result with batch allocations
    */
-  async allocateFIFO(productId, warehouseId, quantity, params = {}) {
+  async allocateFIFO(productId, warehouseId, quantity, _params = {}) {
     const payload = {
       productId,
       warehouseId,
@@ -59,7 +59,7 @@ export const allocationService = {
    * @param {Object} params - Additional parameters
    * @returns {Promise<Object>} Preview of what batches would be allocated
    */
-  async previewFIFO(productId, warehouseId, quantity, params = {}) {
+  async previewFIFO(productId, warehouseId, quantity, _params = {}) {
     const queryParams = {
       productId,
       warehouseId,

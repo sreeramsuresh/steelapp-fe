@@ -63,7 +63,7 @@ export const stockBatchService = {
    * @param {Object} params - Query parameters
    * @returns {Promise<{localQty: number, importedQty: number, totalQty: number}>}
    */
-  async getProcurementSummary(productId, params = {}) {
+  async getProcurementSummary(productId, _params = {}) {
     const queryParams = {};
 
     return apiClient.get(

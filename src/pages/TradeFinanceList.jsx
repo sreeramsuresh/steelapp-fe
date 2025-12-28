@@ -480,11 +480,13 @@ const TradeFinanceModal = ({
             {/* Document Type */}
             <div>
               <label
+                htmlFor="tf-document-type"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Document Type <span className="text-red-500">*</span>
               </label>
               <select
+                id="tf-document-type"
                 value={formData.document_type}
                 onChange={(e) => handleChange('document_type', e.target.value)}
                 disabled={!!editingRecord}
@@ -505,11 +507,13 @@ const TradeFinanceModal = ({
             {/* Reference Number */}
             <div>
               <label
+                htmlFor="tf-reference-number"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Reference Number <span className="text-red-500">*</span>
               </label>
               <input
+                id="tf-reference-number"
                 type="text"
                 value={formData.reference_number}
                 onChange={(e) =>
@@ -532,11 +536,13 @@ const TradeFinanceModal = ({
             {/* Link to Import Order */}
             <div>
               <label
+                htmlFor="tf-import-order"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Linked Import Order
               </label>
               <select
+                id="tf-import-order"
                 value={formData.import_order_id || ''}
                 onChange={(e) =>
                   handleChange(
@@ -563,11 +569,13 @@ const TradeFinanceModal = ({
             {/* Issuing Bank */}
             <div>
               <label
+                htmlFor="tf-issuing-bank"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issuing Bank <span className="text-red-500">*</span>
               </label>
               <input
+                id="tf-issuing-bank"
                 type="text"
                 value={formData.issuing_bank}
                 onChange={(e) => handleChange('issuing_bank', e.target.value)}
@@ -588,11 +596,13 @@ const TradeFinanceModal = ({
             {/* Advising Bank */}
             <div>
               <label
+                htmlFor="tf-advising-bank"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Advising Bank
               </label>
               <input
+                id="tf-advising-bank"
                 type="text"
                 value={formData.advising_bank}
                 onChange={(e) => handleChange('advising_bank', e.target.value)}
@@ -608,11 +618,13 @@ const TradeFinanceModal = ({
             {/* Applicant */}
             <div>
               <label
+                htmlFor="tf-applicant"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Applicant (Buyer/Importer)
               </label>
               <input
+                id="tf-applicant"
                 type="text"
                 value={formData.applicant}
                 onChange={(e) => handleChange('applicant', e.target.value)}
@@ -628,12 +640,14 @@ const TradeFinanceModal = ({
             {/* Beneficiary */}
             <div>
               <label
+                htmlFor="tf-beneficiary"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Beneficiary (Seller/Supplier){' '}
                 <span className="text-red-500">*</span>
               </label>
               <input
+                id="tf-beneficiary"
                 type="text"
                 value={formData.beneficiary}
                 onChange={(e) => handleChange('beneficiary', e.target.value)}
@@ -654,11 +668,13 @@ const TradeFinanceModal = ({
             {/* Amount */}
             <div>
               <label
+                htmlFor="tf-amount"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Amount <span className="text-red-500">*</span>
               </label>
               <input
+                id="tf-amount"
                 type="number"
                 value={formData.amount}
                 onChange={(e) => handleChange('amount', e.target.value)}
@@ -679,11 +695,13 @@ const TradeFinanceModal = ({
             {/* Currency */}
             <div>
               <label
+                htmlFor="tf-currency"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Currency <span className="text-red-500">*</span>
               </label>
               <select
+                id="tf-currency"
                 value={formData.currency}
                 onChange={(e) => handleChange('currency', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
@@ -703,11 +721,13 @@ const TradeFinanceModal = ({
             {/* Issue Date */}
             <div>
               <label
+                htmlFor="tf-issue-date"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Issue Date <span className="text-red-500">*</span>
               </label>
               <input
+                id="tf-issue-date"
                 type="date"
                 value={formData.issue_date}
                 onChange={(e) => handleChange('issue_date', e.target.value)}
@@ -725,11 +745,13 @@ const TradeFinanceModal = ({
             {/* Expiry Date */}
             <div>
               <label
+                htmlFor="tf-expiry-date"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Expiry Date <span className="text-red-500">*</span>
               </label>
               <input
+                id="tf-expiry-date"
                 type="date"
                 value={formData.expiry_date}
                 onChange={(e) => handleChange('expiry_date', e.target.value)}
@@ -749,11 +771,13 @@ const TradeFinanceModal = ({
             {/* Latest Shipment Date */}
             <div>
               <label
+                htmlFor="tf-latest-shipment-date"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Latest Shipment Date
               </label>
               <input
+                id="tf-latest-shipment-date"
                 type="date"
                 value={formData.latest_shipment_date}
                 onChange={(e) =>
@@ -770,11 +794,13 @@ const TradeFinanceModal = ({
             {/* Tenor */}
             <div>
               <label
+                htmlFor="tf-tenor"
                 className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Tenor
               </label>
               <select
+                id="tf-tenor"
                 value={formData.tenor}
                 onChange={(e) => handleChange('tenor', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
@@ -842,11 +868,13 @@ const TradeFinanceModal = ({
                 {/* Special Conditions */}
                 <div>
                   <label
+                    htmlFor="tf-special-conditions"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Special Conditions
                   </label>
                   <textarea
+                    id="tf-special-conditions"
                     value={formData.special_conditions}
                     onChange={(e) =>
                       handleChange('special_conditions', e.target.value)
@@ -864,11 +892,13 @@ const TradeFinanceModal = ({
                 {/* Notes */}
                 <div>
                   <label
+                    htmlFor="tf-notes"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Notes
                   </label>
                   <textarea
+                    id="tf-notes"
                     value={formData.notes}
                     onChange={(e) => handleChange('notes', e.target.value)}
                     rows="2"
@@ -884,6 +914,7 @@ const TradeFinanceModal = ({
                 {/* File Upload */}
                 <div>
                   <label
+                    htmlFor="tf-file-upload"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Attach Document Copy
@@ -926,11 +957,13 @@ const TradeFinanceModal = ({
                 {/* Amendment Number (Read Only) */}
                 <div>
                   <label
+                    htmlFor="tf-amendment-number"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Amendment Number
                   </label>
                   <input
+                    id="tf-amendment-number"
                     type="text"
                     value={`Amendment #${formData.amendment_number}`}
                     readOnly
@@ -945,11 +978,13 @@ const TradeFinanceModal = ({
                 {/* Amendment Date */}
                 <div>
                   <label
+                    htmlFor="tf-amendment-date"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Amendment Date
                   </label>
                   <input
+                    id="tf-amendment-date"
                     type="date"
                     value={formData.amendment_date}
                     onChange={(e) =>
@@ -967,11 +1002,13 @@ const TradeFinanceModal = ({
               {/* Amendment Details */}
               <div>
                 <label
+                  htmlFor="tf-amendment-details"
                   className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Amendment Details <span className="text-red-500">*</span>
                 </label>
                 <textarea
+                  id="tf-amendment-details"
                   value={formData.amendment_details}
                   onChange={(e) =>
                     handleChange('amendment_details', e.target.value)

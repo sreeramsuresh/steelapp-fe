@@ -332,10 +332,11 @@ const CommissionPanel = ({
 
           <div className="space-y-4">
             <div>
-              <label className={`${textColor} block text-sm font-medium mb-2`}>
+              <label htmlFor="commission-amount" className={`${textColor} block text-sm font-medium mb-2`}>
                 New Commission Amount (AED)
               </label>
               <input
+                id="commission-amount"
                 type="number"
                 value={adjustedAmount}
                 onChange={(e) => setAdjustedAmount(e.target.value)}
@@ -353,10 +354,11 @@ const CommissionPanel = ({
             </div>
 
             <div>
-              <label className={`${textColor} block text-sm font-medium mb-2`}>
+              <label htmlFor="adjustment-reason" className={`${textColor} block text-sm font-medium mb-2`}>
                 Reason for Adjustment
               </label>
               <textarea
+                id="adjustment-reason"
                 value={adjustmentReason}
                 onChange={(e) => setAdjustmentReason(e.target.value)}
                 placeholder="Enter reason for adjustment (required)"

@@ -56,6 +56,14 @@ export const DashboardSection = ({
             : 'bg-gray-50 hover:bg-gray-100 border-b border-gray-200'
         }`}
         onClick={() => setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
       >
         <div className="flex items-center gap-3">
           {icon && (
@@ -91,10 +99,22 @@ export const DashboardSection = ({
         </div>
         <div className="flex items-center gap-3">
           {headerAction && (
-            <div onClick={(e) => e.stopPropagation()}>{headerAction}</div>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.stopPropagation();
+                }
+              }}
+            >
+              {headerAction}
+            </div>
           )}
           <button
             className={`p-1 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-200 text-gray-600'}`}
+            onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>

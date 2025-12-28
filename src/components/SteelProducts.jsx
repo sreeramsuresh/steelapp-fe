@@ -2884,6 +2884,7 @@ const SteelProducts = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <label
+                          htmlFor="commodity-input"
                           className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Commodity
@@ -2893,6 +2894,7 @@ const SteelProducts = () => {
                         </Tooltip>
                       </div>
                       <input
+                        id="commodity-input"
                         type="text"
                         value={newProduct.commodity}
                         onChange={(e) =>
@@ -2916,6 +2918,7 @@ const SteelProducts = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <label
+                          htmlFor="category-select"
                           className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Form Type / Category
@@ -2926,6 +2929,7 @@ const SteelProducts = () => {
                       </div>
                       <div className="relative">
                         <select
+                          id="category-select"
                           value={newProduct.category}
                           onChange={(e) =>
                             setNewProduct({
@@ -2957,6 +2961,7 @@ const SteelProducts = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <label
+                          htmlFor="grade-input"
                           className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Grade
@@ -2972,6 +2977,7 @@ const SteelProducts = () => {
                       </div>
                       <div className="relative">
                         <select
+                          id="grade-input"
                           value={newProduct.grade}
                           onChange={(e) => {
                             setNewProduct({
@@ -3022,6 +3028,7 @@ const SteelProducts = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <label
+                          htmlFor="finish-select"
                           className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Surface Finish
@@ -3037,6 +3044,7 @@ const SteelProducts = () => {
                       </div>
                       <div className="relative">
                         <select
+                          id="finish-select"
                           value={(newProduct.finish || '').trim()}
                           onChange={(e) =>
                             setNewProduct({
@@ -3073,6 +3081,7 @@ const SteelProducts = () => {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <label
+                              htmlFor="size-inch-input"
                               className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                             >
                               Size (inches)
@@ -3082,6 +3091,7 @@ const SteelProducts = () => {
                             </Tooltip>
                           </div>
                           <input
+                            id="size-inch-input"
                             type="text"
                             value={newProduct.sizeInch}
                             onChange={(e) =>
@@ -3103,6 +3113,7 @@ const SteelProducts = () => {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <label
+                              htmlFor="od-input"
                               className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                             >
                               OD (Outer Diameter)
@@ -3112,6 +3123,7 @@ const SteelProducts = () => {
                             </Tooltip>
                           </div>
                           <input
+                            id="od-input"
                             type="text"
                             value={newProduct.od}
                             onChange={(e) =>
@@ -3133,6 +3145,7 @@ const SteelProducts = () => {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <label
+                              htmlFor="length-input"
                               className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                             >
                               Length
@@ -3142,6 +3155,7 @@ const SteelProducts = () => {
                             </Tooltip>
                           </div>
                           <input
+                            id="length-input"
                             type="text"
                             value={newProduct.length}
                             onChange={(e) =>
@@ -3165,6 +3179,7 @@ const SteelProducts = () => {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <label
+                            htmlFor="dimensions-input"
                             className={`block text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                           >
                             Dimensions (mm)
@@ -3174,6 +3189,7 @@ const SteelProducts = () => {
                           </Tooltip>
                         </div>
                         <input
+                          id="dimensions-input"
                           type="text"
                           value={newProduct.size}
                           onChange={(e) =>

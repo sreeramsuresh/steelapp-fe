@@ -410,10 +410,11 @@ const CustomerCreditPanel = ({
 
           <div className="space-y-4">
             <div>
-              <label className={`${textColor} block text-sm font-medium mb-2`}>
+              <label htmlFor="current-credit-limit" className={`${textColor} block text-sm font-medium mb-2`}>
                 Current Credit Limit (AED)
               </label>
               <input
+                id="current-credit-limit"
                 type="text"
                 value={(customer.creditLimit || 0).toLocaleString('en-US', {
                   maximumFractionDigits: 2,
@@ -428,10 +429,11 @@ const CustomerCreditPanel = ({
             </div>
 
             <div>
-              <label className={`${textColor} block text-sm font-medium mb-2`}>
+              <label htmlFor="new-credit-limit" className={`${textColor} block text-sm font-medium mb-2`}>
                 New Credit Limit (AED)
               </label>
               <input
+                id="new-credit-limit"
                 type="number"
                 value={newCreditLimit}
                 onChange={(e) => setNewCreditLimit(e.target.value)}
@@ -449,10 +451,11 @@ const CustomerCreditPanel = ({
             </div>
 
             <div>
-              <label className={`${textColor} block text-sm font-medium mb-2`}>
+              <label htmlFor="review-reason" className={`${textColor} block text-sm font-medium mb-2`}>
                 Reason for Review
               </label>
               <textarea
+                id="review-reason"
                 value={reviewReason}
                 onChange={(e) => setReviewReason(e.target.value)}
                 placeholder="Payment history improvement, business growth, risk assessment, etc."

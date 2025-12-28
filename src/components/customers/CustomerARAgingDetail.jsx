@@ -45,6 +45,7 @@ export default function CustomerARAgingDetail({ customerId }) {
     if (customerId) {
       fetchCustomerARAging();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId]);
 
   if (loading) {

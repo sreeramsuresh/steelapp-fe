@@ -179,6 +179,14 @@ const CategoryPerformanceWidget = ({
                 onMouseEnter={() => setHoveredCategory(cat.name)}
                 onMouseLeave={() => setHoveredCategory(null)}
                 onClick={() => onCategoryClick?.(cat)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onCategoryClick?.(cat);
+                  }
+                }}
               >
                 {width > 10 && (
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white">
@@ -208,6 +216,14 @@ const CategoryPerformanceWidget = ({
             onMouseEnter={() => setHoveredCategory(category.name)}
             onMouseLeave={() => setHoveredCategory(null)}
             onClick={() => onCategoryClick?.(category)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onCategoryClick?.(category);
+              }
+            }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
