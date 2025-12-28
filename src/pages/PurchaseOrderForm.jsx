@@ -2104,7 +2104,7 @@ const PurchaseOrderForm = () => {
               <div className="grid grid-cols-12 gap-3">
                 {/* Row 1: PO Number, Date, Expected Delivery */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>PO Number</label>
+                  <label htmlFor="po-number" className={LABEL_CLASSES(isDarkMode)}>PO Number</label>
                   <input
                     id="po-number"
                     type="text"
@@ -2117,7 +2117,7 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>PO Date</label>
+                  <label htmlFor="po-date" className={LABEL_CLASSES(isDarkMode)}>PO Date</label>
                   <input
                     id="po-date"
                     type="date"
@@ -2129,7 +2129,7 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="expected-delivery-date" className={LABEL_CLASSES(isDarkMode)}>
                     Expected Delivery
                   </label>
                   <input
@@ -3075,10 +3075,11 @@ const PurchaseOrderForm = () => {
               {/* Additional Charges */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="freight-charges" className={LABEL_CLASSES(isDarkMode)}>
                     Freight Charges
                   </label>
                   <input
+                    id="freight-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.freightCharges}
@@ -3090,10 +3091,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="shipping-charges" className={LABEL_CLASSES(isDarkMode)}>
                     Shipping Charges
                   </label>
                   <input
+                    id="shipping-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.shippingCharges}
@@ -3105,10 +3107,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="handling-charges" className={LABEL_CLASSES(isDarkMode)}>
                     Handling Charges
                   </label>
                   <input
+                    id="handling-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.handlingCharges}
@@ -3120,10 +3123,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="other-charges" className={LABEL_CLASSES(isDarkMode)}>
                     Other Charges
                   </label>
                   <input
+                    id="other-charges"
                     type="number"
                     step="0.01"
                     value={purchaseOrder.otherCharges}

@@ -80,6 +80,7 @@ const CustomerPerspective = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId, start, end]);
 
   const totals = useMemo(() => {

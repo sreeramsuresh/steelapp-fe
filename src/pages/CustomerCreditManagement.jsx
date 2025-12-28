@@ -5,7 +5,6 @@ import { useTheme } from '../contexts/ThemeContext';
 
 export default function CustomerCreditManagement() {
   const { isDarkMode } = useTheme();
-  const [_customers, _setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [creditDetails, setCreditDetails] = useState(null);
   const [agingData, setAgingData] = useState(null);
