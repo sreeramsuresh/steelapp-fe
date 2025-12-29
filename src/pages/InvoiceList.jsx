@@ -575,6 +575,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       clearTimeout(timeoutId);
       abortController.abort();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pageSize, searchTerm, statusFilter, showDeleted]);
 
   // Reset to page 1 when filters change
@@ -3088,6 +3089,14 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
           <div
             className="absolute inset-0 bg-black/30 sm:relative sm:flex-1"
             onClick={handleCloseRecordPaymentDrawer}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleCloseRecordPaymentDrawer();
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close payment drawer"
           ></div>
           {/* Drawer: full width on mobile, max-w-xl on desktop */}
           <div
@@ -3392,6 +3401,9 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                               : 'bg-white border-gray-200'
                                           }`}
                                           onClick={(e) => e.stopPropagation()}
+                                          onKeyDown={(e) => e.stopPropagation()}
+                                          role="menu"
+                                          tabIndex={0}
                                         >
                                           <div
                                             className={`px-3 py-2 text-xs font-semibold border-b ${

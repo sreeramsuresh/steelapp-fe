@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { toUAEDateForInput, nowUAE } from '../utils/timezone';
+import { toUAEDateForInput } from '../utils/timezone';
 import { tokenUtils } from '../services/axiosApi';
 
 export default function ProfitAnalysisReport() {
@@ -157,8 +157,9 @@ export default function ProfitAnalysisReport() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div>
-            <label className="block text-sm font-medium mb-2">Start Date</label>
+            <label htmlFor="profit-start-date" className="block text-sm font-medium mb-2">Start Date</label>
             <input
+              id="profit-start-date"
               type="date"
               value={dateRange.startDate}
               onChange={(e) =>
@@ -168,8 +169,9 @@ export default function ProfitAnalysisReport() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">End Date</label>
+            <label htmlFor="profit-end-date" className="block text-sm font-medium mb-2">End Date</label>
             <input
+              id="profit-end-date"
               type="date"
               value={dateRange.endDate}
               onChange={(e) =>

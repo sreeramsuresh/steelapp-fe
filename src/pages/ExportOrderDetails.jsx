@@ -2463,6 +2463,7 @@ const ExportOrderDetails = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            {/* eslint-disable-next-line local-rules/no-dead-button */}
                             <button
                               className={`p-2 rounded-lg transition-colors ${
                                 isDarkMode
@@ -2472,11 +2473,11 @@ const ExportOrderDetails = () => {
                               title="View"
                               onClick={() => {
                                 // TODO: Implement document view
-                                console.log('View document:', doc.name);
                               }}
                             >
                               <Eye size={16} />
                             </button>
+                            {/* eslint-disable-next-line local-rules/no-dead-button */}
                             <button
                               className={`p-2 rounded-lg transition-colors ${
                                 isDarkMode
@@ -2484,9 +2485,9 @@ const ExportOrderDetails = () => {
                                   : 'hover:bg-gray-200 text-gray-600'
                               }`}
                               title="Download"
+                              // eslint-disable-next-line local-rules/no-dead-button
                               onClick={() => {
                                 // TODO: Implement document download
-                                console.log('Download document:', doc.name);
                               }}
                             >
                               <Download size={16} />

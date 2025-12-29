@@ -817,7 +817,18 @@ const POTab = ({ canManage }) => {
       {/* Drawer */}
       {drawer.open && drawer.item && (
         <div className="fixed inset-0 z-[1100] flex">
-          <div className="flex-1 bg-black/30" onClick={closeDrawer}></div>
+          <div
+            className="flex-1 bg-black/30"
+            onClick={closeDrawer}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                closeDrawer();
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close drawer"
+          ></div>
           <div
             className={`w-full max-w-md h-full overflow-auto ${isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'} shadow-xl`}
           >

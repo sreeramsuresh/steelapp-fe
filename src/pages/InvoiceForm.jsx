@@ -295,9 +295,11 @@ const ChargesDrawer = ({
               <>
                 {/* Export Toggle */}
                 <label
+                  htmlFor="invoice-is-export"
                   className={`flex items-center gap-2 cursor-pointer mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   <input
+                    id="invoice-is-export"
                     type="checkbox"
                     checked={invoice.isExport || false}
                     onChange={(e) => {

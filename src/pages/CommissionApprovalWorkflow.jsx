@@ -296,6 +296,14 @@ export default function CommissionApprovalWorkflow() {
                     key={idx}
                     className={`p-4 cursor-pointer transition ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                     onClick={() => setSelectedCommission(commission)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedCommission(commission);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -448,11 +456,11 @@ export default function CommissionApprovalWorkflow() {
                   <div className="p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label
+                        <div
                           className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Invoice
-                        </label>
+                        </div>
                         <p
                           className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                         >
@@ -460,31 +468,31 @@ export default function CommissionApprovalWorkflow() {
                         </p>
                       </div>
                       <div>
-                        <label
+                        <div
                           className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Status
-                        </label>
+                        </div>
                         <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded inline-block">
                           PENDING
                         </span>
                       </div>
                       <div>
-                        <label
+                        <div
                           className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Commission Amount
-                        </label>
+                        </div>
                         <p className="text-2xl font-bold text-blue-600">
                           ${(commissionAmount || 0).toFixed(2)}
                         </p>
                       </div>
                       <div>
-                        <label
+                        <div
                           className={`block text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                         >
                           Grace Period End
-                        </label>
+                        </div>
                         <p
                           className={
                             isDarkMode ? 'text-gray-300' : 'text-gray-900'

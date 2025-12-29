@@ -572,6 +572,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     {/* API URL */}
                     <div>
                       <label
+                        htmlFor="fta-api-url"
                         className={`block text-sm font-medium mb-1.5 ${
                           isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
@@ -583,6 +584,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                         </div>
                       </label>
                       <input
+                        id="fta-api-url"
                         type="url"
                         value={formData.api_url}
                         onChange={(e) =>

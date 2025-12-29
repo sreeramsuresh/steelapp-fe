@@ -561,6 +561,14 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setFulfillDialog({ open: false, reservation: null })}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setFulfillDialog({ open: false, reservation: null });
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close dialog"
           />
           <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <h3 className="text-lg font-semibold text-white mb-4">
@@ -589,10 +597,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 </strong>
               </p>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="fulfill-quantity" className="block text-sm font-medium text-gray-300 mb-2">
                   Quantity to Fulfill
                 </label>
                 <input
+                  id="fulfill-quantity"
                   type="number"
                   value={fulfillQuantity}
                   onChange={(e) => setFulfillQuantity(e.target.value)}
@@ -642,6 +651,14 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setCancelDialog({ open: false, reservation: null })}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setCancelDialog({ open: false, reservation: null });
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close dialog"
           />
           <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <h3 className="text-lg font-semibold text-white mb-4">
@@ -664,10 +681,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 of reserved stock.
               </p>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="cancel-reason" className="block text-sm font-medium text-gray-300 mb-2">
                   Cancellation Reason (Optional)
                 </label>
                 <textarea
+                  id="cancel-reason"
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                   rows={2}

@@ -505,7 +505,7 @@ const PaymentDrawer = ({
                                           : 'bg-white border-gray-200'
                                       }`}
                                       onClick={(e) => e.stopPropagation()}
-                                      onKeyDown={(e) => { if (e.key === 'Escape') setIsDropdownOpen(false); }}
+                                      onKeyDown={(e) => { if (e.key === 'Escape') onVoidDropdownToggle(null); }}
                                       role="menu"
                                       tabIndex={-1}
                                     >

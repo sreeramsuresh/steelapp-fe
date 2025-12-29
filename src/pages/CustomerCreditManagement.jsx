@@ -249,6 +249,14 @@ export default function CustomerCreditManagement() {
                     <div
                       key={customer.id}
                       onClick={() => handleSelectCustomer(customer)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleSelectCustomer(customer);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                       className={`p-4 cursor-pointer transition ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -338,6 +346,14 @@ export default function CustomerCreditManagement() {
                     <div
                       key={customer.id}
                       onClick={() => handleSelectCustomer(customer)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleSelectCustomer(customer);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                       className={`p-4 cursor-pointer transition border-l-4 border-red-500 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -548,11 +564,13 @@ export default function CustomerCreditManagement() {
                   <div className="space-y-3">
                     <div>
                       <label
+                        htmlFor="new-credit-limit-input"
                         className={`block text-sm font-semibold mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         New Credit Limit
                       </label>
                       <input
+                        id="new-credit-limit-input"
                         type="number"
                         value={newCreditLimit}
                         onChange={(e) => setNewCreditLimit(e.target.value)}
@@ -562,11 +580,13 @@ export default function CustomerCreditManagement() {
                     </div>
                     <div>
                       <label
+                        htmlFor="credit-update-reason-textarea"
                         className={`block text-sm font-semibold mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                       >
                         Reason
                       </label>
                       <textarea
+                        id="credit-update-reason-textarea"
                         value={adjustmentReason}
                         onChange={(e) => setAdjustmentReason(e.target.value)}
                         className={`w-full border rounded px-3 py-2 text-sm ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}

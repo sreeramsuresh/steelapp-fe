@@ -185,6 +185,7 @@ const PurchaseOrderList = () => {
 
   useEffect(() => {
     fetchPurchaseOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, searchTerm, statusFilter]);
 
   const { data: company } = useApiData(companyService.getCompany, [], true);

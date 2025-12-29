@@ -38,7 +38,7 @@ const StockMovementPage = () => {
 
   // Sub-views for reservations
   const [showReservationForm, setShowReservationForm] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState(null);
+  const [_selectedReservation, setSelectedReservation] = useState(null);
 
   // Tab definitions - sentence case, matching Import/Export pattern
   const tabs = [
@@ -87,7 +87,7 @@ const StockMovementPage = () => {
     setTransferView('create');
   };
 
-  const handleTransferCreated = (transfer) => {
+  const handleTransferCreated = () => {
     setTransferView('list');
   };
 
@@ -106,12 +106,13 @@ const StockMovementPage = () => {
     setShowReservationForm(true);
   };
 
-  const handleReservationCreated = (reservation) => {
-    setShowReservationForm(false);
-  };
-
   const handleViewReservation = (reservation) => {
     setSelectedReservation(reservation);
+    // Additional logic for viewing reservation can be added here if needed
+  };
+
+  const handleReservationCreated = () => {
+    setShowReservationForm(false);
   };
 
   // Render tab content

@@ -49,6 +49,7 @@ const ImportOrderList = () => {
 
   useEffect(() => {
     loadOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   // Handle search

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Search,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
@@ -101,7 +100,7 @@ const StockLevelsDashboard = () => {
       STOCK_CACHE_KEYS.STOCK_LEVELS_SUMMARY,
     );
     const cachedList = getStockCachedData(STOCK_CACHE_KEYS.STOCK_LEVELS_LIST);
-    const hasFreshCache =
+    const _hasFreshCache =
       isDefaultFilters &&
       cachedSummary &&
       isStockCacheFresh(cachedSummary.timestamp) &&

@@ -523,6 +523,14 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             onClick={() =>
               setActionDialog({ open: false, type: null, transfer: null })
             }
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setActionDialog({ open: false, type: null, transfer: null });
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close dialog"
           />
 
           {/* Dialog */}

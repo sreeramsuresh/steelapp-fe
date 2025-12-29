@@ -19,6 +19,7 @@ export default function BatchesModal({
     if (isOpen && productId) {
       fetchBatches();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, productId, warehouseId]);
 
   const fetchBatches = async () => {
@@ -49,6 +50,14 @@ export default function BatchesModal({
         <div
           className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
           onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onClose();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close modal"
         />
 
         <div

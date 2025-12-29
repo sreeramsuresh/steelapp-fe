@@ -1194,6 +1194,14 @@ const CustomsDocumentList = () => {
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={() => setShowModal(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setShowModal(false);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close modal"
           />
           <div
             className={`relative z-10 w-full max-w-4xl mx-4 rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto ${
@@ -1860,6 +1868,14 @@ const CustomsDocumentList = () => {
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={() => setShowCalculator(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setShowCalculator(false);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close calculator"
           />
           <div
             className={`relative z-10 w-full max-w-lg mx-4 rounded-xl shadow-2xl ${

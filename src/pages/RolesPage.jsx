@@ -6,7 +6,6 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableHeader,
   TableRow,
 } from '@/components/ui/table';
 import { roleService } from '../services/roleService';
@@ -216,10 +215,11 @@ export default function RolesPage() {
             </h2>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="role-name" className="block text-sm font-medium mb-1">
                   Role Name
                 </label>
                 <input
+                  id="role-name"
                   type="text"
                   value={formData.name}
                   onChange={(e) =>
@@ -234,10 +234,11 @@ export default function RolesPage() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="role-display-name" className="block text-sm font-medium mb-1">
                   Display Name
                 </label>
                 <input
+                  id="role-display-name"
                   type="text"
                   value={formData.displayName}
                   onChange={(e) =>
@@ -252,10 +253,11 @@ export default function RolesPage() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="role-description" className="block text-sm font-medium mb-1">
                   Description
                 </label>
                 <textarea
+                  id="role-description"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })

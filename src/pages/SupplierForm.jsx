@@ -503,6 +503,7 @@ export function SupplierForm() {
     if (isEditMode) {
       loadSupplier();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadSupplier = async () => {
@@ -1335,11 +1336,12 @@ export function SupplierForm() {
                   </div>
 
                   <div>
-                    <label className={labelClasses}>
+                    <label htmlFor="tradeLicenseFile" className={labelClasses}>
                       <Upload size={14} className="inline mr-1" />
                       Trade License File
                     </label>
                     <input
+                      id="tradeLicenseFile"
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>
@@ -1361,11 +1363,12 @@ export function SupplierForm() {
                   </div>
 
                   <div>
-                    <label className={labelClasses}>
+                    <label htmlFor="vatCertificateFile" className={labelClasses}>
                       <Upload size={14} className="inline mr-1" />
                       VAT Certificate File
                     </label>
                     <input
+                      id="vatCertificateFile"
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>
@@ -1527,7 +1530,7 @@ export function SupplierForm() {
 
                   {/* Is Mill Checkbox */}
                   <div>
-                    <label className={labelClasses}>
+                    <label htmlFor="isMill" className={labelClasses}>
                       <Factory size={14} className="inline mr-1" />
                       Manufacturer Status
                     </label>
@@ -1538,8 +1541,9 @@ export function SupplierForm() {
                           : 'bg-white border-gray-300'
                       }`}
                     >
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label htmlFor="isMill" className="flex items-center gap-2 cursor-pointer">
                         <input
+                          id="isMill"
                           type="checkbox"
                           checked={formData.isMill}
                           onChange={(e) =>
@@ -1596,11 +1600,12 @@ export function SupplierForm() {
 
                   {/* Typical Lead Time */}
                   <div>
-                    <label className={labelClasses}>
+                    <label htmlFor="typicalLeadTimeDays" className={labelClasses}>
                       <Clock size={14} className="inline mr-1" />
                       Typical Lead Time (Days)
                     </label>
                     <input
+                      id="typicalLeadTimeDays"
                       type="number"
                       value={formData.typicalLeadTimeDays}
                       onChange={(e) =>
@@ -1690,16 +1695,18 @@ export function SupplierForm() {
 
                   {/* Material Grade Specialization - Multi-select */}
                   <div className="md:col-span-2">
-                    <label className={labelClasses}>
+                    <label htmlFor="materialGradeSpecialization" className={labelClasses}>
                       Material Grade Specialization
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg">
+                    <div id="materialGradeSpecialization" className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg">
                       {MATERIAL_GRADE_OPTIONS.map((grade) => (
                         <label
                           key={grade.value}
+                          htmlFor={`grade-${grade.value}`}
                           className="flex items-center gap-2 cursor-pointer"
                         >
                           <input
+                            id={`grade-${grade.value}`}
                             type="checkbox"
                             checked={formData.materialGradeSpecialization.includes(
                               grade.value,
@@ -1724,16 +1731,18 @@ export function SupplierForm() {
 
                   {/* Product Form Capabilities - Multi-select */}
                   <div className="md:col-span-2">
-                    <label className={labelClasses}>
+                    <label htmlFor="productFormCapabilities" className={labelClasses}>
                       Product Form Capabilities
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg">
+                    <div id="productFormCapabilities" className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg">
                       {PRODUCT_FORM_OPTIONS.map((form) => (
                         <label
                           key={form.value}
+                          htmlFor={`form-${form.value}`}
                           className="flex items-center gap-2 cursor-pointer"
                         >
                           <input
+                            id={`form-${form.value}`}
                             type="checkbox"
                             checked={formData.productFormCapabilities.includes(
                               form.value,
@@ -1775,13 +1784,14 @@ export function SupplierForm() {
 
                   {/* Quality Certifications */}
                   <div>
-                    <label className={labelClasses}>
+                    <label htmlFor="qualityCertifications" className={labelClasses}>
                       <Award size={14} className="inline mr-1" />
                       Quality Certifications
                     </label>
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-2 cursor-pointer">
+                    <div id="qualityCertifications" className="space-y-2">
+                      <label htmlFor="iso9001" className="flex items-center gap-2 cursor-pointer">
                         <input
+                          id="iso9001"
                           type="checkbox"
                           checked={formData.qualityCertifications.iso9001}
                           onChange={(e) =>
@@ -1799,8 +1809,9 @@ export function SupplierForm() {
                           ISO 9001 (Quality Management)
                         </span>
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label htmlFor="iso14001" className="flex items-center gap-2 cursor-pointer">
                         <input
+                          id="iso14001"
                           type="checkbox"
                           checked={formData.qualityCertifications.iso14001}
                           onChange={(e) =>
@@ -1823,11 +1834,12 @@ export function SupplierForm() {
 
                   {/* ISO Certificates Upload */}
                   <div>
-                    <label className={labelClasses}>
+                    <label htmlFor="isoCertificatesFile" className={labelClasses}>
                       <Upload size={14} className="inline mr-1" />
                       ISO Certificates File
                     </label>
                     <input
+                      id="isoCertificatesFile"
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) =>

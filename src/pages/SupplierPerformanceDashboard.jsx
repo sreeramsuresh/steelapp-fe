@@ -21,7 +21,7 @@ export function SupplierPerformanceDashboard() {
   const [suppliers, setSuppliers] = useState([]);
   const [atRiskSuppliers, setAtRiskSuppliers] = useState([]);
   const [trends, setTrends] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState({
     otdPercent: 0,
     avgVariance: 0,

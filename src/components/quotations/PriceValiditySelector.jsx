@@ -15,11 +15,13 @@ export default function PriceValiditySelector({ value, onChange }) {
   return (
     <div className="space-y-2">
       <label
+        htmlFor="price-validity"
         className={`block text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
       >
         Price Validity Condition
       </label>
       <select
+        id="price-validity"
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         className={`w-full px-3 py-2 rounded-lg border ${

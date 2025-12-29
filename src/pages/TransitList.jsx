@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import {
   Eye,
   Navigation,
-  Package,
-  FileText,
   Search,
   ChevronDown,
 } from 'lucide-react';

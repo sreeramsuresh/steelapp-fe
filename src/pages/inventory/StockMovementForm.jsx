@@ -19,7 +19,6 @@ import {
   ArrowLeft,
   AlertCircle,
   Package,
-  Warehouse,
   ChevronDown,
   ArrowUpRight,
   ArrowDownRight,
@@ -390,6 +389,7 @@ const StockMovementForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Product */}
                     <div className="col-span-12 md:col-span-6">
+                      {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                       <label className={`block text-xs ${textMuted} mb-1.5`}>
                         Product <span className="text-red-500">*</span>
                       </label>
@@ -515,10 +515,11 @@ const StockMovementForm = () => {
 
                     {/* Warehouse */}
                     <div className="col-span-12 md:col-span-6">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="stock-warehouse" className={`block text-xs ${textMuted} mb-1.5`}>
                         Warehouse <span className="text-red-500">*</span>
                       </label>
                       <FormSelect
+                        id="stock-warehouse"
                         value={formData.warehouseId || 'none'}
                         onValueChange={(value) =>
                           handleChange(
@@ -650,10 +651,11 @@ const StockMovementForm = () => {
 
                     {/* Reference Type */}
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="stock-reference-type" className={`block text-xs ${textMuted} mb-1.5`}>
                         Reference Type
                       </label>
                       <FormSelect
+                        id="stock-reference-type"
                         value={formData.referenceType}
                         onValueChange={(value) =>
                           handleChange('referenceType', value)
@@ -673,10 +675,11 @@ const StockMovementForm = () => {
 
                     {/* Reference Number */}
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="stock-reference-number" className={`block text-xs ${textMuted} mb-1.5`}>
                         Reference #
                       </label>
                       <input
+                        id="stock-reference-number"
                         type="text"
                         value={formData.referenceNumber}
                         onChange={(e) =>
@@ -690,10 +693,11 @@ const StockMovementForm = () => {
 
                     {/* Movement Date */}
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="stock-movement-date" className={`block text-xs ${textMuted} mb-1.5`}>
                         Date
                       </label>
                       <input
+                        id="stock-movement-date"
                         type="date"
                         value={formData.movementDate}
                         onChange={(e) =>
@@ -726,10 +730,11 @@ const StockMovementForm = () => {
                   <div className={`p-3 border-t ${cardBorder}`}>
                     <div className="grid grid-cols-12 gap-3">
                       <div className="col-span-6 md:col-span-3">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="stock-unit-cost" className={`block text-xs ${textMuted} mb-1.5`}>
                           Unit Cost
                         </label>
                         <input
+                          id="stock-unit-cost"
                           type="number"
                           step="0.01"
                           min="0"
@@ -743,10 +748,11 @@ const StockMovementForm = () => {
                         />
                       </div>
                       <div className="col-span-6 md:col-span-3">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="stock-batch-number" className={`block text-xs ${textMuted} mb-1.5`}>
                           Batch #
                         </label>
                         <input
+                          id="stock-batch-number"
                           type="text"
                           value={formData.batchNumber}
                           onChange={(e) =>
@@ -758,10 +764,11 @@ const StockMovementForm = () => {
                         />
                       </div>
                       <div className="col-span-6 md:col-span-3">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="stock-coil-number" className={`block text-xs ${textMuted} mb-1.5`}>
                           Coil #
                         </label>
                         <input
+                          id="stock-coil-number"
                           type="text"
                           value={formData.coilNumber}
                           onChange={(e) =>
@@ -773,10 +780,11 @@ const StockMovementForm = () => {
                         />
                       </div>
                       <div className="col-span-6 md:col-span-3">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="stock-heat-number" className={`block text-xs ${textMuted} mb-1.5`}>
                           Heat #
                         </label>
                         <input
+                          id="stock-heat-number"
                           type="text"
                           value={formData.heatNumber}
                           onChange={(e) =>

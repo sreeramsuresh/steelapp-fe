@@ -161,6 +161,7 @@ const DebitNoteForm = () => {
       }
     }
     loadWarehouses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- This effect should only run on mount and when id changes. Adding all dependencies would cause unnecessary re-runs. searchParams is stable but loadSupplierBill, loadDebitNote, loadNextDebitNoteNumber, and loadWarehouses are stable functions.
   }, [id]);
 
   // Load warehouses
@@ -714,10 +715,11 @@ const DebitNoteForm = () => {
 
                   {/* Reason Category */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="reasonCategory" className={`block text-xs ${textMuted} mb-1.5`}>
                       Reason Category
                     </label>
                     <FormSelect
+                      id="reasonCategory"
                       value={debitNote.reasonCategory}
                       onValueChange={(value) =>
                         setDebitNote((prev) => ({
@@ -737,10 +739,11 @@ const DebitNoteForm = () => {
 
                   {/* VAT Category */}
                   <div className="col-span-6 md:col-span-4">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="vatCategory" className={`block text-xs ${textMuted} mb-1.5`}>
                       VAT Category
                     </label>
                     <FormSelect
+                      id="vatCategory"
                       value={debitNote.vatCategory}
                       onValueChange={(value) =>
                         setDebitNote((prev) => ({
@@ -760,10 +763,11 @@ const DebitNoteForm = () => {
 
                   {/* Reason */}
                   <div className="col-span-12 md:col-span-8">
-                    <label className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="reason" className={`block text-xs ${textMuted} mb-1.5`}>
                       Reason <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="reason"
                       type="text"
                       value={debitNote.reason}
                       onChange={(e) =>
@@ -815,10 +819,11 @@ const DebitNoteForm = () => {
                       <div className="grid grid-cols-12 gap-2">
                         {/* Description */}
                         <div className="col-span-12 md:col-span-5">
-                          <label className={`block text-xs ${textMuted} mb-1`}>
+                          <label htmlFor={`item-description-${index}`} className={`block text-xs ${textMuted} mb-1`}>
                             Description
                           </label>
                           <input
+                            id={`item-description-${index}`}
                             type="text"
                             value={item.description}
                             onChange={(e) =>
@@ -835,10 +840,11 @@ const DebitNoteForm = () => {
 
                         {/* Quantity */}
                         <div className="col-span-4 md:col-span-2">
-                          <label className={`block text-xs ${textMuted} mb-1`}>
+                          <label htmlFor={`item-quantity-${index}`} className={`block text-xs ${textMuted} mb-1`}>
                             Qty
                           </label>
                           <input
+                            id={`item-quantity-${index}`}
                             type="number"
                             min="0"
                             step="0.01"
@@ -856,10 +862,11 @@ const DebitNoteForm = () => {
 
                         {/* Unit Price */}
                         <div className="col-span-4 md:col-span-2">
-                          <label className={`block text-xs ${textMuted} mb-1`}>
+                          <label htmlFor={`item-unitPrice-${index}`} className={`block text-xs ${textMuted} mb-1`}>
                             Unit Price
                           </label>
                           <input
+                            id={`item-unitPrice-${index}`}
                             type="number"
                             min="0"
                             step="0.01"
@@ -877,10 +884,11 @@ const DebitNoteForm = () => {
 
                         {/* Amount */}
                         <div className="col-span-3 md:col-span-2">
-                          <label className={`block text-xs ${textMuted} mb-1`}>
+                          <label htmlFor={`item-amount-${index}`} className={`block text-xs ${textMuted} mb-1`}>
                             Amount
                           </label>
                           <input
+                            id={`item-amount-${index}`}
                             type="text"
                             value={formatCurrency(item.amount)}
                             disabled
@@ -933,10 +941,11 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="settlementType" className={`block text-xs ${textMuted} mb-1.5`}>
                         Settlement Type
                       </label>
                       <FormSelect
+                        id="settlementType"
                         value={debitNote.settlementType}
                         onValueChange={(value) =>
                           setDebitNote((prev) => ({
@@ -955,10 +964,11 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="paymentReference" className={`block text-xs ${textMuted} mb-1.5`}>
                         Payment Reference
                       </label>
                       <input
+                        id="paymentReference"
                         type="text"
                         value={debitNote.paymentReference}
                         onChange={(e) =>
@@ -973,10 +983,11 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="settlementDate" className={`block text-xs ${textMuted} mb-1.5`}>
                         Settlement Date
                       </label>
                       <input
+                        id="settlementDate"
                         type="date"
                         value={debitNote.settlementDate}
                         onChange={(e) =>
@@ -1012,10 +1023,11 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="currency" className={`block text-xs ${textMuted} mb-1.5`}>
                         Currency
                       </label>
                       <FormSelect
+                        id="currency"
                         value={debitNote.currency}
                         onValueChange={(value) =>
                           setDebitNote((prev) => ({
@@ -1034,10 +1046,11 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="exchangeRate" className={`block text-xs ${textMuted} mb-1.5`}>
                         Exchange Rate
                       </label>
                       <input
+                        id="exchangeRate"
                         type="number"
                         min="0.0001"
                         step="0.0001"
@@ -1053,10 +1066,11 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-12 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="amountInBaseCurrency" className={`block text-xs ${textMuted} mb-1.5`}>
                         Amount in Base Currency (AED)
                       </label>
                       <input
+                        id="amountInBaseCurrency"
                         type="text"
                         value={formatCurrency(debitNote.amountInBaseCurrency)}
                         disabled
@@ -1095,10 +1109,11 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-12 md:col-span-8">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="attachmentUrls" className={`block text-xs ${textMuted} mb-1.5`}>
                         Attachment URLs (comma-separated)
                       </label>
                       <textarea
+                        id="attachmentUrls"
                         value={debitNote.attachmentUrls.join(', ')}
                         onChange={(e) =>
                           setDebitNote((prev) => ({
@@ -1116,10 +1131,11 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-12 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="approvalStatus" className={`block text-xs ${textMuted} mb-1.5`}>
                         Approval Status
                       </label>
                       <FormSelect
+                        id="approvalStatus"
                         value={debitNote.approvalStatus}
                         onValueChange={(value) =>
                           setDebitNote((prev) => ({
@@ -1183,10 +1199,11 @@ const DebitNoteForm = () => {
 
                     {debitNote.stockImpact && (
                       <div className="col-span-12 md:col-span-6">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="warehouseId" className={`block text-xs ${textMuted} mb-1.5`}>
                           Warehouse
                         </label>
                         <FormSelect
+                          id="warehouseId"
                           value={debitNote.warehouseId?.toString() || ''}
                           onValueChange={(value) =>
                             setDebitNote((prev) => ({
@@ -1229,10 +1246,11 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="version" className={`block text-xs ${textMuted} mb-1.5`}>
                         Version
                       </label>
                       <input
+                        id="version"
                         type="text"
                         value={debitNote.version}
                         disabled
@@ -1245,10 +1263,11 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="previousAmount" className={`block text-xs ${textMuted} mb-1.5`}>
                         Previous Amount
                       </label>
                       <input
+                        id="previousAmount"
                         type="text"
                         value={formatCurrency(debitNote.previousAmount)}
                         disabled
@@ -1261,13 +1280,14 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-12 md:col-span-12">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="modificationReason" className={`block text-xs ${textMuted} mb-1.5`}>
                         Modification Reason{' '}
                         {debitNote.version > 1 && (
                           <span className="text-red-500">*</span>
                         )}
                       </label>
                       <textarea
+                        id="modificationReason"
                         value={debitNote.modificationReason}
                         onChange={(e) =>
                           setDebitNote((prev) => ({

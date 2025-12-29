@@ -95,6 +95,14 @@ export default function AlternativeProductsModal({
         <div
           className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
           onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onClose();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close modal"
         />
 
         <div
@@ -135,6 +143,7 @@ export default function AlternativeProductsModal({
             {localAlternatives.length < 3 && (
               <div className="mb-4">
                 <label
+                  htmlFor="search-alternatives"
                   className={`block text-sm font-medium mb-2 ${
                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}
@@ -145,6 +154,7 @@ export default function AlternativeProductsModal({
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
+                      id="search-alternatives"
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -214,6 +224,7 @@ export default function AlternativeProductsModal({
                     <div className="flex-1 space-y-2">
                       <div>
                         <label
+                          htmlFor={`product-name-${index}`}
                           className={`block text-xs font-medium mb-1 ${
                             isDarkMode ? 'text-gray-300' : 'text-gray-700'
                           }`}
@@ -221,6 +232,7 @@ export default function AlternativeProductsModal({
                           Product
                         </label>
                         <input
+                          id={`product-name-${index}`}
                           type="text"
                           value={alt.productName}
                           disabled
@@ -234,6 +246,7 @@ export default function AlternativeProductsModal({
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label
+                            htmlFor={`price-diff-${index}`}
                             className={`block text-xs font-medium mb-1 ${
                               isDarkMode ? 'text-gray-300' : 'text-gray-700'
                             }`}
@@ -241,6 +254,7 @@ export default function AlternativeProductsModal({
                             Price Difference (%)
                           </label>
                           <input
+                            id={`price-diff-${index}`}
                             type="number"
                             step="0.1"
                             value={alt.priceDifference}
@@ -267,6 +281,7 @@ export default function AlternativeProductsModal({
                         </div>
                         <div>
                           <label
+                            htmlFor={`notes-${index}`}
                             className={`block text-xs font-medium mb-1 ${
                               isDarkMode ? 'text-gray-300' : 'text-gray-700'
                             }`}
@@ -274,6 +289,7 @@ export default function AlternativeProductsModal({
                             Notes (optional)
                           </label>
                           <input
+                            id={`notes-${index}`}
                             type="text"
                             value={alt.notes}
                             onChange={(e) =>

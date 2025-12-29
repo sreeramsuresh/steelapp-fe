@@ -13,7 +13,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   ShoppingCart,
-  FileText,
   Receipt,
   FileMinus,
   Coins,
@@ -25,7 +24,7 @@ import { AdvancePaymentList } from './payments';
 
 const PurchasesDashboard = () => {
   const { isDarkMode } = useTheme();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('purchase-orders');
 
   // Auto-open tab if navigated with tab parameter

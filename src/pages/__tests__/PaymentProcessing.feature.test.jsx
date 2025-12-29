@@ -338,6 +338,7 @@ describe('Payment Processing Feature', () => {
               value={reference}
               onChange={(e) => setReference(e.target.value)}
             />
+            {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button>Record Payment</button>
           </>
         );

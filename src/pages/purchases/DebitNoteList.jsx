@@ -15,7 +15,6 @@ import {
   Trash2,
   Eye,
   FileText,
-  Download,
   Check,
   X,
   ChevronLeft,
@@ -487,11 +486,13 @@ const DebitNoteList = () => {
                 {/* Vendor */}
                 <div>
                   <label
+                    htmlFor="vendorFilter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Vendor
                   </label>
                   <select
+                    id="vendorFilter"
                     value={vendorFilter}
                     onChange={(e) => setVendorFilter(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
@@ -512,11 +513,13 @@ const DebitNoteList = () => {
                 {/* Start Date */}
                 <div>
                   <label
+                    htmlFor="startDateFilter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     From Date
                   </label>
                   <input
+                    id="startDateFilter"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
@@ -531,11 +534,13 @@ const DebitNoteList = () => {
                 {/* End Date */}
                 <div>
                   <label
+                    htmlFor="endDateFilter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     To Date
                   </label>
                   <input
+                    id="endDateFilter"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
@@ -698,6 +703,13 @@ const DebitNoteList = () => {
                         <div
                           className="flex items-center justify-end gap-2"
                           onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.stopPropagation();
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
                         >
                           {/* View */}
                           <button

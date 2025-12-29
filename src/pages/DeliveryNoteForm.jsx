@@ -1439,7 +1439,9 @@ const DeliveryNoteForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="delivery-city" className={LABEL_CLASSES(isDarkMode)}>City</label>
+                  <label htmlFor="delivery-city" className={LABEL_CLASSES(isDarkMode)}>
+                    City
+                  </label>
                   <input
                     id="delivery-city"
                     type="text"
@@ -1452,7 +1454,9 @@ const DeliveryNoteForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="delivery-pobox" className={LABEL_CLASSES(isDarkMode)}>PO Box</label>
+                  <label htmlFor="delivery-pobox" className={LABEL_CLASSES(isDarkMode)}>
+                    PO Box
+                  </label>
                   <input
                     id="delivery-pobox"
                     type="text"

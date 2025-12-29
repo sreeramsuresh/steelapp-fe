@@ -161,7 +161,7 @@ export function validateRequestContract(config: {
   headers?: Record<string, string>;
   responseType?: string;
 }): void {
-  const { method = 'GET', url = '', data, responseType } = config;
+  const { method = 'GET', url = '', data } = config;
 
   // Find matching contract
   const contract = matchContract({ method, url });

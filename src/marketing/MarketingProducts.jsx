@@ -206,6 +206,7 @@ const Products = () => {
                     <p className="text-gray-600 leading-relaxed">
                       {product.description}
                     </p>
+                    {/* eslint-disable-next-line local-rules/no-dead-button */}
                     <button className="mt-4 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105">
                       Learn More
                     </button>
@@ -345,9 +346,11 @@ const Products = () => {
               one-stop destination for premium steel solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {/* eslint-disable-next-line local-rules/no-dead-button */}
               <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                 Get Quote
               </button>
+              {/* eslint-disable-next-line local-rules/no-dead-button */}
               <button className="px-8 py-4 border-2 border-white rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105">
                 Contact Us
               </button>

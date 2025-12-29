@@ -57,6 +57,7 @@ describe('Purchase Order Feature', () => {
               ))}
             </div>
             <div>Total: {po.total}</div>
+            {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button>Save PO</button>
           </>
         );
@@ -312,6 +313,7 @@ describe('Purchase Order Feature', () => {
             <div>Supplier: {batch.supplier}</div>
             <div>Qty: {batch.quantity}</div>
             <div>Received: {batch.dateReceived}</div>
+            {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button>Save Batch</button>
           </>
         );

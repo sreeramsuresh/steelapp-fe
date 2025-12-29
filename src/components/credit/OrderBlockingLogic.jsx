@@ -122,18 +122,15 @@ const OrderBlockingLogic = ({
       />
 
       {/* Modal Container */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
         <div
           className={`relative max-w-md w-full rounded-lg shadow-2xl ${
             isDarkMode
               ? 'bg-gray-900 border border-gray-700'
               : 'bg-white border border-gray-200'
           }`}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
           role="dialog"
           aria-modal="true"
-          tabIndex={-1}
         >
           {/* Close Button */}
           <button

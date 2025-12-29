@@ -336,12 +336,14 @@ const StockMovementList = () => {
                 {/* Movement Type */}
                 <div className="min-w-[180px]">
                   <label
+                    htmlFor="movement-type-filter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Movement Type
                   </label>
                   <div className="relative">
                     <select
+                      id="movement-type-filter"
                       value={movementTypeFilter}
                       onChange={(e) => {
                         setMovementTypeFilter(e.target.value);
@@ -372,12 +374,14 @@ const StockMovementList = () => {
                 {/* Date From */}
                 <div className="min-w-[160px]">
                   <label
+                    htmlFor="movement-date-from"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     From Date
                   </label>
                   <div className="relative">
                     <input
+                      id="movement-date-from"
                       type="date"
                       value={dateFrom}
                       onChange={(e) => {
@@ -396,12 +400,14 @@ const StockMovementList = () => {
                 {/* Date To */}
                 <div className="min-w-[160px]">
                   <label
+                    htmlFor="movement-date-to"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     To Date
                   </label>
                   <div className="relative">
                     <input
+                      id="movement-date-to"
                       type="date"
                       value={dateTo}
                       onChange={(e) => {

@@ -3,7 +3,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import {
   BarChart3,
   TrendingUp,
-  FileText,
   PieChart,
   Receipt,
   Loader2,

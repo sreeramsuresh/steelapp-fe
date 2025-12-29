@@ -44,6 +44,14 @@ export default function VolumeDiscountTiersModal({
         <div
           className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
           onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onClose();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close modal"
         />
 
         <div
@@ -86,6 +94,7 @@ export default function VolumeDiscountTiersModal({
                   <div className="flex-1 grid grid-cols-3 gap-3">
                     <div>
                       <label
+                        htmlFor={`min-quantity-${index}`}
                         className={`block text-xs font-medium mb-1 ${
                           isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
@@ -93,6 +102,7 @@ export default function VolumeDiscountTiersModal({
                         Min Quantity (kg/MT)
                       </label>
                       <input
+                        id={`min-quantity-${index}`}
                         type="number"
                         value={tier.minQuantity}
                         onChange={(e) =>
@@ -112,6 +122,7 @@ export default function VolumeDiscountTiersModal({
                     </div>
                     <div>
                       <label
+                        htmlFor={`discount-pct-${index}`}
                         className={`block text-xs font-medium mb-1 ${
                           isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
@@ -119,6 +130,7 @@ export default function VolumeDiscountTiersModal({
                         Discount %
                       </label>
                       <input
+                        id={`discount-pct-${index}`}
                         type="number"
                         step="0.1"
                         value={tier.discountPercentage}
@@ -139,6 +151,7 @@ export default function VolumeDiscountTiersModal({
                     </div>
                     <div>
                       <label
+                        htmlFor={`tier-description-${index}`}
                         className={`block text-xs font-medium mb-1 ${
                           isDarkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}
@@ -146,6 +159,7 @@ export default function VolumeDiscountTiersModal({
                         Description (optional)
                       </label>
                       <input
+                        id={`tier-description-${index}`}
                         type="text"
                         value={tier.description}
                         onChange={(e) =>

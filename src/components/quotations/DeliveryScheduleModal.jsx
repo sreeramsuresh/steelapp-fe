@@ -88,6 +88,14 @@ export default function DeliveryScheduleModal({
         <div
           className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
           onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onClose();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close modal"
         />
 
         <div
@@ -191,6 +199,7 @@ export default function DeliveryScheduleModal({
                     <div className="flex-1 grid grid-cols-3 gap-3">
                       <div>
                         <label
+                          htmlFor={`delivery-date-${index}`}
                           className={`block text-xs font-medium mb-1 ${
                             isDarkMode ? 'text-gray-300' : 'text-gray-700'
                           }`}
@@ -198,6 +207,7 @@ export default function DeliveryScheduleModal({
                           Delivery Date *
                         </label>
                         <input
+                          id={`delivery-date-${index}`}
                           type="date"
                           value={entry.date}
                           onChange={(e) =>
@@ -212,6 +222,7 @@ export default function DeliveryScheduleModal({
                       </div>
                       <div>
                         <label
+                          htmlFor={`delivery-quantity-${index}`}
                           className={`block text-xs font-medium mb-1 ${
                             isDarkMode ? 'text-gray-300' : 'text-gray-700'
                           }`}
@@ -219,6 +230,7 @@ export default function DeliveryScheduleModal({
                           Quantity *
                         </label>
                         <input
+                          id={`delivery-quantity-${index}`}
                           type="number"
                           step="0.01"
                           value={entry.quantity}
@@ -239,6 +251,7 @@ export default function DeliveryScheduleModal({
                       </div>
                       <div>
                         <label
+                          htmlFor={`delivery-notes-${index}`}
                           className={`block text-xs font-medium mb-1 ${
                             isDarkMode ? 'text-gray-300' : 'text-gray-700'
                           }`}
@@ -246,6 +259,7 @@ export default function DeliveryScheduleModal({
                           Notes (optional)
                         </label>
                         <input
+                          id={`delivery-notes-${index}`}
                           type="text"
                           value={entry.notes}
                           onChange={(e) =>

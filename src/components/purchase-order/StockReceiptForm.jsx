@@ -453,14 +453,11 @@ const StockReceiptForm = ({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
         <div
           className={`${modalBg} border ${modalBorder} rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl`}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => { if (e.key === 'Escape' && !loading) onClose(); }}
           role="dialog"
           aria-modal="true"
-          tabIndex={-1}
         >
           {/* Header */}
           <div
@@ -515,12 +512,12 @@ const StockReceiptForm = ({
             {/* GRN Section (Epic 3 - RECV-001) */}
             <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
               <div className="flex items-center justify-between mb-3">
-                <label
+                <div
                   className={`text-xs font-medium ${textMuted} flex items-center gap-2`}
                 >
                   <FileText className="w-4 h-4" />
                   Goods Receipt Note (GRN)
-                </label>
+                </div>
                 {grnStatus === 'draft' && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500 text-white">
                     Draft
@@ -541,10 +538,11 @@ const StockReceiptForm = ({
 
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label className={`text-xs ${textMuted} mb-1 block`}>
+                  <label htmlFor="grn-number" className={`text-xs ${textMuted} mb-1 block`}>
                     GRN Number
                   </label>
                   <input
+                    id="grn-number"
                     type="text"
                     value={grnNumber}
                     disabled
@@ -552,10 +550,11 @@ const StockReceiptForm = ({
                   />
                 </div>
                 <div>
-                  <label className={`text-xs ${textMuted} mb-1 block`}>
+                  <label htmlFor="grn-date" className={`text-xs ${textMuted} mb-1 block`}>
                     GRN Date
                   </label>
                   <input
+                    id="grn-date"
                     type="date"
                     value={grnDate}
                     onChange={(e) => setGrnDate(e.target.value)}
@@ -605,6 +604,7 @@ const StockReceiptForm = ({
             {/* Warehouse Selection */}
             <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
               <label
+                htmlFor="destination-warehouse"
                 className={`text-xs font-medium ${textMuted} mb-2 flex items-center gap-2`}
               >
                 <Warehouse className="w-4 h-4" />
@@ -612,6 +612,7 @@ const StockReceiptForm = ({
               </label>
               <div className="relative">
                 <select
+                  id="destination-warehouse"
                   value={selectedWarehouseId}
                   onChange={(e) => setSelectedWarehouseId(e.target.value)}
                   disabled={loadingWarehouses}

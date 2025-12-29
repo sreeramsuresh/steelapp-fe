@@ -11,7 +11,6 @@ import {
   Plus,
   Search,
   Filter,
-  Edit,
   Eye,
   FileText,
   Download,
@@ -883,11 +882,13 @@ const AdvancePaymentList = () => {
                 {/* Start Date */}
                 <div>
                   <label
+                    htmlFor="advance-payment-start-date"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     From Date
                   </label>
                   <input
+                    id="advance-payment-start-date"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
@@ -902,11 +903,13 @@ const AdvancePaymentList = () => {
                 {/* End Date */}
                 <div>
                   <label
+                    htmlFor="advance-payment-end-date"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     To Date
                   </label>
                   <input
+                    id="advance-payment-end-date"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
@@ -1091,6 +1094,13 @@ const AdvancePaymentList = () => {
                         <div
                           className="flex items-center justify-end gap-2"
                           onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.stopPropagation();
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
                         >
                           {/* View */}
                           <button

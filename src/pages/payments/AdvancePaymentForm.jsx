@@ -112,7 +112,6 @@ const AdvancePaymentForm = () => {
   // Invoice list for applying payment
   const [customerInvoices, setCustomerInvoices] = useState([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
-  const [showApplySection, setShowApplySection] = useState(false);
 
   // Payment data state
   const [payment, setPayment] = useState({
@@ -177,6 +176,7 @@ const AdvancePaymentForm = () => {
         loadCustomerById(customerIdParam);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // Search customers when search term changes
@@ -191,12 +191,9 @@ const AdvancePaymentForm = () => {
     return () => clearTimeout(timer);
   }, [customerSearch, selectedCustomer]);
 
-  // Load customer invoices when customer is selected and apply section is shown
-  useEffect(() => {
-    if (selectedCustomer && showApplySection) {
-      loadCustomerInvoices(selectedCustomer.id);
-    }
-  }, [selectedCustomer, showApplySection]);
+  // Load customer invoices when customer is selected (removed showApplySection - no longer used)
+  // Invoices are loaded when the accordion is opened via the details element
+  // No automatic loading needed here
 
   // Calculate VAT when amount changes
   const calculateVatFromTotal = (totalAmount) => {
@@ -870,11 +867,13 @@ const AdvancePaymentForm = () => {
                       payment.amountInBaseCurrency !== null && (
                       <div className="col-span-6">
                         <label
+                          htmlFor="amountInBaseCurrency"
                           className={`block text-xs ${textMuted} mb-1.5`}
                         >
                             Amount in AED (Calculated)
                         </label>
                         <input
+                          id="amountInBaseCurrency"
                           type="text"
                           value={formatCurrency(payment.amountInBaseCurrency)}
                           readOnly
@@ -1016,11 +1015,13 @@ const AdvancePaymentForm = () => {
                       <>
                         <div className="col-span-6">
                           <label
+                            htmlFor="approvedBy"
                             className={`block text-xs ${textMuted} mb-1.5`}
                           >
                             Approved By
                           </label>
                           <input
+                            id="approvedBy"
                             type="text"
                             value={payment.approvedBy || ''}
                             readOnly
@@ -1029,11 +1030,13 @@ const AdvancePaymentForm = () => {
                         </div>
                         <div className="col-span-6">
                           <label
+                            htmlFor="approvedAt"
                             className={`block text-xs ${textMuted} mb-1.5`}
                           >
                             Approved At
                           </label>
                           <input
+                            id="approvedAt"
                             type="text"
                             value={
                               payment.approvedAt
@@ -1071,10 +1074,11 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Allocated Amount - read-only */}
                     <div className="col-span-6">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="allocatedAmount" className={`block text-xs ${textMuted} mb-1.5`}>
                         Allocated Amount
                       </label>
                       <input
+                        id="allocatedAmount"
                         type="text"
                         value={formatCurrency(payment.allocatedAmount)}
                         readOnly
@@ -1084,10 +1088,11 @@ const AdvancePaymentForm = () => {
 
                     {/* Unallocated Amount - read-only */}
                     <div className="col-span-6">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="unallocatedAmount" className={`block text-xs ${textMuted} mb-1.5`}>
                         Unallocated Amount
                       </label>
                       <input
+                        id="unallocatedAmount"
                         type="text"
                         value={
                           payment.unallocatedAmount !== null
@@ -1301,10 +1306,11 @@ const AdvancePaymentForm = () => {
                     {/* Settlement Date - read-only */}
                     {payment.settlementDate && (
                       <div className="col-span-6">
-                        <label className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label htmlFor="settlementDate" className={`block text-xs ${textMuted} mb-1.5`}>
                           Settlement Date
                         </label>
                         <input
+                          id="settlementDate"
                           type="text"
                           value={
                             payment.settlementDate
@@ -1497,6 +1503,11 @@ const AdvancePaymentForm = () => {
               {selectedCustomer && !isEditMode && (
                 <details
                   className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
+                  onToggle={(e) => {
+                    if (e.target.open && selectedCustomer && customerInvoices.length === 0) {
+                      loadCustomerInvoices(selectedCustomer.id);
+                    }
+                  }}
                 >
                   <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
                     <div className="flex items-center gap-2">

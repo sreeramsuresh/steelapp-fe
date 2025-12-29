@@ -71,6 +71,7 @@ const AutocompleteInput = ({
     if (value !== searchTerm) {
       setSearchTerm(value);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   // Filter items based on search term

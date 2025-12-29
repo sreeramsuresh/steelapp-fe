@@ -123,6 +123,14 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
                   <div
                     className="fixed inset-0 z-10"
                     onClick={() => setMenuOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setMenuOpen(false);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Close menu"
                   />
                   <div
                     className={`absolute right-0 mt-1 w-40 rounded-lg shadow-lg z-20 ${

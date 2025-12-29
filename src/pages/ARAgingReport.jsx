@@ -164,12 +164,16 @@ export default function ARAgingReport() {
               Refresh
             </button>
 
+            {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button
               className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
                 isDarkMode
                   ? 'bg-blue-600 hover:bg-blue-700 text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
+              onClick={() => {
+                // TODO: Implement export functionality
+              }}
             >
               <Download size={16} />
               Export

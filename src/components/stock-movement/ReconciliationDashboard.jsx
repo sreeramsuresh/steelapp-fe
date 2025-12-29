@@ -437,10 +437,11 @@ const ReconciliationDashboard = () => {
             </select>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
+              <label htmlFor="audit-start-date" className="block text-xs text-gray-400 mb-1">
                 Start Date
               </label>
               <input
+                id="audit-start-date"
                 type="date"
                 value={auditStartDate}
                 onChange={(e) => {
@@ -452,10 +453,11 @@ const ReconciliationDashboard = () => {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
+              <label htmlFor="audit-end-date" className="block text-xs text-gray-400 mb-1">
                 End Date
               </label>
               <input
+                id="audit-end-date"
                 type="date"
                 value={auditEndDate}
                 onChange={(e) => {

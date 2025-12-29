@@ -53,6 +53,14 @@ const Drawer = ({
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close dialog"
       />
       {/* Drawer panel */}
       <div
@@ -2302,11 +2310,11 @@ const CreditNoteForm = () => {
 
                     {/* Heat Number Match */}
                     <div className="md:col-span-2">
-                      <label
+                      <div
                         className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Heat Number Verification
-                      </label>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <input
                           type="text"
@@ -2394,11 +2402,11 @@ const CreditNoteForm = () => {
 
                     {/* Grade Verification - PMI Test */}
                     <div className="md:col-span-2">
-                      <label
+                      <div
                         className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Grade Verification (PMI Test)
-                      </label>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="flex items-center gap-2">
                           <input
@@ -2481,11 +2489,11 @@ const CreditNoteForm = () => {
                     {(creditNote.returnReasonCategory === 'MATERIAL_DEFECT' ||
                       creditNote.returnReasonCategory === 'WRONG_GRADE') && (
                       <div className="md:col-span-2 border-t pt-4 mt-2">
-                        <label
+                        <div
                           className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                         >
                           Quality Failure Details
-                        </label>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                           <input
                             type="text"
@@ -2586,11 +2594,11 @@ const CreditNoteForm = () => {
                     {(creditNote.returnReasonCategory === 'MATERIAL_DEFECT' ||
                       creditNote.returnReasonCategory === 'WRONG_DELIVERY') && (
                       <div className="md:col-span-2 border-t pt-4 mt-2">
-                        <label
+                        <div
                           className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                         >
                           Vendor Claim Tracking
-                        </label>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                           <Select
                             value={creditNote.vendorClaim.status}
@@ -2702,18 +2710,18 @@ const CreditNoteForm = () => {
                     {/* RMA Information - Auto-generated, display only */}
                     {creditNote.rmaNumber && (
                       <div className="md:col-span-2 border-t pt-4 mt-2">
-                        <label
+                        <div
                           className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                         >
                           RMA (Return Material Authorization)
-                        </label>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div>
-                            <label
+                            <div
                               className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               RMA Number
-                            </label>
+                            </div>
                             <div
                               className={`px-3 py-2 rounded-lg border ${
                                 isDarkMode
@@ -2725,11 +2733,11 @@ const CreditNoteForm = () => {
                             </div>
                           </div>
                           <div>
-                            <label
+                            <div
                               className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               Valid Until
-                            </label>
+                            </div>
                             <div
                               className={`px-3 py-2 rounded-lg border ${
                                 isDarkMode
@@ -2745,11 +2753,11 @@ const CreditNoteForm = () => {
                             </div>
                           </div>
                           <div>
-                            <label
+                            <div
                               className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                             >
                               RMA Status
-                            </label>
+                            </div>
                             <div
                               className={`px-3 py-2 rounded-lg border font-medium ${
                                 creditNote.rmaStatus === 'APPROVED'

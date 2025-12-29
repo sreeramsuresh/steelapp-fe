@@ -3050,6 +3050,12 @@ const PurchaseOrderForm = () => {
         <div
           className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setChargesDrawerOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setChargesDrawerOpen(false);
+          }}
+          role="button"
+          tabIndex={-1}
+          aria-label="Close charges drawer"
         />
         <div
           className={`${DRAWER_PANEL(isDarkMode)} ${chargesDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -3210,6 +3216,12 @@ const PurchaseOrderForm = () => {
         <div
           className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setDeliveryDrawerOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setDeliveryDrawerOpen(false);
+          }}
+          role="button"
+          tabIndex={-1}
+          aria-label="Close delivery drawer"
         />
         <div
           className={`${DRAWER_PANEL(isDarkMode)} ${deliveryDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -3279,10 +3291,11 @@ const PurchaseOrderForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="expectedDeliveryDate" className={LABEL_CLASSES(isDarkMode)}>
                     Expected Delivery
                   </label>
                   <input
+                    id="expectedDeliveryDate"
                     type="date"
                     value={purchaseOrder.expectedDeliveryDate}
                     onChange={(e) =>
@@ -3292,10 +3305,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="gracePeriodDays" className={LABEL_CLASSES(isDarkMode)}>
                     Grace Period (Days)
                   </label>
                   <input
+                    id="gracePeriodDays"
                     type="number"
                     min="0"
                     max="30"
@@ -3350,6 +3364,12 @@ const PurchaseOrderForm = () => {
         <div
           className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setNotesDrawerOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setNotesDrawerOpen(false);
+          }}
+          role="button"
+          tabIndex={-1}
+          aria-label="Close notes drawer"
         />
         <div
           className={`${DRAWER_PANEL(isDarkMode)} ${notesDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -3373,8 +3393,9 @@ const PurchaseOrderForm = () => {
             </div>
             <div className="mt-4 space-y-4">
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>Notes</label>
+                <label htmlFor="purchaseOrderNotes" className={LABEL_CLASSES(isDarkMode)}>Notes</label>
                 <textarea
+                  id="purchaseOrderNotes"
                   rows={4}
                   value={purchaseOrder.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
@@ -3383,10 +3404,11 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>
                   Terms & Conditions
                 </label>
                 <textarea
+                  id="purchaseOrderTerms"
                   rows={4}
                   value={purchaseOrder.terms}
                   onChange={(e) => handleInputChange('terms', e.target.value)}
@@ -3417,6 +3439,12 @@ const PurchaseOrderForm = () => {
         <div
           className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setBuyerDrawerOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setBuyerDrawerOpen(false);
+          }}
+          role="button"
+          tabIndex={-1}
+          aria-label="Close buyer drawer"
         />
         <div
           className={`${DRAWER_PANEL(isDarkMode)} ${buyerDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -3448,10 +3476,11 @@ const PurchaseOrderForm = () => {
                 Supplier Details
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="supplierName" className={LABEL_CLASSES(isDarkMode)}>
                   Supplier Name
                 </label>
                 <input
+                  id="supplierName"
                   type="text"
                   value={purchaseOrder.supplierName}
                   onChange={(e) =>
@@ -3462,10 +3491,11 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="supplierAddress" className={LABEL_CLASSES(isDarkMode)}>
                   Supplier Address
                 </label>
                 <textarea
+                  id="supplierAddress"
                   rows={2}
                   value={purchaseOrder.supplierAddress}
                   onChange={(e) =>
@@ -3492,10 +3522,11 @@ const PurchaseOrderForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="buyerName" className={LABEL_CLASSES(isDarkMode)}>
                     Buyer Name
                   </label>
                   <input
+                    id="buyerName"
                     type="text"
                     value={purchaseOrder.buyerName}
                     onChange={(e) =>
@@ -3506,10 +3537,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="buyerDepartment" className={LABEL_CLASSES(isDarkMode)}>
                     Department
                   </label>
                   <input
+                    id="buyerDepartment"
                     type="text"
                     value={purchaseOrder.buyerDepartment}
                     onChange={(e) =>
@@ -3522,10 +3554,11 @@ const PurchaseOrderForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="buyerEmail" className={LABEL_CLASSES(isDarkMode)}>
                     Buyer Email
                   </label>
                   <input
+                    id="buyerEmail"
                     type="email"
                     value={purchaseOrder.buyerEmail}
                     onChange={(e) =>
@@ -3536,10 +3569,11 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="buyerPhone" className={LABEL_CLASSES(isDarkMode)}>
                     Buyer Phone
                   </label>
                   <input
+                    id="buyerPhone"
                     type="tel"
                     value={purchaseOrder.buyerPhone}
                     onChange={(e) =>
@@ -3573,6 +3607,12 @@ const PurchaseOrderForm = () => {
         <div
           className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setPaymentDrawerOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setPaymentDrawerOpen(false);
+          }}
+          role="button"
+          tabIndex={-1}
+          aria-label="Close payment drawer"
         />
         <div
           className={`${DRAWER_PANEL(isDarkMode)} ${paymentDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -3623,8 +3663,9 @@ const PurchaseOrderForm = () => {
                   </FormSelect>
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>Due Date</label>
+                  <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>Due Date</label>
                   <input
+                    id="dueDate"
                     type="date"
                     value={purchaseOrder.dueDate}
                     onChange={(e) =>
@@ -3775,6 +3816,12 @@ const PurchaseOrderForm = () => {
         <div
           className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setApprovalDrawerOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setApprovalDrawerOpen(false);
+          }}
+          role="button"
+          tabIndex={-1}
+          aria-label="Close approval drawer"
         />
         <div
           className={`${DRAWER_PANEL(isDarkMode)} ${approvalDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -3812,10 +3859,11 @@ const PurchaseOrderForm = () => {
                   </FormSelect>
                 </div>
                 <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
+                  <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>
                     Approved By
                   </label>
                   <input
+                    id="approvedBy"
                     type="text"
                     value={purchaseOrder.approvedBy}
                     onChange={(e) =>
@@ -3827,10 +3875,11 @@ const PurchaseOrderForm = () => {
                 </div>
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="approvalDate" className={LABEL_CLASSES(isDarkMode)}>
                   Approval Date
                 </label>
                 <input
+                  id="approvalDate"
                   type="date"
                   value={purchaseOrder.approvalDate}
                   onChange={(e) =>
@@ -3840,10 +3889,11 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="approvalComments" className={LABEL_CLASSES(isDarkMode)}>
                   Approval Comments
                 </label>
                 <textarea
+                  id="approvalComments"
                   rows={4}
                   value={purchaseOrder.approvalComments}
                   onChange={(e) =>

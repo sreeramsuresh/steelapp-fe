@@ -315,11 +315,13 @@ const AccountStatementForm = () => {
           {/* Notes */}
           <div>
             <label
+              htmlFor="notes"
               className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
             >
               Notes (Optional)
             </label>
             <textarea
+              id="notes"
               name="notes"
               value={formData.notes}
               onChange={handleChange}

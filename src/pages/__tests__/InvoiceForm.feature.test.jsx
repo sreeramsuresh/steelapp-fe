@@ -266,6 +266,7 @@ describe('Invoice Feature', () => {
               onChange={(e) => setQuantity(parseInt(e.target.value))}
             />
             <div>Total Units: {quantity}</div>
+            {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button>Save Changes</button>
           </>
         );
