@@ -19,8 +19,11 @@
     "test:coverage": "npm run typecheck && vitest run --coverage",
     "test:contracts": "vitest run --testPathPattern='contract|schemas'",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:ci": "eslint src --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "lint:staged": "eslint --ext .js,.jsx,.ts,.tsx --max-warnings=0",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "pre-commit": "npm run lint:fix && npm run typecheck",
+    "prepare": "husky",
     "cypress": "cypress open",
     "cypress:headless": "cypress run",
     "test:e2e": "cypress run",
@@ -85,6 +88,7 @@
     "tailwindcss": "^3.4.18",
     "typescript": "^5.9.3",
     "vite": "^7.2.6",
-    "vitest": "^4.0.10"
+    "vitest": "^4.0.10",
+    "husky": "^9.1.7"
   }
 }
