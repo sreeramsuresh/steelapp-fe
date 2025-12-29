@@ -142,12 +142,14 @@ const AccountStatementForm = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label
+                htmlFor="account-start-date"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Start Date <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
+                  id="account-start-date"
                   type="date"
                   name="start_date"
                   value={formData.start_date}
@@ -170,12 +172,14 @@ const AccountStatementForm = () => {
 
             <div>
               <label
+                htmlFor="account-end-date"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 End Date <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
+                  id="account-end-date"
                   type="date"
                   name="end_date"
                   value={formData.end_date}

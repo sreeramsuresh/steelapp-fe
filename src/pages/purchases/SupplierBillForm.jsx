@@ -454,6 +454,15 @@ const Drawer = ({
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close drawer"
       />
       {/* Drawer Panel */}
       <div
@@ -1918,11 +1927,13 @@ const SupplierBillForm = () => {
                   <>
                     <div>
                       <label
+                        htmlFor="approved-by-display"
                         className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Approved By
                       </label>
                       <div
+                        id="approved-by-display"
                         className={`px-4 py-2 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-900 text-gray-400' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
                       >
                         User ID: {bill.approvedBy}
@@ -1930,11 +1941,13 @@ const SupplierBillForm = () => {
                     </div>
                     <div>
                       <label
+                        htmlFor="approved-at-display"
                         className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         Approved At
                       </label>
                       <div
+                        id="approved-at-display"
                         className={`px-4 py-2 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-900 text-gray-400' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
                       >
                         {bill.approvedAt
@@ -2304,11 +2317,13 @@ const SupplierBillForm = () => {
                 {/* Retention Amount - read-only, auto-calculated by trigger */}
                 <div>
                   <label
+                    htmlFor="retention-amount-display"
                     className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Retention Amount
                   </label>
                   <div
+                    id="retention-amount-display"
                     className={`px-4 py-2 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-900 text-gray-400' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
                   >
                     {formatCurrency(bill.retentionAmount)}
@@ -2416,11 +2431,13 @@ const SupplierBillForm = () => {
                       {/* Product/Description */}
                       <div className="col-span-12 md:col-span-4">
                         <label
+                          htmlFor={`item-product-${index}`}
                           className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                         >
                           Product / Description
                         </label>
                         <FormSelect
+                          id={`item-product-${index}`}
                           data-testid={`item-product-${index}`}
                           value={
                             item.productId ? String(item.productId) : 'none'
@@ -2720,12 +2737,14 @@ const SupplierBillForm = () => {
                           {/* Line Procurement Channel */}
                           <div className="col-span-6 md:col-span-2">
                             <label
+                              htmlFor={`item-procurement-channel-${index}`}
                               className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
                             >
                               <Ship className="inline h-3 w-3 mr-1" />
                               Source
                             </label>
                             <FormSelect
+                              id={`item-procurement-channel-${index}`}
                               value={
                                 item.procurementChannel ||
                                 bill.procurementChannel ||
@@ -3249,11 +3268,13 @@ const SupplierBillForm = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label
+                htmlFor="freight-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Freight Charges
               </label>
               <input
+                id="freight-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3273,11 +3294,13 @@ const SupplierBillForm = () => {
             </div>
             <div>
               <label
+                htmlFor="customs-duty"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Customs Duty
               </label>
               <input
+                id="customs-duty"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3297,11 +3320,13 @@ const SupplierBillForm = () => {
             </div>
             <div>
               <label
+                htmlFor="insurance-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Insurance Charges
               </label>
               <input
+                id="insurance-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3321,11 +3346,13 @@ const SupplierBillForm = () => {
             </div>
             <div>
               <label
+                htmlFor="handling-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Handling Charges
               </label>
               <input
+                id="handling-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3345,11 +3372,13 @@ const SupplierBillForm = () => {
             </div>
             <div className="col-span-2">
               <label
+                htmlFor="other-charges"
                 className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
               >
                 Other Charges
               </label>
               <input
+                id="other-charges"
                 type="number"
                 min="0"
                 step="0.01"
@@ -3422,11 +3451,13 @@ const SupplierBillForm = () => {
         <div className="space-y-4 mt-4">
           <div>
             <label
+              htmlFor="bill-notes"
               className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Bill Notes
             </label>
             <textarea
+              id="bill-notes"
               value={bill.notes || ''}
               onChange={(e) =>
                 setBill((prev) => ({ ...prev, notes: e.target.value }))
@@ -3442,11 +3473,13 @@ const SupplierBillForm = () => {
           </div>
           <div>
             <label
+              htmlFor="payment-terms"
               className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
             >
               Payment Terms
             </label>
             <textarea
+              id="payment-terms"
               value={bill.terms || ''}
               onChange={(e) =>
                 setBill((prev) => ({ ...prev, terms: e.target.value }))

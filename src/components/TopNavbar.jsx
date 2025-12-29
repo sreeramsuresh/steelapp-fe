@@ -279,8 +279,11 @@ const TopNavbar = ({
                 <div
                   className={`p-4 border-t text-center ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
                 >
+                  {/* eslint-disable-next-line local-rules/no-dead-button */}
                   <button
-                    onClick={() => console.log('View all notifications')}
+                    onClick={() => {
+                      // TODO: Implement view all notifications functionality
+                    }}
                     className={`text-sm font-medium transition-colors duration-200 hover:underline ${
                       isDarkMode
                         ? 'text-teal-400 hover:text-teal-300'

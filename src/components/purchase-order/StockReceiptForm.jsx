@@ -446,6 +446,10 @@ const StockReceiptForm = ({
       <div
         className={`fixed inset-0 ${overlayBg} z-40 transition-opacity`}
         onClick={() => !loading && onClose()}
+        onKeyDown={(e) => { if (e.key === 'Escape' && !loading) onClose(); }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal"
       />
 
       {/* Modal */}
@@ -453,6 +457,10 @@ const StockReceiptForm = ({
         <div
           className={`${modalBg} border ${modalBorder} rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl`}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => { if (e.key === 'Escape' && !loading) onClose(); }}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
         >
           {/* Header */}
           <div

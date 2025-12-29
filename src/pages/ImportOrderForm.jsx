@@ -13,13 +13,13 @@ import {
   FileText,
   Package,
   Upload,
-  Calculator: _Calculator,
+  Calculator as _Calculator,
   Building2,
   Globe,
   Info,
   DollarSign,
   StickyNote,
-  Settings2: _Settings2,
+  Settings2 as _Settings2,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { importOrderService } from '../services/importOrderService';

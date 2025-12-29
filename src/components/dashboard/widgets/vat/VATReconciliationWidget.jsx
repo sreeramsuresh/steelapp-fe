@@ -438,6 +438,9 @@ const VATReconciliationWidget = ({
               <div
                 key={disc.id}
                 onClick={() => onViewDiscrepancy && onViewDiscrepancy(disc)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewDiscrepancy && onViewDiscrepancy(disc); } }}
+                role="button"
+                tabIndex={0}
                 className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
                   isDarkMode
                     ? 'bg-yellow-900/20 border-yellow-700 hover:border-yellow-500'

@@ -108,6 +108,10 @@ const PaymentDrawer = ({
       <div
         className="absolute inset-0 bg-black/30 sm:relative sm:flex-1"
         onClick={onClose}
+        onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close drawer"
       ></div>
 
       {/* Drawer */}
@@ -501,6 +505,9 @@ const PaymentDrawer = ({
                                           : 'bg-white border-gray-200'
                                       }`}
                                       onClick={(e) => e.stopPropagation()}
+                                      onKeyDown={(e) => { if (e.key === 'Escape') setIsDropdownOpen(false); }}
+                                      role="menu"
+                                      tabIndex={-1}
                                     >
                                       <div
                                         className={`px-3 py-2 text-xs font-semibold border-b ${

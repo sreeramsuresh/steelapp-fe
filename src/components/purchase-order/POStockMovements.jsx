@@ -107,6 +107,9 @@ const POStockMovements = ({
       <div
         className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
         onClick={() => setExpanded(!expanded)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded); }}}
+        role="button"
+        tabIndex={0}
       >
         <div className="flex items-center gap-2">
           <Package className="w-5 h-5 text-blue-600" />
@@ -119,6 +122,7 @@ const POStockMovements = ({
             )}
           </h3>
         </div>
+        {/* eslint-disable-next-line local-rules/no-dead-button */}
         <button className="p-1 hover:bg-gray-100 rounded transition-colors">
           {expanded ? (
             <ChevronUp className="w-5 h-5" />

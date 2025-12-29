@@ -639,6 +639,13 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         <div
                           className="flex items-center justify-end gap-2"
                           onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.stopPropagation();
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
                         >
                           {/* Preview Button */}
                           <button

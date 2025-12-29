@@ -73,7 +73,8 @@ export default function COGSAnalysisReport() {
   useEffect(() => {
     loadFilterOptions();
     fetchReportData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - fetchReportData doesn't depend on external values
 
   const loadFilterOptions = async () => {
     try {
@@ -85,6 +86,8 @@ export default function COGSAnalysisReport() {
       const productsRes = await api.get('/api/products');
       setProducts(productsRes.data || []);
     } catch (error) {
+      // Error loading filter options - fail silently
+      // eslint-disable-next-line no-console
       console.error('Error loading filter options:', error);
     }
   };
@@ -105,6 +108,7 @@ export default function COGSAnalysisReport() {
 
       toast.success('Report data loaded successfully');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error fetching COGS report:', error);
       toast.error('Failed to load report data');
     } finally {
@@ -285,6 +289,7 @@ export default function COGSAnalysisReport() {
                 {/* Date Range */}
                 <div>
                   <label
+                    htmlFor="cogs-start-date"
                     className={`block text-sm font-medium mb-1 ${
                       isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
@@ -293,6 +298,7 @@ export default function COGSAnalysisReport() {
                     Start Date
                   </label>
                   <input
+                    id="cogs-start-date"
                     type="date"
                     value={dateRange.startDate}
                     onChange={(e) =>
@@ -307,6 +313,7 @@ export default function COGSAnalysisReport() {
                 </div>
                 <div>
                   <label
+                    htmlFor="cogs-end-date"
                     className={`block text-sm font-medium mb-1 ${
                       isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
@@ -315,6 +322,7 @@ export default function COGSAnalysisReport() {
                     End Date
                   </label>
                   <input
+                    id="cogs-end-date"
                     type="date"
                     value={dateRange.endDate}
                     onChange={(e) =>

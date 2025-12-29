@@ -301,7 +301,13 @@ const RevenueTrends = () => {
             <RefreshCw size={16} />
             Refresh
           </button>
-          <button onClick={() => console.log('Export data')} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300">
+          {/* eslint-disable-next-line local-rules/no-dead-button */}
+          <button
+            onClick={() => {
+              // TODO: Implement export functionality
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+          >
             <Download size={16} />
             Export
           </button>

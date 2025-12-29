@@ -130,6 +130,10 @@ const OrderBlockingLogic = ({
               : 'bg-white border border-gray-200'
           }`}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
         >
           {/* Close Button */}
           <button

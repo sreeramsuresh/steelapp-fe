@@ -224,10 +224,11 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="price-history-change-type" className="block text-sm font-medium text-gray-700 mb-1">
                 Change Type
               </label>
               <select
+                id="price-history-change-type"
                 value={selectedChangeType}
                 onChange={(e) => {
                   setSelectedChangeType(e.target.value);
@@ -242,10 +243,11 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="price-history-from-date" className="block text-sm font-medium text-gray-700 mb-1">
                 From Date
               </label>
               <input
+                id="price-history-from-date"
                 type="date"
                 value={fromDate}
                 onChange={(e) => {
@@ -256,10 +258,11 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="price-history-to-date" className="block text-sm font-medium text-gray-700 mb-1">
                 To Date
               </label>
               <input
+                id="price-history-to-date"
                 type="date"
                 value={toDate}
                 onChange={(e) => {

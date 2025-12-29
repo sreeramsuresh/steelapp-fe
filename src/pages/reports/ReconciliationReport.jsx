@@ -56,7 +56,8 @@ export default function ReconciliationReport() {
   useEffect(() => {
     loadFilterOptions();
     fetchReportData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - fetchReportData doesn't depend on external values
 
   useEffect(() => {
     // Update date range when period changes
@@ -97,6 +98,8 @@ export default function ReconciliationReport() {
         { id: 3, name: 'MS Round Bar 12mm', sku: 'MS-RB-12' },
       ]);
     } catch (error) {
+      // Error loading filter options - fail silently
+      // eslint-disable-next-line no-console
       console.error('Error loading filter options:', error);
     }
   };
@@ -114,6 +117,7 @@ export default function ReconciliationReport() {
 
       toast.success('Report data loaded successfully');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error fetching reconciliation report:', error);
       toast.error('Failed to load report data');
     } finally {
@@ -406,6 +410,7 @@ export default function ReconciliationReport() {
                 {/* Date Range */}
                 <div>
                   <label
+                    htmlFor="reconciliation-start-date"
                     className={`block text-sm font-medium mb-1 ${
                       isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
@@ -414,6 +419,7 @@ export default function ReconciliationReport() {
                     Start Date
                   </label>
                   <input
+                    id="reconciliation-start-date"
                     type="date"
                     value={dateRange.startDate}
                     onChange={(e) =>
@@ -431,6 +437,7 @@ export default function ReconciliationReport() {
                 </div>
                 <div>
                   <label
+                    htmlFor="reconciliation-end-date"
                     className={`block text-sm font-medium mb-1 ${
                       isDarkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}
@@ -438,6 +445,7 @@ export default function ReconciliationReport() {
                     End Date
                   </label>
                   <input
+                    id="reconciliation-end-date"
                     type="date"
                     value={dateRange.endDate}
                     onChange={(e) =>

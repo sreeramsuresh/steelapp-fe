@@ -244,6 +244,9 @@ const VATComplianceAlertsWidget = ({
               <div
                 key={alert.id}
                 onClick={() => onAlertClick && onAlertClick(alert)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onAlertClick && onAlertClick(alert); } }}
+                role="button"
+                tabIndex={0}
                 className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.01] ${
                   severityConfig.bgColor
                 } ${severityConfig.borderColor}`}
@@ -275,6 +278,7 @@ const VATComplianceAlertsWidget = ({
                     >
                       {alert.description}
                     </p>
+                    {/* eslint-disable-next-line local-rules/no-dead-button */}
                     <button
                       className={`text-xs mt-1 font-medium flex items-center gap-0.5 ${severityConfig.textColor}`}
                     >

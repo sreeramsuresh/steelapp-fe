@@ -537,11 +537,13 @@ const SupplierBillList = () => {
                 {/* VAT Category */}
                 <div>
                   <label
+                    htmlFor="vat-category-filter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     VAT Category
                   </label>
                   <select
+                    id="vat-category-filter"
                     value={vatCategoryFilter}
                     onChange={(e) => setVatCategoryFilter(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
@@ -561,11 +563,13 @@ const SupplierBillList = () => {
                 {/* Supplier */}
                 <div>
                   <label
+                    htmlFor="supplier-filter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     Supplier
                   </label>
                   <select
+                    id="supplier-filter"
                     value={vendorFilter}
                     onChange={(e) => setVendorFilter(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
@@ -586,11 +590,13 @@ const SupplierBillList = () => {
                 {/* Start Date */}
                 <div>
                   <label
+                    htmlFor="start-date-filter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     From Date
                   </label>
                   <input
+                    id="start-date-filter"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
@@ -605,11 +611,13 @@ const SupplierBillList = () => {
                 {/* End Date */}
                 <div>
                   <label
+                    htmlFor="end-date-filter"
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                   >
                     To Date
                   </label>
                   <input
+                    id="end-date-filter"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
@@ -777,6 +785,13 @@ const SupplierBillList = () => {
                         <div
                           className="flex items-center justify-end gap-2"
                           onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.stopPropagation();
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
                         >
                           {/* View */}
                           <button

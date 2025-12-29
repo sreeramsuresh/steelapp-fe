@@ -267,6 +267,9 @@ const VATReturnStatusWidget = ({
                 statusConfig.bgColor
               } ${statusConfig.borderColor}`}
               onClick={() => onViewReturn && onViewReturn(quarter)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewReturn && onViewReturn(quarter); }}}
+              role="button"
+              tabIndex={0}
             >
               <div className="flex items-center justify-between mb-2">
                 <span

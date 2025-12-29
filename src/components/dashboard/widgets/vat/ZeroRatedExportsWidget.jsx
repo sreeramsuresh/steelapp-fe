@@ -279,6 +279,9 @@ const ZeroRatedExportsWidget = ({
               <div
                 key={exp.id}
                 onClick={() => onViewExport && onViewExport(exp)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewExport && onViewExport(exp); } }}
+                role="button"
+                tabIndex={0}
                 className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
                   isDarkMode
                     ? 'bg-[#2E3B4E] border-[#37474F] hover:border-teal-600'

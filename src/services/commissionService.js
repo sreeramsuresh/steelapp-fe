@@ -32,7 +32,7 @@ const commissionService = {
   // Approve commission (manager action)
   approveCommission: async (invoiceId, approvedByUserId) => {
     try {
-      const response = await api.put(
+      const response = await api.post(
         `/commissions/invoice/${invoiceId}/approve`,
         {
           approvedByUserId,
@@ -48,7 +48,7 @@ const commissionService = {
   // Mark commission as paid (finance action)
   markCommissionAsPaid: async (invoiceId, paymentReference) => {
     try {
-      const response = await api.put(`/commissions/invoice/${invoiceId}/pay`, {
+      const response = await api.post(`/commissions/invoice/${invoiceId}/pay`, {
         paymentReference,
       });
       return response.data;

@@ -210,6 +210,9 @@ const InvoiceCreditNotesSection = ({
                 <div
                   key={cn.id}
                   onClick={() => navigate(`/credit-notes/${cn.id}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/credit-notes/${cn.id}`); }}}
+                  role="button"
+                  tabIndex={0}
                   className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                     isDarkMode
                       ? 'bg-gray-700/50 hover:bg-gray-700'

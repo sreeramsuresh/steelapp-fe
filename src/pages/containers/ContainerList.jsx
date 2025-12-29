@@ -328,7 +328,10 @@ export function ContainerList() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor="container-status-filter"
+                    className="block text-sm font-medium mb-1"
+                  >
                     Status
                   </label>
                   <Select
@@ -337,7 +340,7 @@ export function ContainerList() {
                       handleFilterChange('status', value)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger id="container-status-filter">
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
                     <SelectContent>
@@ -350,7 +353,10 @@ export function ContainerList() {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor="container-supplier-filter"
+                    className="block text-sm font-medium mb-1"
+                  >
                     Supplier
                   </label>
                   <Select
@@ -359,7 +365,7 @@ export function ContainerList() {
                       handleFilterChange('supplierId', value)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger id="container-supplier-filter">
                       <SelectValue placeholder="All Suppliers" />
                     </SelectTrigger>
                     <SelectContent>
@@ -376,10 +382,14 @@ export function ContainerList() {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor="container-eta-from"
+                    className="block text-sm font-medium mb-1"
+                  >
                     ETA From
                   </label>
                   <Input
+                    id="container-eta-from"
                     type="date"
                     value={filters.etaFrom}
                     onChange={(e) =>
@@ -388,10 +398,14 @@ export function ContainerList() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor="container-eta-to"
+                    className="block text-sm font-medium mb-1"
+                  >
                     ETA To
                   </label>
                   <Input
+                    id="container-eta-to"
                     type="date"
                     value={filters.etaTo}
                     onChange={(e) =>

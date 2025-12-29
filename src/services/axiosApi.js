@@ -258,14 +258,9 @@ export const apiService = {
     // DEV-ONLY: Request Contract Validation (Dynamic Import)
     // ========================================================================
     if (IS_DEV) {
-      try {
-        const guard = await getContractGuard();
-        if (guard) {
-          guard.validateRequestContract(config);
-        }
-      } catch (validationError) {
-        // Re-throw to prevent invalid request from being sent
-        throw validationError;
+      const guard = await getContractGuard();
+      if (guard) {
+        guard.validateRequestContract(config);
       }
     }
 
@@ -279,19 +274,14 @@ export const apiService = {
       // DEV-ONLY: Response Contract Validation (Dynamic Import)
       // ======================================================================
       if (IS_DEV) {
-        try {
-          const guard = await getContractGuard();
-          if (guard) {
-            guard.validateResponseContract({
-              method: config.method || 'GET',
-              url: config.url || '',
-              data: response.data,
-              responseType: config.responseType,
-            });
-          }
-        } catch (validationError) {
-          // Re-throw to alert developer of contract mismatch
-          throw validationError;
+        const guard = await getContractGuard();
+        if (guard) {
+          guard.validateResponseContract({
+            method: config.method || 'GET',
+            url: config.url || '',
+            data: response.data,
+            responseType: config.responseType,
+          });
         }
       }
 
@@ -301,8 +291,6 @@ export const apiService = {
       // ======================================================================
       // Enhanced Error Logging
       // ======================================================================
-      const label = `${config.method || 'GET'} ${config.url}`;
-
       // Check if error is ContractViolationError (DEV only)
       if (IS_DEV) {
         const guard = await getContractGuard();

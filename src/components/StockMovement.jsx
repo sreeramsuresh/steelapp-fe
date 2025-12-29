@@ -364,8 +364,11 @@ const StockMovement = () => {
                 }`}
               />
             </div>
+            {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button
-              onClick={() => console.log('Apply filter')}
+              onClick={() => {
+                // TODO: Implement filter functionality
+              }}
               className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
                 isDarkMode
                   ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'

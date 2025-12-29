@@ -569,10 +569,14 @@ const StockMovementForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Movement Type */}
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="movement-type"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Type <span className="text-red-500">*</span>
                       </label>
                       <FormSelect
+                        id="movement-type"
                         value={formData.movementType}
                         onValueChange={(value) =>
                           handleChange('movementType', value)
@@ -592,10 +596,14 @@ const StockMovementForm = () => {
 
                     {/* Quantity */}
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="movement-quantity"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Quantity <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="movement-quantity"
                         type="number"
                         step="0.01"
                         min="0"
@@ -619,10 +627,14 @@ const StockMovementForm = () => {
 
                     {/* Unit */}
                     <div className="col-span-6 md:col-span-4">
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="movement-unit"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Unit <span className="text-red-500">*</span>
                       </label>
                       <FormSelect
+                        id="movement-unit"
                         value={formData.unit}
                         onValueChange={(value) => handleChange('unit', value)}
                         disabled={isEditing}

@@ -336,12 +336,14 @@ const AuditLogs = () => {
             {/* Search */}
             <div>
               <label
+                htmlFor="audit-search"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 <Search size={16} className="inline mr-1" />
                 Search
               </label>
               <input
+                id="audit-search"
                 type="text"
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
@@ -395,12 +397,14 @@ const AuditLogs = () => {
             {/* Start Date */}
             <div>
               <label
+                htmlFor="audit-start-date"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 <Calendar size={16} className="inline mr-1" />
                 Start Date
               </label>
               <input
+                id="audit-start-date"
                 type="date"
                 value={filters.startDate}
                 onChange={(e) =>
@@ -417,12 +421,14 @@ const AuditLogs = () => {
             {/* End Date */}
             <div>
               <label
+                htmlFor="audit-end-date"
                 className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 <Calendar size={16} className="inline mr-1" />
                 End Date
               </label>
               <input
+                id="audit-end-date"
                 type="date"
                 value={filters.endDate}
                 onChange={(e) => handleFilterChange('endDate', e.target.value)}
