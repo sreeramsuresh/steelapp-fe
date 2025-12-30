@@ -476,7 +476,7 @@ const commissionService = {
   getCommissionForecast: async (monthsBack = 12) => {
     try {
       // Fetch all commissions for historical analysis
-      const daysBack = monthsBack * 31;
+      const _daysBack = monthsBack * 31;
 
       // Parallel fetch: all commissions (via transactions) + pending approvals
       const [commissionsResponse, pendingResponse, agentsResponse] = await Promise.all([

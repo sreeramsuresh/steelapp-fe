@@ -442,39 +442,39 @@ export default function CommissionApprovalWorkflow() {
                           className="w-4 h-4 rounded border-gray-300"
                         />
                         <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div
-                            className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                          >
+                          <div className="flex items-center gap-3 mb-2">
+                            <div
+                              className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            >
                             Invoice {invoiceNumber}
-                          </div>
-                          <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                            </div>
+                            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
                             PENDING APPROVAL
-                          </span>
-                        </div>
-                        <div
-                          className={`grid grid-cols-3 gap-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          <div>
-                            <span className="font-semibold">Amount:</span> $
-                            {commissionAmount?.toFixed(2)}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Accrued:</span>{' '}
-                            {new Date().toLocaleDateString()}
+                            </span>
                           </div>
                           <div
-                            className={
-                              daysRemaining < 3
-                                ? 'text-red-600 font-semibold'
-                                : ''
-                            }
+                            className={`grid grid-cols-3 gap-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                           >
-                            <Clock className="inline w-4 h-4 mr-1" />
-                            {daysRemaining} days to adjust
+                            <div>
+                              <span className="font-semibold">Amount:</span> $
+                              {commissionAmount?.toFixed(2)}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Accrued:</span>{' '}
+                              {new Date().toLocaleDateString()}
+                            </div>
+                            <div
+                              className={
+                                daysRemaining < 3
+                                  ? 'text-red-600 font-semibold'
+                                  : ''
+                              }
+                            >
+                              <Clock className="inline w-4 h-4 mr-1" />
+                              {daysRemaining} days to adjust
+                            </div>
                           </div>
                         </div>
-                      </div>
                       </div>
 
                       <div className="ml-4">
