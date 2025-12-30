@@ -13,6 +13,7 @@ import { commissionService } from '../services/commissionService';
 import { formatCurrency } from '../utils/invoiceUtils';
 import { notificationService } from '../services/notificationService';
 import { authService } from '../services/axiosAuthService';
+import { CommissionForecastWidget } from '../components/dashboard/widgets';
 
 const AgentCommissionDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -348,6 +349,9 @@ const AgentCommissionDashboard = () => {
                 </div>
               </div>
             </div>
+
+            {/* Commission Forecast */}
+            <CommissionForecastWidget />
           </div>
         )}
 

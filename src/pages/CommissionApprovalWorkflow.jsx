@@ -22,6 +22,10 @@ export default function CommissionApprovalWorkflow() {
   const [successMessage, setSuccessMessage] = useState('');
   const [salesPersonStats, setSalesPersonStats] = useState({});
 
+  // Batch selection state
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkAction, setBulkAction] = useState(null); // 'approve' or 'pay'
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -110,6 +114,69 @@ export default function CommissionApprovalWorkflow() {
 
   const _handleRejectCommission = async (_commission) => {
     // In a real scenario, this would be a separate action
+  };
+
+  // Batch selection handlers
+  const toggleSelection = (invoiceId) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(invoiceId)) {
+        newSet.delete(invoiceId);
+      } else {
+        newSet.add(invoiceId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAll = () => {
+    if (selectedIds.size === pendingApprovals.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pendingApprovals.map((c) => c.invoiceId || c.invoice_id)));
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.size === 0) return;
+    try {
+      setUpdating(true);
+      setBulkAction('approve');
+      const ids = Array.from(selectedIds);
+      await commissionService.bulkApprove(ids);
+      setSuccessMessage(`Successfully approved ${ids.length} commission(s)!`);
+      setSelectedIds(new Set());
+      setTimeout(() => {
+        loadPendingApprovals();
+        setSuccessMessage('');
+      }, 2000);
+    } catch (err) {
+      setError(`Error bulk approving: ${err.message}`);
+    } finally {
+      setUpdating(false);
+      setBulkAction(null);
+    }
+  };
+
+  const handleBulkMarkPaid = async () => {
+    if (selectedIds.size === 0) return;
+    try {
+      setUpdating(true);
+      setBulkAction('pay');
+      const ids = Array.from(selectedIds);
+      await commissionService.bulkMarkPaid(ids);
+      setSuccessMessage(`Successfully marked ${ids.length} commission(s) as paid!`);
+      setSelectedIds(new Set());
+      setTimeout(() => {
+        loadPendingApprovals();
+        setSuccessMessage('');
+      }, 2000);
+    } catch (err) {
+      setError(`Error bulk marking paid: ${err.message}`);
+    } finally {
+      setUpdating(false);
+      setBulkAction(null);
+    }
   };
 
   // Pagination calculations
@@ -238,18 +305,72 @@ export default function CommissionApprovalWorkflow() {
           </div>
         </div>
 
+        {/* Batch Action Toolbar */}
+        {selectedIds.size > 0 && (
+          <div className={`mb-4 p-4 rounded-lg flex items-center justify-between ${isDarkMode ? 'bg-blue-900' : 'bg-blue-50'}`}>
+            <div className={`font-medium ${isDarkMode ? 'text-blue-200' : 'text-blue-800'}`}>
+              {selectedIds.size} commission(s) selected
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleBulkApprove}
+                disabled={updating}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                {bulkAction === 'approve' ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
+                Approve Selected
+              </button>
+              <button
+                onClick={handleBulkMarkPaid}
+                disabled={updating}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                {bulkAction === 'pay' ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <DollarSign className="w-4 h-4" />
+                )}
+                Mark as Paid
+              </button>
+              <button
+                onClick={() => setSelectedIds(new Set())}
+                className={`px-4 py-2 rounded ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
+              >
+                Clear Selection
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Pending Approvals List */}
         <div
           className={`rounded-lg shadow ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
         >
           <div
-            className={`p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+            className={`p-6 border-b flex items-center justify-between ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
           >
             <h2
               className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
               Pending Commissions
             </h2>
+            {pendingApprovals.length > 0 && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size === pendingApprovals.length && pendingApprovals.length > 0}
+                  onChange={selectAll}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Select All
+                </span>
+              </label>
+            )}
           </div>
 
           {pendingApprovals.length === 0 ? (
@@ -267,6 +388,8 @@ export default function CommissionApprovalWorkflow() {
                 // Handle both snake_case and camelCase field names
                 const salesPersonId =
                   commission.salesPersonId || commission.sales_person_id;
+                const invoiceId =
+                  commission.invoiceId || commission.invoice_id;
                 const invoiceNumber =
                   commission.invoiceNumber || commission.invoice_number;
                 const commissionAmount =
@@ -290,11 +413,12 @@ export default function CommissionApprovalWorkflow() {
                         (gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24),
                       )
                       : 0;
+                const isSelected = selectedIds.has(invoiceId);
 
                 return (
                   <div
                     key={idx}
-                    className={`p-4 cursor-pointer transition ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
+                    className={`p-4 cursor-pointer transition ${isSelected ? (isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50') : ''} ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                     onClick={() => setSelectedCommission(commission)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -306,7 +430,18 @@ export default function CommissionApprovalWorkflow() {
                     tabIndex={0}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex-1">
+                      <div className="flex items-center gap-3 flex-1">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleSelection(invoiceId);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-4 h-4 rounded border-gray-300"
+                        />
+                        <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div
                             className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
@@ -339,6 +474,7 @@ export default function CommissionApprovalWorkflow() {
                             {daysRemaining} days to adjust
                           </div>
                         </div>
+                      </div>
                       </div>
 
                       <div className="ml-4">

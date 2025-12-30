@@ -471,6 +471,101 @@ const commissionService = {
       throw error;
     }
   },
+
+  // Get commission forecast data for analytics dashboard
+  getCommissionForecast: async (monthsBack = 12) => {
+    try {
+      // Fetch all commissions for historical analysis
+      const daysBack = monthsBack * 31;
+
+      // Parallel fetch: all commissions (via transactions) + pending approvals
+      const [commissionsResponse, pendingResponse, agentsResponse] = await Promise.all([
+        api.get('/commissions/transactions', { params: { status: 'ALL' } }),
+        api.get('/commissions/pending-approvals', { params: { page: 1, limit: 100 } }),
+        api.get('/commissions/agents', { params: { page: 1, limit: 50, onlyActive: true } }),
+      ]);
+
+      const commissions = commissionsResponse.data?.transactions || [];
+      const pendingApprovals = pendingResponse.data?.items || pendingResponse.data?.pendingApprovals || [];
+      const agents = agentsResponse.data?.agents || [];
+
+      // Calculate monthly history
+      const monthlyData = {};
+      const now = new Date();
+
+      // Initialize last N months
+      for (let i = 0; i < monthsBack; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        monthlyData[key] = { month: key, earned: 0, paid: 0, count: 0 };
+      }
+
+      // Aggregate commission data by month
+      commissions.forEach((comm) => {
+        const date = new Date(comm.created_at || comm.createdAt);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (monthlyData[key]) {
+          monthlyData[key].earned += parseFloat(comm.commission_amount || comm.commissionAmount || 0);
+          if (comm.status === 'PAID') {
+            monthlyData[key].paid += parseFloat(comm.paid_amount || comm.paidAmount || comm.commission_amount || comm.commissionAmount || 0);
+          }
+          monthlyData[key].count += 1;
+        }
+      });
+
+      // Convert to sorted array (oldest to newest)
+      const history = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
+
+      // Calculate pipeline from pending approvals
+      const pipelineTotal = pendingApprovals.reduce((sum, item) => {
+        return sum + parseFloat(item.commissionAmount || item.commission_amount || 0);
+      }, 0);
+
+      // Calculate average monthly commission (last 6 months for trend)
+      const recentMonths = history.slice(-6);
+      const avgMonthlyEarned = recentMonths.reduce((sum, m) => sum + m.earned, 0) / Math.max(recentMonths.length, 1);
+
+      // Calculate growth rate (compare last 3 months vs prior 3 months)
+      const lastThree = history.slice(-3);
+      const priorThree = history.slice(-6, -3);
+      const lastThreeAvg = lastThree.reduce((sum, m) => sum + m.earned, 0) / Math.max(lastThree.length, 1);
+      const priorThreeAvg = priorThree.reduce((sum, m) => sum + m.earned, 0) / Math.max(priorThree.length, 1);
+      const growthRate = priorThreeAvg > 0 ? ((lastThreeAvg - priorThreeAvg) / priorThreeAvg) * 100 : 0;
+
+      // Forecast next 3 months based on trend
+      const forecast = [];
+      for (let i = 1; i <= 3; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const projectedAmount = avgMonthlyEarned * (1 + (growthRate / 100) * (i * 0.3));
+        forecast.push({ month: key, projected: Math.max(projectedAmount, 0) });
+      }
+
+      // Current month totals
+      const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const currentMonth = monthlyData[currentMonthKey] || { earned: 0, paid: 0, count: 0 };
+
+      return {
+        history,
+        forecast,
+        pipeline: {
+          total: pipelineTotal,
+          count: pendingApprovals.length,
+          items: pendingApprovals.slice(0, 5), // Top 5 pending
+        },
+        summary: {
+          avgMonthlyEarned,
+          growthRate,
+          currentMonthEarned: currentMonth.earned,
+          currentMonthCount: currentMonth.count,
+          totalAgents: agents.length,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching commission forecast:', error);
+      throw error;
+    }
+  },
 };
 
 export { commissionService };

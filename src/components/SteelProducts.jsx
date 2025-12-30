@@ -2465,11 +2465,11 @@ const SteelProducts = () => {
           <tbody
             className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
           >
-            {sortedProducts.map((product) => {
+            {sortedProducts.map((product, index) => {
               const stockData = getCellValue(product, 'stock');
               return (
                 <tr
-                  key={product.id}
+                  key={`${product.id}-${index}`}
                   className={`transition-colors ${
                     isDarkMode
                       ? 'bg-gray-900 hover:bg-gray-800'
@@ -3683,9 +3683,9 @@ const SteelProducts = () => {
                     review them before adding a new product.
                   </p>
                   <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
-                    {similarProducts.map((product) => (
+                    {similarProducts.map((product, index) => (
                       <div
-                        key={product.id}
+                        key={`similar-${product.id}-${index}`}
                         className={`p-3 rounded-lg border ${
                           isDarkMode
                             ? 'bg-gray-800 border-gray-700'
@@ -4986,9 +4986,9 @@ const SteelProducts = () => {
                       (p.category || '').toLowerCase().includes(term)
                     );
                   })
-                  .map((product) => (
+                  .map((product, index) => (
                     <div
-                      key={product.id}
+                      key={`copy-${product.id}-${index}`}
                       className={`p-3 rounded-lg mb-2 border transition-colors ${
                         isDarkMode
                           ? 'border-gray-700 hover:bg-gray-800'
@@ -5161,9 +5161,9 @@ const SteelProducts = () => {
                         (p.finish || '').toLowerCase().includes(search)
                       );
                     })
-                    .map((product) => (
+                    .map((product, index) => (
                       <button
-                        key={product.id}
+                        key={`select-${product.id}-${index}`}
                         onClick={() => handleCopyFromProduct(product)}
                         className={`p-4 rounded-lg border-2 text-left transition-all hover:shadow-lg ${
                           isDarkMode

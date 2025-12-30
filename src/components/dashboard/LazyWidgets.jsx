@@ -111,6 +111,9 @@ export const LazyLeaderboardWidget = lazy(
 export const LazyCommissionTrackerWidget = lazy(
   () => import('./widgets/sales-agent/CommissionTrackerWidget'),
 );
+export const LazyCommissionForecastWidget = lazy(
+  () => import('./widgets/sales-agent/CommissionForecastWidget'),
+);
 export const LazyConversionFunnelWidget = lazy(
   () => import('./widgets/sales-agent/ConversionFunnelWidget'),
 );
@@ -191,6 +194,7 @@ export const LAZY_WIDGET_CATEGORIES = {
     () => import('./widgets/sales-agent/AgentScorecardWidget'),
     () => import('./widgets/sales-agent/LeaderboardWidget'),
     () => import('./widgets/sales-agent/CommissionTrackerWidget'),
+    () => import('./widgets/sales-agent/CommissionForecastWidget'),
     () => import('./widgets/sales-agent/ConversionFunnelWidget'),
     () => import('./widgets/sales-agent/CustomerPortfolioWidget'),
     () => import('./widgets/sales-agent/CollectionPerformanceWidget'),

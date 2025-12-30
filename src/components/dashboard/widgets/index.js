@@ -64,6 +64,7 @@ export {
 export {
   LeaderboardWidget,
   CommissionTrackerWidget,
+  CommissionForecastWidget,
   ConversionFunnelWidget,
   CustomerPortfolioWidget,
   AgentScorecardWidget,

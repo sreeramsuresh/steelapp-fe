@@ -35,6 +35,7 @@ import { notificationService } from '../services/notificationService';
 import SalesAgentsManagement from '../components/SalesAgentsManagement';
 import CommissionTransactions from '../components/CommissionTransactions';
 import CommissionPlans from '../components/CommissionPlans';
+import { CommissionForecastWidget } from '../components/dashboard/widgets';
 
 // Chart color palette
 const STATUS_COLORS = {
@@ -306,6 +307,13 @@ const CommissionDashboard = () => {
                     <DollarSign className="h-6 w-6 text-purple-600" />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Forecast Widget */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="lg:col-span-2">
+                <CommissionForecastWidget />
               </div>
             </div>
 

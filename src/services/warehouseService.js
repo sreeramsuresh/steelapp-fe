@@ -240,6 +240,15 @@ class WarehouseService {
   }
 
   /**
+   * Clear summary cache (no-op - getSummary always fetches fresh data)
+   * Kept for API compatibility with components that call this method
+   */
+  clearSummaryCache() {
+    // No caching implemented - getSummary always fetches fresh
+    // This is a no-op to prevent "function not found" errors
+  }
+
+  /**
    * Get warehouse analytics
    */
   async getAnalytics(warehouseId, filters = {}) {
