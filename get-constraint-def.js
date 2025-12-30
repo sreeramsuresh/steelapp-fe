@@ -8,7 +8,7 @@ async function getConstraintDef() {
     port: parseInt(process.env.DB_PORT || "5432"),
     database: process.env.DB_NAME || "steelapp",
     user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "R8kPz!2vAq#9LmT4eX7wB$hQ",
+    password: process.env.DB_PASSWORD || "R8kPz@2vAq&9LmT4eX7wB%hQ",
     ssl: process.env.DB_SSL === "true" ? true : false,
   });
 
