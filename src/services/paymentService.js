@@ -10,6 +10,77 @@
  */
 
 /**
+ * Transform payment data from server (snake_case) to frontend (camelCase)
+ * Maps PaymentRecord proto message fields
+ */
+export const transformPaymentFromServer = (serverData) => {
+  if (!serverData) return null;
+
+  return {
+    id: serverData.id,
+    companyId: serverData.companyId || serverData.company_id,
+    invoiceId: serverData.invoiceId || serverData.invoice_id,
+    paymentDate: serverData.paymentDate || serverData.payment_date,
+    amount: Number(serverData.amount) || 0,
+    paymentMethod: serverData.paymentMethod || serverData.payment_method || '',
+    referenceNumber: serverData.referenceNumber || serverData.reference_number || '',
+    receiptNumber: serverData.receiptNumber || serverData.receipt_number || '',
+    idempotencyKey: serverData.idempotencyKey || serverData.idempotency_key || '',
+    notes: serverData.notes || '',
+    attachmentUrl: serverData.attachmentUrl || serverData.attachment_url || '',
+    voided: serverData.voided || false,
+    voidReason: serverData.voidReason || serverData.void_reason || '',
+    voidedBy: serverData.voidedBy || serverData.voided_by,
+    voidedAt: serverData.voidedAt || serverData.voided_at,
+    createdBy: serverData.createdBy || serverData.created_by,
+    // Computed/joined fields
+    invoiceNumber: serverData.invoiceNumber || serverData.invoice_number || '',
+    customerName: serverData.customerName || serverData.customer_name || '',
+    currency: serverData.currency || 'AED',
+    createdAt: serverData.createdAt || serverData.created_at,
+    // Multi-currency support
+    exchangeRate: Number(serverData.exchangeRate || serverData.exchange_rate) || 1.0,
+    amountInAed: Number(serverData.amountInAed || serverData.amount_in_aed) || 0,
+    // VAT compliance fields
+    compositeReference: serverData.compositeReference || serverData.composite_reference || '',
+    receiptStatus: serverData.receiptStatus || serverData.receipt_status || 'draft',
+    isAdvancePayment: serverData.isAdvancePayment || serverData.is_advance_payment || false,
+    remarks: serverData.remarks || '',
+    currencyCode: serverData.currencyCode || serverData.currency_code || '',
+    // Allocation fields
+    allocations: (serverData.allocations || []).map(alloc => ({
+      invoiceId: alloc.invoiceId || alloc.invoice_id,
+      invoiceNumber: alloc.invoiceNumber || alloc.invoice_number || '',
+      allocatedAmount: Number(alloc.allocatedAmount || alloc.allocated_amount) || 0,
+      allocationDate: alloc.allocationDate || alloc.allocation_date,
+    })),
+    allocatedAmount: Number(serverData.allocatedAmount || serverData.allocated_amount) || 0,
+    unallocatedAmount: Number(serverData.unallocatedAmount || serverData.unallocated_amount) || 0,
+    // Phase 2c: Enhanced payment tracking
+    amountInBaseCurrency: Number(serverData.amountInBaseCurrency || serverData.amount_in_base_currency) || 0,
+    bankName: serverData.bankName || serverData.bank_name || '',
+    bankAccount: serverData.bankAccount || serverData.bank_account || '',
+    chequeNumber: serverData.chequeNumber || serverData.cheque_number || '',
+    transactionId: serverData.transactionId || serverData.transaction_id || '',
+    approvalStatus: serverData.approvalStatus || serverData.approval_status || '',
+    approvedBy: serverData.approvedBy || serverData.approved_by,
+    approvedAt: serverData.approvedAt || serverData.approved_at,
+    attachmentUrls: serverData.attachmentUrls || serverData.attachment_urls || [],
+    receiptNumberOfficial: serverData.receiptNumberOfficial || serverData.receipt_number_official || '',
+    projectId: serverData.projectId || serverData.project_id,
+    costCenter: serverData.costCenter || serverData.cost_center || '',
+    salesPersonId: serverData.salesPersonId || serverData.sales_person_id,
+    settlementType: serverData.settlementType || serverData.settlement_type || '',
+    settlementDate: serverData.settlementDate || serverData.settlement_date,
+    validUntil: serverData.validUntil || serverData.valid_until,
+    expiryAction: serverData.expiryAction || serverData.expiry_action || '',
+    refundAmount: Number(serverData.refundAmount || serverData.refund_amount) || 0,
+    refundMethod: serverData.refundMethod || serverData.refund_method || '',
+    refundReference: serverData.refundReference || serverData.refund_reference || '',
+  };
+};
+
+/**
  * Standard payment payload structure (camelCase for frontend)
  * API Gateway middleware converts to snake_case automatically:
  * - paymentMethod -> payment_method
