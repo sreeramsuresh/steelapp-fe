@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Account Statement Form - Automated Validation Test
  * Tests the migrated Tailwind CSS form for functionality and UI correctness

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Price Auto-Fill Test
  * Tests that product prices automatically populate from the pricelist

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Simple Puppeteer Launch Test
  * Demonstrates: Launch → Test → Close (No port 9222 needed)

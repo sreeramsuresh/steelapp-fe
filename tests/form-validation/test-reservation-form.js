@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Reservation Form - Automated Validation Test
  * Tests the migrated Tailwind CSS stock reservation form

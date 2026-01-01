@@ -70,7 +70,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     expect(invoicesForA[0].company_id).toBe(companyA.company_id);
 
     // ASSERTION 2: Company B invoice NOT in Company A results
-    const hasCompanyBData = invoicesForA.some((inv: any) => inv.company_id === companyB.company_id);
+    const hasCompanyBData = invoicesForA.some((inv: { company_id: string }) => inv.company_id === companyB.company_id);
     expect(hasCompanyBData).toBe(false);
 
     // Action: Query invoices for Company B
@@ -82,7 +82,7 @@ describe('SF-4: Tenant Isolation (No Data Leakage)', () => {
     expect(invoicesForB[0].company_id).toBe(companyB.company_id);
 
     // ASSERTION 4: Company A invoice NOT in Company B results
-    const hasCompanyAData = invoicesForB.some((inv: any) => inv.company_id === companyA.company_id);
+    const hasCompanyAData = invoicesForB.some((inv: { company_id: string }) => inv.company_id === companyA.company_id);
     expect(hasCompanyAData).toBe(false);
 
     // ASSERTION 5: Total isolation check

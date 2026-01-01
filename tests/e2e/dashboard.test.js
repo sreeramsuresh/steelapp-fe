@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Dashboard E2E Tests - Using Puppeteer Launch Mode
  *

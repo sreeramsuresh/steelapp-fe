@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Transfer Form - Automated Validation Test
  * Tests the migrated Tailwind CSS inter-warehouse transfer form with table

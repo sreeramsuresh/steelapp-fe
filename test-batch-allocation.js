@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Batch Allocation Drawer Test
  * Tests the fix for stale reservation errors and Auto-FIFO validation

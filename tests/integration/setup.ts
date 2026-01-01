@@ -8,11 +8,13 @@
  */
 
 import pg from 'pg';
+import { testLogger } from './utils/testLogger';
+import type { ServiceClient } from './types';
 
 const { Pool } = pg;
 
 let pool: pg.Pool | null = null;
-export let grpcClient: any = null;
+export let grpcClient: ServiceClient | null = null;
 
 /**
  * Initialize cloud database connection and gRPC client
@@ -32,7 +34,7 @@ export async function setupDatabase() {
 
     // Test connection
     const result = await dbQuery('SELECT NOW() as now');
-    console.log('✓ Connected to cloud database:', result[0]?.now);
+    testLogger.success(`Connected to cloud database: ${result[0]?.now}`);
 
     // CRITICAL FIX #2: Verify schema exists
     const schemaCheck = await dbQuery(
@@ -43,16 +45,15 @@ export async function setupDatabase() {
         'SCHEMA VALIDATION FAILED: Database schema not found. Run migrations first.',
       );
     }
-    console.log('✓ Schema validation passed');
+    testLogger.success('Schema validation passed');
 
     // Initialize gRPC client for service calls
     await initializeGrpcClient();
-    console.log('✓ gRPC client initialized and ready');
+    testLogger.success('gRPC client initialized and ready');
   } catch (error) {
-    console.error(
-      'FATAL: Failed to setup integration test environment:',
-      error,
-    );
+    testLogger.error('FATAL: Failed to setup integration test environment', {
+      error: String(error),
+    });
     throw error;
   }
 }
@@ -67,11 +68,10 @@ async function initializeGrpcClient() {
     const { initGrpcClient } = await import('./grpc-client');
     grpcClient = await initGrpcClient();
   } catch (error) {
-    console.warn(
-      '⚠️  gRPC client initialization failed:',
-      (error as Error).message,
-    );
-    console.warn('Tests will attempt to continue without gRPC client');
+    testLogger.warn('gRPC client initialization failed', {
+      error: (error as Error).message,
+    });
+    testLogger.warn('Tests will attempt to continue without gRPC client');
     // Don't throw - allow tests to run in degraded mode
   }
 }
@@ -113,7 +113,7 @@ export async function cleanDatabase() {
     }
   }
 
-  console.log(`✓ Cleaned ${businessTables.length} business tables`);
+  testLogger.success(`Cleaned ${businessTables.length} business tables`);
 }
 
 /**
@@ -129,7 +129,7 @@ export async function dbQuery(sql: string, params: unknown[] = []) {
     const result = await pool.query(sql, params);
     return result.rows;
   } catch (error) {
-    console.error('Database query error:', { sql, params, error });
+    testLogger.error('Database query error', { sql, params, error: String(error) });
     throw error;
   }
 }
@@ -163,6 +163,6 @@ export async function teardownDatabase() {
   if (pool) {
     await pool.end();
     pool = null;
-    console.log('✓ Database pool closed');
+    testLogger.success('Database pool closed');
   }
 }

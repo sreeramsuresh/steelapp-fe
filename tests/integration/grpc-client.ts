@@ -6,14 +6,29 @@
  * This tests the full stack: test → API Gateway → gRPC backend → DB
  */
 
+import { testLogger } from './utils/testLogger';
+import type {
+  ServiceClient,
+  CreateInvoiceParams,
+  CreateInvoiceResponse,
+  RecordPaymentParams,
+  RecordPaymentResponse,
+  PostInvoiceParams,
+  PostInvoiceResponse,
+  CreateSupplierBillParams,
+  CreateSupplierBillResponse,
+  GenericApiResponse,
+} from './types';
+
 const apiBaseUrl = 'http://localhost:3000/api';
-let client: any = null;
+
+let client: ServiceClient | null = null;
 
 /**
  * Initialize backend service client
  * Verifies API Gateway is reachable
  */
-export async function initGrpcClient(): Promise<any> {
+export async function initGrpcClient(): Promise<ServiceClient> {
   try {
     // Test API Gateway health
     const response = await fetch(`${apiBaseUrl}/health`, {
@@ -30,10 +45,10 @@ export async function initGrpcClient(): Promise<any> {
       ready: true,
     };
 
-    console.log('✓ API Gateway client initialized (routes to gRPC backend)');
+    testLogger.success('API Gateway client initialized (routes to gRPC backend)');
     return client;
   } catch (error) {
-    console.error('Failed to initialize backend service client:', error);
+    testLogger.error('Failed to initialize backend service client', { error: String(error) });
     throw error;
   }
 }
@@ -41,7 +56,7 @@ export async function initGrpcClient(): Promise<any> {
 /**
  * Get initialized service client
  */
-export function getGrpcClient(): any {
+export function getGrpcClient(): ServiceClient {
   if (!client) {
     throw new Error(
       'Service client not initialized. Call initGrpcClient() first.',
@@ -54,13 +69,9 @@ export function getGrpcClient(): any {
  * Call CreateInvoice via API Gateway
  * Gateway routes to gRPC InvoiceService.CreateInvoice
  */
-export async function createInvoiceViaGrpc(params: {
-  customer_id: string;
-  company_id: string;
-  subtotal: number;
-  vat_rate: number;
-  invoice_items?: any[];
-}): Promise<any> {
+export async function createInvoiceViaGrpc(
+  params: CreateInvoiceParams,
+): Promise<CreateInvoiceResponse> {
   const response = await fetch(`${apiBaseUrl}/invoices`, {
     method: 'POST',
     headers: {
@@ -80,18 +91,15 @@ export async function createInvoiceViaGrpc(params: {
     throw new Error(`CreateInvoice failed: ${response.status} - ${error}`);
   }
 
-  return await response.json();
+  return (await response.json()) as CreateInvoiceResponse;
 }
 
 /**
  * Call RecordPayment via API Gateway
  */
-export async function recordPaymentViaGrpc(params: {
-  invoice_id: string;
-  amount: number;
-  payment_method: string;
-  company_id: string;
-}): Promise<any> {
+export async function recordPaymentViaGrpc(
+  params: RecordPaymentParams,
+): Promise<RecordPaymentResponse> {
   const response = await fetch(
     `${apiBaseUrl}/invoices/${params.invoice_id}/payments`,
     {
@@ -112,17 +120,16 @@ export async function recordPaymentViaGrpc(params: {
     throw new Error(`RecordPayment failed: ${response.status} - ${error}`);
   }
 
-  return await response.json();
+  return (await response.json()) as RecordPaymentResponse;
 }
 
 /**
  * Call PostInvoice via API Gateway (finalize and create journals)
  * CRITICAL for SF-6: Must be called before checking journal entries
  */
-export async function postInvoiceViaGrpc(params: {
-  invoice_id: string;
-  company_id: string;
-}): Promise<any> {
+export async function postInvoiceViaGrpc(
+  params: PostInvoiceParams,
+): Promise<PostInvoiceResponse> {
   const response = await fetch(
     `${apiBaseUrl}/invoices/${params.invoice_id}/post`,
     {
@@ -140,19 +147,16 @@ export async function postInvoiceViaGrpc(params: {
     throw new Error(`PostInvoice failed: ${response.status} - ${error}`);
   }
 
-  return await response.json();
+  return (await response.json()) as PostInvoiceResponse;
 }
 
 /**
  * Call CreateSupplierBill via API Gateway
  * Used for FK integrity testing (SF-5)
  */
-export async function createSupplierBillViaGrpc(params: {
-  supplier_id: string;
-  company_id: string;
-  amount: number;
-  bill_date?: string;
-}): Promise<any> {
+export async function createSupplierBillViaGrpc(
+  params: CreateSupplierBillParams,
+): Promise<CreateSupplierBillResponse> {
   const response = await fetch(`${apiBaseUrl}/supplier-bills`, {
     method: 'POST',
     headers: {
@@ -171,18 +175,18 @@ export async function createSupplierBillViaGrpc(params: {
     throw new Error(`CreateSupplierBill failed: ${response.status} - ${error}`);
   }
 
-  return await response.json();
+  return (await response.json()) as CreateSupplierBillResponse;
 }
 
 /**
  * Generic service call wrapper
  */
-export async function callBackendService(
+export async function callBackendService<T = unknown>(
   endpoint: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-  params: any,
+  params: Record<string, unknown>,
   companyId?: string,
-): Promise<any> {
+): Promise<GenericApiResponse<T>> {
   const response = await fetch(`${apiBaseUrl}${endpoint}`, {
     method,
     headers: {
@@ -200,5 +204,5 @@ export async function callBackendService(
     throw new Error(`Service call failed: ${response.status} - ${error}`);
   }
 
-  return await response.json();
+  return (await response.json()) as GenericApiResponse<T>;
 }

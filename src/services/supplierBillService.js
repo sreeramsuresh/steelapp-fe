@@ -33,6 +33,12 @@ const transformSupplierBillForServer = (billData) => {
     // VAT fields - use primaryVatCategory to match API gateway
     primaryVatCategory:
       billData.primaryVatCategory || billData.vatCategory || 'STANDARD',
+    // Blocked VAT fields (bill-level)
+    isBlockedVat:
+      billData.isBlockedVat ||
+      billData.vatCategory === 'BLOCKED' ||
+      billData.primaryVatCategory === 'BLOCKED',
+    blockedVatReason: billData.blockedVatReason || '',
     placeOfSupply: billData.placeOfSupply || 'AE-DU',
     isReverseCharge: billData.isReverseCharge || false,
     // Amounts - backend calculates these from items

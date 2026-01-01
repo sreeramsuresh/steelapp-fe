@@ -139,10 +139,11 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       // quantity_remaining - quantity_reserved >= 0 always
       expect(remaining - reserved).toBeGreaterThanOrEqual(0);
 
-    } catch (err: any) {
+    } catch (err) {
       // Expected: Allocation should fail with check constraint error
       // Error codes: 23514 (check constraint), 23503 (FK), or application error
-      if (err.code === '23514' || err.message.includes('insufficient')) {
+      const e = err as { code?: string; message?: string };
+      if (e.code === '23514' || e.message?.includes('insufficient')) {
         // Good - constraint prevented overselling
         expect(true).toBe(true);
       } else {
@@ -340,9 +341,10 @@ describe('SF-3: Negative Stock Prevention (FIFO Batch Allocation)', () => {
       // CRITICAL: Should never allow negative available quantity
       expect(availableForReserve).toBeGreaterThanOrEqual(0);
 
-    } catch (err: any) {
+    } catch (err) {
       // Expected: Allocation should fail at zero boundary
-      if (err.code === '23514' || err.message.includes('insufficient')) {
+      const e = err as { code?: string; message?: string };
+      if (e.code === '23514' || e.message?.includes('insufficient')) {
         expect(true).toBe(true);
       } else {
         throw err;

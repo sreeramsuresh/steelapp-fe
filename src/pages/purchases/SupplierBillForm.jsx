@@ -1195,8 +1195,12 @@ const SupplierBillForm = () => {
       errors.push('Blocked VAT reason is required');
     }
 
+    // Match the same logic as handleSave - accept description, productName, or product_name
     const validItems = bill.items.filter(
-      (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
+      (item) =>
+        (item.description || item.productName || item.product_name) &&
+        item.quantity > 0 &&
+        (item.unitPrice > 0 || item.unit_price > 0),
     );
     if (validItems.length === 0) {
       errors.push('At least one valid line item is required');

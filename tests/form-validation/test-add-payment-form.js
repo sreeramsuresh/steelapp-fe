@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Add Payment Form - Automated Validation Test
  * Tests the migrated Tailwind CSS payment form

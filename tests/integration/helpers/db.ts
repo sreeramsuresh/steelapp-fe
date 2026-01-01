@@ -253,8 +253,8 @@ export async function validateTenantIsolation(
     companyARowCount: dataA.length,
     companyBRowCount: dataB.length,
     isIsolated:
-      dataA.every((row: any) => row.company_id === companyIdA) &&
-      dataB.every((row: any) => row.company_id === companyIdB),
+      dataA.every((row: { company_id: string }) => row.company_id === companyIdA) &&
+      dataB.every((row: { company_id: string }) => row.company_id === companyIdB),
   };
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import puppeteer from 'puppeteer';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

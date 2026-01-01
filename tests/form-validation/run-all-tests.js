@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Master Test Runner - Execute all form validation tests
  * Runs all 4 migrated form tests and generates a combined report

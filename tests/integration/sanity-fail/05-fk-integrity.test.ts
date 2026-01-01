@@ -34,8 +34,8 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
 
     // When: Call CreateSupplierBill service with non-existent supplier
     // This must fail - either reject from API or fail FK constraint
-    let error: any = null;
-    let createdBill: any = null;
+    let error: Error | null = null;
+    let createdBill: { id?: string; supplier_id?: string } | null = null;
 
     try {
       createdBill = await createSupplierBillViaGrpc({
@@ -85,8 +85,8 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     });
 
     // When: Call CreateSupplierBill service with valid supplier
-    let error: any = null;
-    let createdBill: any = null;
+    let error: Error | null = null;
+    let createdBill: { id?: string; supplier_id?: string } | null = null;
 
     try {
       createdBill = await createSupplierBillViaGrpc({
@@ -131,7 +131,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     expect(bill).not.toBeNull();
 
     // Try to delete supplier (should fail or cascade)
-    let deleteError: any = null;
+    let deleteError: { code?: string } | null = null;
     try {
       await dbQuery('DELETE FROM suppliers WHERE supplier_id = $1', [supplier.supplier_id]);
     } catch (err) {
@@ -160,7 +160,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     const nonExistentCustomerId = 'CUST-FAKE-99999';
 
     // Try to create invoice with non-existent customer
-    let error: any = null;
+    let error: { code?: string } | null = null;
 
     try {
       await dbQuery(
@@ -174,7 +174,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
 
     // ASSERTION: FK should prevent orphaned customer reference
     expect(error).not.toBeNull();
-    expect((error as any).code).toBe('23503');
+    expect(error?.code).toBe('23503');
   });
 
   it('should enforce FK constraints on product references in stock', async () => {
@@ -184,7 +184,7 @@ describe('SF-5: Foreign Key Integrity (No Orphaned Records)', () => {
     const nonExistentWarehouseId = 'WH-FAKE-99999';
 
     // Try to create stock with non-existent product
-    let error: any = null;
+    let error: { code?: string } | null = null;
 
     try {
       await dbQuery(

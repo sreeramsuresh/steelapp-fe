@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Headless Chrome Test - Dropdown Migration Verification
  * Tests that all migrated forms follow dark/light mode uniformly

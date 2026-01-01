@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Puppeteer Utilities for E2E Testing
  * Reusable helper functions for common browser automation tasks
@@ -401,7 +402,7 @@ export async function waitForNotification(
 
     for (const selector of selectors) {
       try {
-        await page.waitForSelector(selector, { timeout: 1000, visible: true });
+        await page.waitForSelector(selector, { timeout, visible: true });
         return true;
       } catch (err) {
         // Continue to next selector
@@ -428,7 +429,7 @@ export async function takeScreenshot(page, path = null, fullPage = true) {
     const options = { fullPage };
     if (path) options.path = path;
 
-    const screenshot = await page.screenshot(options);
+    await page.screenshot(options);
     if (path) {
       log.info(`Screenshot saved to ${path}`);
     }

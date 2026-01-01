@@ -17,6 +17,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { setupDatabase, cleanDatabase, teardownDatabase, dbQuery, grpcClient } from '../setup';
+import { testLogger } from '../utils/testLogger';
 
 describe('SV: Suite Validity Tests (Infrastructure Validation)', () => {
   beforeAll(async () => {
@@ -42,7 +43,7 @@ describe('SV: Suite Validity Tests (Infrastructure Validation)', () => {
     // const response = await grpcClient.Health.Check({});
     // expect(response.status).toBe('SERVING');
 
-    console.log('⚠️  SV-1: Placeholder - Real gRPC health check pending client implementation');
+    testLogger.warn('SV-1: Placeholder - Real gRPC health check pending client implementation');
   });
 
   it('SV-2: Service must write data (create invoice via gRPC)', async () => {
@@ -89,7 +90,7 @@ describe('SV: Suite Validity Tests (Infrastructure Validation)', () => {
     const countAfter = afterCount[0]?.count || 0;
 
     expect(countAfter).toBeGreaterThan(countBefore);
-    console.log('✓ SV-2: Database write verified (service integration pending gRPC client)');
+    testLogger.success('SV-2: Database write verified (service integration pending gRPC client)');
 
     // Cleanup
     await cleanDatabase();
