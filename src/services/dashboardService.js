@@ -269,25 +269,25 @@ export const dashboardService = {
         // KPIs from dedicated endpoint
         kpis: dashboardKPIs
           ? {
-            grossMargin:
+              grossMargin:
                 parseFloat(
                   dashboardKPIs.gross_margin_percent ||
                     dashboardKPIs.grossMarginPercent,
                 ) || 0,
-            dso:
+              dso:
                 parseFloat(dashboardKPIs.dso_days || dashboardKPIs.dsoDays) ||
                 0,
-            creditUtilization:
+              creditUtilization:
                 parseFloat(
                   dashboardKPIs.credit_utilization_percent ||
                     dashboardKPIs.creditUtilizationPercent,
                 ) || 0,
-          }
+            }
           : {
-            grossMargin: 0,
-            dso: 0,
-            creditUtilization: 0,
-          },
+              grossMargin: 0,
+              dso: 0,
+              creditUtilization: 0,
+            },
 
         // AR Aging buckets
         arAging: arAgingData,
@@ -298,13 +298,13 @@ export const dashboardService = {
         // Top Products
         topProducts: Array.isArray(dashboardData?.topProducts)
           ? dashboardData.topProducts.slice(0, 5).map((p) => ({
-            id: p.id,
-            name: p.name,
-            displayName: p.displayName || p.name,
-            category: p.category,
-            sales: safeNum(p.totalSold),
-            revenue: safeNum(p.totalRevenue),
-          }))
+              id: p.id,
+              name: p.name,
+              displayName: p.displayName || p.name,
+              category: p.category,
+              sales: safeNum(p.totalSold),
+              revenue: safeNum(p.totalRevenue),
+            }))
           : [],
 
         // Indicate real data was used
@@ -391,29 +391,29 @@ export const dashboardService = {
       // Process top products from analytics or build from product list
       const topProducts = Array.isArray(productPerformance?.products)
         ? productPerformance.products.slice(0, 10).map((p) => ({
-          id: p.id || p.productId || p.product_id,
-          name: p.name || p.productName || p.product_name,
-          displayName: p.displayName || p.name || p.productName,
-          category: p.category,
-          grade: p.grade,
-          totalSold: safeNum(
-            p.totalSold || p.quantitySold || p.quantity_sold,
-          ),
-          totalRevenue: safeNum(p.totalRevenue || p.revenue),
-          avgPrice: safeNum(p.avgPrice || p.averagePrice),
-          margin: safeNum(p.margin || p.marginPercent || p.margin_percent),
-        }))
+            id: p.id || p.productId || p.product_id,
+            name: p.name || p.productName || p.product_name,
+            displayName: p.displayName || p.name || p.productName,
+            category: p.category,
+            grade: p.grade,
+            totalSold: safeNum(
+              p.totalSold || p.quantitySold || p.quantity_sold,
+            ),
+            totalRevenue: safeNum(p.totalRevenue || p.revenue),
+            avgPrice: safeNum(p.avgPrice || p.averagePrice),
+            margin: safeNum(p.margin || p.marginPercent || p.margin_percent),
+          }))
         : products.slice(0, 10).map((p) => ({
-          id: p.id,
-          name: p.name || p.displayName,
-          displayName: p.displayName || p.name,
-          category: p.category || p.productType,
-          grade: p.grade,
-          totalSold: 0,
-          totalRevenue: 0,
-          avgPrice: safeNum(p.sellingPrice || p.price),
-          margin: 0,
-        }));
+            id: p.id,
+            name: p.name || p.displayName,
+            displayName: p.displayName || p.name,
+            category: p.category || p.productType,
+            grade: p.grade,
+            totalSold: 0,
+            totalRevenue: 0,
+            avgPrice: safeNum(p.sellingPrice || p.price),
+            margin: 0,
+          }));
 
       // Category performance aggregation
       const categoryPerformance = {};
@@ -1271,10 +1271,10 @@ export const dashboardService = {
         trend: response?.trend || [],
         previousPeriod: response?.previous_period ||
           response?.previousPeriod || {
-          revenue: 0,
-          grossProfit: 0,
-          netProfit: 0,
-        },
+            revenue: 0,
+            grossProfit: 0,
+            netProfit: 0,
+          },
         isMockData: false,
         fetchedAt: new Date().toISOString(),
       };
@@ -1600,9 +1600,9 @@ export const dashboardService = {
           avgUtilization:
             warehouses.length > 0
               ? warehouses.reduce(
-                (sum, w) => sum + safeNum(w.utilizationPercent || 0),
-                0,
-              ) / warehouses.length
+                  (sum, w) => sum + safeNum(w.utilizationPercent || 0),
+                  0,
+                ) / warehouses.length
               : 0,
           totalValue: 0, // Would need inventory value data
         },

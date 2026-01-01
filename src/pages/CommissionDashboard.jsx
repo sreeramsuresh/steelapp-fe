@@ -426,84 +426,84 @@ const CommissionDashboard = () => {
                   {summary.pendingAmount ||
                   summary.approvedAmount ||
                   summary.paidAmount ? (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={[
-                              {
-                                name: 'Pending',
-                                value: parseFloat(summary.pendingAmount || 0),
-                                color: STATUS_COLORS.pending,
-                              },
-                              {
-                                name: 'Approved',
-                                value: parseFloat(summary.approvedAmount || 0),
-                                color: STATUS_COLORS.approved,
-                              },
-                              {
-                                name: 'Paid',
-                                value: parseFloat(summary.paidAmount || 0),
-                                color: STATUS_COLORS.paid,
-                              },
-                            ].filter((d) => d.value > 0)}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={100}
-                            paddingAngle={2}
-                            dataKey="value"
-                            label={({ name, percent }) =>
-                              `${name} ${(percent * 100).toFixed(0)}%`
-                            }
-                            labelLine={{
-                              stroke: isDarkMode ? '#6B7280' : '#9CA3AF',
-                            }}
-                          >
-                            {[
-                              {
-                                name: 'Pending',
-                                value: parseFloat(summary.pendingAmount || 0),
-                                color: STATUS_COLORS.pending,
-                              },
-                              {
-                                name: 'Approved',
-                                value: parseFloat(summary.approvedAmount || 0),
-                                color: STATUS_COLORS.approved,
-                              },
-                              {
-                                name: 'Paid',
-                                value: parseFloat(summary.paidAmount || 0),
-                                color: STATUS_COLORS.paid,
-                              },
-                            ]
-                              .filter((d) => d.value > 0)
-                              .map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                          </Pie>
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                              border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
-                              borderRadius: '0.5rem',
-                              color: isDarkMode ? '#F9FAFB' : '#111827',
-                            }}
-                            formatter={(value) => formatCurrency(value)}
-                          />
-                          <Legend />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <p
-                          className={
-                            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            {
+                              name: 'Pending',
+                              value: parseFloat(summary.pendingAmount || 0),
+                              color: STATUS_COLORS.pending,
+                            },
+                            {
+                              name: 'Approved',
+                              value: parseFloat(summary.approvedAmount || 0),
+                              color: STATUS_COLORS.approved,
+                            },
+                            {
+                              name: 'Paid',
+                              value: parseFloat(summary.paidAmount || 0),
+                              color: STATUS_COLORS.paid,
+                            },
+                          ].filter((d) => d.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={100}
+                          paddingAngle={2}
+                          dataKey="value"
+                          label={({ name, percent }) =>
+                            `${name} ${(percent * 100).toFixed(0)}%`
                           }
+                          labelLine={{
+                            stroke: isDarkMode ? '#6B7280' : '#9CA3AF',
+                          }}
                         >
+                          {[
+                            {
+                              name: 'Pending',
+                              value: parseFloat(summary.pendingAmount || 0),
+                              color: STATUS_COLORS.pending,
+                            },
+                            {
+                              name: 'Approved',
+                              value: parseFloat(summary.approvedAmount || 0),
+                              color: STATUS_COLORS.approved,
+                            },
+                            {
+                              name: 'Paid',
+                              value: parseFloat(summary.paidAmount || 0),
+                              color: STATUS_COLORS.paid,
+                            },
+                          ]
+                            .filter((d) => d.value > 0)
+                            .map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#374151' : '#E5E7EB'}`,
+                            borderRadius: '0.5rem',
+                            color: isDarkMode ? '#F9FAFB' : '#111827',
+                          }}
+                          formatter={(value) => formatCurrency(value)}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p
+                        className={
+                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                        }
+                      >
                         No commission data available
-                        </p>
-                      </div>
-                    )}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

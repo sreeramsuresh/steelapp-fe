@@ -2183,19 +2183,19 @@ const ShippingDocumentList = () => {
                             </div>
                             {isCompleted &&
                               trackingData?.milestones?.[index] && (
-                              <div className="text-sm text-gray-500">
-                                {formatDate(
-                                  trackingData.milestones[index].date,
-                                )}
-                                {trackingData.milestones[index].location && (
-                                  <span>
-                                    {' '}
+                                <div className="text-sm text-gray-500">
+                                  {formatDate(
+                                    trackingData.milestones[index].date,
+                                  )}
+                                  {trackingData.milestones[index].location && (
+                                    <span>
+                                      {' '}
                                       -{' '}
-                                    {trackingData.milestones[index].location}
-                                  </span>
-                                )}
-                              </div>
-                            )}
+                                      {trackingData.milestones[index].location}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
                           </div>
                         </div>
                       );

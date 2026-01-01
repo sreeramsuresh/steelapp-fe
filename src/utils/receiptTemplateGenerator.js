@@ -92,10 +92,10 @@ export const generateReceiptHTML = (
 
   const formattedInvoiceDate = invoiceDate
     ? new Date(invoiceDate).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
     : 'N/A';
 
   // Determine payment method display
@@ -362,13 +362,13 @@ export const generateReceiptHTML = (
         <td>${customerAddress}</td>
       </tr>
       ${
-  customerTRN
-    ? `<tr>
+        customerTRN
+          ? `<tr>
         <td><strong>Customer TRN:</strong></td>
         <td>${customerTRN}</td>
       </tr>`
-    : ''
-}
+          : ''
+      }
     </table>
 
     <!-- PAYMENT DETAILS -->
@@ -383,8 +383,8 @@ export const generateReceiptHTML = (
 
     <!-- ADVANCE PAYMENT BANNER -->
     ${
-  isAdvancePayment
-    ? `
+      isAdvancePayment
+        ? `
     <div class="advance-payment-banner">
       <strong>⚠️ ADVANCE PAYMENT RECEIPT</strong>
       <p style="margin-top: 5px;">
@@ -393,16 +393,16 @@ export const generateReceiptHTML = (
       </p>
     </div>
     `
-    : ''
-}
+        : ''
+    }
 
     <!-- VAT SECTION (CRITICAL FOR FTA) -->
     <div class="vat-section">
       <h3>VALUE ADDED TAX (VAT) INFORMATION</h3>
       
       ${
-  isAdvancePayment
-    ? `
+        isAdvancePayment
+          ? `
         <!-- ADVANCE PAYMENT VAT SECTION -->
         <p style="font-weight: 600; margin-bottom: 10px;">Advance Payment Received</p>
         <table>
@@ -423,7 +423,7 @@ export const generateReceiptHTML = (
           <em>VAT on this advance payment will be accounted for upon issue of final invoice per FTA Article 18 (Time of Supply). No additional VAT is charged on this receipt.</em>
         </p>
       `
-    : `
+          : `
         <!-- REGULAR INVOICE PAYMENT VAT SECTION -->
         <p style="font-weight: 600; margin-bottom: 10px;">Payment Against Invoice ${invoiceNumber}</p>
         <table>
@@ -452,13 +452,13 @@ export const generateReceiptHTML = (
           <em>No additional VAT is charged on this payment receipt. VAT was accounted for on the original invoice date.</em>
         </p>
       `
-}
+      }
     </div>
 
     <!-- MULTI-CURRENCY SECTION (if applicable) -->
     ${
-  currencyCode !== 'AED'
-    ? `
+      currencyCode !== 'AED'
+        ? `
     <div class="currency-section">
       <strong>Foreign Currency Payment Details</strong>
       <table style="margin-top: 8px;">
@@ -481,8 +481,8 @@ export const generateReceiptHTML = (
       </table>
     </div>
     `
-    : ''
-}
+        : ''
+    }
 
     <!-- AUDIT REFERENCE -->
     <div style="margin-top: 20px; padding: 10px; background: #f9f9f9; border-radius: 3px;">

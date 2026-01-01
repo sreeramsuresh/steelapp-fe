@@ -68,8 +68,8 @@ const Drawer = ({
         className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-50
           ${isDarkMode ? `bg-[${COLORS.card}] border-l border-[${COLORS.border}]` : 'bg-white border-l border-gray-200'}
           p-4 overflow-auto transition-transform duration-300 ${
-    isOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}
+            isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
         style={{ backgroundColor: isDarkMode ? COLORS.card : undefined }}
       >
         {/* Header */}
@@ -1587,40 +1587,40 @@ const CreditNoteForm = () => {
                       searchQuery.length > 0 &&
                       searchResults.length === 0 &&
                       !isSearching && (
-                      <div
-                        className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
-                          isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-400'
-                            : 'bg-white border-gray-300 text-gray-600'
-                        }`}
-                      >
+                        <div
+                          className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-700 text-gray-400'
+                              : 'bg-white border-gray-300 text-gray-600'
+                          }`}
+                        >
                           No issued invoices found matching &quot;{searchQuery}
                           &quot;
-                      </div>
-                    )}
+                        </div>
+                      )}
 
                     {/* No filtered results message */}
                     {showDropdown &&
                       searchResults.length > 0 &&
                       filteredResults.length === 0 && (
-                      <div
-                        className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
-                          isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-400'
-                            : 'bg-white border-gray-300 text-gray-600'
-                        }`}
-                      >
+                        <div
+                          className={`absolute z-10 w-full mt-1 p-4 rounded-lg shadow-lg border ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-700 text-gray-400'
+                              : 'bg-white border-gray-300 text-gray-600'
+                          }`}
+                        >
                           No invoices match the selected filters. Try adjusting
                           or{' '}
-                        <button
-                          type="button"
-                          onClick={clearFilters}
-                          className={`underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
-                        >
+                          <button
+                            type="button"
+                            onClick={clearFilters}
+                            className={`underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                          >
                             clearing filters
-                        </button>
-                      </div>
-                    )}
+                          </button>
+                        </div>
+                      )}
                   </div>
                   <p
                     className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
@@ -1982,8 +1982,8 @@ const CreditNoteForm = () => {
                       >
                         {creditNote.creditNoteType
                           ? CREDIT_NOTE_TYPES.find(
-                            (t) => t.value === creditNote.creditNoteType,
-                          )?.description
+                              (t) => t.value === creditNote.creditNoteType,
+                            )?.description
                           : 'Choose whether this is a financial adjustment only or involves physical return'}
                       </p>
                     )}
@@ -2748,8 +2748,8 @@ const CreditNoteForm = () => {
                             >
                               {creditNote.rmaValidityDate
                                 ? new Date(
-                                  creditNote.rmaValidityDate,
-                                ).toLocaleDateString()
+                                    creditNote.rmaValidityDate,
+                                  ).toLocaleDateString()
                                 : 'N/A'}
                             </div>
                           </div>
@@ -2812,8 +2812,8 @@ const CreditNoteForm = () => {
                               Approved by: {creditNote.approverName} on{' '}
                               {creditNote.approvalTimestamp
                                 ? new Date(
-                                  creditNote.approvalTimestamp,
-                                ).toLocaleString()
+                                    creditNote.approvalTimestamp,
+                                  ).toLocaleString()
                                 : 'N/A'}
                             </p>
                           )}
@@ -2991,90 +2991,90 @@ const CreditNoteForm = () => {
                   'refunded',
                   'completed',
                 ].includes(creditNote.status) && (
-                <div
-                  className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-                >
-                  <h2
-                    className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  <div
+                    className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
                   >
+                    <h2
+                      className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
                       QC Inspection Results
-                  </h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <label
-                          htmlFor="qc-result"
-                          className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                        >
-                            QC Result
-                        </label>
-                        <div
-                          id="qc-result"
-                          className={`px-4 py-2 rounded-lg border ${
-                            isDarkMode
-                              ? 'border-gray-600 bg-gray-700'
-                              : 'border-gray-300 bg-gray-50'
-                          }`}
-                        >
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              creditNote.qcResult === 'GOOD'
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                : creditNote.qcResult === 'BAD'
-                                  ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                            }`}
-                          >
-                            {creditNote.qcResult || 'Pending'}
-                          </span>
-                        </div>
-                      </div>
-                      {creditNote.qcInspectedAt && (
+                    </h2>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
                         <div className="flex-1">
                           <label
-                            htmlFor="qc-inspected-at"
+                            htmlFor="qc-result"
                             className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                           >
-                              Inspected At
+                            QC Result
                           </label>
                           <div
-                            id="qc-inspected-at"
-                            className={`px-4 py-2 rounded-lg border text-sm ${
+                            id="qc-result"
+                            className={`px-4 py-2 rounded-lg border ${
+                              isDarkMode
+                                ? 'border-gray-600 bg-gray-700'
+                                : 'border-gray-300 bg-gray-50'
+                            }`}
+                          >
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                creditNote.qcResult === 'GOOD'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                  : creditNote.qcResult === 'BAD'
+                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                              }`}
+                            >
+                              {creditNote.qcResult || 'Pending'}
+                            </span>
+                          </div>
+                        </div>
+                        {creditNote.qcInspectedAt && (
+                          <div className="flex-1">
+                            <label
+                              htmlFor="qc-inspected-at"
+                              className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                            >
+                              Inspected At
+                            </label>
+                            <div
+                              id="qc-inspected-at"
+                              className={`px-4 py-2 rounded-lg border text-sm ${
+                                isDarkMode
+                                  ? 'border-gray-600 bg-gray-700 text-gray-300'
+                                  : 'border-gray-300 bg-gray-50 text-gray-600'
+                              }`}
+                            >
+                              {new Date(
+                                creditNote.qcInspectedAt,
+                              ).toLocaleString()}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {creditNote.qcNotes && (
+                        <div>
+                          <label
+                            htmlFor="qc-notes"
+                            className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                          >
+                            QC Notes
+                          </label>
+                          <div
+                            id="qc-notes"
+                            className={`px-4 py-3 rounded-lg border text-sm ${
                               isDarkMode
                                 ? 'border-gray-600 bg-gray-700 text-gray-300'
                                 : 'border-gray-300 bg-gray-50 text-gray-600'
                             }`}
                           >
-                            {new Date(
-                              creditNote.qcInspectedAt,
-                            ).toLocaleString()}
+                            {creditNote.qcNotes}
                           </div>
                         </div>
                       )}
                     </div>
-                    {creditNote.qcNotes && (
-                      <div>
-                        <label
-                          htmlFor="qc-notes"
-                          className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                        >
-                            QC Notes
-                        </label>
-                        <div
-                          id="qc-notes"
-                          className={`px-4 py-3 rounded-lg border text-sm ${
-                            isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-gray-300'
-                              : 'border-gray-300 bg-gray-50 text-gray-600'
-                          }`}
-                        >
-                          {creditNote.qcNotes}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Quick Actions - Only show for physical returns */}
               {showLogisticsSection && (
@@ -3331,50 +3331,50 @@ const CreditNoteForm = () => {
                     {isPhysicalReturn &&
                       (creditNote.restockingFee > 0 ||
                         creditNote.returnShippingCost > 0) && (
-                      <>
-                        <div
-                          className={`pt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-sm`}
-                        >
-                          <div className="font-medium mb-2">Deductions:</div>
-                          {creditNote.restockingFee > 0 && (
-                            <div className="flex justify-between ml-2">
-                              <span>Restocking Fee:</span>
-                              <span className="text-red-600">
-                                  -{formatCurrency(creditNote.restockingFee)}
-                              </span>
-                            </div>
-                          )}
-                          {creditNote.returnShippingCost > 0 && (
-                            <div className="flex justify-between ml-2">
-                              <span>Return Shipping:</span>
-                              <span className="text-red-600">
-                                  -
-                                {formatCurrency(
-                                  creditNote.returnShippingCost,
-                                )}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div
-                          className={`flex justify-between pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
-                        >
-                          <span
-                            className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        <>
+                          <div
+                            className={`pt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-sm`}
                           >
+                            <div className="font-medium mb-2">Deductions:</div>
+                            {creditNote.restockingFee > 0 && (
+                              <div className="flex justify-between ml-2">
+                                <span>Restocking Fee:</span>
+                                <span className="text-red-600">
+                                  -{formatCurrency(creditNote.restockingFee)}
+                                </span>
+                              </div>
+                            )}
+                            {creditNote.returnShippingCost > 0 && (
+                              <div className="flex justify-between ml-2">
+                                <span>Return Shipping:</span>
+                                <span className="text-red-600">
+                                  -
+                                  {formatCurrency(
+                                    creditNote.returnShippingCost,
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            className={`flex justify-between pt-3 border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+                          >
+                            <span
+                              className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            >
                               Net Refund:
-                          </span>
-                          <span className="text-lg font-bold text-teal-600">
-                            {formatCurrency(
-                              creditNote.totalCredit +
+                            </span>
+                            <span className="text-lg font-bold text-teal-600">
+                              {formatCurrency(
+                                creditNote.totalCredit +
                                   creditNote.manualCreditAmount -
                                   creditNote.restockingFee -
                                   creditNote.returnShippingCost,
-                            )}
-                          </span>
-                        </div>
-                      </>
-                    )}
+                              )}
+                            </span>
+                          </div>
+                        </>
+                      )}
 
                     {/* Net Refund without deductions */}
                     {!(

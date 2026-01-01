@@ -755,15 +755,15 @@ const POTab = ({ canManage }) => {
                         </div>
                         {row.payments &&
                           row.payments.filter((p) => !p.voided).length > 0 && (
-                          <div className="text-xs opacity-70">
-                            {row.payments.filter((p) => !p.voided).length}{' '}
+                            <div className="text-xs opacity-70">
+                              {row.payments.filter((p) => !p.voided).length}{' '}
                               payment
-                            {row.payments.filter((p) => !p.voided).length !==
+                              {row.payments.filter((p) => !p.voided).length !==
                               1
-                              ? 's'
-                              : ''}
-                          </div>
-                        )}
+                                ? 's'
+                                : ''}
+                            </div>
+                          )}
                       </div>
                     </td>
                     <td className="px-4 py-2" onClick={() => openDrawer(row)}>

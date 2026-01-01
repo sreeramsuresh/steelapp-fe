@@ -365,7 +365,7 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
       <div className="min-h-[200px]">
         {viewType === 'period'
           ? // Always show bar chart for period view
-          renderBarChart()
+            renderBarChart()
           : chartType === 'bar'
             ? renderBarChart()
             : renderPieChart()}

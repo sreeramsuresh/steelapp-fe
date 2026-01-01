@@ -438,25 +438,25 @@ export default function CustomerCreditNotesTab({ customerId }) {
                       <td className={`px-4 py-3 ${secondaryText}`}>
                         {creditNote.linkedInvoices &&
                         creditNote.linkedInvoices.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {creditNote.linkedInvoices.map((invoice, idx) => (
-                                <span
-                                  key={idx}
-                                  className={`px-2 py-0.5 rounded text-xs ${
-                                    isDarkMode
-                                      ? 'bg-gray-700 text-gray-300'
-                                      : 'bg-gray-200 text-gray-700'
-                                  }`}
-                                >
-                                  {invoice}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className={secondaryText}>
+                          <div className="flex flex-wrap gap-1">
+                            {creditNote.linkedInvoices.map((invoice, idx) => (
+                              <span
+                                key={idx}
+                                className={`px-2 py-0.5 rounded text-xs ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 text-gray-300'
+                                    : 'bg-gray-200 text-gray-700'
+                                }`}
+                              >
+                                {invoice}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className={secondaryText}>
                             No linked invoices
-                            </span>
-                          )}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <StatusBadge status={status} />

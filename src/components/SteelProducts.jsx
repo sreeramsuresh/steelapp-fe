@@ -2112,12 +2112,12 @@ const SteelProducts = () => {
           className={`
             relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200
             ${
-    showSpeedButtons
-      ? 'bg-teal-500'
-      : isDarkMode
-        ? 'bg-gray-600'
-        : 'bg-gray-300'
-    }
+              showSpeedButtons
+                ? 'bg-teal-500'
+                : isDarkMode
+                  ? 'bg-gray-600'
+                  : 'bg-gray-300'
+            }
           `}
           title={showSpeedButtons ? 'Hide quick filters' : 'Show quick filters'}
         >
@@ -2549,12 +2549,12 @@ const SteelProducts = () => {
                           {(product.displayName || product.display_name) &&
                           (product.displayName || product.display_name) !==
                             (product.uniqueName || product.unique_name) ? (
-                              <div
-                                className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                              >
-                                {product.displayName || product.display_name}
-                              </div>
-                            ) : null}
+                            <div
+                              className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                            >
+                              {product.displayName || product.display_name}
+                            </div>
+                          ) : null}
                         </div>
                       ) : (
                         getCellValue(product, col.key)
@@ -4204,21 +4204,21 @@ const SteelProducts = () => {
                     selectedProduct.unit_weight_kg) &&
                     (selectedProduct.currentStock ||
                       selectedProduct.current_stock) && (
-                    <div
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                    >
+                      <div
+                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      >
                         Total Weight:{' '}
-                      {(
-                        (selectedProduct.unitWeightKg ||
+                        {(
+                          (selectedProduct.unitWeightKg ||
                             selectedProduct.unit_weight_kg ||
                             0) *
                           (selectedProduct.currentStock ||
                             selectedProduct.current_stock ||
                             0)
-                      ).toFixed(2)}{' '}
+                        ).toFixed(2)}{' '}
                         kg
-                    </div>
-                  )}
+                      </div>
+                    )}
 
                   {/* Divider before pricing */}
                   <div className="sm:col-span-2 pt-2">
@@ -4520,11 +4520,11 @@ const SteelProducts = () => {
             const margin =
               selectedProduct.costPrice > 0 && selectedProduct.sellingPrice > 0
                 ? Math.round(
-                  ((selectedProduct.sellingPrice -
+                    ((selectedProduct.sellingPrice -
                       selectedProduct.costPrice) /
                       selectedProduct.costPrice) *
                       100,
-                )
+                  )
                 : null;
 
             const isPipeOrTube = /pipe|tube/i.test(
@@ -4651,8 +4651,8 @@ const SteelProducts = () => {
                         >
                           {selectedProduct.sellingPrice
                             ? Number(
-                              selectedProduct.sellingPrice,
-                            ).toLocaleString()
+                                selectedProduct.sellingPrice,
+                              ).toLocaleString()
                             : '—'}
                         </div>
                       </div>

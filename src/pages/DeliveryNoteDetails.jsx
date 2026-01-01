@@ -654,24 +654,24 @@ const DeliveryNoteDetails = () => {
                         {!item.isFullyDelivered &&
                           deliveryNote.status !== 'completed' &&
                           deliveryNote.status !== 'cancelled' && (
-                          <button
-                            onClick={() =>
-                              setPartialDialog({
-                                open: true,
-                                item,
-                                quantity: '',
-                              })
-                            }
-                            className={`flex items-center gap-1 px-3 py-1 text-sm border rounded-lg transition-colors ${
-                              isDarkMode
-                                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-                                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
-                            }`}
-                          >
-                            <Plus size={14} />
+                            <button
+                              onClick={() =>
+                                setPartialDialog({
+                                  open: true,
+                                  item,
+                                  quantity: '',
+                                })
+                              }
+                              className={`flex items-center gap-1 px-3 py-1 text-sm border rounded-lg transition-colors ${
+                                isDarkMode
+                                  ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
+                                  : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                              }`}
+                            >
+                              <Plus size={14} />
                               Add Delivery
-                          </button>
-                        )}
+                            </button>
+                          )}
                       </td>
                     </tr>
                   ))}

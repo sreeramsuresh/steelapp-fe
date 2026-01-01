@@ -62,7 +62,7 @@ export const testHtmlEscape = () => {
       name: 'Script tag escape',
     },
     {
-      input: "<img src=x onerror=\"alert('XSS')\">",
+      input: '<img src=x onerror="alert(\'XSS\')">',
       expected: '&lt;img src=x onerror=&quot;alert(&#039;XSS&#039;)&quot;&gt;',
       name: 'Image tag with event handler',
     },

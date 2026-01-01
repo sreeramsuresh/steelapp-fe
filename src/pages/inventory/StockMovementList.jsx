@@ -88,10 +88,10 @@ const StockMovementList = () => {
         ) : type === 'OUT' ||
           type === 'TRANSFER_OUT' ||
           type === 'RESERVATION' ? (
-            <ArrowDownCircle size={12} />
-          ) : (
-            <RefreshCcw size={12} />
-          )}
+          <ArrowDownCircle size={12} />
+        ) : (
+          <RefreshCcw size={12} />
+        )}
         {config.label}
       </span>
     );

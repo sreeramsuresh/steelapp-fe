@@ -388,29 +388,29 @@ export default function CustomerOverviewTab({ customer }) {
 
           {customer.creditScore !== undefined &&
             customer.creditScore !== null && (
-            <div>
-              <div
-                className={`block text-xs uppercase tracking-wide ${mutedText} mb-2`}
-              >
-                  Credit Score
-              </div>
-              <div className="flex items-baseline gap-1">
-                <span className={`text-2xl font-bold ${primaryText}`}>
-                  {customer.creditScore}
-                </span>
-                <span className={`text-sm ${mutedText}`}>/100</span>
-              </div>
-              {/* Score Bar */}
-              <div
-                className={`mt-2 w-full h-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} overflow-hidden`}
-              >
+              <div>
                 <div
-                  className="h-full bg-teal-500 transition-all duration-300"
-                  style={{ width: `${customer.creditScore}%` }}
-                />
+                  className={`block text-xs uppercase tracking-wide ${mutedText} mb-2`}
+                >
+                  Credit Score
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className={`text-2xl font-bold ${primaryText}`}>
+                    {customer.creditScore}
+                  </span>
+                  <span className={`text-sm ${mutedText}`}>/100</span>
+                </div>
+                {/* Score Bar */}
+                <div
+                  className={`mt-2 w-full h-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} overflow-hidden`}
+                >
+                  <div
+                    className="h-full bg-teal-500 transition-all duration-300"
+                    style={{ width: `${customer.creditScore}%` }}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
 

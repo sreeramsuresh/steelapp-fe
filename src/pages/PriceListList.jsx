@@ -316,7 +316,7 @@ export default function PriceListList() {
                   filter.id === 'all'
                     ? pricelists.length
                     : pricelists.filter((pl) => pl.currency === filter.id)
-                      .length;
+                        .length;
                 return (
                   <button
                     key={filter.id}

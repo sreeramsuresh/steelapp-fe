@@ -642,28 +642,28 @@ const CommissionTransactions = () => {
                             </button>
                             {actionMenuOpen === transaction.id &&
                               !isReversed && (
-                              <div
-                                className={`absolute right-0 mt-1 w-48 rounded-lg shadow-lg z-10 border ${
-                                  isDarkMode
-                                    ? 'bg-gray-700 border-gray-600'
-                                    : 'bg-white border-gray-200'
-                                }`}
-                              >
-                                <button
-                                  onClick={() =>
-                                    openReversalModal(transaction)
-                                  }
-                                  className={`w-full px-4 py-2 text-left text-sm flex items-center space-x-2 ${
+                                <div
+                                  className={`absolute right-0 mt-1 w-48 rounded-lg shadow-lg z-10 border ${
                                     isDarkMode
-                                      ? 'hover:bg-gray-600 text-red-400'
-                                      : 'hover:bg-gray-50 text-red-600'
+                                      ? 'bg-gray-700 border-gray-600'
+                                      : 'bg-white border-gray-200'
                                   }`}
                                 >
-                                  <RotateCcw className="h-4 w-4" />
-                                  <span>Reverse Commission</span>
-                                </button>
-                              </div>
-                            )}
+                                  <button
+                                    onClick={() =>
+                                      openReversalModal(transaction)
+                                    }
+                                    className={`w-full px-4 py-2 text-left text-sm flex items-center space-x-2 ${
+                                      isDarkMode
+                                        ? 'hover:bg-gray-600 text-red-400'
+                                        : 'hover:bg-gray-50 text-red-600'
+                                    }`}
+                                  >
+                                    <RotateCcw className="h-4 w-4" />
+                                    <span>Reverse Commission</span>
+                                  </button>
+                                </div>
+                              )}
                           </div>
                         </td>
                       </tr>

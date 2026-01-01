@@ -159,9 +159,9 @@ const StockMovementForm = () => {
         const res = productService.searchProducts
           ? await productService.searchProducts(productQuery, { limit: 10 })
           : await productService.getProducts({
-            search: productQuery,
-            limit: 10,
-          });
+              search: productQuery,
+              limit: 10,
+            });
         setProductOptions(res?.data || res?.products || res || []);
       } catch {
         setProductOptions([]);

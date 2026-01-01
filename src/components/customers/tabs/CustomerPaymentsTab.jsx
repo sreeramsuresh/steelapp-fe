@@ -158,9 +158,9 @@ export default function CustomerPaymentsTab({ customerId }) {
     lastPaymentDate:
       filteredPayments.length > 0
         ? filteredPayments.reduce((latest, p) => {
-          const pDate = new Date(p.paymentDate);
-          return pDate > latest ? pDate : latest;
-        }, new Date(filteredPayments[0].paymentDate))
+            const pDate = new Date(p.paymentDate);
+            return pDate > latest ? pDate : latest;
+          }, new Date(filteredPayments[0].paymentDate))
         : null,
   };
 

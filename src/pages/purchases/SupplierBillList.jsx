@@ -826,14 +826,14 @@ const SupplierBillList = () => {
                           {/* Cancel - for non-cancelled bills */}
                           {bill.status !== 'cancelled' &&
                             bill.status !== 'paid' && (
-                            <button
-                              onClick={() => handleCancel2(bill)}
-                              className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-amber-900/30 text-amber-400' : 'hover:bg-amber-100 text-amber-600'}`}
-                              title="Cancel"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          )}
+                              <button
+                                onClick={() => handleCancel2(bill)}
+                                className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-amber-900/30 text-amber-400' : 'hover:bg-amber-100 text-amber-600'}`}
+                                title="Cancel"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            )}
                           {/* Delete - only for drafts */}
                           {bill.status === 'draft' && (
                             <button

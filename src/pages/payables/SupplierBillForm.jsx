@@ -281,25 +281,25 @@ export function SupplierBillForm({
         items:
           Array.isArray(supplierBill.items) && supplierBill.items.length > 0
             ? supplierBill.items.map((item) => ({
-              id:
+                id:
                   item.id ||
                   `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              productId: item.productId || item.product_id || null,
-              productName: item.productName || item.product_name || '',
-              description: item.description || '',
-              quantity: parseFloat(item.quantity || 1),
-              unit: normalizeUom(item),
-              unitPrice: parseFloat(item.unitPrice || item.unit_price || 0),
-              amount: parseFloat(item.amount || 0),
-              vatRate: parseFloat(item.vatRate || item.vat_rate || 5),
-              vatAmount: parseFloat(item.vatAmount || item.vat_amount || 0),
-              vatCategory:
+                productId: item.productId || item.product_id || null,
+                productName: item.productName || item.product_name || '',
+                description: item.description || '',
+                quantity: parseFloat(item.quantity || 1),
+                unit: normalizeUom(item),
+                unitPrice: parseFloat(item.unitPrice || item.unit_price || 0),
+                amount: parseFloat(item.amount || 0),
+                vatRate: parseFloat(item.vatRate || item.vat_rate || 5),
+                vatAmount: parseFloat(item.vatAmount || item.vat_amount || 0),
+                vatCategory:
                   item.vatCategory || item.vat_category || 'STANDARD_RATED',
-              isBlockedVat: item.isBlockedVat || item.is_blocked_vat || false,
-              blockedReason: item.blockedReason || item.blocked_reason || '',
-              costCenter: item.costCenter || item.cost_center || '',
-              glAccount: item.glAccount || item.gl_account || '',
-            }))
+                isBlockedVat: item.isBlockedVat || item.is_blocked_vat || false,
+                blockedReason: item.blockedReason || item.blocked_reason || '',
+                costCenter: item.costCenter || item.cost_center || '',
+                glAccount: item.glAccount || item.gl_account || '',
+              }))
             : [createEmptyItem()],
       });
     }

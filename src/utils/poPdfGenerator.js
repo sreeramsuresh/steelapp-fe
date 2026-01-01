@@ -116,13 +116,13 @@ const createPOElement = (
         </thead>
         <tbody>
           ${items
-    .map((item) => {
-      const spec =
+            .map((item) => {
+              const spec =
                 (item.specification && String(item.specification).trim()) ||
                 [item.grade, item.finish, item.size, item.thickness]
                   .filter(Boolean)
                   .join(' | ');
-      return `
+              return `
               <tr>
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">
                   <div style="font-weight:600;color:#0f172a;">${safe(item.name || item.productType)}</div>
@@ -135,8 +135,8 @@ const createPOElement = (
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(item.amount || 0)}</td>
               </tr>
             `;
-    })
-    .join('')}
+            })
+            .join('')}
         </tbody>
       </table>
     </div>
@@ -148,14 +148,14 @@ const createPOElement = (
           <span>${formatCurrency(po.subtotal || 0)}</span>
         </div>
         ${
-  po.vatAmount
-    ? `
+          po.vatAmount
+            ? `
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
           <span>VAT Amount:</span>
           <span>${formatCurrency(po.vatAmount || 0)}</span>
         </div>`
-    : ''
-}
+            : ''
+        }
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
           <span><strong>Total Amount:</strong></span>
           <span><strong>${formatCurrency(po.total || 0)}</strong></span>
@@ -164,33 +164,33 @@ const createPOElement = (
     </div>
 
     ${
-  po.notes || po.terms
-    ? `
+      po.notes || po.terms
+        ? `
       <div style="margin-bottom: 30px;">
         ${
-  po.notes
-    ? `
+          po.notes
+            ? `
           <div style="margin-bottom: 15px;">
             <h4 style="margin: 0 0 5px 0; color: #1e293b;">Notes:</h4>
             <p style="margin: 0; color: #64748b;">${escapeHtml(po.notes)}</p>
           </div>
         `
-    : ''
-}
+            : ''
+        }
         ${
-  po.terms
-    ? `
+          po.terms
+            ? `
           <div style="margin-bottom: 15px;">
             <h4 style="margin: 0 0 5px 0; color: #1e293b;">Terms:</h4>
             <p style="margin: 0; color: #64748b;">${escapeHtmlWithLineBreaks(po.terms)}</p>
           </div>
         `
-    : ''
-}
+            : ''
+        }
       </div>
     `
-    : ''
-}
+        : ''
+    }
 
     <div style="display: flex; justify-content: flex-end; margin-top: 50px;">
       <div style="display: flex; align-items: flex-end; gap: 20px;">

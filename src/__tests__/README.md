@@ -171,7 +171,7 @@ render(
 **Mocking Services**:
 
 ```javascript
-vi.mock("../services/creditNoteService", () => ({
+vi.mock('../services/creditNoteService', () => ({
   creditNoteService: {
     getCreditNote: vi.fn(),
     createCreditNote: vi.fn(),
@@ -200,7 +200,7 @@ global.localStorage = {
 // Auto-save has 2500ms debounce
 await waitFor(
   () => {
-    const drafts = JSON.parse(localStorage.getItem("credit_note_drafts"));
+    const drafts = JSON.parse(localStorage.getItem('credit_note_drafts'));
     expect(drafts[337]).toBeDefined();
   },
   { timeout: 4000 },
@@ -233,7 +233,7 @@ View report: `steelapp-fe/coverage/index.html`
 1. **Use Mock Data**:
 
    ```javascript
-   import { mockCreditNote, mockInvoice } from "../test/mocks/creditNoteMocks";
+   import { mockCreditNote, mockInvoice } from '../test/mocks/creditNoteMocks';
    ```
 
 2. **Follow Naming Convention**:

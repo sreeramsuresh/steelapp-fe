@@ -193,8 +193,8 @@ const CommissionPanel = ({
                     Adjustments allowed until{' '}
                     {invoice.commissionGracePeriodEndDate
                       ? new Date(
-                        invoice.commissionGracePeriodEndDate,
-                      ).toLocaleDateString()
+                          invoice.commissionGracePeriodEndDate,
+                        ).toLocaleDateString()
                       : 'N/A'}
                   </p>
                 </div>

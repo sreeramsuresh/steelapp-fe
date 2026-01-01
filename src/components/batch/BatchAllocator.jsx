@@ -441,11 +441,11 @@ const BatchAllocator = ({
                       AED{' '}
                       {allocatedQuantity > 0
                         ? formatNumber(
-                          allocations.reduce(
-                            (sum, a) => sum + a.quantity * a.unitCost,
-                            0,
-                          ) / allocatedQuantity,
-                        )
+                            allocations.reduce(
+                              (sum, a) => sum + a.quantity * a.unitCost,
+                              0,
+                            ) / allocatedQuantity,
+                          )
                         : '0.00'}
                       /KG
                     </span>

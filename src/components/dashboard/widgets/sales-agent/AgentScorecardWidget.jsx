@@ -114,10 +114,10 @@ const AgentScorecardWidget = ({
   const growthPercent =
     selectedAgent && selectedAgent.lastPeriodAchieved
       ? (
-        ((selectedAgent.achieved - selectedAgent.lastPeriodAchieved) /
+          ((selectedAgent.achieved - selectedAgent.lastPeriodAchieved) /
             selectedAgent.lastPeriodAchieved) *
           100
-      ).toFixed(1)
+        ).toFixed(1)
       : 0;
 
   const handleRefresh = async () => {

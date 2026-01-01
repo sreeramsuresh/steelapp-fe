@@ -404,10 +404,10 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                       </select>
                       {parseFloat(item.restockedQuantity) > 0 &&
                         !item.warehouseId && (
-                        <p className="text-xs text-red-500 mt-1">
+                          <p className="text-xs text-red-500 mt-1">
                             Warehouse required for restocking
-                        </p>
-                      )}
+                          </p>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-3 gap-4 mb-3">

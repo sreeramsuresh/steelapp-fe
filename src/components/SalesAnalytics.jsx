@@ -129,14 +129,14 @@ const SalesAnalytics = () => {
 
     const monthlyTrend = Array.isArray(salesTrendsArray)
       ? salesTrendsArray
-        .slice()
-        .sort((a, b) => new Date(a.period) - new Date(b.period))
-        .map((row) => ({
-          month: format(new Date(row.period), 'MMM yyyy'),
-          revenue: safeNum(row.revenue),
-          orders: parseInt(row.invoiceCount || 0),
-          customers: parseInt(row.uniqueCustomers || 0),
-        }))
+          .slice()
+          .sort((a, b) => new Date(a.period) - new Date(b.period))
+          .map((row) => ({
+            month: format(new Date(row.period), 'MMM yyyy'),
+            revenue: safeNum(row.revenue),
+            orders: parseInt(row.invoiceCount || 0),
+            customers: parseInt(row.uniqueCustomers || 0),
+          }))
       : [];
 
     // Compute growth vs previous point from trends
@@ -154,40 +154,40 @@ const SalesAnalytics = () => {
     // Top products mapping from productPerformance array with growth vs previous period
     const topProductsArr = Array.isArray(productPerformance)
       ? productPerformance
-        .slice()
-        .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
-        .map((p) => {
-          const prevProduct = prevMap.get(p.id) || {};
-          const revGrowth = (function () {
-            const c = safeNum(p.totalRevenue);
-            const pr = safeNum(prevProduct.totalRevenue);
-            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-          })();
-          const qtyGrowth = (function () {
-            const c = safeNum(p.totalSold);
-            const pr = safeNum(prevProduct.totalSold);
-            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-          })();
-          const ordGrowth = (function () {
-            const c = parseInt(p.timesSold || 0);
-            const pr = parseInt(prevProduct.timesSold || 0);
-            return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
-          })();
-          return {
-            id: p.id,
-            product: p.name,
-            revenue: safeNum(p.totalRevenue),
-            orders: parseInt(p.timesSold || 0),
-            quantity: safeNum(p.totalSold),
-            category: p.category,
-            revenueGrowth: revGrowth,
-            quantityGrowth: qtyGrowth,
-            ordersGrowth: ordGrowth,
-            prevRevenue: safeNum(prev.totalRevenue),
-            prevQuantity: safeNum(prev.totalSold),
-            prevOrders: parseInt(prev.timesSold || 0),
-          };
-        })
+          .slice()
+          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
+          .map((p) => {
+            const prevProduct = prevMap.get(p.id) || {};
+            const revGrowth = (function () {
+              const c = safeNum(p.totalRevenue);
+              const pr = safeNum(prevProduct.totalRevenue);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            const qtyGrowth = (function () {
+              const c = safeNum(p.totalSold);
+              const pr = safeNum(prevProduct.totalSold);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            const ordGrowth = (function () {
+              const c = parseInt(p.timesSold || 0);
+              const pr = parseInt(prevProduct.timesSold || 0);
+              return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
+            })();
+            return {
+              id: p.id,
+              product: p.name,
+              revenue: safeNum(p.totalRevenue),
+              orders: parseInt(p.timesSold || 0),
+              quantity: safeNum(p.totalSold),
+              category: p.category,
+              revenueGrowth: revGrowth,
+              quantityGrowth: qtyGrowth,
+              ordersGrowth: ordGrowth,
+              prevRevenue: safeNum(prev.totalRevenue),
+              prevQuantity: safeNum(prev.totalSold),
+              prevOrders: parseInt(prev.timesSold || 0),
+            };
+          })
       : [];
 
     // Category performance aggregated from productPerformance
@@ -210,13 +210,13 @@ const SalesAnalytics = () => {
     // Top customers mapping from customerAnalysis array
     const topCustomersArr = Array.isArray(customerAnalysis)
       ? customerAnalysis
-        .slice()
-        .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
-        .map((c) => ({
-          customer: c.name || c.company || 'Unknown',
-          revenue: safeNum(c.totalRevenue),
-          orders: parseInt(c.totalInvoices || 0),
-        }))
+          .slice()
+          .sort((a, b) => safeNum(b.totalRevenue) - safeNum(a.totalRevenue))
+          .map((c) => ({
+            customer: c.name || c.company || 'Unknown',
+            revenue: safeNum(c.totalRevenue),
+            orders: parseInt(c.totalInvoices || 0),
+          }))
       : [];
 
     const revMetrics = dashboardData.revenueMetrics || {};

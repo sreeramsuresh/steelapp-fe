@@ -344,10 +344,10 @@ const AddPaymentForm = ({
           />
           {modeConfig.requiresRef &&
             (!reference || reference.trim() === '') && (
-            <div className="text-xs text-red-600 mt-1">
+              <div className="text-xs text-red-600 mt-1">
                 Reference is required for {modeConfig.label}
-            </div>
-          )}
+              </div>
+            )}
         </div>
         <div className="sm:col-span-2">
           <div className="text-xs opacity-70 mb-1">Notes</div>

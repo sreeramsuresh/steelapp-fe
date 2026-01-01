@@ -127,7 +127,7 @@ export function getInvoiceActionButtonConfig(
       tooltip: !canRead
         ? 'No permission to download'
         : // Fully paid or issued invoices are considered complete - skip validation warning
-        invoice.paymentStatus === 'paid' ||
+          invoice.paymentStatus === 'paid' ||
             ['issued', 'sent'].includes(invoice.status)
           ? 'Download PDF'
           : !validateInvoiceForDownload(invoice).isValid

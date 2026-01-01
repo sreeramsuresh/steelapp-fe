@@ -425,7 +425,7 @@
 }
 
 .warehouse-item.selected::before {
-  content: "✓";
+  content: '✓';
   position: absolute;
   left: 8px;
   top: 50%;
@@ -711,7 +711,7 @@
   cursor: not-allowed;
 }
 
-.source-type-option input[type="radio"] {
+.source-type-option input[type='radio'] {
   margin: 0;
   width: 16px;
   height: 16px;
@@ -1242,7 +1242,7 @@
 .timer-value {
   font-size: 18px;
   font-weight: 600;
-  font-family: "Courier New", monospace;
+  font-family: 'Courier New', monospace;
 }
 
 .timer-normal .timer-value {

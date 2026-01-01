@@ -371,16 +371,16 @@ const CommissionPlans = () => {
                         >
                           {tier.minAmount !== null &&
                           tier.minAmount !== undefined ? (
-                              <>
+                            <>
                               ₹{tier.minAmount.toLocaleString()}
-                                {tier.maxAmount !== null &&
+                              {tier.maxAmount !== null &&
                               tier.maxAmount !== undefined
-                                  ? ` - ₹${tier.maxAmount.toLocaleString()}`
-                                  : '+'}
-                              </>
-                            ) : (
-                              'All amounts'
-                            )}
+                                ? ` - ₹${tier.maxAmount.toLocaleString()}`
+                                : '+'}
+                            </>
+                          ) : (
+                            'All amounts'
+                          )}
                         </p>
                       </div>
                       <div

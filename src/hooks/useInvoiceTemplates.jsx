@@ -329,9 +329,9 @@ const useInvoiceTemplates = (
         colorUpdates === null
           ? null
           : {
-            ...(customColors || {}),
-            ...colorUpdates,
-          };
+              ...(customColors || {}),
+              ...colorUpdates,
+            };
       setCustomColors(newColors);
       // Save to database
       saveToCompanySettings(selectedTemplateId, newColors);
@@ -481,14 +481,14 @@ export const TemplateSelector = ({
             className={`
               p-3 rounded-lg border-2 text-left transition-all duration-200 min-w-0
               ${
-          selectedId === template.id
-            ? isDarkMode
-              ? 'border-teal-500 bg-teal-900/30'
-              : 'border-teal-500 bg-teal-50'
-            : isDarkMode
-              ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
-              : 'border-gray-200 bg-white hover:border-gray-300'
-          }
+                selectedId === template.id
+                  ? isDarkMode
+                    ? 'border-teal-500 bg-teal-900/30'
+                    : 'border-teal-500 bg-teal-50'
+                  : isDarkMode
+                    ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+              }
             `}
           >
             <div className="text-xl mb-1">{template.preview}</div>
@@ -553,12 +553,12 @@ export const TemplateSelector = ({
                 className={`
                   w-7 h-7 rounded-full border-2 transition-all
                   ${
-              customColor?.primary === color.value
-                ? 'border-gray-900 scale-110 ring-2 ring-offset-1 ring-gray-400'
-                : isDarkMode
-                  ? 'border-gray-600'
-                  : 'border-gray-300'
-              }
+                    customColor?.primary === color.value
+                      ? 'border-gray-900 scale-110 ring-2 ring-offset-1 ring-gray-400'
+                      : isDarkMode
+                        ? 'border-gray-600'
+                        : 'border-gray-300'
+                  }
                 `}
                 style={{ backgroundColor: color.value }}
                 title={color.name}
@@ -643,12 +643,12 @@ export const RecurringInvoiceSettings = ({
           className={`
             relative w-11 h-6 rounded-full transition-colors duration-200
             ${
-    settings.enabled
-      ? 'bg-teal-500'
-      : isDarkMode
-        ? 'bg-gray-600'
-        : 'bg-gray-300'
-    }
+              settings.enabled
+                ? 'bg-teal-500'
+                : isDarkMode
+                  ? 'bg-gray-600'
+                  : 'bg-gray-300'
+            }
           `}
           role="switch"
           aria-checked={settings.enabled}
@@ -686,10 +686,10 @@ export const RecurringInvoiceSettings = ({
               className={`
                 w-full px-3 py-2 rounded-lg border text-sm
                 ${
-        isDarkMode
-          ? 'bg-gray-700 border-gray-600 text-white'
-          : 'bg-white border-gray-300 text-gray-900'
-        }
+                  isDarkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }
               `}
             >
               {RECURRING_FREQUENCIES.map((freq) => (
@@ -716,10 +716,10 @@ export const RecurringInvoiceSettings = ({
               className={`
                 w-full px-3 py-2 rounded-lg border text-sm
                 ${
-        isDarkMode
-          ? 'bg-gray-700 border-gray-600 text-white'
-          : 'bg-white border-gray-300 text-gray-900'
-        }
+                  isDarkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }
               `}
             />
           </div>
@@ -741,10 +741,10 @@ export const RecurringInvoiceSettings = ({
               className={`
                 w-full px-3 py-2 rounded-lg border text-sm
                 ${
-        isDarkMode
-          ? 'bg-gray-700 border-gray-600 text-white'
-          : 'bg-white border-gray-300 text-gray-900'
-        }
+                  isDarkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }
               `}
             />
           </div>
@@ -763,12 +763,12 @@ export const RecurringInvoiceSettings = ({
               className={`
                 relative w-9 h-5 rounded-full transition-colors duration-200
                 ${
-        settings.sendAutomatically
-          ? 'bg-teal-500'
-          : isDarkMode
-            ? 'bg-gray-600'
-            : 'bg-gray-300'
-        }
+                  settings.sendAutomatically
+                    ? 'bg-teal-500'
+                    : isDarkMode
+                      ? 'bg-gray-600'
+                      : 'bg-gray-300'
+                }
               `}
               role="switch"
               aria-checked={settings.sendAutomatically}

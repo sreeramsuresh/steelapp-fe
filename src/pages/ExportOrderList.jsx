@@ -715,10 +715,10 @@ const ExportOrderList = () => {
                       </div>
                       {order.exportType === 're_export' &&
                         order.originalBoeReference && (
-                        <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-gray-500 mt-1">
                             BOE: {order.originalBoeReference}
-                        </div>
-                      )}
+                          </div>
+                        )}
                     </td>
 
                     {/* Customer */}

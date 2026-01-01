@@ -403,12 +403,12 @@ class StockMovementService {
       pagination: response.pagination || {},
       summary: response.summary
         ? {
-          totalProducts: response.summary.totalProducts || 0,
-          lowStockCount: response.summary.lowStockCount || 0,
-          outOfStockCount: response.summary.outOfStockCount || 0,
-          totalValue: parseFloat(response.summary.totalValue) || 0,
-          totalQuantity: parseFloat(response.summary.totalQuantity) || 0,
-        }
+            totalProducts: response.summary.totalProducts || 0,
+            lowStockCount: response.summary.lowStockCount || 0,
+            outOfStockCount: response.summary.outOfStockCount || 0,
+            totalValue: parseFloat(response.summary.totalValue) || 0,
+            totalQuantity: parseFloat(response.summary.totalQuantity) || 0,
+          }
         : null,
     };
   }
@@ -540,11 +540,11 @@ class StockMovementService {
       warehouse_id: warehouseId,
       items: items
         ? items.map((item) => ({
-          item_id: item.itemId || item.item_id,
-          product_id: item.productId || item.product_id,
-          received_quantity:
+            item_id: item.itemId || item.item_id,
+            product_id: item.productId || item.product_id,
+            received_quantity:
               item.receivedQuantity || item.received_quantity || item.quantity,
-        }))
+          }))
         : [],
       notes,
     };

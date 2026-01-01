@@ -422,8 +422,8 @@ export default function CommissionApprovalWorkflow() {
                     ? daysUntilDeadline
                     : gracePeriodEndDate
                       ? Math.ceil(
-                        (gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24),
-                      )
+                          (gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24),
+                        )
                       : 0;
                 const isSelected = selectedIds.has(invoiceId);
 

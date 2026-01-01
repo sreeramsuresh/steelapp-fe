@@ -50,12 +50,12 @@ The validation is integrated into `src/services/axiosApi.js` at lines 224-299 in
 Edit `contractRegistry.ts` and add your endpoint:
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 // 1. Define request schema
 const CreateCustomerRequestSchema = z.object({
-  name: z.string().min(1, "name is required"),
-  email: z.string().email("invalid email format"),
+  name: z.string().min(1, 'name is required'),
+  email: z.string().email('invalid email format'),
   phone: z.string().optional(),
   creditLimit: z.number().nonnegative(),
 });
@@ -70,7 +70,7 @@ const CreateCustomerResponseSchema = z.object({
 
 // 3. Register in contractRegistry
 export const contractRegistry: Record<string, ContractDefinition> = {
-  "POST /customers": {
+  'POST /customers': {
     request: CreateCustomerRequestSchema,
     response: CreateCustomerResponseSchema,
   },
@@ -239,7 +239,7 @@ const InvoiceRequestSchema = z.object({
         })
         .strict(),
     )
-    .min(1, "items cannot be empty"),
+    .min(1, 'items cannot be empty'),
 });
 ```
 
@@ -248,19 +248,19 @@ const InvoiceRequestSchema = z.object({
 ```typescript
 const InvoiceItemSchema = z
   .object({
-    sourceType: z.enum(["WAREHOUSE", "DROP_SHIP"]),
+    sourceType: z.enum(['WAREHOUSE', 'DROP_SHIP']),
     allocation_mode: z.string().optional(),
   })
   .refine(
     (item) => {
-      if (item.sourceType === "WAREHOUSE") {
+      if (item.sourceType === 'WAREHOUSE') {
         return item.allocation_mode !== undefined;
       }
       return true;
     },
     {
-      message: "WAREHOUSE items must have allocation_mode",
-      path: ["allocation_mode"],
+      message: 'WAREHOUSE items must have allocation_mode',
+      path: ['allocation_mode'],
     },
   );
 ```
@@ -270,10 +270,10 @@ const InvoiceItemSchema = z
 ```typescript
 const quantitySchema = z.union([z.number(), z.string()]).refine(
   (val) => {
-    const num = typeof val === "number" ? val : parseFloat(val);
+    const num = typeof val === 'number' ? val : parseFloat(val);
     return !isNaN(num) && num > 0;
   },
-  { message: "quantity must be positive" },
+  { message: 'quantity must be positive' },
 );
 ```
 
@@ -310,12 +310,12 @@ Create a simple test in your service:
 
 ```typescript
 // In invoiceService.test.ts
-import { matchContract } from "../contracts/matchContract";
+import { matchContract } from '../contracts/matchContract';
 
-test("invoice contract exists", () => {
+test('invoice contract exists', () => {
   const contract = matchContract({
-    method: "POST",
-    url: "/invoices",
+    method: 'POST',
+    url: '/invoices',
   });
 
   expect(contract).toBeDefined();
@@ -362,10 +362,10 @@ You can create reusable validators in `contractRegistry.ts`:
 ```typescript
 const PositiveNumberOrString = z.union([z.number(), z.string()]).refine(
   (val) => {
-    const num = typeof val === "number" ? val : parseFloat(val);
+    const num = typeof val === 'number' ? val : parseFloat(val);
     return !isNaN(num) && num > 0;
   },
-  { message: "must be positive number or numeric string" },
+  { message: 'must be positive number or numeric string' },
 );
 
 // Use across multiple schemas
@@ -380,9 +380,9 @@ const ItemSchema = z.object({
 Use `extractParams()` from `matchContract.ts` to get URL parameters:
 
 ```typescript
-import { extractParams } from "./matchContract";
+import { extractParams } from './matchContract';
 
-const params = extractParams("/invoices/123", "/invoices/:id");
+const params = extractParams('/invoices/123', '/invoices/:id');
 // Returns: { id: '123' }
 ```
 
@@ -477,7 +477,7 @@ To gradually adopt this system:
 **A**: Yes! Zod schemas are fully TypeScript-compatible. You can even infer types:
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 const CustomerSchema = z.object({
   id: z.number(),

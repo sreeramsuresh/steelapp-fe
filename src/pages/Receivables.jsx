@@ -535,12 +535,12 @@ const Receivables = () => {
     const updatedPayments = inv.payments.map((p) =>
       p.id === paymentId
         ? {
-          ...p,
-          voided: true,
-          voided_at: new Date().toISOString(),
-          void_reason: reason,
-          voided_by: authService.getCurrentUser()?.name || 'User',
-        }
+            ...p,
+            voided: true,
+            voided_at: new Date().toISOString(),
+            void_reason: reason,
+            voided_by: authService.getCurrentUser()?.name || 'User',
+          }
         : p,
     );
     const invoiceAmount = getInvoiceAmount(inv);
@@ -1295,42 +1295,42 @@ const Receivables = () => {
               {getOutstanding(drawer.item) <= 0 ||
               getInvoiceAmount(drawer.item) === 0 ||
               drawer.item.status === 'paid' ? (
-                  <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
-                    <CheckCircle size={18} />
-                    <span className="font-medium">
-                      {getInvoiceAmount(drawer.item) === 0
-                        ? 'No Payment Required (Zero Invoice)'
-                        : 'Invoice Fully Paid'}
-                    </span>
-                  </div>
-                ) : canManage ? (
-                  <AddPaymentForm
-                    outstanding={getOutstanding(drawer.item)}
-                    onSave={handleAddPayment}
-                    isSaving={isSavingPayment}
-                    onCancel={closeDrawer}
-                  />
-                ) : (
-                  <div className="text-sm opacity-70">
+                <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
+                  <CheckCircle size={18} />
+                  <span className="font-medium">
+                    {getInvoiceAmount(drawer.item) === 0
+                      ? 'No Payment Required (Zero Invoice)'
+                      : 'Invoice Fully Paid'}
+                  </span>
+                </div>
+              ) : canManage ? (
+                <AddPaymentForm
+                  outstanding={getOutstanding(drawer.item)}
+                  onSave={handleAddPayment}
+                  isSaving={isSavingPayment}
+                  onCancel={closeDrawer}
+                />
+              ) : (
+                <div className="text-sm opacity-70">
                   You don&apos;t have permission to add payments.
-                  </div>
-                )}
+                </div>
+              )}
 
               {/* Quick Actions */}
               {canManage &&
                 getOutstanding(drawer.item) > 0 &&
                 drawer.item.payments &&
                 drawer.item.payments.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className="px-3 py-2 rounded border"
-                    onClick={handleVoidLast}
-                  >
-                    <Trash2 size={16} className="inline mr-1" />
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      className="px-3 py-2 rounded border"
+                      onClick={handleVoidLast}
+                    >
+                      <Trash2 size={16} className="inline mr-1" />
                       Void last
-                  </button>
-                </div>
-              )}
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>

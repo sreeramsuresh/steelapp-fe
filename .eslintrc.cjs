@@ -119,7 +119,7 @@ module.exports = {
       { avoidEscape: true, allowTemplateLiterals: true },
     ],
     semi: ["error", "always"],
-    indent: ["error", 2, { SwitchCase: 1 }],
+    indent: "off", // Prettier handles indentation
     "comma-dangle": ["error", "always-multiline"],
     "eol-last": ["error", "always"],
 

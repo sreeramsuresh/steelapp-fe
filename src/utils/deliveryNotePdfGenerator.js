@@ -123,8 +123,8 @@ const createDNElement = (
         </thead>
         <tbody>
           ${items
-    .map(
-      (item) => `
+            .map(
+              (item) => `
             <tr>
               <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">
                 <div style="font-weight:600;color:#0f172a;">${safe(item.name)}</div>
@@ -137,22 +137,22 @@ const createDNElement = (
               <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${item.isFullyDelivered ? 'Complete' : 'Partial'}</td>
             </tr>
           `,
-    )
-    .join('')}
+            )
+            .join('')}
         </tbody>
       </table>
     </div>
 
     ${
-  dn.notes
-    ? `
+      dn.notes
+        ? `
       <div style="margin-bottom: 30px;">
         <h4 style="margin: 0 0 5px 0; color: #1e293b;">Notes:</h4>
         <p style="margin: 0; color: #64748b;">${escapeHtml(dn.notes)}</p>
       </div>
     `
-    : ''
-}
+        : ''
+    }
 
     <div style="display:flex; justify-content:flex-end; margin-top:50px;">
       <div style="display:flex; align-items:flex-end; gap:20px;">

@@ -17,7 +17,7 @@ Reusable autocomplete/combobox component with debounced search, keyboard navigat
 ## Basic Usage
 
 ```jsx
-import AutocompleteInput from "./components/ui/AutocompleteInput";
+import AutocompleteInput from './components/ui/AutocompleteInput';
 
 function MyForm() {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -25,7 +25,7 @@ function MyForm() {
 
   return (
     <AutocompleteInput
-      value={selectedProduct ? selectedProduct.name : ""}
+      value={selectedProduct ? selectedProduct.name : ''}
       items={products}
       placeholder="Search products..."
       onSelect={(product) => setSelectedProduct(product)}
@@ -51,7 +51,7 @@ function ProductSearch() {
       const results = await productService.search({ query: searchTerm });
       setSearchResults(results.data);
     } catch (error) {
-      console.error("Search failed:", error);
+      console.error('Search failed:', error);
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ function ProductSearch() {
     <AutocompleteInput
       items={searchResults}
       onSearch={handleSearch}
-      onSelect={(product) => console.log("Selected:", product)}
+      onSelect={(product) => console.log('Selected:', product)}
       loading={loading}
       debounceMs={500}
       minSearchLength={2}
@@ -169,7 +169,7 @@ useEffect(() => {
 
 <input
   type="text"
-  value={productSearchTerms[item.id] || ""}
+  value={productSearchTerms[item.id] || ''}
   onChange={(e) =>
     setProductSearchTerms({ ...productSearchTerms, [item.id]: e.target.value })
   }
@@ -180,9 +180,9 @@ useEffect(() => {
 
 ```jsx
 <AutocompleteInput
-  value={item.productName || ""}
+  value={item.productName || ''}
   items={products}
-  onSelect={(product) => handleItemChange(item.id, "product", product)}
+  onSelect={(product) => handleItemChange(item.id, 'product', product)}
   getItemLabel={(p) => p.name}
 />
 ```

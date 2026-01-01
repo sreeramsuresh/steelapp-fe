@@ -228,7 +228,7 @@ interface BaseWidgetProps {
   error?: boolean;
   errorMessage?: string;
   onRefresh?: () => void;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   noPadding?: boolean;
   isStale?: boolean;
@@ -239,8 +239,8 @@ interface BaseWidgetProps {
 **Usage Example:**
 
 ```javascript
-import BaseWidget, { MetricValue } from "../BaseWidget";
-import { DollarSign } from "lucide-react";
+import BaseWidget, { MetricValue } from '../BaseWidget';
+import { DollarSign } from 'lucide-react';
 
 <BaseWidget
   title="Total Revenue"
@@ -276,7 +276,7 @@ Animated loading placeholders for better perceived performance.
 **Usage:**
 
 ```javascript
-import WidgetSkeleton from "../WidgetSkeleton";
+import WidgetSkeleton from '../WidgetSkeleton';
 
 {
   loading ? (
@@ -339,14 +339,14 @@ Centralized configuration for widget visibility and organization.
 
 ```javascript
 export const DASHBOARD_ROLES = {
-  CEO: "ceo",
-  CFO: "cfo",
-  SALES_MANAGER: "sales_manager",
-  OPERATIONS_MANAGER: "operations_manager",
-  WAREHOUSE_MANAGER: "warehouse_manager",
-  SALES_AGENT: "sales_agent",
-  ACCOUNTANT: "accountant",
-  ADMIN: "admin",
+  CEO: 'ceo',
+  CFO: 'cfo',
+  SALES_MANAGER: 'sales_manager',
+  OPERATIONS_MANAGER: 'operations_manager',
+  WAREHOUSE_MANAGER: 'warehouse_manager',
+  SALES_AGENT: 'sales_agent',
+  ACCOUNTANT: 'accountant',
+  ADMIN: 'admin',
 };
 ```
 
@@ -354,16 +354,16 @@ export const DASHBOARD_ROLES = {
 
 ```javascript
 export const WIDGET_VISIBILITY = {
-  "revenue-kpi": ["ceo", "cfo", "sales_manager", "admin"],
-  "profit-kpi": ["ceo", "cfo", "admin"],
-  "inventory-health": [
-    "ceo",
-    "operations_manager",
-    "warehouse_manager",
-    "admin",
+  'revenue-kpi': ['ceo', 'cfo', 'sales_manager', 'admin'],
+  'profit-kpi': ['ceo', 'cfo', 'admin'],
+  'inventory-health': [
+    'ceo',
+    'operations_manager',
+    'warehouse_manager',
+    'admin',
   ],
-  leaderboard: ["ceo", "sales_manager", "sales_agent", "admin"],
-  "vat-collection": ["ceo", "cfo", "accountant", "admin"],
+  leaderboard: ['ceo', 'sales_manager', 'sales_agent', 'admin'],
+  'vat-collection': ['ceo', 'cfo', 'accountant', 'admin'],
   // ... 50+ widgets configured
 };
 ```
@@ -372,16 +372,16 @@ export const WIDGET_VISIBILITY = {
 
 ```javascript
 // Check if user can view specific widget
-canViewWidget("revenue-kpi", "sales_manager"); // → true
+canViewWidget('revenue-kpi', 'sales_manager'); // → true
 
 // Get all visible widgets for a role
-getVisibleWidgets("cfo"); // → ['revenue-kpi', 'profit-kpi', 'cash-flow', ...]
+getVisibleWidgets('cfo'); // → ['revenue-kpi', 'profit-kpi', 'cash-flow', ...]
 
 // Get widgets in a category for a role
-getWidgetsByCategory("FINANCIAL", "accountant"); // → ['ar-aging', 'vat-collection', ...]
+getWidgetsByCategory('FINANCIAL', 'accountant'); // → ['ar-aging', 'vat-collection', ...]
 
 // Get default layout for a role
-getDefaultLayout("ceo"); // → ['revenue-kpi', 'profit-kpi', 'gross-margin', ...]
+getDefaultLayout('ceo'); // → ['revenue-kpi', 'profit-kpi', 'gross-margin', ...]
 ```
 
 ### useDashboardPermissions Hook
@@ -398,7 +398,7 @@ React hook that integrates auth system with dashboard permissions.
 **Usage:**
 
 ```javascript
-import { useDashboardPermissions } from "../../hooks/useDashboardPermissions";
+import { useDashboardPermissions } from '../../hooks/useDashboardPermissions';
 
 const Dashboard = () => {
   const {
@@ -464,12 +464,12 @@ The hook intelligently maps various auth role formats to dashboard roles:
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 const CACHE_KEYS = {
-  DASHBOARD_METRICS: "dashboard_metrics_cache",
-  PRODUCT_ANALYTICS: "dashboard_product_analytics_cache",
-  AGENT_PERFORMANCE: "dashboard_agent_performance_cache",
-  INVENTORY_HEALTH: "dashboard_inventory_health_cache",
-  VAT_METRICS: "dashboard_vat_metrics_cache",
-  CUSTOMER_INSIGHTS: "dashboard_customer_insights_cache",
+  DASHBOARD_METRICS: 'dashboard_metrics_cache',
+  PRODUCT_ANALYTICS: 'dashboard_product_analytics_cache',
+  AGENT_PERFORMANCE: 'dashboard_agent_performance_cache',
+  INVENTORY_HEALTH: 'dashboard_inventory_health_cache',
+  VAT_METRICS: 'dashboard_vat_metrics_cache',
+  CUSTOMER_INSIGHTS: 'dashboard_customer_insights_cache',
 };
 ```
 
@@ -866,12 +866,12 @@ All widgets are code-split for optimal bundle size.
 ```javascript
 // Financial widgets in separate chunk
 export const LazyRevenueKPIWidget = lazy(
-  () => import("./widgets/financial/RevenueKPIWidget"),
+  () => import('./widgets/financial/RevenueKPIWidget'),
 );
 
 // Inventory widgets in separate chunk
 export const LazyInventoryHealthWidget = lazy(
-  () => import("./widgets/inventory/InventoryHealthWidget"),
+  () => import('./widgets/inventory/InventoryHealthWidget'),
 );
 
 // 50+ widgets, each lazy-loaded
@@ -890,7 +890,7 @@ Intelligent preloading strategies to balance performance and UX.
 **1. Role-Based Preloading**
 
 ```javascript
-import { preloadByRole } from "./preloadWidgets";
+import { preloadByRole } from './preloadWidgets';
 
 // Preload widgets user is likely to view
 useEffect(() => {
@@ -905,10 +905,10 @@ useEffect(() => {
 **2. Network-Aware Preloading**
 
 ```javascript
-import { smartPreload } from "./preloadWidgets";
+import { smartPreload } from './preloadWidgets';
 
 // Only preload on fast connections
-smartPreload("financial");
+smartPreload('financial');
 
 // Checks:
 // - navigator.connection.effectiveType
@@ -919,10 +919,10 @@ smartPreload("financial");
 **3. Idle-Time Preloading**
 
 ```javascript
-import { preloadOnIdle } from "./preloadWidgets";
+import { preloadOnIdle } from './preloadWidgets';
 
 // Preload during browser idle time
-preloadOnIdle(["financial", "inventory", "product"]);
+preloadOnIdle(['financial', 'inventory', 'product']);
 
 // Uses requestIdleCallback with 5s timeout
 // Falls back to setTimeout on unsupported browsers
@@ -931,9 +931,9 @@ preloadOnIdle(["financial", "inventory", "product"]);
 **4. Hover/Focus Preloading**
 
 ```javascript
-import { createHoverPreload } from "./preloadWidgets";
+import { createHoverPreload } from './preloadWidgets';
 
-const hoverProps = createHoverPreload("inventory");
+const hoverProps = createHoverPreload('inventory');
 
 <button {...hoverProps}>View Inventory Dashboard</button>;
 
@@ -944,9 +944,9 @@ const hoverProps = createHoverPreload("inventory");
 **5. Viewport-Based Preloading**
 
 ```javascript
-import { createViewportPreload } from "./preloadWidgets";
+import { createViewportPreload } from './preloadWidgets';
 
-const widgetRef = createViewportPreload("vat");
+const widgetRef = createViewportPreload('vat');
 
 <div ref={widgetRef}>VAT widgets load here...</div>;
 
@@ -1177,9 +1177,9 @@ src/components/dashboard/
 **File:** `src/components/dashboard/widgets/[category]/[WidgetName]Widget.jsx`
 
 ```javascript
-import React from "react";
-import BaseWidget from "../../BaseWidget";
-import { Icon } from "lucide-react";
+import React from 'react';
+import BaseWidget from '../../BaseWidget';
+import { Icon } from 'lucide-react';
 
 export const WidgetNameWidget = ({ data, loading = false, onRefresh }) => {
   return (
@@ -1207,7 +1207,7 @@ export default WidgetNameWidget;
 **File:** `src/components/dashboard/widgets/[category]/index.js`
 
 ```javascript
-export { WidgetNameWidget } from "./WidgetNameWidget";
+export { WidgetNameWidget } from './WidgetNameWidget';
 ```
 
 ### Step 3: Create Lazy-Loaded Version
@@ -1217,14 +1217,14 @@ export { WidgetNameWidget } from "./WidgetNameWidget";
 ```javascript
 // Add to appropriate category section
 export const LazyWidgetNameWidget = lazy(
-  () => import("./widgets/[category]/WidgetNameWidget"),
+  () => import('./widgets/[category]/WidgetNameWidget'),
 );
 
 // Add to LAZY_WIDGET_CATEGORIES
 export const LAZY_WIDGET_CATEGORIES = {
   [category]: [
     // ... existing
-    () => import("./widgets/[category]/WidgetNameWidget"),
+    () => import('./widgets/[category]/WidgetNameWidget'),
   ],
 };
 ```
@@ -1236,7 +1236,7 @@ export const LAZY_WIDGET_CATEGORIES = {
 ```javascript
 // 1. Add to WIDGET_VISIBILITY
 export const WIDGET_VISIBILITY = {
-  "widget-name": ["ceo", "admin", "appropriate_role"],
+  'widget-name': ['ceo', 'admin', 'appropriate_role'],
   // ...
 };
 
@@ -1244,17 +1244,17 @@ export const WIDGET_VISIBILITY = {
 export const WIDGET_CATEGORIES = {
   [CATEGORY]: [
     // ... existing
-    "widget-name",
+    'widget-name',
   ],
 };
 
 // 3. Add to WIDGET_METADATA
 export const WIDGET_METADATA = {
-  "widget-name": {
-    title: "Widget Title",
-    description: "Short description",
-    category: "CATEGORY",
-    size: "md",
+  'widget-name': {
+    title: 'Widget Title',
+    description: 'Short description',
+    category: 'CATEGORY',
+    size: 'md',
   },
 };
 
@@ -1263,7 +1263,7 @@ export const getDefaultLayout = (userRole) => {
   const roleLayouts = {
     ceo: [
       // ... existing
-      "widget-name",
+      'widget-name',
     ],
   };
   // ...
@@ -1286,7 +1286,7 @@ export const dashboardService = {
   async getWidgetNameData(options = {}) {
     const { forceRefresh = false } = options;
 
-    const CACHE_KEY = "dashboard_widget_name_cache";
+    const CACHE_KEY = 'dashboard_widget_name_cache';
 
     if (!forceRefresh) {
       const cached = getCachedData(CACHE_KEY);
@@ -1302,7 +1302,7 @@ export const dashboardService = {
       setCachedData(CACHE_KEY, data);
       return data;
     } catch (error) {
-      console.error("[dashboardService] Error fetching widget data:", error);
+      console.error('[dashboardService] Error fetching widget data:', error);
 
       // Return cached if available
       const cached = getCachedData(CACHE_KEY);
@@ -1322,23 +1322,23 @@ export const dashboardService = {
 **File:** `src/components/dashboard/__tests__/WidgetName.test.jsx`
 
 ```javascript
-import { render, screen } from "@testing-library/react";
-import { WidgetNameWidget } from "../widgets/[category]/WidgetNameWidget";
+import { render, screen } from '@testing-library/react';
+import { WidgetNameWidget } from '../widgets/[category]/WidgetNameWidget';
 
-describe("WidgetNameWidget", () => {
-  it("renders widget title", () => {
+describe('WidgetNameWidget', () => {
+  it('renders widget title', () => {
     render(<WidgetNameWidget data={{ value: 100 }} />);
-    expect(screen.getByText("Widget Title")).toBeInTheDocument();
+    expect(screen.getByText('Widget Title')).toBeInTheDocument();
   });
 
-  it("shows loading state", () => {
+  it('shows loading state', () => {
     render(<WidgetNameWidget loading={true} />);
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it("displays data correctly", () => {
+  it('displays data correctly', () => {
     render(<WidgetNameWidget data={{ value: 100 }} />);
-    expect(screen.getByText("100")).toBeInTheDocument();
+    expect(screen.getByText('100')).toBeInTheDocument();
   });
 });
 ```
@@ -1370,14 +1370,14 @@ npm test
 
 ```javascript
 // Test that CEO sees all widgets
-const { visibleWidgets } = useDashboardPermissions("ceo");
-expect(visibleWidgets).toContain("revenue-kpi");
-expect(visibleWidgets).toContain("profit-kpi");
+const { visibleWidgets } = useDashboardPermissions('ceo');
+expect(visibleWidgets).toContain('revenue-kpi');
+expect(visibleWidgets).toContain('profit-kpi');
 
 // Test that Sales Agent has limited access
-const { visibleWidgets } = useDashboardPermissions("sales_agent");
-expect(visibleWidgets).toContain("leaderboard");
-expect(visibleWidgets).not.toContain("profit-kpi");
+const { visibleWidgets } = useDashboardPermissions('sales_agent');
+expect(visibleWidgets).toContain('leaderboard');
+expect(visibleWidgets).not.toContain('profit-kpi');
 ```
 
 ### Manual Testing Checklist
@@ -1403,18 +1403,18 @@ expect(visibleWidgets).not.toContain("profit-kpi");
 
 ```javascript
 // Time widget load
-console.time("WidgetLoad");
-const Widget = await import("./WidgetNameWidget");
-console.timeEnd("WidgetLoad"); // Should be <30ms
+console.time('WidgetLoad');
+const Widget = await import('./WidgetNameWidget');
+console.timeEnd('WidgetLoad'); // Should be <30ms
 
 // Measure render time
-performance.mark("widget-render-start");
+performance.mark('widget-render-start');
 render(<WidgetNameWidget data={data} />);
-performance.mark("widget-render-end");
+performance.mark('widget-render-end');
 performance.measure(
-  "widget-render",
-  "widget-render-start",
-  "widget-render-end",
+  'widget-render',
+  'widget-render-start',
+  'widget-render-end',
 );
 // Should be <15ms
 ```

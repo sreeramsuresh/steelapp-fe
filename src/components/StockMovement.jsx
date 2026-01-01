@@ -1028,16 +1028,16 @@ const StockMovement = () => {
                     {formData.primaryUom === 'PCS' &&
                       formData.unitWeightKg &&
                       formData.quantity && (
-                      <p
-                        className={`text-xs mt-1 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
-                      >
+                        <p
+                          className={`text-xs mt-1 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
+                        >
                           Total weight:{' '}
-                        {(formData.unitWeightKg * formData.quantity).toFixed(
-                          2,
-                        )}{' '}
+                          {(formData.unitWeightKg * formData.quantity).toFixed(
+                            2,
+                          )}{' '}
                           kg
-                      </p>
-                    )}
+                        </p>
+                      )}
                     {!formData.allowDecimalQuantity && (
                       <p
                         className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}

@@ -1684,20 +1684,20 @@ const ExportOrderDetails = () => {
                     {/* Designated Zone Origin (if applicable) */}
                     {orderData.isDesignatedZoneExport &&
                       orderData.designatedZoneOrigin && (
-                      <div>
-                        <div
-                          className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                        >
+                        <div>
+                          <div
+                            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          >
                             Designated Zone Origin
+                          </div>
+                          <p
+                            className={`font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          >
+                            <Flag size={14} />
+                            {orderData.designatedZoneOrigin}
+                          </p>
                         </div>
-                        <p
-                          className={`font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                        >
-                          <Flag size={14} />
-                          {orderData.designatedZoneOrigin}
-                        </p>
-                      </div>
-                    )}
+                      )}
                   </div>
 
                   {/* Zero-Rated Export Notice */}
@@ -2419,85 +2419,85 @@ const ExportOrderDetails = () => {
                     doc.category === activeDocTab ||
                     (!doc.category && activeDocTab === 'export'),
                 ).length === 0 ? (
-                    <div
-                      className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
-                      <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>No documents in this category</p>
-                    </div>
-                  ) : (
-                    orderData.documents
-                      .filter(
-                        (doc) =>
-                          doc.category === activeDocTab ||
+                  <div
+                    className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  >
+                    <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>No documents in this category</p>
+                  </div>
+                ) : (
+                  orderData.documents
+                    .filter(
+                      (doc) =>
+                        doc.category === activeDocTab ||
                         (!doc.category && activeDocTab === 'export'),
-                      )
-                      .map((doc, index) => (
-                        <div
-                          key={doc.id || index}
-                          className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-                            isDarkMode
-                              ? 'bg-gray-800 hover:bg-gray-750'
-                              : 'bg-gray-50 hover:bg-gray-100'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <FileText
-                              className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                            />
-                            <div>
-                              <p
-                                className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                              >
-                                {doc.name || doc.fileName || doc.file_name}
-                              </p>
-                              <p
-                                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                              >
-                                {doc.uploadedAt || doc.uploaded_at
-                                  ? formatDateShort(
+                    )
+                    .map((doc, index) => (
+                      <div
+                        key={doc.id || index}
+                        className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                          isDarkMode
+                            ? 'bg-gray-800 hover:bg-gray-750'
+                            : 'bg-gray-50 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText
+                            className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          />
+                          <div>
+                            <p
+                              className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            >
+                              {doc.name || doc.fileName || doc.file_name}
+                            </p>
+                            <p
+                              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                            >
+                              {doc.uploadedAt || doc.uploaded_at
+                                ? formatDateShort(
                                     doc.uploadedAt || doc.uploaded_at,
                                   )
-                                  : 'Uploaded'}
-                                {doc.size &&
+                                : 'Uploaded'}
+                              {doc.size &&
                                 ` - ${(doc.size / 1024).toFixed(1)} KB`}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {/* eslint-disable-next-line local-rules/no-dead-button */}
-                            <button
-                              className={`p-2 rounded-lg transition-colors ${
-                                isDarkMode
-                                  ? 'hover:bg-gray-700 text-gray-400'
-                                  : 'hover:bg-gray-200 text-gray-600'
-                              }`}
-                              title="View"
-                              onClick={() => {
-                              // TODO: Implement document view
-                              }}
-                            >
-                              <Eye size={16} />
-                            </button>
-                            {/* eslint-disable-next-line local-rules/no-dead-button */}
-                            <button
-                              className={`p-2 rounded-lg transition-colors ${
-                                isDarkMode
-                                  ? 'hover:bg-gray-700 text-gray-400'
-                                  : 'hover:bg-gray-200 text-gray-600'
-                              }`}
-                              title="Download"
-                              // eslint-disable-next-line local-rules/no-dead-button
-                              onClick={() => {
-                              // TODO: Implement document download
-                              }}
-                            >
-                              <Download size={16} />
-                            </button>
+                            </p>
                           </div>
                         </div>
-                      ))
-                  )}
+                        <div className="flex items-center gap-2">
+                          {/* eslint-disable-next-line local-rules/no-dead-button */}
+                          <button
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDarkMode
+                                ? 'hover:bg-gray-700 text-gray-400'
+                                : 'hover:bg-gray-200 text-gray-600'
+                            }`}
+                            title="View"
+                            onClick={() => {
+                              // TODO: Implement document view
+                            }}
+                          >
+                            <Eye size={16} />
+                          </button>
+                          {/* eslint-disable-next-line local-rules/no-dead-button */}
+                          <button
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDarkMode
+                                ? 'hover:bg-gray-700 text-gray-400'
+                                : 'hover:bg-gray-200 text-gray-600'
+                            }`}
+                            title="Download"
+                            // eslint-disable-next-line local-rules/no-dead-button
+                            onClick={() => {
+                              // TODO: Implement document download
+                            }}
+                          >
+                            <Download size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                )}
               </div>
             </div>
           </div>

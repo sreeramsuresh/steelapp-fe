@@ -150,7 +150,7 @@ import {
   mockCustomRoles, // 3 custom roles
   createMockRole, // Helper function
   validateRoleName, // Validation helper
-} from "../fixtures/roleMocks";
+} from '../fixtures/roleMocks';
 ```
 
 ## Common Issues

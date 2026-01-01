@@ -291,10 +291,10 @@ export const BulkCheckbox = ({
           transition-all
           duration-150
           ${
-    isDarkMode
-      ? 'bg-gray-700 border-gray-500 checked:bg-teal-600 checked:border-teal-600'
-      : 'bg-white border-gray-300 checked:bg-teal-500 checked:border-teal-500'
-    }
+            isDarkMode
+              ? 'bg-gray-700 border-gray-500 checked:bg-teal-600 checked:border-teal-600'
+              : 'bg-white border-gray-300 checked:bg-teal-500 checked:border-teal-500'
+          }
           focus:ring-2
           focus:ring-teal-500
           focus:ring-offset-1
@@ -342,10 +342,10 @@ export const BulkActionsToolbar = ({
               px-3 py-1 text-xs font-medium rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-          }
+                isDarkMode
+                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+              }
             `}
           >
             Duplicate
@@ -360,10 +360,10 @@ export const BulkActionsToolbar = ({
               px-3 py-1 text-xs font-medium rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-          }
+                isDarkMode
+                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+              }
             `}
           >
             {action.label}
@@ -377,10 +377,10 @@ export const BulkActionsToolbar = ({
               px-3 py-1 text-xs font-medium rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'bg-red-900/50 text-red-300 hover:bg-red-900/70'
-            : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-          }
+                isDarkMode
+                  ? 'bg-red-900/50 text-red-300 hover:bg-red-900/70'
+                  : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+              }
             `}
           >
             Delete
@@ -394,10 +394,10 @@ export const BulkActionsToolbar = ({
               px-2 py-1 text-xs rounded
               transition-colors duration-150
               ${
-          isDarkMode
-            ? 'text-gray-400 hover:text-gray-200'
-            : 'text-gray-500 hover:text-gray-700'
-          }
+                isDarkMode
+                  ? 'text-gray-400 hover:text-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
+              }
             `}
           >
             Clear

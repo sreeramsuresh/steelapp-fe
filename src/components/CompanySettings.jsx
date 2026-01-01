@@ -4221,14 +4221,14 @@ const CompanySettings = () => {
                                       e.stopPropagation();
                                       const newKeys = e.target.checked
                                         ? [
-                                          ...new Set([
-                                            ...customPermission.permissionKeys,
-                                            ...modulePerms,
-                                          ]),
-                                        ]
+                                            ...new Set([
+                                              ...customPermission.permissionKeys,
+                                              ...modulePerms,
+                                            ]),
+                                          ]
                                         : customPermission.permissionKeys.filter(
-                                          (k) => !modulePerms.includes(k),
-                                        );
+                                            (k) => !modulePerms.includes(k),
+                                          );
                                       setCustomPermission({
                                         ...customPermission,
                                         permission_keys: newKeys,
@@ -4278,12 +4278,12 @@ const CompanySettings = () => {
                                         onChange={(e) => {
                                           const newKeys = e.target.checked
                                             ? [
-                                              ...customPermission.permissionKeys,
-                                              perm.key,
-                                            ]
+                                                ...customPermission.permissionKeys,
+                                                perm.key,
+                                              ]
                                             : customPermission.permissionKeys.filter(
-                                              (k) => k !== perm.key,
-                                            );
+                                                (k) => k !== perm.key,
+                                              );
                                           setCustomPermission({
                                             ...customPermission,
                                             permission_keys: newKeys,
@@ -4676,43 +4676,43 @@ const CompanySettings = () => {
                               )}
                               {role.permissions &&
                               role.permissions.length > 0 ? (
-                                  <div className="grid grid-cols-1 gap-1.5">
-                                    {role.permissions.map((perm, permIdx) => {
-                                      const PermIcon = getPermissionIcon(
-                                        perm.permissionKey || perm.description,
-                                      );
-                                      return (
-                                        <div
-                                          key={permIdx}
-                                          className={`flex items-center text-sm leading-tight ${
-                                            isDarkMode
-                                              ? 'text-gray-300'
-                                              : 'text-gray-700'
-                                          }`}
+                                <div className="grid grid-cols-1 gap-1.5">
+                                  {role.permissions.map((perm, permIdx) => {
+                                    const PermIcon = getPermissionIcon(
+                                      perm.permissionKey || perm.description,
+                                    );
+                                    return (
+                                      <div
+                                        key={permIdx}
+                                        className={`flex items-center text-sm leading-tight ${
+                                          isDarkMode
+                                            ? 'text-gray-300'
+                                            : 'text-gray-700'
+                                        }`}
+                                      >
+                                        <PermIcon
+                                          size={13}
+                                          className="mr-1.5 text-green-500 flex-shrink-0"
+                                        />
+                                        <span
+                                          className="truncate"
+                                          title={perm.description}
                                         >
-                                          <PermIcon
-                                            size={13}
-                                            className="mr-1.5 text-green-500 flex-shrink-0"
-                                          />
-                                          <span
-                                            className="truncate"
-                                            title={perm.description}
-                                          >
-                                            {perm.description ||
+                                          {perm.description ||
                                             perm.permissionKey}
-                                          </span>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                ) : (
-                                  <p
-                                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                                  >
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <p
+                                  className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                                >
                                   No specific permissions defined (may have full
                                   access)
-                                  </p>
-                                )}
+                                </p>
+                              )}
                             </div>
                           ),
                         )}
@@ -4723,108 +4723,108 @@ const CompanySettings = () => {
                   {/* Custom Permission Grants */}
                   {viewPermissionsModal.customGrants &&
                     viewPermissionsModal.customGrants.length > 0 && (
-                    <div>
-                      <div className="flex items-center mb-4">
-                        <UserCheck
-                          className={`mr-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
-                          size={20}
-                        />
-                        <h4
-                          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                        >
+                      <div>
+                        <div className="flex items-center mb-4">
+                          <UserCheck
+                            className={`mr-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
+                            size={20}
+                          />
+                          <h4
+                            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          >
                             Custom Permission Grants
-                        </h4>
-                      </div>
-                      <div className="space-y-3">
-                        {viewPermissionsModal.customGrants.map(
-                          (grant, idx) => (
-                            <div
-                              key={idx}
-                              className={`rounded-lg border ${
-                                isDarkMode
-                                  ? 'bg-yellow-900/10 border-yellow-700/30'
-                                  : 'bg-yellow-50 border-yellow-200'
-                              } p-4`}
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center">
-                                    <CheckCircle
-                                      size={14}
-                                      className="mr-2 text-yellow-500"
-                                    />
-                                    <span
-                                      className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                                    >
-                                      {grant.permissionKey}
-                                    </span>
+                          </h4>
+                        </div>
+                        <div className="space-y-3">
+                          {viewPermissionsModal.customGrants.map(
+                            (grant, idx) => (
+                              <div
+                                key={idx}
+                                className={`rounded-lg border ${
+                                  isDarkMode
+                                    ? 'bg-yellow-900/10 border-yellow-700/30'
+                                    : 'bg-yellow-50 border-yellow-200'
+                                } p-4`}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center">
+                                      <CheckCircle
+                                        size={14}
+                                        className="mr-2 text-yellow-500"
+                                      />
+                                      <span
+                                        className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                      >
+                                        {grant.permissionKey}
+                                      </span>
+                                    </div>
+                                    {grant.reason && (
+                                      <p
+                                        className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                                      >
+                                        <strong>Reason:</strong> {grant.reason}
+                                      </p>
+                                    )}
+                                    {grant.grantedByName && (
+                                      <p
+                                        className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                                      >
+                                        <strong>Granted by:</strong>{' '}
+                                        {grant.grantedByName}
+                                      </p>
+                                    )}
                                   </div>
-                                  {grant.reason && (
-                                    <p
-                                      className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                                    >
-                                      <strong>Reason:</strong> {grant.reason}
-                                    </p>
-                                  )}
-                                  {grant.grantedByName && (
-                                    <p
-                                      className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                                    >
-                                      <strong>Granted by:</strong>{' '}
-                                      {grant.grantedByName}
-                                    </p>
+                                  {grant.expiresAt && (
+                                    <div className="ml-4">
+                                      <span
+                                        className={`inline-flex items-center px-2 py-1 text-xs rounded ${
+                                          new Date(grant.expiresAt) < new Date()
+                                            ? isDarkMode
+                                              ? 'bg-red-900/30 text-red-400'
+                                              : 'bg-red-100 text-red-700'
+                                            : isDarkMode
+                                              ? 'bg-blue-900/30 text-blue-400'
+                                              : 'bg-blue-100 text-blue-700'
+                                        }`}
+                                      >
+                                        <Clock size={12} className="mr-1" />
+                                        Expires:{' '}
+                                        {new Date(
+                                          grant.expiresAt,
+                                        ).toLocaleDateString()}
+                                      </span>
+                                    </div>
                                   )}
                                 </div>
-                                {grant.expiresAt && (
-                                  <div className="ml-4">
-                                    <span
-                                      className={`inline-flex items-center px-2 py-1 text-xs rounded ${
-                                        new Date(grant.expiresAt) < new Date()
-                                          ? isDarkMode
-                                            ? 'bg-red-900/30 text-red-400'
-                                            : 'bg-red-100 text-red-700'
-                                          : isDarkMode
-                                            ? 'bg-blue-900/30 text-blue-400'
-                                            : 'bg-blue-100 text-blue-700'
-                                      }`}
-                                    >
-                                      <Clock size={12} className="mr-1" />
-                                        Expires:{' '}
-                                      {new Date(
-                                        grant.expiresAt,
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                )}
                               </div>
-                            </div>
-                          ),
-                        )}
+                            ),
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* No Permissions */}
                   {viewPermissionsModal.rolePermissions.length === 0 &&
                     (!viewPermissionsModal.customGrants ||
                       viewPermissionsModal.customGrants.length === 0) && (
-                    <div className="text-center py-12">
-                      <Shield
-                        size={48}
-                        className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
-                      />
-                      <h4
-                        className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                      >
+                      <div className="text-center py-12">
+                        <Shield
+                          size={48}
+                          className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
+                        />
+                        <h4
+                          className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        >
                           No Permissions Assigned
-                      </h4>
-                      <p
-                        className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                      >
+                        </h4>
+                        <p
+                          className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                        >
                           This user has no roles or custom permissions assigned.
-                      </p>
-                    </div>
-                  )}
+                        </p>
+                      </div>
+                    )}
                 </div>
               )}
             </div>

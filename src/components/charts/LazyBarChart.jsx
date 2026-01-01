@@ -51,7 +51,7 @@ const LazyBarChart = ({
           tickFormatter={
             layout === 'vertical'
               ? (value) =>
-                value?.length > 18 ? `${value.slice(0, 16)}...` : value
+                  value?.length > 18 ? `${value.slice(0, 16)}...` : value
               : undefined
           }
         />

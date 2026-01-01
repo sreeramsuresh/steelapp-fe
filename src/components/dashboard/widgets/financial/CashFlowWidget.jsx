@@ -124,10 +124,10 @@ const CashFlowWidget = ({
   const maxValue =
     currentData?.trend?.length > 0
       ? Math.max(
-        ...currentData.trend.map((d) =>
-          Math.max(d.inflow || 0, d.outflow || 0),
-        ),
-      )
+          ...currentData.trend.map((d) =>
+            Math.max(d.inflow || 0, d.outflow || 0),
+          ),
+        )
       : 0;
 
   return (

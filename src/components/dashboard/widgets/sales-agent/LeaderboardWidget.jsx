@@ -299,11 +299,11 @@ const LeaderboardWidget = ({
               onKeyDown={
                 onViewAgent
                   ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onViewAgent(agent);
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onViewAgent(agent);
+                      }
                     }
-                  }
                   : undefined
               }
             >

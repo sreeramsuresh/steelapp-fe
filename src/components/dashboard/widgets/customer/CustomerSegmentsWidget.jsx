@@ -363,11 +363,11 @@ const CustomerSegmentsWidget = ({
               onKeyDown={
                 onViewSegment
                   ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onViewSegment(segment, activeView);
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onViewSegment(segment, activeView);
+                      }
                     }
-                  }
                   : undefined
               }
               className={`flex items-center gap-2 p-1 rounded transition-colors ${
@@ -411,11 +411,11 @@ const CustomerSegmentsWidget = ({
             onKeyDown={
               onViewSegment
                 ? (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onViewSegment(segment, activeView);
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onViewSegment(segment, activeView);
+                    }
                   }
-                }
                 : undefined
             }
             className={`p-3 rounded-lg transition-all duration-200 ${

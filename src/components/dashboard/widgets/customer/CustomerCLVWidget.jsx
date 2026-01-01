@@ -338,11 +338,11 @@ const CustomerCLVWidget = ({
                 onKeyDown={
                   onViewCustomer
                     ? (e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onViewCustomer(customer);
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onViewCustomer(customer);
+                        }
                       }
-                    }
                     : undefined
                 }
                 className={`group p-3 rounded-lg transition-all duration-200 ${

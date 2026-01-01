@@ -105,10 +105,10 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
         setTestResult(
           response.integration.last_test_at
             ? {
-              success: response.integration.last_test_success,
-              message: response.integration.last_test_message,
-              tested_at: response.integration.last_test_at,
-            }
+                success: response.integration.last_test_success,
+                message: response.integration.last_test_message,
+                tested_at: response.integration.last_test_at,
+              }
             : null,
         );
       } else {

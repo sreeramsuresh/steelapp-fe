@@ -480,8 +480,8 @@ const Drawer = ({
         className={`fixed top-0 right-0 h-full ${width} z-[31]
           ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
           overflow-auto transition-transform duration-300 ${
-    isOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}
+            isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         <div className="p-4">
           {/* Header */}
@@ -543,9 +543,9 @@ const SupplierBillForm = () => {
     return saved
       ? JSON.parse(saved)
       : {
-        showValidationHighlighting: true,
-        showSpeedButtons: true,
-      };
+          showValidationHighlighting: true,
+          showSpeedButtons: true,
+        };
   });
 
   // Bill data state
@@ -1602,7 +1602,9 @@ const SupplierBillForm = () => {
                     label="Currency"
                     value={bill.currency}
                     onValueChange={(value) => {
-                      const selectedCurrency = CURRENCIES.find((c) => c.value === value);
+                      const selectedCurrency = CURRENCIES.find(
+                        (c) => c.value === value,
+                      );
                       setBill((prev) => ({
                         ...prev,
                         currency: value,
@@ -1650,8 +1652,11 @@ const SupplierBillForm = () => {
                           : 'border-gray-300 bg-white text-gray-900'
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
-                    <p className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Total in AED: {formatCurrency(bill.total * bill.exchangeRate)}
+                    <p
+                      className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
+                      Total in AED:{' '}
+                      {formatCurrency(bill.total * bill.exchangeRate)}
                     </p>
                   </div>
                 )}
@@ -3135,33 +3140,33 @@ const SupplierBillForm = () => {
                   {/* Landed Cost Section */}
                   {bill.totalLandedCost > 0 &&
                     bill.totalLandedCost !== bill.total && (
-                    <div
-                      className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                    >
-                      <div className="flex justify-between">
-                        <span
-                          className={`text-sm font-medium ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
-                        >
+                      <div
+                        className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                      >
+                        <div className="flex justify-between">
+                          <span
+                            className={`text-sm font-medium ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
+                          >
                             Total Landed Cost:
-                        </span>
-                        <span
-                          className={`text-sm font-bold ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
-                        >
-                          {formatCurrency(bill.totalLandedCost)}
-                        </span>
-                      </div>
-                      {bill.landedCostPerUnit > 0 && (
-                        <div
-                          className={`flex justify-between text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                        >
-                          <span>Landed Cost / KG:</span>
-                          <span>
-                            {formatCurrency(bill.landedCostPerUnit)}
+                          </span>
+                          <span
+                            className={`text-sm font-bold ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
+                          >
+                            {formatCurrency(bill.totalLandedCost)}
                           </span>
                         </div>
-                      )}
-                    </div>
-                  )}
+                        {bill.landedCostPerUnit > 0 && (
+                          <div
+                            className={`flex justify-between text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                          >
+                            <span>Landed Cost / KG:</span>
+                            <span>
+                              {formatCurrency(bill.landedCostPerUnit)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
               </div>
 

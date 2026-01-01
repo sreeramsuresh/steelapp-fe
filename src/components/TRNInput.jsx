@@ -148,10 +148,10 @@ const TRNInput = ({
             focus:outline-none focus:ring-2 focus:ring-teal-500
             transition-colors duration-200
             ${
-    isDarkMode
-      ? 'bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
-      : 'bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
-    } ${getBorderColor()}`}
+              isDarkMode
+                ? 'bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
+                : 'bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+            } ${getBorderColor()}`}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
           {renderStatusIcon()}

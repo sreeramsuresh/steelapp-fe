@@ -139,17 +139,17 @@ const createQuotationElement = (
         </thead>
         <tbody>
           ${items
-    .map((it) => {
-      const amountNum = parseFloat(it.amount) || 0;
-      const gstRateNum = parseFloat(it.vatRate) || 0;
-      const gstAmt = calculateTRN(amountNum, gstRateNum);
-      const totalWithTax = amountNum + gstAmt;
-      const spec =
+            .map((it) => {
+              const amountNum = parseFloat(it.amount) || 0;
+              const gstRateNum = parseFloat(it.vatRate) || 0;
+              const gstAmt = calculateTRN(amountNum, gstRateNum);
+              const totalWithTax = amountNum + gstAmt;
+              const spec =
                 (it.specification && String(it.specification).trim()) ||
                 [it.grade, it.finish, it.size, it.thickness]
                   .filter(Boolean)
                   .join(' | ');
-      return `
+              return `
               <tr>
                 <td style="padding:8px; text-align:left; border:1px solid #e2e8f0;">
                   <div style="font-weight:600;color:#0f172a;">${safe(it.name)}</div>
@@ -166,8 +166,8 @@ const createQuotationElement = (
                 <td style="padding:8px; text-align:right; border:1px solid #e2e8f0; font-weight:600;">${formatCurrency(totalWithTax)}</td>
               </tr>
             `;
-    })
-    .join('')}
+            })
+            .join('')}
         </tbody>
       </table>
     </div>
@@ -183,14 +183,14 @@ const createQuotationElement = (
           <span>${formatCurrency(gstAmount)}</span>
         </div>
         ${
-  parseFloat(q.otherCharges) || 0
-    ? `
+          parseFloat(q.otherCharges) || 0
+            ? `
         <div style="display:flex; justify-content:space-between; padding:8px 0;">
           <span>Other Charges:</span>
           <span>${formatCurrency(parseFloat(q.otherCharges) || 0)}</span>
         </div>`
-    : ''
-}
+            : ''
+        }
         <div style="display:flex; justify-content:space-between; padding:16px 0; border-top:1px solid #e2e8f0; margin-top:8px; font-weight:600; font-size:14px;">
           <span><strong>Total Amount:</strong></span>
           <span><strong>${formatCurrency(total)}</strong></span>
@@ -199,33 +199,33 @@ const createQuotationElement = (
     </div>
 
     ${
-  q.notes || q.termsAndConditions
-    ? `
+      q.notes || q.termsAndConditions
+        ? `
       <div style="margin-bottom:30px;">
         ${
-  q.notes
-    ? `
+          q.notes
+            ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Notes:</h4>
             <p style="margin:0; color:#64748b;">${escapeHtml(q.notes)}</p>
           </div>
         `
-    : ''
-}
+            : ''
+        }
         ${
-  q.termsAndConditions
-    ? `
+          q.termsAndConditions
+            ? `
           <div style="margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0; color:#1e293b;">Terms & Conditions:</h4>
             <p style="margin:0; color:#64748b;">${escapeHtmlWithLineBreaks(q.termsAndConditions)}</p>
           </div>
         `
-    : ''
-}
+            : ''
+        }
       </div>
     `
-    : ''
-}
+        : ''
+    }
 
     <div style="display:flex; justify-content:flex-end; margin-top:50px;">
       <div style="display:flex; align-items:flex-end; gap:20px;">

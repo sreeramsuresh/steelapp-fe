@@ -3332,16 +3332,16 @@ const ExportOrderForm = () => {
                         )}
                         {errors[`item_${index}_batch`] &&
                           item.shipmentType === 'WAREHOUSE' && (
-                          <p className="text-xs text-red-500">
-                            {errors[`item_${index}_batch`]}
-                          </p>
-                        )}
+                            <p className="text-xs text-red-500">
+                              {errors[`item_${index}_batch`]}
+                            </p>
+                          )}
                         {errors[`item_${index}_supplier`] &&
                           item.shipmentType === 'DROP_SHIP' && (
-                          <p className="text-xs text-red-500">
-                            {errors[`item_${index}_supplier`]}
-                          </p>
-                        )}
+                            <p className="text-xs text-red-500">
+                              {errors[`item_${index}_supplier`]}
+                            </p>
+                          )}
                       </div>
                     </td>
                     <td className="py-2 pr-2">

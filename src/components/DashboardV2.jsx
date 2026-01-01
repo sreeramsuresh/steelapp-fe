@@ -393,36 +393,36 @@ const DashboardV2 = () => {
           fastMoving:
             inventoryHealth.topMoving?.length > 0
               ? {
-                products: inventoryHealth.topMoving.map((item, idx) => ({
-                  id: item.id || item.product_id || idx,
-                  name: item.name || item.product_name || item.displayName,
-                  category: item.category || 'Steel',
-                  turnoverRatio:
+                  products: inventoryHealth.topMoving.map((item, idx) => ({
+                    id: item.id || item.product_id || idx,
+                    name: item.name || item.product_name || item.displayName,
+                    category: item.category || 'Steel',
+                    turnoverRatio:
                       parseFloat(item.turnover_ratio || item.turnoverRatio) ||
                       5.0,
-                  daysToSell:
+                    daysToSell:
                       parseInt(item.days_to_sell || item.daysToSell) || 15,
-                  currentStock:
+                    currentStock:
                       parseFloat(
                         item.current_stock ||
                           item.currentStock ||
                           item.quantity,
                       ) || 0,
-                  reorderPoint:
+                    reorderPoint:
                       parseFloat(item.reorder_point || item.reorderPoint) || 10,
-                  lastSaleDate:
+                    lastSaleDate:
                       item.last_sale_date ||
                       item.lastSaleDate ||
                       new Date().toISOString(),
-                  trend: item.trend || [50, 45, 40, 38, 35],
-                  status:
+                    trend: item.trend || [50, 45, 40, 38, 35],
+                    status:
                       parseFloat(item.turnover_ratio || item.turnoverRatio) > 6
                         ? 'optimal'
                         : 'watch',
-                })),
-                summary: {
-                  totalFastMoving: inventoryHealth.topMoving.length,
-                  avgTurnover:
+                  })),
+                  summary: {
+                    totalFastMoving: inventoryHealth.topMoving.length,
+                    avgTurnover:
                       inventoryHealth.topMoving.reduce(
                         (sum, i) =>
                           sum +
@@ -430,93 +430,93 @@ const DashboardV2 = () => {
                             0),
                         0,
                       ) / inventoryHealth.topMoving.length || 5.0,
-                  totalValue: inventoryHealth.topMoving.reduce(
-                    (sum, i) =>
-                      sum + (parseFloat(i.value || i.total_value) || 0),
-                    0,
-                  ),
-                },
-              }
+                    totalValue: inventoryHealth.topMoving.reduce(
+                      (sum, i) =>
+                        sum + (parseFloat(i.value || i.total_value) || 0),
+                      0,
+                    ),
+                  },
+                }
               : null,
           // Wire slow moving items from inventory health (slow_moving array)
           slowMoving:
             inventoryHealth.slowMoving?.length > 0
               ? {
-                products: inventoryHealth.slowMoving.map((item, idx) => ({
-                  id: item.id || item.product_id || idx,
-                  name: item.name || item.product_name || item.displayName,
-                  category: item.category || 'Steel',
-                  turnoverRatio:
+                  products: inventoryHealth.slowMoving.map((item, idx) => ({
+                    id: item.id || item.product_id || idx,
+                    name: item.name || item.product_name || item.displayName,
+                    category: item.category || 'Steel',
+                    turnoverRatio:
                       parseFloat(item.turnover_ratio || item.turnoverRatio) ||
                       0.5,
-                  daysInStock:
+                    daysInStock:
                       parseInt(item.days_in_stock || item.daysInStock) || 150,
-                  currentStock:
+                    currentStock:
                       parseFloat(
                         item.current_stock ||
                           item.currentStock ||
                           item.quantity,
                       ) || 0,
-                  value: parseFloat(item.value || item.total_value) || 0,
-                  lastSaleDate:
+                    value: parseFloat(item.value || item.total_value) || 0,
+                    lastSaleDate:
                       item.last_sale_date || item.lastSaleDate || '2024-01-01',
-                  recommendation:
+                    recommendation:
                       item.recommendation ||
                       (parseInt(item.days_in_stock || item.daysInStock) > 180
                         ? 'discount'
                         : 'promote'),
-                })),
-                summary: {
-                  totalSlowMoving: inventoryHealth.slowMoving.length,
-                  totalValueLocked: inventoryHealth.slowMoving.reduce(
-                    (sum, i) =>
-                      sum + (parseFloat(i.value || i.total_value) || 0),
-                    0,
-                  ),
-                  avgDaysInStock:
+                  })),
+                  summary: {
+                    totalSlowMoving: inventoryHealth.slowMoving.length,
+                    totalValueLocked: inventoryHealth.slowMoving.reduce(
+                      (sum, i) =>
+                        sum + (parseFloat(i.value || i.total_value) || 0),
+                      0,
+                    ),
+                    avgDaysInStock:
                       inventoryHealth.slowMoving.reduce(
                         (sum, i) =>
                           sum +
                           (parseInt(i.days_in_stock || i.daysInStock) || 0),
                         0,
                       ) / inventoryHealth.slowMoving.length || 150,
-                },
-              }
+                  },
+                }
               : null,
           // Wire reorder alerts from low stock items
           reorderAlerts:
             inventoryHealth.lowStockItems?.length > 0
               ? {
-                products: inventoryHealth.lowStockItems.map((item, idx) => ({
-                  id: item.id || item.product_id || idx,
-                  name: item.name || item.product_name || item.displayName,
-                  category: item.category || 'Steel',
-                  currentStock:
+                  products: inventoryHealth.lowStockItems.map((item, idx) => ({
+                    id: item.id || item.product_id || idx,
+                    name: item.name || item.product_name || item.displayName,
+                    category: item.category || 'Steel',
+                    currentStock:
                       parseFloat(
                         item.current_stock ||
                           item.currentStock ||
                           item.quantity,
                       ) || 0,
-                  reorderPoint:
+                    reorderPoint:
                       parseFloat(
                         item.reorder_point ||
                           item.reorderPoint ||
                           item.minStock,
                       ) || 10,
-                  maxStock:
+                    maxStock:
                       parseFloat(item.max_stock || item.maxStock) || 100,
-                  daysOfCover:
+                    daysOfCover:
                       parseInt(item.days_of_cover || item.daysOfCover) || 5,
-                  avgDailySales:
+                    avgDailySales:
                       parseFloat(item.avg_daily_sales || item.avgDailySales) ||
                       1.5,
-                  lastOrderDate:
+                    lastOrderDate:
                       item.last_order_date ||
                       item.lastOrderDate ||
                       '2024-01-01',
-                  suggestedQty:
+                    suggestedQty:
                       parseFloat(item.suggested_qty || item.suggestedQty) || 30,
-                  priority:
+                    priority:
                       item.priority ||
                       (parseFloat(
                         item.current_stock ||
@@ -531,36 +531,36 @@ const DashboardV2 = () => {
                         0.5
                         ? 'critical'
                         : 'warning'),
-                })),
-                summary: {
-                  critical: inventoryHealth.lowStockItems.filter(
-                    (i) =>
-                      parseFloat(
-                        i.current_stock || i.currentStock || i.quantity,
-                      ) <
+                  })),
+                  summary: {
+                    critical: inventoryHealth.lowStockItems.filter(
+                      (i) =>
+                        parseFloat(
+                          i.current_stock || i.currentStock || i.quantity,
+                        ) <
                         parseFloat(
                           i.reorder_point || i.reorderPoint || i.minStock,
                         ) *
                           0.5,
-                  ).length,
-                  warning: inventoryHealth.lowStockItems.filter(
-                    (i) =>
-                      parseFloat(
-                        i.current_stock || i.currentStock || i.quantity,
-                      ) >=
+                    ).length,
+                    warning: inventoryHealth.lowStockItems.filter(
+                      (i) =>
+                        parseFloat(
+                          i.current_stock || i.currentStock || i.quantity,
+                        ) >=
                         parseFloat(
                           i.reorder_point || i.reorderPoint || i.minStock,
                         ) *
                           0.5,
-                  ).length,
-                  approaching: 0,
-                  totalValue: inventoryHealth.lowStockItems.reduce(
-                    (sum, i) =>
-                      sum + (parseFloat(i.value || i.total_value) || 0),
-                    0,
-                  ),
-                },
-              }
+                    ).length,
+                    approaching: 0,
+                    totalValue: inventoryHealth.lowStockItems.reduce(
+                      (sum, i) =>
+                        sum + (parseFloat(i.value || i.total_value) || 0),
+                      0,
+                    ),
+                  },
+                }
               : null,
         }));
       }
@@ -630,43 +630,43 @@ const DashboardV2 = () => {
           categoryPerformance:
             productAnalytics.categoryPerformance?.length > 0
               ? {
-                categories: productAnalytics.categoryPerformance.map(
-                  (cat) => ({
-                    name: cat.name,
-                    revenue: cat.totalRevenue || 0,
-                    volume: cat.totalSold || 0,
-                    margin: cat.avgMargin || 15,
-                    growth: cat.growth || 0,
-                    orders: cat.orderCount || cat.productCount || 0,
-                    avgOrderValue:
+                  categories: productAnalytics.categoryPerformance.map(
+                    (cat) => ({
+                      name: cat.name,
+                      revenue: cat.totalRevenue || 0,
+                      volume: cat.totalSold || 0,
+                      margin: cat.avgMargin || 15,
+                      growth: cat.growth || 0,
+                      orders: cat.orderCount || cat.productCount || 0,
+                      avgOrderValue:
                         cat.totalRevenue && cat.orderCount
                           ? cat.totalRevenue / cat.orderCount
                           : 0,
-                  }),
-                ),
-              }
+                    }),
+                  ),
+                }
               : null,
           // Grade Analysis - aggregated by steel grade
           gradeAnalysis:
             productAnalytics.gradeAnalysis?.length > 0
               ? {
-                grades: productAnalytics.gradeAnalysis.map((grade, _idx) => ({
-                  grade: grade.grade,
-                  fullName: `Stainless Steel ${grade.grade?.replace('SS ', '')}`,
-                  revenue: grade.totalRevenue || 0,
-                  volume: grade.totalSold || 0,
-                  margin: grade.avgMargin || 15,
-                  avgPrice: grade.avgPrice || 250,
-                  priceChange: grade.priceChange || 0,
-                  demand:
+                  grades: productAnalytics.gradeAnalysis.map((grade, _idx) => ({
+                    grade: grade.grade,
+                    fullName: `Stainless Steel ${grade.grade?.replace('SS ', '')}`,
+                    revenue: grade.totalRevenue || 0,
+                    volume: grade.totalSold || 0,
+                    margin: grade.avgMargin || 15,
+                    avgPrice: grade.avgPrice || 250,
+                    priceChange: grade.priceChange || 0,
+                    demand:
                       grade.totalSold > 100
                         ? 'high'
                         : grade.totalSold > 50
                           ? 'medium'
                           : 'low',
-                  trend: grade.trend || [250, 252, 255, 253, 257, 255],
-                })),
-              }
+                    trend: grade.trend || [250, 252, 255, 253, 257, 255],
+                  })),
+                }
               : null,
         }));
       }
@@ -1297,26 +1297,26 @@ const DashboardV2 = () => {
                       data={
                         widgetData.customerInsights
                           ? {
-                            summary: {
-                              totalCustomers:
+                              summary: {
+                                totalCustomers:
                                   widgetData.customerInsights.totalCustomers,
-                              activeCustomers:
+                                activeCustomers:
                                   widgetData.customerInsights.totalCustomers -
                                   Math.floor(
                                     widgetData.customerInsights.totalCustomers *
                                       (widgetData.customerInsights.churnRate /
                                         100),
                                   ),
-                              inactiveCustomers: Math.floor(
-                                widgetData.customerInsights.totalCustomers *
+                                inactiveCustomers: Math.floor(
+                                  widgetData.customerInsights.totalCustomers *
                                     (widgetData.customerInsights.churnRate /
                                       100),
-                              ),
-                              top3Concentration: 42,
-                              diversificationScore: 68,
-                              riskLevel: 'Medium',
-                            },
-                            topCustomers:
+                                ),
+                                top3Concentration: 42,
+                                diversificationScore: 68,
+                                riskLevel: 'Medium',
+                              },
+                              topCustomers:
                                 widgetData.customerInsights.topCustomers
                                   ?.slice(0, 3)
                                   .map((c, _idx) => ({
@@ -1333,21 +1333,21 @@ const DashboardV2 = () => {
                                         100,
                                     ),
                                   })) || [],
-                            segments:
+                              segments:
                                 widgetData.customerSegments?.byIndustry || [],
-                            trendData: {
-                              newThisMonth:
+                              trendData: {
+                                newThisMonth:
                                   widgetData.customerInsights
                                     .newCustomersThisMonth || 0,
-                              churnedThisMonth: Math.floor(
-                                widgetData.customerInsights.totalCustomers *
+                                churnedThisMonth: Math.floor(
+                                  widgetData.customerInsights.totalCustomers *
                                     (widgetData.customerInsights.churnRate /
                                       100 /
                                       12),
-                              ),
-                              reactivated: 0,
-                            },
-                          }
+                                ),
+                                reactivated: 0,
+                              },
+                            }
                           : null
                       }
                     />

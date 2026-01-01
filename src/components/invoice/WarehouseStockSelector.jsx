@@ -178,14 +178,14 @@ const WarehouseStockSelector = ({
               className={`
                 flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all
                 ${
-            isSelected
-              ? isDarkMode
-                ? 'border-teal-500 bg-teal-900/30 text-teal-300'
-                : 'border-teal-600 bg-teal-50 text-teal-700'
-              : isDarkMode
-                ? 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500'
-                : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-            }
+                  isSelected
+                    ? isDarkMode
+                      ? 'border-teal-500 bg-teal-900/30 text-teal-300'
+                      : 'border-teal-600 bg-teal-50 text-teal-700'
+                    : isDarkMode
+                      ? 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                }
               `}
               title={`${warehouse.name} - ${formatQty(available)} available`}
             >

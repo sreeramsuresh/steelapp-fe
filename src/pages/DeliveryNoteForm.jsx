@@ -288,28 +288,28 @@ const DeliveryNoteForm = () => {
         deliveryDate:
           deliveryNote.deliveryDate || deliveryNote.delivery_date
             ? formatDateForInput(
-              new Date(
-                deliveryNote.deliveryDate || deliveryNote.delivery_date,
-              ),
-            )
+                new Date(
+                  deliveryNote.deliveryDate || deliveryNote.delivery_date,
+                ),
+              )
             : '',
         // Phase 4: GRN date fields
         goodsReceiptDate:
           deliveryNote.goodsReceiptDate || deliveryNote.goods_receipt_date
             ? formatDateForInput(
-              new Date(
-                deliveryNote.goodsReceiptDate ||
+                new Date(
+                  deliveryNote.goodsReceiptDate ||
                     deliveryNote.goods_receipt_date,
-              ),
-            )
+                ),
+              )
             : formatDateForInput(new Date()),
         inspectionDate:
           deliveryNote.inspectionDate || deliveryNote.inspection_date
             ? formatDateForInput(
-              new Date(
-                deliveryNote.inspectionDate || deliveryNote.inspection_date,
-              ),
-            )
+                new Date(
+                  deliveryNote.inspectionDate || deliveryNote.inspection_date,
+                ),
+              )
             : formatDateForInput(new Date()),
         deliveryAddress: {
           street: parsedAddress.street || '',
@@ -867,12 +867,12 @@ const DeliveryNoteForm = () => {
                           {formData.goodsReceiptDate &&
                           selectedInvoice.expectedDeliveryDate
                             ? Math.ceil(
-                              (new Date(formData.goodsReceiptDate) -
+                                (new Date(formData.goodsReceiptDate) -
                                   new Date(
                                     selectedInvoice.expectedDeliveryDate,
                                   )) /
                                   (1000 * 60 * 60 * 24),
-                            )
+                              )
                             : 0}{' '}
                           days
                         </span>
@@ -881,12 +881,12 @@ const DeliveryNoteForm = () => {
                             formData.goodsReceiptDate &&
                             selectedInvoice.expectedDeliveryDate
                               ? Math.ceil(
-                                (new Date(formData.goodsReceiptDate) -
+                                  (new Date(formData.goodsReceiptDate) -
                                     new Date(
                                       selectedInvoice.expectedDeliveryDate,
                                     )) /
                                     (1000 * 60 * 60 * 24),
-                              ) <= (selectedInvoice.gracePeriodDays || 5)
+                                ) <= (selectedInvoice.gracePeriodDays || 5)
                                 ? 'bg-green-500/20 text-green-400'
                                 : 'bg-red-500/20 text-red-400'
                               : 'bg-gray-500/20 text-gray-400'
@@ -895,12 +895,12 @@ const DeliveryNoteForm = () => {
                           {formData.goodsReceiptDate &&
                           selectedInvoice.expectedDeliveryDate
                             ? Math.ceil(
-                              (new Date(formData.goodsReceiptDate) -
+                                (new Date(formData.goodsReceiptDate) -
                                   new Date(
                                     selectedInvoice.expectedDeliveryDate,
                                   )) /
                                   (1000 * 60 * 60 * 24),
-                            ) <= (selectedInvoice.gracePeriodDays || 5)
+                              ) <= (selectedInvoice.gracePeriodDays || 5)
                               ? 'ON TIME'
                               : 'LATE'
                             : 'N/A'}

@@ -883,22 +883,22 @@ const AdvancePaymentForm = () => {
                     {/* Amount in Base Currency - read-only calculated */}
                     {payment.currency !== 'AED' &&
                       payment.amountInBaseCurrency !== null && (
-                      <div className="col-span-6">
-                        <label
-                          htmlFor="amountInBaseCurrency"
-                          className={`block text-xs ${textMuted} mb-1.5`}
-                        >
+                        <div className="col-span-6">
+                          <label
+                            htmlFor="amountInBaseCurrency"
+                            className={`block text-xs ${textMuted} mb-1.5`}
+                          >
                             Amount in AED (Calculated)
-                        </label>
-                        <input
-                          id="amountInBaseCurrency"
-                          type="text"
-                          value={formatCurrency(payment.amountInBaseCurrency)}
-                          readOnly
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
-                        />
-                      </div>
-                    )}
+                          </label>
+                          <input
+                            id="amountInBaseCurrency"
+                            type="text"
+                            value={formatCurrency(payment.amountInBaseCurrency)}
+                            readOnly
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
+                          />
+                        </div>
+                      )}
                   </div>
                 </div>
               </details>
@@ -1366,8 +1366,8 @@ const AdvancePaymentForm = () => {
                           value={
                             payment.settlementDate
                               ? new Date(
-                                payment.settlementDate,
-                              ).toLocaleDateString()
+                                  payment.settlementDate,
+                                ).toLocaleDateString()
                               : ''
                           }
                           readOnly

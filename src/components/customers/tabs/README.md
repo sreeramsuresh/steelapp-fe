@@ -257,7 +257,7 @@ const Customer[Name]Tab = lazy(() =>
 ```javascript
 const allTabs = [
   // ... existing tabs
-  { id: "your-tab-id", label: "Your Tab Label" },
+  { id: 'your-tab-id', label: 'Your Tab Label' },
 ];
 ```
 
@@ -266,7 +266,7 @@ const allTabs = [
 ```javascript
 const tabPermissions = {
   // ... existing permissions
-  "your-tab-id": hasPermission("your.permission"),
+  'your-tab-id': hasPermission('your.permission'),
 };
 ```
 
@@ -324,12 +324,12 @@ Tab visibility is controlled by `useCustomerTabPermissions` hook located at:
 
 ```javascript
 const tabPermissions = {
-  overview: hasPermission("customers.read"),
-  "ar-aging": hasPermission("customers.read") && hasPermission("finance.view"),
-  invoices: hasPermission("invoices.read"),
-  payments: hasPermission("payments.read"),
-  "credit-notes": hasPermission("credit_notes.read"),
-  activity: hasPermission("customers.read"),
+  overview: hasPermission('customers.read'),
+  'ar-aging': hasPermission('customers.read') && hasPermission('finance.view'),
+  invoices: hasPermission('invoices.read'),
+  payments: hasPermission('payments.read'),
+  'credit-notes': hasPermission('credit_notes.read'),
+  activity: hasPermission('customers.read'),
 };
 ```
 
@@ -356,38 +356,38 @@ const { user } = useAuth(); // Import from AuthContext when ready
 
 ```javascript
 const { isDarkMode } = useTheme();
-const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
-const borderColor = isDarkMode ? "border-gray-700" : "border-gray-200";
-const primaryText = isDarkMode ? "text-gray-100" : "text-gray-900";
+const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
+const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+const primaryText = isDarkMode ? 'text-gray-100' : 'text-gray-900';
 ```
 
 ### Currency Formatting
 
 ```javascript
-import { formatCurrency } from "../../../utils/invoiceUtils";
+import { formatCurrency } from '../../../utils/invoiceUtils';
 formatCurrency(1234.56); // "$1,234.56"
 ```
 
 ### Date Formatting
 
 ```javascript
-import { formatDate } from "../../../utils/invoiceUtils";
+import { formatDate } from '../../../utils/invoiceUtils';
 formatDate(new Date()); // "Jan 15, 2025"
 
 // Or use date-fns directly
-import { format } from "date-fns";
-format(new Date(), "MMM dd, yyyy"); // "Jan 15, 2025"
+import { format } from 'date-fns';
+format(new Date(), 'MMM dd, yyyy'); // "Jan 15, 2025"
 ```
 
 ### API Error Handling
 
 ```javascript
 try {
-  const response = await apiClient.get("/endpoint");
+  const response = await apiClient.get('/endpoint');
   setData(response.data);
 } catch (err) {
-  console.error("Failed to fetch data:", err);
-  setError(err.message || "Failed to load data");
+  console.error('Failed to fetch data:', err);
+  setError(err.message || 'Failed to load data');
 }
 ```
 

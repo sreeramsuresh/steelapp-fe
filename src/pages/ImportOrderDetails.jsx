@@ -1374,80 +1374,80 @@ const ImportOrderDetails = () => {
                   doc.category === activeDocTab ||
                   (!doc.category && activeDocTab === 'trade'),
               ).length === 0 ? (
-                  <div
-                    className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
-                    <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No documents in this category</p>
-                  </div>
-                ) : (
-                  documents
-                    .filter(
-                      (doc) =>
-                        doc.category === activeDocTab ||
+                <div
+                  className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                >
+                  <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No documents in this category</p>
+                </div>
+              ) : (
+                documents
+                  .filter(
+                    (doc) =>
+                      doc.category === activeDocTab ||
                       (!doc.category && activeDocTab === 'trade'),
-                    )
-                    .map((doc, index) => (
-                      <div
-                        key={doc.id || index}
-                        className={`flex items-center justify-between p-3 rounded-lg ${
-                          isDarkMode
-                            ? 'bg-gray-800 hover:bg-gray-750'
-                            : 'bg-gray-50 hover:bg-gray-100'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText
-                            className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                          />
-                          <div>
-                            <p
-                              className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                            >
-                              {doc.name || doc.fileName || doc.file_name}
-                            </p>
-                            <p
-                              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                            >
-                              {doc.uploadedAt
-                                ? formatDate(doc.uploadedAt || doc.uploaded_at)
-                                : 'Uploaded'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {/* eslint-disable-next-line local-rules/no-dead-button */}
-                          <button
-                            className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode
-                                ? 'hover:bg-gray-700 text-gray-400'
-                                : 'hover:bg-gray-200 text-gray-600'
-                            }`}
-                            title="View"
-                            onClick={() => {
-                            // TODO: Implement document view
-                            }}
+                  )
+                  .map((doc, index) => (
+                    <div
+                      key={doc.id || index}
+                      className={`flex items-center justify-between p-3 rounded-lg ${
+                        isDarkMode
+                          ? 'bg-gray-800 hover:bg-gray-750'
+                          : 'bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText
+                          className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        />
+                        <div>
+                          <p
+                            className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
-                            <Eye size={16} />
-                          </button>
-                          {/* eslint-disable-next-line local-rules/no-dead-button */}
-                          <button
-                            className={`p-2 rounded-lg transition-colors ${
-                              isDarkMode
-                                ? 'hover:bg-gray-700 text-gray-400'
-                                : 'hover:bg-gray-200 text-gray-600'
-                            }`}
-                            title="Download"
-                            onClick={() => {
-                            // TODO: Implement document download
-                            }}
+                            {doc.name || doc.fileName || doc.file_name}
+                          </p>
+                          <p
+                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
-                            <Download size={16} />
-                          </button>
+                            {doc.uploadedAt
+                              ? formatDate(doc.uploadedAt || doc.uploaded_at)
+                              : 'Uploaded'}
+                          </p>
                         </div>
                       </div>
-                    ))
-                )}
+                      <div className="flex items-center gap-2">
+                        {/* eslint-disable-next-line local-rules/no-dead-button */}
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode
+                              ? 'hover:bg-gray-700 text-gray-400'
+                              : 'hover:bg-gray-200 text-gray-600'
+                          }`}
+                          title="View"
+                          onClick={() => {
+                            // TODO: Implement document view
+                          }}
+                        >
+                          <Eye size={16} />
+                        </button>
+                        {/* eslint-disable-next-line local-rules/no-dead-button */}
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDarkMode
+                              ? 'hover:bg-gray-700 text-gray-400'
+                              : 'hover:bg-gray-200 text-gray-600'
+                          }`}
+                          title="Download"
+                          onClick={() => {
+                            // TODO: Implement document download
+                          }}
+                        >
+                          <Download size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+              )}
             </div>
           </div>
 

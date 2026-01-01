@@ -565,41 +565,41 @@ const DebitNoteForm = () => {
                     {/* Supplier Bill Dropdown */}
                     {showSupplierBillDropdown &&
                       supplierBillResults.length > 0 && (
-                      <div
-                        className={`absolute z-10 w-full mt-1 rounded-xl shadow-lg border max-h-60 overflow-y-auto ${cardBg} ${cardBorder}`}
-                      >
-                        {supplierBillResults.map((bill) => (
-                          <button
-                            key={bill.id}
-                            type="button"
-                            onClick={() => handleSupplierBillSelect(bill)}
-                            className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
-                              isDarkMode
-                                ? 'hover:bg-[#1a2027]'
-                                : 'hover:bg-gray-50'
-                            }`}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
+                        <div
+                          className={`absolute z-10 w-full mt-1 rounded-xl shadow-lg border max-h-60 overflow-y-auto ${cardBg} ${cardBorder}`}
+                        >
+                          {supplierBillResults.map((bill) => (
+                            <button
+                              key={bill.id}
+                              type="button"
+                              onClick={() => handleSupplierBillSelect(bill)}
+                              className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
+                                isDarkMode
+                                  ? 'hover:bg-[#1a2027]'
+                                  : 'hover:bg-gray-50'
+                              }`}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div
+                                    className={`text-sm font-medium ${textPrimary}`}
+                                  >
+                                    {bill.billNumber}
+                                  </div>
+                                  <div className={`text-xs ${textMuted}`}>
+                                    {bill.vendorName}
+                                  </div>
+                                </div>
                                 <div
-                                  className={`text-sm font-medium ${textPrimary}`}
+                                  className={`text-sm font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}
                                 >
-                                  {bill.billNumber}
-                                </div>
-                                <div className={`text-xs ${textMuted}`}>
-                                  {bill.vendorName}
+                                  {formatCurrency(bill.total)}
                                 </div>
                               </div>
-                              <div
-                                className={`text-sm font-mono ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}
-                              >
-                                {formatCurrency(bill.total)}
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                   </div>
                 ) : (
                   <div

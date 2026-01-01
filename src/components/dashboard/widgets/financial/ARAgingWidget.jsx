@@ -45,10 +45,10 @@ export const ARAgingWidget = ({
     // Normalize buckets - ensure amount and percentage are numbers
     const normalizedBuckets = Array.isArray(d.buckets)
       ? d.buckets.map((bucket) => ({
-        ...bucket,
-        amount: parseFloat(bucket.amount) || 0,
-        percentage: parseFloat(bucket.percentage) || 0,
-      }))
+          ...bucket,
+          amount: parseFloat(bucket.amount) || 0,
+          percentage: parseFloat(bucket.percentage) || 0,
+        }))
       : [];
 
     return {

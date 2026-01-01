@@ -288,13 +288,13 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: "jsdom",
-    setupFiles: "./src/test/setup.js",
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
     css: true,
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
-      exclude: ["node_modules/", "src/test/", "**/*.config.js"],
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'src/test/', '**/*.config.js'],
     },
   },
 });
@@ -307,13 +307,13 @@ Located in `/mnt/d/Ultimate Steel/steelapp-fe/cypress.config.js`:
 ```javascript
 export default defineConfig({
   e2e: {
-    baseUrl: "http://localhost:5173",
-    supportFile: "cypress/support/e2e.js",
-    specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
+    baseUrl: 'http://localhost:5173',
+    supportFile: 'cypress/support/e2e.js',
+    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     env: {
-      apiUrl: "http://localhost:3000",
-      testUserEmail: "test@steelapp.com",
-      testUserPassword: "testpassword123",
+      apiUrl: 'http://localhost:3000',
+      testUserEmail: 'test@steelapp.com',
+      testUserPassword: 'testpassword123',
     },
   },
 });
@@ -353,25 +353,25 @@ Role Management Module Coverage:
 
 ```javascript
 const systemRoles = [
-  { id: 1, name: "Managing Director", isSystemRole: true, isDirector: true },
-  { id: 2, name: "Operations Manager", isSystemRole: true, isDirector: true },
-  { id: 3, name: "Finance Manager", isSystemRole: true, isDirector: true },
-  { id: 4, name: "Sales Manager", isSystemRole: true },
-  { id: 5, name: "Purchase Manager", isSystemRole: true },
-  { id: 6, name: "Warehouse Manager", isSystemRole: true },
-  { id: 7, name: "Accounts Manager", isSystemRole: true },
-  { id: 8, name: "Sales Executive", isSystemRole: true },
-  { id: 9, name: "Purchase Executive", isSystemRole: true },
-  { id: 10, name: "Stock Keeper", isSystemRole: true },
-  { id: 11, name: "Accounts Executive", isSystemRole: true },
-  { id: 12, name: "Logistics Coordinator", isSystemRole: true },
+  { id: 1, name: 'Managing Director', isSystemRole: true, isDirector: true },
+  { id: 2, name: 'Operations Manager', isSystemRole: true, isDirector: true },
+  { id: 3, name: 'Finance Manager', isSystemRole: true, isDirector: true },
+  { id: 4, name: 'Sales Manager', isSystemRole: true },
+  { id: 5, name: 'Purchase Manager', isSystemRole: true },
+  { id: 6, name: 'Warehouse Manager', isSystemRole: true },
+  { id: 7, name: 'Accounts Manager', isSystemRole: true },
+  { id: 8, name: 'Sales Executive', isSystemRole: true },
+  { id: 9, name: 'Purchase Executive', isSystemRole: true },
+  { id: 10, name: 'Stock Keeper', isSystemRole: true },
+  { id: 11, name: 'Accounts Executive', isSystemRole: true },
+  { id: 12, name: 'Logistics Coordinator', isSystemRole: true },
 ];
 ```
 
 ### Reserved Names
 
 ```javascript
-const reservedNames = ["admin", "superuser", "root"];
+const reservedNames = ['admin', 'superuser', 'root'];
 ```
 
 ### Validation Rules
@@ -439,7 +439,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: '18'
 
       - name: Install dependencies
         run: npm ci

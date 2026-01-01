@@ -1493,10 +1493,10 @@ const CustomsDocumentList = () => {
                       )}
                       {formData.coo_issue_date &&
                         !formErrors.coo_issue_date && (
-                        <p className="text-green-500 text-xs mt-1">
-                          {validateCooExpiry(formData.coo_issue_date).message}
-                        </p>
-                      )}
+                          <p className="text-green-500 text-xs mt-1">
+                            {validateCooExpiry(formData.coo_issue_date).message}
+                          </p>
+                        )}
                     </div>
 
                     {/* Issuing Chamber */}

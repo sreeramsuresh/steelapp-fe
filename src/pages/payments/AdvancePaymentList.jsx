@@ -857,8 +857,8 @@ const AdvancePaymentList = () => {
                     value={
                       customerFilter
                         ? customers.find(
-                          (c) => c.id === parseInt(customerFilter),
-                        )
+                            (c) => c.id === parseInt(customerFilter),
+                          )
                         : null
                     }
                     inputValue={customerInputValue}
@@ -1068,27 +1068,27 @@ const AdvancePaymentList = () => {
                       >
                         {payment.applications &&
                         payment.applications.length > 0 ? (
-                            <div className="text-sm">
-                              {payment.applications
-                                .slice(0, 2)
-                                .map((app, idx) => (
-                                  <div key={idx}>{app.invoiceNumber}</div>
-                                ))}
-                              {payment.applications.length > 2 && (
-                                <div
-                                  className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                                >
+                          <div className="text-sm">
+                            {payment.applications
+                              .slice(0, 2)
+                              .map((app, idx) => (
+                                <div key={idx}>{app.invoiceNumber}</div>
+                              ))}
+                            {payment.applications.length > 2 && (
+                              <div
+                                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                              >
                                 +{payment.applications.length - 2} more
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <span
-                              className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                            >
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span
+                            className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                          >
                             Not applied
-                            </span>
-                          )}
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div
@@ -1124,26 +1124,26 @@ const AdvancePaymentList = () => {
                           {payment.amountAvailable > 0 &&
                             payment.status !== 'refunded' &&
                             payment.status !== 'cancelled' && (
-                            <button
-                              onClick={() => handleApplyToInvoice(payment)}
-                              className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-blue-900/30 text-blue-400' : 'hover:bg-blue-100 text-blue-600'}`}
-                              title="Apply to Invoice"
-                            >
-                              <ArrowRight className="h-4 w-4" />
-                            </button>
-                          )}
+                              <button
+                                onClick={() => handleApplyToInvoice(payment)}
+                                className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-blue-900/30 text-blue-400' : 'hover:bg-blue-100 text-blue-600'}`}
+                                title="Apply to Invoice"
+                              >
+                                <ArrowRight className="h-4 w-4" />
+                              </button>
+                            )}
                           {/* Refund - only if has available balance */}
                           {payment.amountAvailable > 0 &&
                             payment.status !== 'refunded' &&
                             payment.status !== 'cancelled' && (
-                            <button
-                              onClick={() => handleRefund(payment)}
-                              className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-amber-900/30 text-amber-400' : 'hover:bg-amber-100 text-amber-600'}`}
-                              title="Refund"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </button>
-                          )}
+                              <button
+                                onClick={() => handleRefund(payment)}
+                                className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-amber-900/30 text-amber-400' : 'hover:bg-amber-100 text-amber-600'}`}
+                                title="Refund"
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                              </button>
+                            )}
                         </div>
                       </td>
                     </tr>

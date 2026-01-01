@@ -242,10 +242,10 @@ const ProductSelector = ({
         searchTerm.length >= 2 &&
         products.length === 0 &&
         !loading && (
-        <div ref={dropdownRef} className="product-dropdown empty">
-          <div className="product-option disabled">No products found</div>
-        </div>
-      )}
+          <div ref={dropdownRef} className="product-dropdown empty">
+            <div className="product-option disabled">No products found</div>
+          </div>
+        )}
     </div>
   );
 };

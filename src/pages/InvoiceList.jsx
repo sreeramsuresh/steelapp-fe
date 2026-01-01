@@ -902,13 +902,13 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   // Get effective summary data (fresh or cached)
   const effectiveSummary = computedSummary ||
     summaryData || {
-    outstandingAmount: 0,
-    overdueCount: 0,
-    overdueAmount: 0,
-    dueSoonCount: 0,
-    dueSoonAmount: 0,
-    paidAmount: 0,
-  };
+      outstandingAmount: 0,
+      overdueCount: 0,
+      overdueAmount: 0,
+      dueSoonCount: 0,
+      dueSoonAmount: 0,
+      paidAmount: 0,
+    };
 
   // Legacy functions now delegate to effectiveSummary for backward compatibility
   const getOutstandingAmount = () => effectiveSummary.outstandingAmount;
@@ -1348,12 +1348,12 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         prevInvoices.map((invoice) =>
           invoice.id === inv.id
             ? {
-              ...invoice,
-              payment_status: freshData.payment_status,
-              received: freshData.received,
-              outstanding: freshData.outstanding,
-              balance_due: freshData.outstanding,
-            }
+                ...invoice,
+                payment_status: freshData.payment_status,
+                received: freshData.received,
+                outstanding: freshData.outstanding,
+                balance_due: freshData.outstanding,
+              }
             : invoice,
         ),
       );
@@ -1409,12 +1409,12 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     const updatedPayments = inv.payments.map((p) =>
       p.id === paymentId
         ? {
-          ...p,
-          voided: true,
-          voided_at: new Date().toISOString(),
-          void_reason: reason,
-          voided_by: voidedBy,
-        }
+            ...p,
+            voided: true,
+            voided_at: new Date().toISOString(),
+            void_reason: reason,
+            voided_by: voidedBy,
+          }
         : p,
     );
     const received = updatedPayments
@@ -1453,16 +1453,16 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
         prevInvoices.map((invoice) =>
           invoice.id === inv.id
             ? {
-              ...invoice,
-              payment_status:
+                ...invoice,
+                payment_status:
                   freshData.payment_status || freshData.paymentStatus,
-              paymentStatus:
+                paymentStatus:
                   freshData.payment_status || freshData.paymentStatus,
-              received: freshData.received,
-              outstanding: freshData.outstanding,
-              balance_due: freshData.outstanding,
-              balanceDue: freshData.outstanding,
-            }
+                received: freshData.received,
+                outstanding: freshData.outstanding,
+                balance_due: freshData.outstanding,
+                balanceDue: freshData.outstanding,
+              }
             : invoice,
         ),
       );
@@ -2491,14 +2491,14 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                           !searchTerm &&
                           statusFilter === 'all' &&
                           paymentStatusFilter === 'all' && (
-                          <Link
-                            to="/app/invoices/new"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
-                          >
-                            <Plus size={16} />
+                            <Link
+                              to="/app/invoices/new"
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+                            >
+                              <Plus size={16} />
                               Create Invoice
-                          </Link>
-                        )}
+                            </Link>
+                          )}
                       </div>
                     </div>
                   </td>
@@ -2775,20 +2775,20 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                     )}
                                   </button>
                                 ) : // Show disabled truck for non-issued invoices
-                                  ['issued', 'sent'].includes(
+                                ['issued', 'sent'].includes(
                                     invoice.status,
                                   ) ? null : (
-                                      <span
-                                        className={`p-2 rounded shadow-sm opacity-30 ${
-                                          isDarkMode
-                                            ? 'bg-gray-800/30 text-gray-500'
-                                            : 'bg-gray-100 text-gray-400'
-                                        }`}
-                                        title={actions.deliveryNote.tooltip}
-                                      >
-                                        <Truck size={18} />
-                                      </span>
-                                    )}
+                                  <span
+                                    className={`p-2 rounded shadow-sm opacity-30 ${
+                                      isDarkMode
+                                        ? 'bg-gray-800/30 text-gray-500'
+                                        : 'bg-gray-100 text-gray-400'
+                                    }`}
+                                    title={actions.deliveryNote.tooltip}
+                                  >
+                                    <Truck size={18} />
+                                  </span>
+                                )}
 
                                 {/* Separator: Core Actions | Payment Group */}
                                 <div
@@ -2926,10 +2926,10 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                                           (actions.creditNote.enabled ||
                                             actions.reminder.enabled ||
                                             actions.phone.enabled) && (
-                                          <div
-                                            className={`my-1 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                                          />
-                                        )}
+                                            <div
+                                              className={`my-1 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                                            />
+                                          )}
 
                                         {/* Delete */}
                                         {actions.delete.enabled && (

@@ -1532,12 +1532,12 @@ const ImportOrderForm = () => {
                     />
                     {order.supplier_trn &&
                       order.supplier_vat_status === 'uae_registered' && (
-                      <div
-                        className={`text-xs mt-1 ${validateTRN(order.supplier_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
-                      >
-                        {validateTRN(order.supplier_trn).message}
-                      </div>
-                    )}
+                        <div
+                          className={`text-xs mt-1 ${validateTRN(order.supplier_trn).valid ? 'text-green-500' : 'text-amber-500'}`}
+                        >
+                          {validateTRN(order.supplier_trn).message}
+                        </div>
+                      )}
                   </div>
                 )}
                 <div className="col-span-6 sm:col-span-3">
@@ -2278,8 +2278,8 @@ const ImportOrderForm = () => {
           className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
             ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
             overflow-auto transition-transform ${
-    shippingDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}
+              shippingDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
         >
           <div className="p-4">
             {/* Drawer Header */}
@@ -2613,8 +2613,8 @@ const ImportOrderForm = () => {
           className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
             ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
             overflow-auto transition-transform ${
-    costDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}
+              costDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
         >
           <div className="p-4">
             {/* Drawer Header */}
@@ -2838,8 +2838,8 @@ const ImportOrderForm = () => {
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31]
             ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
             overflow-auto transition-transform ${
-    notesDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}
+              notesDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
         >
           <div className="p-4">
             {/* Drawer Header */}

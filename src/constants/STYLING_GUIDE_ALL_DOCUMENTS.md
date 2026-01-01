@@ -333,7 +333,7 @@ File: /mnt/d/Ultimate Steel/steelapp-fe/src/components/quotations/QuotationPrevi
 ### Frontend Quotation Styling
 
 ```javascript
-const templateColor = getDocumentTemplateColor("quotation", company);
+const templateColor = getDocumentTemplateColor('quotation', company);
 
 // Color applied to:
 // - Document header background
@@ -386,7 +386,7 @@ File: /mnt/d/Ultimate Steel/steelapp-fe/src/components/credit-notes/CreditNotePr
 ### Frontend Credit Note Styling
 
 ```javascript
-const dangerColor = "#dc2626";
+const dangerColor = '#dc2626';
 const templateColor = dangerColor; // Always red for credit notes
 
 // Applied to:
@@ -867,11 +867,11 @@ Users can customize:
 company.settings = {
   invoiceTemplate: {
     colors: {
-      primary: "#008080", // Any hex color
+      primary: '#008080', // Any hex color
       // + all other colors
     },
     typography: {
-      fontFamily: "helvetica",
+      fontFamily: 'helvetica',
       fontSize: {
         // Customizable sizes
       },
@@ -882,7 +882,7 @@ company.settings = {
     branding: {
       showLogo: true / false,
       logoMaxWidth: 50,
-      logoPosition: "left" | "right" | "center",
+      logoPosition: 'left' | 'right' | 'center',
       // ...
     },
     visibility: {

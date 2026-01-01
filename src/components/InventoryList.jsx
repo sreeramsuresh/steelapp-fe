@@ -343,9 +343,9 @@ const InventoryList = () => {
   };
 
   const filteredInventory = inventory
-  // Note: We don&apos;t filter out items based on transit PO names anymore
-  // because items can have the same name but different statuses
-  // (one in transit, one actually in inventory from retain POs)
+    // Note: We don&apos;t filter out items based on transit PO names anymore
+    // because items can have the same name but different statuses
+    // (one in transit, one actually in inventory from retain POs)
 
     // Apply local search filter
     .filter((item) =>
@@ -839,8 +839,8 @@ const InventoryList = () => {
                       {!item.batchNumber &&
                         !item.heatNumber &&
                         !item.coilNumber && (
-                        <span className="text-gray-400 text-xs">—</span>
-                      )}
+                          <span className="text-gray-400 text-xs">—</span>
+                        )}
                     </div>
                   </td>
 

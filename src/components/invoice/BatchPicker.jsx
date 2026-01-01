@@ -421,14 +421,14 @@ const BatchPicker = ({
                   key={batch.id}
                   className={`
                     ${
-                isSelected
-                  ? isDarkMode
-                    ? 'bg-teal-900/20'
-                    : 'bg-teal-50'
-                  : isDarkMode
-                    ? 'hover:bg-gray-800/50'
-                    : 'hover:bg-gray-50'
-                }
+                      isSelected
+                        ? isDarkMode
+                          ? 'bg-teal-900/20'
+                          : 'bg-teal-50'
+                        : isDarkMode
+                          ? 'hover:bg-gray-800/50'
+                          : 'hover:bg-gray-50'
+                    }
                   `}
                 >
                   <TableCell className="font-mono text-sm">
@@ -463,14 +463,14 @@ const BatchPicker = ({
                         w-20 px-2 py-1 text-right text-sm rounded border
                         ${disabled ? 'cursor-not-allowed opacity-50' : ''}
                         ${
-                isSelected
-                  ? isDarkMode
-                    ? 'bg-teal-900/30 border-teal-600 text-teal-200'
-                    : 'bg-teal-50 border-teal-400 text-teal-700'
-                  : isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-gray-200'
-                    : 'bg-white border-gray-300 text-gray-700'
-                }
+                          isSelected
+                            ? isDarkMode
+                              ? 'bg-teal-900/30 border-teal-600 text-teal-200'
+                              : 'bg-teal-50 border-teal-400 text-teal-700'
+                            : isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-gray-200'
+                              : 'bg-white border-gray-300 text-gray-700'
+                        }
                         focus:outline-none focus:ring-1 focus:ring-teal-500
                       `}
                     />

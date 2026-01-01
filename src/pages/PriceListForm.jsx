@@ -234,19 +234,19 @@ const CurrencyConversionModal = ({
 
   const rateAge = conversionData.rateDate
     ? Math.ceil(
-      Math.abs(new Date() - new Date(conversionData.rateDate)) /
+        Math.abs(new Date() - new Date(conversionData.rateDate)) /
           (1000 * 60 * 60 * 24),
-    )
+      )
     : 0;
   const isOld = rateAge > 7;
 
   const margin =
     sellingPrice && conversionData.convertedCost
       ? (
-        ((sellingPrice - conversionData.convertedCost) /
+          ((sellingPrice - conversionData.convertedCost) /
             conversionData.convertedCost) *
           100
-      ).toFixed(1)
+        ).toFixed(1)
       : null;
 
   const handleOverlayKeyDown = (e) => {
@@ -1836,50 +1836,50 @@ export default function PriceListForm() {
                   {formData.effectiveFrom &&
                     formData.effectiveTo &&
                     !dateValidationError && (
-                    <div className="col-span-12">
-                      <div
-                        className={`rounded-[14px] p-3 flex items-center gap-3 ${
-                          isDarkMode
-                            ? 'bg-[#0f151b] border border-[#2a3640]'
-                            : 'bg-blue-50 border border-blue-200'
-                        }`}
-                      >
-                        <Calendar size={16} className="text-[#4aa3ff]" />
-                        <div>
-                          <p
-                            className={`text-xs font-medium ${
-                              isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'
-                            }`}
-                          >
+                      <div className="col-span-12">
+                        <div
+                          className={`rounded-[14px] p-3 flex items-center gap-3 ${
+                            isDarkMode
+                              ? 'bg-[#0f151b] border border-[#2a3640]'
+                              : 'bg-blue-50 border border-blue-200'
+                          }`}
+                        >
+                          <Calendar size={16} className="text-[#4aa3ff]" />
+                          <div>
+                            <p
+                              className={`text-xs font-medium ${
+                                isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'
+                              }`}
+                            >
                               Price list valid from{' '}
-                            <span className="font-bold">
-                              {new Date(
-                                formData.effectiveFrom,
-                              ).toLocaleDateString()}
-                            </span>{' '}
+                              <span className="font-bold">
+                                {new Date(
+                                  formData.effectiveFrom,
+                                ).toLocaleDateString()}
+                              </span>{' '}
                               to{' '}
-                            <span className="font-bold">
-                              {new Date(
-                                formData.effectiveTo,
-                              ).toLocaleDateString()}
-                            </span>
-                          </p>
-                          <p
-                            className={`text-[11px] mt-0.5 ${
-                              isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
-                            }`}
-                          >
+                              <span className="font-bold">
+                                {new Date(
+                                  formData.effectiveTo,
+                                ).toLocaleDateString()}
+                              </span>
+                            </p>
+                            <p
+                              className={`text-[11px] mt-0.5 ${
+                                isDarkMode ? 'text-[#93a4b4]' : 'text-gray-600'
+                              }`}
+                            >
                               Duration:{' '}
-                            {calculateValidityDays(
-                              formData.effectiveFrom,
-                              formData.effectiveTo,
-                            )}{' '}
+                              {calculateValidityDays(
+                                formData.effectiveFrom,
+                                formData.effectiveTo,
+                              )}{' '}
                               days
-                          </p>
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Epic 14 - PRICE-006: Overlap Warning */}
                   {showDateWarning && overlappingPricelists.length > 0 && (
@@ -2161,9 +2161,9 @@ export default function PriceListForm() {
                             const margin =
                               newPrice && costPrice
                                 ? calculateMargin(
-                                  parseFloat(newPrice),
-                                  costPrice,
-                                )
+                                    parseFloat(newPrice),
+                                    costPrice,
+                                  )
                                 : null;
                             const isNegativeMargin =
                               margin !== null && parseFloat(margin) < 0;
@@ -2649,11 +2649,11 @@ export default function PriceListForm() {
                 )}
                 {bulkOperation.percentage > 15 &&
                   bulkOperation.percentage <= 20 && (
-                  <div className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                    <span>⚠</span>
-                    <span>Large adjustment - please review carefully</span>
-                  </div>
-                )}
+                    <div className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                      <span>⚠</span>
+                      <span>Large adjustment - please review carefully</span>
+                    </div>
+                  )}
               </div>
 
               {/* Preview */}

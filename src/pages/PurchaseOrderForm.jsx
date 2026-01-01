@@ -761,9 +761,9 @@ const PurchaseOrderForm = () => {
     return saved
       ? JSON.parse(saved)
       : {
-        showValidationHighlighting: true,
-        showSpeedButtons: true,
-      };
+          showValidationHighlighting: true,
+          showSpeedButtons: true,
+        };
   });
 
   // Save preferences to localStorage whenever they change
@@ -1047,27 +1047,27 @@ const PurchaseOrderForm = () => {
           exchangeRate: data.exchangeRate || null,
           items: Array.isArray(data.items)
             ? data.items.map((it) => ({
-              productType: it.name || '',
-              name: it.name || '',
-              grade: '',
-              thickness: '',
-              size: '',
-              finish: '',
-              specification: it.specifications || '',
-              quantity: it.quantity || 0,
-              rate: it.rate || 0,
-              amount: it.amount || 0,
-              // Phase 4: Stock-In Enhancement fields
-              lineStockStatus:
+                productType: it.name || '',
+                name: it.name || '',
+                grade: '',
+                thickness: '',
+                size: '',
+                finish: '',
+                specification: it.specifications || '',
+                quantity: it.quantity || 0,
+                rate: it.rate || 0,
+                amount: it.amount || 0,
+                // Phase 4: Stock-In Enhancement fields
+                lineStockStatus:
                   it.lineStockStatus || it.line_stock_status || 'PENDING',
-              expectedWeightKg:
+                expectedWeightKg:
                   it.expectedWeightKg || it.expected_weight_kg || null,
-              grnId: it.grnId || it.grn_id || null,
-              grnNumber: it.grnNumber || it.grn_number || null,
-              receivedQty: it.receivedQty || it.received_qty || null,
-              receivedWeightKg:
+                grnId: it.grnId || it.grn_id || null,
+                grnNumber: it.grnNumber || it.grn_number || null,
+                receivedQty: it.receivedQty || it.received_qty || null,
+                receivedWeightKg:
                   it.receivedWeightKg || it.received_weight_kg || null,
-            }))
+              }))
             : prev.items,
           subtotal: data.subtotal || 0,
           vatAmount: data.vatAmount || data.taxAmount || 0,
@@ -1287,8 +1287,8 @@ const PurchaseOrderForm = () => {
       typeof selectedProduct === 'object' && selectedProduct !== null
         ? selectedProduct
         : availableProducts.find(
-          (p) => p.id === selectedProduct || p.name === selectedProduct,
-        );
+            (p) => p.id === selectedProduct || p.name === selectedProduct,
+          );
 
     if (product && typeof product === 'object') {
       const updatedItems = [...purchaseOrder.items];
@@ -2450,8 +2450,8 @@ const PurchaseOrderForm = () => {
                             value={
                               item.productId
                                 ? productOptions.find(
-                                  (p) => p.id === item.productId,
-                                )
+                                    (p) => p.id === item.productId,
+                                  )
                                 : null
                             }
                             inputValue={searchInputs[index] || item.name || ''}

@@ -207,8 +207,8 @@ const Drawer = ({
         className={`fixed top-0 right-0 h-full ${width} z-[31]
           ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
           overflow-auto transition-transform duration-300 ${
-    isOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}
+            isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         <div className="p-4">
           <div
@@ -268,9 +268,9 @@ const QuotationForm = () => {
     return saved
       ? JSON.parse(saved)
       : {
-        showSpeedButtons: true,
-        showValidationHighlighting: true,
-      };
+          showSpeedButtons: true,
+          showValidationHighlighting: true,
+        };
   });
 
   const [formData, setFormData] = useState({
@@ -481,18 +481,18 @@ const QuotationForm = () => {
               typeof response.customerDetails === 'string'
                 ? JSON.parse(response.customerDetails)
                 : response.customerDetails || {
-                  name: '',
-                  company: '',
-                  email: '',
-                  phone: '',
-                  address: {
-                    street: '',
-                    city: '',
-                    emirate: '',
-                    country: 'UAE',
+                    name: '',
+                    company: '',
+                    email: '',
+                    phone: '',
+                    address: {
+                      street: '',
+                      city: '',
+                      emirate: '',
+                      country: 'UAE',
+                    },
+                    vatNumber: '',
                   },
-                  vatNumber: '',
-                },
             quotationDate: response.quotationDate?.split('T')[0] || '',
             validUntil: response.validUntil?.split('T')[0] || '',
             customerPurchaseOrderNumber:
@@ -1942,8 +1942,8 @@ const QuotationForm = () => {
                 value={
                   formData.customerId
                     ? customers.find(
-                      (c) => c.id === parseInt(formData.customerId),
-                    )
+                        (c) => c.id === parseInt(formData.customerId),
+                      )
                     : null
                 }
                 inputValue={customerInputValue}

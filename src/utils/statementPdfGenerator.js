@@ -163,10 +163,10 @@ const createStatementElement = ({
         </thead>
         <tbody>
           ${items
-    .map((r, idx) => {
-      const debit = parseFloat(r.invoiceAmount) || 0;
-      const credit = parseFloat(r.received) || 0;
-      return `
+            .map((r, idx) => {
+              const debit = parseFloat(r.invoiceAmount) || 0;
+              const credit = parseFloat(r.received) || 0;
+              return `
             <tr ${idx % 2 === 0 ? 'style="background-color:#fafafa;"' : ''}>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${formatDate(r.invoiceDate || r.date)}</td>
               <td style="padding:6px; text-align:left; border:1px solid #ccc;">${debit > 0 ? 'Invoice' : 'Payment'}</td>
@@ -177,8 +177,8 @@ const createStatementElement = ({
               <td style="padding:6px; text-align:right; border:1px solid #ccc; font-weight:600;">${formatCurrency(r.outstanding || 0)}</td>
             </tr>
           `;
-    })
-    .join('')}
+            })
+            .join('')}
         </tbody>
       </table>
     </div>

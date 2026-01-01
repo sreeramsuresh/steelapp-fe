@@ -1762,9 +1762,9 @@ const InvoiceForm = ({ onSave }) => {
     return saved
       ? JSON.parse(saved)
       : {
-        showValidationHighlighting: true,
-        showSpeedButtons: true,
-      };
+          showValidationHighlighting: true,
+          showSpeedButtons: true,
+        };
   });
 
   // Save preferences to localStorage whenever they change
@@ -4425,6 +4425,7 @@ const InvoiceForm = ({ onSave }) => {
         className={`min-h-screen pb-32 md:pb-6 ${
           isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
         }`}
+        data-testid="invoice-form"
       >
         {/* Sticky Header - Mobile & Desktop */}
         <header
@@ -4516,6 +4517,7 @@ const InvoiceForm = ({ onSave }) => {
                           ? `Save revision (${hoursRemainingInEditWindow}h remaining)`
                           : `Save as draft (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`
                     }
+                    data-testid="save-draft"
                   >
                     {savingInvoice || updatingInvoice || isSaving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -4542,24 +4544,24 @@ const InvoiceForm = ({ onSave }) => {
                   !isLocked &&
                   !isRevisionMode &&
                   invoice.status !== 'issued' && (
-                  <div className="flex flex-col items-center">
-                    <Button
-                      variant="success"
-                      onClick={handleIssueInvoice}
-                      disabled={savingInvoice || updatingInvoice || isSaving}
-                      title="Issue as Final Tax Invoice (locks invoice permanently)"
-                      className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
-                    >
-                      <Download className="h-4 w-4" />
+                    <div className="flex flex-col items-center">
+                      <Button
+                        variant="success"
+                        onClick={handleIssueInvoice}
+                        disabled={savingInvoice || updatingInvoice || isSaving}
+                        title="Issue as Final Tax Invoice (locks invoice permanently)"
+                        className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
+                      >
+                        <Download className="h-4 w-4" />
                         Issue Final Invoice
-                    </Button>
-                    <span
-                      className={`text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                    >
+                      </Button>
+                      <span
+                        className={`text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                      >
                         Once issued, cannot be edited
-                    </span>
-                  </div>
-                )}
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
@@ -4721,9 +4723,9 @@ const InvoiceForm = ({ onSave }) => {
                         value={
                           invoice.customer.id
                             ? {
-                              id: invoice.customer.id,
-                              label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || 'No email'}`,
-                            }
+                                id: invoice.customer.id,
+                                label: `${titleCase(normalizeLLC(invoice.customer.name))} - ${invoice.customer.email || 'No email'}`,
+                              }
                             : null
                         }
                         onChange={(e, selected) => {
@@ -4808,13 +4810,13 @@ const InvoiceForm = ({ onSave }) => {
                           {invoice.customer.address?.street ||
                           invoice.customer.address?.city
                             ? [
-                              invoice.customer.address.street,
-                              invoice.customer.address.city,
-                              invoice.customer.address.emirate,
-                              invoice.customer.address.poBox,
-                            ]
-                              .filter(Boolean)
-                              .join(', ')
+                                invoice.customer.address.street,
+                                invoice.customer.address.city,
+                                invoice.customer.address.emirate,
+                                invoice.customer.address.poBox,
+                              ]
+                                .filter(Boolean)
+                                .join(', ')
                             : ''}
                         </p>
                         <p className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
@@ -5337,11 +5339,11 @@ const InvoiceForm = ({ onSave }) => {
                     Line Items
                     {useDrawerMode &&
                       invoice.items.filter((i) => i.productId).length > 0 && (
-                      <span className="ml-2 text-teal-600">
+                        <span className="ml-2 text-teal-600">
                           ({invoice.items.filter((i) => i.productId).length}{' '}
                           items)
-                      </span>
-                    )}
+                        </span>
+                      )}
                   </h3>
                   {useDrawerMode && (
                     <button
@@ -5352,6 +5354,7 @@ const InvoiceForm = ({ onSave }) => {
                           ? 'bg-teal-600 hover:bg-teal-500 text-white'
                           : 'bg-teal-600 hover:bg-teal-700 text-white'
                       }`}
+                      data-testid="add-item-drawer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       Add Item
@@ -5365,88 +5368,88 @@ const InvoiceForm = ({ onSave }) => {
                     {/* Empty state when no items */}
                     {invoice.items.filter((item) => item.productId || item.name)
                       .length === 0 ? (
-                        <div
-                          className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
-                            isDarkMode
-                              ? 'border-gray-600 text-gray-400'
-                              : 'border-gray-300 text-gray-500'
-                          }`}
-                        >
-                          <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
-                          <p className="text-sm font-medium mb-1">
+                      <div
+                        className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
+                          isDarkMode
+                            ? 'border-gray-600 text-gray-400'
+                            : 'border-gray-300 text-gray-500'
+                        }`}
+                      >
+                        <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
+                        <p className="text-sm font-medium mb-1">
                           No line items yet
-                          </p>
-                          <p className="text-xs opacity-75">
+                        </p>
+                        <p className="text-xs opacity-75">
                           Search for products in the panel on the right and
                           click &quot;Add to Invoice&quot;
-                          </p>
-                        </div>
-                      ) : (
-                        <table
-                          className={`min-w-full table-fixed divide-y ${
-                            isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+                        </p>
+                      </div>
+                    ) : (
+                      <table
+                        className={`min-w-full table-fixed divide-y ${
+                          isDarkMode ? 'divide-gray-600' : 'divide-gray-200'
+                        }`}
+                      >
+                        <thead className="bg-teal-600">
+                          <tr className="h-10">
+                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                              #
+                            </th>
+                            <th
+                              className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
+                              style={{ width: '35%' }}
+                            >
+                              Product
+                            </th>
+                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                              Qty
+                            </th>
+                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                              Rate
+                            </th>
+                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                              Amount
+                            </th>
+                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
+                              Status
+                            </th>
+                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody
+                          className={`divide-y ${
+                            isDarkMode
+                              ? 'bg-gray-800 divide-gray-600'
+                              : 'bg-white divide-gray-200'
                           }`}
                         >
-                          <thead className="bg-teal-600">
-                            <tr className="h-10">
-                              <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
-                              #
-                              </th>
-                              <th
-                                className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
-                                style={{ width: '35%' }}
-                              >
-                              Product
-                              </th>
-                              <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                              Qty
-                              </th>
-                              <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                              Rate
-                              </th>
-                              <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                              Amount
-                              </th>
-                              <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
-                              Status
-                              </th>
-                              <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
-                            </tr>
-                          </thead>
-                          <tbody
-                            className={`divide-y ${
-                              isDarkMode
-                                ? 'bg-gray-800 divide-gray-600'
-                                : 'bg-white divide-gray-200'
-                            }`}
-                          >
-                            {invoice.items
-                              .filter((item) => item.productId || item.name)
-                              .map((item, index) => {
-                                const statusInfo = getLineItemStatusIcon(item);
-                                return (
-                                  <tr
-                                    key={
-                                      item.lineItemTempId ||
+                          {invoice.items
+                            .filter((item) => item.productId || item.name)
+                            .map((item, index) => {
+                              const statusInfo = getLineItemStatusIcon(item);
+                              return (
+                                <tr
+                                  key={
+                                    item.lineItemTempId ||
                                     item.id ||
                                     `item-${index}`
-                                    }
-                                    className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
-                                  >
-                                    {/* # */}
-                                    <td className="py-2 px-2 text-center text-sm">
-                                      {index + 1}
-                                    </td>
-                                    {/* Product */}
-                                    <td className="pl-3 pr-2 py-2">
-                                      <div>
-                                        <div
-                                          className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                                        >
-                                          {item.name || 'Unnamed Product'}
-                                        </div>
-                                        {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
-                                        {item.sourceType === 'WAREHOUSE' &&
+                                  }
+                                  className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
+                                >
+                                  {/* # */}
+                                  <td className="py-2 px-2 text-center text-sm">
+                                    {index + 1}
+                                  </td>
+                                  {/* Product */}
+                                  <td className="pl-3 pr-2 py-2">
+                                    <div>
+                                      <div
+                                        className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                      >
+                                        {item.name || 'Unnamed Product'}
+                                      </div>
+                                      {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
+                                      {item.sourceType === 'WAREHOUSE' &&
                                         (() => {
                                           // Use saved consumptions for finalized invoices, draft allocations otherwise
                                           const savedConsumption =
@@ -5504,99 +5507,99 @@ const InvoiceForm = ({ onSave }) => {
                                             </div>
                                           );
                                         })()}
-                                        {(item.sourceType === 'LOCAL_DROP_SHIP' ||
+                                      {(item.sourceType === 'LOCAL_DROP_SHIP' ||
                                         item.sourceType ===
                                           'IMPORT_DROP_SHIP') && (
-                                          <div className="text-xs text-blue-500 mt-0.5">
-                                            {item.sourceType === 'LOCAL_DROP_SHIP'
-                                              ? 'Local Drop-Ship'
-                                              : 'Import Drop-Ship'}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </td>
-                                    {/* Qty */}
-                                    <td className="px-2 py-2 text-center text-sm">
-                                      {item.quantity || 0}{' '}
-                                      {item.quantityUom || 'KG'}
-                                    </td>
-                                    {/* Rate */}
-                                    <td className="px-2 py-2 text-right text-sm">
-                                      {formatCurrency(item.rate || 0)}
-                                    </td>
-                                    {/* Amount */}
-                                    <td className="px-2 py-2 text-right text-sm font-medium">
-                                      <div>
-                                        {formatCurrency(
-                                          item.amount ||
-                                          item.quantity * item.rate ||
-                                          0,
-                                        )}
-                                      </div>
-                                      {/* Phase 7: Line item cost/margin display for confirmed invoices */}
-                                      {item.costPrice > 0 && (
-                                        <div
-                                          className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? 'text-green-500' : item.marginPercent >= 0 ? 'text-yellow-500' : 'text-red-500'}`}
-                                        >
-                                        Cost: {formatCurrency(item.costPrice)} |{' '}
-                                          {item.marginPercent?.toFixed(1) || 0}%
+                                        <div className="text-xs text-blue-500 mt-0.5">
+                                          {item.sourceType === 'LOCAL_DROP_SHIP'
+                                            ? 'Local Drop-Ship'
+                                            : 'Import Drop-Ship'}
                                         </div>
                                       )}
-                                    </td>
-                                    {/* Status Icon */}
-                                    <td className="px-2 py-2 text-center">
-                                      <span
-                                        className={statusInfo.className}
-                                        title={statusInfo.title}
+                                    </div>
+                                  </td>
+                                  {/* Qty */}
+                                  <td className="px-2 py-2 text-center text-sm">
+                                    {item.quantity || 0}{' '}
+                                    {item.quantityUom || 'KG'}
+                                  </td>
+                                  {/* Rate */}
+                                  <td className="px-2 py-2 text-right text-sm">
+                                    {formatCurrency(item.rate || 0)}
+                                  </td>
+                                  {/* Amount */}
+                                  <td className="px-2 py-2 text-right text-sm font-medium">
+                                    <div>
+                                      {formatCurrency(
+                                        item.amount ||
+                                          item.quantity * item.rate ||
+                                          0,
+                                      )}
+                                    </div>
+                                    {/* Phase 7: Line item cost/margin display for confirmed invoices */}
+                                    {item.costPrice > 0 && (
+                                      <div
+                                        className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? 'text-green-500' : item.marginPercent >= 0 ? 'text-yellow-500' : 'text-red-500'}`}
                                       >
-                                        {statusInfo.icon === 'check' && (
-                                          <CheckCircle className="w-5 h-5 inline" />
-                                        )}
-                                        {statusInfo.icon === 'partial' && (
-                                          <AlertTriangle className="w-5 h-5 inline" />
-                                        )}
-                                        {statusInfo.icon === 'empty' && (
-                                          <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
-                                        )}
-                                        {statusInfo.icon === 'ship' && (
-                                          <span className="text-lg">🚢</span>
-                                        )}
-                                      </span>
-                                    </td>
-                                    {/* Delete */}
-                                    <td className="py-2 px-2 text-center">
-                                      <button
-                                        onClick={() => {
-                                          if (
-                                            window.confirm(
-                                              `Delete "${item.name}"?`,
-                                            )
-                                          ) {
-                                            if (item.lineItemTempId) {
-                                              handleDeleteLineItem(
-                                                item.lineItemTempId,
-                                              );
-                                            } else {
-                                              removeItem(
-                                                invoice.items.findIndex(
-                                                  (i) => i.id === item.id,
-                                                ),
-                                              );
-                                            }
+                                        Cost: {formatCurrency(item.costPrice)} |{' '}
+                                        {item.marginPercent?.toFixed(1) || 0}%
+                                      </div>
+                                    )}
+                                  </td>
+                                  {/* Status Icon */}
+                                  <td className="px-2 py-2 text-center">
+                                    <span
+                                      className={statusInfo.className}
+                                      title={statusInfo.title}
+                                    >
+                                      {statusInfo.icon === 'check' && (
+                                        <CheckCircle className="w-5 h-5 inline" />
+                                      )}
+                                      {statusInfo.icon === 'partial' && (
+                                        <AlertTriangle className="w-5 h-5 inline" />
+                                      )}
+                                      {statusInfo.icon === 'empty' && (
+                                        <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
+                                      )}
+                                      {statusInfo.icon === 'ship' && (
+                                        <span className="text-lg">🚢</span>
+                                      )}
+                                    </span>
+                                  </td>
+                                  {/* Delete */}
+                                  <td className="py-2 px-2 text-center">
+                                    <button
+                                      onClick={() => {
+                                        if (
+                                          window.confirm(
+                                            `Delete "${item.name}"?`,
+                                          )
+                                        ) {
+                                          if (item.lineItemTempId) {
+                                            handleDeleteLineItem(
+                                              item.lineItemTempId,
+                                            );
+                                          } else {
+                                            removeItem(
+                                              invoice.items.findIndex(
+                                                (i) => i.id === item.id,
+                                              ),
+                                            );
                                           }
-                                        }}
-                                        className="text-gray-400 hover:text-red-500 p-1 transition-colors"
-                                        title="Delete item"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-                      )}
+                                        }
+                                      }}
+                                      className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                                      title="Delete item"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    )}
                   </div>
                 ) : (
                   /* LEGACY MODE: Editable Line Items Table */
@@ -5898,8 +5901,8 @@ const InvoiceForm = ({ onSave }) => {
                                       value={
                                         item.productId
                                           ? productOptions.find(
-                                            (p) => p.id === item.productId,
-                                          )
+                                              (p) => p.id === item.productId,
+                                            )
                                           : null
                                       }
                                       inputValue={
@@ -6192,70 +6195,70 @@ const InvoiceForm = ({ onSave }) => {
                                         'WAREHOUSE' ? (
                                           /* Batch Allocation Table - only show for WAREHOUSE */
                                           /* Phase 4: Use saved consumptions for finalized invoices, draft allocations otherwise */
-                                            (() => {
-                                              const savedConsumption =
+                                          (() => {
+                                            const savedConsumption =
                                               savedConsumptionsByItemId[
                                                 item.id
                                               ];
-                                              const hasSavedConsumptions =
+                                            const hasSavedConsumptions =
                                               savedConsumption?.consumptions
                                                 ?.length > 0;
-                                              const displayAllocations =
+                                            const displayAllocations =
                                               hasSavedConsumptions
                                                 ? savedConsumption.consumptions
                                                 : item.allocations || [];
-                                              const isReadOnly =
+                                            const isReadOnly =
                                               hasSavedConsumptions;
 
-                                              return (
-                                                <div
-                                                  className="border border-gray-200 rounded-lg overflow-hidden"
-                                                  data-testid={`allocation-panel-${index}`}
-                                                >
-                                                  <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
-                                                    <span className="text-xs font-semibold text-gray-600">
+                                            return (
+                                              <div
+                                                className="border border-gray-200 rounded-lg overflow-hidden"
+                                                data-testid={`allocation-panel-${index}`}
+                                              >
+                                                <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
+                                                  <span className="text-xs font-semibold text-gray-600">
                                                     Batch Allocation
-                                                      {hasSavedConsumptions && (
-                                                        <span
-                                                          className="ml-2 text-green-600"
-                                                          title="Saved to database"
-                                                        >
+                                                    {hasSavedConsumptions && (
+                                                      <span
+                                                        className="ml-2 text-green-600"
+                                                        title="Saved to database"
+                                                      >
                                                         ✓ Finalized
-                                                        </span>
-                                                      )}
-                                                    </span>
-                                                    {(() => {
-                                                      const allocatedQty =
+                                                      </span>
+                                                    )}
+                                                  </span>
+                                                  {(() => {
+                                                    const allocatedQty =
                                                       hasSavedConsumptions
                                                         ? parseFloat(
-                                                          savedConsumption.totalQuantity ||
+                                                            savedConsumption.totalQuantity ||
                                                               0,
-                                                        )
+                                                          )
                                                         : displayAllocations.reduce(
-                                                          (sum, a) =>
-                                                            sum +
+                                                            (sum, a) =>
+                                                              sum +
                                                               parseFloat(
                                                                 a.quantity ||
                                                                   a.quantityConsumed ||
                                                                   0,
                                                               ),
-                                                          0,
-                                                        );
-                                                      const requiredQty =
+                                                            0,
+                                                          );
+                                                    const requiredQty =
                                                       item.quantity || 0;
 
-                                                      return (
-                                                        <span className="text-xs text-gray-500">
-                                                          {hasSavedConsumptions
-                                                            ? 'Consumed'
-                                                            : 'Allocated'}
+                                                    return (
+                                                      <span className="text-xs text-gray-500">
+                                                        {hasSavedConsumptions
+                                                          ? 'Consumed'
+                                                          : 'Allocated'}
                                                         :{' '}
-                                                          <strong className="text-teal-600">
-                                                            {allocatedQty}
-                                                          </strong>{' '}
+                                                        <strong className="text-teal-600">
+                                                          {allocatedQty}
+                                                        </strong>{' '}
                                                         / Required:{' '}
-                                                          {requiredQty}
-                                                          {hasSavedConsumptions &&
+                                                        {requiredQty}
+                                                        {hasSavedConsumptions &&
                                                           savedConsumption.totalCogs &&
                                                           parseFloat(
                                                             savedConsumption.totalCogs,
@@ -6269,161 +6272,161 @@ const InvoiceForm = ({ onSave }) => {
                                                               )}
                                                             </span>
                                                           )}
-                                                        </span>
-                                                      );
-                                                    })()}
-                                                  </div>
-                                                  <table
-                                                    className="min-w-full text-xs"
-                                                    data-testid={`batch-allocation-table-${index}`}
-                                                  >
-                                                    <thead className="bg-gray-50">
-                                                      <tr>
-                                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                      </span>
+                                                    );
+                                                  })()}
+                                                </div>
+                                                <table
+                                                  className="min-w-full text-xs"
+                                                  data-testid={`batch-allocation-table-${index}`}
+                                                >
+                                                  <thead className="bg-gray-50">
+                                                    <tr>
+                                                      <th className="px-3 py-2 text-left font-medium text-gray-500">
                                                         Batch #
-                                                        </th>
-                                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                                          {hasSavedConsumptions
-                                                            ? 'Warehouse'
-                                                            : 'GRN Date'}
-                                                        </th>
-                                                        <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                      </th>
+                                                      <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                        {hasSavedConsumptions
+                                                          ? 'Warehouse'
+                                                          : 'GRN Date'}
+                                                      </th>
+                                                      <th className="px-3 py-2 text-left font-medium text-gray-500">
                                                         Channel
-                                                        </th>
-                                                        {!hasSavedConsumptions && (
-                                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                      </th>
+                                                      {!hasSavedConsumptions && (
+                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
                                                           Available
-                                                          </th>
-                                                        )}
-                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                          {hasSavedConsumptions
-                                                            ? 'Consumed'
-                                                            : 'Allocated'}
                                                         </th>
-                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                      )}
+                                                      <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                        {hasSavedConsumptions
+                                                          ? 'Consumed'
+                                                          : 'Allocated'}
+                                                      </th>
+                                                      <th className="px-3 py-2 text-right font-medium text-gray-500">
                                                         Cost/Unit
-                                                        </th>
-                                                        {hasSavedConsumptions && (
-                                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                      </th>
+                                                      {hasSavedConsumptions && (
+                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
                                                           Total COGS
-                                                          </th>
-                                                        )}
-                                                        {!isReadOnly && (
-                                                          <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                        </th>
+                                                      )}
+                                                      {!isReadOnly && (
+                                                        <th className="px-3 py-2 text-right font-medium text-gray-500">
                                                           Actions
-                                                          </th>
-                                                        )}
-                                                      </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100 bg-white">
-                                                      {displayAllocations.map(
-                                                        (
-                                                          allocation,
-                                                          allocIndex,
-                                                        ) => (
-                                                          <tr key={allocIndex}>
-                                                            <td className="px-3 py-2 font-mono text-gray-700">
-                                                              {allocation.batchNumber ||
+                                                        </th>
+                                                      )}
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody className="divide-y divide-gray-100 bg-white">
+                                                    {displayAllocations.map(
+                                                      (
+                                                        allocation,
+                                                        allocIndex,
+                                                      ) => (
+                                                        <tr key={allocIndex}>
+                                                          <td className="px-3 py-2 font-mono text-gray-700">
+                                                            {allocation.batchNumber ||
                                                               'N/A'}
-                                                            </td>
-                                                            <td className="px-3 py-2 text-gray-600">
-                                                              {hasSavedConsumptions
-                                                                ? allocation.warehouseName ||
+                                                          </td>
+                                                          <td className="px-3 py-2 text-gray-600">
+                                                            {hasSavedConsumptions
+                                                              ? allocation.warehouseName ||
                                                                 'N/A'
-                                                                : allocation.grnDate ||
+                                                              : allocation.grnDate ||
                                                                 'N/A'}
-                                                            </td>
-                                                            <td className="px-3 py-2">
-                                                              <span
-                                                                className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                                                  (allocation.procurementChannel ||
+                                                          </td>
+                                                          <td className="px-3 py-2">
+                                                            <span
+                                                              className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                                                (allocation.procurementChannel ||
                                                                   'LOCAL') ===
                                                                 'LOCAL'
-                                                                    ? 'bg-green-100 text-green-800'
-                                                                    : allocation.procurementChannel ===
+                                                                  ? 'bg-green-100 text-green-800'
+                                                                  : allocation.procurementChannel ===
                                                                       'DROP_SHIP'
-                                                                      ? 'bg-purple-100 text-purple-800'
-                                                                      : 'bg-blue-100 text-blue-800'
-                                                                }`}
-                                                              >
-                                                                {allocation.procurementChannel ||
+                                                                    ? 'bg-purple-100 text-purple-800'
+                                                                    : 'bg-blue-100 text-blue-800'
+                                                              }`}
+                                                            >
+                                                              {allocation.procurementChannel ||
                                                                 'LOCAL'}
-                                                              </span>
-                                                            </td>
-                                                            {!hasSavedConsumptions && (
-                                                              <td className="px-3 py-2 text-right text-gray-700">
-                                                                {allocation.availableQty ||
+                                                            </span>
+                                                          </td>
+                                                          {!hasSavedConsumptions && (
+                                                            <td className="px-3 py-2 text-right text-gray-700">
+                                                              {allocation.availableQty ||
                                                                 0}
-                                                              </td>
-                                                            )}
-                                                            <td className="px-3 py-2 text-right">
-                                                              {isReadOnly ? (
-                                                                <span className="font-medium text-gray-700">
-                                                                  {parseFloat(
-                                                                    allocation.quantityConsumed ||
+                                                            </td>
+                                                          )}
+                                                          <td className="px-3 py-2 text-right">
+                                                            {isReadOnly ? (
+                                                              <span className="font-medium text-gray-700">
+                                                                {parseFloat(
+                                                                  allocation.quantityConsumed ||
                                                                     allocation.quantity ||
                                                                     0,
-                                                                  ).toFixed(3)}
-                                                                </span>
-                                                              ) : (
-                                                                <input
-                                                                  type="number"
-                                                                  value={
-                                                                    allocation.quantity ||
+                                                                ).toFixed(3)}
+                                                              </span>
+                                                            ) : (
+                                                              <input
+                                                                type="number"
+                                                                value={
+                                                                  allocation.quantity ||
                                                                   0
-                                                                  }
-                                                                  onChange={(
-                                                                    e,
-                                                                  ) => {
-                                                                    const newAllocations =
+                                                                }
+                                                                onChange={(
+                                                                  e,
+                                                                ) => {
+                                                                  const newAllocations =
                                                                     [
                                                                       ...(item.allocations ||
                                                                         []),
                                                                     ];
-                                                                    newAllocations[
+                                                                  newAllocations[
+                                                                    allocIndex
+                                                                  ] = {
+                                                                    ...newAllocations[
                                                                       allocIndex
-                                                                    ] = {
-                                                                      ...newAllocations[
-                                                                        allocIndex
-                                                                      ],
-                                                                      quantity:
+                                                                    ],
+                                                                    quantity:
                                                                       parseFloat(
                                                                         e.target
                                                                           .value,
                                                                       ) || 0,
-                                                                    };
-                                                                    handleItemChange(
-                                                                      index,
-                                                                      'allocations',
-                                                                      newAllocations,
-                                                                    );
-                                                                  }}
-                                                                  className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
-                                                                />
+                                                                  };
+                                                                  handleItemChange(
+                                                                    index,
+                                                                    'allocations',
+                                                                    newAllocations,
+                                                                  );
+                                                                }}
+                                                                className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                                                              />
+                                                            )}
+                                                          </td>
+                                                          <td className="px-3 py-2 text-right text-gray-600">
+                                                            {parseFloat(
+                                                              allocation.unitCost ||
+                                                                0,
+                                                            ).toFixed(2)}
+                                                          </td>
+                                                          {hasSavedConsumptions && (
+                                                            <td className="px-3 py-2 text-right text-gray-600 font-medium">
+                                                              {formatCurrency(
+                                                                parseFloat(
+                                                                  allocation.totalCogs ||
+                                                                    0,
+                                                                ),
                                                               )}
                                                             </td>
-                                                            <td className="px-3 py-2 text-right text-gray-600">
-                                                              {parseFloat(
-                                                                allocation.unitCost ||
-                                                                0,
-                                                              ).toFixed(2)}
-                                                            </td>
-                                                            {hasSavedConsumptions && (
-                                                              <td className="px-3 py-2 text-right text-gray-600 font-medium">
-                                                                {formatCurrency(
-                                                                  parseFloat(
-                                                                    allocation.totalCogs ||
-                                                                    0,
-                                                                  ),
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                            {!isReadOnly && (
-                                                              <td className="px-3 py-2 text-right">
-                                                                <button
-                                                                  type="button"
-                                                                  onClick={() => {
-                                                                    const newAllocations =
+                                                          )}
+                                                          {!isReadOnly && (
+                                                            <td className="px-3 py-2 text-right">
+                                                              <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                  const newAllocations =
                                                                     (
                                                                       item.allocations ||
                                                                       []
@@ -6432,112 +6435,112 @@ const InvoiceForm = ({ onSave }) => {
                                                                         i !==
                                                                         allocIndex,
                                                                     );
-                                                                    handleItemChange(
-                                                                      index,
-                                                                      'allocations',
-                                                                      newAllocations,
-                                                                    );
-                                                                  }}
-                                                                  className="text-red-500 hover:text-red-700 text-xs"
-                                                                >
+                                                                  handleItemChange(
+                                                                    index,
+                                                                    'allocations',
+                                                                    newAllocations,
+                                                                  );
+                                                                }}
+                                                                className="text-red-500 hover:text-red-700 text-xs"
+                                                              >
                                                                 Remove
-                                                                </button>
-                                                              </td>
-                                                            )}
-                                                          </tr>
-                                                        ),
-                                                      )}
-                                                      {displayAllocations.length ===
-                                                      0 && (
-                                                        <tr>
-                                                          <td
-                                                            colSpan={
-                                                              hasSavedConsumptions
-                                                                ? 6
-                                                                : 7
-                                                            }
-                                                            className="px-3 py-4 text-center text-gray-500 text-xs"
-                                                          >
-                                                            {hasSavedConsumptions
-                                                              ? 'No batch consumption records found.'
-                                                              : 'No batches allocated. Click "Add Batch" or "Auto-Allocate (FIFO)" below.'}
-                                                          </td>
+                                                              </button>
+                                                            </td>
+                                                          )}
                                                         </tr>
-                                                      )}
-                                                    </tbody>
-                                                  </table>
-                                                  {!isReadOnly && (
-                                                    <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
-                                                      <button
-                                                        type="button"
-                                                        disabled
-                                                        className="text-xs text-gray-400 cursor-not-allowed font-medium"
-                                                        title="Feature coming soon"
-                                                      >
+                                                      ),
+                                                    )}
+                                                    {displayAllocations.length ===
+                                                      0 && (
+                                                      <tr>
+                                                        <td
+                                                          colSpan={
+                                                            hasSavedConsumptions
+                                                              ? 6
+                                                              : 7
+                                                          }
+                                                          className="px-3 py-4 text-center text-gray-500 text-xs"
+                                                        >
+                                                          {hasSavedConsumptions
+                                                            ? 'No batch consumption records found.'
+                                                            : 'No batches allocated. Click "Add Batch" or "Auto-Allocate (FIFO)" below.'}
+                                                        </td>
+                                                      </tr>
+                                                    )}
+                                                  </tbody>
+                                                </table>
+                                                {!isReadOnly && (
+                                                  <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
+                                                    <button
+                                                      type="button"
+                                                      disabled
+                                                      className="text-xs text-gray-400 cursor-not-allowed font-medium"
+                                                      title="Feature coming soon"
+                                                    >
                                                       + Add Batch
-                                                      </button>
-                                                      <button
-                                                        type="button"
-                                                        onClick={async () => {
+                                                    </button>
+                                                    <button
+                                                      type="button"
+                                                      onClick={async () => {
                                                         // Re-apply FIFO auto-allocation (useful after manual changes)
-                                                          await applyAutoAllocation(
-                                                            index,
-                                                            item.productId,
-                                                            item.quantity || 1,
-                                                          );
-                                                        }}
-                                                        disabled={
-                                                          (item.sourceType ||
+                                                        await applyAutoAllocation(
+                                                          index,
+                                                          item.productId,
+                                                          item.quantity || 1,
+                                                        );
+                                                      }}
+                                                      disabled={
+                                                        (item.sourceType ||
                                                           'WAREHOUSE') !==
                                                         'WAREHOUSE'
-                                                        }
-                                                        className={`text-xs px-3 py-1 rounded transition-colors ${
-                                                          (item.sourceType ||
+                                                      }
+                                                      className={`text-xs px-3 py-1 rounded transition-colors ${
+                                                        (item.sourceType ||
                                                           'WAREHOUSE') ===
                                                         'WAREHOUSE'
-                                                            ? 'bg-teal-600 text-white hover:bg-teal-700'
-                                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                        }`}
-                                                      >
+                                                          ? 'bg-teal-600 text-white hover:bg-teal-700'
+                                                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                      }`}
+                                                    >
                                                       Auto-Allocate (FIFO)
-                                                      </button>
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              );
-                                            })()
-                                          ) : (
+                                                    </button>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            );
+                                          })()
+                                        ) : (
                                           /* P0: Drop-ship indicator for non-warehouse items */
-                                            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                                              <div className="flex items-center gap-2">
-                                                <svg
-                                                  className="w-5 h-5 text-blue-600"
-                                                  fill="none"
-                                                  stroke="currentColor"
-                                                  viewBox="0 0 24 24"
-                                                >
-                                                  <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                                                  />
-                                                </svg>
-                                                <span className="text-sm font-medium text-blue-800">
-                                                  {(item.sourceType ||
+                                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                            <div className="flex items-center gap-2">
+                                              <svg
+                                                className="w-5 h-5 text-blue-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                              >
+                                                <path
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth={2}
+                                                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                                                />
+                                              </svg>
+                                              <span className="text-sm font-medium text-blue-800">
+                                                {(item.sourceType ||
                                                   'WAREHOUSE') ===
                                                 'LOCAL_DROP_SHIP'
-                                                    ? 'Local Drop Ship'
-                                                    : 'Import Drop Ship'}
-                                                </span>
-                                              </div>
-                                              <p className="text-xs text-blue-700 mt-1 ml-7">
+                                                  ? 'Local Drop Ship'
+                                                  : 'Import Drop Ship'}
+                                              </span>
+                                            </div>
+                                            <p className="text-xs text-blue-700 mt-1 ml-7">
                                               Goods will be shipped directly
                                               from supplier to customer. No
                                               warehouse allocation needed.
-                                              </p>
-                                            </div>
-                                          )}
+                                            </p>
+                                          </div>
+                                        )}
                                       </div>
                                     </td>
                                   </tr>
@@ -6664,8 +6667,8 @@ const InvoiceForm = ({ onSave }) => {
                                 value={
                                   item.productId
                                     ? productOptions.find(
-                                      (p) => p.id === item.productId,
-                                    )
+                                        (p) => p.id === item.productId,
+                                      )
                                     : null
                                 }
                                 inputValue={
@@ -6883,6 +6886,7 @@ const InvoiceForm = ({ onSave }) => {
                         variant="primary"
                         size="sm"
                         className="min-h-[44px]"
+                        data-testid="add-item"
                       >
                         <Plus className="h-4 w-4" />
                         <span className="hidden sm:inline">Add Item</span>
@@ -6920,6 +6924,7 @@ const InvoiceForm = ({ onSave }) => {
                     </span>
                     <span
                       className={`font-mono ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
+                      data-testid="subtotal"
                     >
                       {formatCurrency(computedSubtotal)}
                     </span>
@@ -6976,6 +6981,7 @@ const InvoiceForm = ({ onSave }) => {
                     </span>
                     <span
                       className={`font-mono ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
+                      data-testid="vat-amount"
                     >
                       {formatCurrency(computedVatAmount)}
                     </span>
@@ -6989,7 +6995,7 @@ const InvoiceForm = ({ onSave }) => {
                     >
                       Total
                     </span>
-                    <span className="font-mono text-lg font-extrabold text-teal-400">
+                    <span className="font-mono text-lg font-extrabold text-teal-400" data-testid="total">
                       {formatCurrency(computedTotal)}
                     </span>
                   </div>

@@ -403,11 +403,11 @@ const Dashboard = () => {
       // Parse KPIs
       const parsedKpis = dashboardKPIs
         ? {
-          grossMargin: parseFloat(dashboardKPIs.gross_margin_percent) || 0,
-          dso: parseFloat(dashboardKPIs.dso_days) || 0,
-          creditUtilization:
+            grossMargin: parseFloat(dashboardKPIs.gross_margin_percent) || 0,
+            dso: parseFloat(dashboardKPIs.dso_days) || 0,
+            creditUtilization:
               parseFloat(dashboardKPIs.credit_utilization_percent) || 0,
-        }
+          }
         : { grossMargin: 0, dso: 0, creditUtilization: 0 };
 
       // Build stats object for caching
@@ -430,12 +430,12 @@ const Dashboard = () => {
       // Top products from analytics
       const tops = Array.isArray(dashboard?.topProducts)
         ? dashboard.topProducts.slice(0, 5).map((p) => ({
-          id: p.id,
-          name: p.name,
-          category: p.category,
-          sales: safeNum(p.totalSold),
-          revenue: safeNum(p.totalRevenue),
-        }))
+            id: p.id,
+            name: p.name,
+            category: p.category,
+            sales: safeNum(p.totalSold),
+            revenue: safeNum(p.totalRevenue),
+          }))
         : [];
       setTopProducts(tops);
 

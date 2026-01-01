@@ -48,10 +48,10 @@ export const PageInfoSchema = z.object({
 export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(
   itemSchema: T,
 ) =>
-    z.object({
-      items: z.array(itemSchema),
-      pagination: PageInfoSchema,
-    });
+  z.object({
+    items: z.array(itemSchema),
+    pagination: PageInfoSchema,
+  });
 
 // ============================================
 // Invoice List Response Schema

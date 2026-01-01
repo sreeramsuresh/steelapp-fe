@@ -260,11 +260,11 @@ export const LineChartWrapper = ({
                 dot={
                   showDots
                     ? {
-                      fill:
+                        fill:
                           series.color ||
                           chartColors[index % chartColors.length],
-                      strokeWidth: 2,
-                    }
+                        strokeWidth: 2,
+                      }
                     : false
                 }
                 activeDot={{ r: 6, strokeWidth: 2 }}

@@ -678,42 +678,42 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                           />
                           {activeItemId === item.id &&
                             filteredProducts.length > 0 && (
-                            <div
-                              className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg ${
-                                isDarkMode
-                                  ? 'bg-gray-700 border-gray-600'
-                                  : 'bg-white border-gray-300'
-                              }`}
-                            >
-                              {filteredProducts
-                                .slice(0, 20)
-                                .map((product) => (
-                                  <button
-                                    key={product.id}
-                                    type="button"
-                                    onClick={() =>
-                                      handleProductSelect(item.id, product)
-                                    }
-                                    className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-500 hover:text-white transition-colors ${
-                                      item.productId === product.id
-                                        ? 'bg-blue-500 text-white'
-                                        : isDarkMode
-                                          ? 'text-gray-200'
-                                          : 'text-gray-900'
-                                    }`}
-                                  >
-                                    <div className="font-medium">
-                                      {product.uniqueName ||
+                              <div
+                                className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600'
+                                    : 'bg-white border-gray-300'
+                                }`}
+                              >
+                                {filteredProducts
+                                  .slice(0, 20)
+                                  .map((product) => (
+                                    <button
+                                      key={product.id}
+                                      type="button"
+                                      onClick={() =>
+                                        handleProductSelect(item.id, product)
+                                      }
+                                      className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-500 hover:text-white transition-colors ${
+                                        item.productId === product.id
+                                          ? 'bg-blue-500 text-white'
+                                          : isDarkMode
+                                            ? 'text-gray-200'
+                                            : 'text-gray-900'
+                                      }`}
+                                    >
+                                      <div className="font-medium">
+                                        {product.uniqueName ||
                                           product.unique_name ||
                                           product.name}
-                                    </div>
-                                    <div className="text-xs opacity-75">
-                                      {product.sku || 'No SKU'}
-                                    </div>
-                                  </button>
-                                ))}
-                            </div>
-                          )}
+                                      </div>
+                                      <div className="text-xs opacity-75">
+                                        {product.sku || 'No SKU'}
+                                      </div>
+                                    </button>
+                                  ))}
+                              </div>
+                            )}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right">

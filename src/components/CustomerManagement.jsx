@@ -889,30 +889,30 @@ const CustomerManagement = () => {
                         </div>
                       ) : col.key === 'creditLimit' ||
                         col.key === 'creditUsed' ? (
-                          <span
-                            className={
-                              col.key === 'creditUsed' ? 'font-medium' : ''
-                            }
-                          >
-                            {formatCurrency(
-                              getCustomerCellValue(customer, col.key),
-                            )}
-                          </span>
-                        ) : col.key === 'status' ? (
-                          <span
-                            className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
-                              customer.status === 'active'
-                                ? 'bg-green-100 text-green-800'
-                                : customer.status === 'archived'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-gray-100 text-gray-600'
-                            }`}
-                          >
-                            {customer.status}
-                          </span>
-                        ) : (
-                          getCustomerCellValue(customer, col.key)
-                        )}
+                        <span
+                          className={
+                            col.key === 'creditUsed' ? 'font-medium' : ''
+                          }
+                        >
+                          {formatCurrency(
+                            getCustomerCellValue(customer, col.key),
+                          )}
+                        </span>
+                      ) : col.key === 'status' ? (
+                        <span
+                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+                            customer.status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : customer.status === 'archived'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {customer.status}
+                        </span>
+                      ) : (
+                        getCustomerCellValue(customer, col.key)
+                      )}
                     </td>
                   ))}
                   {/* Actions Column */}
@@ -1416,9 +1416,9 @@ const CustomerManagement = () => {
                 >
                   {customer.creditLimit > 0
                     ? Math.round(
-                      ((customer.currentCredit || 0) / customer.creditLimit) *
+                        ((customer.currentCredit || 0) / customer.creditLimit) *
                           100,
-                    )
+                      )
                     : 0}
                   %
                 </span>
@@ -2924,8 +2924,8 @@ const CustomerManagement = () => {
                       selectedCustomer.address &&
                       typeof selectedCustomer.address === 'object'
                         ? (
-                          selectedCustomer.address.country || 'AE'
-                        ).toUpperCase()
+                            selectedCustomer.address.country || 'AE'
+                          ).toUpperCase()
                         : 'AE'
                     }
                     onChange={(e) =>
@@ -3313,54 +3313,54 @@ const CustomerManagement = () => {
                 </h3>
                 {contactHistoryCustomer.contactHistory &&
                 contactHistoryCustomer.contactHistory.length > 0 ? (
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {contactHistoryCustomer.contactHistory.map((contact) => (
-                        <div
-                          key={contact.id}
-                          className={`${cardClasses} p-4 hover:shadow-md transition-shadow`}
-                        >
-                          <div className="flex justify-between items-center mb-2">
-                            <div className="flex items-center gap-2 text-[#008B8B]">
-                              {contact.type === 'call' && (
-                                <FaPhone className="w-4 h-4" />
-                              )}
-                              {contact.type === 'email' && (
-                                <FaEnvelope className="w-4 h-4" />
-                              )}
-                              {contact.type === 'meeting' && (
-                                <FaCalendarAlt className="w-4 h-4" />
-                              )}
-                              {contact.type === 'other' && (
-                                <FaExclamationTriangle className="w-4 h-4" />
-                              )}
-                              <span className="text-sm font-medium capitalize">
-                                {contact.type}
-                              </span>
-                            </div>
-                            <span className={`text-sm ${textMuted}`}>
-                              {format(
-                                new Date(contact.contactDate),
-                                'MMM dd, yyyy',
-                              )}
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {contactHistoryCustomer.contactHistory.map((contact) => (
+                      <div
+                        key={contact.id}
+                        className={`${cardClasses} p-4 hover:shadow-md transition-shadow`}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-2 text-[#008B8B]">
+                            {contact.type === 'call' && (
+                              <FaPhone className="w-4 h-4" />
+                            )}
+                            {contact.type === 'email' && (
+                              <FaEnvelope className="w-4 h-4" />
+                            )}
+                            {contact.type === 'meeting' && (
+                              <FaCalendarAlt className="w-4 h-4" />
+                            )}
+                            {contact.type === 'other' && (
+                              <FaExclamationTriangle className="w-4 h-4" />
+                            )}
+                            <span className="text-sm font-medium capitalize">
+                              {contact.type}
                             </span>
                           </div>
-                          <h4 className={`font-semibold mb-1 ${textPrimary}`}>
-                            {contact.subject}
-                          </h4>
-                          <p className={`text-sm ${textSecondary}`}>
-                            {contact.notes}
-                          </p>
+                          <span className={`text-sm ${textMuted}`}>
+                            {format(
+                              new Date(contact.contactDate),
+                              'MMM dd, yyyy',
+                            )}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <FaHistory
-                        className={`mx-auto text-4xl mb-3 ${textMuted}`}
-                      />
-                      <p className={textMuted}>No contact history available</p>
-                    </div>
-                  )}
+                        <h4 className={`font-semibold mb-1 ${textPrimary}`}>
+                          {contact.subject}
+                        </h4>
+                        <p className={`text-sm ${textSecondary}`}>
+                          {contact.notes}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FaHistory
+                      className={`mx-auto text-4xl mb-3 ${textMuted}`}
+                    />
+                    <p className={textMuted}>No contact history available</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
