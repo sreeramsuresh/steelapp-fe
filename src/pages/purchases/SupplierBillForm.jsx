@@ -78,6 +78,17 @@ const PAYMENT_TERMS = [
   { value: 'net_90', label: 'Net 90 Days' },
 ];
 
+// Supported currencies for multi-currency bills
+const CURRENCIES = [
+  { value: 'AED', label: 'AED - UAE Dirham', rate: 1 },
+  { value: 'USD', label: 'USD - US Dollar', rate: 3.6725 },
+  { value: 'EUR', label: 'EUR - Euro', rate: 4.02 },
+  { value: 'GBP', label: 'GBP - British Pound', rate: 4.65 },
+  { value: 'SAR', label: 'SAR - Saudi Riyal', rate: 0.98 },
+  { value: 'CNY', label: 'CNY - Chinese Yuan', rate: 0.51 },
+  { value: 'INR', label: 'INR - Indian Rupee', rate: 0.044 },
+];
+
 // Blocked VAT reasons (per UAE FTA Article 53)
 const BLOCKED_VAT_REASONS = [
   { value: 'entertainment', label: 'Entertainment expenses' },
@@ -555,6 +566,10 @@ const SupplierBillForm = () => {
     subtotal: 0,
     vatAmount: 0,
     total: 0,
+    // Multi-currency support
+    currency: 'AED',
+    exchangeRate: 1,
+    totalAed: 0, // Total in base currency (AED)
     status: 'draft',
     notes: '',
     terms: '',
@@ -1580,6 +1595,66 @@ const SupplierBillForm = () => {
                     ))}
                   </FormSelect>
                 </div>
+
+                {/* Currency */}
+                <div data-testid="currency">
+                  <FormSelect
+                    label="Currency"
+                    value={bill.currency}
+                    onValueChange={(value) => {
+                      const selectedCurrency = CURRENCIES.find((c) => c.value === value);
+                      setBill((prev) => ({
+                        ...prev,
+                        currency: value,
+                        exchangeRate: selectedCurrency?.rate || 1,
+                        totalAed: prev.total * (selectedCurrency?.rate || 1),
+                      }));
+                    }}
+                    showValidation={false}
+                  >
+                    {CURRENCIES.map((curr) => (
+                      <SelectItem key={curr.value} value={curr.value}>
+                        {curr.label}
+                      </SelectItem>
+                    ))}
+                  </FormSelect>
+                </div>
+
+                {/* Exchange Rate (editable for manual override) */}
+                {bill.currency !== 'AED' && (
+                  <div>
+                    <label
+                      htmlFor="exchange-rate"
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                      Exchange Rate (1 {bill.currency} = X AED)
+                    </label>
+                    <input
+                      id="exchange-rate"
+                      data-testid="exchange-rate"
+                      type="number"
+                      step="0.0001"
+                      min="0.0001"
+                      value={bill.exchangeRate}
+                      onChange={(e) => {
+                        const rate = parseFloat(e.target.value) || 1;
+                        setBill((prev) => ({
+                          ...prev,
+                          exchangeRate: rate,
+                          totalAed: prev.total * rate,
+                        }));
+                      }}
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-700 text-white'
+                          : 'border-gray-300 bg-white text-gray-900'
+                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    />
+                    <p className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Total in AED: {formatCurrency(bill.total * bill.exchangeRate)}
+                    </p>
+                  </div>
+                )}
 
                 {/* Due Date */}
                 <div>
