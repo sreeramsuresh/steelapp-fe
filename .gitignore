@@ -43,3 +43,4 @@ scenario*.json
 
 # Puppeteer test scripts (keep these in version control but ignore artifacts)
 # test-*.js files are kept tracked
+*.backup.jsx
