@@ -1727,6 +1727,7 @@ const QuotationForm = () => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} p-2 md:p-4`}
+      data-testid="quotation-form"
     >
       {/* Header - Compact on mobile */}
       <div className="mb-4 md:mb-6">
@@ -2186,6 +2187,7 @@ const QuotationForm = () => {
                 type="button"
                 onClick={addItem}
                 className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm"
+                data-testid="add-item"
               >
                 <Plus size={14} className="md:hidden" />
                 <Plus size={16} className="hidden md:block" />
@@ -2787,6 +2789,7 @@ const QuotationForm = () => {
                   </span>
                   <span
                     className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    data-testid="subtotal"
                   >
                     {formatCurrency(formData.subtotal)}
                   </span>
@@ -2803,6 +2806,7 @@ const QuotationForm = () => {
                     </span>
                     <span
                       className={`font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      data-testid="vat-amount"
                     >
                       {formatCurrency(formData.vatAmount)}
                     </span>
@@ -2847,7 +2851,7 @@ const QuotationForm = () => {
                   >
                     Total
                   </span>
-                  <span className="text-lg font-extrabold text-teal-600 font-mono">
+                  <span className="text-lg font-extrabold text-teal-600 font-mono" data-testid="total">
                     {formatCurrency(formData.total)}
                   </span>
                 </div>
@@ -2969,6 +2973,7 @@ const QuotationForm = () => {
                 className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow-md ${
                   isSaving ? 'opacity-60 cursor-not-allowed' : ''
                 }`}
+                data-testid="save-quotation"
               >
                 {isSaving ? (
                   <>
