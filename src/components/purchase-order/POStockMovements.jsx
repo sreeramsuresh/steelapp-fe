@@ -107,7 +107,12 @@ const POStockMovements = ({
       <div
         className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
         onClick={() => setExpanded(!expanded)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded); }}}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setExpanded(!expanded);
+          }
+        }}
         role="button"
         tabIndex={0}
       >

@@ -98,7 +98,8 @@ const transformGRNFromServer = (serverData) => {
       'LOCAL',
     // Billing status
     isBilled: serverData.isBilled || serverData.is_billed || false,
-    supplierBillId: serverData.supplierBillId || serverData.supplier_bill_id || null,
+    supplierBillId:
+      serverData.supplierBillId || serverData.supplier_bill_id || null,
     supplierBillNumber:
       serverData.supplierBillNumber || serverData.supplier_bill_number || '',
     // Totals

@@ -446,14 +446,19 @@ const StockReceiptForm = ({
       <div
         className={`fixed inset-0 ${overlayBg} z-40 transition-opacity`}
         onClick={() => !loading && onClose()}
-        onKeyDown={(e) => { if (e.key === 'Escape' && !loading) onClose(); }}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && !loading) onClose();
+        }}
         role="button"
         tabIndex={0}
         aria-label="Close modal"
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        role="presentation"
+      >
         <div
           className={`${modalBg} border ${modalBorder} rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl`}
           role="dialog"
@@ -538,7 +543,10 @@ const StockReceiptForm = ({
 
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label htmlFor="grn-number" className={`text-xs ${textMuted} mb-1 block`}>
+                  <label
+                    htmlFor="grn-number"
+                    className={`text-xs ${textMuted} mb-1 block`}
+                  >
                     GRN Number
                   </label>
                   <input
@@ -550,7 +558,10 @@ const StockReceiptForm = ({
                   />
                 </div>
                 <div>
-                  <label htmlFor="grn-date" className={`text-xs ${textMuted} mb-1 block`}>
+                  <label
+                    htmlFor="grn-date"
+                    className={`text-xs ${textMuted} mb-1 block`}
+                  >
                     GRN Date
                   </label>
                   <input

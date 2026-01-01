@@ -728,9 +728,7 @@ const SupplierBillList = () => {
                     <tr
                       key={bill.id}
                       className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors cursor-pointer`}
-                      onClick={() =>
-                        navigate(`/app/supplier-bills/${bill.id}`)
-                      }
+                      onClick={() => navigate(`/app/supplier-bills/${bill.id}`)}
                     >
                       <td
                         className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
@@ -807,9 +805,7 @@ const SupplierBillList = () => {
                           {bill.status === 'draft' && (
                             <button
                               onClick={() =>
-                                navigate(
-                                  `/app/supplier-bills/${bill.id}/edit`,
-                                )
+                                navigate(`/app/supplier-bills/${bill.id}/edit`)
                               }
                               className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}
                               title="Edit"

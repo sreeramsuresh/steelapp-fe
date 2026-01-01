@@ -1,4 +1,5 @@
 import { apiClient } from './api';
+import { normalizeUom } from '../utils/fieldAccessors';
 
 // ============================================================================
 // DATA TRANSFORMERS
@@ -66,8 +67,7 @@ const transformInvoiceForServer = (invoiceData) => {
         theoretical_weight_kg:
           item.theoretical_weight_kg || item.theoreticalWeightKg || null,
         // Phase 2: UOM tracking for audit trail
-        quantity_uom:
-          item.quantity_uom || item.quantityUom || item.unit || 'PCS',
+        quantity_uom: normalizeUom(item),
         // Phase 4: Line item temp ID for linking to draft_batch_reservations
         line_item_temp_id:
           item.line_item_temp_id || item.lineItemTempId || null,

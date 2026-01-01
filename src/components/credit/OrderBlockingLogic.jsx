@@ -122,7 +122,10 @@ const OrderBlockingLogic = ({
       />
 
       {/* Modal Container */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        role="presentation"
+      >
         <div
           className={`relative max-w-md w-full rounded-lg shadow-2xl ${
             isDarkMode

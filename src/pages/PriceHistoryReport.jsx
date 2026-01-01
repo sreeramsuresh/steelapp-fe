@@ -115,14 +115,17 @@ export default function PriceHistoryReport() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex-1 min-w-max">
-            <label htmlFor="product-select" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="product-select"
+              className="block text-sm font-medium mb-2"
+            >
               Select Product
             </label>
             <select
               id="product-select"
               value={selectedProduct}
               onChange={(e) => setSelectedProduct(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white w-full sm:w-80"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white w-full sm:w-80"
             >
               <option value="">-- Select Product --</option>
               {products.map((product) => (

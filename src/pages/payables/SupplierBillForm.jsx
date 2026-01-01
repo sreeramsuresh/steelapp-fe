@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useParams, useNavigate } from 'react-router-dom';
 import { X, Loader2, Save, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 import supplierBillService from '../../services/supplierBillService';
 import { suppliersAPI, purchaseOrderService } from '../../services/api';
 import { Button } from '@/components/ui/button';
@@ -15,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { normalizeUom } from '../../utils/fieldAccessors';
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -97,12 +100,29 @@ const createEmptyItem = () => ({
 });
 
 /**
- * SupplierBillForm - Modal form for create/edit supplier bills (Phase 2c)
- * Follows ContainerForm pattern with accordion sections
+ * SupplierBillForm - Form for create/edit supplier bills (Phase 2c)
+ * Supports both modal mode (with props) and standalone page mode (via URL routing)
  */
-export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
+export function SupplierBillForm({
+  supplierBill: supplierBillProp,
+  companyId: companyIdProp,
+  onSave,
+  onClose,
+}) {
   const { isDarkMode } = useTheme();
-  const isEditing = Boolean(supplierBill?.id);
+  const { user } = useAuth();
+  const { id: routeId } = useParams();
+  const navigate = useNavigate();
+
+  // Determine mode: standalone (via URL) or modal (via props)
+  const isStandaloneMode = !onClose; // If no onClose prop, we're in standalone mode
+  const effectiveCompanyId =
+    companyIdProp || user?.company_id || user?.companyId;
+
+  // Track bill loaded from API for standalone edit mode
+  const [loadedBill, setLoadedBill] = useState(null);
+  const supplierBill = supplierBillProp || loadedBill;
+  const isEditing = Boolean(supplierBill?.id) || Boolean(routeId);
 
   const [formData, setFormData] = useState({
     billNumber: '',
@@ -148,14 +168,152 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
 
+  // Load bill data from API when in standalone edit mode (accessed via URL with :id param)
+  useEffect(() => {
+    const loadBillFromRoute = async () => {
+      if (routeId && isStandaloneMode && !supplierBillProp) {
+        setLoading(true);
+        try {
+          const bill = await supplierBillService.getById(routeId);
+          setLoadedBill(bill);
+        } catch (err) {
+          console.error('Failed to load supplier bill:', err);
+          setError('Failed to load supplier bill');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    loadBillFromRoute();
+  }, [routeId, isStandaloneMode, supplierBillProp]);
+
+  // Populate form data when supplierBill is loaded (edit mode)
+  useEffect(() => {
+    if (supplierBill && supplierBill.id) {
+      // Map supplier bill data to form fields
+      setFormData({
+        billNumber: supplierBill.billNumber || supplierBill.bill_number || '',
+        supplierInvoiceNumber:
+          supplierBill.supplierInvoiceNumber ||
+          supplierBill.supplier_invoice_number ||
+          '',
+        receivedDate:
+          supplierBill.receivedDate ||
+          supplierBill.received_date ||
+          new Date().toISOString().split('T')[0],
+        supplierId: String(
+          supplierBill.supplierId || supplierBill.supplier_id || '',
+        ),
+        supplierName:
+          supplierBill.supplierName || supplierBill.supplier_name || '',
+        supplierTrn:
+          supplierBill.supplierTrn || supplierBill.supplier_trn || '',
+        supplierAddress:
+          supplierBill.supplierAddress || supplierBill.supplier_address || '',
+        billDate:
+          supplierBill.billDate ||
+          supplierBill.bill_date ||
+          new Date().toISOString().split('T')[0],
+        dueDate: supplierBill.dueDate || supplierBill.due_date || '',
+        purchaseOrderNumber:
+          supplierBill.purchaseOrderNumber ||
+          supplierBill.purchase_order_number ||
+          '',
+        purchaseOrderId: String(
+          supplierBill.purchaseOrderId || supplierBill.purchase_order_id || '',
+        ),
+        importOrderId: String(
+          supplierBill.importOrderId || supplierBill.import_order_id || '',
+        ),
+        placeOfSupply:
+          supplierBill.placeOfSupply || supplierBill.place_of_supply || 'AE-DU',
+        subtotal: parseFloat(supplierBill.subtotal || 0),
+        vatAmount: parseFloat(
+          supplierBill.vatAmount || supplierBill.vat_amount || 0,
+        ),
+        total: parseFloat(supplierBill.total || 0),
+        primaryVatCategory:
+          supplierBill.primaryVatCategory ||
+          supplierBill.primary_vat_category ||
+          'STANDARD_RATED',
+        standardRatedAmount: parseFloat(
+          supplierBill.standardRatedAmount ||
+            supplierBill.standard_rated_amount ||
+            0,
+        ),
+        standardRatedVat: parseFloat(
+          supplierBill.standardRatedVat || supplierBill.standard_rated_vat || 0,
+        ),
+        zeroRatedAmount: parseFloat(
+          supplierBill.zeroRatedAmount || supplierBill.zero_rated_amount || 0,
+        ),
+        exemptAmount: parseFloat(
+          supplierBill.exemptAmount || supplierBill.exempt_amount || 0,
+        ),
+        blockedVatAmount: parseFloat(
+          supplierBill.blockedVatAmount || supplierBill.blocked_vat_amount || 0,
+        ),
+        recoverableVat: parseFloat(
+          supplierBill.recoverableVat || supplierBill.recoverable_vat || 0,
+        ),
+        isReverseCharge:
+          supplierBill.isReverseCharge ||
+          supplierBill.is_reverse_charge ||
+          false,
+        reverseChargeVat: parseFloat(
+          supplierBill.reverseChargeVat || supplierBill.reverse_charge_vat || 0,
+        ),
+        currency: supplierBill.currency || 'AED',
+        exchangeRate: parseFloat(
+          supplierBill.exchangeRate || supplierBill.exchange_rate || 1,
+        ),
+        totalAed: parseFloat(
+          supplierBill.totalAed || supplierBill.total_aed || 0,
+        ),
+        attachmentUrl:
+          supplierBill.attachmentUrl || supplierBill.attachment_url || '',
+        status: supplierBill.status || 'DRAFT',
+        approvalNotes:
+          supplierBill.approvalNotes || supplierBill.approval_notes || '',
+        notes: supplierBill.notes || '',
+        internalNotes:
+          supplierBill.internalNotes || supplierBill.internal_notes || '',
+        items:
+          Array.isArray(supplierBill.items) && supplierBill.items.length > 0
+            ? supplierBill.items.map((item) => ({
+              id:
+                  item.id ||
+                  `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              productId: item.productId || item.product_id || null,
+              productName: item.productName || item.product_name || '',
+              description: item.description || '',
+              quantity: parseFloat(item.quantity || 1),
+              unit: normalizeUom(item),
+              unitPrice: parseFloat(item.unitPrice || item.unit_price || 0),
+              amount: parseFloat(item.amount || 0),
+              vatRate: parseFloat(item.vatRate || item.vat_rate || 5),
+              vatAmount: parseFloat(item.vatAmount || item.vat_amount || 0),
+              vatCategory:
+                  item.vatCategory || item.vat_category || 'STANDARD_RATED',
+              isBlockedVat: item.isBlockedVat || item.is_blocked_vat || false,
+              blockedReason: item.blockedReason || item.blocked_reason || '',
+              costCenter: item.costCenter || item.cost_center || '',
+              glAccount: item.glAccount || item.gl_account || '',
+            }))
+            : [createEmptyItem()],
+      });
+    }
+  }, [supplierBill]);
+
   // Load suppliers, purchase orders, and products
   useEffect(() => {
     const loadData = async () => {
+      if (!effectiveCompanyId) return; // Wait for company ID
       setLoading(true);
       try {
         const [suppliersRes, posRes] = await Promise.all([
           suppliersAPI.getAll(),
-          purchaseOrderService.getAll({ companyId }),
+          purchaseOrderService.getAll({ companyId: effectiveCompanyId }),
         ]);
         setSuppliers(Array.isArray(suppliersRes) ? suppliersRes : []);
         const poArray = posRes?.purchaseOrders || posRes;
@@ -169,7 +327,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
       }
     };
     loadData();
-  }, [companyId]);
+  }, [effectiveCompanyId]);
 
   // Auto-calculate due date (30 days from bill date)
   useEffect(() => {
@@ -383,6 +541,15 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
     return Object.keys(errors).length === 0;
   };
 
+  // Handle close action (navigate in standalone mode, call prop in modal mode)
+  const handleClose = () => {
+    if (isStandaloneMode) {
+      navigate('/app/supplier-bills');
+    } else if (onClose) {
+      onClose();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -392,7 +559,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
 
     try {
       const payload = {
-        companyId,
+        companyId: effectiveCompanyId,
         supplierInvoiceNumber: formData.supplierInvoiceNumber.trim(),
         receivedDate: formData.receivedDate || null,
         supplierId: formData.supplierId ? parseInt(formData.supplierId) : null,
@@ -432,16 +599,19 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
       };
 
       let result;
-      if (isEditing) {
-        result = await supplierBillService.updateSupplierBill(
-          supplierBill.id,
-          payload,
-        );
+      const editId = routeId || supplierBill?.id;
+      if (isEditing && editId) {
+        result = await supplierBillService.update(editId, payload);
       } else {
-        result = await supplierBillService.createSupplierBill(payload);
+        result = await supplierBillService.create(payload);
       }
 
-      onSave(result);
+      // In standalone mode, navigate to list after save
+      if (isStandaloneMode) {
+        navigate('/app/supplier-bills');
+      } else if (onSave) {
+        onSave(result);
+      }
     } catch (err) {
       console.error('Failed to save supplier bill:', err);
       setError(err.message || 'Failed to save supplier bill');
@@ -485,7 +655,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
             {isEditing ? 'Edit Supplier Bill' : 'Create Supplier Bill'}
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className={`p-2 rounded-lg hover:bg-gray-100 ${
               isDarkMode ? 'hover:bg-gray-700' : ''
             }`}
@@ -495,7 +665,11 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-6"
+          data-testid="supplier-bill-form"
+        >
           {error && (
             <div className="p-4 bg-red-50 text-red-800 rounded-lg border border-red-200">
               {error}
@@ -589,7 +763,10 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                     value={formData.supplierId}
                     onValueChange={handleSupplierChange}
                   >
-                    <SelectTrigger className={inputClass}>
+                    <SelectTrigger
+                      className={inputClass}
+                      data-testid="supplier-select"
+                    >
                       <SelectValue placeholder="Select supplier" />
                     </SelectTrigger>
                     <SelectContent>
@@ -799,6 +976,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                           handleItemChange(index, 'productName', e.target.value)
                         }
                         className={inputClass}
+                        data-testid={`item-product-${index}`}
                       />
                     </div>
                     <div className="md:col-span-3">
@@ -809,6 +987,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                           handleItemChange(index, 'description', e.target.value)
                         }
                         className={inputClass}
+                        data-testid={`item-description-${index}`}
                       />
                     </div>
                     <div>
@@ -821,6 +1000,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                           handleItemChange(index, 'quantity', e.target.value)
                         }
                         className={inputClass}
+                        data-testid={`item-quantity-${index}`}
                       />
                     </div>
                     <div>
@@ -853,6 +1033,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                           handleItemChange(index, 'unitPrice', e.target.value)
                         }
                         className={inputClass}
+                        data-testid={`item-unit-price-${index}`}
                       />
                     </div>
                     <div>
@@ -972,6 +1153,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                 variant="outline"
                 onClick={handleAddItem}
                 className="w-full"
+                data-testid="add-item"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Item
@@ -1003,7 +1185,10 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
                       handleChange('primaryVatCategory', value)
                     }
                   >
-                    <SelectTrigger className={inputClass}>
+                    <SelectTrigger
+                      className={inputClass}
+                      data-testid="vat-category"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1330,10 +1515,10 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
 
           {/* Form Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={onClose} disabled={saving}>
+            <Button variant="outline" onClick={handleClose} disabled={saving}>
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving} data-testid="save-draft">
               {saving ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -1355,7 +1540,7 @@ export function SupplierBillForm({ supplierBill, companyId, onSave, onClose }) {
 
 SupplierBillForm.propTypes = {
   supplierBill: PropTypes.object,
-  companyId: PropTypes.number.isRequired,
-  onSave: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
+  companyId: PropTypes.number, // Optional - falls back to user's company_id in standalone mode
+  onSave: PropTypes.func, // Optional - navigates after save in standalone mode
+  onClose: PropTypes.func, // Optional - navigates to list in standalone mode
 };

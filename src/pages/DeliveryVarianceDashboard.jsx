@@ -35,28 +35,58 @@ export default function DeliveryVarianceDashboard() {
       deliveryVarianceService.getRecentLateDeliveries(20),
     ]);
 
-    const [kpiResult, trendResult, breakdownResult, comparisonResult, recommendationResult, lateResult] = results;
+    const [
+      kpiResult,
+      trendResult,
+      breakdownResult,
+      comparisonResult,
+      recommendationResult,
+      lateResult,
+    ] = results;
 
     // Set data from successful calls, null for failed ones
     setKpis(kpiResult.status === 'fulfilled' ? kpiResult.value : null);
     setTrend(trendResult.status === 'fulfilled' ? trendResult.value : null);
-    setBreakdown(breakdownResult.status === 'fulfilled' ? breakdownResult.value : null);
-    setComparison(comparisonResult.status === 'fulfilled' ? comparisonResult.value : null);
-    setRecommendations(recommendationResult.status === 'fulfilled' ? recommendationResult.value : null);
-    setLateDeliveries(lateResult.status === 'fulfilled' ? lateResult.value : null);
+    setBreakdown(
+      breakdownResult.status === 'fulfilled' ? breakdownResult.value : null,
+    );
+    setComparison(
+      comparisonResult.status === 'fulfilled' ? comparisonResult.value : null,
+    );
+    setRecommendations(
+      recommendationResult.status === 'fulfilled'
+        ? recommendationResult.value
+        : null,
+    );
+    setLateDeliveries(
+      lateResult.status === 'fulfilled' ? lateResult.value : null,
+    );
 
     // Check if ALL calls failed
-    const allFailed = results.every(r => r.status === 'rejected');
+    const allFailed = results.every((r) => r.status === 'rejected');
     if (allFailed) {
-      const firstError = results.find(r => r.status === 'rejected')?.reason;
-      setError(firstError?.message || 'Failed to load delivery performance data. The service may be unavailable.');
+      const firstError = results.find((r) => r.status === 'rejected')?.reason;
+      setError(
+        firstError?.message ||
+          'Failed to load delivery performance data. The service may be unavailable.',
+      );
       console.error('Dashboard load error - all endpoints failed:', firstError);
     } else {
       // Log any individual failures for debugging
       results.forEach((r, i) => {
         if (r.status === 'rejected') {
-          const endpoints = ['KPIs', 'Trend', 'Breakdown', 'Comparison', 'Recommendations', 'Late Deliveries'];
-          console.warn(`Delivery Performance: ${endpoints[i]} endpoint failed:`, r.reason?.message);
+          const endpoints = [
+            'KPIs',
+            'Trend',
+            'Breakdown',
+            'Comparison',
+            'Recommendations',
+            'Late Deliveries',
+          ];
+          console.warn(
+            `Delivery Performance: ${endpoints[i]} endpoint failed:`,
+            r.reason?.message,
+          );
         }
       });
     }
@@ -69,27 +99,39 @@ export default function DeliveryVarianceDashboard() {
       <div className="flex justify-center items-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p
+            className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+          >
             Loading delivery performance data...
           </p>
         </div>
       </div>
     );
-  if (error) return (
-    <div className={`p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} min-h-screen`}>
-      <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-red-900/20 border-red-800 text-red-400' : 'bg-red-50 border-red-200 text-red-700'}`}>
-        <h3 className="font-semibold mb-2">Unable to load Delivery Performance</h3>
-        <p className="text-sm mb-4">{error}</p>
-        <p className="text-sm mb-4">This may be because the delivery variance backend service is not available. Please contact your administrator.</p>
-        <button
-          onClick={loadDashboard}
-          className={`px-4 py-2 rounded-lg ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+  if (error)
+    return (
+      <div
+        className={`p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} min-h-screen`}
+      >
+        <div
+          className={`p-4 rounded-lg border ${isDarkMode ? 'bg-red-900/20 border-red-800 text-red-400' : 'bg-red-50 border-red-200 text-red-700'}`}
         >
-          Try Again
-        </button>
+          <h3 className="font-semibold mb-2">
+            Unable to load Delivery Performance
+          </h3>
+          <p className="text-sm mb-4">{error}</p>
+          <p className="text-sm mb-4">
+            This may be because the delivery variance backend service is not
+            available. Please contact your administrator.
+          </p>
+          <button
+            onClick={loadDashboard}
+            className={`px-4 py-2 rounded-lg ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+          >
+            Try Again
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
 
   const trendChartData =
     trend?.trendData?.length > 0 &&

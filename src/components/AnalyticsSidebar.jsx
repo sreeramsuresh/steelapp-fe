@@ -211,8 +211,10 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
   ];
 
   const isActiveRoute = (path) => {
-    if (path === '/analytics' && location.pathname === '/analytics') return true;
-    if (path !== '/analytics' && location.pathname.startsWith(path)) return true;
+    if (path === '/analytics' && location.pathname === '/analytics')
+      return true;
+    if (path !== '/analytics' && location.pathname.startsWith(path))
+      return true;
     return false;
   };
 

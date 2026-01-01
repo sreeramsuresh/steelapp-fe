@@ -1933,7 +1933,9 @@ const InvoiceForm = ({ onSave }) => {
 
   // Phase 4: Store saved batch consumptions separately from draft allocations
   // This prevents overwriting user edits when loading existing invoice data
-  const [savedConsumptionsByItemId, setSavedConsumptionsByItemId] = useState({});
+  const [savedConsumptionsByItemId, setSavedConsumptionsByItemId] = useState(
+    {},
+  );
   const [_consumptionsFetched, setConsumptionsFetched] = useState(false);
 
   // Mark form as dirty whenever invoice changes (except initial load)
@@ -2670,7 +2672,9 @@ const InvoiceForm = ({ onSave }) => {
       // Only fetch for existing invoices that have been finalized (issued/proforma)
       if (!id || !existingInvoice) return;
 
-      const status = (existingInvoice.status || '').toLowerCase().replace('status_', '');
+      const status = (existingInvoice.status || '')
+        .toLowerCase()
+        .replace('status_', '');
       // Only fetch consumptions for invoices that have been through finalization
       if (status !== 'issued' && status !== 'proforma') {
         setConsumptionsFetched(true);
@@ -2678,7 +2682,10 @@ const InvoiceForm = ({ onSave }) => {
       }
 
       try {
-        const response = await batchReservationService.getInvoiceBatchConsumptions(parseInt(id, 10));
+        const response =
+          await batchReservationService.getInvoiceBatchConsumptions(
+            parseInt(id, 10),
+          );
         if (response && response.items) {
           // Map consumptions by invoice_item_id for easy lookup
           const byItemId = {};
@@ -5439,14 +5446,19 @@ const InvoiceForm = ({ onSave }) => {
                                           {item.name || 'Unnamed Product'}
                                         </div>
                                         {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
-                                        {item.sourceType === 'WAREHOUSE' && (() => {
-                                        // Use saved consumptions for finalized invoices, draft allocations otherwise
-                                          const savedConsumption = savedConsumptionsByItemId[item.id];
-                                          const displayAllocations = savedConsumption?.consumptions?.length > 0
-                                            ? savedConsumption.consumptions
-                                            : item.allocations || [];
+                                        {item.sourceType === 'WAREHOUSE' &&
+                                        (() => {
+                                          // Use saved consumptions for finalized invoices, draft allocations otherwise
+                                          const savedConsumption =
+                                            savedConsumptionsByItemId[item.id];
+                                          const displayAllocations =
+                                            savedConsumption?.consumptions
+                                              ?.length > 0
+                                              ? savedConsumption.consumptions
+                                              : item.allocations || [];
 
-                                          if (displayAllocations.length === 0) return null;
+                                          if (displayAllocations.length === 0)
+                                            return null;
 
                                           return (
                                             <div className="text-xs text-gray-500 mt-0.5">
@@ -5454,29 +5466,39 @@ const InvoiceForm = ({ onSave }) => {
                                                 .slice(0, 2)
                                                 .map((alloc, i) => (
                                                   <span key={i}>
-                                                    {alloc.batchNumber || `Batch ${alloc.batchId}`}
-                                                  :{' '}
+                                                    {alloc.batchNumber ||
+                                                      `Batch ${alloc.batchId}`}
+                                                    :{' '}
                                                     {parseFloat(
-                                                      alloc.quantity || alloc.quantityConsumed || 0,
+                                                      alloc.quantity ||
+                                                        alloc.quantityConsumed ||
+                                                        0,
                                                     ).toFixed(0)}{' '}
-                                                  kg
+                                                    kg
                                                     {i <
-                                                    Math.min(
-                                                      displayAllocations.length - 1,
-                                                      1,
-                                                    ) && ', '}
+                                                      Math.min(
+                                                        displayAllocations.length -
+                                                          1,
+                                                        1,
+                                                      ) && ', '}
                                                   </span>
                                                 ))}
-                                              {displayAllocations.length > 2 && (
+                                              {displayAllocations.length >
+                                                2 && (
                                                 <span className="text-teal-600">
                                                   {' '}
-                                                +{displayAllocations.length - 2}{' '}
-                                                more
+                                                  +
+                                                  {displayAllocations.length -
+                                                    2}{' '}
+                                                  more
                                                 </span>
                                               )}
                                               {savedConsumption && (
-                                                <span className="ml-1 text-green-600" title="Saved to database">
-                                                ✓
+                                                <span
+                                                  className="ml-1 text-green-600"
+                                                  title="Saved to database"
+                                                >
+                                                  ✓
                                                 </span>
                                               )}
                                             </div>
@@ -5513,8 +5535,11 @@ const InvoiceForm = ({ onSave }) => {
                                       </div>
                                       {/* Phase 7: Line item cost/margin display for confirmed invoices */}
                                       {item.costPrice > 0 && (
-                                        <div className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? 'text-green-500' : item.marginPercent >= 0 ? 'text-yellow-500' : 'text-red-500'}`}>
-                                        Cost: {formatCurrency(item.costPrice)} | {item.marginPercent?.toFixed(1) || 0}%
+                                        <div
+                                          className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? 'text-green-500' : item.marginPercent >= 0 ? 'text-yellow-500' : 'text-red-500'}`}
+                                        >
+                                        Cost: {formatCurrency(item.costPrice)} |{' '}
+                                          {item.marginPercent?.toFixed(1) || 0}%
                                         </div>
                                       )}
                                     </td>
@@ -6168,12 +6193,19 @@ const InvoiceForm = ({ onSave }) => {
                                           /* Batch Allocation Table - only show for WAREHOUSE */
                                           /* Phase 4: Use saved consumptions for finalized invoices, draft allocations otherwise */
                                             (() => {
-                                              const savedConsumption = savedConsumptionsByItemId[item.id];
-                                              const hasSavedConsumptions = savedConsumption?.consumptions?.length > 0;
-                                              const displayAllocations = hasSavedConsumptions
+                                              const savedConsumption =
+                                              savedConsumptionsByItemId[
+                                                item.id
+                                              ];
+                                              const hasSavedConsumptions =
+                                              savedConsumption?.consumptions
+                                                ?.length > 0;
+                                              const displayAllocations =
+                                              hasSavedConsumptions
                                                 ? savedConsumption.consumptions
                                                 : item.allocations || [];
-                                              const isReadOnly = hasSavedConsumptions;
+                                              const isReadOnly =
+                                              hasSavedConsumptions;
 
                                               return (
                                                 <div
@@ -6184,32 +6216,57 @@ const InvoiceForm = ({ onSave }) => {
                                                     <span className="text-xs font-semibold text-gray-600">
                                                     Batch Allocation
                                                       {hasSavedConsumptions && (
-                                                        <span className="ml-2 text-green-600" title="Saved to database">
+                                                        <span
+                                                          className="ml-2 text-green-600"
+                                                          title="Saved to database"
+                                                        >
                                                         ✓ Finalized
                                                         </span>
                                                       )}
                                                     </span>
                                                     {(() => {
-                                                      const allocatedQty = hasSavedConsumptions
-                                                        ? parseFloat(savedConsumption.totalQuantity || 0)
+                                                      const allocatedQty =
+                                                      hasSavedConsumptions
+                                                        ? parseFloat(
+                                                          savedConsumption.totalQuantity ||
+                                                              0,
+                                                        )
                                                         : displayAllocations.reduce(
                                                           (sum, a) =>
                                                             sum +
-                                                            (parseFloat(a.quantity || a.quantityConsumed || 0)),
+                                                              parseFloat(
+                                                                a.quantity ||
+                                                                  a.quantityConsumed ||
+                                                                  0,
+                                                              ),
                                                           0,
                                                         );
-                                                      const requiredQty = item.quantity || 0;
+                                                      const requiredQty =
+                                                      item.quantity || 0;
 
                                                       return (
                                                         <span className="text-xs text-gray-500">
-                                                          {hasSavedConsumptions ? 'Consumed' : 'Allocated'}:{' '}
+                                                          {hasSavedConsumptions
+                                                            ? 'Consumed'
+                                                            : 'Allocated'}
+                                                        :{' '}
                                                           <strong className="text-teal-600">
                                                             {allocatedQty}
                                                           </strong>{' '}
-                                                        / Required: {requiredQty}
-                                                          {hasSavedConsumptions && savedConsumption.totalCogs && parseFloat(savedConsumption.totalCogs) > 0 && (
+                                                        / Required:{' '}
+                                                          {requiredQty}
+                                                          {hasSavedConsumptions &&
+                                                          savedConsumption.totalCogs &&
+                                                          parseFloat(
+                                                            savedConsumption.totalCogs,
+                                                          ) > 0 && (
                                                             <span className="ml-2 text-gray-400">
-                                                            COGS: {formatCurrency(parseFloat(savedConsumption.totalCogs))}
+                                                              COGS:{' '}
+                                                              {formatCurrency(
+                                                                parseFloat(
+                                                                  savedConsumption.totalCogs,
+                                                                ),
+                                                              )}
                                                             </span>
                                                           )}
                                                         </span>
@@ -6226,7 +6283,9 @@ const InvoiceForm = ({ onSave }) => {
                                                         Batch #
                                                         </th>
                                                         <th className="px-3 py-2 text-left font-medium text-gray-500">
-                                                          {hasSavedConsumptions ? 'Warehouse' : 'GRN Date'}
+                                                          {hasSavedConsumptions
+                                                            ? 'Warehouse'
+                                                            : 'GRN Date'}
                                                         </th>
                                                         <th className="px-3 py-2 text-left font-medium text-gray-500">
                                                         Channel
@@ -6237,7 +6296,9 @@ const InvoiceForm = ({ onSave }) => {
                                                           </th>
                                                         )}
                                                         <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                          {hasSavedConsumptions ? 'Consumed' : 'Allocated'}
+                                                          {hasSavedConsumptions
+                                                            ? 'Consumed'
+                                                            : 'Allocated'}
                                                         </th>
                                                         <th className="px-3 py-2 text-right font-medium text-gray-500">
                                                         Cost/Unit
@@ -6256,53 +6317,80 @@ const InvoiceForm = ({ onSave }) => {
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100 bg-white">
                                                       {displayAllocations.map(
-                                                        (allocation, allocIndex) => (
+                                                        (
+                                                          allocation,
+                                                          allocIndex,
+                                                        ) => (
                                                           <tr key={allocIndex}>
                                                             <td className="px-3 py-2 font-mono text-gray-700">
-                                                              {allocation.batchNumber || 'N/A'}
+                                                              {allocation.batchNumber ||
+                                                              'N/A'}
                                                             </td>
                                                             <td className="px-3 py-2 text-gray-600">
                                                               {hasSavedConsumptions
-                                                                ? allocation.warehouseName || 'N/A'
-                                                                : allocation.grnDate || 'N/A'}
+                                                                ? allocation.warehouseName ||
+                                                                'N/A'
+                                                                : allocation.grnDate ||
+                                                                'N/A'}
                                                             </td>
                                                             <td className="px-3 py-2">
                                                               <span
                                                                 className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                                                  (allocation.procurementChannel || 'LOCAL') === 'LOCAL'
+                                                                  (allocation.procurementChannel ||
+                                                                  'LOCAL') ===
+                                                                'LOCAL'
                                                                     ? 'bg-green-100 text-green-800'
-                                                                    : allocation.procurementChannel === 'DROP_SHIP'
+                                                                    : allocation.procurementChannel ===
+                                                                      'DROP_SHIP'
                                                                       ? 'bg-purple-100 text-purple-800'
                                                                       : 'bg-blue-100 text-blue-800'
                                                                 }`}
                                                               >
-                                                                {allocation.procurementChannel || 'LOCAL'}
+                                                                {allocation.procurementChannel ||
+                                                                'LOCAL'}
                                                               </span>
                                                             </td>
                                                             {!hasSavedConsumptions && (
                                                               <td className="px-3 py-2 text-right text-gray-700">
-                                                                {allocation.availableQty || 0}
+                                                                {allocation.availableQty ||
+                                                                0}
                                                               </td>
                                                             )}
                                                             <td className="px-3 py-2 text-right">
                                                               {isReadOnly ? (
                                                                 <span className="font-medium text-gray-700">
                                                                   {parseFloat(
-                                                                    allocation.quantityConsumed || allocation.quantity || 0,
+                                                                    allocation.quantityConsumed ||
+                                                                    allocation.quantity ||
+                                                                    0,
                                                                   ).toFixed(3)}
                                                                 </span>
                                                               ) : (
                                                                 <input
                                                                   type="number"
-                                                                  value={allocation.quantity || 0}
-                                                                  onChange={(e) => {
-                                                                    const newAllocations = [
-                                                                      ...(item.allocations || []),
+                                                                  value={
+                                                                    allocation.quantity ||
+                                                                  0
+                                                                  }
+                                                                  onChange={(
+                                                                    e,
+                                                                  ) => {
+                                                                    const newAllocations =
+                                                                    [
+                                                                      ...(item.allocations ||
+                                                                        []),
                                                                     ];
-                                                                    newAllocations[allocIndex] = {
-                                                                      ...newAllocations[allocIndex],
+                                                                    newAllocations[
+                                                                      allocIndex
+                                                                    ] = {
+                                                                      ...newAllocations[
+                                                                        allocIndex
+                                                                      ],
                                                                       quantity:
-                                                                      parseFloat(e.target.value) || 0,
+                                                                      parseFloat(
+                                                                        e.target
+                                                                          .value,
+                                                                      ) || 0,
                                                                     };
                                                                     handleItemChange(
                                                                       index,
@@ -6315,11 +6403,19 @@ const InvoiceForm = ({ onSave }) => {
                                                               )}
                                                             </td>
                                                             <td className="px-3 py-2 text-right text-gray-600">
-                                                              {parseFloat(allocation.unitCost || 0).toFixed(2)}
+                                                              {parseFloat(
+                                                                allocation.unitCost ||
+                                                                0,
+                                                              ).toFixed(2)}
                                                             </td>
                                                             {hasSavedConsumptions && (
                                                               <td className="px-3 py-2 text-right text-gray-600 font-medium">
-                                                                {formatCurrency(parseFloat(allocation.totalCogs || 0))}
+                                                                {formatCurrency(
+                                                                  parseFloat(
+                                                                    allocation.totalCogs ||
+                                                                    0,
+                                                                  ),
+                                                                )}
                                                               </td>
                                                             )}
                                                             {!isReadOnly && (
@@ -6327,9 +6423,15 @@ const InvoiceForm = ({ onSave }) => {
                                                                 <button
                                                                   type="button"
                                                                   onClick={() => {
-                                                                    const newAllocations = (
-                                                                      item.allocations || []
-                                                                    ).filter((_, i) => i !== allocIndex);
+                                                                    const newAllocations =
+                                                                    (
+                                                                      item.allocations ||
+                                                                      []
+                                                                    ).filter(
+                                                                      (_, i) =>
+                                                                        i !==
+                                                                        allocIndex,
+                                                                    );
                                                                     handleItemChange(
                                                                       index,
                                                                       'allocations',
@@ -6345,10 +6447,15 @@ const InvoiceForm = ({ onSave }) => {
                                                           </tr>
                                                         ),
                                                       )}
-                                                      {displayAllocations.length === 0 && (
+                                                      {displayAllocations.length ===
+                                                      0 && (
                                                         <tr>
                                                           <td
-                                                            colSpan={hasSavedConsumptions ? 6 : 7}
+                                                            colSpan={
+                                                              hasSavedConsumptions
+                                                                ? 6
+                                                                : 7
+                                                            }
                                                             className="px-3 py-4 text-center text-gray-500 text-xs"
                                                           >
                                                             {hasSavedConsumptions
@@ -6380,10 +6487,14 @@ const InvoiceForm = ({ onSave }) => {
                                                           );
                                                         }}
                                                         disabled={
-                                                          (item.sourceType || 'WAREHOUSE') !== 'WAREHOUSE'
+                                                          (item.sourceType ||
+                                                          'WAREHOUSE') !==
+                                                        'WAREHOUSE'
                                                         }
                                                         className={`text-xs px-3 py-1 rounded transition-colors ${
-                                                          (item.sourceType || 'WAREHOUSE') === 'WAREHOUSE'
+                                                          (item.sourceType ||
+                                                          'WAREHOUSE') ===
+                                                        'WAREHOUSE'
                                                             ? 'bg-teal-600 text-white hover:bg-teal-700'
                                                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                         }`}
@@ -6884,31 +6995,44 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
 
                   {/* Phase 7: COGS/Profit Section - Show for confirmed invoices with COGS data */}
-                  {(invoice.totalCogs > 0 || invoice.status === 'CONFIRMED') && (
+                  {(invoice.totalCogs > 0 ||
+                    invoice.status === 'CONFIRMED') && (
                     <>
                       <div className={DIVIDER_CLASSES(isDarkMode)} />
                       <div className="space-y-1">
                         <div className="flex justify-between items-center py-1">
-                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <span
+                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          >
                             Cost of Goods
                           </span>
-                          <span className={`font-mono text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <span
+                            className={`font-mono text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                          >
                             {formatCurrency(invoice.totalCogs || 0)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center py-1">
-                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <span
+                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          >
                             Gross Profit
                           </span>
-                          <span className={`font-mono text-xs ${(invoice.totalProfit || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          <span
+                            className={`font-mono text-xs ${(invoice.totalProfit || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                          >
                             {formatCurrency(invoice.totalProfit || 0)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center py-1">
-                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <span
+                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                          >
                             Margin
                           </span>
-                          <span className={`font-mono text-xs font-semibold ${(invoice.grossMarginPercent || 0) >= 15 ? 'text-green-400' : (invoice.grossMarginPercent || 0) >= 0 ? 'text-yellow-400' : 'text-red-400'}`}>
+                          <span
+                            className={`font-mono text-xs font-semibold ${(invoice.grossMarginPercent || 0) >= 15 ? 'text-green-400' : (invoice.grossMarginPercent || 0) >= 0 ? 'text-yellow-400' : 'text-red-400'}`}
+                          >
                             {(invoice.grossMarginPercent || 0).toFixed(1)}%
                           </span>
                         </div>

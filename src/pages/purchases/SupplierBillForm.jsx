@@ -1225,9 +1225,13 @@ const SupplierBillForm = () => {
     try {
       setSaving(true);
 
-      // Filter valid items only
+      // Filter valid items only (require productName OR description, plus quantity/price > 0)
+      // Handle both camelCase (form state) and snake_case (API response) field names
       const validItems = bill.items.filter(
-        (item) => item.description && item.quantity > 0 && item.unitPrice > 0,
+        (item) =>
+          (item.description || item.productName || item.product_name) &&
+          item.quantity > 0 &&
+          (item.unitPrice > 0 || item.unit_price > 0),
       );
 
       const billData = {
@@ -1247,7 +1251,9 @@ const SupplierBillForm = () => {
       navigate('/app/supplier-bills');
     } catch (error) {
       console.error('Error saving supplier bill:', error);
-      notificationService.error(error.message || 'Failed to save supplier bill');
+      notificationService.error(
+        error.message || 'Failed to save supplier bill',
+      );
     } finally {
       setSaving(false);
     }
@@ -3541,8 +3547,8 @@ const SupplierBillForm = () => {
               <p
                 className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
-                Link this supplier bill to a Goods Receipt Note for 3-way matching
-                (PO - GRN - Bill)
+                Link this supplier bill to a Goods Receipt Note for 3-way
+                matching (PO - GRN - Bill)
               </p>
             </div>
 

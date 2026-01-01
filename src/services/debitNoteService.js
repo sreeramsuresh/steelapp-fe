@@ -56,13 +56,9 @@ const transformDebitNoteFromServer = (serverData) => {
     supplierId: serverData.supplierId || null,
     supplierDetails: serverData.supplierDetails || {},
     supplierName:
-      serverData.supplierName ||
-      serverData.supplierDetails?.name ||
-      '',
+      serverData.supplierName || serverData.supplierDetails?.name || '',
     supplierTrn:
-      serverData.supplierTrn ||
-      serverData.supplierDetails?.trn ||
-      '',
+      serverData.supplierTrn || serverData.supplierDetails?.trn || '',
     debitNoteNumber: serverData.debitNoteNumber || '',
     debitNoteDate: serverData.debitNoteDate || null,
     reason: serverData.reason || '',

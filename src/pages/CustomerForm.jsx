@@ -719,7 +719,10 @@ const CustomerForm = () => {
                 <div className="grid grid-cols-12 gap-3">
                   {/* Customer Name */}
                   <div className="col-span-12 md:col-span-6">
-                    <label htmlFor="customer-name" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="customer-name"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Customer Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -736,7 +739,10 @@ const CustomerForm = () => {
 
                   {/* Company Name */}
                   <div className="col-span-12 md:col-span-6">
-                    <label htmlFor="customer-company" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="customer-company"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Company Name
                     </label>
                     <input
@@ -753,7 +759,10 @@ const CustomerForm = () => {
 
                   {/* Email */}
                   <div className="col-span-12 md:col-span-6">
-                    <label htmlFor="customer-email" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="customer-email"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Email
                     </label>
                     <input
@@ -770,7 +779,10 @@ const CustomerForm = () => {
 
                   {/* Phone */}
                   <div className="col-span-12 md:col-span-6">
-                    <label htmlFor="customer-phone" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="customer-phone"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Phone
                     </label>
                     <input
@@ -787,7 +799,10 @@ const CustomerForm = () => {
 
                   {/* Customer Code */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="customer-code" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="customer-code"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Customer Code
                     </label>
                     <input
@@ -804,7 +819,10 @@ const CustomerForm = () => {
 
                   {/* Payment Terms */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="customer-payment-terms" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="customer-payment-terms"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Payment Terms
                     </label>
                     <input
@@ -838,7 +856,10 @@ const CustomerForm = () => {
                 <div className="grid grid-cols-12 gap-3">
                   {/* VAT Number */}
                   <div className="col-span-12 md:col-span-6">
-                    <label htmlFor="customer-vat-number" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="customer-vat-number"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       VAT Number
                     </label>
                     <input
@@ -1032,7 +1053,10 @@ const CustomerForm = () => {
                   {isEditMode && (
                     <div className="grid grid-cols-12 gap-3">
                       <div className="col-span-6 md:col-span-4">
-                        <label htmlFor="customer-credit-limit" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="customer-credit-limit"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Credit Limit (AED)
                         </label>
                         <input
@@ -1049,7 +1073,10 @@ const CustomerForm = () => {
                       </div>
 
                       <div className="col-span-6 md:col-span-4">
-                        <label htmlFor="customer-dso-value" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="customer-dso-value"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           DSO Value
                         </label>
                         <input
@@ -1066,7 +1093,10 @@ const CustomerForm = () => {
                       </div>
 
                       <div className="col-span-6 md:col-span-4">
-                        <label htmlFor="customer-credit-util" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="customer-credit-util"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Credit Utilization (%)
                         </label>
                         <input

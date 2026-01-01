@@ -515,7 +515,10 @@ const StockMovementForm = () => {
 
                     {/* Warehouse */}
                     <div className="col-span-12 md:col-span-6">
-                      <label htmlFor="stock-warehouse" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="stock-warehouse"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Warehouse <span className="text-red-500">*</span>
                       </label>
                       <FormSelect
@@ -651,7 +654,10 @@ const StockMovementForm = () => {
 
                     {/* Reference Type */}
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="stock-reference-type" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="stock-reference-type"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Reference Type
                       </label>
                       <FormSelect
@@ -675,7 +681,10 @@ const StockMovementForm = () => {
 
                     {/* Reference Number */}
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="stock-reference-number" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="stock-reference-number"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Reference #
                       </label>
                       <input
@@ -693,7 +702,10 @@ const StockMovementForm = () => {
 
                     {/* Movement Date */}
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="stock-movement-date" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="stock-movement-date"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Date
                       </label>
                       <input
@@ -730,7 +742,10 @@ const StockMovementForm = () => {
                   <div className={`p-3 border-t ${cardBorder}`}>
                     <div className="grid grid-cols-12 gap-3">
                       <div className="col-span-6 md:col-span-3">
-                        <label htmlFor="stock-unit-cost" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="stock-unit-cost"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Unit Cost
                         </label>
                         <input
@@ -748,7 +763,10 @@ const StockMovementForm = () => {
                         />
                       </div>
                       <div className="col-span-6 md:col-span-3">
-                        <label htmlFor="stock-batch-number" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="stock-batch-number"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Batch #
                         </label>
                         <input
@@ -764,7 +782,10 @@ const StockMovementForm = () => {
                         />
                       </div>
                       <div className="col-span-6 md:col-span-3">
-                        <label htmlFor="stock-coil-number" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="stock-coil-number"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Coil #
                         </label>
                         <input
@@ -780,7 +801,10 @@ const StockMovementForm = () => {
                         />
                       </div>
                       <div className="col-span-6 md:col-span-3">
-                        <label htmlFor="stock-heat-number" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="stock-heat-number"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Heat #
                         </label>
                         <input

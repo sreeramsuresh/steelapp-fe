@@ -215,7 +215,10 @@ export default function RolesPage() {
             </h2>
             <div className="space-y-4 mb-6">
               <div>
-                <label htmlFor="role-name" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="role-name"
+                  className="block text-sm font-medium mb-1"
+                >
                   Role Name
                 </label>
                 <input
@@ -234,7 +237,10 @@ export default function RolesPage() {
                 </p>
               </div>
               <div>
-                <label htmlFor="role-display-name" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="role-display-name"
+                  className="block text-sm font-medium mb-1"
+                >
                   Display Name
                 </label>
                 <input
@@ -253,7 +259,10 @@ export default function RolesPage() {
                 </p>
               </div>
               <div>
-                <label htmlFor="role-description" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="role-description"
+                  className="block text-sm font-medium mb-1"
+                >
                   Description
                 </label>
                 <textarea

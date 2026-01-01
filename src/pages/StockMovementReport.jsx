@@ -255,34 +255,49 @@ export default function StockMovementReport() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label htmlFor="stock-movement-start-date" className="block text-sm font-medium mb-2">Start Date</label>
+            <label
+              htmlFor="stock-movement-start-date"
+              className="block text-sm font-medium mb-2"
+            >
+              Start Date
+            </label>
             <input
               id="stock-movement-start-date"
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div>
-            <label htmlFor="stock-movement-end-date" className="block text-sm font-medium mb-2">End Date</label>
+            <label
+              htmlFor="stock-movement-end-date"
+              className="block text-sm font-medium mb-2"
+            >
+              End Date
+            </label>
             <input
               id="stock-movement-end-date"
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div>
-            <label htmlFor="stock-movement-warehouse" className="block text-sm font-medium mb-2">Warehouse</label>
+            <label
+              htmlFor="stock-movement-warehouse"
+              className="block text-sm font-medium mb-2"
+            >
+              Warehouse
+            </label>
             <select
               id="stock-movement-warehouse"
               value={selectedWarehouse}
               onChange={(e) => setSelectedWarehouse(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Warehouses</option>
               {warehouses.map((warehouse) => (
@@ -293,12 +308,17 @@ export default function StockMovementReport() {
             </select>
           </div>
           <div>
-            <label htmlFor="stock-movement-product" className="block text-sm font-medium mb-2">Product</label>
+            <label
+              htmlFor="stock-movement-product"
+              className="block text-sm font-medium mb-2"
+            >
+              Product
+            </label>
             <select
               id="stock-movement-product"
               value={selectedProduct}
               onChange={(e) => setSelectedProduct(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Products</option>
               {products.map((product) => (
@@ -312,7 +332,10 @@ export default function StockMovementReport() {
             </select>
           </div>
           <div>
-            <label htmlFor="stock-movement-type" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="stock-movement-type"
+              className="block text-sm font-medium mb-2"
+            >
               Movement Type
             </label>
             <select
@@ -324,7 +347,7 @@ export default function StockMovementReport() {
                   Array.from(e.target.selectedOptions, (o) => o.value),
                 )
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             >
               {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
                 <option key={key} value={key}>
@@ -346,14 +369,17 @@ export default function StockMovementReport() {
             )}
           </div>
           <div>
-            <label htmlFor="stock-movement-procurement-channel" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="stock-movement-procurement-channel"
+              className="block text-sm font-medium mb-2"
+            >
               Procurement Channel
             </label>
             <select
               id="stock-movement-procurement-channel"
               value={procurementChannel}
               onChange={(e) => setProcurementChannel(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             >
               {PROCUREMENT_CHANNELS.map((channel) => (
                 <option key={channel.value} value={channel.value}>

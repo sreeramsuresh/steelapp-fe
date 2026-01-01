@@ -134,7 +134,11 @@ export function useUnitConversion(options = {}) {
    */
   const calculateWeight = useCallback(async (productId, quantity, unitCode) => {
     try {
-      const result = await unitConversionService.calculateWeight(productId, quantity, unitCode);
+      const result = await unitConversionService.calculateWeight(
+        productId,
+        quantity,
+        unitCode,
+      );
       return result;
     } catch (err) {
       console.error('Error calculating weight:', err);
@@ -151,20 +155,23 @@ export function useUnitConversion(options = {}) {
    * @param {string} toUnit - Target unit code
    * @returns {Promise<{to_quantity: number, conversion_factor: number, notes: string, success: boolean, error_code: string|null, message: string|null, missing_fields: string[], pricing_mode: string|null, display_only: boolean}>}
    */
-  const convertUnits = useCallback(async (productId, fromQuantity, fromUnit, toUnit) => {
-    try {
-      const result = await unitConversionService.convertUnits(
-        productId,
-        fromQuantity,
-        fromUnit,
-        toUnit,
-      );
-      return result;
-    } catch (err) {
-      console.error('Error converting units:', err);
-      throw err;
-    }
-  }, []);
+  const convertUnits = useCallback(
+    async (productId, fromQuantity, fromUnit, toUnit) => {
+      try {
+        const result = await unitConversionService.convertUnits(
+          productId,
+          fromQuantity,
+          fromUnit,
+          toUnit,
+        );
+        return result;
+      } catch (err) {
+        console.error('Error converting units:', err);
+        throw err;
+      }
+    },
+    [],
+  );
 
   /**
    * Check if conversion is allowed for a pricing mode
@@ -186,7 +193,10 @@ export function useUnitConversion(options = {}) {
           reason: 'This product category does not support unit conversion',
         };
       case PRICING_MODES.MT_ONLY:
-        if ((fromUnit === 'MT' || fromUnit === 'KG') && (toUnit === 'MT' || toUnit === 'KG')) {
+        if (
+          (fromUnit === 'MT' || fromUnit === 'KG') &&
+          (toUnit === 'MT' || toUnit === 'KG')
+        ) {
           return { allowed: true, reason: null };
         }
         return {
@@ -207,7 +217,8 @@ export function useUnitConversion(options = {}) {
    */
   const getProductWeightSpec = useCallback(async (productId) => {
     try {
-      const result = await unitConversionService.getProductWeightSpec(productId);
+      const result =
+        await unitConversionService.getProductWeightSpec(productId);
       return result;
     } catch (err) {
       console.error('Error fetching weight spec:', err);
@@ -224,7 +235,10 @@ export function useUnitConversion(options = {}) {
    */
   const saveProductWeightSpec = useCallback(async (spec, changeReason) => {
     try {
-      const result = await unitConversionService.saveProductWeightSpec(spec, changeReason);
+      const result = await unitConversionService.saveProductWeightSpec(
+        spec,
+        changeReason,
+      );
       return result;
     } catch (err) {
       console.error('Error saving weight spec:', err);

@@ -987,7 +987,9 @@ export function SupplierForm() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="supplier-name" className={labelClasses}>Supplier Name *</label>
+                <label htmlFor="supplier-name" className={labelClasses}>
+                  Supplier Name *
+                </label>
                 <input
                   id="supplier-name"
                   type="text"
@@ -1002,7 +1004,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-company" className={labelClasses}>Company</label>
+                <label htmlFor="supplier-company" className={labelClasses}>
+                  Company
+                </label>
                 <input
                   id="supplier-company"
                   type="text"
@@ -1014,7 +1018,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-email" className={labelClasses}>Email</label>
+                <label htmlFor="supplier-email" className={labelClasses}>
+                  Email
+                </label>
                 <input
                   id="supplier-email"
                   type="email"
@@ -1029,7 +1035,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-phone" className={labelClasses}>Phone</label>
+                <label htmlFor="supplier-phone" className={labelClasses}>
+                  Phone
+                </label>
                 <input
                   id="supplier-phone"
                   type="tel"
@@ -1041,7 +1049,12 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-alternate-phone" className={labelClasses}>Alternate Phone</label>
+                <label
+                  htmlFor="supplier-alternate-phone"
+                  className={labelClasses}
+                >
+                  Alternate Phone
+                </label>
                 <input
                   id="supplier-alternate-phone"
                   type="tel"
@@ -1055,7 +1068,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-website" className={labelClasses}>Website</label>
+                <label htmlFor="supplier-website" className={labelClasses}>
+                  Website
+                </label>
                 <input
                   id="supplier-website"
                   type="url"
@@ -1067,7 +1082,9 @@ export function SupplierForm() {
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="supplier-street" className={labelClasses}>Street Address</label>
+                <label htmlFor="supplier-street" className={labelClasses}>
+                  Street Address
+                </label>
                 <input
                   id="supplier-street"
                   type="text"
@@ -1079,7 +1096,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-city" className={labelClasses}>City</label>
+                <label htmlFor="supplier-city" className={labelClasses}>
+                  City
+                </label>
                 <input
                   id="supplier-city"
                   type="text"
@@ -1091,7 +1110,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-state" className={labelClasses}>State/Emirate</label>
+                <label htmlFor="supplier-state" className={labelClasses}>
+                  State/Emirate
+                </label>
                 <input
                   id="supplier-state"
                   type="text"
@@ -1103,7 +1124,9 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-postal-code" className={labelClasses}>Postal Code</label>
+                <label htmlFor="supplier-postal-code" className={labelClasses}>
+                  Postal Code
+                </label>
                 <input
                   id="supplier-postal-code"
                   type="text"
@@ -1179,7 +1202,9 @@ export function SupplierForm() {
             {expandedSections.contact && (
               <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="contact-person-name" className={labelClasses}>Contact Person Name</label>
+                  <label htmlFor="contact-person-name" className={labelClasses}>
+                    Contact Person Name
+                  </label>
                   <input
                     id="contact-person-name"
                     type="text"
@@ -1193,7 +1218,9 @@ export function SupplierForm() {
                 </div>
 
                 <div>
-                  <label htmlFor="contact-email" className={labelClasses}>Contact Email</label>
+                  <label htmlFor="contact-email" className={labelClasses}>
+                    Contact Email
+                  </label>
                   <input
                     id="contact-email"
                     type="email"
@@ -1212,7 +1239,9 @@ export function SupplierForm() {
                 </div>
 
                 <div>
-                  <label htmlFor="contact-phone" className={labelClasses}>Contact Phone</label>
+                  <label htmlFor="contact-phone" className={labelClasses}>
+                    Contact Phone
+                  </label>
                   <input
                     id="contact-phone"
                     type="tel"
@@ -1265,7 +1294,12 @@ export function SupplierForm() {
               <div className="px-6 pb-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="supplier-vat-number" className={labelClasses}>VAT Number</label>
+                    <label
+                      htmlFor="supplier-vat-number"
+                      className={labelClasses}
+                    >
+                      VAT Number
+                    </label>
                     <input
                       id="supplier-vat-number"
                       type="text"
@@ -1292,7 +1326,9 @@ export function SupplierForm() {
                   />
 
                   <div>
-                    <label htmlFor="supplier-tax-id" className={labelClasses}>Tax ID (Legacy)</label>
+                    <label htmlFor="supplier-tax-id" className={labelClasses}>
+                      Tax ID (Legacy)
+                    </label>
                     <input
                       id="supplier-tax-id"
                       type="text"
@@ -1304,7 +1340,12 @@ export function SupplierForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="trade-license-number" className={labelClasses}>Trade License Number</label>
+                    <label
+                      htmlFor="trade-license-number"
+                      className={labelClasses}
+                    >
+                      Trade License Number
+                    </label>
                     <input
                       id="trade-license-number"
                       type="text"
@@ -1318,7 +1359,12 @@ export function SupplierForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="trade-license-expiry" className={labelClasses}>Trade License Expiry</label>
+                    <label
+                      htmlFor="trade-license-expiry"
+                      className={labelClasses}
+                    >
+                      Trade License Expiry
+                    </label>
                     <input
                       id="trade-license-expiry"
                       type="date"
@@ -1363,7 +1409,10 @@ export function SupplierForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="vatCertificateFile" className={labelClasses}>
+                    <label
+                      htmlFor="vatCertificateFile"
+                      className={labelClasses}
+                    >
                       <Upload size={14} className="inline mr-1" />
                       VAT Certificate File
                     </label>
@@ -1541,7 +1590,10 @@ export function SupplierForm() {
                           : 'bg-white border-gray-300'
                       }`}
                     >
-                      <label htmlFor="isMill" className="flex items-center gap-2 cursor-pointer">
+                      <label
+                        htmlFor="isMill"
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
                         <input
                           id="isMill"
                           type="checkbox"
@@ -1600,7 +1652,10 @@ export function SupplierForm() {
 
                   {/* Typical Lead Time */}
                   <div>
-                    <label htmlFor="typicalLeadTimeDays" className={labelClasses}>
+                    <label
+                      htmlFor="typicalLeadTimeDays"
+                      className={labelClasses}
+                    >
                       <Clock size={14} className="inline mr-1" />
                       Typical Lead Time (Days)
                     </label>
@@ -1695,10 +1750,16 @@ export function SupplierForm() {
 
                   {/* Material Grade Specialization - Multi-select */}
                   <div className="md:col-span-2">
-                    <label htmlFor="materialGradeSpecialization" className={labelClasses}>
+                    <label
+                      htmlFor="materialGradeSpecialization"
+                      className={labelClasses}
+                    >
                       Material Grade Specialization
                     </label>
-                    <div id="materialGradeSpecialization" className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg">
+                    <div
+                      id="materialGradeSpecialization"
+                      className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg"
+                    >
                       {MATERIAL_GRADE_OPTIONS.map((grade) => (
                         <label
                           key={grade.value}
@@ -1731,10 +1792,16 @@ export function SupplierForm() {
 
                   {/* Product Form Capabilities - Multi-select */}
                   <div className="md:col-span-2">
-                    <label htmlFor="productFormCapabilities" className={labelClasses}>
+                    <label
+                      htmlFor="productFormCapabilities"
+                      className={labelClasses}
+                    >
                       Product Form Capabilities
                     </label>
-                    <div id="productFormCapabilities" className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg">
+                    <div
+                      id="productFormCapabilities"
+                      className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 border rounded-lg"
+                    >
                       {PRODUCT_FORM_OPTIONS.map((form) => (
                         <label
                           key={form.value}
@@ -1784,12 +1851,18 @@ export function SupplierForm() {
 
                   {/* Quality Certifications */}
                   <div>
-                    <label htmlFor="qualityCertifications" className={labelClasses}>
+                    <label
+                      htmlFor="qualityCertifications"
+                      className={labelClasses}
+                    >
                       <Award size={14} className="inline mr-1" />
                       Quality Certifications
                     </label>
                     <div id="qualityCertifications" className="space-y-2">
-                      <label htmlFor="iso9001" className="flex items-center gap-2 cursor-pointer">
+                      <label
+                        htmlFor="iso9001"
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
                         <input
                           id="iso9001"
                           type="checkbox"
@@ -1809,7 +1882,10 @@ export function SupplierForm() {
                           ISO 9001 (Quality Management)
                         </span>
                       </label>
-                      <label htmlFor="iso14001" className="flex items-center gap-2 cursor-pointer">
+                      <label
+                        htmlFor="iso14001"
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
                         <input
                           id="iso14001"
                           type="checkbox"
@@ -1834,7 +1910,10 @@ export function SupplierForm() {
 
                   {/* ISO Certificates Upload */}
                   <div>
-                    <label htmlFor="isoCertificatesFile" className={labelClasses}>
+                    <label
+                      htmlFor="isoCertificatesFile"
+                      className={labelClasses}
+                    >
                       <Upload size={14} className="inline mr-1" />
                       ISO Certificates File
                     </label>
@@ -1865,7 +1944,12 @@ export function SupplierForm() {
 
                   {/* Other Certifications */}
                   <div className="md:col-span-2">
-                    <label htmlFor="other-certifications" className={labelClasses}>Other Certifications</label>
+                    <label
+                      htmlFor="other-certifications"
+                      className={labelClasses}
+                    >
+                      Other Certifications
+                    </label>
                     <input
                       id="other-certifications"
                       type="text"
@@ -1962,7 +2046,12 @@ export function SupplierForm() {
 
                   {/* Credit Limit */}
                   <div>
-                    <label htmlFor="supplier-credit-limit" className={labelClasses}>Credit Limit</label>
+                    <label
+                      htmlFor="supplier-credit-limit"
+                      className={labelClasses}
+                    >
+                      Credit Limit
+                    </label>
                     <input
                       id="supplier-credit-limit"
                       type="number"
@@ -1984,7 +2073,9 @@ export function SupplierForm() {
 
                   {/* Business License */}
                   <div>
-                    <label htmlFor="business-license" className={labelClasses}>Business License</label>
+                    <label htmlFor="business-license" className={labelClasses}>
+                      Business License
+                    </label>
                     <input
                       id="business-license"
                       type="text"
@@ -2006,7 +2097,12 @@ export function SupplierForm() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="bank-account-number" className={labelClasses}>Account Number</label>
+                        <label
+                          htmlFor="bank-account-number"
+                          className={labelClasses}
+                        >
+                          Account Number
+                        </label>
                         <input
                           id="bank-account-number"
                           type="text"
@@ -2024,7 +2120,9 @@ export function SupplierForm() {
                       </div>
 
                       <div>
-                        <label htmlFor="bank-name" className={labelClasses}>Bank Name</label>
+                        <label htmlFor="bank-name" className={labelClasses}>
+                          Bank Name
+                        </label>
                         <input
                           id="bank-name"
                           type="text"
@@ -2042,7 +2140,12 @@ export function SupplierForm() {
                       </div>
 
                       <div>
-                        <label htmlFor="bank-swift-code" className={labelClasses}>SWIFT Code</label>
+                        <label
+                          htmlFor="bank-swift-code"
+                          className={labelClasses}
+                        >
+                          SWIFT Code
+                        </label>
                         <input
                           id="bank-swift-code"
                           type="text"
@@ -2060,7 +2163,9 @@ export function SupplierForm() {
                       </div>
 
                       <div>
-                        <label htmlFor="bank-iban" className={labelClasses}>IBAN</label>
+                        <label htmlFor="bank-iban" className={labelClasses}>
+                          IBAN
+                        </label>
                         <input
                           id="bank-iban"
                           type="text"
@@ -2098,7 +2203,9 @@ export function SupplierForm() {
               Additional Information
             </h2>
             <div>
-              <label htmlFor="supplier-notes" className={labelClasses}>Notes</label>
+              <label htmlFor="supplier-notes" className={labelClasses}>
+                Notes
+              </label>
               <textarea
                 id="supplier-notes"
                 value={formData.notes}

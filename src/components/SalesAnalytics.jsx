@@ -249,7 +249,7 @@ const SalesAnalytics = () => {
       categoryPerformance: categoryPerf,
       monthlyTrend,
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dashboardData,
     dashboardPrev,

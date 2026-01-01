@@ -99,7 +99,7 @@ const CoreERPLayout = () => {
 
     // Check prefix matches
     for (const [route, title] of Object.entries(titleMap)) {
-      if (path.startsWith(`${route  }/`)) return title;
+      if (path.startsWith(`${route}/`)) return title;
     }
 
     return 'Core ERP';

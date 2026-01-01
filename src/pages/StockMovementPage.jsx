@@ -209,28 +209,40 @@ const StockMovementPage = () => {
                 {/* Left Column */}
                 <div className="space-y-3">
                   <div>
-                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
                       Product
                     </span>
-                    <p className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p
+                      className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
                       {selectedReservation.productName}
                     </p>
                     {selectedReservation.productSku && (
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <p
+                        className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      >
                         SKU: {selectedReservation.productSku}
                       </p>
                     )}
                   </div>
                   <div>
-                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
                       Warehouse
                     </span>
-                    <p className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p
+                      className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
                       {selectedReservation.warehouseName}
                     </p>
                   </div>
                   <div>
-                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
                       Status
                     </span>
                     <p>
@@ -240,7 +252,8 @@ const StockMovementPage = () => {
                             ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
                             : selectedReservation.status === 'FULFILLED'
                               ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                              : selectedReservation.status === 'PARTIALLY_FULFILLED'
+                              : selectedReservation.status ===
+                                  'PARTIALLY_FULFILLED'
                                 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
                                 : selectedReservation.status === 'EXPIRED'
                                   ? 'bg-red-500/20 text-red-400 border-red-500/30'
@@ -253,11 +266,16 @@ const StockMovementPage = () => {
                   </div>
                   {selectedReservation.referenceNumber && (
                     <div>
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <span
+                        className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      >
                         Reference
                       </span>
-                      <p className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {selectedReservation.referenceType}: {selectedReservation.referenceNumber}
+                      <p
+                        className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      >
+                        {selectedReservation.referenceType}:{' '}
+                        {selectedReservation.referenceNumber}
                       </p>
                     </div>
                   )}
@@ -266,36 +284,63 @@ const StockMovementPage = () => {
                 {/* Right Column */}
                 <div className="space-y-3">
                   <div>
-                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
                       Quantity Reserved
                     </span>
-                    <p className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {parseFloat(selectedReservation.quantityReserved).toFixed(2)} {selectedReservation.unit}
+                    <p
+                      className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {parseFloat(selectedReservation.quantityReserved).toFixed(
+                        2,
+                      )}{' '}
+                      {selectedReservation.unit}
                     </p>
                   </div>
                   <div>
-                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
                       Quantity Fulfilled
                     </span>
-                    <p className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {parseFloat(selectedReservation.quantityFulfilled).toFixed(2)} {selectedReservation.unit}
+                    <p
+                      className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {parseFloat(
+                        selectedReservation.quantityFulfilled,
+                      ).toFixed(2)}{' '}
+                      {selectedReservation.unit}
                     </p>
                   </div>
                   <div>
-                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span
+                      className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
                       Quantity Remaining
                     </span>
-                    <p className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {parseFloat(selectedReservation.quantityRemaining).toFixed(2)} {selectedReservation.unit}
+                    <p
+                      className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {parseFloat(
+                        selectedReservation.quantityRemaining,
+                      ).toFixed(2)}{' '}
+                      {selectedReservation.unit}
                     </p>
                   </div>
                   {selectedReservation.expiryDate && (
                     <div>
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <span
+                        className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                      >
                         Expiry Date
                       </span>
-                      <p className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {new Date(selectedReservation.expiryDate.seconds * 1000).toLocaleDateString('en-GB', {
+                      <p
+                        className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      >
+                        {new Date(
+                          selectedReservation.expiryDate.seconds * 1000,
+                        ).toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: 'short',
                           year: 'numeric',
@@ -309,15 +354,29 @@ const StockMovementPage = () => {
               {/* Timestamps */}
               <div className="mt-6 pt-4 border-t border-gray-700 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Created by:</span>
-                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                  <span
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
+                  >
+                    Created by:
+                  </span>
+                  <span
+                    className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}
+                  >
                     {selectedReservation.createdByName || 'Unknown'}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Created at:</span>
-                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                    {new Date(selectedReservation.createdAt.seconds * 1000).toLocaleString('en-GB', {
+                  <span
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
+                  >
+                    Created at:
+                  </span>
+                  <span
+                    className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}
+                  >
+                    {new Date(
+                      selectedReservation.createdAt.seconds * 1000,
+                    ).toLocaleString('en-GB', {
                       day: '2-digit',
                       month: 'short',
                       year: 'numeric',
@@ -331,10 +390,14 @@ const StockMovementPage = () => {
               {/* Notes */}
               {selectedReservation.notes && (
                 <div className="mt-4">
-                  <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <span
+                    className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  >
                     Notes
                   </span>
-                  <p className={`mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p
+                    className={`mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  >
                     {selectedReservation.notes}
                   </p>
                 </div>

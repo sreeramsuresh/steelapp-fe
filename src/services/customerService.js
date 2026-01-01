@@ -16,13 +16,16 @@ export const transformCustomerFromServer = (serverData) => {
     email: serverData.email || '',
     trn: serverData.trn || '',
     paymentTerms: serverData.paymentTerms || serverData.payment_terms || 0,
-    creditLimit: parseFloat(serverData.creditLimit || serverData.credit_limit) || 0,
-    currentBalance: parseFloat(serverData.currentBalance || serverData.current_balance) || 0,
+    creditLimit:
+      parseFloat(serverData.creditLimit || serverData.credit_limit) || 0,
+    currentBalance:
+      parseFloat(serverData.currentBalance || serverData.current_balance) || 0,
     status: serverData.status || 'ACTIVE',
     notes: serverData.notes || '',
     // Additional fields
     company: serverData.company || '',
-    alternatePhone: serverData.alternatePhone || serverData.alternate_phone || '',
+    alternatePhone:
+      serverData.alternatePhone || serverData.alternate_phone || '',
     contactPerson: serverData.contactPerson || serverData.contact_person || '',
     website: serverData.website || '',
     vatNumber: serverData.vatNumber || serverData.vat_number || '',
@@ -30,36 +33,68 @@ export const transformCustomerFromServer = (serverData) => {
     pricelistId: serverData.pricelistId || serverData.pricelist_id,
     // Compliance fields
     cinNumber: serverData.cinNumber || serverData.cin_number || '',
-    tradeLicenseNumber: serverData.tradeLicenseNumber || serverData.trade_license_number || '',
-    tradeLicenseExpiry: serverData.tradeLicenseExpiry || serverData.trade_license_expiry,
-    isDesignatedZone: serverData.isDesignatedZone || serverData.is_designated_zone || false,
+    tradeLicenseNumber:
+      serverData.tradeLicenseNumber || serverData.trade_license_number || '',
+    tradeLicenseExpiry:
+      serverData.tradeLicenseExpiry || serverData.trade_license_expiry,
+    isDesignatedZone:
+      serverData.isDesignatedZone || serverData.is_designated_zone || false,
     // Credit management
-    creditUtilizationPercentage: parseFloat(serverData.creditUtilizationPercentage || serverData.credit_utilization_percentage) || 0,
-    paymentHistoryScore: parseFloat(serverData.paymentHistoryScore || serverData.payment_history_score) || 1.0,
-    creditUsed: parseFloat(serverData.creditUsed || serverData.credit_used) || 0,
-    creditAvailable: parseFloat(serverData.creditAvailable || serverData.credit_available) || 0,
-    creditScore: parseFloat(serverData.creditScore || serverData.credit_score) || 0,
+    creditUtilizationPercentage:
+      parseFloat(
+        serverData.creditUtilizationPercentage ||
+          serverData.credit_utilization_percentage,
+      ) || 0,
+    paymentHistoryScore:
+      parseFloat(
+        serverData.paymentHistoryScore || serverData.payment_history_score,
+      ) || 1.0,
+    creditUsed:
+      parseFloat(serverData.creditUsed || serverData.credit_used) || 0,
+    creditAvailable:
+      parseFloat(serverData.creditAvailable || serverData.credit_available) ||
+      0,
+    creditScore:
+      parseFloat(serverData.creditScore || serverData.credit_score) || 0,
     creditGrade: serverData.creditGrade || serverData.credit_grade || '',
-    paymentTermsDays: serverData.paymentTermsDays || serverData.payment_terms_days || 0,
+    paymentTermsDays:
+      serverData.paymentTermsDays || serverData.payment_terms_days || 0,
     dsoDays: serverData.dsoDays || serverData.dso_days || 0,
     // Aging buckets
-    agingCurrent: parseFloat(serverData.agingCurrent || serverData.aging_current) || 0,
+    agingCurrent:
+      parseFloat(serverData.agingCurrent || serverData.aging_current) || 0,
     aging1To30: parseFloat(serverData.aging1To30 || serverData.aging_1_30) || 0,
-    aging31To60: parseFloat(serverData.aging31To60 || serverData.aging_31_60) || 0,
-    aging61To90: parseFloat(serverData.aging61To90 || serverData.aging_61_90) || 0,
-    aging90Plus: parseFloat(serverData.aging90Plus || serverData.aging_90_plus) || 0,
+    aging31To60:
+      parseFloat(serverData.aging31To60 || serverData.aging_31_60) || 0,
+    aging61To90:
+      parseFloat(serverData.aging61To90 || serverData.aging_61_90) || 0,
+    aging90Plus:
+      parseFloat(serverData.aging90Plus || serverData.aging_90_plus) || 0,
     // Dates
     lastPaymentDate: serverData.lastPaymentDate || serverData.last_payment_date,
-    creditReviewDate: serverData.creditReviewDate || serverData.credit_review_date,
-    lastCreditUpdated: serverData.lastCreditUpdated || serverData.last_credit_updated,
+    creditReviewDate:
+      serverData.creditReviewDate || serverData.credit_review_date,
+    lastCreditUpdated:
+      serverData.lastCreditUpdated || serverData.last_credit_updated,
     // Analytics
     customerCode: serverData.customerCode || serverData.customer_code || '',
-    code: serverData.code || serverData.customerCode || serverData.customer_code || '',
+    code:
+      serverData.code ||
+      serverData.customerCode ||
+      serverData.customer_code ||
+      '',
     dsoValue: parseFloat(serverData.dsoValue || serverData.dso_value) || 0,
-    creditUtilization: parseFloat(serverData.creditUtilization || serverData.credit_utilization) || 0,
-    totalOutstanding: parseFloat(serverData.totalOutstanding || serverData.total_outstanding) || 0,
-    trnNumber: serverData.trnNumber || serverData.trn_number || serverData.trn || '',
-    currentCredit: parseFloat(serverData.currentCredit || serverData.current_credit) || 0,
+    creditUtilization:
+      parseFloat(
+        serverData.creditUtilization || serverData.credit_utilization,
+      ) || 0,
+    totalOutstanding:
+      parseFloat(serverData.totalOutstanding || serverData.total_outstanding) ||
+      0,
+    trnNumber:
+      serverData.trnNumber || serverData.trn_number || serverData.trn || '',
+    currentCredit:
+      parseFloat(serverData.currentCredit || serverData.current_credit) || 0,
     // Generated columns
     city: serverData.city || '',
     country: serverData.country || '',

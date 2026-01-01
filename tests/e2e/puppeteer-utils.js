@@ -75,7 +75,7 @@ export async function waitForVisible(page, selector, timeout = 5000) {
  */
 export async function fillInput(page, selector, value, options = {}) {
   try {
-    const { clear = true, delay = 50 } = options;
+    const { clear = true, delay: typeDelay = 50 } = options;
 
     if (!(await waitForElement(page, selector))) {
       return false;
@@ -88,7 +88,7 @@ export async function fillInput(page, selector, value, options = {}) {
       await page.keyboard.press('Backspace');
     }
 
-    await page.type(selector, value, { delay });
+    await page.type(selector, value, { delay: typeDelay });
     return true;
   } catch (err) {
     log.error(`Failed to fill ${selector}: ${err.message}`);
@@ -524,14 +524,14 @@ export async function waitForText(page, text, timeout = 5000) {
  * @param {number} delay - Delay between keystrokes (ms)
  * @returns {boolean} - True if successful
  */
-export async function typeText(page, selector, text, delay = 50) {
+export async function typeText(page, selector, text, typeDelay = 50) {
   try {
     if (!(await waitForElement(page, selector))) {
       return false;
     }
 
     await page.click(selector);
-    await page.type(selector, text, { delay });
+    await page.type(selector, text, { delay: typeDelay });
     return true;
   } catch (err) {
     log.error(`Failed to type text: ${err.message}`);

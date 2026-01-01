@@ -425,7 +425,12 @@ const TRNValidationWidget = ({
               <div
                 key={validation.id}
                 onClick={() => onViewEntity && onViewEntity(validation)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewEntity && onViewEntity(validation); } }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onViewEntity && onViewEntity(validation);
+                  }
+                }}
                 role="button"
                 tabIndex={0}
                 className={`p-2.5 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
@@ -481,7 +486,12 @@ const TRNValidationWidget = ({
               <div
                 key={invalid.id}
                 onClick={() => onViewEntity && onViewEntity(invalid)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewEntity && onViewEntity(invalid); } }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onViewEntity && onViewEntity(invalid);
+                  }
+                }}
                 role="button"
                 tabIndex={0}
                 className={`p-2.5 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${

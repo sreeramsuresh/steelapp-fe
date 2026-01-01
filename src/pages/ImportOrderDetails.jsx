@@ -533,7 +533,9 @@ const ImportOrderDetails = () => {
                   <div
                     className="fixed inset-0 z-10"
                     onClick={() => setStatusDropdownOpen(false)}
-                    onKeyDown={(e) => e.key === 'Escape' && setStatusDropdownOpen(false)}
+                    onKeyDown={(e) =>
+                      e.key === 'Escape' && setStatusDropdownOpen(false)
+                    }
                     role="button"
                     tabIndex={-1}
                   />
@@ -1423,7 +1425,7 @@ const ImportOrderDetails = () => {
                             }`}
                             title="View"
                             onClick={() => {
-                              // TODO: Implement document view
+                            // TODO: Implement document view
                             }}
                           >
                             <Eye size={16} />
@@ -1437,7 +1439,7 @@ const ImportOrderDetails = () => {
                             }`}
                             title="Download"
                             onClick={() => {
-                              // TODO: Implement document download
+                            // TODO: Implement document download
                             }}
                           >
                             <Download size={16} />

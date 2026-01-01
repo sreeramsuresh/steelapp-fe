@@ -133,7 +133,9 @@ export default function CommissionApprovalWorkflow() {
     if (selectedIds.size === pendingApprovals.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(pendingApprovals.map((c) => c.invoiceId || c.invoice_id)));
+      setSelectedIds(
+        new Set(pendingApprovals.map((c) => c.invoiceId || c.invoice_id)),
+      );
     }
   };
 
@@ -165,7 +167,9 @@ export default function CommissionApprovalWorkflow() {
       setBulkAction('pay');
       const ids = Array.from(selectedIds);
       await commissionService.bulkMarkPaid(ids);
-      setSuccessMessage(`Successfully marked ${ids.length} commission(s) as paid!`);
+      setSuccessMessage(
+        `Successfully marked ${ids.length} commission(s) as paid!`,
+      );
       setSelectedIds(new Set());
       setTimeout(() => {
         loadPendingApprovals();
@@ -307,8 +311,12 @@ export default function CommissionApprovalWorkflow() {
 
         {/* Batch Action Toolbar */}
         {selectedIds.size > 0 && (
-          <div className={`mb-4 p-4 rounded-lg flex items-center justify-between ${isDarkMode ? 'bg-blue-900' : 'bg-blue-50'}`}>
-            <div className={`font-medium ${isDarkMode ? 'text-blue-200' : 'text-blue-800'}`}>
+          <div
+            className={`mb-4 p-4 rounded-lg flex items-center justify-between ${isDarkMode ? 'bg-blue-900' : 'bg-blue-50'}`}
+          >
+            <div
+              className={`font-medium ${isDarkMode ? 'text-blue-200' : 'text-blue-800'}`}
+            >
               {selectedIds.size} commission(s) selected
             </div>
             <div className="flex gap-2">
@@ -362,11 +370,16 @@ export default function CommissionApprovalWorkflow() {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={selectedIds.size === pendingApprovals.length && pendingApprovals.length > 0}
+                  checked={
+                    selectedIds.size === pendingApprovals.length &&
+                    pendingApprovals.length > 0
+                  }
                   onChange={selectAll}
                   className="w-4 h-4 rounded border-gray-300"
                 />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <span
+                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                >
                   Select All
                 </span>
               </label>
@@ -388,8 +401,7 @@ export default function CommissionApprovalWorkflow() {
                 // Handle both snake_case and camelCase field names
                 const salesPersonId =
                   commission.salesPersonId || commission.sales_person_id;
-                const invoiceId =
-                  commission.invoiceId || commission.invoice_id;
+                const invoiceId = commission.invoiceId || commission.invoice_id;
                 const invoiceNumber =
                   commission.invoiceNumber || commission.invoice_number;
                 const commissionAmount =
@@ -446,10 +458,10 @@ export default function CommissionApprovalWorkflow() {
                             <div
                               className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                             >
-                            Invoice {invoiceNumber}
+                              Invoice {invoiceNumber}
                             </div>
                             <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
-                            PENDING APPROVAL
+                              PENDING APPROVAL
                             </span>
                           </div>
                           <div

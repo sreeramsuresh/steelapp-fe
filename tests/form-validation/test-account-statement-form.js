@@ -212,12 +212,12 @@ async function runTest() {
 
         // Check for error messages
         const errorMessages = await page.evaluate(() => {
-          const errors = Array.from(
+          const errorElements = Array.from(
             document.querySelectorAll(
               '.error, .text-red-500, [class*="error"]',
             ),
           );
-          return errors.map((el) => el.textContent);
+          return errorElements.map((el) => el.textContent);
         });
 
         if (errorMessages.length > 0) {

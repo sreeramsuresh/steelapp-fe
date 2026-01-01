@@ -109,7 +109,8 @@ const DebitNoteForm = () => {
   // Supplier bill search
   const [supplierBillSearch, setSupplierBillSearch] = useState('');
   const [supplierBillResults, setSupplierBillResults] = useState([]);
-  const [showSupplierBillDropdown, setShowSupplierBillDropdown] = useState(false);
+  const [showSupplierBillDropdown, setShowSupplierBillDropdown] =
+    useState(false);
   const [selectedSupplierBill, setSelectedSupplierBill] = useState(null);
 
   // Warehouses (for Phase 2b)
@@ -562,7 +563,8 @@ const DebitNoteForm = () => {
                     </div>
 
                     {/* Supplier Bill Dropdown */}
-                    {showSupplierBillDropdown && supplierBillResults.length > 0 && (
+                    {showSupplierBillDropdown &&
+                      supplierBillResults.length > 0 && (
                       <div
                         className={`absolute z-10 w-full mt-1 rounded-xl shadow-lg border max-h-60 overflow-y-auto ${cardBg} ${cardBorder}`}
                       >
@@ -677,7 +679,10 @@ const DebitNoteForm = () => {
                 <div className="grid grid-cols-12 gap-3">
                   {/* Debit Note Number */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="debitNoteNumber" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="debitNoteNumber"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Debit Note Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -696,7 +701,10 @@ const DebitNoteForm = () => {
 
                   {/* Date */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="debitNoteDate" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="debitNoteDate"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Date <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -715,7 +723,10 @@ const DebitNoteForm = () => {
 
                   {/* Reason Category */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="reasonCategory" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="reasonCategory"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Reason Category
                     </label>
                     <FormSelect
@@ -739,7 +750,10 @@ const DebitNoteForm = () => {
 
                   {/* VAT Category */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="vatCategory" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="vatCategory"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       VAT Category
                     </label>
                     <FormSelect
@@ -763,7 +777,10 @@ const DebitNoteForm = () => {
 
                   {/* Reason */}
                   <div className="col-span-12 md:col-span-8">
-                    <label htmlFor="reason" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="reason"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Reason <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -819,7 +836,10 @@ const DebitNoteForm = () => {
                       <div className="grid grid-cols-12 gap-2">
                         {/* Description */}
                         <div className="col-span-12 md:col-span-5">
-                          <label htmlFor={`item-description-${index}`} className={`block text-xs ${textMuted} mb-1`}>
+                          <label
+                            htmlFor={`item-description-${index}`}
+                            className={`block text-xs ${textMuted} mb-1`}
+                          >
                             Description
                           </label>
                           <input
@@ -840,7 +860,10 @@ const DebitNoteForm = () => {
 
                         {/* Quantity */}
                         <div className="col-span-4 md:col-span-2">
-                          <label htmlFor={`item-quantity-${index}`} className={`block text-xs ${textMuted} mb-1`}>
+                          <label
+                            htmlFor={`item-quantity-${index}`}
+                            className={`block text-xs ${textMuted} mb-1`}
+                          >
                             Qty
                           </label>
                           <input
@@ -862,7 +885,10 @@ const DebitNoteForm = () => {
 
                         {/* Unit Price */}
                         <div className="col-span-4 md:col-span-2">
-                          <label htmlFor={`item-unitPrice-${index}`} className={`block text-xs ${textMuted} mb-1`}>
+                          <label
+                            htmlFor={`item-unitPrice-${index}`}
+                            className={`block text-xs ${textMuted} mb-1`}
+                          >
                             Unit Price
                           </label>
                           <input
@@ -884,7 +910,10 @@ const DebitNoteForm = () => {
 
                         {/* Amount */}
                         <div className="col-span-3 md:col-span-2">
-                          <label htmlFor={`item-amount-${index}`} className={`block text-xs ${textMuted} mb-1`}>
+                          <label
+                            htmlFor={`item-amount-${index}`}
+                            className={`block text-xs ${textMuted} mb-1`}
+                          >
                             Amount
                           </label>
                           <input
@@ -941,7 +970,10 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="settlementType" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="settlementType"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Settlement Type
                       </label>
                       <FormSelect
@@ -964,7 +996,10 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="paymentReference" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="paymentReference"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Payment Reference
                       </label>
                       <input
@@ -983,7 +1018,10 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="settlementDate" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="settlementDate"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Settlement Date
                       </label>
                       <input
@@ -1023,7 +1061,10 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="currency" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="currency"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Currency
                       </label>
                       <FormSelect
@@ -1046,7 +1087,10 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="exchangeRate" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="exchangeRate"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Exchange Rate
                       </label>
                       <input
@@ -1066,7 +1110,10 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-12 md:col-span-4">
-                      <label htmlFor="amountInBaseCurrency" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="amountInBaseCurrency"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Amount in Base Currency (AED)
                       </label>
                       <input
@@ -1109,7 +1156,10 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-12 md:col-span-8">
-                      <label htmlFor="attachmentUrls" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="attachmentUrls"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Attachment URLs (comma-separated)
                       </label>
                       <textarea
@@ -1131,7 +1181,10 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-12 md:col-span-4">
-                      <label htmlFor="approvalStatus" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="approvalStatus"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Approval Status
                       </label>
                       <FormSelect
@@ -1199,7 +1252,10 @@ const DebitNoteForm = () => {
 
                     {debitNote.stockImpact && (
                       <div className="col-span-12 md:col-span-6">
-                        <label htmlFor="warehouseId" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="warehouseId"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Warehouse
                         </label>
                         <FormSelect
@@ -1246,7 +1302,10 @@ const DebitNoteForm = () => {
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="version" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="version"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Version
                       </label>
                       <input
@@ -1263,7 +1322,10 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-6 md:col-span-4">
-                      <label htmlFor="previousAmount" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="previousAmount"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Previous Amount
                       </label>
                       <input
@@ -1280,7 +1342,10 @@ const DebitNoteForm = () => {
                     </div>
 
                     <div className="col-span-12 md:col-span-12">
-                      <label htmlFor="modificationReason" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="modificationReason"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Modification Reason{' '}
                         {debitNote.version > 1 && (
                           <span className="text-red-500">*</span>

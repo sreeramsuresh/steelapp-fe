@@ -88,7 +88,10 @@ const CommissionForecastWidget = ({
   const formatMonth = (monthKey) => {
     const [year, month] = monthKey.split('-');
     const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      year: '2-digit',
+    });
   };
 
   // Loading state
@@ -175,14 +178,15 @@ const CommissionForecastWidget = ({
   // Combine history and forecast for the chart
   const chartData = [
     ...history.slice(-6).map((h) => ({ ...h, type: 'actual' })),
-    ...forecast.map((f) => ({ month: f.month, earned: f.projected, type: 'forecast' })),
+    ...forecast.map((f) => ({
+      month: f.month,
+      earned: f.projected,
+      type: 'forecast',
+    })),
   ];
 
   // Calculate max for chart scaling
-  const maxValue = Math.max(
-    ...chartData.map((d) => d.earned || 0),
-    1,
-  );
+  const maxValue = Math.max(...chartData.map((d) => d.earned || 0), 1);
 
   return (
     <div
@@ -229,10 +233,10 @@ const CommissionForecastWidget = ({
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
+          className={`p-3 rounded-lg border ${isDarkMode ? 'bg-[#2E3B4E] border-[#37474F]' : 'bg-gray-100 border-gray-200'}`}
         >
           <p
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
           >
             Avg Monthly
           </p>
@@ -284,9 +288,7 @@ const CommissionForecastWidget = ({
         </div>
         <div
           className={`p-3 rounded-lg ${
-            isDarkMode
-              ? 'bg-yellow-900/20'
-              : 'bg-yellow-50'
+            isDarkMode ? 'bg-yellow-900/20' : 'bg-yellow-50'
           }`}
         >
           <p
@@ -305,7 +307,9 @@ const CommissionForecastWidget = ({
       {/* Mini Chart */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <span
+            className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+          >
             Monthly Trend
           </span>
           <div className="flex items-center gap-3 text-xs">
@@ -317,7 +321,8 @@ const CommissionForecastWidget = ({
               <span
                 className="w-2 h-2 rounded-full"
                 style={{
-                  background: 'repeating-linear-gradient(45deg, #818cf8, #818cf8 2px, transparent 2px, transparent 4px)',
+                  background:
+                    'repeating-linear-gradient(45deg, #818cf8, #818cf8 2px, transparent 2px, transparent 4px)',
                   border: '1px dashed #818cf8',
                 }}
               />
@@ -361,7 +366,10 @@ const CommissionForecastWidget = ({
       >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Clock size={14} className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'} />
+            <Clock
+              size={14}
+              className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}
+            />
             <span
               className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
@@ -384,24 +392,38 @@ const CommissionForecastWidget = ({
               <div
                 key={idx}
                 className={`flex items-center justify-between text-xs py-1 ${
-                  isDarkMode ? 'border-b border-[#37474F]' : 'border-b border-gray-200'
+                  isDarkMode
+                    ? 'border-b border-[#37474F]'
+                    : 'border-b border-gray-200'
                 } last:border-0`}
               >
-                <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                  {item.invoiceNumber || item.invoice_number || `Invoice #${item.invoiceId || item.invoice_id}`}
+                <span
+                  className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}
+                >
+                  {item.invoiceNumber ||
+                    item.invoice_number ||
+                    `Invoice #${item.invoiceId || item.invoice_id}`}
                 </span>
-                <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {formatCurrency(item.commissionAmount || item.commission_amount)}
+                <span
+                  className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                >
+                  {formatCurrency(
+                    item.commissionAmount || item.commission_amount,
+                  )}
                 </span>
               </div>
             ))
           ) : (
-            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               No pending commissions
             </p>
           )}
           {pipeline.count > 3 && (
-            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p
+              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               +{pipeline.count - 3} more pending
             </p>
           )}
@@ -412,18 +434,27 @@ const CommissionForecastWidget = ({
       {forecast.length > 0 && (
         <div className="mt-4 pt-3 border-t border-dashed border-gray-300 dark:border-gray-600">
           <div className="flex items-center gap-1 mb-2">
-            <Calendar size={14} className={isDarkMode ? 'text-indigo-400' : 'text-indigo-600'} />
-            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <Calendar
+              size={14}
+              className={isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}
+            />
+            <span
+              className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               3-Month Forecast
             </span>
           </div>
           <div className="flex items-center justify-between">
             {forecast.map((f, idx) => (
               <div key={idx} className="text-center flex-1">
-                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p
+                  className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                >
                   {formatMonth(f.month)}
                 </p>
-                <p className={`text-sm font-semibold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>
+                <p
+                  className={`text-sm font-semibold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}
+                >
                   {formatCompact(f.projected)}
                 </p>
               </div>

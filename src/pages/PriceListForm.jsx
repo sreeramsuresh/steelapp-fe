@@ -1701,7 +1701,10 @@ export default function PriceListForm() {
                 <div className="grid grid-cols-12 gap-3">
                   {/* Name - full width */}
                   <div className="col-span-12 sm:col-span-6">
-                    <label htmlFor="pricelist-name" className={LABEL_CLASSES(isDarkMode)}>
+                    <label
+                      htmlFor="pricelist-name"
+                      className={LABEL_CLASSES(isDarkMode)}
+                    >
                       Price List Name *
                     </label>
                     <input
@@ -1767,7 +1770,10 @@ export default function PriceListForm() {
 
                   {/* Description */}
                   <div className="col-span-12 sm:col-span-6">
-                    <label htmlFor="pricelist-description" className={LABEL_CLASSES(isDarkMode)}>
+                    <label
+                      htmlFor="pricelist-description"
+                      className={LABEL_CLASSES(isDarkMode)}
+                    >
                       Description
                     </label>
                     <textarea
@@ -1784,7 +1790,10 @@ export default function PriceListForm() {
 
                   {/* Effective From */}
                   <div className="col-span-6 sm:col-span-3">
-                    <label htmlFor="pricelist-effective-from" className={LABEL_CLASSES(isDarkMode)}>
+                    <label
+                      htmlFor="pricelist-effective-from"
+                      className={LABEL_CLASSES(isDarkMode)}
+                    >
                       Effective From
                     </label>
                     <input
@@ -1800,7 +1809,10 @@ export default function PriceListForm() {
 
                   {/* Effective To */}
                   <div className="col-span-6 sm:col-span-3">
-                    <label htmlFor="pricelist-effective-to" className={LABEL_CLASSES(isDarkMode)}>
+                    <label
+                      htmlFor="pricelist-effective-to"
+                      className={LABEL_CLASSES(isDarkMode)}
+                    >
                       Effective To *
                     </label>
                     <input
@@ -2607,7 +2619,10 @@ export default function PriceListForm() {
               </div>
 
               <div>
-                <label htmlFor="bulk-percentage" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="bulk-percentage"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Percentage (%) - Max: 20%
                 </label>
                 <input

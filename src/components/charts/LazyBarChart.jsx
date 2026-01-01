@@ -46,7 +46,14 @@ const LazyBarChart = ({
           dataKey={layout === 'vertical' ? xAxisKey : undefined}
           type={layout === 'vertical' ? 'category' : 'number'}
           stroke={isDarkMode ? '#9CA3AF' : '#6B7280'}
-          style={{ fontSize: '12px' }}
+          style={{ fontSize: '11px' }}
+          width={layout === 'vertical' ? 120 : 60}
+          tickFormatter={
+            layout === 'vertical'
+              ? (value) =>
+                value?.length > 18 ? `${value.slice(0, 16)}...` : value
+              : undefined
+          }
         />
         <Tooltip
           contentStyle={{

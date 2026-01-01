@@ -525,7 +525,12 @@ const AllocationDrawer = ({
       const qty = parseFloat(drawerState.quantity) || 1;
       fetchProductPrice(drawerState.productId, qty);
     }
-  }, [drawerState.productId, drawerState.quantity, drawerState.unitPriceOverridden, fetchProductPrice]);
+  }, [
+    drawerState.productId,
+    drawerState.quantity,
+    drawerState.unitPriceOverridden,
+    fetchProductPrice,
+  ]);
 
   // Re-fetch price on quantity change (volume discounts) with debounce
   useEffect(() => {

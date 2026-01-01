@@ -410,7 +410,10 @@ const CustomerCreditPanel = ({
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="current-credit-limit" className={`${textColor} block text-sm font-medium mb-2`}>
+              <label
+                htmlFor="current-credit-limit"
+                className={`${textColor} block text-sm font-medium mb-2`}
+              >
                 Current Credit Limit (AED)
               </label>
               <input
@@ -429,7 +432,10 @@ const CustomerCreditPanel = ({
             </div>
 
             <div>
-              <label htmlFor="new-credit-limit" className={`${textColor} block text-sm font-medium mb-2`}>
+              <label
+                htmlFor="new-credit-limit"
+                className={`${textColor} block text-sm font-medium mb-2`}
+              >
                 New Credit Limit (AED)
               </label>
               <input
@@ -451,7 +457,10 @@ const CustomerCreditPanel = ({
             </div>
 
             <div>
-              <label htmlFor="review-reason" className={`${textColor} block text-sm font-medium mb-2`}>
+              <label
+                htmlFor="review-reason"
+                className={`${textColor} block text-sm font-medium mb-2`}
+              >
                 Reason for Review
               </label>
               <textarea

@@ -1211,10 +1211,16 @@ const SteelProducts = () => {
 
     const fetchPolicy = async () => {
       try {
-        const response = await categoryPolicyService.getCategoryPolicy(null, category);
+        const response = await categoryPolicyService.getCategoryPolicy(
+          null,
+          category,
+        );
         setCategoryPolicy(response.policy || null);
       } catch (error) {
-        console.warn(`No category policy found for ${category}:`, error.message);
+        console.warn(
+          `No category policy found for ${category}:`,
+          error.message,
+        );
         setCategoryPolicy(null);
       }
     };
@@ -1224,10 +1230,16 @@ const SteelProducts = () => {
 
   // Phase 4: Helper to check if UOM is allowed for current category
   const isUomAllowed = (uom) => {
-    if (!categoryPolicy || !categoryPolicy.allowed_uoms || categoryPolicy.allowed_uoms.length === 0) {
+    if (
+      !categoryPolicy ||
+      !categoryPolicy.allowed_uoms ||
+      categoryPolicy.allowed_uoms.length === 0
+    ) {
       return true; // No restrictions = allow all
     }
-    return categoryPolicy.allowed_uoms.some(u => u.toUpperCase() === uom.toUpperCase());
+    return categoryPolicy.allowed_uoms.some(
+      (u) => u.toUpperCase() === uom.toUpperCase(),
+    );
   };
 
   // Dynamic category groups - only show groups that have matching products
@@ -4070,7 +4082,9 @@ const SteelProducts = () => {
                       Unit of Measure
                       {/* Phase 4: Show weight requirement warning */}
                       {categoryPolicy?.requires_weight && (
-                        <span className={`ml-2 text-xs ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}>
+                        <span
+                          className={`ml-2 text-xs ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
+                        >
                           (Weight required for this category)
                         </span>
                       )}
@@ -4079,13 +4093,37 @@ const SteelProducts = () => {
                   <Select
                     label="Primary UOM"
                     options={[
-                      { value: 'PCS', label: `Pieces (PCS)${!isUomAllowed('PCS') ? ' - Not allowed' : ''}`, disabled: !isUomAllowed('PCS') },
-                      { value: 'KG', label: `Kilograms (KG)${!isUomAllowed('KG') ? ' - Not allowed' : ''}`, disabled: !isUomAllowed('KG') },
-                      { value: 'MT', label: `Metric Tons (MT)${!isUomAllowed('MT') ? ' - Not allowed' : ''}`, disabled: !isUomAllowed('MT') },
-                      { value: 'METER', label: `Meters${!isUomAllowed('METER') ? ' - Not allowed' : ''}`, disabled: !isUomAllowed('METER') },
-                      { value: 'SQM', label: `Square Meters${!isUomAllowed('SQM') ? ' - Not allowed' : ''}`, disabled: !isUomAllowed('SQM') },
-                      { value: 'BUNDLE', label: `Bundles${!isUomAllowed('BUNDLE') ? ' - Not allowed' : ''}`, disabled: !isUomAllowed('BUNDLE') },
-                    ].filter(opt => isUomAllowed(opt.value))}
+                      {
+                        value: 'PCS',
+                        label: `Pieces (PCS)${!isUomAllowed('PCS') ? ' - Not allowed' : ''}`,
+                        disabled: !isUomAllowed('PCS'),
+                      },
+                      {
+                        value: 'KG',
+                        label: `Kilograms (KG)${!isUomAllowed('KG') ? ' - Not allowed' : ''}`,
+                        disabled: !isUomAllowed('KG'),
+                      },
+                      {
+                        value: 'MT',
+                        label: `Metric Tons (MT)${!isUomAllowed('MT') ? ' - Not allowed' : ''}`,
+                        disabled: !isUomAllowed('MT'),
+                      },
+                      {
+                        value: 'METER',
+                        label: `Meters${!isUomAllowed('METER') ? ' - Not allowed' : ''}`,
+                        disabled: !isUomAllowed('METER'),
+                      },
+                      {
+                        value: 'SQM',
+                        label: `Square Meters${!isUomAllowed('SQM') ? ' - Not allowed' : ''}`,
+                        disabled: !isUomAllowed('SQM'),
+                      },
+                      {
+                        value: 'BUNDLE',
+                        label: `Bundles${!isUomAllowed('BUNDLE') ? ' - Not allowed' : ''}`,
+                        disabled: !isUomAllowed('BUNDLE'),
+                      },
+                    ].filter((opt) => isUomAllowed(opt.value))}
                     value={
                       selectedProduct.primaryUom ||
                       selectedProduct.primary_uom ||

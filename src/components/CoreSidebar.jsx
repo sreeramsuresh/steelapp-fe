@@ -143,7 +143,8 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           name: 'Finance',
           path: '/app/finance',
           icon: Banknote,
-          description: 'Credit notes, statements, commissions, credit management',
+          description:
+            'Credit notes, statements, commissions, credit management',
           requiredPermission: 'payables.read',
         },
         {
@@ -245,7 +246,8 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           name: 'Company Settings',
           path: '/app/settings',
           icon: Settings,
-          description: 'Configure company details, integrations, and view audit logs',
+          description:
+            'Configure company details, integrations, and view audit logs',
           requiredRole: 'admin',
         },
       ],
@@ -288,7 +290,9 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
             <FileText size={20} />
           </div>
           <div>
-            <div className="font-bold text-lg leading-tight">ULTIMATE STEELS</div>
+            <div className="font-bold text-lg leading-tight">
+              ULTIMATE STEELS
+            </div>
             <div
               className={`text-xs opacity-70 ${
                 isDarkMode ? 'text-gray-400' : 'text-gray-600'
@@ -433,7 +437,6 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };

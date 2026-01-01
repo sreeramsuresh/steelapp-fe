@@ -437,7 +437,10 @@ const ReconciliationDashboard = () => {
             </select>
 
             <div>
-              <label htmlFor="audit-start-date" className="block text-xs text-gray-400 mb-1">
+              <label
+                htmlFor="audit-start-date"
+                className="block text-xs text-gray-400 mb-1"
+              >
                 Start Date
               </label>
               <input
@@ -453,7 +456,10 @@ const ReconciliationDashboard = () => {
             </div>
 
             <div>
-              <label htmlFor="audit-end-date" className="block text-xs text-gray-400 mb-1">
+              <label
+                htmlFor="audit-end-date"
+                className="block text-xs text-gray-400 mb-1"
+              >
                 End Date
               </label>
               <input

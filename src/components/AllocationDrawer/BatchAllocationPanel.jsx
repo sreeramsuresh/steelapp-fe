@@ -208,7 +208,14 @@ const BatchAllocationPanel = ({
     } finally {
       setIsAllocating(false);
     }
-  }, [manualAllocations, batches, isSelected, reserveManual, fetchBatches, clearSelection]);
+  }, [
+    manualAllocations,
+    batches,
+    isSelected,
+    reserveManual,
+    fetchBatches,
+    clearSelection,
+  ]);
 
   // Calculate totals from current allocations
   const { totalAllocated, totalCost } = useMemo(() => {
@@ -379,7 +386,11 @@ const BatchAllocationPanel = ({
                             }
                             placeholder={canEnterQty ? '0' : '-'}
                             disabled={loading || isAllocating || !canEnterQty}
-                            title={canEnterQty ? 'Enter quantity to allocate' : 'Select batch first to enter quantity'}
+                            title={
+                              canEnterQty
+                                ? 'Enter quantity to allocate'
+                                : 'Select batch first to enter quantity'
+                            }
                           />
                         )}
                       </td>
@@ -403,7 +414,8 @@ const BatchAllocationPanel = ({
             <div className="manual-actions">
               {hasSelection && (
                 <span className="selection-info">
-                  {selectedCount} batch{selectedCount !== 1 ? 'es' : ''} selected
+                  {selectedCount} batch{selectedCount !== 1 ? 'es' : ''}{' '}
+                  selected
                   <button
                     type="button"
                     className="btn-clear-selection"

@@ -92,10 +92,15 @@ export const unitConversionService = {
    */
   async getProductWeightSpec(productId) {
     try {
-      const response = await api.get(`/unit-conversions/weight-specs/${productId}`);
+      const response = await api.get(
+        `/unit-conversions/weight-specs/${productId}`,
+      );
       return response.data;
     } catch (error) {
-      console.error(`Error fetching weight spec for product ${productId}:`, error);
+      console.error(
+        `Error fetching weight spec for product ${productId}:`,
+        error,
+      );
       throw error;
     }
   },
@@ -130,7 +135,10 @@ export const unitConversionService = {
    */
   async batchCalculateWeight(items) {
     try {
-      const response = await api.post('/unit-conversions/batch-calculate-weight', { items });
+      const response = await api.post(
+        '/unit-conversions/batch-calculate-weight',
+        { items },
+      );
       return response.data;
     } catch (error) {
       console.error('Error batch calculating weights:', error);

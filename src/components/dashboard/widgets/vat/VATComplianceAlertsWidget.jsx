@@ -244,7 +244,12 @@ const VATComplianceAlertsWidget = ({
               <div
                 key={alert.id}
                 onClick={() => onAlertClick && onAlertClick(alert)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onAlertClick && onAlertClick(alert); } }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onAlertClick && onAlertClick(alert);
+                  }
+                }}
                 role="button"
                 tabIndex={0}
                 className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.01] ${

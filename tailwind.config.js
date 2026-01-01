@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  // Use class-based dark mode (controlled by .dark class on html element)
+  darkMode: 'class',
   // Optimize for production
   future: {
     hoverOnlyWhenSupported: true,

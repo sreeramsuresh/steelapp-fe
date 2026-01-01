@@ -103,9 +103,7 @@ async function runTest() {
           await page.evaluate(
             (index, value) => {
               document.querySelectorAll('select')[index].value = value;
-              document
-                .querySelectorAll('select')
-                [index].dispatchEvent(new Event('change', { bubbles: true }));
+              document.querySelectorAll('select')[index].dispatchEvent(new Event('change', { bubbles: true }));
             },
             0,
             sourceOptions[0],
@@ -128,9 +126,7 @@ async function runTest() {
           await page.evaluate(
             (index, value) => {
               document.querySelectorAll('select')[index].value = value;
-              document
-                .querySelectorAll('select')
-                [index].dispatchEvent(new Event('change', { bubbles: true }));
+              document.querySelectorAll('select')[index].dispatchEvent(new Event('change', { bubbles: true }));
             },
             1,
             destOptions[1],

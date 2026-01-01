@@ -56,7 +56,10 @@ const AgentCommissionDashboard = () => {
     if (summaryResult.status === 'fulfilled' && summaryResult.value?.data) {
       setSummary(summaryResult.value.data);
     } else {
-      console.error('Error loading summary:', summaryResult.reason || 'No data');
+      console.error(
+        'Error loading summary:',
+        summaryResult.reason || 'No data',
+      );
       setSummary({});
       hasError = true;
     }
@@ -64,10 +67,14 @@ const AgentCommissionDashboard = () => {
     // Handle transactions result
     if (transactionsResult.status === 'fulfilled') {
       // Handle both { data: [...] } and direct array responses
-      const txData = transactionsResult.value?.data || transactionsResult.value || [];
+      const txData =
+        transactionsResult.value?.data || transactionsResult.value || [];
       setTransactions(Array.isArray(txData) ? txData : []);
     } else {
-      console.error('Error loading transactions:', transactionsResult.reason || 'No data');
+      console.error(
+        'Error loading transactions:',
+        transactionsResult.reason || 'No data',
+      );
       setTransactions([]);
       hasError = true;
     }

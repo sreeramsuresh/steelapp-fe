@@ -17,7 +17,7 @@ const LazyLineChart = lazy(() => import('../components/charts/LazyLineChart'));
  * SupplierPerformanceDashboard - Phase 6 Analytics
  * Shows supplier rankings, OTD%, variance trends, at-risk suppliers
  */
-export function SupplierPerformanceDashboard() {
+function SupplierPerformanceDashboard() {
   const [suppliers, setSuppliers] = useState([]);
   const [atRiskSuppliers, setAtRiskSuppliers] = useState([]);
   const [trends, setTrends] = useState([]);
@@ -315,3 +315,5 @@ export function SupplierPerformanceDashboard() {
     </div>
   );
 }
+
+export default SupplierPerformanceDashboard;

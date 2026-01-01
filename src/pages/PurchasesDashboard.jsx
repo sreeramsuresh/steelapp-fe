@@ -11,12 +11,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import {
-  ShoppingCart,
-  Receipt,
-  FileMinus,
-  Coins,
-} from 'lucide-react';
+import { ShoppingCart, Receipt, FileMinus, Coins } from 'lucide-react';
 
 import PurchaseOrderList from './PurchaseOrderList';
 import { SupplierBillList, DebitNoteList } from './purchases';
@@ -31,7 +26,8 @@ const PurchasesDashboard = () => {
   useEffect(() => {
     const tabParam = searchParams.get('tab');
     // Support both supplier-bills and legacy vendor-bills
-    const normalizedTab = tabParam === 'vendor-bills' ? 'supplier-bills' : tabParam;
+    const normalizedTab =
+      tabParam === 'vendor-bills' ? 'supplier-bills' : tabParam;
     if (
       normalizedTab &&
       [

@@ -26,13 +26,16 @@ export const transformQuotationItemFromServer = (item) => {
     // Pricing basis fields
     pricingBasis: item.pricingBasis || item.pricing_basis || '',
     unitWeightKg: Number(item.unitWeightKg || item.unit_weight_kg) || 0,
-    theoreticalWeightKg: Number(item.theoreticalWeightKg || item.theoretical_weight_kg) || 0,
+    theoreticalWeightKg:
+      Number(item.theoreticalWeightKg || item.theoretical_weight_kg) || 0,
     // Steel industry specific
     stockReserved: item.stockReserved || item.stock_reserved || false,
     reservationExpiry: item.reservationExpiry || item.reservation_expiry || '',
-    estimatedLeadTimeDays: item.estimatedLeadTimeDays || item.estimated_lead_time_days || 0,
+    estimatedLeadTimeDays:
+      item.estimatedLeadTimeDays || item.estimated_lead_time_days || 0,
     deliverySchedule: item.deliverySchedule || item.delivery_schedule || '',
-    alternativeProducts: item.alternativeProducts || item.alternative_products || '',
+    alternativeProducts:
+      item.alternativeProducts || item.alternative_products || '',
   };
 };
 
@@ -46,44 +49,68 @@ export const transformQuotationFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId || serverData.company_id,
-    quotationNumber: serverData.quotationNumber || serverData.quotation_number || '',
+    quotationNumber:
+      serverData.quotationNumber || serverData.quotation_number || '',
     customerId: serverData.customerId || serverData.customer_id,
-    customerDetails: serverData.customerDetails || serverData.customer_details || {},
+    customerDetails:
+      serverData.customerDetails || serverData.customer_details || {},
     quotationDate: serverData.quotationDate || serverData.quotation_date || '',
     validUntil: serverData.validUntil || serverData.valid_until || '',
     deliveryTerms: serverData.deliveryTerms || serverData.delivery_terms || '',
     paymentTerms: serverData.paymentTerms || serverData.payment_terms || '',
     notes: serverData.notes || '',
-    termsAndConditions: serverData.termsAndConditions || serverData.terms_and_conditions || '',
+    termsAndConditions:
+      serverData.termsAndConditions || serverData.terms_and_conditions || '',
     subtotal: Number(serverData.subtotal) || 0,
     vatAmount: Number(serverData.vatAmount || serverData.vat_amount) || 0,
-    totalQuantity: Number(serverData.totalQuantity || serverData.total_quantity) || 0,
+    totalQuantity:
+      Number(serverData.totalQuantity || serverData.total_quantity) || 0,
     totalWeight: Number(serverData.totalWeight || serverData.total_weight) || 0,
-    otherCharges: Number(serverData.otherCharges || serverData.other_charges) || 0,
+    otherCharges:
+      Number(serverData.otherCharges || serverData.other_charges) || 0,
     total: Number(serverData.total) || 0,
     status: serverData.status || 'draft',
-    convertedToInvoice: serverData.convertedToInvoice || serverData.converted_to_invoice || false,
+    convertedToInvoice:
+      serverData.convertedToInvoice || serverData.converted_to_invoice || false,
     invoiceId: serverData.invoiceId || serverData.invoice_id,
     items: (serverData.items || []).map(transformQuotationItemFromServer),
     // Additional fields
     createdAt: serverData.createdAt || serverData.created_at,
     warehouseName: serverData.warehouseName || serverData.warehouse_name || '',
-    packingCharges: Number(serverData.packingCharges || serverData.packing_charges) || 0,
-    freightCharges: Number(serverData.freightCharges || serverData.freight_charges) || 0,
-    insuranceCharges: Number(serverData.insuranceCharges || serverData.insurance_charges) || 0,
-    loadingCharges: Number(serverData.loadingCharges || serverData.loading_charges) || 0,
+    packingCharges:
+      Number(serverData.packingCharges || serverData.packing_charges) || 0,
+    freightCharges:
+      Number(serverData.freightCharges || serverData.freight_charges) || 0,
+    insuranceCharges:
+      Number(serverData.insuranceCharges || serverData.insurance_charges) || 0,
+    loadingCharges:
+      Number(serverData.loadingCharges || serverData.loading_charges) || 0,
     // Multi-currency and discount fields
     warehouseId: serverData.warehouseId || serverData.warehouse_id,
     currency: serverData.currency || 'AED',
     discountType: serverData.discountType || serverData.discount_type || '',
-    discountPercentage: Number(serverData.discountPercentage || serverData.discount_percentage) || 0,
-    discountAmount: Number(serverData.discountAmount || serverData.discount_amount) || 0,
-    customerPurchaseOrderNumber: serverData.customerPurchaseOrderNumber || serverData.customer_purchase_order_number || '',
-    customerPurchaseOrderDate: serverData.customerPurchaseOrderDate || serverData.customer_purchase_order_date || '',
-    exchangeRate: Number(serverData.exchangeRate || serverData.exchange_rate) || 1.0,
+    discountPercentage:
+      Number(serverData.discountPercentage || serverData.discount_percentage) ||
+      0,
+    discountAmount:
+      Number(serverData.discountAmount || serverData.discount_amount) || 0,
+    customerPurchaseOrderNumber:
+      serverData.customerPurchaseOrderNumber ||
+      serverData.customer_purchase_order_number ||
+      '',
+    customerPurchaseOrderDate:
+      serverData.customerPurchaseOrderDate ||
+      serverData.customer_purchase_order_date ||
+      '',
+    exchangeRate:
+      Number(serverData.exchangeRate || serverData.exchange_rate) || 1.0,
     // Steel industry specific
-    priceValidityCondition: serverData.priceValidityCondition || serverData.price_validity_condition || '',
-    volumeDiscountTiers: serverData.volumeDiscountTiers || serverData.volume_discount_tiers || '',
+    priceValidityCondition:
+      serverData.priceValidityCondition ||
+      serverData.price_validity_condition ||
+      '',
+    volumeDiscountTiers:
+      serverData.volumeDiscountTiers || serverData.volume_discount_tiers || '',
     // Audit
     updatedAt: serverData.updatedAt || serverData.updated_at,
   };

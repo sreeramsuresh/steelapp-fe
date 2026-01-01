@@ -438,12 +438,41 @@ const commissionService = {
       return {
         data: {
           totalSales: parseFloat(stats.total_sales || stats.totalSales || 0),
-          pendingAmount: parseFloat(stats.pending_amount || stats.pendingAmount || 0),
-          approvedAmount: parseFloat(stats.approved_amount || stats.approvedAmount || 0),
-          paidAmount: parseFloat(stats.paid_amount || stats.paidAmount || stats.total_commission_paid || stats.totalCommissionPaid || 0),
-          totalTransactions: parseInt(stats.total_transactions || stats.totalTransactions || stats.transaction_count || stats.transactionCount || 0, 10),
-          totalCommission: parseFloat(stats.total_commission || stats.totalCommission || stats.total_commission_earned || stats.totalCommissionEarned || 0),
-          averageRate: parseFloat(stats.average_rate || stats.averageRate || stats.avg_commission_rate || stats.avgCommissionRate || 0),
+          pendingAmount: parseFloat(
+            stats.pending_amount || stats.pendingAmount || 0,
+          ),
+          approvedAmount: parseFloat(
+            stats.approved_amount || stats.approvedAmount || 0,
+          ),
+          paidAmount: parseFloat(
+            stats.paid_amount ||
+              stats.paidAmount ||
+              stats.total_commission_paid ||
+              stats.totalCommissionPaid ||
+              0,
+          ),
+          totalTransactions: parseInt(
+            stats.total_transactions ||
+              stats.totalTransactions ||
+              stats.transaction_count ||
+              stats.transactionCount ||
+              0,
+            10,
+          ),
+          totalCommission: parseFloat(
+            stats.total_commission ||
+              stats.totalCommission ||
+              stats.total_commission_earned ||
+              stats.totalCommissionEarned ||
+              0,
+          ),
+          averageRate: parseFloat(
+            stats.average_rate ||
+              stats.averageRate ||
+              stats.avg_commission_rate ||
+              stats.avgCommissionRate ||
+              0,
+          ),
         },
       };
     } catch (error) {
@@ -479,14 +508,22 @@ const commissionService = {
       const _daysBack = monthsBack * 31;
 
       // Parallel fetch: all commissions (via transactions) + pending approvals
-      const [commissionsResponse, pendingResponse, agentsResponse] = await Promise.all([
-        api.get('/commissions/transactions', { params: { status: 'ALL' } }),
-        api.get('/commissions/pending-approvals', { params: { page: 1, limit: 100 } }),
-        api.get('/commissions/agents', { params: { page: 1, limit: 50, onlyActive: true } }),
-      ]);
+      const [commissionsResponse, pendingResponse, agentsResponse] =
+        await Promise.all([
+          api.get('/commissions/transactions', { params: { status: 'ALL' } }),
+          api.get('/commissions/pending-approvals', {
+            params: { page: 1, limit: 100 },
+          }),
+          api.get('/commissions/agents', {
+            params: { page: 1, limit: 50, onlyActive: true },
+          }),
+        ]);
 
       const commissions = commissionsResponse.data?.transactions || [];
-      const pendingApprovals = pendingResponse.data?.items || pendingResponse.data?.pendingApprovals || [];
+      const pendingApprovals =
+        pendingResponse.data?.items ||
+        pendingResponse.data?.pendingApprovals ||
+        [];
       const agents = agentsResponse.data?.agents || [];
 
       // Calculate monthly history
@@ -505,45 +542,71 @@ const commissionService = {
         const date = new Date(comm.created_at || comm.createdAt);
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         if (monthlyData[key]) {
-          monthlyData[key].earned += parseFloat(comm.commission_amount || comm.commissionAmount || 0);
+          monthlyData[key].earned += parseFloat(
+            comm.commission_amount || comm.commissionAmount || 0,
+          );
           if (comm.status === 'PAID') {
-            monthlyData[key].paid += parseFloat(comm.paid_amount || comm.paidAmount || comm.commission_amount || comm.commissionAmount || 0);
+            monthlyData[key].paid += parseFloat(
+              comm.paid_amount ||
+                comm.paidAmount ||
+                comm.commission_amount ||
+                comm.commissionAmount ||
+                0,
+            );
           }
           monthlyData[key].count += 1;
         }
       });
 
       // Convert to sorted array (oldest to newest)
-      const history = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
+      const history = Object.values(monthlyData).sort((a, b) =>
+        a.month.localeCompare(b.month),
+      );
 
       // Calculate pipeline from pending approvals
       const pipelineTotal = pendingApprovals.reduce((sum, item) => {
-        return sum + parseFloat(item.commissionAmount || item.commission_amount || 0);
+        return (
+          sum + parseFloat(item.commissionAmount || item.commission_amount || 0)
+        );
       }, 0);
 
       // Calculate average monthly commission (last 6 months for trend)
       const recentMonths = history.slice(-6);
-      const avgMonthlyEarned = recentMonths.reduce((sum, m) => sum + m.earned, 0) / Math.max(recentMonths.length, 1);
+      const avgMonthlyEarned =
+        recentMonths.reduce((sum, m) => sum + m.earned, 0) /
+        Math.max(recentMonths.length, 1);
 
       // Calculate growth rate (compare last 3 months vs prior 3 months)
       const lastThree = history.slice(-3);
       const priorThree = history.slice(-6, -3);
-      const lastThreeAvg = lastThree.reduce((sum, m) => sum + m.earned, 0) / Math.max(lastThree.length, 1);
-      const priorThreeAvg = priorThree.reduce((sum, m) => sum + m.earned, 0) / Math.max(priorThree.length, 1);
-      const growthRate = priorThreeAvg > 0 ? ((lastThreeAvg - priorThreeAvg) / priorThreeAvg) * 100 : 0;
+      const lastThreeAvg =
+        lastThree.reduce((sum, m) => sum + m.earned, 0) /
+        Math.max(lastThree.length, 1);
+      const priorThreeAvg =
+        priorThree.reduce((sum, m) => sum + m.earned, 0) /
+        Math.max(priorThree.length, 1);
+      const growthRate =
+        priorThreeAvg > 0
+          ? ((lastThreeAvg - priorThreeAvg) / priorThreeAvg) * 100
+          : 0;
 
       // Forecast next 3 months based on trend
       const forecast = [];
       for (let i = 1; i <= 3; i++) {
         const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        const projectedAmount = avgMonthlyEarned * (1 + (growthRate / 100) * (i * 0.3));
+        const projectedAmount =
+          avgMonthlyEarned * (1 + (growthRate / 100) * (i * 0.3));
         forecast.push({ month: key, projected: Math.max(projectedAmount, 0) });
       }
 
       // Current month totals
       const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const currentMonth = monthlyData[currentMonthKey] || { earned: 0, paid: 0, count: 0 };
+      const currentMonth = monthlyData[currentMonthKey] || {
+        earned: 0,
+        paid: 0,
+        count: 0,
+      };
 
       return {
         history,

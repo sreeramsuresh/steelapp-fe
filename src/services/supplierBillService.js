@@ -9,6 +9,7 @@
  */
 
 import { apiClient } from './api';
+import { normalizeUom } from '../utils/fieldAccessors';
 
 // ============================================================================
 // DATA TRANSFORMERS
@@ -22,13 +23,16 @@ const transformSupplierBillForServer = (billData) => {
   return {
     // Use supplierId to match API gateway expected field (converts to supplier_id)
     supplierId: billData.supplierId || billData.supplier?.id || null,
-    vendorInvoiceNumber: billData.vendorInvoiceNumber || '',
+    // Handle both field names for vendor invoice number
+    supplierInvoiceNumber:
+      billData.supplierInvoiceNumber || billData.vendorInvoiceNumber || '',
     billDate: billData.billDate || null,
     dueDate: billData.dueDate || null,
     receivedDate: billData.receivedDate || null,
     paymentTerms: billData.paymentTerms || 'net_30',
     // VAT fields - use primaryVatCategory to match API gateway
-    primaryVatCategory: billData.vatCategory || 'STANDARD',
+    primaryVatCategory:
+      billData.primaryVatCategory || billData.vatCategory || 'STANDARD',
     placeOfSupply: billData.placeOfSupply || 'AE-DU',
     isReverseCharge: billData.isReverseCharge || false,
     // Amounts - backend calculates these from items
@@ -47,13 +51,15 @@ const transformSupplierBillForServer = (billData) => {
     importOrderId: billData.importOrderId || null,
     purchaseOrderId: billData.purchaseOrderId || null,
     purchaseOrderNumber: billData.purchaseOrderNumber || '',
+    // Company ID for multi-tenancy
+    companyId: billData.companyId || null,
     // Items
     items: (billData.items || []).map((item) => ({
       productId: item.productId || null,
       productName: item.productName || item.name || '',
       description: item.description || '',
       quantity: parseFloat(item.quantity || 0),
-      unit: item.unit || 'PCS',
+      unit: normalizeUom(item),
       unitPrice: parseFloat(item.unitPrice || item.rate || 0),
       vatRate: parseFloat(item.vatRate || 5),
       vatCategory: item.vatCategory || 'STANDARD',
@@ -73,41 +79,65 @@ const transformSupplierBillFromServer = (serverData) => {
   if (!serverData) return null;
 
   // Handle both snake_case from gRPC and camelCase from API gateway auto-conversion
-  const total = parseFloat(serverData.total || serverData.totalAmount || 0);
-  const amountPaid = parseFloat(serverData.amountPaid || 0);
+  const total = parseFloat(
+    serverData.total || serverData.totalAmount || serverData.total_amount || 0,
+  );
+  const amountPaid = parseFloat(
+    serverData.amountPaid || serverData.amount_paid || 0,
+  );
   const balanceDue = parseFloat(
-    serverData.balanceDue || total - amountPaid || 0,
+    serverData.balanceDue || serverData.balance_due || total - amountPaid || 0,
   );
 
   return {
     id: serverData.id,
-    companyId: serverData.companyId,
-    supplierId: serverData.supplierId || null,
-    supplierDetails: serverData.supplierDetails || {},
+    companyId: serverData.companyId || serverData.company_id,
+    supplierId: serverData.supplierId || serverData.supplier_id || null,
+    supplierDetails:
+      serverData.supplierDetails || serverData.supplier_details || {},
     supplierName:
       serverData.supplierName ||
+      serverData.supplier_name ||
       serverData.supplierDetails?.name ||
+      serverData.supplier_details?.name ||
       '',
     supplierTrn:
       serverData.supplierTrn ||
+      serverData.supplier_trn ||
       serverData.supplierDetails?.trn ||
+      serverData.supplier_details?.trn ||
       '',
-    billNumber: serverData.billNumber || '',
-    vendorInvoiceNumber: serverData.vendorInvoiceNumber || '',
-    billDate: serverData.billDate || null,
-    dueDate: serverData.dueDate || null,
-    receivedDate: serverData.receivedDate || null,
+    billNumber: serverData.billNumber || serverData.bill_number || '',
+    supplierInvoiceNumber:
+      serverData.supplierInvoiceNumber ||
+      serverData.supplier_invoice_number ||
+      serverData.vendorInvoiceNumber ||
+      serverData.vendor_invoice_number ||
+      '',
+    billDate: serverData.billDate || serverData.bill_date || null,
+    dueDate: serverData.dueDate || serverData.due_date || null,
+    receivedDate: serverData.receivedDate || serverData.received_date || null,
     // VAT fields - handle primaryVatCategory from gRPC response
     vatCategory:
-      serverData.vatCategory || serverData.primaryVatCategory || 'STANDARD',
-    placeOfSupply: serverData.placeOfSupply || 'AE-DU',
-    isReverseCharge: serverData.isReverseCharge || false,
+      serverData.vatCategory ||
+      serverData.vat_category ||
+      serverData.primaryVatCategory ||
+      serverData.primary_vat_category ||
+      'STANDARD',
+    placeOfSupply:
+      serverData.placeOfSupply || serverData.place_of_supply || 'AE-DU',
+    isReverseCharge:
+      serverData.isReverseCharge || serverData.is_reverse_charge || false,
     reverseChargeAmount: parseFloat(
-      serverData.reverseChargeVat || serverData.reverseChargeAmount || 0,
+      serverData.reverseChargeVat ||
+        serverData.reverse_charge_vat ||
+        serverData.reverseChargeAmount ||
+        serverData.reverse_charge_amount ||
+        0,
     ),
     // Amounts
     subtotal: parseFloat(serverData.subtotal || 0),
-    vatAmount: parseFloat(serverData.vatAmount || 0),
+    vatAmount: parseFloat(serverData.vatAmount || serverData.vat_amount || 0),
     total,
     // Payment tracking
     amountPaid,
@@ -115,56 +145,91 @@ const transformSupplierBillFromServer = (serverData) => {
     balanceDue,
     // Status - normalize to lowercase for frontend
     status: (serverData.status || 'draft').toLowerCase(),
-    approvalStatus: serverData.approvalStatus || 'pending',
+    approvalStatus:
+      serverData.approvalStatus || serverData.approval_status || 'pending',
     paymentStatus:
       serverData.paymentStatus ||
+      serverData.payment_status ||
       (amountPaid >= total ? 'paid' : amountPaid > 0 ? 'partial' : 'unpaid'),
     // Metadata
     notes: serverData.notes || '',
-    internalNotes: serverData.internalNotes || '',
-    terms: serverData.terms || serverData.paymentTerms || '',
+    internalNotes: serverData.internalNotes || serverData.internal_notes || '',
+    terms:
+      serverData.terms ||
+      serverData.paymentTerms ||
+      serverData.payment_terms ||
+      '',
     attachmentUrls:
       serverData.attachmentUrls ||
-      (serverData.attachmentUrl ? [serverData.attachmentUrl] : []),
+      serverData.attachment_urls ||
+      (serverData.attachmentUrl || serverData.attachment_url
+        ? [serverData.attachmentUrl || serverData.attachment_url]
+        : []),
     // Currency
     currency: serverData.currency || 'AED',
-    exchangeRate: parseFloat(serverData.exchangeRate || 1),
-    totalAed: parseFloat(serverData.totalAed || total),
-    // Items
+    exchangeRate: parseFloat(
+      serverData.exchangeRate || serverData.exchange_rate || 1,
+    ),
+    totalAed: parseFloat(serverData.totalAed || serverData.total_aed || total),
+    // Items - handle both camelCase and snake_case from API
     items: (serverData.items || []).map((item) => ({
       id: item.id,
-      productId: item.productId,
-      productName: item.productName || '',
+      productId: item.productId || item.product_id,
+      productName: item.productName || item.product_name || '',
       description: item.description || '',
       quantity: parseFloat(item.quantity || 0),
-      unit: item.unit || 'PCS',
-      unitPrice: parseFloat(item.unitPrice || 0),
+      unit: normalizeUom(item),
+      unitPrice: parseFloat(item.unitPrice || item.unit_price || 0),
       amount: parseFloat(item.amount || 0),
-      vatRate: parseFloat(item.vatRate || 5),
-      vatAmount: parseFloat(item.vatAmount || 0),
-      vatCategory: item.vatCategory || 'STANDARD',
-      isBlockedVat: item.isBlockedVat || false,
-      blockedReason: item.blockedReason || '',
-      costCenter: item.costCenter || '',
-      glAccount: item.glAccount || '',
+      vatRate: parseFloat(item.vatRate || item.vat_rate || 5),
+      vatAmount: parseFloat(item.vatAmount || item.vat_amount || 0),
+      vatCategory: item.vatCategory || item.vat_category || 'STANDARD',
+      isBlockedVat: item.isBlockedVat || item.is_blocked_vat || false,
+      blockedReason: item.blockedReason || item.blocked_reason || '',
+      costCenter: item.costCenter || item.cost_center || '',
+      glAccount: item.glAccount || item.gl_account || '',
     })),
     // Payments
     payments: serverData.payments || [],
     // Timestamps
-    createdAt: serverData.createdAt || serverData.audit?.createdAt || null,
-    updatedAt: serverData.updatedAt || serverData.audit?.updatedAt || null,
-    createdBy: serverData.createdBy || serverData.audit?.createdBy || null,
-    updatedBy: serverData.updatedBy || serverData.audit?.updatedBy || null,
-    approvedAt: serverData.approvedAt || null,
-    approvedBy: serverData.approvedBy || null,
+    createdAt:
+      serverData.createdAt ||
+      serverData.created_at ||
+      serverData.audit?.createdAt ||
+      serverData.audit?.created_at ||
+      null,
+    updatedAt:
+      serverData.updatedAt ||
+      serverData.updated_at ||
+      serverData.audit?.updatedAt ||
+      serverData.audit?.updated_at ||
+      null,
+    createdBy:
+      serverData.createdBy ||
+      serverData.created_by ||
+      serverData.audit?.createdBy ||
+      serverData.audit?.created_by ||
+      null,
+    updatedBy:
+      serverData.updatedBy ||
+      serverData.updated_by ||
+      serverData.audit?.updatedBy ||
+      serverData.audit?.updated_by ||
+      null,
+    approvedAt: serverData.approvedAt || serverData.approved_at || null,
+    approvedBy: serverData.approvedBy || serverData.approved_by || null,
     // Import/PO links
-    isImport: serverData.isImport || false,
-    importOrderId: serverData.importOrderId || null,
-    purchaseOrderId: serverData.purchaseOrderId || null,
-    purchaseOrderNumber: serverData.purchaseOrderNumber || '',
+    isImport: serverData.isImport || serverData.is_import || false,
+    importOrderId:
+      serverData.importOrderId || serverData.import_order_id || null,
+    purchaseOrderId:
+      serverData.purchaseOrderId || serverData.purchase_order_id || null,
+    purchaseOrderNumber:
+      serverData.purchaseOrderNumber || serverData.purchase_order_number || '',
     // Blocked VAT info
-    isBlockedVat: serverData.isBlockedVat || false,
-    blockedVatReason: serverData.blockedVatReason || '',
+    isBlockedVat: serverData.isBlockedVat || serverData.is_blocked_vat || false,
+    blockedVatReason:
+      serverData.blockedVatReason || serverData.blocked_vat_reason || '',
   };
 };
 

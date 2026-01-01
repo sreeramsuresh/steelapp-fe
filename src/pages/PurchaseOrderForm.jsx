@@ -1226,7 +1226,9 @@ const PurchaseOrderForm = () => {
 
   const handleSupplierSelect = (supplierId) => {
     const suppliersList = suppliersData?.suppliers || [];
-    const found = suppliersList.find((s) => String(s.id) === String(supplierId));
+    const found = suppliersList.find(
+      (s) => String(s.id) === String(supplierId),
+    );
     if (!found) {
       setPurchaseOrder((prev) => ({
         ...prev,
@@ -2104,7 +2106,12 @@ const PurchaseOrderForm = () => {
               <div className="grid grid-cols-12 gap-3">
                 {/* Row 1: PO Number, Date, Expected Delivery */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label htmlFor="po-number" className={LABEL_CLASSES(isDarkMode)}>PO Number</label>
+                  <label
+                    htmlFor="po-number"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
+                    PO Number
+                  </label>
                   <input
                     id="po-number"
                     type="text"
@@ -2117,7 +2124,12 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <label htmlFor="po-date" className={LABEL_CLASSES(isDarkMode)}>PO Date</label>
+                  <label
+                    htmlFor="po-date"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
+                    PO Date
+                  </label>
                   <input
                     id="po-date"
                     type="date"
@@ -2129,7 +2141,10 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <label htmlFor="expected-delivery-date" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="expected-delivery-date"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Expected Delivery
                   </label>
                   <input
@@ -3081,7 +3096,10 @@ const PurchaseOrderForm = () => {
               {/* Additional Charges */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="freight-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="freight-charges"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Freight Charges
                   </label>
                   <input
@@ -3097,7 +3115,10 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="shipping-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="shipping-charges"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Shipping Charges
                   </label>
                   <input
@@ -3113,7 +3134,10 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="handling-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="handling-charges"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Handling Charges
                   </label>
                   <input
@@ -3129,7 +3153,10 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="other-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="other-charges"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Other Charges
                   </label>
                   <input
@@ -3291,7 +3318,10 @@ const PurchaseOrderForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="expectedDeliveryDate" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="expectedDeliveryDate"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Expected Delivery
                   </label>
                   <input
@@ -3305,7 +3335,10 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="gracePeriodDays" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="gracePeriodDays"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Grace Period (Days)
                   </label>
                   <input
@@ -3393,7 +3426,12 @@ const PurchaseOrderForm = () => {
             </div>
             <div className="mt-4 space-y-4">
               <div>
-                <label htmlFor="purchaseOrderNotes" className={LABEL_CLASSES(isDarkMode)}>Notes</label>
+                <label
+                  htmlFor="purchaseOrderNotes"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
+                  Notes
+                </label>
                 <textarea
                   id="purchaseOrderNotes"
                   rows={4}
@@ -3404,7 +3442,10 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="purchaseOrderTerms"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Terms & Conditions
                 </label>
                 <textarea
@@ -3476,7 +3517,10 @@ const PurchaseOrderForm = () => {
                 Supplier Details
               </div>
               <div>
-                <label htmlFor="supplierName" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="supplierName"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Supplier Name
                 </label>
                 <input
@@ -3491,7 +3535,10 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label htmlFor="supplierAddress" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="supplierAddress"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Supplier Address
                 </label>
                 <textarea
@@ -3522,7 +3569,10 @@ const PurchaseOrderForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="buyerName" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="buyerName"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Buyer Name
                   </label>
                   <input
@@ -3537,7 +3587,10 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="buyerDepartment" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="buyerDepartment"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Department
                   </label>
                   <input
@@ -3554,7 +3607,10 @@ const PurchaseOrderForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="buyerEmail" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="buyerEmail"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Buyer Email
                   </label>
                   <input
@@ -3569,7 +3625,10 @@ const PurchaseOrderForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="buyerPhone" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="buyerPhone"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Buyer Phone
                   </label>
                   <input
@@ -3663,7 +3722,12 @@ const PurchaseOrderForm = () => {
                   </FormSelect>
                 </div>
                 <div>
-                  <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>Due Date</label>
+                  <label
+                    htmlFor="dueDate"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
+                    Due Date
+                  </label>
                   <input
                     id="dueDate"
                     type="date"
@@ -3859,7 +3923,10 @@ const PurchaseOrderForm = () => {
                   </FormSelect>
                 </div>
                 <div>
-                  <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="approvedBy"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Approved By
                   </label>
                   <input
@@ -3875,7 +3942,10 @@ const PurchaseOrderForm = () => {
                 </div>
               </div>
               <div>
-                <label htmlFor="approvalDate" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="approvalDate"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Approval Date
                 </label>
                 <input
@@ -3889,7 +3959,10 @@ const PurchaseOrderForm = () => {
                 />
               </div>
               <div>
-                <label htmlFor="approvalComments" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="approvalComments"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Approval Comments
                 </label>
                 <textarea

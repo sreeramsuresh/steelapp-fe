@@ -1105,9 +1105,7 @@ const AdvancePaymentList = () => {
                           {/* View */}
                           <button
                             onClick={() =>
-                              navigate(
-                                `/app/advance-payments/${payment.id}`,
-                              )
+                              navigate(`/app/advance-payments/${payment.id}`)
                             }
                             className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}
                             title="View"

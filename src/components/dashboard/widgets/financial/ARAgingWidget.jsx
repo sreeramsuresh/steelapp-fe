@@ -100,8 +100,10 @@ export const ARAgingWidget = ({
                 </div>
                 <div className="flex-1">
                   <div
-                    className={`h-4 rounded-full overflow-hidden ${
-                      isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
+                    className={`h-4 rounded-full overflow-hidden border ${
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600'
+                        : 'bg-gray-100 border-gray-300'
                     }`}
                   >
                     <div

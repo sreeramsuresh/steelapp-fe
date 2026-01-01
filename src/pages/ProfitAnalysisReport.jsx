@@ -43,30 +43,7 @@ export default function ProfitAnalysisReport() {
   const fetchReport = async () => {
     try {
       setLoading(true);
-      setHasError(false); // Reset error state on new fetch attempt
-
-      // Query to get profit by product
-      const query = `
-        SELECT
-          p.id,
-          p.name,
-          p.category,
-          p.grade,
-          SUM(ii.quantity) as total_quantity,
-          SUM(ii.amount) as total_revenue,
-          SUM(ii.cost_price * ii.quantity) as total_cost,
-          SUM(ii.profit * ii.quantity) as total_profit,
-          AVG(ii.margin_percent) as avg_margin
-        FROM invoice_items ii
-        JOIN products p ON ii.product_id = p.id
-        JOIN invoices i ON ii.invoice_id = i.id
-        WHERE i.company_id = $3
-          AND i.invoice_date BETWEEN $1 AND $2
-          AND ii.cost_price IS NOT NULL
-          AND i.status != 'cancelled'
-        GROUP BY p.id, p.name, p.category, p.grade
-        ORDER BY total_profit DESC
-      `;
+      setHasError(false);
 
       // Get company_id from user context
       const user = tokenUtils.getUser();
@@ -76,40 +53,61 @@ export default function ProfitAnalysisReport() {
         throw new Error('Company context not found');
       }
 
-      const response = await api.post('/query', {
-        query,
-        params: [dateRange.startDate, dateRange.endDate, companyId],
+      // Use the analytics/profit-by-product endpoint instead of raw query
+      const response = await api.get('/analytics/profit-by-product', {
+        params: {
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+        },
       });
 
-      const results = response.data?.results || [];
+      const results = response.data?.products || response.data?.results || [];
       setData(results);
 
-      // Calculate summary
-      const totals = results.reduce(
-        (acc, row) => ({
-          totalRevenue: acc.totalRevenue + parseFloat(row.totalRevenue || 0),
-          totalCost: acc.totalCost + parseFloat(row.totalCost || 0),
-          totalProfit: acc.totalProfit + parseFloat(row.totalProfit || 0),
-          totalQuantity: acc.totalQuantity + parseFloat(row.totalQuantity || 0),
-        }),
-        { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 },
-      );
+      // Calculate summary from response or results
+      if (response.data?.summary) {
+        setSummary({
+          totalRevenue: response.data.summary.totalRevenue || 0,
+          totalCost: response.data.summary.totalCost || 0,
+          totalProfit: response.data.summary.totalProfit || 0,
+          totalQuantity: response.data.summary.totalQuantity || 0,
+          averageMargin: response.data.summary.averageMargin || 0,
+        });
+      } else {
+        const totals = results.reduce(
+          (acc, row) => ({
+            totalRevenue:
+              acc.totalRevenue +
+              parseFloat(row.totalRevenue || row.total_revenue || 0),
+            totalCost:
+              acc.totalCost + parseFloat(row.totalCost || row.total_cost || 0),
+            totalProfit:
+              acc.totalProfit +
+              parseFloat(row.totalProfit || row.total_profit || 0),
+            totalQuantity:
+              acc.totalQuantity +
+              parseFloat(row.totalQuantity || row.total_quantity || 0),
+          }),
+          { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 },
+        );
 
-      const averageMargin =
-        totals.totalRevenue > 0
-          ? ((totals.totalProfit / totals.totalRevenue) * 100).toFixed(2)
-          : 0;
+        const averageMargin =
+          totals.totalRevenue > 0
+            ? ((totals.totalProfit / totals.totalRevenue) * 100).toFixed(2)
+            : 0;
 
-      setSummary({
-        ...totals,
-        averageMargin: parseFloat(averageMargin),
-      });
+        setSummary({
+          ...totals,
+          averageMargin: parseFloat(averageMargin),
+        });
+      }
     } catch (error) {
       console.error('Error fetching report:', error);
-      // Only show toast if not already showing error state
       if (!hasError) {
         setHasError(true);
-        toast.error('Failed to load profit analysis. The report endpoint may not be available.');
+        toast.error(
+          'Failed to load profit analysis. The analytics endpoint may not be available.',
+        );
       }
     } finally {
       setLoading(false);
@@ -157,7 +155,12 @@ export default function ProfitAnalysisReport() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div>
-            <label htmlFor="profit-start-date" className="block text-sm font-medium mb-2">Start Date</label>
+            <label
+              htmlFor="profit-start-date"
+              className="block text-sm font-medium mb-2"
+            >
+              Start Date
+            </label>
             <input
               id="profit-start-date"
               type="date"
@@ -165,11 +168,16 @@ export default function ProfitAnalysisReport() {
               onChange={(e) =>
                 setDateRange({ ...dateRange, startDate: e.target.value })
               }
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div>
-            <label htmlFor="profit-end-date" className="block text-sm font-medium mb-2">End Date</label>
+            <label
+              htmlFor="profit-end-date"
+              className="block text-sm font-medium mb-2"
+            >
+              End Date
+            </label>
             <input
               id="profit-end-date"
               type="date"
@@ -177,7 +185,7 @@ export default function ProfitAnalysisReport() {
               onChange={(e) =>
                 setDateRange({ ...dateRange, endDate: e.target.value })
               }
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div className="flex gap-2 pt-6 sm:pt-0">

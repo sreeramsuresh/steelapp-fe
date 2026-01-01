@@ -690,7 +690,10 @@ const MaterialCertificateList = () => {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Certificate Type */}
               <div>
-                <label htmlFor="filter-certificate-type" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="filter-certificate-type"
+                  className="block text-sm font-medium mb-1"
+                >
                   Certificate Type
                 </label>
                 <select
@@ -716,7 +719,10 @@ const MaterialCertificateList = () => {
 
               {/* Verification Status */}
               <div>
-                <label htmlFor="filter-verification-status" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="filter-verification-status"
+                  className="block text-sm font-medium mb-1"
+                >
                   Verification Status
                 </label>
                 <select
@@ -744,7 +750,12 @@ const MaterialCertificateList = () => {
 
               {/* Grade */}
               <div>
-                <label htmlFor="filter-grade" className="block text-sm font-medium mb-1">Grade</label>
+                <label
+                  htmlFor="filter-grade"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Grade
+                </label>
                 <select
                   id="filter-grade"
                   value={filters.grade}
@@ -766,7 +777,10 @@ const MaterialCertificateList = () => {
 
               {/* Date Range */}
               <div>
-                <label htmlFor="filter-start-date" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="filter-start-date"
+                  className="block text-sm font-medium mb-1"
+                >
                   From Date
                 </label>
                 <input
@@ -784,7 +798,10 @@ const MaterialCertificateList = () => {
                 />
               </div>
               <div>
-                <label htmlFor="filter-end-date" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="filter-end-date"
+                  className="block text-sm font-medium mb-1"
+                >
                   To Date
                 </label>
                 <input
@@ -1090,7 +1107,10 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label htmlFor="modal-certificate-type" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-certificate-type"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Certificate Type <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -1119,7 +1139,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-certificate-number" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-certificate-number"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Certificate Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1144,7 +1167,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-mill-name" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-mill-name"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Mill Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1180,7 +1206,10 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="modal-import-order" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-import-order"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Import Order
                     </label>
                     <select
@@ -1204,7 +1233,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-line-item" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-line-item"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Line Item (Product)
                     </label>
                     <select
@@ -1247,7 +1279,10 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label htmlFor="modal-heat-number" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-heat-number"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Heat Number{' '}
                       {formData.certificate_type ===
                         'mill_test_certificate' && (
@@ -1276,7 +1311,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-coil-id" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-coil-id"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Coil ID (Optional)
                     </label>
                     <input
@@ -1296,7 +1334,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-grade" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-grade"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Grade
                     </label>
                     <select
@@ -1322,7 +1363,10 @@ const MaterialCertificateList = () => {
 
                   {formData.grade === 'OTHER' && (
                     <div>
-                      <label htmlFor="modal-grade-other" className="block text-sm font-medium mb-1">
+                      <label
+                        htmlFor="modal-grade-other"
+                        className="block text-sm font-medium mb-1"
+                      >
                         Specify Grade <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -1359,7 +1403,10 @@ const MaterialCertificateList = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label htmlFor="modal-country-of-origin" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-country-of-origin"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Country of Origin
                     </label>
                     <input
@@ -1379,7 +1426,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-issuing-authority" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-issuing-authority"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Issuing Authority
                     </label>
                     <input
@@ -1399,7 +1449,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-issue-date" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-issue-date"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Issue Date <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1423,7 +1476,10 @@ const MaterialCertificateList = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="modal-expiry-date" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="modal-expiry-date"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Expiry Date
                     </label>
                     <input
@@ -1466,7 +1522,10 @@ const MaterialCertificateList = () => {
                       { key: 'chemical_n', label: 'N (Nitrogen)' },
                     ].map(({ key, label }) => (
                       <div key={key}>
-                        <label htmlFor={`modal-${key}`} className="block text-xs font-medium mb-1">
+                        <label
+                          htmlFor={`modal-${key}`}
+                          className="block text-xs font-medium mb-1"
+                        >
                           {label}
                         </label>
                         <input
@@ -1501,7 +1560,10 @@ const MaterialCertificateList = () => {
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <label htmlFor="modal-yield-strength" className="block text-sm font-medium mb-1">
+                      <label
+                        htmlFor="modal-yield-strength"
+                        className="block text-sm font-medium mb-1"
+                      >
                         Yield Strength (MPa)
                       </label>
                       <input
@@ -1521,7 +1583,10 @@ const MaterialCertificateList = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="modal-tensile-strength" className="block text-sm font-medium mb-1">
+                      <label
+                        htmlFor="modal-tensile-strength"
+                        className="block text-sm font-medium mb-1"
+                      >
                         Tensile Strength (MPa)
                       </label>
                       <input
@@ -1541,7 +1606,10 @@ const MaterialCertificateList = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="modal-elongation" className="block text-sm font-medium mb-1">
+                      <label
+                        htmlFor="modal-elongation"
+                        className="block text-sm font-medium mb-1"
+                      >
                         Elongation (%)
                       </label>
                       <input
@@ -1561,7 +1629,10 @@ const MaterialCertificateList = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="modal-hardness" className="block text-sm font-medium mb-1">
+                      <label
+                        htmlFor="modal-hardness"
+                        className="block text-sm font-medium mb-1"
+                      >
                         Hardness (HRB/HRC)
                       </label>
                       <input
@@ -1586,7 +1657,12 @@ const MaterialCertificateList = () => {
 
               {/* Notes */}
               <div>
-                <label htmlFor="modal-notes" className="block text-sm font-medium mb-1">Notes</label>
+                <label
+                  htmlFor="modal-notes"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Notes
+                </label>
                 <textarea
                   id="modal-notes"
                   value={formData.notes}
@@ -1603,7 +1679,10 @@ const MaterialCertificateList = () => {
 
               {/* File Upload Placeholder */}
               <div>
-                <label htmlFor="modal-certificate-pdf" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="modal-certificate-pdf"
+                  className="block text-sm font-medium mb-1"
+                >
                   Certificate PDF
                 </label>
                 <div
@@ -2065,7 +2144,10 @@ const MaterialCertificateList = () => {
               </p>
 
               <div>
-                <label htmlFor="verify-notes" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="verify-notes"
+                  className="block text-sm font-medium mb-1"
+                >
                   {verifyAction === 'verify'
                     ? 'Notes (Optional)'
                     : 'Rejection Reason'}

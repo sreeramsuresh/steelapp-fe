@@ -597,7 +597,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 </strong>
               </p>
               <div>
-                <label htmlFor="fulfill-quantity" className="block text-sm font-medium text-gray-300 mb-2">
+                <label
+                  htmlFor="fulfill-quantity"
+                  className="block text-sm font-medium text-gray-300 mb-2"
+                >
                   Quantity to Fulfill
                 </label>
                 <input
@@ -681,7 +684,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 of reserved stock.
               </p>
               <div>
-                <label htmlFor="cancel-reason" className="block text-sm font-medium text-gray-300 mb-2">
+                <label
+                  htmlFor="cancel-reason"
+                  className="block text-sm font-medium text-gray-300 mb-2"
+                >
                   Cancellation Reason (Optional)
                 </label>
                 <textarea

@@ -237,6 +237,34 @@ export const normalizeProduct = (product) => {
   return normalized;
 };
 
+/**
+ * Normalize unit of measure from proto enum format to display value
+ * Handles: UNIT_OF_MEASURE_PCS -> PCS, UNIT_OF_MEASURE_KG -> KG, etc.
+ * @param {Object|string} itemOrUnit - Item object with unit fields or raw unit string
+ * @returns {string} Normalized UoM (e.g., 'PCS', 'KG', 'MT')
+ */
+export const normalizeUom = (itemOrUnit) => {
+  let rawUom;
+  if (typeof itemOrUnit === 'string') {
+    rawUom = itemOrUnit;
+  } else if (itemOrUnit && typeof itemOrUnit === 'object') {
+    rawUom =
+      itemOrUnit.unit ||
+      itemOrUnit.unit_of_measure ||
+      itemOrUnit.unitOfMeasure ||
+      itemOrUnit.quantity_uom ||
+      itemOrUnit.quantityUom ||
+      '';
+  } else {
+    rawUom = '';
+  }
+
+  if (rawUom.startsWith('UNIT_OF_MEASURE_')) {
+    return rawUom.replace('UNIT_OF_MEASURE_', '');
+  }
+  return rawUom || 'PCS';
+};
+
 export default {
   safeField,
   toSnakeCase,
@@ -248,4 +276,5 @@ export default {
   getCustomerFields,
   getInvoiceFields,
   normalizeProduct,
+  normalizeUom,
 };

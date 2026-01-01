@@ -43,7 +43,7 @@ const TRNInput = ({
       setDisplayValue(result.isComplete ? result.displayValue : result.value);
       setIsValid(result.isValid);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   // Handle input change

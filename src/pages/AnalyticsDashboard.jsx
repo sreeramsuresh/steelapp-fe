@@ -41,7 +41,8 @@ const AnalyticsDashboard = () => {
       items: [
         {
           name: 'Profit Analysis',
-          description: 'Profit breakdown and margin analysis by product/customer',
+          description:
+            'Profit breakdown and margin analysis by product/customer',
           path: '/analytics/profit-analysis',
           icon: DollarSign,
           color: 'from-green-500 to-green-600',
@@ -127,7 +128,9 @@ const AnalyticsDashboard = () => {
   ];
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}>
+    <div
+      className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+    >
       {/* Header */}
       <div
         className={`${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} border-b ${
@@ -202,7 +205,9 @@ const AnalyticsDashboard = () => {
                             <ArrowRight
                               size={16}
                               className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-                                isDarkMode ? 'text-indigo-400' : 'text-indigo-600'
+                                isDarkMode
+                                  ? 'text-indigo-400'
+                                  : 'text-indigo-600'
                               }`}
                             />
                           </div>

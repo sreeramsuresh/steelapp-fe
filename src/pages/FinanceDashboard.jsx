@@ -88,7 +88,8 @@ const FinanceDashboard = () => {
               <p
                 className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
-                Credit notes, statements, commission approvals, and credit management
+                Credit notes, statements, commission approvals, and credit
+                management
               </p>
             </div>
           </div>

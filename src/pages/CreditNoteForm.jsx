@@ -14,6 +14,7 @@ import {
   Send,
   Truck,
 } from 'lucide-react';
+import { normalizeUom } from '../utils/fieldAccessors';
 
 // Design system colors
 const COLORS = {
@@ -751,7 +752,7 @@ const CreditNoteForm = () => {
           description: item.description || '',
           originalQuantity: item.quantity,
           quantityReturned: 0,
-          unit: item.unit || 'PCS', // Unit for quantity precision validation
+          unit: normalizeUom(item), // Unit for quantity precision validation
           rate: item.rate,
           amount: 0,
           vatRate: item.vatRate || 5,

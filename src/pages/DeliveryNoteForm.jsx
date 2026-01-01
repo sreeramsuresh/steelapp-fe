@@ -741,7 +741,10 @@ const DeliveryNoteForm = () => {
               <div className="grid grid-cols-12 gap-3">
                 {/* DN Number */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label htmlFor="dn-number" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="dn-number"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     DN Number <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -758,7 +761,10 @@ const DeliveryNoteForm = () => {
 
                 {/* Delivery Date */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label htmlFor="delivery-date" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="delivery-date"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Delivery Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -774,7 +780,10 @@ const DeliveryNoteForm = () => {
 
                 {/* GRN Date */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label htmlFor="goods-receipt-date" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="goods-receipt-date"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Goods Receipt Date
                   </label>
                   <input
@@ -790,7 +799,10 @@ const DeliveryNoteForm = () => {
 
                 {/* Inspection Date */}
                 <div className="col-span-12 sm:col-span-3">
-                  <label htmlFor="inspection-date" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="inspection-date"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Inspection Date
                   </label>
                   <input
@@ -806,7 +818,10 @@ const DeliveryNoteForm = () => {
 
                 {/* Invoice Selection */}
                 <div className="col-span-12">
-                  <label htmlFor="invoice-select" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="invoice-select"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     Invoice <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2">
@@ -1423,7 +1438,10 @@ const DeliveryNoteForm = () => {
             {/* Drawer Content */}
             <div className="space-y-3">
               <div>
-                <label htmlFor="delivery-street" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="delivery-street"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Street Address
                 </label>
                 <input
@@ -1439,7 +1457,10 @@ const DeliveryNoteForm = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="delivery-city" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="delivery-city"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     City
                   </label>
                   <input
@@ -1454,7 +1475,10 @@ const DeliveryNoteForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="delivery-pobox" className={LABEL_CLASSES(isDarkMode)}>
+                  <label
+                    htmlFor="delivery-pobox"
+                    className={LABEL_CLASSES(isDarkMode)}
+                  >
                     PO Box
                   </label>
                   <input
@@ -1535,7 +1559,10 @@ const DeliveryNoteForm = () => {
             {/* Drawer Content */}
             <div className="space-y-3">
               <div>
-                <label htmlFor="vehicle-number" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="vehicle-number"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Vehicle Number <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -1550,7 +1577,10 @@ const DeliveryNoteForm = () => {
                 />
               </div>
               <div>
-                <label htmlFor="driver-name" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="driver-name"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Driver Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -1565,7 +1595,10 @@ const DeliveryNoteForm = () => {
                 />
               </div>
               <div>
-                <label htmlFor="driver-phone" className={LABEL_CLASSES(isDarkMode)}>
+                <label
+                  htmlFor="driver-phone"
+                  className={LABEL_CLASSES(isDarkMode)}
+                >
                   Driver Phone
                 </label>
                 <input
@@ -1644,7 +1677,10 @@ const DeliveryNoteForm = () => {
 
             {/* Drawer Content */}
             <div>
-              <label htmlFor="delivery-notes" className={LABEL_CLASSES(isDarkMode)}>
+              <label
+                htmlFor="delivery-notes"
+                className={LABEL_CLASSES(isDarkMode)}
+              >
                 Delivery Notes
               </label>
               <textarea

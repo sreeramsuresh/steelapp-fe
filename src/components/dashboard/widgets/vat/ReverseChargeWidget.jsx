@@ -385,7 +385,12 @@ const ReverseChargeWidget = ({
             <div
               key={tx.id}
               onClick={() => onViewTransaction && onViewTransaction(tx)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewTransaction && onViewTransaction(tx); } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onViewTransaction && onViewTransaction(tx);
+                }
+              }}
               role="button"
               tabIndex={0}
               className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${

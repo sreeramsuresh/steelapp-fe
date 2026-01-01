@@ -641,7 +641,10 @@ const AdvancePaymentForm = () => {
                 <div className="grid grid-cols-12 gap-3">
                   {/* Receipt Number */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="receiptNumber" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="receiptNumber"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Receipt Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -661,7 +664,10 @@ const AdvancePaymentForm = () => {
 
                   {/* Payment Date */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="paymentDate" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="paymentDate"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Payment Date <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -704,7 +710,10 @@ const AdvancePaymentForm = () => {
 
                   {/* Amount (VAT Inclusive) */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="totalAmount" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="totalAmount"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Amount Received (VAT Incl.){' '}
                       <span className="text-red-500">*</span>
                     </label>
@@ -732,7 +741,10 @@ const AdvancePaymentForm = () => {
 
                   {/* Reference Number */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="referenceNumber" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="referenceNumber"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Reference Number
                     </label>
                     <input
@@ -774,7 +786,10 @@ const AdvancePaymentForm = () => {
 
                   {/* Purpose */}
                   <div className="col-span-12">
-                    <label htmlFor="purpose" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label
+                      htmlFor="purpose"
+                      className={`block text-xs ${textMuted} mb-1.5`}
+                    >
                       Purpose
                     </label>
                     <input
@@ -840,7 +855,10 @@ const AdvancePaymentForm = () => {
                     {/* Exchange Rate - show only if not AED */}
                     {payment.currency !== 'AED' && (
                       <div className="col-span-6">
-                        <label htmlFor="exchangeRate" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="exchangeRate"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Exchange Rate (to AED)
                         </label>
                         <input
@@ -906,7 +924,10 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Bank Name */}
                     <div className="col-span-6">
-                      <label htmlFor="bankName" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="bankName"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Bank Name
                       </label>
                       <input
@@ -927,7 +948,10 @@ const AdvancePaymentForm = () => {
 
                     {/* Cheque Number */}
                     <div className="col-span-6">
-                      <label htmlFor="chequeNumber" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="chequeNumber"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Cheque Number
                       </label>
                       <input
@@ -948,7 +972,10 @@ const AdvancePaymentForm = () => {
 
                     {/* Transaction ID */}
                     <div className="col-span-12">
-                      <label htmlFor="transactionId" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="transactionId"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Transaction ID
                       </label>
                       <input
@@ -1074,7 +1101,10 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Allocated Amount - read-only */}
                     <div className="col-span-6">
-                      <label htmlFor="allocatedAmount" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="allocatedAmount"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Allocated Amount
                       </label>
                       <input
@@ -1088,7 +1118,10 @@ const AdvancePaymentForm = () => {
 
                     {/* Unallocated Amount - read-only */}
                     <div className="col-span-6">
-                      <label htmlFor="unallocatedAmount" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="unallocatedAmount"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Unallocated Amount
                       </label>
                       <input
@@ -1128,7 +1161,10 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Official Receipt Number */}
                     <div className="col-span-6">
-                      <label htmlFor="receiptNumberOfficial" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="receiptNumberOfficial"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Official Receipt Number
                       </label>
                       <input
@@ -1149,7 +1185,10 @@ const AdvancePaymentForm = () => {
 
                     {/* Attachment URLs - text input for now */}
                     <div className="col-span-12">
-                      <label htmlFor="attachmentUrls" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="attachmentUrls"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Attachment URLs (comma-separated)
                       </label>
                       <input
@@ -1199,7 +1238,10 @@ const AdvancePaymentForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Project ID */}
                     <div className="col-span-4">
-                      <label htmlFor="projectId" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="projectId"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Project ID
                       </label>
                       <input
@@ -1220,7 +1262,10 @@ const AdvancePaymentForm = () => {
 
                     {/* Cost Center */}
                     <div className="col-span-4">
-                      <label htmlFor="costCenter" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="costCenter"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Cost Center
                       </label>
                       <input
@@ -1241,7 +1286,10 @@ const AdvancePaymentForm = () => {
 
                     {/* Sales Person ID */}
                     <div className="col-span-4">
-                      <label htmlFor="salesPersonId" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="salesPersonId"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Sales Person ID
                       </label>
                       <input
@@ -1306,7 +1354,10 @@ const AdvancePaymentForm = () => {
                     {/* Settlement Date - read-only */}
                     {payment.settlementDate && (
                       <div className="col-span-6">
-                        <label htmlFor="settlementDate" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="settlementDate"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Settlement Date
                         </label>
                         <input
@@ -1327,7 +1378,10 @@ const AdvancePaymentForm = () => {
 
                     {/* Valid Until */}
                     <div className="col-span-6">
-                      <label htmlFor="validUntil" className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label
+                        htmlFor="validUntil"
+                        className={`block text-xs ${textMuted} mb-1.5`}
+                      >
                         Valid Until (Expiry Date)
                       </label>
                       <input
@@ -1391,7 +1445,10 @@ const AdvancePaymentForm = () => {
                     <div className="grid grid-cols-12 gap-3">
                       {/* Refund Amount */}
                       <div className="col-span-4">
-                        <label htmlFor="refundAmount" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="refundAmount"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Refund Amount
                         </label>
                         <div className="relative">
@@ -1422,7 +1479,10 @@ const AdvancePaymentForm = () => {
 
                       {/* Refund Method */}
                       <div className="col-span-4">
-                        <label htmlFor="refundMethod" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="refundMethod"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Refund Method
                         </label>
                         <input
@@ -1443,7 +1503,10 @@ const AdvancePaymentForm = () => {
 
                       {/* Refund Reference */}
                       <div className="col-span-4">
-                        <label htmlFor="refundReference" className={`block text-xs ${textMuted} mb-1.5`}>
+                        <label
+                          htmlFor="refundReference"
+                          className={`block text-xs ${textMuted} mb-1.5`}
+                        >
                           Refund Reference
                         </label>
                         <input
@@ -1484,7 +1547,9 @@ const AdvancePaymentForm = () => {
                   />
                 </summary>
                 <div className={`p-3 border-t ${cardBorder}`}>
-                  <label htmlFor="notes" className="sr-only">Additional Notes</label>
+                  <label htmlFor="notes" className="sr-only">
+                    Additional Notes
+                  </label>
                   <textarea
                     id="notes"
                     name="notes"
@@ -1504,7 +1569,11 @@ const AdvancePaymentForm = () => {
                 <details
                   className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
                   onToggle={(e) => {
-                    if (e.target.open && selectedCustomer && customerInvoices.length === 0) {
+                    if (
+                      e.target.open &&
+                      selectedCustomer &&
+                      customerInvoices.length === 0
+                    ) {
                       loadCustomerInvoices(selectedCustomer.id);
                     }
                   }}

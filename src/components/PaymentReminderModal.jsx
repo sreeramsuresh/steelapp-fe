@@ -416,7 +416,10 @@ const PaymentReminderModal = ({
               <div className="space-y-4">
                 {/* Date & Time */}
                 <div>
-                  <label htmlFor="contact-date-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <label
+                    htmlFor="contact-date-input"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1"
+                  >
                     <Calendar size={16} />
                     Date & Time of Call
                   </label>
@@ -435,7 +438,10 @@ const PaymentReminderModal = ({
 
                 {/* Notes */}
                 <div>
-                  <label htmlFor="call-notes-textarea" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label
+                    htmlFor="call-notes-textarea"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
                     Call Notes
                   </label>
                   <textarea

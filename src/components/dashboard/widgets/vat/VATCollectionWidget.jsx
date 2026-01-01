@@ -185,7 +185,7 @@ const VATCollectionWidget = ({
           <div className="flex items-center justify-between">
             <div>
               <p
-                className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Output VAT (Collected)
               </p>
@@ -221,7 +221,7 @@ const VATCollectionWidget = ({
           <div className="flex items-center justify-between">
             <div>
               <p
-                className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 Input VAT (Paid)
               </p>
