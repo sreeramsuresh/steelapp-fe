@@ -26,6 +26,14 @@ puppeteer-demo.png
 scenario*.png
 e2e-test-output.log
 
+# Cypress artifacts
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# ESLint output
+eslint-output.json
+
 # Generated test files
 e2e-validation-results.json
 e2e-phase*.mjs

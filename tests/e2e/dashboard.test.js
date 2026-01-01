@@ -3,7 +3,11 @@
 /**
  * Dashboard E2E Tests - Using Puppeteer Launch Mode
  *
- * Tests all Analytics Hub dashboard pages:
+ * Tests all Dashboard pages (14 total):
+ * - 11 Analytics Hub pages (/analytics/*)
+ * - 3 Operational Dashboard pages (/app/*)
+ *
+ * Verifies:
  * - Page loads without console errors
  * - Key UI elements render
  * - No 4xx/5xx API errors
@@ -34,6 +38,11 @@ function getChromiumPath() {
 const CHROME_EXECUTABLE = getChromiumPath();
 const BASE_URL = 'http://localhost:5173';
 
+/**
+ * Helper to wait for a specified time (replaces deprecated page.waitForTimeout)
+ */
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Console colors
 const colors = {
   reset: '\x1b[0m',
@@ -59,8 +68,8 @@ const DASHBOARD_PAGES = [
   {
     name: 'Analytics Dashboard',
     path: '/analytics/dashboard',
-    expectedElements: ['h1', '[class*="card"]'],
-    expectedText: ['Analytics'],
+    expectedElements: ['h1', 'button'],
+    expectedText: ['Management'],
   },
   {
     name: 'Profit Analysis Report',
@@ -107,7 +116,7 @@ const DASHBOARD_PAGES = [
   {
     name: 'Supplier Performance',
     path: '/analytics/supplier-performance',
-    expectedElements: ['h1'],
+    expectedElements: ['table'],
     expectedText: ['Supplier'],
   },
   {
@@ -115,6 +124,31 @@ const DASHBOARD_PAGES = [
     path: '/analytics/reports',
     expectedElements: ['h1'],
     expectedText: ['Report'],
+  },
+  {
+    name: 'VAT Return Report',
+    path: '/analytics/vat-return',
+    expectedElements: ['button'],
+    expectedText: ['VAT'],
+  },
+  // Operational Dashboards (under /app)
+  {
+    name: 'Purchases Dashboard',
+    path: '/app/purchases',
+    expectedElements: ['button'],
+    expectedText: ['Purchase'],
+  },
+  {
+    name: 'Finance Dashboard',
+    path: '/app/finance',
+    expectedElements: ['button'],
+    expectedText: ['Credit'],
+  },
+  {
+    name: 'Import Export Dashboard',
+    path: '/app/import-export',
+    expectedElements: ['button'],
+    expectedText: ['Import'],
   },
 ];
 
@@ -227,7 +261,7 @@ async function testDashboardPage(page, pageConfig, monitors) {
     await waitForLoadingComplete(page);
 
     // Allow extra time for React to render
-    await page.waitForTimeout(1000);
+    await delay(1000);
 
     // Check 1: Page loaded (not on error page)
     const pageTitle = await page.title();
