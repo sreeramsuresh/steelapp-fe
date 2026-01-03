@@ -4,7 +4,6 @@ import {
   getSupplierQuotation,
   createSupplierQuotation,
   updateSupplierQuotation,
-  transformQuotationToServer,
 } from '../services/supplierQuotationService';
 import { suppliersAPI } from '../services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,7 +73,8 @@ export function SupplierQuotationForm() {
     if (isEdit) {
       loadQuotation();
     }
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, isEdit]);
 
   const loadQuotation = async () => {
     try {

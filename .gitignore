@@ -44,3 +44,11 @@ scenario*.json
 # Puppeteer test scripts (keep these in version control but ignore artifacts)
 # test-*.js files are kept tracked
 *.backup.jsx
+
+# PDF files (binary assets)
+*.pdf
+
+# Documentation files (auto-generated or not tracked)
+README.md
+FIX_ESLINT_LABELS.md
+puppeteer-modes-guide.md

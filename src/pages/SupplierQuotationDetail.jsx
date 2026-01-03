@@ -59,6 +59,7 @@ export function SupplierQuotationDetail() {
 
   useEffect(() => {
     loadQuotation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadQuotation = async () => {
