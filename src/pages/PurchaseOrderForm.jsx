@@ -1761,6 +1761,7 @@ const PurchaseOrderForm = () => {
 
       // Transform data to match backend expectations (snake_case)
       const transformedData = {
+        supplier_id: selectedSupplierId ? parseInt(selectedSupplierId, 10) : null,  // FK to suppliers table
         po_number: poData.poNumber,
         supplier_name: poData.supplierName,
         supplier_email: poData.supplierEmail || null,
