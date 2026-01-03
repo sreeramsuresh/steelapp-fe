@@ -2327,10 +2327,13 @@ const PurchaseOrderForm = () => {
                             title={
                               product.displayName ||
                               product.display_name ||
-                              'N/A'
+                              product.name ||
+                              product.description ||
+                              product.sku ||
+                              'Product'
                             }
                           >
-                            {product.uniqueName || product.unique_name || 'N/A'}
+                            {product.uniqueName || product.unique_name || product.name || product.description || product.sku || 'Product'}
                           </button>
                           <button
                             onClick={(e) => handleTogglePin(e, product.id)}
@@ -2481,7 +2484,11 @@ const PurchaseOrderForm = () => {
                                   {option.uniqueName ||
                                     option.unique_name ||
                                     option.displayName ||
-                                    option.display_name}
+                                    option.display_name ||
+                                    option.name ||
+                                    option.description ||
+                                    option.sku ||
+                                    'Product'}
                                 </div>
                                 <div
                                   className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}

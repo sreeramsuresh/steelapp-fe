@@ -60,6 +60,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [invalidFields, setInvalidFields] = useState(new Set());
 
   // Epic 4: Batch allocation state
   const [, _setBatchesPerItem] = useState({}); // Map of itemId -> batches[]
@@ -243,45 +245,58 @@ const TransferForm = ({ onCancel, onSuccess }) => {
     [handleItemChange],
   );
 
-  // Validate form
+  // Validate form - collects all errors for comprehensive feedback
   const validateForm = () => {
+    const errors = [];
+    const invalid = new Set();
+
     if (!sourceWarehouseId) {
-      setError('Please select a source warehouse');
-      return false;
+      errors.push('Please select a source warehouse');
+      invalid.add('sourceWarehouse');
     }
     if (!destinationWarehouseId) {
-      setError('Please select a destination warehouse');
-      return false;
+      errors.push('Please select a destination warehouse');
+      invalid.add('destinationWarehouse');
     }
-    if (sourceWarehouseId === destinationWarehouseId) {
-      setError('Source and destination warehouses must be different');
-      return false;
+    if (sourceWarehouseId && destinationWarehouseId && sourceWarehouseId === destinationWarehouseId) {
+      errors.push('Source and destination warehouses must be different');
+      invalid.add('sourceWarehouse');
+      invalid.add('destinationWarehouse');
     }
     if (items.length === 0) {
-      setError('Please add at least one item to transfer');
-      return false;
+      errors.push('Please add at least one item to transfer');
+      invalid.add('items');
     }
 
     // Validate each item
-    for (const item of items) {
+    items.forEach((item, index) => {
       if (!item.productId) {
-        setError('Please select a product for all items');
-        return false;
+        errors.push(`Item ${index + 1}: Please select a product`);
+        invalid.add(`item-${index}-product`);
       }
       const qty = parseFloat(item.quantity) || 0;
       if (qty <= 0) {
-        setError('Quantity must be greater than 0 for all items');
-        return false;
+        errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+        invalid.add(`item-${index}-quantity`);
       }
       const available = stockLevels[item.productId]?.quantityAvailable || 0;
-      if (qty > available) {
-        setError(
-          `Insufficient stock for ${item.product?.name || 'product'}. Available: ${formatQuantity(available, item.unit)}`,
+      if (qty > available && item.productId) {
+        errors.push(
+          `Item ${index + 1}: Insufficient stock for ${item.product?.name || 'product'}. Available: ${formatQuantity(available, item.unit)}`,
         );
-        return false;
+        invalid.add(`item-${index}-quantity`);
       }
+    });
+
+    setValidationErrors(errors);
+    setInvalidFields(invalid);
+
+    if (errors.length > 0) {
+      setError(errors[0]); // Keep first error for backward compatibility
+      return false;
     }
 
+    setError(null);
     return true;
   };
 
@@ -364,8 +379,37 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         </button>
       </div>
 
-      {/* Error Alert */}
-      {error && (
+      {/* Validation Errors Alert */}
+      {validationErrors.length > 0 && (
+        <div
+          className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
+            isDarkMode
+              ? 'bg-red-900 bg-opacity-30 border border-red-700'
+              : 'bg-red-50 border border-red-200'
+          }`}
+        >
+          <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">
+              Please fix the following errors:
+            </p>
+            <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
+              {validationErrors.map((err, idx) => (
+                <li key={idx}>{err}</li>
+              ))}
+            </ul>
+          </div>
+          <button
+            onClick={() => { setValidationErrors([]); setInvalidFields(new Set()); setError(null); }}
+            className="text-red-500 hover:text-red-700"
+          >
+            <Package className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* API Error Alert (non-validation errors) */}
+      {error && validationErrors.length === 0 && (
         <div
           className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
             isDarkMode
@@ -417,9 +461,15 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 onChange={(e) => setSourceWarehouseId(e.target.value)}
                 disabled={loadingWarehouses}
                 className={`w-full px-3 py-2 rounded-lg border appearance-none ${
+                  invalidFields.has('sourceWarehouse')
+                    ? 'border-red-500 ring-1 ring-red-500'
+                    : isDarkMode
+                      ? 'border-gray-600'
+                      : 'border-gray-300'
+                } ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                    ? 'bg-gray-700 text-white'
+                    : 'bg-white text-gray-900'
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
@@ -453,9 +503,15 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 onChange={(e) => setDestinationWarehouseId(e.target.value)}
                 disabled={loadingWarehouses}
                 className={`w-full px-3 py-2 rounded-lg border appearance-none ${
+                  invalidFields.has('destinationWarehouse')
+                    ? 'border-red-500 ring-1 ring-red-500'
+                    : isDarkMode
+                      ? 'border-gray-600'
+                      : 'border-gray-300'
+                } ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                    ? 'bg-gray-700 text-white'
+                    : 'bg-white text-gray-900'
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
                 }`}

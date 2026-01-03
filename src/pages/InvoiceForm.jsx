@@ -3581,8 +3581,9 @@ const InvoiceForm = ({ onSave }) => {
         // Weight info (calculated)
         unitWeightKg: lineItemData.product?.unitWeightKg || 1,
         theoreticalWeightKg: parseFloat(lineItemData.quantity),
-        // VAT (default 5%)
+        // VAT (default 5% for standard supply)
         supplyType: 'standard',
+        vatRate: 5,
       };
 
       return {

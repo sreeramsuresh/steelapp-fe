@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   uploadAndExtractPDF,
@@ -37,7 +37,7 @@ export function SupplierQuotationUpload() {
   const [dragActive, setDragActive] = useState(false);
 
   // Load suppliers for dropdown
-  useState(() => {
+  useEffect(() => {
     const loadSuppliers = async () => {
       try {
         setLoadingSuppliers(true);

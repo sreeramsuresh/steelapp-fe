@@ -197,16 +197,25 @@ export const listSupplierQuotations = async (params = {}) => {
   if (search) queryParams.set('search', search);
   if (includeDeleted) queryParams.set('includeDeleted', 'true');
 
-  const response = await apiClient.get(
-    `/supplier-quotations?${queryParams.toString()}`,
-  );
+  try {
+    const response = await apiClient.get(
+      `/supplier-quotations?${queryParams.toString()}`,
+    );
 
-  return {
-    quotations: (response.quotations || []).map(
-      transformQuotationFromServer,
-    ),
-    pageInfo: response.pageInfo,
-  };
+    return {
+      quotations: (response?.quotations || []).map(
+        transformQuotationFromServer,
+      ),
+      pageInfo: response?.pageInfo || { totalPages: 0, totalCount: 0 },
+    };
+  } catch (error) {
+    console.error('Failed to load supplier quotations:', error);
+    // Return empty result on error to prevent UI crash
+    return {
+      quotations: [],
+      pageInfo: { totalPages: 0, totalCount: 0 },
+    };
+  }
 };
 
 /**

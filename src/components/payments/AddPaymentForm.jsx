@@ -54,6 +54,10 @@ const AddPaymentForm = ({
   const [loadingCredit, setLoadingCredit] = useState(false);
   const [creditError, setCreditError] = useState(null);
 
+  // Validation state for user feedback
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
+
   // Fetch customer credit summary when customerId is provided
   useEffect(() => {
     if (!customerId) {
@@ -136,8 +140,36 @@ const AddPaymentForm = ({
     (!modeConfig.requiresRef || (reference && reference.trim() !== '')) &&
     (!isForeignCurrency || parseFloat(exchangeRate) > 0);
 
+  // Validate and collect all errors for user feedback
+  const validatePayment = () => {
+    const errors = [];
+
+    if (!amount || Number(amount) <= 0) {
+      errors.push('Amount must be greater than 0');
+    }
+    if (Number(amount) > Number(outstanding || 0)) {
+      errors.push(`Amount cannot exceed outstanding balance of ${formatCurrency(outstanding)}`);
+    }
+    if (modeConfig.requiresRef && (!reference || reference.trim() === '')) {
+      errors.push(`${modeConfig.label} requires a reference number`);
+    }
+    if (isForeignCurrency && (!exchangeRate || parseFloat(exchangeRate) <= 0)) {
+      errors.push('Exchange rate is required for foreign currency payments');
+    }
+
+    return errors;
+  };
+
   const handleSave = () => {
-    if (!canSave) return;
+    const errors = validatePayment();
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setShowValidationErrors(true);
+      return;
+    }
+
+    setShowValidationErrors(false);
+    setValidationErrors([]);
 
     // Output standardized camelCase format (API Gateway converts to snake_case)
     // Phase 1: Include multi-currency fields for FX tracking
@@ -281,6 +313,21 @@ const AddPaymentForm = ({
             </div>
           </div>
         </>
+      )}
+
+      {/* Validation Errors Display */}
+      {showValidationErrors && validationErrors.length > 0 && (
+        <div className="mb-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
+          <div className="text-xs font-semibold text-red-900 mb-1 flex items-center gap-1">
+            <AlertTriangle size={14} />
+            Please fix the following errors:
+          </div>
+          <ul className="list-disc list-inside text-xs text-red-800 space-y-0.5">
+            {validationErrors.map((error, idx) => (
+              <li key={idx}>{error}</li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

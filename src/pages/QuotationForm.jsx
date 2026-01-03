@@ -1112,63 +1112,58 @@ const QuotationForm = () => {
     setTimeout(calculateTotals, 0);
   };
 
-  const calculateTotals = () => {
-    const items = formData.items;
+  const calculateTotals = useCallback(() => {
+    // Use functional setState to always read fresh state (fixes stale closure bug)
+    setFormData((prev) => {
+      const items = prev.items;
 
-    // Calculate subtotal (sum of all item amounts before VAT)
-    const subtotal = items.reduce(
-      (sum, item) => sum + (parseFloat(item.amount) || 0),
-      0,
-    );
+      // Calculate subtotal (sum of all item amounts before VAT)
+      const subtotal = items.reduce(
+        (sum, item) => sum + (parseFloat(item.amount) || 0),
+        0,
+      );
 
-    // Calculate total quantity
-    const totalQuantity = items.reduce(
-      (sum, item) => sum + (parseFloat(item.quantity) || 0),
-      0,
-    );
+      // Calculate total quantity
+      const totalQuantity = items.reduce(
+        (sum, item) => sum + (parseFloat(item.quantity) || 0),
+        0,
+      );
 
-    // Calculate VAT amount
-    const _vatAmount = items.reduce((sum, item) => {
-      const rate = parseFloat(item.vatRate) || 0;
-      const taxable = parseFloat(item.taxableAmount) || 0;
-      return sum + (taxable * rate) / 100;
-    }, 0);
+      // Apply invoice-level discount
+      const discountAmount =
+        prev.discountType === 'percentage'
+          ? (subtotal * (parseFloat(prev.discountPercentage) || 0)) / 100
+          : parseFloat(prev.discountAmount) || 0;
 
-    // Apply invoice-level discount
-    const discountAmount =
-      formData.discountType === 'percentage'
-        ? (subtotal * (parseFloat(formData.discountPercentage) || 0)) / 100
-        : parseFloat(formData.discountAmount) || 0;
+      const subtotalAfterDiscount = subtotal - discountAmount;
 
-    const subtotalAfterDiscount = subtotal - discountAmount;
+      // Recalculate VAT on discounted subtotal
+      const vatAfterDiscount = subtotalAfterDiscount * 0.05; // Assuming 5% VAT
 
-    // Recalculate VAT on discounted subtotal
-    const vatAfterDiscount = subtotalAfterDiscount * 0.05; // Assuming 5% VAT
+      // Add all charges
+      const allCharges =
+        (parseFloat(prev.packingCharges) || 0) +
+        (parseFloat(prev.freightCharges) || 0) +
+        (parseFloat(prev.insuranceCharges) || 0) +
+        (parseFloat(prev.loadingCharges) || 0) +
+        (parseFloat(prev.otherCharges) || 0);
 
-    // Add all charges
-    const allCharges =
-      (parseFloat(formData.packingCharges) || 0) +
-      (parseFloat(formData.freightCharges) || 0) +
-      (parseFloat(formData.insuranceCharges) || 0) +
-      (parseFloat(formData.loadingCharges) || 0) +
-      (parseFloat(formData.otherCharges) || 0);
+      // Calculate total
+      const total = subtotalAfterDiscount + vatAfterDiscount + allCharges;
 
-    // Calculate total
-    const total = subtotalAfterDiscount + vatAfterDiscount + allCharges;
+      return {
+        ...prev,
+        subtotal,
+        totalQuantity,
+        vatAmount: vatAfterDiscount,
+        total,
+      };
+    });
+  }, []);
 
-    setFormData((prev) => ({
-      ...prev,
-      subtotal,
-      totalQuantity,
-      vatAmount: vatAfterDiscount,
-      total,
-    }));
-  };
-
-  // Recalculate when charges or discount changes
+  // Recalculate when charges, discount, or items change
   useEffect(() => {
     calculateTotals();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     formData.packingCharges,
     formData.freightCharges,
@@ -1179,7 +1174,8 @@ const QuotationForm = () => {
     formData.discountPercentage,
     formData.discountAmount,
     formData.items,
-  ]); // calculateTotals is intentionally not in deps to avoid recreation on every render
+    calculateTotals,
+  ]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
