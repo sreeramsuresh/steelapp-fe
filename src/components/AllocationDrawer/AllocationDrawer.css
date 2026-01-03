@@ -1037,6 +1037,22 @@
   color: rgb(176, 190, 197);
 }
 
+.cost-per-piece {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.cost-per-kg-derived {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+.dark .cost-per-kg-derived {
+  color: rgb(156, 163, 175);
+}
+
 /* Manual Actions */
 .manual-actions {
   padding: 12px 16px;
@@ -1490,4 +1506,132 @@
   background: rgba(220, 38, 38, 0.15);
   border-color: rgba(220, 38, 38, 0.3);
   color: #ef4444;
+}
+
+/* ===========================
+   Pricing & Margin Section
+   =========================== */
+
+.pricing-margin-section {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.dark .pricing-margin-section {
+  background: rgb(38, 50, 56);
+  border-color: rgb(55, 71, 79);
+}
+
+.pricing-margin-section .section-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.dark .pricing-margin-section .section-header {
+  color: rgb(148, 163, 184);
+}
+
+.pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.pricing-row span:first-child {
+  color: #64748b;
+}
+
+.dark .pricing-row span:first-child {
+  color: rgb(148, 163, 184);
+}
+
+.price-value {
+  font-weight: 500;
+  color: #334155;
+}
+
+.dark .price-value {
+  color: rgb(226, 232, 240);
+}
+
+.pricing-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+.dark .pricing-divider {
+  background: rgb(55, 71, 79);
+}
+
+.margin-row {
+  padding-top: 6px;
+}
+
+.margin-value {
+  font-weight: 600;
+}
+
+/* Margin color classes */
+.text-red-600 {
+  color: #dc2626 !important;
+}
+
+.dark .text-red-600 {
+  color: #ef4444 !important;
+}
+
+.text-yellow-600 {
+  color: #ca8a04 !important;
+}
+
+.dark .text-yellow-600 {
+  color: #fbbf24 !important;
+}
+
+.text-green-600 {
+  color: #16a34a !important;
+}
+
+.dark .text-green-600 {
+  color: #4ade80 !important;
+}
+
+/* Allocation check mark */
+.allocation-check {
+  color: #16a34a;
+  font-weight: bold;
+}
+
+.dark .allocation-check {
+  color: #4ade80;
+}
+
+/* Line Amount styling */
+.summary-row.line-amount {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.dark .summary-row.line-amount {
+  border-top-color: rgb(55, 71, 79);
+}
+
+.amount-value {
+  color: #1d4ed8 !important;
+  font-size: 14px;
+}
+
+.dark .amount-value {
+  color: #60a5fa !important;
 }

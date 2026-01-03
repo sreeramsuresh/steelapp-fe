@@ -513,6 +513,9 @@ const createEmptyLineItem = () => ({
   mill_name: '',
   heat_number: '',
   country_of_origin: '',
+  // PCS-Centric Fields (Phase 9)
+  weight_per_piece_kg: 0, // Weight per piece in KG (for per-piece cost derivation)
+  cost_per_piece: 0, // Derived: landed cost per piece (for COGS)
   // Landed Cost Fields (Epic 6 - IMPO-006)
   fob_value: 0, // FOB value for this line
   allocated_freight: 0, // Proportional freight cost
@@ -520,7 +523,7 @@ const createEmptyLineItem = () => ({
   allocated_duty: 0, // Proportional customs duty
   other_allocated_charges: 0, // Proportional other charges
   landed_cost_total: 0, // Total landed cost for this line
-  unit_landed_cost: 0, // Landed cost per unit
+  unit_landed_cost: 0, // Landed cost per unit (MT/KG/PCS based on item.unit)
 });
 
 const createEmptyOrder = () => ({
@@ -819,6 +822,24 @@ const ImportOrderForm = () => {
       const quantity = parseFloat(item.quantity) || 0;
       const unitLandedCost = quantity > 0 ? landedCostTotal / quantity : 0;
 
+      // PCS-Centric: Calculate cost per piece
+      const weightPerPiece = parseFloat(item.weight_per_piece_kg) || 0;
+      let costPerPiece = 0;
+      if (weightPerPiece > 0 && unitLandedCost > 0) {
+        if (item.unit === 'MT') {
+          // unit_landed_cost is per MT, convert to per-piece
+          // price_per_kg = unit_landed_cost / 1000
+          // cost_per_piece = price_per_kg * weight_per_piece_kg
+          costPerPiece = (unitLandedCost / 1000) * weightPerPiece;
+        } else if (item.unit === 'KG') {
+          // unit_landed_cost is per KG
+          costPerPiece = unitLandedCost * weightPerPiece;
+        } else if (item.unit === 'PCS') {
+          // Already per piece
+          costPerPiece = unitLandedCost;
+        }
+      }
+
       return {
         ...item,
         fob_value: fobValue,
@@ -828,6 +849,7 @@ const ImportOrderForm = () => {
         other_allocated_charges: otherAllocatedCharges,
         landed_cost_total: landedCostTotal,
         unit_landed_cost: unitLandedCost,
+        cost_per_piece: costPerPiece,
       };
     });
   }, [
@@ -1319,7 +1341,12 @@ const ImportOrderForm = () => {
               >
                 Save Draft
               </Button>
-              <Button size="sm" onClick={handleSubmit} disabled={isSubmitting} data-testid="submit-button">
+              <Button
+                size="sm"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                data-testid="submit-button"
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1707,7 +1734,10 @@ const ImportOrderForm = () => {
               )}
 
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1200px]" data-testid="line-items-table">
+                <table
+                  className="w-full min-w-[1200px]"
+                  data-testid="line-items-table"
+                >
                   <thead>
                     <tr
                       className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
@@ -1721,6 +1751,7 @@ const ImportOrderForm = () => {
                       <th className="text-left pb-2 pr-2 w-28">Dimensions</th>
                       <th className="text-right pb-2 pr-2 w-20">Qty</th>
                       <th className="text-left pb-2 pr-2 w-16">Unit</th>
+                      <th className="text-right pb-2 pr-2 w-20">Wt/PC (KG)</th>
                       <th className="text-right pb-2 pr-2 w-24">Unit Price</th>
                       <th className="text-left pb-2 pr-2 w-24">HS Code</th>
                       <th className="text-left pb-2 pr-2 w-24">Mill</th>
@@ -1728,6 +1759,7 @@ const ImportOrderForm = () => {
                       <th className="text-right pb-2 pr-2 w-28">FOB Total</th>
                       <th className="text-right pb-2 pr-2 w-28">Landed Cost</th>
                       <th className="text-right pb-2 pr-2 w-28">Unit L/C</th>
+                      <th className="text-right pb-2 pr-2 w-28">Cost/PC</th>
                       <th className="w-10"></th>
                     </tr>
                   </thead>
@@ -1920,6 +1952,30 @@ const ImportOrderForm = () => {
                             ))}
                           </select>
                         </td>
+                        {/* PCS-Centric: Weight per piece input */}
+                        <td className="py-2 pr-2">
+                          <input
+                            type="number"
+                            value={item.weight_per_piece_kg || ''}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                'weight_per_piece_kg',
+                                e.target.value === ''
+                                  ? 0
+                                  : parseFloat(e.target.value),
+                              )
+                            }
+                            min="0"
+                            step="0.01"
+                            placeholder="e.g., 15"
+                            className={`w-full px-2 py-1 text-xs border rounded text-right ${
+                              isDarkMode
+                                ? 'border-gray-600 bg-gray-800 text-white'
+                                : 'border-gray-300 bg-white text-gray-900'
+                            }`}
+                          />
+                        </td>
                         <td className="py-2 pr-2">
                           <input
                             type="number"
@@ -2016,6 +2072,23 @@ const ImportOrderForm = () => {
                             {formatCurrency(item.unit_landed_cost || 0)}
                           </span>
                         </td>
+                        {/* PCS-Centric: Cost per piece display */}
+                        <td className="py-2 pr-2 text-right">
+                          {item.cost_per_piece > 0 ? (
+                            <span
+                              className={`text-xs font-semibold ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}
+                              title="Landed cost per piece (for COGS calculation)"
+                            >
+                              {formatCurrency(item.cost_per_piece)}
+                            </span>
+                          ) : (
+                            <span
+                              className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                            >
+                              —
+                            </span>
+                          )}
+                        </td>
                         <td className="py-2">
                           <button
                             type="button"
@@ -2038,7 +2111,12 @@ const ImportOrderForm = () => {
               </div>
 
               <div className="mt-4 flex justify-between items-center">
-                <Button variant="outline" size="sm" onClick={addLineItem} data-testid="add-item">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addLineItem}
+                  data-testid="add-item"
+                >
                   <Plus className="h-4 w-4" />
                   Add Line Item
                 </Button>
@@ -2155,7 +2233,10 @@ const ImportOrderForm = () => {
                     >
                       Grand Total
                     </span>
-                    <span className="font-mono text-lg font-extrabold text-[#4aa3ff]" data-testid="total">
+                    <span
+                      className="font-mono text-lg font-extrabold text-[#4aa3ff]"
+                      data-testid="total"
+                    >
                       {formatAED(calculations.grandTotal)}
                     </span>
                   </div>

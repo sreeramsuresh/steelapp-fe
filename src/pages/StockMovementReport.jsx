@@ -493,7 +493,7 @@ export default function StockMovementReport() {
                   <TableHead>Batch #</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead className="text-right">Quantity</TableHead>
-                  <TableHead className="text-right">Unit Cost</TableHead>
+                  <TableHead className="text-right">Cost/PCS</TableHead>
                   <TableHead>Reference</TableHead>
                   <TableHead>Warehouse</TableHead>
                 </TableRow>

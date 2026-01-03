@@ -182,7 +182,8 @@ const StockReceiptForm = ({
           initialSupplierBatchRefs[item.id] = '';
           initialMfgDates[item.id] = today;
           // PCS-Centric: Default PCS to pending quantity (assume 1 PCS per unit if not specified)
-          const itemPcs = parseInt(item.pcsOrdered || item.orderedPcs || pending) || 1;
+          const itemPcs =
+            parseInt(item.pcsOrdered || item.orderedPcs || pending) || 1;
           initialPcsReceived[item.id] = itemPcs;
           initialWeightSources[item.id] = 'ACTUAL'; // Default to actual (weighed)
         }

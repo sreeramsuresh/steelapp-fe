@@ -2168,7 +2168,11 @@ const ExportOrderForm = () => {
               >
                 Save as Draft
               </Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting} data-testid="submit-button">
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                data-testid="submit-button"
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -3108,7 +3112,10 @@ const ExportOrderForm = () => {
           )}
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px]" data-testid="line-items-table">
+            <table
+              className="w-full min-w-[1200px]"
+              data-testid="line-items-table"
+            >
               <thead>
                 <tr
                   className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
@@ -3479,7 +3486,12 @@ const ExportOrderForm = () => {
           </div>
 
           <div className="mt-4 flex justify-between items-center">
-            <Button variant="outline" size="sm" onClick={addLineItem} data-testid="add-item">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addLineItem}
+              data-testid="add-item"
+            >
               <Plus className="h-4 w-4" />
               Add Line Item
             </Button>

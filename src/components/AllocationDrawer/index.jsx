@@ -8,6 +8,7 @@ import SourceTypeSelector from './SourceTypeSelector';
 import WarehouseAvailability from './WarehouseAvailability';
 import { useReservations } from '../../hooks/useReservations';
 import pricelistService from '../../services/pricelistService';
+import { authService } from '../../services/axiosAuthService';
 import './AllocationDrawer.css';
 
 /**
@@ -614,11 +615,7 @@ const AllocationDrawer = ({
         }));
       }
     },
-    [
-      drawerState.sourceType,
-      drawerState.quantity,
-      allocations,
-    ],
+    [drawerState.sourceType, drawerState.quantity, allocations],
   );
 
   // Handle unit change - Phase 3: Convert price AND quantity
@@ -888,23 +885,56 @@ const AllocationDrawer = ({
     );
   }, [allocations]);
 
-  // Calculate total cost
+  // Calculate total cost (selling amount = qty × unitPrice)
+  // NOTE: Backend's allocation.totalCost is COGS (for margin tracking), NOT the invoice amount
   const totalCost = useMemo(() => {
+    const qty = parseFloat(drawerState.quantity) || 0;
+    const price = parseFloat(drawerState.unitPrice) || 0;
+    return qty * price;
+  }, [drawerState.quantity, drawerState.unitPrice]);
+
+  // Calculate COGS separately for margin tracking (optional - for future margin reports)
+  const totalCogs = useMemo(() => {
     if (drawerState.sourceType === 'WAREHOUSE' && allocations?.length > 0) {
       return allocations.reduce(
         (sum, a) => sum + parseFloat(a.totalCost || 0),
         0,
       );
     }
+    return 0;
+  }, [drawerState.sourceType, allocations]);
+
+  // Check if user can view margins (CEO, CFO, Sales Manager, Admin, Dev)
+  const canViewMargins = useMemo(() => {
+    return authService.hasRole(['ceo', 'cfo', 'sales_manager', 'admin', 'dev']);
+  }, []);
+
+  // Per-piece unit cost (buying price from batch)
+  const unitCogs = useMemo(() => {
     const qty = parseFloat(drawerState.quantity) || 0;
+    if (qty <= 0 || totalCogs <= 0) return 0;
+    return totalCogs / qty;
+  }, [totalCogs, drawerState.quantity]);
+
+  // Per-piece margin (selling - buying)
+  const unitMargin = useMemo(() => {
     const price = parseFloat(drawerState.unitPrice) || 0;
-    return qty * price;
-  }, [
-    drawerState.sourceType,
-    drawerState.quantity,
-    drawerState.unitPrice,
-    allocations,
-  ]);
+    return price - unitCogs;
+  }, [drawerState.unitPrice, unitCogs]);
+
+  // Margin percentage
+  const marginPercent = useMemo(() => {
+    const price = parseFloat(drawerState.unitPrice) || 0;
+    if (price <= 0 || unitCogs <= 0) return 0;
+    return (unitMargin / price) * 100;
+  }, [drawerState.unitPrice, unitCogs, unitMargin]);
+
+  // Margin color based on percentage (Red < 5%, Yellow 5-10%, Green > 10%)
+  const marginColor = useMemo(() => {
+    if (marginPercent < 5) return 'text-red-600';
+    if (marginPercent < 10) return 'text-yellow-600';
+    return 'text-green-600';
+  }, [marginPercent]);
 
   // Handle clear
   const handleClear = useCallback(async () => {
@@ -1142,26 +1172,62 @@ const AllocationDrawer = ({
           />
         )}
 
-        {/* Allocation Summary - PCS-CENTRIC */}
+        {/* Pricing & Margin Section - Only for authorized users */}
+        {canViewMargins &&
+          unitCogs > 0 &&
+          drawerState.sourceType === 'WAREHOUSE' && (
+            <div className="pricing-margin-section">
+              <div className="section-header">Pricing & Margin</div>
+              <div className="pricing-row">
+                <span>Buying:</span>
+                <span className="price-value">
+                  {unitCogs.toFixed(2)} AED/{drawerState.unit}
+                </span>
+              </div>
+              <div className="pricing-row">
+                <span>Selling:</span>
+                <span className="price-value">
+                  {parseFloat(drawerState.unitPrice || 0).toFixed(2)} AED/
+                  {drawerState.unit}
+                </span>
+              </div>
+              <div className="pricing-divider"></div>
+              <div className="pricing-row margin-row">
+                <span>Margin:</span>
+                <span className={`margin-value ${marginColor}`}>
+                  {unitMargin.toFixed(2)} AED/{drawerState.unit} (
+                  {marginPercent.toFixed(1)}%)
+                </span>
+              </div>
+            </div>
+          )}
+
+        {/* Allocation Summary - Shown to all users */}
         {drawerState.sourceType === 'WAREHOUSE' && allocations?.length > 0 && (
           <div className="allocation-summary">
             <div className="summary-row">
               <span>Allocated:</span>
               <strong>
-                {Math.floor(allocatedQuantity)} / {Math.floor(requiredQty)} PCS
+                {Math.floor(allocatedQuantity)} / {Math.floor(requiredQty)}{' '}
+                {drawerState.unit}
+                {allocatedQuantity >= requiredQty && (
+                  <span className="allocation-check"> ✓</span>
+                )}
               </strong>
             </div>
             {shortfall >= 1 && (
               <div className="summary-row shortfall-warning">
                 <span>Shortfall:</span>
                 <strong className="text-warning">
-                  {Math.floor(shortfall)} PCS
+                  {Math.floor(shortfall)} {drawerState.unit}
                 </strong>
               </div>
             )}
-            <div className="summary-row">
-              <span>Total Cost:</span>
-              <strong>{totalCost.toFixed(2)} AED</strong>
+            <div className="summary-row line-amount">
+              <span>Line Amount:</span>
+              <strong className="amount-value">
+                {totalCost.toFixed(2)} AED
+              </strong>
             </div>
           </div>
         )}
@@ -1175,7 +1241,12 @@ const AllocationDrawer = ({
       </div>
 
       <div className="drawer-footer">
-        <button type="button" className="btn-secondary" data-testid="drawer-clear" onClick={handleClear}>
+        <button
+          type="button"
+          className="btn-secondary"
+          data-testid="drawer-clear"
+          onClick={handleClear}
+        >
           Clear
         </button>
         <button

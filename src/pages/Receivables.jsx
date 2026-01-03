@@ -917,7 +917,10 @@ const Receivables = () => {
         className={`rounded-lg border overflow-hidden ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}
       >
         <div className="overflow-auto">
-          <table className="min-w-full divide-y" data-testid="receivables-table">
+          <table
+            className="min-w-full divide-y"
+            data-testid="receivables-table"
+          >
             <thead>
               <tr
                 className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}

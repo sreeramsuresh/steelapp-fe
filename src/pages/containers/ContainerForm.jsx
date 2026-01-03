@@ -443,7 +443,10 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" data-testid="container-modal">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      data-testid="container-modal"
+    >
       <div
         className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
           isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
@@ -533,7 +536,10 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   value={formData.supplierId}
                   onValueChange={(value) => handleChange('supplierId', value)}
                 >
-                  <SelectTrigger className={inputClass} data-testid="supplier-select">
+                  <SelectTrigger
+                    className={inputClass}
+                    data-testid="supplier-select"
+                  >
                     <SelectValue placeholder="Select supplier" />
                   </SelectTrigger>
                   <SelectContent>

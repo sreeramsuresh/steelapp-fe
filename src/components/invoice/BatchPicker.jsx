@@ -404,7 +404,7 @@ const BatchPicker = ({
               <TableHead className="w-[130px]">Batch #</TableHead>
               <TableHead className="w-[100px]">Source</TableHead>
               <TableHead className="text-right w-[100px]">Available</TableHead>
-              <TableHead className="text-right w-[100px]">Unit Cost</TableHead>
+              <TableHead className="text-right w-[100px]">Cost/PCS</TableHead>
               <TableHead className="text-right w-[120px]">
                 Allocate Qty
               </TableHead>

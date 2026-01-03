@@ -258,7 +258,11 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       errors.push('Please select a destination warehouse');
       invalid.add('destinationWarehouse');
     }
-    if (sourceWarehouseId && destinationWarehouseId && sourceWarehouseId === destinationWarehouseId) {
+    if (
+      sourceWarehouseId &&
+      destinationWarehouseId &&
+      sourceWarehouseId === destinationWarehouseId
+    ) {
       errors.push('Source and destination warehouses must be different');
       invalid.add('sourceWarehouse');
       invalid.add('destinationWarehouse');
@@ -400,7 +404,11 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             </ul>
           </div>
           <button
-            onClick={() => { setValidationErrors([]); setInvalidFields(new Set()); setError(null); }}
+            onClick={() => {
+              setValidationErrors([]);
+              setInvalidFields(new Set());
+              setError(null);
+            }}
             className="text-red-500 hover:text-red-700"
           >
             <Package className="w-4 h-4" />

@@ -271,11 +271,15 @@ export const uploadAndExtractPDF = async (file, options = {}) => {
   if (supplierId) formData.append('supplierId', String(supplierId));
   if (templateId) formData.append('templateId', String(templateId));
 
-  const response = await apiClient.post('/supplier-quotations/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
+  const response = await apiClient.post(
+    '/supplier-quotations/upload',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     },
-  });
+  );
 
   return {
     success: response.success,

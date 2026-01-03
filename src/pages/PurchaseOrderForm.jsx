@@ -2294,7 +2294,11 @@ const PurchaseOrderForm = () => {
             <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex justify-between items-center mb-3">
                 <div className="text-sm font-extrabold">Line Items</div>
-                <button onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
+                <button
+                  onClick={addItem}
+                  className={BTN_PRIMARY}
+                  data-testid="add-item"
+                >
                   <Plus size={16} className="inline mr-1" />
                   Add Item
                 </button>
@@ -2333,7 +2337,12 @@ const PurchaseOrderForm = () => {
                               'Product'
                             }
                           >
-                            {product.uniqueName || product.unique_name || product.name || product.description || product.sku || 'Product'}
+                            {product.uniqueName ||
+                              product.unique_name ||
+                              product.name ||
+                              product.description ||
+                              product.sku ||
+                              'Product'}
                           </button>
                           <button
                             onClick={(e) => handleTogglePin(e, product.id)}
@@ -2620,6 +2629,18 @@ const PurchaseOrderForm = () => {
                               <option value="PER_PCS">/pc</option>
                             </select>
                           </div>
+                          {/* PCS-Centric: Show derived cost/piece for MT/KG pricing */}
+                          {item.rate > 0 &&
+                            item.unitWeightKg > 0 &&
+                            item.pricingBasis !== 'PER_PCS' && (
+                              <div
+                                className={`text-[10px] mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                              >
+                                {item.pricingBasis === 'PER_MT'
+                                  ? `= ${((item.rate / 1000) * item.unitWeightKg).toFixed(2)}/pc`
+                                  : `= ${(item.rate * item.unitWeightKg).toFixed(2)}/pc`}
+                              </div>
+                            )}
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <div className="space-y-1">
@@ -2941,7 +2962,10 @@ const PurchaseOrderForm = () => {
                     >
                       Grand Total
                     </span>
-                    <span className="text-[#4aa3ff] font-mono text-lg" data-testid="total">
+                    <span
+                      className="text-[#4aa3ff] font-mono text-lg"
+                      data-testid="total"
+                    >
                       {formatCurrency(purchaseOrder.total)}
                     </span>
                   </div>

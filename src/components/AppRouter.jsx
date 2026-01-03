@@ -875,7 +875,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customers/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="customers.create">
+                <ProtectedRoute
+                  user={user}
+                  requiredPermission="customers.create"
+                >
                   <CustomerForm />
                 </ProtectedRoute>
               }

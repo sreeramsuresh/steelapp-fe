@@ -345,7 +345,7 @@ const BatchAllocator = ({
                           </div>
                           <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                             <TrendingUp className="w-3 h-3" />
-                            Cost: AED{' '}
+                            Cost/PCS: AED{' '}
                             {formatNumber(
                               batch.unitCost || batch.unit_cost || 0,
                             )}

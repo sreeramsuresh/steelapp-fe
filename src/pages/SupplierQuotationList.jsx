@@ -231,7 +231,9 @@ export function SupplierQuotationList() {
                         {formatCurrency(q.total, q.currency)}
                       </TableCell>
                       <TableCell>
-                        <Badge className={`bg-${getStatusColor(q.status)}-100 text-${getStatusColor(q.status)}-800`}>
+                        <Badge
+                          className={`bg-${getStatusColor(q.status)}-100 text-${getStatusColor(q.status)}-800`}
+                        >
                           {getStatusText(q.status)}
                         </Badge>
                       </TableCell>
@@ -266,14 +268,17 @@ export function SupplierQuotationList() {
                               variant="ghost"
                               size="sm"
                               onClick={() =>
-                                navigate(`/app/supplier-quotations/${q.id}/edit`)
+                                navigate(
+                                  `/app/supplier-quotations/${q.id}/edit`,
+                                )
                               }
                               title="Edit"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                           )}
-                          {(q.status === 'draft' || q.status === 'rejected') && (
+                          {(q.status === 'draft' ||
+                            q.status === 'rejected') && (
                             <Button
                               variant="ghost"
                               size="sm"

@@ -1792,7 +1792,10 @@ const InvoiceForm = ({ onSave }) => {
   // When true, shows the new drawer-based line item entry UI
   // Can be overridden via localStorage for E2E testing: localStorage.setItem('invoiceFormLegacyMode', 'true')
   const [useDrawerMode] = useState(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('invoiceFormLegacyMode') === 'true') {
+    if (
+      typeof window !== 'undefined' &&
+      localStorage.getItem('invoiceFormLegacyMode') === 'true'
+    ) {
       return false; // Use legacy mode for E2E tests
     }
     return true; // Default to drawer mode for production
@@ -6316,7 +6319,7 @@ const InvoiceForm = ({ onSave }) => {
                                                           : 'Allocated'}
                                                       </th>
                                                       <th className="px-3 py-2 text-right font-medium text-gray-500">
-                                                        Cost/Unit
+                                                        Cost/PCS
                                                       </th>
                                                       {hasSavedConsumptions && (
                                                         <th className="px-3 py-2 text-right font-medium text-gray-500">
@@ -6418,10 +6421,36 @@ const InvoiceForm = ({ onSave }) => {
                                                             )}
                                                           </td>
                                                           <td className="px-3 py-2 text-right text-gray-600">
+                                                            <div>
+                                                              {parseFloat(
+                                                                allocation.unitCost ||
+                                                                  0,
+                                                              ).toLocaleString(
+                                                                'en-AE',
+                                                                {
+                                                                  maximumFractionDigits: 0,
+                                                                },
+                                                              )}
+                                                            </div>
                                                             {parseFloat(
-                                                              allocation.unitCost ||
+                                                              allocation.weightPerPieceKg ||
                                                                 0,
-                                                            ).toFixed(2)}
+                                                            ) > 0 && (
+                                                              <div className="text-xs text-gray-400">
+                                                                (
+                                                                {(
+                                                                  parseFloat(
+                                                                    allocation.unitCost ||
+                                                                      0,
+                                                                  ) /
+                                                                  parseFloat(
+                                                                    allocation.weightPerPieceKg ||
+                                                                      1,
+                                                                  )
+                                                                ).toFixed(2)}
+                                                                /KG)
+                                                              </div>
+                                                            )}
                                                           </td>
                                                           {hasSavedConsumptions && (
                                                             <td className="px-3 py-2 text-right text-gray-600 font-medium">
@@ -7007,7 +7036,10 @@ const InvoiceForm = ({ onSave }) => {
                     >
                       Total
                     </span>
-                    <span className="font-mono text-lg font-extrabold text-teal-400" data-testid="total">
+                    <span
+                      className="font-mono text-lg font-extrabold text-teal-400"
+                      data-testid="total"
+                    >
                       {formatCurrency(computedTotal)}
                     </span>
                   </div>

@@ -105,7 +105,10 @@ const WarehouseAvailability = ({
   };
 
   return (
-    <div className="warehouse-availability" data-testid="warehouse-availability">
+    <div
+      className="warehouse-availability"
+      data-testid="warehouse-availability"
+    >
       <label className="availability-label">
         Warehouse Availability
         {selectedWarehouseId && onWarehouseSelect && (
@@ -147,7 +150,10 @@ const WarehouseAvailability = ({
                 )}
               </div>
               <div className="warehouse-stock">
-                <span className="stock-quantity" data-testid={`warehouse-stock-${index}`}>
+                <span
+                  className="stock-quantity"
+                  data-testid={`warehouse-stock-${index}`}
+                >
                   {parseFloat(warehouse.availableQuantity || 0).toFixed(2)}
                 </span>
                 <span className="stock-unit">{warehouse.unit}</span>

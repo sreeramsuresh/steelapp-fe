@@ -327,7 +327,9 @@ export function SupplierQuotationDetail() {
                   Confidence: {Math.round(quotation.extractionConfidence)}%
                 </span>
               </div>
-              <span>Method: {quotation.extractionMethod?.replace('_', ' ')}</span>
+              <span>
+                Method: {quotation.extractionMethod?.replace('_', ' ')}
+              </span>
               <span>PDF Type: {quotation.pdfType}</span>
               {quotation.pdfFilePath && (
                 <a
@@ -418,7 +420,9 @@ export function SupplierQuotationDetail() {
               <tbody>
                 {(quotation.items || []).map((item, idx) => (
                   <tr key={item.id || idx} className="border-t">
-                    <td className="px-4 py-3 text-gray-500">{item.lineNumber}</td>
+                    <td className="px-4 py-3 text-gray-500">
+                      {item.lineNumber}
+                    </td>
                     <td className="px-4 py-3">
                       <div>
                         <p>{item.description || '-'}</p>
@@ -430,8 +434,14 @@ export function SupplierQuotationDetail() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      {item.grade && <span className="font-medium">{item.grade}</span>}
-                      {item.finish && <span className="text-gray-500 ml-2">{item.finish}</span>}
+                      {item.grade && (
+                        <span className="font-medium">{item.grade}</span>
+                      )}
+                      {item.finish && (
+                        <span className="text-gray-500 ml-2">
+                          {item.finish}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right">
                       {item.quantity} {item.unit}
@@ -453,13 +463,19 @@ export function SupplierQuotationDetail() {
             <div className="w-64 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal</span>
-                <span>{formatCurrency(quotation.subtotal, quotation.currency)}</span>
+                <span>
+                  {formatCurrency(quotation.subtotal, quotation.currency)}
+                </span>
               </div>
               {quotation.discountAmount > 0 && (
                 <div className="flex justify-between text-red-600">
                   <span>Discount</span>
                   <span>
-                    -{formatCurrency(quotation.discountAmount, quotation.currency)}
+                    -
+                    {formatCurrency(
+                      quotation.discountAmount,
+                      quotation.currency,
+                    )}
                   </span>
                 </div>
               )}
@@ -467,7 +483,10 @@ export function SupplierQuotationDetail() {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Shipping</span>
                   <span>
-                    {formatCurrency(quotation.shippingCharges, quotation.currency)}
+                    {formatCurrency(
+                      quotation.shippingCharges,
+                      quotation.currency,
+                    )}
                   </span>
                 </div>
               )}
@@ -475,7 +494,10 @@ export function SupplierQuotationDetail() {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Freight</span>
                   <span>
-                    {formatCurrency(quotation.freightCharges, quotation.currency)}
+                    {formatCurrency(
+                      quotation.freightCharges,
+                      quotation.currency,
+                    )}
                   </span>
                 </div>
               )}
@@ -487,7 +509,9 @@ export function SupplierQuotationDetail() {
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
                 <span>Total</span>
-                <span>{formatCurrency(quotation.total, quotation.currency)}</span>
+                <span>
+                  {formatCurrency(quotation.total, quotation.currency)}
+                </span>
               </div>
             </div>
           </div>

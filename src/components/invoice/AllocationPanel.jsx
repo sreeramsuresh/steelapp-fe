@@ -243,7 +243,7 @@ const AllocationPanel = ({
               <TableHead className="text-right w-[120px]">
                 Allocated Qty
               </TableHead>
-              <TableHead className="text-right w-[120px]">Unit Cost</TableHead>
+              <TableHead className="text-right w-[120px]">Cost/PCS</TableHead>
             </TableRow>
           </TableHeader>
 

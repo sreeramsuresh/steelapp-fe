@@ -344,18 +344,36 @@ const StockBatchViewer = ({
                       }`}
                     >
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {/* Unit Cost */}
+                        {/* Unit Cost (Per Piece) */}
                         <div>
                           <div
                             className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
-                            Unit Cost
+                            Cost/Piece
                           </div>
                           <div
                             className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                           >
                             {formatCurrency(batch.unitCost || 0)}
                           </div>
+                          {parseFloat(
+                            batch.weightPerPieceKg ||
+                              batch.weight_per_piece_kg ||
+                              0,
+                          ) > 0 && (
+                            <div
+                              className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                            >
+                              (
+                              {(
+                                (batch.unitCost || 0) /
+                                (batch.weightPerPieceKg ||
+                                  batch.weight_per_piece_kg ||
+                                  1)
+                              ).toFixed(2)}{' '}
+                              AED/KG)
+                            </div>
+                          )}
                         </div>
 
                         {/* Landed Cost (for imports) */}

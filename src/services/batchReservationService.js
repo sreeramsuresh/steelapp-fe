@@ -32,7 +32,7 @@ export const batchReservationService = {
       draft_invoice_id: params.draftInvoiceId || 0,
       product_id: params.productId,
       warehouse_id: params.warehouseId,
-      required_quantity: params.requiredQuantity,
+      requested_pcs: params.requiredQuantity, // Backend expects requested_pcs (not required_quantity)
       unit: params.unit || 'KG',
       line_item_temp_id: params.lineItemTempId,
     });

@@ -66,6 +66,9 @@ const StockMovementForm = () => {
     notes: '',
     movementDate: new Date().toISOString().slice(0, 10),
     unitCost: '',
+    // PCS-centric pricing fields (Phase 7)
+    pricePerKg: '', // User input: purchase price in AED/KG
+    weightPerPieceKg: '', // User input: weight per piece in KG
     batchNumber: '',
     coilNumber: '',
     heatNumber: '',
@@ -172,6 +175,16 @@ const StockMovementForm = () => {
     return () => clearTimeout(t);
   }, [productQuery]);
 
+  // PCS-Centric: Auto-calculate unit cost (per piece) from price/kg × weight/piece
+  useEffect(() => {
+    const priceKg = parseFloat(formData.pricePerKg);
+    const weightPiece = parseFloat(formData.weightPerPieceKg);
+    if (priceKg > 0 && weightPiece > 0) {
+      const costPerPiece = (priceKg * weightPiece).toFixed(2);
+      setFormData((prev) => ({ ...prev, unitCost: costPerPiece }));
+    }
+  }, [formData.pricePerKg, formData.weightPerPieceKg]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -228,7 +241,12 @@ const StockMovementForm = () => {
         referenceNumber: formData.referenceNumber,
         notes: formData.notes,
         movementDate: formData.movementDate || undefined,
+        // PCS-Centric: unitCost is cost per PIECE (auto-calculated or direct input)
         unitCost: formData.unitCost ? parseFloat(formData.unitCost) : undefined,
+        // Weight per piece for derivation (saved to batch for future reference)
+        weightPerPieceKg: formData.weightPerPieceKg
+          ? parseFloat(formData.weightPerPieceKg)
+          : undefined,
         batchNumber: formData.batchNumber || undefined,
         coilNumber: formData.coilNumber || undefined,
         heatNumber: formData.heatNumber || undefined,
@@ -740,29 +758,108 @@ const StockMovementForm = () => {
                     />
                   </summary>
                   <div className={`p-3 border-t ${cardBorder}`}>
-                    <div className="grid grid-cols-12 gap-3">
-                      <div className="col-span-6 md:col-span-3">
-                        <label
-                          htmlFor="stock-unit-cost"
-                          className={`block text-xs ${textMuted} mb-1.5`}
-                        >
-                          Unit Cost
-                        </label>
-                        <input
-                          id="stock-unit-cost"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.unitCost}
-                          onChange={(e) =>
-                            handleChange('unitCost', e.target.value)
-                          }
-                          placeholder="0.00"
-                          disabled={isEditing}
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
-                        />
+                    {/* PCS-Centric Pricing Section */}
+                    <div
+                      className={`mb-3 p-2 rounded-lg ${isDarkMode ? 'bg-[#1a2129]' : 'bg-blue-50'}`}
+                    >
+                      <div
+                        className={`text-xs font-medium ${isDarkMode ? 'text-blue-400' : 'text-blue-600'} mb-2`}
+                      >
+                        Cost Calculation (PCS-Centric)
                       </div>
-                      <div className="col-span-6 md:col-span-3">
+                      <div className="grid grid-cols-12 gap-3">
+                        <div className="col-span-6 md:col-span-4">
+                          <label
+                            htmlFor="stock-price-per-kg"
+                            className={`block text-xs ${textMuted} mb-1.5`}
+                          >
+                            Price Per KG (AED)
+                          </label>
+                          <input
+                            id="stock-price-per-kg"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={formData.pricePerKg}
+                            onChange={(e) =>
+                              handleChange('pricePerKg', e.target.value)
+                            }
+                            placeholder="e.g., 5.50"
+                            disabled={isEditing}
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                          />
+                        </div>
+                        <div className="col-span-6 md:col-span-4">
+                          <label
+                            htmlFor="stock-weight-per-piece"
+                            className={`block text-xs ${textMuted} mb-1.5`}
+                          >
+                            Weight Per Piece (KG)
+                          </label>
+                          <input
+                            id="stock-weight-per-piece"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={formData.weightPerPieceKg}
+                            onChange={(e) =>
+                              handleChange('weightPerPieceKg', e.target.value)
+                            }
+                            placeholder="e.g., 1000"
+                            disabled={isEditing}
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
+                          />
+                        </div>
+                        <div className="col-span-12 md:col-span-4">
+                          <label
+                            htmlFor="stock-unit-cost"
+                            className={`block text-xs ${textMuted} mb-1.5`}
+                          >
+                            Cost/Piece (AED){' '}
+                            <span
+                              className={`text-xs ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
+                            >
+                              = Price × Weight
+                            </span>
+                          </label>
+                          <div className="relative">
+                            <input
+                              id="stock-unit-cost"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={formData.unitCost}
+                              onChange={(e) =>
+                                handleChange('unitCost', e.target.value)
+                              }
+                              placeholder="Auto-calculated"
+                              disabled={
+                                isEditing ||
+                                (formData.pricePerKg &&
+                                  formData.weightPerPieceKg)
+                              }
+                              className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing || (formData.pricePerKg && formData.weightPerPieceKg) ? 'opacity-60' : ''}`}
+                            />
+                            {formData.unitCost &&
+                              formData.weightPerPieceKg &&
+                              parseFloat(formData.weightPerPieceKg) > 0 && (
+                                <div
+                                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                                >
+                                  (
+                                  {(
+                                    parseFloat(formData.unitCost) /
+                                    parseFloat(formData.weightPerPieceKg)
+                                  ).toFixed(2)}{' '}
+                                  /KG)
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-12 gap-3">
+                      <div className="col-span-6 md:col-span-4">
                         <label
                           htmlFor="stock-batch-number"
                           className={`block text-xs ${textMuted} mb-1.5`}
@@ -781,7 +878,7 @@ const StockMovementForm = () => {
                           className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
                         />
                       </div>
-                      <div className="col-span-6 md:col-span-3">
+                      <div className="col-span-6 md:col-span-4">
                         <label
                           htmlFor="stock-coil-number"
                           className={`block text-xs ${textMuted} mb-1.5`}
@@ -800,7 +897,7 @@ const StockMovementForm = () => {
                           className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? 'opacity-60' : ''}`}
                         />
                       </div>
-                      <div className="col-span-6 md:col-span-3">
+                      <div className="col-span-6 md:col-span-4">
                         <label
                           htmlFor="stock-heat-number"
                           className={`block text-xs ${textMuted} mb-1.5`}

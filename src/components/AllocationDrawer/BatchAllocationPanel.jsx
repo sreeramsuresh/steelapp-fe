@@ -171,7 +171,10 @@ const BatchAllocationPanel = ({
       // Find the batch to check max allocatable PCS
       const batch = batches.find((b) => b.id === batchId);
       // Use pcsAvailable (new PCS field) or fall back to quantityAllocatable
-      const maxAllocatablePcs = parseInt(batch?.pcsAvailable || batch?.quantityAllocatable || 0, 10);
+      const maxAllocatablePcs = parseInt(
+        batch?.pcsAvailable || batch?.quantityAllocatable || 0,
+        10,
+      );
 
       // Clamp to max
       if (pcs > maxAllocatablePcs) {
@@ -224,16 +227,13 @@ const BatchAllocationPanel = ({
   ]);
 
   // Calculate totals from current allocations
-  const { totalAllocated, totalCost } = useMemo(() => {
+  // Note: totalCost (COGS) is calculated in parent for per-unit margin display
+  const { totalAllocated } = useMemo(() => {
     const allocated = (allocations || []).reduce(
       (sum, a) => sum + parseFloat(a.quantity || 0),
       0,
     );
-    const cost = (allocations || []).reduce(
-      (sum, a) => sum + parseFloat(a.totalCost || 0),
-      0,
-    );
-    return { totalAllocated: allocated, totalCost: cost };
+    return { totalAllocated: allocated };
   }, [allocations]);
 
   // Check if we have pending manual allocations
@@ -269,7 +269,10 @@ const BatchAllocationPanel = ({
   }
 
   return (
-    <div className="batch-allocation-panel" data-testid="batch-allocation-panel">
+    <div
+      className="batch-allocation-panel"
+      data-testid="batch-allocation-panel"
+    >
       <div className="panel-header">
         <h4>Batch Allocation</h4>
         <button
@@ -355,21 +358,38 @@ const BatchAllocationPanel = ({
                         {/* PCS-CENTRIC: Show PCS as primary, weight as derived */}
                         <div className="pcs-primary">
                           <span className="pcs-value">
-                            {parseInt(batch.pcsAvailable || batch.quantityAllocatable || 0, 10)}
+                            {parseInt(
+                              batch.pcsAvailable ||
+                                batch.quantityAllocatable ||
+                                0,
+                              10,
+                            )}
                           </span>
                           <span className="pcs-label">PCS</span>
                         </div>
                         {batch.weightKgAvailable && (
                           <div className="weight-derived">
-                            ≈ {parseFloat(batch.weightKgAvailable).toFixed(1)} KG
+                            ≈ {parseFloat(batch.weightKgAvailable).toFixed(1)}{' '}
+                            KG
                           </div>
                         )}
                       </td>
                       <td className="qty-cell">
                         {/* PCS-CENTRIC: Show reserved PCS */}
-                        {parseInt(batch.pcsReservedOthers || batch.quantityReservedOthers || 0, 10) > 0 && (
+                        {parseInt(
+                          batch.pcsReservedOthers ||
+                            batch.quantityReservedOthers ||
+                            0,
+                          10,
+                        ) > 0 && (
                           <span className="reserved-indicator">
-                            {parseInt(batch.pcsReservedOthers || batch.quantityReservedOthers || 0, 10)} PCS
+                            {parseInt(
+                              batch.pcsReservedOthers ||
+                                batch.quantityReservedOthers ||
+                                0,
+                              10,
+                            )}{' '}
+                            PCS
                           </span>
                         )}
                         {allocatedQty > 0 && (
@@ -388,7 +408,12 @@ const BatchAllocationPanel = ({
                             type="number"
                             step="1"
                             min="0"
-                            max={parseInt(batch.pcsAvailable || batch.quantityAllocatable || 0, 10)}
+                            max={parseInt(
+                              batch.pcsAvailable ||
+                                batch.quantityAllocatable ||
+                                0,
+                              10,
+                            )}
                             value={manualQty}
                             onChange={(e) =>
                               handleManualAllocationChange(
@@ -408,12 +433,25 @@ const BatchAllocationPanel = ({
                         )}
                       </td>
                       <td className="cost-cell">
-                        <span className="unit-cost">
-                          {parseFloat(batch.unitCost || 0).toFixed(2)}
-                        </span>
-                        <span className="cost-unit">
-                          AED/{batch.unit || unit}
-                        </span>
+                        <div className="cost-per-piece">
+                          <span className="unit-cost">
+                            {parseFloat(batch.unitCost || 0).toLocaleString(
+                              'en-AE',
+                              { maximumFractionDigits: 0 },
+                            )}
+                          </span>
+                          <span className="cost-unit">AED/PCS</span>
+                        </div>
+                        {parseFloat(batch.weightPerPieceKg || 0) > 0 && (
+                          <div className="cost-per-kg-derived">
+                            (
+                            {(
+                              parseFloat(batch.unitCost || 0) /
+                              parseFloat(batch.weightPerPieceKg || 1)
+                            ).toFixed(2)}{' '}
+                            AED/KG)
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -452,20 +490,15 @@ const BatchAllocationPanel = ({
             </div>
           )}
 
-          {/* Totals - PCS-CENTRIC */}
+          {/* Totals - PCS-CENTRIC (COGS display removed - shown in parent with per-unit margin) */}
           <div className="allocation-totals">
             <div className="total-row">
               <span>Allocated:</span>
               <strong>
-                {Math.floor(totalAllocated)} / {Math.floor(requiredQuantity)} PCS
+                {Math.floor(totalAllocated)} / {Math.floor(requiredQuantity)}{' '}
+                PCS
               </strong>
             </div>
-            {totalCost > 0 && (
-              <div className="total-row">
-                <span>Total Cost:</span>
-                <strong>{totalCost.toFixed(2)} AED</strong>
-              </div>
-            )}
           </div>
 
           {/* Shortfall Warning - PCS-CENTRIC (NEVER show KG shortfall) */}
@@ -473,7 +506,8 @@ const BatchAllocationPanel = ({
             <div className="shortfall-warning">
               <span className="warning-icon">⚠</span>
               <span>
-                Shortfall: {Math.floor(shortfall)} PCS - Insufficient stock available
+                Shortfall: {Math.floor(shortfall)} PCS - Insufficient stock
+                available
               </span>
             </div>
           )}

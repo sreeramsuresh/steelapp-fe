@@ -59,10 +59,10 @@ const ProductSelector = ({
         clearTimeout(debounceRef.current);
       }
 
-      // Debounce search
+      // Debounce search (200ms for responsive feel with trigram-indexed backend)
       debounceRef.current = setTimeout(() => {
         searchProducts(value);
-      }, 300);
+      }, 200);
     },
     [searchProducts],
   );
@@ -212,7 +212,11 @@ const ProductSelector = ({
       </div>
 
       {showDropdown && products.length > 0 && (
-        <div ref={dropdownRef} className="product-dropdown" data-testid="drawer-product-dropdown">
+        <div
+          ref={dropdownRef}
+          className="product-dropdown"
+          data-testid="drawer-product-dropdown"
+        >
           {products.map((product, index) => (
             <div
               key={product.id || `product-${index}`}

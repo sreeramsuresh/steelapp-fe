@@ -1436,13 +1436,19 @@ const DebitNoteForm = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Subtotal:</span>
-                      <span data-testid="subtotal" className={`font-mono ${textPrimary}`}>
+                      <span
+                        data-testid="subtotal"
+                        className={`font-mono ${textPrimary}`}
+                      >
                         {formatCurrency(debitNote.subtotal)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>VAT:</span>
-                      <span data-testid="vat-amount" className={`font-mono ${textPrimary}`}>
+                      <span
+                        data-testid="vat-amount"
+                        className={`font-mono ${textPrimary}`}
+                      >
                         {formatCurrency(debitNote.vatAmount)}
                       </span>
                     </div>

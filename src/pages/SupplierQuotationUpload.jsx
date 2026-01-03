@@ -208,9 +208,7 @@ export function SupplierQuotationUpload() {
                 <p className="text-gray-600 mb-2">
                   Drag and drop a PDF file here, or click to select
                 </p>
-                <p className="text-sm text-gray-400">
-                  Maximum file size: 25MB
-                </p>
+                <p className="text-sm text-gray-400">Maximum file size: 25MB</p>
                 <input
                   ref={fileInputRef}
                   type="file"

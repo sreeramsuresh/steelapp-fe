@@ -2850,7 +2850,10 @@ const QuotationForm = () => {
                   >
                     Total
                   </span>
-                  <span className="text-lg font-extrabold text-teal-600 font-mono" data-testid="total">
+                  <span
+                    className="text-lg font-extrabold text-teal-600 font-mono"
+                    data-testid="total"
+                  >
                     {formatCurrency(formData.total)}
                   </span>
                 </div>

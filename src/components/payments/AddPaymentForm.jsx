@@ -148,7 +148,9 @@ const AddPaymentForm = ({
       errors.push('Amount must be greater than 0');
     }
     if (Number(amount) > Number(outstanding || 0)) {
-      errors.push(`Amount cannot exceed outstanding balance of ${formatCurrency(outstanding)}`);
+      errors.push(
+        `Amount cannot exceed outstanding balance of ${formatCurrency(outstanding)}`,
+      );
     }
     if (modeConfig.requiresRef && (!reference || reference.trim() === '')) {
       errors.push(`${modeConfig.label} requires a reference number`);

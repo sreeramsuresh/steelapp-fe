@@ -1735,7 +1735,10 @@ const DeliveryNoteForm = () => {
 
       {/* ==================== INVOICE SELECTION MODAL ==================== */}
       {showInvoiceDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55" data-testid="invoice-modal">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55"
+          data-testid="invoice-modal"
+        >
           <div
             className={`${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col`}
           >
