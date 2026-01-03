@@ -1261,6 +1261,7 @@ const ImportOrderForm = () => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
+      data-testid="import-order-form"
     >
       {/* Sticky Header with Blur */}
       <div
@@ -1305,6 +1306,7 @@ const ImportOrderForm = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate('/import-export')}
+                data-testid="cancel-button"
               >
                 Cancel
               </Button>
@@ -1313,10 +1315,11 @@ const ImportOrderForm = () => {
                 size="sm"
                 onClick={handleSaveDraft}
                 disabled={isSubmitting}
+                data-testid="save-draft-button"
               >
                 Save Draft
               </Button>
-              <Button size="sm" onClick={handleSubmit} disabled={isSubmitting}>
+              <Button size="sm" onClick={handleSubmit} disabled={isSubmitting} data-testid="submit-button">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1354,6 +1357,7 @@ const ImportOrderForm = () => {
                   <Input
                     label="Order Date"
                     type="date"
+                    data-testid="order-date"
                     value={order.order_date}
                     onChange={(e) =>
                       handleFieldChange('order_date', e.target.value)
@@ -1479,6 +1483,7 @@ const ImportOrderForm = () => {
                 <div className="col-span-12 sm:col-span-6">
                   <FormSelect
                     label="Supplier"
+                    data-testid="supplier-select"
                     value={order.supplier_id || 'none'}
                     onValueChange={(value) =>
                       handleSupplierChange(value === 'none' ? '' : value)
@@ -1702,7 +1707,7 @@ const ImportOrderForm = () => {
               )}
 
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1200px]">
+                <table className="w-full min-w-[1200px]" data-testid="line-items-table">
                   <thead>
                     <tr
                       className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
@@ -1732,6 +1737,7 @@ const ImportOrderForm = () => {
                     {order.items.map((item, index) => (
                       <tr
                         key={item.id}
+                        data-testid={`item-row-${index}`}
                         className={`${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}
                       >
                         <td className="py-2 pr-2">
@@ -1744,6 +1750,7 @@ const ImportOrderForm = () => {
                         <td className="py-2 pr-2">
                           <div className="space-y-1">
                             <select
+                              data-testid={`item-product-${index}`}
                               value={item.product_id}
                               onChange={(e) =>
                                 handleProductSelect(index, e.target.value)
@@ -2031,7 +2038,7 @@ const ImportOrderForm = () => {
               </div>
 
               <div className="mt-4 flex justify-between items-center">
-                <Button variant="outline" size="sm" onClick={addLineItem}>
+                <Button variant="outline" size="sm" onClick={addLineItem} data-testid="add-item">
                   <Plus className="h-4 w-4" />
                   Add Line Item
                 </Button>
@@ -2066,7 +2073,7 @@ const ImportOrderForm = () => {
                     >
                       Subtotal ({order.currency})
                     </span>
-                    <span className="font-mono text-sm">
+                    <span className="font-mono text-sm" data-testid="subtotal">
                       {formatCurrency(calculations.subtotal)}
                     </span>
                   </div>
@@ -2132,6 +2139,7 @@ const ImportOrderForm = () => {
                     </span>
                     <span
                       className={`font-mono text-sm ${calculations.isDesignatedZone ? 'text-green-400' : ''}`}
+                      data-testid="vat-amount"
                     >
                       {calculations.isDesignatedZone
                         ? formatAED(0)
@@ -2147,7 +2155,7 @@ const ImportOrderForm = () => {
                     >
                       Grand Total
                     </span>
-                    <span className="font-mono text-lg font-extrabold text-[#4aa3ff]">
+                    <span className="font-mono text-lg font-extrabold text-[#4aa3ff]" data-testid="total">
                       {formatAED(calculations.grandTotal)}
                     </span>
                   </div>

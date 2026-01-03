@@ -443,11 +443,12 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" data-testid="container-modal">
       <div
         className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
           isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
         }`}
+        data-testid="container-form"
       >
         {/* Header */}
         <div
@@ -497,6 +498,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   }
                   placeholder="e.g., MSKU1234567"
                   className={inputClass}
+                  data-testid="container-number"
                 />
                 {validationErrors.containerNumber && (
                   <p className="text-red-500 text-sm mt-1">
@@ -511,6 +513,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   onChange={(e) => handleChange('billOfLading', e.target.value)}
                   placeholder="B/L number"
                   className={inputClass}
+                  data-testid="bill-of-lading"
                 />
               </div>
             </div>
@@ -530,7 +533,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   value={formData.supplierId}
                   onValueChange={(value) => handleChange('supplierId', value)}
                 >
-                  <SelectTrigger className={inputClass}>
+                  <SelectTrigger className={inputClass} data-testid="supplier-select">
                     <SelectValue placeholder="Select supplier" />
                   </SelectTrigger>
                   <SelectContent>
@@ -584,6 +587,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   onChange={(e) => handleChange('shippingLine', e.target.value)}
                   placeholder="e.g., Maersk, MSC, CMA CGM"
                   className={inputClass}
+                  data-testid="shipping-line"
                 />
               </div>
               <div>
@@ -593,6 +597,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   onChange={(e) => handleChange('vesselName', e.target.value)}
                   placeholder="Vessel name"
                   className={inputClass}
+                  data-testid="vessel-name"
                 />
               </div>
               <div>
@@ -604,6 +609,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   }
                   placeholder="e.g., Shanghai, China"
                   className={inputClass}
+                  data-testid="port-of-loading"
                 />
               </div>
               <div>
@@ -615,6 +621,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
                   }
                   placeholder="e.g., Jebel Ali, UAE"
                   className={inputClass}
+                  data-testid="port-of-discharge"
                 />
               </div>
             </div>
@@ -1381,10 +1388,11 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
               variant="outline"
               onClick={onClose}
               disabled={saving}
+              data-testid="cancel-button"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving} data-testid="save-button">
               {saving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

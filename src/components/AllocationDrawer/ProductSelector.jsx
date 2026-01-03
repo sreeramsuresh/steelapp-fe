@@ -199,6 +199,7 @@ const ProductSelector = ({
         <input
           ref={inputRef}
           id="product-search"
+          data-testid="drawer-product-search"
           type="text"
           placeholder="Search products..."
           value={searchTerm}
@@ -211,12 +212,13 @@ const ProductSelector = ({
       </div>
 
       {showDropdown && products.length > 0 && (
-        <div ref={dropdownRef} className="product-dropdown">
+        <div ref={dropdownRef} className="product-dropdown" data-testid="drawer-product-dropdown">
           {products.map((product, index) => (
             <div
               key={product.id || `product-${index}`}
               role="button"
               tabIndex={0}
+              data-testid={`drawer-product-option-${index}`}
               className={`product-option ${index === highlightedIndex ? 'highlighted' : ''}`}
               onClick={() => handleSelect(product)}
               onKeyDown={(e) => {

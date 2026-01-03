@@ -669,6 +669,7 @@ const DeliveryNoteForm = () => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-[#FAFAFA]'}`}
+      data-testid="delivery-note-form"
     >
       {/* ==================== STICKY HEADER ==================== */}
       <div
@@ -710,6 +711,7 @@ const DeliveryNoteForm = () => {
             <button
               onClick={handleSubmit}
               disabled={isSaving || !selectedInvoice}
+              data-testid="create-dn"
               className={`${BTN_PRIMARY} ${isSaving || !selectedInvoice ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               {isSaving ? (
@@ -749,6 +751,7 @@ const DeliveryNoteForm = () => {
                   </label>
                   <input
                     id="dn-number"
+                    data-testid="dn-number"
                     type="text"
                     value={formData.deliveryNoteNumber}
                     onChange={(e) =>
@@ -769,6 +772,7 @@ const DeliveryNoteForm = () => {
                   </label>
                   <input
                     id="delivery-date"
+                    data-testid="delivery-date"
                     type="date"
                     value={formData.deliveryDate}
                     onChange={(e) =>
@@ -827,6 +831,7 @@ const DeliveryNoteForm = () => {
                   <div className="flex gap-2">
                     <input
                       id="invoice-select"
+                      data-testid="invoice-select"
                       type="text"
                       value={
                         selectedInvoice
@@ -840,6 +845,7 @@ const DeliveryNoteForm = () => {
                     <button
                       onClick={() => setShowInvoiceDialog(true)}
                       disabled={isEdit}
+                      data-testid="select-invoice-button"
                       className={`${BTN_CLASSES(isDarkMode)} ${isEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       Select
@@ -1022,6 +1028,7 @@ const DeliveryNoteForm = () => {
                             </div>
                             <input
                               type="number"
+                              data-testid={`item-delivered-qty-${index}`}
                               value={item.deliveredQuantity || ''}
                               onChange={(e) => {
                                 e.stopPropagation();
@@ -1361,6 +1368,7 @@ const DeliveryNoteForm = () => {
                 <div className="space-y-1.5">
                   <button
                     onClick={() => setShowDeliveryAddressDrawer(true)}
+                    data-testid="delivery-address-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
                   >
                     <span className="flex items-center gap-2">
@@ -1371,6 +1379,7 @@ const DeliveryNoteForm = () => {
                   </button>
                   <button
                     onClick={() => setShowTransportDrawer(true)}
+                    data-testid="transport-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
                   >
                     <span className="flex items-center gap-2">
@@ -1381,6 +1390,7 @@ const DeliveryNoteForm = () => {
                   </button>
                   <button
                     onClick={() => setShowNotesDrawer(true)}
+                    data-testid="notes-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
                   >
                     <span className="flex items-center gap-2">
@@ -1413,6 +1423,7 @@ const DeliveryNoteForm = () => {
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform ${showDeliveryAddressDrawer ? 'translate-x-0' : 'translate-x-full'}`}
+          data-testid="delivery-address-drawer"
         >
           <div className="p-4">
             {/* Drawer Header */}
@@ -1446,6 +1457,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   id="delivery-street"
+                  data-testid="delivery-street"
                   type="text"
                   value={formData.deliveryAddress.street}
                   onChange={(e) =>
@@ -1465,6 +1477,7 @@ const DeliveryNoteForm = () => {
                   </label>
                   <input
                     id="delivery-city"
+                    data-testid="delivery-city"
                     type="text"
                     value={formData.deliveryAddress.city}
                     onChange={(e) =>
@@ -1534,6 +1547,7 @@ const DeliveryNoteForm = () => {
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform ${showTransportDrawer ? 'translate-x-0' : 'translate-x-full'}`}
+          data-testid="transport-drawer"
         >
           <div className="p-4">
             {/* Drawer Header */}
@@ -1567,6 +1581,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   id="vehicle-number"
+                  data-testid="vehicle-number"
                   type="text"
                   value={formData.vehicleNumber}
                   onChange={(e) =>
@@ -1585,6 +1600,7 @@ const DeliveryNoteForm = () => {
                 </label>
                 <input
                   id="driver-name"
+                  data-testid="driver-name"
                   type="text"
                   value={formData.driverName}
                   onChange={(e) =>
@@ -1653,6 +1669,7 @@ const DeliveryNoteForm = () => {
         />
         <div
           className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'} overflow-auto transition-transform ${showNotesDrawer ? 'translate-x-0' : 'translate-x-full'}`}
+          data-testid="notes-drawer"
         >
           <div className="p-4">
             {/* Drawer Header */}
@@ -1685,6 +1702,7 @@ const DeliveryNoteForm = () => {
               </label>
               <textarea
                 id="delivery-notes"
+                data-testid="delivery-notes"
                 rows={6}
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
@@ -1717,7 +1735,7 @@ const DeliveryNoteForm = () => {
 
       {/* ==================== INVOICE SELECTION MODAL ==================== */}
       {showInvoiceDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55" data-testid="invoice-modal">
           <div
             className={`${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col`}
           >
@@ -1741,12 +1759,13 @@ const DeliveryNoteForm = () => {
                   No invoices available for delivery
                 </p>
               ) : (
-                <div className="space-y-2">
-                  {invoices.map((invoice) => (
+                <div className="space-y-2" data-testid="invoice-list">
+                  {invoices.map((invoice, index) => (
                     <button
                       key={invoice.id}
                       type="button"
                       onClick={() => handleInvoiceSelect(invoice)}
+                      data-testid={`invoice-option-${index}`}
                       className={`w-full p-3 text-left border rounded-[14px] transition-colors ${isDarkMode ? 'border-[#2a3640] hover:bg-[#0f151b] hover:border-[#4aa3ff]' : 'border-gray-200 hover:bg-gray-50 hover:border-blue-500'}`}
                     >
                       <div className="flex justify-between items-start">

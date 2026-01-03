@@ -23,6 +23,7 @@ const InvoiceAllocationConfirmation = lazy(
 );
 const InvoiceList = lazy(() => import('../pages/InvoiceList'));
 const CustomerManagement = lazy(() => import('./CustomerManagement'));
+const CustomerForm = lazy(() => import('../pages/CustomerForm'));
 const SteelProducts = lazy(() => import('./SteelProducts'));
 const CompanySettings = lazy(() => import('./CompanySettings'));
 const SearchResults = lazy(() => import('./SearchResults'));
@@ -154,6 +155,28 @@ const SupplierList = lazy(() =>
 );
 const SupplierForm = lazy(() =>
   import('../pages/SupplierForm').then((m) => ({ default: m.SupplierForm })),
+);
+
+// Supplier Quotation Components (PDF Upload Module)
+const SupplierQuotationList = lazy(() =>
+  import('../pages/SupplierQuotationList').then((m) => ({
+    default: m.SupplierQuotationList,
+  })),
+);
+const SupplierQuotationForm = lazy(() =>
+  import('../pages/SupplierQuotationForm').then((m) => ({
+    default: m.SupplierQuotationForm,
+  })),
+);
+const SupplierQuotationDetail = lazy(() =>
+  import('../pages/SupplierQuotationDetail').then((m) => ({
+    default: m.SupplierQuotationDetail,
+  })),
+);
+const SupplierQuotationUpload = lazy(() =>
+  import('../pages/SupplierQuotationUpload').then((m) => ({
+    default: m.SupplierQuotationUpload,
+  })),
 );
 
 // AnalyticsDashboard removed - /analytics now redirects to /analytics/dashboard
@@ -850,6 +873,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               }
             />
             <Route
+              path="customers/new"
+              element={
+                <ProtectedRoute user={user} requiredPermission="customers.create">
+                  <CustomerForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="customers/:customerId"
               element={
                 <ProtectedRoute user={user} requiredPermission="customers.read">
@@ -933,6 +964,58 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 </ProtectedRoute>
               }
             />
+
+            {/* ===== SUPPLIER QUOTATIONS (PDF Upload Module) ===== */}
+            <Route
+              path="supplier-quotations"
+              element={
+                <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                  <SupplierQuotationList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="supplier-quotations/upload"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredPermission="suppliers.create"
+                >
+                  <SupplierQuotationUpload />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="supplier-quotations/new"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredPermission="suppliers.create"
+                >
+                  <SupplierQuotationForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="supplier-quotations/:id"
+              element={
+                <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                  <SupplierQuotationDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="supplier-quotations/:id/edit"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredPermission="suppliers.update"
+                >
+                  <SupplierQuotationForm />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="countries"
               element={

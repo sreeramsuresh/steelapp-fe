@@ -1948,6 +1948,7 @@ const PurchaseOrderForm = () => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
+      data-testid="purchase-order-form"
     >
       {/* ==================== STICKY HEADER ==================== */}
       <div
@@ -2028,6 +2029,7 @@ const PurchaseOrderForm = () => {
               onClick={() => handleSubmit('draft')}
               disabled={isSaving}
               className={`${BTN_CLASSES(isDarkMode)} ${isSaving ? 'opacity-60 cursor-not-allowed' : ''}`}
+              data-testid="save-draft"
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
@@ -2038,6 +2040,7 @@ const PurchaseOrderForm = () => {
               onClick={() => handleSubmit('pending')}
               disabled={isSaving}
               className={`${BTN_PRIMARY} ${isSaving ? 'opacity-60 cursor-not-allowed' : ''}`}
+              data-testid="submit-po"
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
@@ -2121,6 +2124,7 @@ const PurchaseOrderForm = () => {
                     }
                     placeholder="PO-2024-001"
                     className={INPUT_CLASSES(isDarkMode)}
+                    data-testid="po-number"
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
@@ -2138,6 +2142,7 @@ const PurchaseOrderForm = () => {
                       handleInputChange('poDate', e.target.value)
                     }
                     className={INPUT_CLASSES(isDarkMode)}
+                    data-testid="po-date"
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
@@ -2155,6 +2160,7 @@ const PurchaseOrderForm = () => {
                       handleInputChange('expectedDeliveryDate', e.target.value)
                     }
                     className={INPUT_CLASSES(isDarkMode)}
+                    data-testid="expected-delivery-date"
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
@@ -2168,6 +2174,7 @@ const PurchaseOrderForm = () => {
                     validationState={
                       invalidFields.has('warehouse') ? 'invalid' : null
                     }
+                    data-testid="warehouse-select"
                   >
                     <SelectItem value="none">Select Warehouse</SelectItem>
                     {warehouses.map((warehouse) => (
@@ -2203,6 +2210,7 @@ const PurchaseOrderForm = () => {
                         validationState={
                           invalidFields.has('supplier') ? 'invalid' : null
                         }
+                        data-testid="supplier-select"
                       >
                         <SelectItem value="none">Select Supplier</SelectItem>
                         {suppliers.map((supplier) => (
@@ -2286,7 +2294,7 @@ const PurchaseOrderForm = () => {
             <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex justify-between items-center mb-3">
                 <div className="text-sm font-extrabold">Line Items</div>
-                <button onClick={addItem} className={BTN_PRIMARY}>
+                <button onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
                   <Plus size={16} className="inline mr-1" />
                   Add Item
                 </button>
@@ -2354,6 +2362,7 @@ const PurchaseOrderForm = () => {
               <div className="hidden md:block overflow-x-auto">
                 <table
                   className={`min-w-full table-fixed ${isDarkMode ? 'divide-gray-600' : 'divide-gray-200'}`}
+                  data-testid="line-items-table"
                 >
                   <thead className={isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50'}>
                     <tr>
@@ -2436,6 +2445,7 @@ const PurchaseOrderForm = () => {
                       <tr
                         key={index}
                         data-item-index={index}
+                        data-testid={`item-row-${index}`}
                         className={isDarkMode ? 'bg-[#141a20]' : 'bg-white'}
                       >
                         <td className="px-2 py-2 align-middle">
@@ -2854,6 +2864,7 @@ const PurchaseOrderForm = () => {
                     </span>
                     <span
                       className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
+                      data-testid="subtotal"
                     >
                       {formatCurrency(purchaseOrder.subtotal)}
                     </span>
@@ -2909,6 +2920,7 @@ const PurchaseOrderForm = () => {
                     </span>
                     <span
                       className={`font-mono ${isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900'}`}
+                      data-testid="vat-amount"
                     >
                       {formatCurrency(purchaseOrder.vatAmount)}
                     </span>
@@ -2922,7 +2934,7 @@ const PurchaseOrderForm = () => {
                     >
                       Grand Total
                     </span>
-                    <span className="text-[#4aa3ff] font-mono text-lg">
+                    <span className="text-[#4aa3ff] font-mono text-lg" data-testid="total">
                       {formatCurrency(purchaseOrder.total)}
                     </span>
                   </div>

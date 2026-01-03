@@ -260,7 +260,7 @@ const CreditNoteForm = () => {
 
   // Form state
   const [creditNote, setCreditNote] = useState({
-    creditNoteNumber: '',
+    creditNoteNumber: 'CN-DRAFT',
     invoiceId: null,
     invoiceNumber: '',
     customer: {
@@ -1141,6 +1141,7 @@ const CreditNoteForm = () => {
 
   return (
     <div
+      data-testid="credit-note-form"
       className={`h-full overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
     >
       {/* Draft Conflict Modal */}
@@ -1205,6 +1206,7 @@ const CreditNoteForm = () => {
               <>
                 {/* Save Draft Button */}
                 <button
+                  data-testid="save-draft"
                   onClick={() => handleSave(false)}
                   disabled={saving}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
@@ -1229,6 +1231,7 @@ const CreditNoteForm = () => {
 
                 {/* Issue Tax Document Button */}
                 <button
+                  data-testid="submit-credit-note"
                   onClick={() => handleSave(true)}
                   disabled={saving}
                   className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${
@@ -1397,6 +1400,7 @@ const CreditNoteForm = () => {
                       />
                       <input
                         id="invoice-search-input"
+                        data-testid="invoice-search"
                         type="text"
                         placeholder="Start typing invoice number or customer name..."
                         value={searchQuery}
@@ -1908,6 +1912,7 @@ const CreditNoteForm = () => {
                     </label>
                     <input
                       id="credit-note-number"
+                      data-testid="credit-note-number"
                       type="text"
                       value={creditNote.creditNoteNumber}
                       disabled
@@ -1947,6 +1952,7 @@ const CreditNoteForm = () => {
                     >
                       <SelectTrigger
                         id="credit-note-type"
+                        data-testid="credit-note-type"
                         className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                           !isEditable
                             ? isDarkMode
@@ -1997,6 +2003,7 @@ const CreditNoteForm = () => {
                     </label>
                     <input
                       id="credit-note-date"
+                      data-testid="credit-note-date"
                       type="date"
                       value={creditNote.creditNoteDate}
                       onChange={(e) => {
@@ -2081,6 +2088,7 @@ const CreditNoteForm = () => {
                     >
                       <SelectTrigger
                         id="reason-for-return"
+                        data-testid="reason-for-return"
                         onBlur={() => handleFieldBlur('reasonForReturn')}
                         className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                           !isEditable ? 'cursor-not-allowed opacity-60' : ''

@@ -103,7 +103,7 @@ const PaymentDrawer = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[1100] flex">
+    <div className="fixed inset-0 z-[1100] flex" data-testid="payment-drawer">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/30 sm:relative sm:flex-1"

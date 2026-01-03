@@ -2111,6 +2111,7 @@ const ExportOrderForm = () => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+      data-testid="export-order-form"
     >
       {/* Header */}
       <div
@@ -2155,6 +2156,7 @@ const ExportOrderForm = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate('/import-export')}
+                data-testid="cancel-button"
               >
                 Cancel
               </Button>
@@ -2162,10 +2164,11 @@ const ExportOrderForm = () => {
                 variant="secondary"
                 onClick={handleSaveDraft}
                 disabled={isSubmitting}
+                data-testid="save-draft-button"
               >
                 Save as Draft
               </Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting}>
+              <Button onClick={handleSubmit} disabled={isSubmitting} data-testid="submit-button">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -2197,6 +2200,7 @@ const ExportOrderForm = () => {
             <Input
               label="Order Date"
               type="date"
+              data-testid="order-date"
               value={order.order_date}
               onChange={(e) => handleFieldChange('order_date', e.target.value)}
               required
@@ -2204,6 +2208,7 @@ const ExportOrderForm = () => {
             <Input
               label="Expected Ship Date"
               type="date"
+              data-testid="expected-ship-date"
               value={order.expected_ship_date}
               onChange={(e) =>
                 handleFieldChange('expected_ship_date', e.target.value)
@@ -2283,6 +2288,7 @@ const ExportOrderForm = () => {
                 <input
                   id="customer-search"
                   type="text"
+                  data-testid="customer-autocomplete"
                   value={customerSearchTerm || order.customer_name}
                   onChange={(e) => {
                     setCustomerSearchTerm(e.target.value);
@@ -2302,16 +2308,18 @@ const ExportOrderForm = () => {
               </div>
               {showCustomerDropdown && filteredCustomers.length > 0 && (
                 <div
+                  data-testid="customer-autocomplete-listbox"
                   className={`absolute z-20 w-full mt-1 max-h-60 overflow-auto rounded-md shadow-lg ${
                     isDarkMode
                       ? 'bg-gray-800 border border-gray-700'
                       : 'bg-white border border-gray-200'
                   }`}
                 >
-                  {filteredCustomers.map((customer) => (
+                  {filteredCustomers.map((customer, index) => (
                     <button
                       key={customer.id}
                       type="button"
+                      data-testid={`customer-option-${index}`}
                       onClick={() => handleCustomerChange(customer.id)}
                       className={`w-full text-left px-3 py-2 text-sm ${
                         isDarkMode
@@ -3100,7 +3108,7 @@ const ExportOrderForm = () => {
           )}
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px]">
+            <table className="w-full min-w-[1200px]" data-testid="line-items-table">
               <thead>
                 <tr
                   className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
@@ -3126,6 +3134,7 @@ const ExportOrderForm = () => {
                 {order.items.map((item, index) => (
                   <tr
                     key={item.id}
+                    data-testid={`item-row-${index}`}
                     className={`${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}
                   >
                     <td className="py-2 pr-2">
@@ -3138,6 +3147,7 @@ const ExportOrderForm = () => {
                     <td className="py-2 pr-2">
                       <div className="space-y-1">
                         <select
+                          data-testid={`item-product-${index}`}
                           value={item.product_id}
                           onChange={(e) =>
                             handleProductSelect(index, e.target.value)
@@ -3157,6 +3167,7 @@ const ExportOrderForm = () => {
                         </select>
                         <input
                           type="text"
+                          data-testid={`item-unique-name-${index}`}
                           value={item.unique_name}
                           onChange={(e) =>
                             handleItemChange(
@@ -3184,6 +3195,7 @@ const ExportOrderForm = () => {
                     <td className="py-2 pr-2">
                       <input
                         type="text"
+                        data-testid={`item-grade-${index}`}
                         value={item.grade}
                         onChange={(e) =>
                           handleItemChange(index, 'grade', e.target.value)
@@ -3199,6 +3211,7 @@ const ExportOrderForm = () => {
                     <td className="py-2 pr-2">
                       <input
                         type="text"
+                        data-testid={`item-finish-${index}`}
                         value={item.finish}
                         onChange={(e) =>
                           handleItemChange(
@@ -3347,6 +3360,7 @@ const ExportOrderForm = () => {
                     <td className="py-2 pr-2">
                       <input
                         type="number"
+                        data-testid={`item-quantity-${index}`}
                         value={item.quantity}
                         onChange={(e) =>
                           handleItemChange(index, 'quantity', e.target.value)
@@ -3362,6 +3376,7 @@ const ExportOrderForm = () => {
                     </td>
                     <td className="py-2 pr-2">
                       <select
+                        data-testid={`item-unit-${index}`}
                         value={item.unit}
                         onChange={(e) =>
                           handleItemChange(index, 'unit', e.target.value)
@@ -3382,6 +3397,7 @@ const ExportOrderForm = () => {
                     <td className="py-2 pr-2">
                       <input
                         type="number"
+                        data-testid={`item-unit-price-${index}`}
                         value={item.unit_price}
                         onChange={(e) =>
                           handleItemChange(index, 'unit_price', e.target.value)
@@ -3443,6 +3459,7 @@ const ExportOrderForm = () => {
                     <td className="py-2">
                       <button
                         type="button"
+                        data-testid={`item-delete-${index}`}
                         onClick={() => removeLineItem(index)}
                         className={`p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors ${
                           order.items.length <= 1
@@ -3462,7 +3479,7 @@ const ExportOrderForm = () => {
           </div>
 
           <div className="mt-4 flex justify-between items-center">
-            <Button variant="outline" size="sm" onClick={addLineItem}>
+            <Button variant="outline" size="sm" onClick={addLineItem} data-testid="add-item">
               <Plus className="h-4 w-4" />
               Add Line Item
             </Button>
@@ -3554,6 +3571,7 @@ const ExportOrderForm = () => {
                     Subtotal ({order.currency})
                   </span>
                   <span
+                    data-testid="subtotal"
                     className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                   >
                     {formatCurrency(calculations.subtotal)}
@@ -3611,6 +3629,7 @@ const ExportOrderForm = () => {
                       VAT (Export = 0%)
                     </span>
                     <span
+                      data-testid="vat-amount"
                       className={`text-sm font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
                     >
                       {formatCurrency(0)}
@@ -3627,6 +3646,7 @@ const ExportOrderForm = () => {
                       Total ({order.currency})
                     </span>
                     <span
+                      data-testid="total"
                       className={`text-lg font-bold ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
                     >
                       {formatCurrency(calculations.total)}

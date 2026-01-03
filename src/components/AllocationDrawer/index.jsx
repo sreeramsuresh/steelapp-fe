@@ -396,15 +396,10 @@ const AllocationDrawer = ({
     return labelMap[drawerState.pricingBasisCode] || '';
   };
 
-  // Initialize selected warehouse from parent if not set
-  useEffect(() => {
-    if (!drawerState.selectedWarehouseId && warehouseId) {
-      setDrawerState((prev) => ({
-        ...prev,
-        selectedWarehouseId: warehouseId,
-      }));
-    }
-  }, [warehouseId, drawerState.selectedWarehouseId]);
+  // NOTE: Removed useEffect that initialized selectedWarehouseId from parent's warehouseId.
+  // The parent's warehouseId is for VAT/Place of Supply, not physical product location.
+  // WarehouseAvailability component with autoSelectFirst={true} handles correct warehouse selection
+  // based on where the product actually has stock.
 
   // Fetch product price from price list (race-safe)
   const fetchProductPrice = useCallback(
@@ -579,7 +574,7 @@ const AllocationDrawer = ({
     [reservationId, cancelReservation],
   );
 
-  // Handle quantity change
+  // Handle quantity change (PCS-CENTRIC: Integer comparison)
   const handleQuantityChange = useCallback(
     (e) => {
       const value = e.target.value;
@@ -592,19 +587,19 @@ const AllocationDrawer = ({
           drawerState.quantity !== '' &&
           value !== drawerState.quantity
         ) {
-          const currentQty = parseFloat(drawerState.quantity) || 0;
-          const newQty = parseFloat(value) || 0;
-          const allocatedQty = allocations.reduce(
-            (sum, a) => sum + parseFloat(a.quantity || 0),
+          const currentPcs = Math.floor(parseFloat(drawerState.quantity) || 0);
+          const newPcs = Math.floor(parseFloat(value) || 0);
+          const allocatedPcs = allocations.reduce(
+            (sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)),
             0,
           );
 
-          // Only warn if significantly different (not just decimal precision)
-          if (Math.abs(newQty - currentQty) > 0.001) {
+          // PCS-CENTRIC: Only warn if integer PCS changes
+          if (newPcs !== currentPcs) {
             const confirmed = window.confirm(
-              `Current batch allocations (${allocatedQty.toFixed(2)} ${drawerState.unit}) ` +
-                `match the existing quantity (${currentQty.toFixed(2)} ${drawerState.unit}).\n\n` +
-                `Changing to ${newQty.toFixed(2)} ${drawerState.unit} will require re-allocation.\n\n` +
+              `Current batch allocations (${allocatedPcs} PCS) ` +
+                `match the existing quantity (${currentPcs} PCS).\n\n` +
+                `Changing to ${newPcs} PCS will require re-allocation.\n\n` +
                 `Continue?`,
             );
             if (!confirmed) return;
@@ -622,7 +617,6 @@ const AllocationDrawer = ({
     [
       drawerState.sourceType,
       drawerState.quantity,
-      drawerState.unit,
       allocations,
     ],
   );
@@ -865,7 +859,7 @@ const AllocationDrawer = ({
     }));
   }, []);
 
-  // Validate form
+  // Validate form (PCS-CENTRIC: Integer comparison for warehouse allocations)
   const isValid = useMemo(() => {
     if (!drawerState.productId) return false;
     if (!drawerState.quantity || parseFloat(drawerState.quantity) <= 0)
@@ -874,12 +868,13 @@ const AllocationDrawer = ({
       return false;
 
     if (drawerState.sourceType === 'WAREHOUSE') {
-      // Must have allocations matching quantity
-      const allocatedQty = (allocations || []).reduce(
-        (sum, a) => sum + parseFloat(a.quantity || 0),
+      // PCS-CENTRIC: Must have allocations matching quantity (integer comparison)
+      const allocatedPcs = (allocations || []).reduce(
+        (sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)),
         0,
       );
-      return Math.abs(allocatedQty - parseFloat(drawerState.quantity)) < 0.001;
+      const requiredPcs = Math.floor(parseFloat(drawerState.quantity));
+      return allocatedPcs >= requiredPcs; // Must have allocated at least the required PCS
     }
 
     return true; // Drop-ship doesn't need allocations
@@ -996,7 +991,7 @@ const AllocationDrawer = ({
   const shortfall = requiredQty - allocatedQuantity;
 
   return (
-    <div className="allocation-drawer">
+    <div className="allocation-drawer" data-testid="allocation-drawer">
       <div className="drawer-header">
         <h3>Add Product Line</h3>
         {onCancel && (
@@ -1036,6 +1031,7 @@ const AllocationDrawer = ({
                   <input
                     type="text"
                     id="quantity"
+                    data-testid="drawer-quantity"
                     className="form-input"
                     value={drawerState.quantity}
                     onChange={handleQuantityChange}
@@ -1098,6 +1094,7 @@ const AllocationDrawer = ({
                 <input
                   type="text"
                   id="unitPrice"
+                  data-testid="drawer-unit-price"
                   className={`form-input ${drawerState.priceLoading ? 'loading' : ''}`}
                   value={drawerState.unitPrice}
                   onChange={handleUnitPriceChange}
@@ -1145,21 +1142,20 @@ const AllocationDrawer = ({
           />
         )}
 
-        {/* Allocation Summary */}
+        {/* Allocation Summary - PCS-CENTRIC */}
         {drawerState.sourceType === 'WAREHOUSE' && allocations?.length > 0 && (
           <div className="allocation-summary">
             <div className="summary-row">
               <span>Allocated:</span>
               <strong>
-                {allocatedQuantity.toFixed(3)} / {requiredQty.toFixed(3)}{' '}
-                {drawerState.unit}
+                {Math.floor(allocatedQuantity)} / {Math.floor(requiredQty)} PCS
               </strong>
             </div>
-            {shortfall > 0.001 && (
+            {shortfall >= 1 && (
               <div className="summary-row shortfall-warning">
                 <span>Shortfall:</span>
                 <strong className="text-warning">
-                  {shortfall.toFixed(3)} {drawerState.unit}
+                  {Math.floor(shortfall)} PCS
                 </strong>
               </div>
             )}
@@ -1179,12 +1175,13 @@ const AllocationDrawer = ({
       </div>
 
       <div className="drawer-footer">
-        <button type="button" className="btn-secondary" onClick={handleClear}>
+        <button type="button" className="btn-secondary" data-testid="drawer-clear" onClick={handleClear}>
           Clear
         </button>
         <button
           type="button"
           className="btn-primary"
+          data-testid="drawer-add-to-invoice"
           onClick={handleAddToInvoice}
           disabled={!isValid || reservationLoading}
         >

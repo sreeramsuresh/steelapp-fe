@@ -111,6 +111,11 @@ const StockReceiptForm = ({
   const [supplierBatchRefs, setSupplierBatchRefs] = useState({});
   const [mfgDates, setMfgDates] = useState({});
 
+  // PCS-Centric Tracking State (Industry Standard - Phase 5)
+  // Core Doctrine: PCS is the unit of truth. Weight describes the piece.
+  const [pcsReceived, setPcsReceived] = useState({});
+  const [weightSources, setWeightSources] = useState({});
+
   // Load warehouses on mount
   useEffect(() => {
     const fetchWarehouses = async () => {
@@ -148,6 +153,9 @@ const StockReceiptForm = ({
       const initialBatchNumbers = {};
       const initialSupplierBatchRefs = {};
       const initialMfgDates = {};
+      // PCS-Centric Tracking (Phase 5)
+      const initialPcsReceived = {};
+      const initialWeightSources = {};
 
       const today = new Date().toISOString().split('T')[0];
 
@@ -173,6 +181,10 @@ const StockReceiptForm = ({
             `IMP-${purchaseOrderId || 'PO'}-${item.id}-${randomSuffix}`;
           initialSupplierBatchRefs[item.id] = '';
           initialMfgDates[item.id] = today;
+          // PCS-Centric: Default PCS to pending quantity (assume 1 PCS per unit if not specified)
+          const itemPcs = parseInt(item.pcsOrdered || item.orderedPcs || pending) || 1;
+          initialPcsReceived[item.id] = itemPcs;
+          initialWeightSources[item.id] = 'ACTUAL'; // Default to actual (weighed)
         }
       });
 
@@ -183,6 +195,8 @@ const StockReceiptForm = ({
       setBatchNumbers(initialBatchNumbers);
       setSupplierBatchRefs(initialSupplierBatchRefs);
       setMfgDates(initialMfgDates);
+      setPcsReceived(initialPcsReceived);
+      setWeightSources(initialWeightSources);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [poItems]);
@@ -312,6 +326,41 @@ const StockReceiptForm = ({
     }));
   };
 
+  // PCS-Centric Tracking Handlers (Phase 5)
+  // Core Doctrine: PCS is the unit of truth - integer only
+  const handlePcsReceivedChange = (itemId, value) => {
+    const pcs = parseInt(value, 10);
+    if (value === '' || (Number.isInteger(pcs) && pcs >= 0)) {
+      setPcsReceived((prev) => ({
+        ...prev,
+        [itemId]: value === '' ? '' : pcs,
+      }));
+    }
+  };
+
+  // Handle weight source change (ACTUAL = weighed, CALCULATED = nominal)
+  const handleWeightSourceChange = (itemId, source) => {
+    setWeightSources((prev) => ({
+      ...prev,
+      [itemId]: source,
+    }));
+  };
+
+  // Calculate weight per piece (derived from PCS and actual weight)
+  const calculateWeightPerPiece = (itemId) => {
+    const pcs = parseInt(pcsReceived[itemId]) || 0;
+    const weight = parseFloat(actualWeights[itemId]) || 0;
+    if (pcs > 0 && weight > 0) {
+      return (weight / pcs).toFixed(3);
+    }
+    return '0.000';
+  };
+
+  // Check if item is a single piece (coil)
+  const isSinglePiece = (itemId) => {
+    return parseInt(pcsReceived[itemId]) === 1;
+  };
+
   // Calculate weight variance for an item (Epic 3 - RECV-002)
   const calculateWeightVariance = (itemId) => {
     const expected = parseFloat(expectedWeights[itemId]) || 0;
@@ -361,13 +410,19 @@ const StockReceiptForm = ({
               const { variance, percentage } = calculateWeightVariance(
                 parseInt(itemId),
               );
+              // PCS-Centric Tracking (Phase 5)
+              const itemPcs = parseInt(pcsReceived[itemId]) || 1;
+              const itemWeightKg = parseFloat(actualWeights[itemId]) || qty;
+              const weightPerPieceKg = itemPcs > 0 ? itemWeightKg / itemPcs : 0;
+              const isSinglePieceItem = itemPcs === 1;
+
               itemsToReceive.push({
                 itemId: parseInt(itemId),
                 productId: item.productId || item.product_id,
                 receivedQuantity: qty,
                 // Weight variance data (Epic 3 - RECV-002)
                 expectedWeight: parseFloat(expectedWeights[itemId]) || qty,
-                actualWeight: parseFloat(actualWeights[itemId]) || qty,
+                actualWeight: itemWeightKg,
                 weightVariance: variance,
                 variancePercentage: percentage,
                 varianceReason: varianceReasons[itemId] || 'accepted_tolerance',
@@ -375,6 +430,14 @@ const StockReceiptForm = ({
                 batchNumber: batchNumbers[itemId] || '',
                 supplierBatchRef: supplierBatchRefs[itemId] || '',
                 mfgDate: mfgDates[itemId] || '',
+                // PCS-Centric Tracking (Phase 5 - Industry Standard)
+                pcsReceived: itemPcs,
+                weightKgReceived: itemWeightKg,
+                weightPerPieceKg,
+                weightSource: weightSources[itemId] || 'ACTUAL',
+                isSinglePiece: isSinglePieceItem,
+                isUniformWeight: true, // GRN assumes uniform for simplicity
+                pcsTrackingComplete: true, // Complete from day 1
               });
             }
           }
@@ -749,10 +812,26 @@ const StockReceiptForm = ({
                           >
                             Qty to Receive
                           </th>
+                          {/* PCS-Centric Tracking Columns (Phase 5) */}
+                          <th
+                            className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium min-w-[100px]`}
+                          >
+                            PCS
+                          </th>
                           <th
                             className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium min-w-[120px]`}
                           >
-                            Actual Weight (MT)
+                            Weight (KG)
+                          </th>
+                          <th
+                            className={`p-3 border-b ${tableBorder} text-right ${textMuted} font-medium min-w-[100px]`}
+                          >
+                            KG/PCS
+                          </th>
+                          <th
+                            className={`p-3 border-b ${tableBorder} text-center ${textMuted} font-medium min-w-[100px]`}
+                          >
+                            Weight Src
                           </th>
                           <th
                             className={`p-3 border-b ${tableBorder} text-center ${textMuted} font-medium min-w-[100px]`}
@@ -879,7 +958,33 @@ const StockReceiptForm = ({
                                   </span>
                                 )}
                               </td>
-                              {/* Weight Variance Columns (Epic 3 - RECV-002) */}
+                              {/* PCS-Centric Tracking Columns (Phase 5 - Industry Standard) */}
+                              {/* PCS Input - Integer Only */}
+                              <td className={`p-3 border-b ${tableBorder}`}>
+                                {!isComplete && isSelected ? (
+                                  <input
+                                    type="number"
+                                    value={pcsReceived[item.id] ?? ''}
+                                    onChange={(e) =>
+                                      handlePcsReceivedChange(
+                                        item.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    min={1}
+                                    step={1}
+                                    className={`w-20 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none`}
+                                    title="Pieces received (integer only)"
+                                  />
+                                ) : (
+                                  <span
+                                    className={`text-center block ${textMuted}`}
+                                  >
+                                    -
+                                  </span>
+                                )}
+                              </td>
+                              {/* Weight (KG) Input */}
                               <td className={`p-3 border-b ${tableBorder}`}>
                                 {!isComplete && isSelected ? (
                                   <input
@@ -892,8 +997,9 @@ const StockReceiptForm = ({
                                       )
                                     }
                                     min={0}
-                                    step={0.01}
+                                    step={0.001}
                                     className={`w-28 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none`}
+                                    title="Total weight received (KG)"
                                   />
                                 ) : (
                                   <span
@@ -903,6 +1009,55 @@ const StockReceiptForm = ({
                                   </span>
                                 )}
                               </td>
+                              {/* KG/PCS - Auto-calculated, Read-only */}
+                              <td
+                                className={`p-3 border-b ${tableBorder} text-right font-mono ${textMuted}`}
+                              >
+                                {!isComplete && isSelected ? (
+                                  <span
+                                    title={
+                                      isSinglePiece(item.id)
+                                        ? 'Single piece (coil)'
+                                        : 'Weight per piece'
+                                    }
+                                  >
+                                    {calculateWeightPerPiece(item.id)}
+                                    {isSinglePiece(item.id) && (
+                                      <span className="ml-1 text-xs text-yellow-400">
+                                        🔶
+                                      </span>
+                                    )}
+                                  </span>
+                                ) : (
+                                  <span>-</span>
+                                )}
+                              </td>
+                              {/* Weight Source Dropdown */}
+                              <td className={`p-3 border-b ${tableBorder}`}>
+                                {!isComplete && isSelected ? (
+                                  <select
+                                    value={weightSources[item.id] || 'ACTUAL'}
+                                    onChange={(e) =>
+                                      handleWeightSourceChange(
+                                        item.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-xs ${textPrimary} ${inputFocus} outline-none`}
+                                    title="Weight source: ACTUAL (weighed) or CALCULATED (nominal)"
+                                  >
+                                    <option value="ACTUAL">Actual</option>
+                                    <option value="CALCULATED">Calc</option>
+                                  </select>
+                                ) : (
+                                  <span
+                                    className={`text-center block ${textMuted}`}
+                                  >
+                                    -
+                                  </span>
+                                )}
+                              </td>
+                              {/* Weight Variance % (Epic 3 - RECV-002) */}
                               <td
                                 className={`p-3 border-b ${tableBorder} text-center`}
                               >

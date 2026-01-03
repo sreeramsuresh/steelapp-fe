@@ -122,7 +122,7 @@ const DebitNoteForm = () => {
     supplierBillNumber: '',
     supplierId: null,
     supplier: null,
-    debitNoteNumber: '',
+    debitNoteNumber: 'DN-DRAFT',
     debitNoteDate: formatDateForInput(new Date()),
     reason: '',
     reasonCategory: 'PRICE_ADJUSTMENT',
@@ -416,6 +416,7 @@ const DebitNoteForm = () => {
 
   return (
     <div
+      data-testid="debit-note-form"
       className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
     >
       {/* App Container */}
@@ -465,6 +466,7 @@ const DebitNoteForm = () => {
                   {debitNote.status === 'approved' ? 'Approved' : 'Draft'}
                 </span>
                 <button
+                  data-testid="save-draft"
                   onClick={() => handleSave('draft')}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors ${
@@ -477,6 +479,7 @@ const DebitNoteForm = () => {
                   Save Draft
                 </button>
                 <button
+                  data-testid="submit-debit-note"
                   onClick={() => handleSave('approved')}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
@@ -687,6 +690,7 @@ const DebitNoteForm = () => {
                     </label>
                     <input
                       id="debitNoteNumber"
+                      data-testid="debit-note-number"
                       type="text"
                       value={debitNote.debitNoteNumber}
                       onChange={(e) =>
@@ -709,6 +713,7 @@ const DebitNoteForm = () => {
                     </label>
                     <input
                       id="debitNoteDate"
+                      data-testid="debit-note-date"
                       type="date"
                       value={debitNote.debitNoteDate}
                       onChange={(e) =>
@@ -731,6 +736,7 @@ const DebitNoteForm = () => {
                     </label>
                     <FormSelect
                       id="reasonCategory"
+                      data-testid="reason-category"
                       value={debitNote.reasonCategory}
                       onValueChange={(value) =>
                         setDebitNote((prev) => ({
@@ -758,6 +764,7 @@ const DebitNoteForm = () => {
                     </label>
                     <FormSelect
                       id="vatCategory"
+                      data-testid="vat-category"
                       value={debitNote.vatCategory}
                       onValueChange={(value) =>
                         setDebitNote((prev) => ({
@@ -785,6 +792,7 @@ const DebitNoteForm = () => {
                     </label>
                     <input
                       id="reason"
+                      data-testid="reason"
                       type="text"
                       value={debitNote.reason}
                       onChange={(e) =>
@@ -815,6 +823,7 @@ const DebitNoteForm = () => {
                     </div>
                   </div>
                   <button
+                    data-testid="add-item"
                     onClick={handleAddItem}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-xl font-bold transition-colors ${
                       isDarkMode
@@ -827,10 +836,11 @@ const DebitNoteForm = () => {
                   </button>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2" data-testid="line-items">
                   {debitNote.items.map((item, index) => (
                     <div
                       key={item.id}
+                      data-testid={`item-row-${index}`}
                       className={`p-3 rounded-[14px] border ${cardBorder}`}
                     >
                       <div className="grid grid-cols-12 gap-2">
@@ -1426,13 +1436,13 @@ const DebitNoteForm = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Subtotal:</span>
-                      <span className={`font-mono ${textPrimary}`}>
+                      <span data-testid="subtotal" className={`font-mono ${textPrimary}`}>
                         {formatCurrency(debitNote.subtotal)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>VAT:</span>
-                      <span className={`font-mono ${textPrimary}`}>
+                      <span data-testid="vat-amount" className={`font-mono ${textPrimary}`}>
                         {formatCurrency(debitNote.vatAmount)}
                       </span>
                     </div>
@@ -1442,6 +1452,7 @@ const DebitNoteForm = () => {
                         Total Debit:
                       </span>
                       <span
+                        data-testid="total"
                         className={`font-bold font-mono ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
                       >
                         +{formatCurrency(debitNote.totalDebit)}

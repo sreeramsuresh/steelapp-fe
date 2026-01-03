@@ -12,8 +12,8 @@ Cypress.Commands.add("login", (email, password) => {
 
   cy.visit("/login");
 
-  // Wait a moment to see if auto-login happens
-  cy.wait(1000);
+  // Wait for page to fully load
+  cy.wait(2000);
 
   // Check current URL - if already logged in (auto-login), we're done
   cy.url().then((currentUrl) => {
@@ -25,12 +25,24 @@ Cypress.Commands.add("login", (email, password) => {
 
     // Still on login page - do manual login
     cy.log("Manual login required");
-    cy.get('input[name="email"], input[type="email"]').type(userEmail);
-    cy.get('input[name="password"], input[type="password"]').type(userPassword);
-    cy.get('button[type="submit"]').click();
+
+    // Wait for email input to be enabled and type
+    cy.get('input[name="email"], input[type="email"]')
+      .should('not.be.disabled')
+      .should('be.visible')
+      .clear()
+      .type(userEmail, { force: true });
+
+    cy.get('input[name="password"], input[type="password"]')
+      .should('not.be.disabled')
+      .should('be.visible')
+      .clear()
+      .type(userPassword, { force: true });
+
+    cy.get('button[type="submit"]').should('not.be.disabled').click();
 
     // Wait for navigation after manual login
-    cy.url({ timeout: 10000 }).should("not.include", "/login");
+    cy.url({ timeout: 15000 }).should("not.include", "/login");
   });
 });
 
@@ -287,3 +299,67 @@ Cypress.Commands.add(
     cy.log(`✓ Filled basic fields for line ${lineIndex}`);
   },
 );
+
+/**
+ * Navigate to supplier quotations page
+ * Usage: cy.visitSupplierQuotations()
+ */
+Cypress.Commands.add('visitSupplierQuotations', () => {
+  cy.visit('/app/supplier-quotations');
+  cy.contains(/supplier quotations/i, { timeout: 10000 }).should('be.visible');
+});
+
+/**
+ * Create a supplier quotation via API (for test setup)
+ * Usage: cy.createSupplierQuotation({ supplierId: 1, ... })
+ */
+Cypress.Commands.add('createSupplierQuotation', (quotationData) => {
+  const defaultData = {
+    supplierId: 1,
+    supplierReference: `TEST-${Date.now()}`,
+    quoteDate: new Date().toISOString().split('T')[0],
+    validityDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0],
+    currency: 'AED',
+    status: 'draft',
+    items: [
+      {
+        description: 'Test Steel Product',
+        quantity: 100,
+        unit: 'KG',
+        unitPrice: 50,
+      },
+    ],
+    ...quotationData,
+  };
+
+  return cy
+    .request({
+      method: 'POST',
+      url: `${Cypress.env('apiUrl')}/api/supplier-quotations`,
+      body: defaultData,
+      headers: {
+        Authorization: `Bearer ${Cypress.env('authToken')}`,
+      },
+    })
+    .then((response) => {
+      expect(response.status).to.eq(201);
+      return response.body;
+    });
+});
+
+/**
+ * Delete a supplier quotation via API (for test cleanup)
+ * Usage: cy.deleteSupplierQuotation(quotationId)
+ */
+Cypress.Commands.add('deleteSupplierQuotation', (quotationId) => {
+  return cy.request({
+    method: 'DELETE',
+    url: `${Cypress.env('apiUrl')}/api/supplier-quotations/${quotationId}`,
+    headers: {
+      Authorization: `Bearer ${Cypress.env('authToken')}`,
+    },
+    failOnStatusCode: false,
+  });
+});

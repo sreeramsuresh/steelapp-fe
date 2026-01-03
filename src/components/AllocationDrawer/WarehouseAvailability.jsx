@@ -105,15 +105,15 @@ const WarehouseAvailability = ({
   };
 
   return (
-    <div className="warehouse-availability">
+    <div className="warehouse-availability" data-testid="warehouse-availability">
       <label className="availability-label">
         Warehouse Availability
         {selectedWarehouseId && onWarehouseSelect && (
           <span className="selection-hint"> (Click to change)</span>
         )}
       </label>
-      <div className="warehouse-list">
-        {warehouses.map((warehouse) => {
+      <div className="warehouse-list" data-testid="warehouse-list">
+        {warehouses.map((warehouse, index) => {
           const hasStock = parseFloat(warehouse.availableQuantity || 0) > 0;
           const isSelected = warehouse.warehouseId === selectedWarehouseId;
 
@@ -121,6 +121,10 @@ const WarehouseAvailability = ({
             <div
               key={warehouse.warehouseId}
               className={`warehouse-item ${isSelected ? 'selected' : ''} ${hasStock ? 'has-stock' : 'no-stock'}`}
+              data-testid={`warehouse-item-${index}`}
+              data-warehouse-id={warehouse.warehouseId}
+              data-has-stock={hasStock}
+              data-selected={isSelected}
               onClick={() => handleWarehouseClick(warehouse)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -143,7 +147,7 @@ const WarehouseAvailability = ({
                 )}
               </div>
               <div className="warehouse-stock">
-                <span className="stock-quantity">
+                <span className="stock-quantity" data-testid={`warehouse-stock-${index}`}>
                   {parseFloat(warehouse.availableQuantity || 0).toFixed(2)}
                 </span>
                 <span className="stock-unit">{warehouse.unit}</span>

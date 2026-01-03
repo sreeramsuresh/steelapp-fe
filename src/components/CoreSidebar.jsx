@@ -132,6 +132,13 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           description: 'Purchase orders, supplier bills, and payments',
           requiredPermission: 'purchase_orders.read',
         },
+        {
+          name: 'Supplier Quotations',
+          path: '/app/supplier-quotations',
+          icon: FileText,
+          description: 'Upload PDFs, extract data, convert to PO',
+          requiredPermission: 'suppliers.read',
+        },
       ],
     },
 

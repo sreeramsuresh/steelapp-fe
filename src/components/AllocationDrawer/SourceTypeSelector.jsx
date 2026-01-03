@@ -43,7 +43,7 @@ const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
   );
 
   return (
-    <div className="source-type-selector">
+    <div className="source-type-selector" data-testid="source-type-selector">
       <div className="source-type-label">
         Source Type <span className="required">*</span>
       </div>
@@ -52,6 +52,7 @@ const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
           <label
             key={sourceType.value}
             className={`source-type-option ${value === sourceType.value ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+            data-testid={`source-type-${sourceType.value.toLowerCase()}`}
           >
             <input
               type="radio"
@@ -60,6 +61,7 @@ const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
               checked={value === sourceType.value}
               onChange={() => handleChange(sourceType.value)}
               disabled={disabled}
+              data-testid={`source-type-radio-${sourceType.value.toLowerCase()}`}
             />
             <span className="source-type-icon">{sourceType.icon}</span>
             <div className="source-type-text">

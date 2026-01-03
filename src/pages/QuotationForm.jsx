@@ -274,7 +274,7 @@ const QuotationForm = () => {
   });
 
   const [formData, setFormData] = useState({
-    quotationNumber: '',
+    quotationNumber: 'QT-DRAFT',
     customerId: '',
     customerDetails: {
       name: '',
@@ -1827,6 +1827,7 @@ const QuotationForm = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               <Input
+                data-testid="quotation-number"
                 label="Quotation Number"
                 type="text"
                 value={formData.quotationNumber}
@@ -1843,6 +1844,7 @@ const QuotationForm = () => {
               />
 
               <Input
+                data-testid="quotation-date"
                 label="Quotation Date"
                 type="date"
                 value={formData.quotationDate}
@@ -1859,6 +1861,7 @@ const QuotationForm = () => {
               />
 
               <Input
+                data-testid="valid-until"
                 label="Valid Until"
                 type="date"
                 value={formData.validUntil}

@@ -742,6 +742,7 @@ const Receivables = () => {
   return (
     <div
       className={`p-2 sm:p-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+      data-testid="receivables-page"
     >
       {/* Top bar */}
       <div className="flex items-center justify-between mb-3">
@@ -796,6 +797,7 @@ const Receivables = () => {
               onChange={(e) =>
                 setFilters({ customer: e.target.value, page: '1' })
               }
+              data-testid="customer-search"
               className="px-3 py-2 rounded border w-full min-w-0"
             />
           </div>
@@ -806,6 +808,7 @@ const Receivables = () => {
                 setFilters({ status: value, page: '1' })
               }
               showValidation={false}
+              data-testid="status-filter"
             >
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="unpaid">Unpaid</SelectItem>
@@ -819,6 +822,7 @@ const Receivables = () => {
               placeholder="Invoice # or search"
               value={filters.q}
               onChange={(e) => setFilters({ q: e.target.value, page: '1' })}
+              data-testid="invoice-search"
               className="px-3 py-2 rounded border w-full min-w-0"
             />
           </div>
@@ -847,6 +851,7 @@ const Receivables = () => {
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
             <button
               onClick={() => fetchData(true)}
+              data-testid="apply-filters"
               className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
             >
               <RefreshCw size={16} />
@@ -912,7 +917,7 @@ const Receivables = () => {
         className={`rounded-lg border overflow-hidden ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'}`}
       >
         <div className="overflow-auto">
-          <table className="min-w-full divide-y">
+          <table className="min-w-full divide-y" data-testid="receivables-table">
             <thead>
               <tr
                 className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
@@ -1067,6 +1072,7 @@ const Receivables = () => {
                         className={`px-2 py-1 ${canManage ? 'text-teal-600' : 'text-gray-400 cursor-not-allowed'}`}
                         onClick={() => canManage && openDrawer(row)}
                         disabled={!canManage}
+                        data-testid="record-payment-button"
                       >
                         Record Payment
                       </button>

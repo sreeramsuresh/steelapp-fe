@@ -225,6 +225,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
     icon: Icon,
     onClick,
     color,
+    testId,
   }) => (
     <button
       onClick={onClick}
@@ -235,6 +236,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       } p-4 rounded-lg shadow-sm transition-colors border ${
         isDarkMode ? 'border-gray-700' : 'border-gray-200'
       } hover:shadow-md`}
+      data-testid={testId}
     >
       <div className="flex items-start space-x-3">
         <div className={`p-2 rounded-lg ${color}`}>
@@ -408,6 +410,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
               icon={Plus}
               onClick={() => onNavigateToTab?.('transfers', 'create')}
               color="bg-teal-600"
+              testId="new-transfer-button"
             />
             <QuickActionCard
               title="Reconcile Stock"
@@ -415,6 +418,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
               icon={ClipboardList}
               onClick={() => onNavigateToTab?.('reconciliation')}
               color="bg-purple-500"
+              testId="reconcile-stock-button"
             />
             <QuickActionCard
               title="View Reports"
@@ -422,6 +426,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
               icon={BarChart3}
               onClick={() => onNavigateToTab?.('reconciliation', 'audit')}
               color="bg-blue-500"
+              testId="view-reports-button"
             />
           </div>
         </div>

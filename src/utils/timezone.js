@@ -12,6 +12,35 @@
 const UAE_TIMEZONE = 'Asia/Dubai';
 const UAE_OFFSET_HOURS = 4;
 
+// Reasonable date range: 1970 to 2100 (for detecting milliseconds in seconds field)
+const MAX_VALID_SECONDS = 4102444800; // 2100-01-01
+
+/**
+ * Parse any date input into a JavaScript Date object
+ * Handles: Date objects, ISO strings, proto Timestamps, numbers
+ * CRITICAL: Auto-detects if proto Timestamp seconds are actually milliseconds
+ * @param {string|Date|number|object} input - Date input
+ * @returns {Date|null} JavaScript Date or null if invalid
+ */
+const parseToDate = (input) => {
+  if (!input) return null;
+
+  // Handle proto Timestamp objects { seconds: number, nanos?: number }
+  if (typeof input === 'object' && input.seconds !== undefined) {
+    const seconds = parseInt(input.seconds) || 0;
+
+    // Detect milliseconds in seconds field (prevents "year 50115" bug)
+    if (seconds > MAX_VALID_SECONDS) {
+      return new Date(seconds); // Already milliseconds
+    }
+    return new Date(seconds * 1000);
+  }
+
+  // Handle Date objects, ISO strings, numbers
+  const date = new Date(input);
+  return isNaN(date.getTime()) ? null : date;
+};
+
 /**
  * Convert UTC date to UAE timezone for display
  * @param {string|Date|number|object} utcDate - UTC date (string, Date, timestamp seconds, or proto Timestamp object)
@@ -21,17 +50,8 @@ const UAE_OFFSET_HOURS = 4;
  * @returns {string} Formatted date in UAE timezone
  */
 export const toUAETime = (utcDate, options = {}) => {
-  if (!utcDate) return '';
-
-  // Handle proto Timestamp objects { seconds: number, nanos?: number }
-  let date;
-  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
-    date = new Date(utcDate.seconds * 1000);
-  } else {
-    date = new Date(utcDate);
-  }
-
-  if (isNaN(date.getTime())) return '';
+  const date = parseToDate(utcDate);
+  if (!date) return '';
 
   const { format = 'datetime', showTimezone = false } = options;
 
@@ -155,17 +175,8 @@ export const toUAETime = (utcDate, options = {}) => {
  * @returns {string} Date in YYYY-MM-DD format (UAE local date)
  */
 export const toUAEDateForInput = (utcDate) => {
-  if (!utcDate) return '';
-
-  // Handle proto Timestamp objects
-  let date;
-  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
-    date = new Date(utcDate.seconds * 1000);
-  } else {
-    date = new Date(utcDate);
-  }
-
-  if (isNaN(date.getTime())) return '';
+  const date = parseToDate(utcDate);
+  if (!date) return '';
 
   // Use en-CA locale which naturally produces YYYY-MM-DD format
   return date.toLocaleDateString('en-CA', { timeZone: UAE_TIMEZONE });
@@ -245,16 +256,8 @@ export const nowUTC = () => {
  * @returns {boolean} True if overdue
  */
 export const isOverdue = (dueDate) => {
-  if (!dueDate) return false;
-
-  let date;
-  if (typeof dueDate === 'object' && dueDate.seconds !== undefined) {
-    date = new Date(dueDate.seconds * 1000);
-  } else {
-    date = new Date(dueDate);
-  }
-
-  if (isNaN(date.getTime())) return false;
+  const date = parseToDate(dueDate);
+  if (!date) return false;
 
   // Compare in UAE timezone
   const now = new Date();
@@ -278,16 +281,8 @@ export const isOverdue = (dueDate) => {
  * @returns {number} Hours elapsed since the timestamp
  */
 export const hoursSince = (timestamp) => {
-  if (!timestamp) return Infinity;
-
-  let date;
-  if (typeof timestamp === 'object' && timestamp.seconds !== undefined) {
-    date = new Date(timestamp.seconds * 1000);
-  } else {
-    date = new Date(timestamp);
-  }
-
-  if (isNaN(date.getTime())) return Infinity;
+  const date = parseToDate(timestamp);
+  if (!date) return Infinity;
 
   return (Date.now() - date.getTime()) / (1000 * 60 * 60);
 };
@@ -306,17 +301,9 @@ export const isWithinEditWindow = (issuedAt) => {
  * @param {string|Date|object} date - The date to format
  * @returns {string} Relative time string
  */
-export const formatRelativeTime = (date) => {
-  if (!date) return '';
-
-  let d;
-  if (typeof date === 'object' && date.seconds !== undefined) {
-    d = new Date(date.seconds * 1000);
-  } else {
-    d = new Date(date);
-  }
-
-  if (isNaN(d.getTime())) return '';
+export const formatRelativeTime = (dateInput) => {
+  const d = parseToDate(dateInput);
+  if (!d) return '';
 
   const now = new Date();
   const diffMs = now - d;
@@ -358,17 +345,8 @@ export const TIMEZONE_CONFIG = {
  * @returns {string} Formatted date like "26 November 2025"
  */
 export const toUAEDateProfessional = (utcDate) => {
-  if (!utcDate) return '';
-
-  // Handle proto Timestamp objects { seconds: number, nanos?: number }
-  let date;
-  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
-    date = new Date(utcDate.seconds * 1000);
-  } else {
-    date = new Date(utcDate);
-  }
-
-  if (isNaN(date.getTime())) return '';
+  const date = parseToDate(utcDate);
+  if (!date) return '';
 
   return date.toLocaleDateString('en-GB', {
     timeZone: UAE_TIMEZONE,
@@ -388,17 +366,8 @@ export const toUAEDateProfessional = (utcDate) => {
  * @returns {string} Formatted datetime like "26 November 2025, 10:14 AM GST (UTC+4)"
  */
 export const toUAEDateTimeProfessional = (utcDate) => {
-  if (!utcDate) return '';
-
-  // Handle proto Timestamp objects
-  let date;
-  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
-    date = new Date(utcDate.seconds * 1000);
-  } else {
-    date = new Date(utcDate);
-  }
-
-  if (isNaN(date.getTime())) return '';
+  const date = parseToDate(utcDate);
+  if (!date) return '';
 
   const dateStr = date.toLocaleDateString('en-GB', {
     timeZone: UAE_TIMEZONE,
@@ -427,17 +396,8 @@ export const toUAEDateTimeProfessional = (utcDate) => {
  * @returns {string} Date in DD/MM/YYYY format
  */
 export const toUAEDateShort = (utcDate) => {
-  if (!utcDate) return '';
-
-  // Handle proto Timestamp objects
-  let date;
-  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
-    date = new Date(utcDate.seconds * 1000);
-  } else {
-    date = new Date(utcDate);
-  }
-
-  if (isNaN(date.getTime())) return '';
+  const date = parseToDate(utcDate);
+  if (!date) return '';
 
   return date.toLocaleDateString('en-GB', {
     timeZone: UAE_TIMEZONE,
@@ -467,17 +427,8 @@ export const TIMEZONE_LABEL = 'GST (UTC+4)';
  * @returns {string} Compact datetime format
  */
 export const toUAEPaymentDateTime = (utcDate) => {
-  if (!utcDate) return '';
-
-  // Handle proto Timestamp objects
-  let date;
-  if (typeof utcDate === 'object' && utcDate.seconds !== undefined) {
-    date = new Date(utcDate.seconds * 1000);
-  } else {
-    date = new Date(utcDate);
-  }
-
-  if (isNaN(date.getTime())) return '';
+  const date = parseToDate(utcDate);
+  if (!date) return '';
 
   const dateStr = date.toLocaleDateString('en-GB', {
     timeZone: UAE_TIMEZONE,

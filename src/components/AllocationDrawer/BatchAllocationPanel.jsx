@@ -4,25 +4,28 @@ import { batchReservationService } from '../../services/batchReservationService'
 import useBulkActions, { BulkCheckbox } from '../../hooks/useBulkActions';
 
 /**
- * BatchAllocationPanel Component
+ * BatchAllocationPanel Component (PCS-CENTRIC)
  *
- * Displays available batches and allows FIFO auto-allocation or manual selection.
- * Integrates with the Phase 1 Reservation APIs.
+ * INDUSTRY STANDARD IMPLEMENTATION:
+ * - Allocation is ALWAYS in PCS (pieces), never KG
+ * - Weight is displayed for informational purposes only
+ * - Shortfall is reported in PCS, never KG
+ * - Integer-only input for PCS quantities
  *
  * Features:
- * - Fetches available batches with real-time availability
- * - Auto-Fill FIFO button for automated allocation
- * - Manual quantity input per batch
- * - Real-time total calculation
- * - Shortfall warning display
+ * - Fetches available batches with real-time PCS availability
+ * - Auto-Fill FIFO button for automated PCS allocation
+ * - Manual PCS input per batch (integer only)
+ * - Displays both PCS and derived KG weight
+ * - PCS-based shortfall warning display
  */
 const BatchAllocationPanel = ({
   productId,
   warehouseId,
   draftInvoiceId,
   _lineItemTempId,
-  requiredQuantity,
-  unit = 'KG',
+  requiredQuantity, // Now interpreted as PCS (integer)
+  unit = 'PCS', // Default to PCS (industry standard)
   _companyId,
   _onAllocationsChange,
   reserveFIFO,
@@ -131,7 +134,9 @@ const BatchAllocationPanel = ({
 
     setIsAllocating(true);
     try {
-      await reserveFIFO(requiredQuantity, unit);
+      // PCS-CENTRIC: Pass integer PCS to backend (industry standard)
+      const requestedPcs = Math.floor(requiredQuantity);
+      await reserveFIFO(requestedPcs, 'PCS');
       // Refresh batches to get updated availability
       await fetchBatches();
     } catch (err) {
@@ -153,28 +158,29 @@ const BatchAllocationPanel = ({
     fetchBatches,
   ]);
 
-  // Handle manual allocation change for a batch
+  // Handle manual allocation change for a batch (PCS-CENTRIC: integer only)
   const handleManualAllocationChange = useCallback(
     (batchId, value) => {
-      // Parse and validate value
-      let qty = 0;
+      // Parse and validate value (INTEGER PCS ONLY)
+      let pcs = 0;
       if (value !== '') {
-        qty = parseFloat(value);
-        if (isNaN(qty) || qty < 0) return;
+        pcs = parseInt(value, 10);
+        if (isNaN(pcs) || pcs < 0) return;
       }
 
-      // Find the batch to check max allocatable
+      // Find the batch to check max allocatable PCS
       const batch = batches.find((b) => b.id === batchId);
-      const maxAllocatable = parseFloat(batch?.quantityAllocatable || 0);
+      // Use pcsAvailable (new PCS field) or fall back to quantityAllocatable
+      const maxAllocatablePcs = parseInt(batch?.pcsAvailable || batch?.quantityAllocatable || 0, 10);
 
       // Clamp to max
-      if (qty > maxAllocatable) {
-        qty = maxAllocatable;
+      if (pcs > maxAllocatablePcs) {
+        pcs = maxAllocatablePcs;
       }
 
       setManualAllocations((prev) => ({
         ...prev,
-        [batchId]: qty > 0 ? qty : undefined,
+        [batchId]: pcs > 0 ? pcs : undefined,
       }));
     },
     [batches],
@@ -235,9 +241,9 @@ const BatchAllocationPanel = ({
     return Object.values(manualAllocations).some((qty) => qty && qty > 0);
   }, [manualAllocations]);
 
-  // Shortfall calculation
-  const shortfall = requiredQuantity - totalAllocated;
-  const isPartialAllocation = shortfall > 0.001;
+  // Shortfall calculation (PCS-CENTRIC: integer comparison)
+  const shortfall = Math.floor(requiredQuantity) - Math.floor(totalAllocated);
+  const isPartialAllocation = shortfall >= 1; // Integer PCS shortfall
 
   // Format date for display
   const _formatDate = (dateStr) => {
@@ -263,12 +269,13 @@ const BatchAllocationPanel = ({
   }
 
   return (
-    <div className="batch-allocation-panel">
+    <div className="batch-allocation-panel" data-testid="batch-allocation-panel">
       <div className="panel-header">
         <h4>Batch Allocation</h4>
         <button
           type="button"
           className="btn-auto-fifo"
+          data-testid="auto-fill-fifo"
           onClick={handleAutoFIFO}
           disabled={loading || isAllocating}
         >
@@ -345,38 +352,43 @@ const BatchAllocationPanel = ({
                         </div>
                       </td>
                       <td className="qty-cell">
-                        <span className="qty-available">
-                          {parseFloat(batch.quantityAllocatable || 0).toFixed(
-                            3,
-                          )}
-                        </span>
-                        <span className="qty-unit">{batch.unit || unit}</span>
+                        {/* PCS-CENTRIC: Show PCS as primary, weight as derived */}
+                        <div className="pcs-primary">
+                          <span className="pcs-value">
+                            {parseInt(batch.pcsAvailable || batch.quantityAllocatable || 0, 10)}
+                          </span>
+                          <span className="pcs-label">PCS</span>
+                        </div>
+                        {batch.weightKgAvailable && (
+                          <div className="weight-derived">
+                            ≈ {parseFloat(batch.weightKgAvailable).toFixed(1)} KG
+                          </div>
+                        )}
                       </td>
                       <td className="qty-cell">
-                        {parseFloat(batch.quantityReservedOthers || 0) > 0 && (
+                        {/* PCS-CENTRIC: Show reserved PCS */}
+                        {parseInt(batch.pcsReservedOthers || batch.quantityReservedOthers || 0, 10) > 0 && (
                           <span className="reserved-indicator">
-                            {parseFloat(batch.quantityReservedOthers).toFixed(
-                              3,
-                            )}
+                            {parseInt(batch.pcsReservedOthers || batch.quantityReservedOthers || 0, 10)} PCS
                           </span>
                         )}
                         {allocatedQty > 0 && (
                           <span className="my-allocation">
-                            {allocatedQty.toFixed(3)}
+                            {Math.floor(allocatedQty)} PCS
                           </span>
                         )}
                       </td>
                       <td className="input-cell">
                         {allocatedQty > 0 ? (
                           <span className="allocated-qty">
-                            {allocatedQty.toFixed(3)}
+                            {Math.floor(allocatedQty)} PCS
                           </span>
                         ) : (
                           <input
                             type="number"
-                            step="0.001"
+                            step="1"
                             min="0"
-                            max={parseFloat(batch.quantityAllocatable)}
+                            max={parseInt(batch.pcsAvailable || batch.quantityAllocatable || 0, 10)}
                             value={manualQty}
                             onChange={(e) =>
                               handleManualAllocationChange(
@@ -388,9 +400,10 @@ const BatchAllocationPanel = ({
                             disabled={loading || isAllocating || !canEnterQty}
                             title={
                               canEnterQty
-                                ? 'Enter quantity to allocate'
+                                ? 'Enter PCS to allocate (integer only)'
                                 : 'Select batch first to enter quantity'
                             }
+                            className="pcs-input"
                           />
                         )}
                       </td>
@@ -439,13 +452,12 @@ const BatchAllocationPanel = ({
             </div>
           )}
 
-          {/* Totals */}
+          {/* Totals - PCS-CENTRIC */}
           <div className="allocation-totals">
             <div className="total-row">
               <span>Allocated:</span>
               <strong>
-                {totalAllocated.toFixed(3)} / {requiredQuantity.toFixed(3)}{' '}
-                {unit}
+                {Math.floor(totalAllocated)} / {Math.floor(requiredQuantity)} PCS
               </strong>
             </div>
             {totalCost > 0 && (
@@ -456,13 +468,12 @@ const BatchAllocationPanel = ({
             )}
           </div>
 
-          {/* Shortfall Warning */}
+          {/* Shortfall Warning - PCS-CENTRIC (NEVER show KG shortfall) */}
           {isPartialAllocation && requiredQuantity > 0 && (
             <div className="shortfall-warning">
-              <span className="warning-icon">Warning:</span>
+              <span className="warning-icon">⚠</span>
               <span>
-                Shortfall of {shortfall.toFixed(3)} {unit} - Insufficient stock
-                available
+                Shortfall: {Math.floor(shortfall)} PCS - Insufficient stock available
               </span>
             </div>
           )}

@@ -58,6 +58,14 @@ const transformGRNForServer = (grnData) => {
       rejectionReason: item.rejectionReason || '',
       // Storage
       storageLocation: item.storageLocation || '',
+      // PCS-Centric Tracking (Phase 5 - Industry Standard)
+      pcsReceived: parseInt(item.pcsReceived || 0),
+      weightKgReceived: parseFloat(item.weightKgReceived || item.receivedWeightKg || 0),
+      weightPerPieceKg: parseFloat(item.weightPerPieceKg || 0),
+      weightSource: item.weightSource || 'ACTUAL',
+      isSinglePiece: item.isSinglePiece || false,
+      isUniformWeight: item.isUniformWeight !== false, // default true
+      pcsTrackingComplete: item.pcsTrackingComplete !== false, // default true
     })),
   };
 };
@@ -162,6 +170,18 @@ const transformGRNFromServer = (serverData) => {
       qualityStatus: item.qualityStatus || item.quality_status || 'pending',
       rejectionReason: item.rejectionReason || item.rejection_reason || '',
       storageLocation: item.storageLocation || item.storage_location || '',
+      // PCS-Centric Tracking (Phase 5 - Industry Standard)
+      pcsReceived: parseInt(item.pcsReceived || item.pcs_received || 0),
+      weightKgReceived: parseFloat(
+        item.weightKgReceived || item.weight_kg_received || item.receivedWeightKg || 0,
+      ),
+      weightPerPieceKg: parseFloat(
+        item.weightPerPieceKg || item.weight_per_piece_kg || 0,
+      ),
+      weightSource: item.weightSource || item.weight_source || 'ACTUAL',
+      isSinglePiece: item.isSinglePiece ?? item.is_single_piece ?? false,
+      isUniformWeight: item.isUniformWeight ?? item.is_uniform_weight ?? true,
+      pcsTrackingComplete: item.pcsTrackingComplete ?? item.pcs_tracking_complete ?? true,
     })),
     // Timestamps - FIXED: prioritize snake_case (proto sends these)
     created_at: serverData.created_at || serverData.createdAt || null,

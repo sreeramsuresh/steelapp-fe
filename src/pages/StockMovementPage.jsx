@@ -430,6 +430,7 @@ const StockMovementPage = () => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+      data-testid="stock-movement-page"
     >
       {/* Header */}
       <div
@@ -485,6 +486,7 @@ const StockMovementPage = () => {
                       ? `border-teal-600 ${isDarkMode ? 'bg-gray-700 text-teal-400' : 'bg-gray-50 text-teal-600'}`
                       : `border-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
                   }`}
+                  data-testid={`tab-${tab.id}`}
                 >
                   <Icon size={18} />
                   <span className="text-sm font-medium">{tab.label}</span>

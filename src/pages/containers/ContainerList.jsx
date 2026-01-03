@@ -229,6 +229,7 @@ export function ContainerList() {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} p-4`}
+      data-testid="container-list-page"
     >
       {/* Header */}
       <div className="mb-6">
@@ -267,6 +268,7 @@ export function ContainerList() {
             <button
               onClick={handleAddContainer}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+              data-testid="add-container-button"
             >
               <Plus className="h-4 w-4" />
               Add Container

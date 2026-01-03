@@ -1790,7 +1790,13 @@ const InvoiceForm = ({ onSave }) => {
 
   // Phase 3: AllocationDrawer integration - 60/40 layout mode
   // When true, shows the new drawer-based line item entry UI
-  const [useDrawerMode] = useState(true); // Set to true to enable new drawer mode
+  // Can be overridden via localStorage for E2E testing: localStorage.setItem('invoiceFormLegacyMode', 'true')
+  const [useDrawerMode] = useState(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('invoiceFormLegacyMode') === 'true') {
+      return false; // Use legacy mode for E2E tests
+    }
+    return true; // Default to drawer mode for production
+  });
 
   // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
   const [fieldValidation, setFieldValidation] = useState({});
@@ -5948,6 +5954,7 @@ const InvoiceForm = ({ onSave }) => {
                                   <td className="px-2 py-2">
                                     <input
                                       type="number"
+                                      data-testid={`item-quantity-${index}`}
                                       value={item.quantity || ''}
                                       onChange={(e) =>
                                         handleItemChange(
@@ -5965,6 +5972,7 @@ const InvoiceForm = ({ onSave }) => {
                                   <td className="px-2 py-2">
                                     <input
                                       type="number"
+                                      data-testid={`item-unit-weight-${index}`}
                                       value={
                                         item.unitWeightKg ||
                                         item.unit_weight_kg ||
@@ -5997,6 +6005,7 @@ const InvoiceForm = ({ onSave }) => {
                                     <div className="flex border border-gray-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
                                       <input
                                         type="number"
+                                        data-testid={`item-rate-${index}`}
                                         value={item.rate || ''}
                                         onChange={(e) =>
                                           handleItemChange(
@@ -6010,6 +6019,7 @@ const InvoiceForm = ({ onSave }) => {
                                         className="w-16 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
                                       />
                                       <select
+                                        data-testid={`item-pricing-basis-${index}`}
                                         value={item.pricingBasis || 'PER_MT'}
                                         onChange={(e) =>
                                           handleItemChange(
@@ -6036,6 +6046,7 @@ const InvoiceForm = ({ onSave }) => {
                                   {/* Column 7: VAT % dropdown */}
                                   <td className="px-2 py-2">
                                     <select
+                                      data-testid={`item-vat-${index}`}
                                       value={item.supplyType || 'standard'}
                                       onChange={(e) =>
                                         handleItemChange(

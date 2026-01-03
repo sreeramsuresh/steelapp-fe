@@ -600,6 +600,7 @@ const CustomerForm = () => {
   return (
     <div
       className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
+      data-testid="customer-form"
     >
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
@@ -663,6 +664,7 @@ const CustomerForm = () => {
                         ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]'
                         : 'bg-teal-600 text-white hover:bg-teal-700'
                     } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    data-testid="save-button"
                   >
                     {saving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -734,6 +736,7 @@ const CustomerForm = () => {
                       disabled={!isEditMode}
                       placeholder="e.g., ABC Trading Company"
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      data-testid="customer-name"
                     />
                   </div>
 
@@ -754,6 +757,7 @@ const CustomerForm = () => {
                       disabled={!isEditMode}
                       placeholder="Legal company name"
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      data-testid="customer-company"
                     />
                   </div>
 
@@ -774,6 +778,7 @@ const CustomerForm = () => {
                       disabled={!isEditMode}
                       placeholder="customer@example.com"
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      data-testid="customer-email"
                     />
                   </div>
 
@@ -794,6 +799,7 @@ const CustomerForm = () => {
                       disabled={!isEditMode}
                       placeholder="+971 1 234 5678"
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      data-testid="customer-phone"
                     />
                   </div>
 
@@ -871,6 +877,7 @@ const CustomerForm = () => {
                       disabled={!isEditMode}
                       placeholder="123456789012345"
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      data-testid="customer-vat-number"
                     />
                   </div>
 
@@ -946,6 +953,7 @@ const CustomerForm = () => {
                         disabled={!isEditMode}
                         placeholder="City"
                         className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                        data-testid="customer-city"
                       />
                     </div>
 

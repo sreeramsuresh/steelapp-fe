@@ -751,13 +751,13 @@ const SupplierBillList = () => {
                         className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                       >
                         <div className="max-w-xs truncate">
-                          {bill.vendorName || 'N/A'}
+                          {bill.supplierName || 'N/A'}
                         </div>
-                        {bill.vendorTrn && (
+                        {bill.supplierTrn && (
                           <div
                             className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
-                            TRN: {bill.vendorTrn}
+                            TRN: {bill.supplierTrn}
                           </div>
                         )}
                       </td>

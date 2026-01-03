@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
-import { DarkModeContext } from '../../context/DarkModeContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import {
   AlertCircle,
   TrendingUp,
@@ -43,7 +43,7 @@ const CustomerCreditPanel = ({
   onViewPaymentHistory = () => {},
   readOnly = false,
 }) => {
-  const { isDarkMode } = useContext(DarkModeContext);
+  const { isDarkMode } = useContext(ThemeContext);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [newCreditLimit, setNewCreditLimit] = useState(
     customer.creditLimit || 0,

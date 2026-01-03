@@ -343,6 +343,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-[#0a0e12] text-white' : 'bg-gray-50 text-gray-900'}`}
+      data-testid="transfer-form"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -422,6 +423,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
+                data-testid="source-warehouse-select"
               >
                 <option value="">Select source...</option>
                 {sourceWarehouses.map((wh) => (
@@ -457,6 +459,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
+                data-testid="destination-warehouse-select"
               >
                 <option value="">Select destination...</option>
                 {destinationWarehouses.map((wh) => (
