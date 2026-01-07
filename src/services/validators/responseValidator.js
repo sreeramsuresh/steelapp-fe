@@ -181,12 +181,11 @@ function validatePageInfo(pageInfo, url) {
     );
   }
 
-  // Check all required keys
+  // Check all required keys (pageSize OR perPage - API uses perPage but contract says pageSize)
   const requiredKeys = [
     'totalItems',
     'totalPages',
     'currentPage',
-    'pageSize',
     'hasNext',
     'hasPrev',
   ];
@@ -199,6 +198,15 @@ function validatePageInfo(pageInfo, url) {
       );
     }
   }
+  // pageSize/perPage - accept either (API returns perPage, legacy expects pageSize)
+  if (!Object.prototype.hasOwnProperty.call(pageInfo, 'pageSize') &&
+      !Object.prototype.hasOwnProperty.call(pageInfo, 'perPage')) {
+    throw new ContractViolationError(
+      url,
+      'pageInfo.pageSize or pageInfo.perPage required',
+      'Missing key: pageSize/perPage',
+    );
+  }
 
   // Type validation
   const typeErrors = [];
@@ -208,8 +216,10 @@ function validatePageInfo(pageInfo, url) {
     typeErrors.push('pageInfo.totalPages must be number');
   if (typeof pageInfo.currentPage !== 'number')
     typeErrors.push('pageInfo.currentPage must be number');
-  if (typeof pageInfo.pageSize !== 'number')
-    typeErrors.push('pageInfo.pageSize must be number');
+  // Check pageSize OR perPage (API uses perPage)
+  const pageSizeValue = pageInfo.pageSize ?? pageInfo.perPage;
+  if (typeof pageSizeValue !== 'number')
+    typeErrors.push('pageInfo.pageSize/perPage must be number');
   if (typeof pageInfo.hasNext !== 'boolean')
     typeErrors.push('pageInfo.hasNext must be boolean');
   if (typeof pageInfo.hasPrev !== 'boolean')

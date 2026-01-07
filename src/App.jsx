@@ -93,6 +93,16 @@ function App() {
     setUser(userData);
   };
 
+  // Set global app ready flag for E2E tests (resilient to DOM restructuring)
+  useEffect(() => {
+    if (!loading) {
+      window.__APP_READY__ = true;
+    }
+    return () => {
+      window.__APP_READY__ = false;
+    };
+  }, [loading]);
+
   if (loading) {
     return (
       <ThemeProvider>
@@ -103,20 +113,22 @@ function App() {
 
   return (
     <ThemeProvider>
-      <ApiHealthProvider>
-        <Router>
-          <NotificationCenterProvider>
-            <NotificationProvider>
-              <ApiStatusBanner />
-              <ThemedApp
-                user={user}
-                handleSaveInvoice={handleSaveInvoice}
-                onLoginSuccess={handleLoginSuccess}
-              />
-            </NotificationProvider>
-          </NotificationCenterProvider>
-        </Router>
-      </ApiHealthProvider>
+      <div data-testid="app-ready">
+        <ApiHealthProvider>
+          <Router>
+            <NotificationCenterProvider>
+              <NotificationProvider>
+                <ApiStatusBanner />
+                <ThemedApp
+                  user={user}
+                  handleSaveInvoice={handleSaveInvoice}
+                  onLoginSuccess={handleLoginSuccess}
+                />
+              </NotificationProvider>
+            </NotificationCenterProvider>
+          </Router>
+        </ApiHealthProvider>
+      </div>
     </ThemeProvider>
   );
 }
