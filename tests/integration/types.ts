@@ -257,7 +257,7 @@ export interface GenericApiResponse<T = unknown> {
 }
 
 // =============================================================================
-// gRPC Client Types
+// API Gateway Service Types
 // =============================================================================
 
 export interface ServiceClient {

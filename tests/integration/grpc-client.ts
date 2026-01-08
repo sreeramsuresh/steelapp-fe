@@ -1,9 +1,9 @@
 /**
- * Backend Service Client for Integration Tests
- * Calls API Gateway (HTTP) which routes to gRPC backend
+ * API Gateway Service Client for Integration Tests
+ * Calls API Gateway (HTTP REST) which uses local PostgreSQL services
  *
  * CRITICAL: Tests MUST use this for "When" steps, not dbQuery()
- * This tests the full stack: test → API Gateway → gRPC backend → DB
+ * This tests the full stack: test → API Gateway → PostgreSQL DB
  */
 
 import { testLogger } from './utils/testLogger';
@@ -25,7 +25,7 @@ const apiBaseUrl = 'http://localhost:3000/api';
 let client: ServiceClient | null = null;
 
 /**
- * Initialize backend service client
+ * Initialize API Gateway service client
  * Verifies API Gateway is reachable
  */
 export async function initGrpcClient(): Promise<ServiceClient> {
@@ -45,10 +45,10 @@ export async function initGrpcClient(): Promise<ServiceClient> {
       ready: true,
     };
 
-    testLogger.success('API Gateway client initialized (routes to gRPC backend)');
+    testLogger.success('API Gateway client initialized (PostgreSQL backend)');
     return client;
   } catch (error) {
-    testLogger.error('Failed to initialize backend service client', { error: String(error) });
+    testLogger.error('Failed to initialize API Gateway client', { error: String(error) });
     throw error;
   }
 }
@@ -66,8 +66,7 @@ export function getGrpcClient(): ServiceClient {
 }
 
 /**
- * Call CreateInvoice via API Gateway
- * Gateway routes to gRPC InvoiceService.CreateInvoice
+ * Call CreateInvoice via API Gateway (HTTP REST)
  */
 export async function createInvoiceViaGrpc(
   params: CreateInvoiceParams,
@@ -95,7 +94,7 @@ export async function createInvoiceViaGrpc(
 }
 
 /**
- * Call RecordPayment via API Gateway
+ * Call RecordPayment via API Gateway (HTTP REST)
  */
 export async function recordPaymentViaGrpc(
   params: RecordPaymentParams,

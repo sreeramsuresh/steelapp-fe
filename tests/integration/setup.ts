@@ -1,23 +1,21 @@
 /**
- * Phase D Integration Test Setup
- * Connects to cloud PostgreSQL database for real integration testing
- * Tests must call actual gRPC services, not just write to DB
+ * Integration Test Setup
+ * Connects to cloud PostgreSQL database for testing
+ * Tests call API Gateway (HTTP) which internally uses PostgreSQL
  *
- * CRITICAL REQUIREMENT: All "When" steps in tests MUST call gRPC services
+ * CRITICAL REQUIREMENT: All "When" steps must call API Gateway endpoints
  * Direct database writes are ONLY for "Given" (setup) steps
  */
 
 import pg from 'pg';
 import { testLogger } from './utils/testLogger';
-import type { ServiceClient } from './types';
 
 const { Pool } = pg;
 
 let pool: pg.Pool | null = null;
-export let grpcClient: ServiceClient | null = null;
 
 /**
- * Initialize cloud database connection and gRPC client
+ * Initialize cloud database connection and API Gateway client
  * CRITICAL: Call this in beforeAll() - not passing this check = entire suite is invalid
  */
 export async function setupDatabase() {
@@ -36,7 +34,7 @@ export async function setupDatabase() {
     const result = await dbQuery('SELECT NOW() as now');
     testLogger.success(`Connected to cloud database: ${result[0]?.now}`);
 
-    // CRITICAL FIX #2: Verify schema exists
+    // Verify schema exists
     const schemaCheck = await dbQuery(
       `SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name='companies')`,
     );
@@ -46,33 +44,12 @@ export async function setupDatabase() {
       );
     }
     testLogger.success('Schema validation passed');
-
-    // Initialize gRPC client for service calls
-    await initializeGrpcClient();
-    testLogger.success('gRPC client initialized and ready');
+    testLogger.success('API Gateway client ready (HTTP calls via localhost:3000)');
   } catch (error) {
     testLogger.error('FATAL: Failed to setup integration test environment', {
       error: String(error),
     });
     throw error;
-  }
-}
-
-/**
- * Initialize gRPC client for calling backend services
- * CRITICAL: Tests MUST use this to make service calls, not direct DB writes
- */
-async function initializeGrpcClient() {
-  try {
-    // Import gRPC client helper
-    const { initGrpcClient } = await import('./grpc-client');
-    grpcClient = await initGrpcClient();
-  } catch (error) {
-    testLogger.warn('gRPC client initialization failed', {
-      error: (error as Error).message,
-    });
-    testLogger.warn('Tests will attempt to continue without gRPC client');
-    // Don't throw - allow tests to run in degraded mode
   }
 }
 
@@ -119,7 +96,7 @@ export async function cleanDatabase() {
 /**
  * Execute a query and return rows
  * Used ONLY in setup/teardown steps
- * TEST STEPS MUST USE gRPC client for "When" actions
+ * TEST STEPS MUST USE API Gateway for "When" actions
  */
 export async function dbQuery(sql: string, params: unknown[] = []) {
   if (!pool) {
