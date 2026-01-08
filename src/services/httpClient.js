@@ -28,6 +28,20 @@ import {
 import { generateRequestId } from '../utils/requestId';
 
 /**
+ * Import contract validation library
+ * Available in dev mode for contract validation
+ * Zero overhead in production
+ */
+let contracts = null;
+if (import.meta.env.DEV) {
+  try {
+    contracts = require('@steelapp/contracts');
+  } catch (e) {
+    // @steelapp/contracts not installed yet, validation disabled
+  }
+}
+
+/**
  * Standard error codes that can be returned from the API
  */
 export const ERROR_CODES = {
@@ -267,6 +281,83 @@ function devValidateRequest(method, url, data) {
 }
 
 /**
+ * Contract validation: Validate request against route contract schema
+ * Validates camelCase request BEFORE conversion to snake_case
+ *
+ * @param {string} method - HTTP method
+ * @param {string} url - Request URL
+ * @param {object} data - Request data (camelCase)
+ * @returns {Object} { valid: boolean, errors?: Array }
+ */
+function validateRequestContract(method, url, data) {
+  if (!contracts || import.meta.env.PROD) return { valid: true };
+
+  const routeKey = `${method.toUpperCase()} ${url}`;
+  const route = contracts.routes?.[routeKey];
+
+  if (!route || !route.contracts?.request) {
+    // No contract defined for this route - that's OK, validation disabled
+    return { valid: true };
+  }
+
+  // Validate against Zod schema
+  const result = route.contracts.request.safeParse(data);
+  if (!result.success) {
+    return {
+      valid: false,
+      errors: result.error.errors,
+      routeKey,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Contract validation: Validate response against route contract schema
+ * Validates snake_case response AFTER receiving from server
+ *
+ * @param {string} method - HTTP method
+ * @param {string} url - Request URL
+ * @param {object} data - Response data (snake_case from server)
+ * @returns {Object} { valid: boolean, errors?: Array, leakage?: Array }
+ */
+function validateResponseContract(method, url, data) {
+  if (!contracts || import.meta.env.PROD) return { valid: true };
+
+  const routeKey = `${method.toUpperCase()} ${url}`;
+  const route = contracts.routes?.[routeKey];
+
+  if (!route || !route.contracts?.response) {
+    // No contract defined for this route
+    return { valid: true };
+  }
+
+  // Validate against Zod schema
+  const result = route.contracts.response.safeParse(data);
+  if (!result.success) {
+    return {
+      valid: false,
+      errors: result.error.errors,
+      routeKey,
+    };
+  }
+
+  // Check for camelCase leakage in response (should be snake_case from server)
+  const leakage = findSnakeCaseKeys(data);
+  if (leakage.length > 0) {
+    // This is a warning, not a failure - response has camelCase mixed in
+    return {
+      valid: true, // Still valid, but leakage detected
+      leakage,
+      message: `Response contains camelCase keys (expected snake_case): ${leakage.join(', ')}`,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
  * Make an API request with automatic case conversion, correlation, and error normalization
  *
  * @param {string} method - HTTP method (get, post, put, patch, delete)
@@ -280,8 +371,28 @@ function devValidateRequest(method, url, data) {
  * @throws {ApiError} Normalized error on failure
  */
 export async function apiRequest(method, url, data = null, options = {}) {
-  // Dev-time validation
+  // Dev-time validation: warn about snake_case in request
   devValidateRequest(method, url, data);
+
+  // Contract validation: validate request against schema (camelCase)
+  if (data && import.meta.env.DEV) {
+    const validation = validateRequestContract(method, url, data);
+    if (!validation.valid) {
+      const errorMsg = `[Contract Guard] Request validation failed for ${validation.routeKey}: ${validation.errors.map(e => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
+      console.error(errorMsg);
+
+      // Throw error if strict mode enabled
+      if (import.meta.env.VITE_CONTRACT_STRICT === 'true') {
+        throw new ApiError(
+          options.requestId || generateRequestId(),
+          ERROR_CODES.INVALID_ARGUMENT,
+          'Request contract validation failed',
+          { validationErrors: validation.errors },
+          null,
+        );
+      }
+    }
+  }
 
   // Generate or use provided request ID for distributed tracing
   const requestId = options.requestId || generateRequestId();
@@ -324,6 +435,29 @@ export async function apiRequest(method, url, data = null, options = {}) {
   } catch (error) {
     // Normalize and throw ApiError
     throw normalizeError(error, requestId);
+  }
+
+  // Contract validation: validate response against schema (snake_case from server)
+  if (import.meta.env.DEV) {
+    const validation = validateResponseContract(method, url, response.data);
+    if (!validation.valid) {
+      const errorMsg = `[Contract Guard] Response validation failed for ${validation.routeKey}: ${validation.errors.map(e => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
+      console.error(errorMsg);
+
+      // Throw error if strict mode enabled
+      if (import.meta.env.VITE_CONTRACT_STRICT === 'true') {
+        throw new ApiError(
+          requestId,
+          ERROR_CODES.INVALID_ARGUMENT,
+          'Response contract validation failed',
+          { validationErrors: validation.errors },
+          response.status,
+        );
+      }
+    } else if (validation.leakage) {
+      // Warn about camelCase leakage in response
+      console.warn(`[Contract Guard] ${validation.message}`);
+    }
   }
 
   // Convert response to camelCase for frontend
