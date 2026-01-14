@@ -1,4 +1,5 @@
 import { apiService, tokenUtils } from './axiosApi';
+import { ROLE_PERMISSIONS } from '../config/rolePermissions';
 
 class AuthService {
   constructor() {
@@ -9,6 +10,33 @@ class AuthService {
   initialize() {
     if (this.isInitialized) return;
     this.isInitialized = true;
+  }
+
+  // Convert flat permission keys (e.g., "invoices.read") to nested format
+  // Expected by hasPermission method
+  _buildPermissionsObject(flatPermissions) {
+    const nestedPermissions = {};
+    Object.entries(flatPermissions).forEach(([key]) => {
+      const [resource, action] = key.split('.');
+      if (!nestedPermissions[resource]) {
+        nestedPermissions[resource] = {};
+      }
+      nestedPermissions[resource][action] = true;
+    });
+    return nestedPermissions;
+  }
+
+  // Populate permissions based on user role
+  _populatePermissionsForRole(user) {
+    if (!user) return user;
+
+    const rolePerms = ROLE_PERMISSIONS[user.role] || {};
+    if (Object.keys(rolePerms).length > 0) {
+      user.permissions = this._buildPermissionsObject(rolePerms);
+    } else {
+      user.permissions = {};
+    }
+    return user;
   }
 
   // Login user (supporting both response formats)
@@ -33,6 +61,9 @@ class AuthService {
         if (refreshToken) {
           tokenUtils.setRefreshToken(refreshToken);
         }
+
+        // Populate permissions based on role
+        this._populatePermissionsForRole(user);
 
         // Store user data in sessionStorage
         tokenUtils.setUser(user);
@@ -95,6 +126,10 @@ class AuthService {
 
         tokenUtils.setToken(accessToken);
         tokenUtils.setRefreshToken(refreshToken);
+
+        // Populate permissions based on role
+        this._populatePermissionsForRole(user);
+
         tokenUtils.setUser(user);
       }
 
@@ -112,6 +147,8 @@ class AuthService {
       const response = await apiService.get('/auth/me', config);
 
       if (response.user) {
+        // Populate permissions based on role
+        this._populatePermissionsForRole(response.user);
         tokenUtils.setUser(response.user);
         return response.user;
       }

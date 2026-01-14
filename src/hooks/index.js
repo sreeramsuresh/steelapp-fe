@@ -27,6 +27,9 @@ export { useInvoicePresence } from './useInvoicePresence';
 // Keyboard shortcuts
 export { useKeyboardShortcuts } from './useKeyboardShortcuts';
 
+// Permission checking hook
+export { usePermission } from './usePermission';
+
 // Stock validation hook
 export { useStockValidation } from './useStockValidation';
 

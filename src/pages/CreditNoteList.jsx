@@ -12,6 +12,7 @@ import {
   PlayCircle,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { authService } from '../services/axiosAuthService';
 import { creditNoteService } from '../services/creditNoteService';
 import { companyService } from '../services/companyService';
 import { notificationService } from '../services/notificationService';
@@ -311,13 +312,15 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
               Manage customer returns and refunds
             </p>
           </div>
-          <button
-            onClick={() => navigate('/credit-notes/new')}
-            className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            New Credit Note
-          </button>
+          {authService.hasPermission('invoices', 'create') && (
+            <button
+              onClick={() => navigate('/credit-notes/new')}
+              className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              New Credit Note
+            </button>
+          )}
         </div>
 
         {/* Filters */}

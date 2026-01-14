@@ -86,10 +86,8 @@ const ProtectedRoute = ({
     );
   }
 
-  // DEVELOPMENT MODE: Skip permission check
   // Check permission-based access
-  // eslint-disable-next-line no-constant-condition
-  if (false && requiredPermission) {
+  if (requiredPermission) {
     const [resource, action] = requiredPermission.split('.');
 
     if (!authService.hasPermission(resource, action)) {
