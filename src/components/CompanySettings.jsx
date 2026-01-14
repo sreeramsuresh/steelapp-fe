@@ -658,6 +658,17 @@ const CompanySettings = () => {
   const [permissionSearch, setPermissionSearch] = useState('');
   const [expandedModules, setExpandedModules] = useState({});
 
+  // Password change modal state
+  const [passwordChangeModal, setPasswordChangeModal] = useState({
+    open: false,
+    userId: null,
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+    loading: false,
+    error: null,
+  });
+
   const [newVatRate, setNewVatRate] = useState({
     name: '',
     rate: '',
@@ -672,6 +683,11 @@ const CompanySettings = () => {
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
+
+  // User list pagination
+  const [userCurrentPage, setUserCurrentPage] = useState(1);
+  const [userPageSize] = useState(20);
+  const [userTotalPages, setUserTotalPages] = useState(1);
 
   // Product naming system - templates handled in renderProductNamingSystem()
 
@@ -859,11 +875,19 @@ const CompanySettings = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount - vatRateService and notificationService are stable imports
 
-  // Load users once on mount (admin only)
+  // Load users with pagination
   useEffect(() => {
     (async () => {
       try {
-        const remoteUsers = await userAdminAPI.list();
+        const response = await userAdminAPI.list({
+          page: userCurrentPage,
+          limit: userPageSize,
+        });
+
+        // Handle both array response and paginated response format
+        const remoteUsers = Array.isArray(response) ? response : response.data || [];
+        const pageInfo = response.page_info || { total_pages: 1 };
+
         const mapped = remoteUsers.map((u) => ({
           id: String(u.id),
           name: u.name,
@@ -880,16 +904,23 @@ const CompanySettings = () => {
               : u.permissions || {},
         }));
         setUsers(mapped);
+        setUserTotalPages(pageInfo.total_pages || 1);
       } catch (e) {
         console.warn(
           'Failed to load users from backend:',
           e?.response?.data || e?.message,
         );
         setUsers([]);
+        setUserTotalPages(1);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount - userAdminAPI is a stable import
+  }, [userCurrentPage, userPageSize]); // Load when page changes
+
+  // Reset pagination when search term changes
+  useEffect(() => {
+    setUserCurrentPage(1);
+  }, [userSearchTerm]);
 
   // Load printing settings once on mount
   useEffect(() => {
@@ -1664,6 +1695,59 @@ const CompanySettings = () => {
       notificationService.error(
         e?.response?.data?.error || e?.message || 'Failed to delete user',
       );
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordChangeModal.newPassword) {
+      setPasswordChangeModal((prev) => ({
+        ...prev,
+        error: 'New password is required',
+      }));
+      return;
+    }
+
+    if (passwordChangeModal.newPassword.length < 8) {
+      setPasswordChangeModal((prev) => ({
+        ...prev,
+        error: 'Password must be at least 8 characters',
+      }));
+      return;
+    }
+
+    if (passwordChangeModal.newPassword !== passwordChangeModal.confirmPassword) {
+      setPasswordChangeModal((prev) => ({
+        ...prev,
+        error: 'Passwords do not match',
+      }));
+      return;
+    }
+
+    try {
+      setPasswordChangeModal((prev) => ({ ...prev, loading: true, error: null }));
+      await userAdminAPI.changePassword(passwordChangeModal.userId, {
+        current_password: passwordChangeModal.currentPassword,
+        new_password: passwordChangeModal.newPassword,
+      });
+      notificationService.success('Password changed successfully');
+      setPasswordChangeModal({
+        open: false,
+        userId: null,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        loading: false,
+        error: null,
+      });
+    } catch (error) {
+      setPasswordChangeModal((prev) => ({
+        ...prev,
+        error:
+          error?.response?.data?.message ||
+          error?.message ||
+          'Failed to change password',
+        loading: false,
+      }));
     }
   };
 
@@ -3040,6 +3124,27 @@ const CompanySettings = () => {
                         >
                           <Edit size={16} />
                         </button>
+                        <button
+                          onClick={() =>
+                            setPasswordChangeModal({
+                              open: true,
+                              userId: user.id,
+                              currentPassword: '',
+                              newPassword: '',
+                              confirmPassword: '',
+                              loading: false,
+                              error: null,
+                            })
+                          }
+                          className={`p-2 rounded-lg transition-colors duration-200 ${
+                            isDarkMode
+                              ? 'hover:bg-gray-700 text-orange-400'
+                              : 'hover:bg-gray-100 text-orange-600'
+                          }`}
+                          title="Change Password"
+                        >
+                          <Key size={16} />
+                        </button>
                         {isDirector && (
                           <>
                             <button
@@ -3142,6 +3247,47 @@ const CompanySettings = () => {
                 </SettingsCard>
               ))}
             </div>
+
+            {/* Pagination Controls */}
+            {userTotalPages > 1 && (
+              <div className={`flex items-center justify-between mt-6 pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Page {userCurrentPage} of {userTotalPages}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setUserCurrentPage(Math.max(1, userCurrentPage - 1))}
+                    disabled={userCurrentPage === 1}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      userCurrentPage === 1
+                        ? isDarkMode
+                          ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : isDarkMode
+                        ? 'bg-gray-700 text-white hover:bg-gray-600'
+                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setUserCurrentPage(Math.min(userTotalPages, userCurrentPage + 1))}
+                    disabled={userCurrentPage === userTotalPages}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      userCurrentPage === userTotalPages
+                        ? isDarkMode
+                          ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : isDarkMode
+                        ? 'bg-gray-700 text-white hover:bg-gray-600'
+                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </SettingsPaper>
       </div>
@@ -4847,6 +4993,178 @@ const CompanySettings = () => {
                 }
               >
                 Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Password Change Modal */}
+      {passwordChangeModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div
+            className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'} shadow-2xl`}
+          >
+            {/* Modal Header */}
+            <div
+              className={`p-6 border-b flex-shrink-0 ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <Key
+                    className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
+                    size={24}
+                  />
+                  <h3
+                    className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  >
+                    Change Password
+                  </h3>
+                </div>
+                <button
+                  onClick={() =>
+                    setPasswordChangeModal({
+                      open: false,
+                      userId: null,
+                      currentPassword: '',
+                      newPassword: '',
+                      confirmPassword: '',
+                      loading: false,
+                      error: null,
+                    })
+                  }
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X
+                    size={20}
+                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {passwordChangeModal.error && (
+                <div
+                  className={`p-3 rounded-lg ${
+                    isDarkMode
+                      ? 'bg-red-900/20 text-red-400 border border-red-900'
+                      : 'bg-red-50 text-red-700 border border-red-200'
+                  }`}
+                >
+                  {passwordChangeModal.error}
+                </div>
+              )}
+
+              <div>
+                <label
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                >
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordChangeModal.currentPassword}
+                  onChange={(e) =>
+                    setPasswordChangeModal((prev) => ({
+                      ...prev,
+                      currentPassword: e.target.value,
+                    }))
+                  }
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                    isDarkMode
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600'
+                  } focus:outline-none`}
+                  placeholder="Enter current password"
+                  disabled={passwordChangeModal.loading}
+                />
+              </div>
+
+              <div>
+                <label
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                >
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordChangeModal.newPassword}
+                  onChange={(e) =>
+                    setPasswordChangeModal((prev) => ({
+                      ...prev,
+                      newPassword: e.target.value,
+                    }))
+                  }
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                    isDarkMode
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600'
+                  } focus:outline-none`}
+                  placeholder="Enter new password (min 8 chars)"
+                  disabled={passwordChangeModal.loading}
+                />
+              </div>
+
+              <div>
+                <label
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                >
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordChangeModal.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordChangeModal((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                    isDarkMode
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600'
+                  } focus:outline-none`}
+                  placeholder="Confirm new password"
+                  disabled={passwordChangeModal.loading}
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div
+              className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
+            >
+              <button
+                onClick={() =>
+                  setPasswordChangeModal({
+                    open: false,
+                    userId: null,
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: '',
+                    loading: false,
+                    error: null,
+                  })
+                }
+                disabled={passwordChangeModal.loading}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-600'
+                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400'
+                }`}
+              >
+                Cancel
+              </button>
+              <Button
+                onClick={handleChangePassword}
+                disabled={passwordChangeModal.loading}
+              >
+                {passwordChangeModal.loading ? 'Changing...' : 'Change Password'}
               </Button>
             </div>
           </div>

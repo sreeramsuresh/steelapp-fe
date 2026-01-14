@@ -94,6 +94,9 @@ const WarehouseDetail = lazy(
 // Batch Analytics
 const BatchAnalyticsPage = lazy(() => import('../pages/BatchAnalyticsPage'));
 
+// User Profile
+const UserProfile = lazy(() => import('../pages/UserProfile'));
+
 // Reports Components
 const ReportsDashboard = lazy(() => import('../pages/ReportsDashboard'));
 const ProfitAnalysisReport = lazy(
@@ -1058,6 +1061,18 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredRole="admin">
                   <AuditLogs />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* User Profile - accessible to all authenticated users */}
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute user={user}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <UserProfile />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
