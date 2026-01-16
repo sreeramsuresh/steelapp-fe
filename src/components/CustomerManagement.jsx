@@ -31,7 +31,7 @@ import {
   FaUpload,
   FaArchive,
 } from 'react-icons/fa';
-import { ArrowUp, ArrowDown, ArrowUpDown, Settings2 } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpDown, Settings2, Trash2 } from 'lucide-react';
 import CustomerUpload from './CustomerUpload';
 
 // Column definitions for Customers table
@@ -72,6 +72,12 @@ const CustomerManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [supplierCurrentPage, setSupplierCurrentPage] = useState(1);
   const [supplierSearchTerm, setSupplierSearchTerm] = useState('');
+  const [supplierFilterStatus, setSupplierFilterStatus] = useState('all');
+  const [showDeletedSuppliers, setShowDeletedSuppliers] = useState(false);
+
+  // Row selection state
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set());
+  const [selectedSupplierIds, setSelectedSupplierIds] = useState(new Set());
 
   // Table sorting state
   const [customerSortConfig, setCustomerSortConfig] = useState({
@@ -284,6 +290,16 @@ const CustomerManagement = () => {
     }
   };
 
+  // Helper to normalize status for comparison (handles case and numeric)
+  const normalizeStatus = (status) => {
+    if (status === null || status === undefined) return 'active';
+    if (typeof status === 'number') {
+      // Map numeric status: 1 = active, 0 = inactive, etc.
+      return status === 1 ? 'active' : 'inactive';
+    }
+    return String(status).toLowerCase();
+  };
+
   // Sort customers
   const sortedCustomers = [...filteredCustomers].sort((a, b) => {
     const aVal = getCustomerCellValue(a, customerSortConfig.key);
@@ -296,8 +312,21 @@ const CustomerManagement = () => {
     return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
   });
 
+  // Filter suppliers
+  const filteredSuppliers = suppliers.filter((s) => {
+    // Filter by status
+    if (supplierFilterStatus !== 'all' && normalizeStatus(s.status) !== supplierFilterStatus) {
+      return false;
+    }
+    // Filter out deleted unless showDeletedSuppliers is true
+    if (!showDeletedSuppliers && normalizeStatus(s.status) === 'deleted') {
+      return false;
+    }
+    return true;
+  });
+
   // Sort suppliers
-  const sortedSuppliers = [...suppliers].sort((a, b) => {
+  const sortedSuppliers = [...filteredSuppliers].sort((a, b) => {
     const aVal = getSupplierCellValue(a, supplierSortConfig.key);
     const bVal = getSupplierCellValue(b, supplierSortConfig.key);
     const aStr = String(aVal).toLowerCase();
@@ -341,6 +370,91 @@ const CustomerManagement = () => {
     );
   };
 
+  // Row selection handlers - Customers
+  const toggleCustomerSelection = (id) => {
+    setSelectedCustomerIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleAllCustomers = () => {
+    if (selectedCustomerIds.size === sortedCustomers.length) {
+      setSelectedCustomerIds(new Set());
+    } else {
+      setSelectedCustomerIds(new Set(sortedCustomers.map((c) => c.id)));
+    }
+  };
+
+  // Row selection handlers - Suppliers
+  const toggleSupplierSelection = (id) => {
+    setSelectedSupplierIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleAllSuppliers = () => {
+    if (selectedSupplierIds.size === sortedSuppliers.length) {
+      setSelectedSupplierIds(new Set());
+    } else {
+      setSelectedSupplierIds(new Set(sortedSuppliers.map((s) => s.id)));
+    }
+  };
+
+  // Bulk action handlers
+  const handleBulkArchiveCustomers = async () => {
+    if (selectedCustomerIds.size === 0) return;
+    const confirmed = await confirm({
+      title: 'Archive Selected Customers?',
+      message: `Archive ${selectedCustomerIds.size} selected customer(s)? You can restore them later.`,
+      confirmText: 'Archive All',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
+    try {
+      for (const id of selectedCustomerIds) {
+        await archiveCustomer(id);
+      }
+      setSelectedCustomerIds(new Set());
+      refetchCustomers();
+      notificationService.success(`${selectedCustomerIds.size} customer(s) archived`);
+    } catch (error) {
+      notificationService.apiError('Bulk archive', error);
+    }
+  };
+
+  const handleBulkDeleteSuppliers = async () => {
+    if (selectedSupplierIds.size === 0) return;
+    const confirmed = await confirm({
+      title: 'Delete Selected Suppliers?',
+      message: `Delete ${selectedSupplierIds.size} selected supplier(s)? This cannot be undone.`,
+      confirmText: 'Delete All',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    try {
+      for (const id of selectedSupplierIds) {
+        await deleteSupplier(id);
+      }
+      setSelectedSupplierIds(new Set());
+      refetchSuppliers();
+      notificationService.success(`${selectedSupplierIds.size} supplier(s) deleted`);
+    } catch (error) {
+      notificationService.apiError('Bulk delete', error);
+    }
+  };
+
   // Sync search from URL param
   const [searchParams] = useSearchParams();
   useEffect(() => {
@@ -359,6 +473,21 @@ const CustomerManagement = () => {
       notificationService.error(trnError);
       return;
     }
+
+    // Check for duplicate name
+    const duplicateName = customers.find(
+      (c) => c.name?.toLowerCase().trim() === newCustomer.name?.toLowerCase().trim(),
+    );
+    if (duplicateName) {
+      const proceed = await confirm({
+        title: 'Duplicate Customer Name',
+        message: `A customer named "${duplicateName.name}" already exists. Do you want to create another customer with the same name?`,
+        confirmText: 'Create Anyway',
+        variant: 'warning',
+      });
+      if (!proceed) return;
+    }
+
     try {
       const customerData = {
         ...newCustomer,
@@ -510,6 +639,21 @@ const CustomerManagement = () => {
       notificationService.error(trnErr);
       return;
     }
+
+    // Check for duplicate name
+    const duplicateName = suppliers.find(
+      (s) => s.name?.toLowerCase().trim() === newSupplier.name?.toLowerCase().trim(),
+    );
+    if (duplicateName) {
+      const proceed = await confirm({
+        title: 'Duplicate Supplier Name',
+        message: `A supplier named "${duplicateName.name}" already exists. Do you want to create another supplier with the same name?`,
+        confirmText: 'Create Anyway',
+        variant: 'warning',
+      });
+      if (!proceed) return;
+    }
+
     try {
       const data = { ...newSupplier };
       await createSupplier(data);
@@ -610,10 +754,32 @@ const CustomerManagement = () => {
     }
   };
 
+  // Helper to format address object as string
+  const formatAddress = (address) => {
+    if (!address) return '';
+    if (typeof address === 'string') {
+      // Try to parse JSON string
+      try {
+        const parsed = JSON.parse(address);
+        return formatAddress(parsed);
+      } catch {
+        return address;
+      }
+    }
+    // Format object as readable string
+    const parts = [];
+    if (address.street) parts.push(address.street);
+    if (address.city) parts.push(address.city);
+    if (address.state) parts.push(address.state);
+    if (address.postal_code || address.postalCode) parts.push(address.postal_code || address.postalCode);
+    if (address.country) parts.push(address.country);
+    return parts.filter(Boolean).join(', ');
+  };
+
   const calculateAnalytics = () => {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter(
-      (c) => c.status === 'active',
+      (c) => normalizeStatus(c.status) === 'active',
     ).length;
     const totalCreditLimit = customers.reduce(
       (sum, c) => sum + (Number(c.creditLimit) || 0),
@@ -782,7 +948,31 @@ const CustomerManagement = () => {
             <FaUpload />
             Upload Customers
           </button>
+
+          {/* Bulk Archive Button - shown when customers selected */}
+          {selectedCustomerIds.size > 0 && (
+            <button
+              onClick={handleBulkArchiveCustomers}
+              className="px-4 py-2 bg-gradient-to-r from-[#FFA726] to-[#F57C00] text-white rounded-lg hover:from-[#FFB74D] hover:to-[#FFA726] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap"
+            >
+              <FaArchive />
+              Archive ({selectedCustomerIds.size})
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Record Count Header */}
+      <div className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}>
+        <span className="text-sm">
+          Showing {sortedCustomers.length} of {customers.length} customer{customers.length !== 1 ? 's' : ''}
+          {filterStatus !== 'all' && ` (filtered by ${filterStatus})`}
+        </span>
+        {selectedCustomerIds.size > 0 && (
+          <span className="text-sm text-teal-600 font-medium">
+            {selectedCustomerIds.size} selected
+          </span>
+        )}
       </div>
 
       {/* Customer Table */}
@@ -799,6 +989,15 @@ const CustomerManagement = () => {
             }`}
           >
             <tr>
+              {/* Select All Checkbox */}
+              <th className={`px-3 py-2 w-[40px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <input
+                  type="checkbox"
+                  checked={sortedCustomers.length > 0 && selectedCustomerIds.size === sortedCustomers.length}
+                  onChange={toggleAllCustomers}
+                  className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                />
+              </th>
               {CUSTOMER_COLUMNS.filter((col) =>
                 customerVisibleColumns.includes(col.key),
               ).map((col) => (
@@ -840,16 +1039,30 @@ const CustomerManagement = () => {
             {sortedCustomers.length === 0 ? (
               <tr>
                 <td
-                  colSpan={customerVisibleColumns.length + 1}
-                  className="text-center py-8"
+                  colSpan={customerVisibleColumns.length + 2}
+                  className="text-center py-12"
                 >
-                  <p className={textMuted}>
-                    {loadingCustomers
-                      ? 'Loading...'
-                      : customersError
-                        ? 'Error loading customers.'
-                        : 'No customers found. Try creating a new customer.'}
-                  </p>
+                  <div className="flex flex-col items-center gap-3">
+                    <FaUsers className={`text-4xl ${textMuted}`} />
+                    <p className={`text-lg font-medium ${textSecondary}`}>
+                      {loadingCustomers
+                        ? 'Loading customers...'
+                        : customersError
+                          ? 'Error loading customers'
+                          : searchTerm || filterStatus !== 'all'
+                            ? 'No customers match your filters'
+                            : 'No customers yet'}
+                    </p>
+                    <p className={`text-sm ${textMuted}`}>
+                      {loadingCustomers
+                        ? 'Please wait...'
+                        : customersError
+                          ? 'Please try again or contact support'
+                          : searchTerm || filterStatus !== 'all'
+                            ? 'Try adjusting your search or filters'
+                            : 'Click "Add Customer" to create your first customer'}
+                    </p>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -857,11 +1070,24 @@ const CustomerManagement = () => {
                 <tr
                   key={customer.id}
                   className={`transition-colors ${
-                    isDarkMode
-                      ? 'bg-gray-900 hover:bg-gray-800'
-                      : 'bg-white hover:bg-gray-50'
+                    selectedCustomerIds.has(customer.id)
+                      ? isDarkMode
+                        ? 'bg-teal-900/20'
+                        : 'bg-teal-50'
+                      : isDarkMode
+                        ? 'bg-gray-900 hover:bg-gray-800'
+                        : 'bg-white hover:bg-gray-50'
                   }`}
                 >
+                  {/* Row Checkbox */}
+                  <td className="px-3 py-2 w-[40px]">
+                    <input
+                      type="checkbox"
+                      checked={selectedCustomerIds.has(customer.id)}
+                      onChange={() => toggleCustomerSelection(customer.id)}
+                      className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                    />
+                  </td>
                   {CUSTOMER_COLUMNS.filter((col) =>
                     customerVisibleColumns.includes(col.key),
                   ).map((col) => (
@@ -900,15 +1126,22 @@ const CustomerManagement = () => {
                         </span>
                       ) : col.key === 'status' ? (
                         <span
-                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
-                            customer.status === 'active'
+                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize ${
+                            normalizeStatus(customer.status) === 'active'
                               ? 'bg-green-100 text-green-800'
-                              : customer.status === 'archived'
+                              : normalizeStatus(customer.status) === 'archived'
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-gray-100 text-gray-600'
                           }`}
                         >
-                          {customer.status}
+                          {normalizeStatus(customer.status)}
+                        </span>
+                      ) : col.key === 'email' ? (
+                        <span
+                          className="block truncate max-w-[180px]"
+                          title={customer.email || '-'}
+                        >
+                          {customer.email || '-'}
                         </span>
                       ) : (
                         getCustomerCellValue(customer, col.key)
@@ -951,7 +1184,7 @@ const CustomerManagement = () => {
                               ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-700'
                               : 'text-yellow-600 hover:text-yellow-700 hover:bg-gray-100'
                           }`}
-                          title="Archive"
+                          title="Archive customer (can be restored)"
                         >
                           <FaArchive size={14} />
                         </button>
@@ -1013,25 +1246,57 @@ const CustomerManagement = () => {
     <div className={`${cardClasses} p-6 mb-6`}>
       {/* Controls */}
       <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 mb-6">
-        <h3 className={`text-lg font-semibold ${textPrimary}`}>Suppliers</h3>
-
-        {/* Search Input */}
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <FaSearch
-              className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${textSecondary}`}
-            />
+        <div className="flex flex-col sm:flex-row gap-3 flex-1">
+          {/* Search Input */}
+          <div className="relative flex items-center flex-1 max-w-md">
+            <FaSearch className={`absolute left-3 ${textMuted}`} />
             <input
               type="text"
               placeholder="Search suppliers..."
               value={supplierSearchTerm}
               onChange={(e) => setSupplierSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-colors ${
+              className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 w-full ${
                 isDarkMode
-                  ? 'bg-[#1E2328] border-gray-600 text-white placeholder-gray-500 focus:border-teal-500'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-500'
-              } focus:outline-none focus:ring-2 focus:ring-teal-500/20`}
+                  ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]'
+                  : 'border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]'
+              }`}
             />
+          </div>
+
+          {/* Status Filter */}
+          <select
+            value={supplierFilterStatus}
+            onChange={(e) => {
+              setSupplierFilterStatus(e.target.value);
+              setSupplierCurrentPage(1);
+            }}
+            className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 min-w-[150px] ${
+              isDarkMode
+                ? 'border-[#37474F] bg-[#1E2328] text-white'
+                : 'border-[#E0E0E0] bg-white text-[#212121]'
+            }`}
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+
+          {/* Show Deleted Toggle */}
+          <label
+            className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={showDeletedSuppliers}
+              onChange={(e) => setShowDeletedSuppliers(e.target.checked)}
+              className="form-checkbox h-4 w-4 text-teal-600"
+            />
+            <span className="text-sm">Show deleted</span>
+          </label>
+          <div className="text-sm text-gray-500 ml-auto">
+            {filteredSuppliers.length} supplier{filteredSuppliers.length !== 1 ? 's' : ''} found
           </div>
         </div>
 
@@ -1097,6 +1362,17 @@ const CustomerManagement = () => {
             )}
           </div>
 
+          {/* Bulk Delete Button - shows when suppliers are selected */}
+          {selectedSupplierIds.size > 0 && (
+            <button
+              onClick={handleBulkDeleteSuppliers}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <Trash2 size={16} />
+              Delete ({selectedSupplierIds.size})
+            </button>
+          )}
+
           <button
             onClick={() => setShowAddSupplierModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
@@ -1116,6 +1392,19 @@ const CustomerManagement = () => {
         </div>
       )}
 
+      {/* Record Count Header */}
+      <div className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}>
+        <span className="text-sm">
+          Showing {sortedSuppliers.length} of {suppliers.length} supplier{suppliers.length !== 1 ? 's' : ''}
+          {supplierFilterStatus !== 'all' && ` (filtered by ${supplierFilterStatus})`}
+        </span>
+        {selectedSupplierIds.size > 0 && (
+          <span className="text-sm text-teal-600 font-medium">
+            {selectedSupplierIds.size} selected
+          </span>
+        )}
+      </div>
+
       {/* Supplier Table */}
       <div
         className={`overflow-x-auto rounded-lg border ${
@@ -1130,6 +1419,16 @@ const CustomerManagement = () => {
             }`}
           >
             <tr>
+              {/* Checkbox column header */}
+              <th className={`px-3 py-2 w-10 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <input
+                  type="checkbox"
+                  checked={sortedSuppliers.length > 0 && selectedSupplierIds.size === sortedSuppliers.length}
+                  onChange={toggleAllSuppliers}
+                  className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                  title="Select all suppliers"
+                />
+              </th>
               {SUPPLIER_COLUMNS.filter((col) =>
                 supplierVisibleColumns.includes(col.key),
               ).map((col) => (
@@ -1171,19 +1470,39 @@ const CustomerManagement = () => {
             {loadingSuppliers ? (
               <tr>
                 <td
-                  colSpan={supplierVisibleColumns.length + 1}
-                  className="text-center py-8"
+                  colSpan={supplierVisibleColumns.length + 2}
+                  className="text-center py-12"
                 >
-                  <p className={textMuted}>Loading suppliers...</p>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                    <p className={`text-lg font-medium ${textSecondary}`}>Loading suppliers...</p>
+                    <p className={`text-sm ${textMuted}`}>Please wait...</p>
+                  </div>
                 </td>
               </tr>
             ) : sortedSuppliers.length === 0 ? (
               <tr>
                 <td
-                  colSpan={supplierVisibleColumns.length + 1}
-                  className="text-center py-8"
+                  colSpan={supplierVisibleColumns.length + 2}
+                  className="text-center py-12"
                 >
-                  <p className={textMuted}>No suppliers yet. Add one.</p>
+                  <div className="flex flex-col items-center gap-3">
+                    <FaUsers className={`text-4xl ${textMuted}`} />
+                    <p className={`text-lg font-medium ${textSecondary}`}>
+                      {suppliersError
+                        ? 'Error loading suppliers'
+                        : supplierSearchTerm || supplierFilterStatus !== 'all'
+                          ? 'No suppliers match your filters'
+                          : 'No suppliers yet'}
+                    </p>
+                    <p className={`text-sm ${textMuted}`}>
+                      {suppliersError
+                        ? 'Please try again or contact support'
+                        : supplierSearchTerm || supplierFilterStatus !== 'all'
+                          ? 'Try adjusting your search or filters'
+                          : 'Click "Add Supplier" to create your first supplier'}
+                    </p>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -1191,11 +1510,20 @@ const CustomerManagement = () => {
                 <tr
                   key={supplier.id}
                   className={`transition-colors ${
-                    isDarkMode
-                      ? 'bg-gray-900 hover:bg-gray-800'
-                      : 'bg-white hover:bg-gray-50'
+                    selectedSupplierIds.has(supplier.id)
+                      ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50')
+                      : (isDarkMode ? 'bg-gray-900 hover:bg-gray-800' : 'bg-white hover:bg-gray-50')
                   }`}
                 >
+                  {/* Selection checkbox */}
+                  <td className="px-3 py-2 w-10">
+                    <input
+                      type="checkbox"
+                      checked={selectedSupplierIds.has(supplier.id)}
+                      onChange={() => toggleSupplierSelection(supplier.id)}
+                      className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                    />
+                  </td>
                   {SUPPLIER_COLUMNS.filter((col) =>
                     supplierVisibleColumns.includes(col.key),
                   ).map((col) => (
@@ -1226,13 +1554,22 @@ const CustomerManagement = () => {
                         </div>
                       ) : col.key === 'status' ? (
                         <span
-                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
-                            supplier.status === 'active'
+                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize ${
+                            normalizeStatus(supplier.status) === 'active'
                               ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-600'
+                              : normalizeStatus(supplier.status) === 'inactive'
+                                ? 'bg-gray-100 text-gray-600'
+                                : 'bg-red-100 text-red-800'
                           }`}
                         >
-                          {supplier.status || 'active'}
+                          {normalizeStatus(supplier.status)}
+                        </span>
+                      ) : col.key === 'email' ? (
+                        <span
+                          className="block truncate max-w-[180px]"
+                          title={supplier.email || '-'}
+                        >
+                          {supplier.email || '-'}
                         </span>
                       ) : (
                         getSupplierCellValue(supplier, col.key)
@@ -1263,7 +1600,7 @@ const CustomerManagement = () => {
                             ? 'text-red-400 hover:text-red-300 hover:bg-gray-700'
                             : 'text-red-500 hover:text-red-600 hover:bg-gray-100'
                         }`}
-                        title="Delete"
+                        title="Delete permanently (cannot be undone)"
                       >
                         <FaTrash size={14} />
                       </button>
@@ -1384,47 +1721,68 @@ const CustomerManagement = () => {
 
       {/* Credit Utilization Chart */}
       <div className={`${cardClasses} p-6 hover:shadow-lg`}>
-        <h3 className={`text-lg font-semibold mb-6 ${textPrimary}`}>
+        <h3 className={`text-lg font-semibold mb-2 ${textPrimary}`}>
           Credit Utilization by Customer
         </h3>
+        <p className={`text-sm mb-6 ${textMuted}`}>
+          Only showing customers with credit limits assigned
+        </p>
         <div className="space-y-4 max-h-96 overflow-y-auto">
-          {customers.map((customer) => (
-            <div
-              key={customer.id}
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-opacity-50 transition-colors ${
-                isDarkMode ? 'hover:bg-[#37474F]' : 'hover:bg-gray-50'
-              }`}
-            >
-              <span
-                className={`w-40 text-sm font-medium truncate ${textPrimary}`}
-              >
-                {customer.name}
-              </span>
-              <div className="flex-1 flex items-center gap-3">
-                <div
-                  className={`flex-1 rounded-full h-3 ${isDarkMode ? 'bg-[#37474F]' : 'bg-gray-200'}`}
-                >
-                  <div
-                    className="bg-[#008B8B] h-3 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${customer.creditLimit > 0 ? ((customer.currentCredit || 0) / customer.creditLimit) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
-                <span
-                  className={`text-sm font-medium w-12 text-right ${textSecondary}`}
-                >
-                  {customer.creditLimit > 0
-                    ? Math.round(
-                        ((customer.currentCredit || 0) / customer.creditLimit) *
-                          100,
-                      )
-                    : 0}
-                  %
-                </span>
-              </div>
+          {customers.filter(c => (c.creditLimit || c.credit_limit || 0) > 0).length === 0 ? (
+            <div className="text-center py-8">
+              <FaCreditCard className={`mx-auto text-3xl mb-3 ${textMuted}`} />
+              <p className={`text-sm ${textMuted}`}>
+                No customers have credit limits assigned yet
+              </p>
             </div>
-          ))}
+          ) : (
+            customers
+              .filter(c => (c.creditLimit || c.credit_limit || 0) > 0)
+              .sort((a, b) => {
+                const aUtil = ((a.currentCredit || a.current_credit || 0) / (a.creditLimit || a.credit_limit || 1)) * 100;
+                const bUtil = ((b.currentCredit || b.current_credit || 0) / (b.creditLimit || b.credit_limit || 1)) * 100;
+                return bUtil - aUtil; // Sort by utilization descending
+              })
+              .map((customer) => {
+                const creditLimit = customer.creditLimit || customer.credit_limit || 0;
+                const currentCredit = customer.currentCredit || customer.current_credit || 0;
+                const utilization = creditLimit > 0 ? (currentCredit / creditLimit) * 100 : 0;
+                return (
+                  <div
+                    key={customer.id}
+                    className={`flex items-center gap-4 p-3 rounded-lg hover:bg-opacity-50 transition-colors ${
+                      isDarkMode ? 'hover:bg-[#37474F]' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <span
+                      className={`w-40 text-sm font-medium truncate ${textPrimary}`}
+                      title={customer.name}
+                    >
+                      {customer.name}
+                    </span>
+                    <div className="flex-1 flex items-center gap-3">
+                      <div
+                        className={`flex-1 rounded-full h-3 ${isDarkMode ? 'bg-[#37474F]' : 'bg-gray-200'}`}
+                      >
+                        <div
+                          className={`h-3 rounded-full transition-all duration-300 ${
+                            utilization > 80 ? 'bg-red-500' : utilization > 50 ? 'bg-yellow-500' : 'bg-teal-600'
+                          }`}
+                          style={{ width: `${Math.min(utilization, 100)}%` }}
+                        />
+                      </div>
+                      <span
+                        className={`text-sm font-medium w-16 text-right ${
+                          utilization > 80 ? 'text-red-500' : utilization > 50 ? 'text-yellow-500' : textSecondary
+                        }`}
+                      >
+                        {Math.round(utilization)}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+          )}
         </div>
       </div>
     </div>
@@ -1442,9 +1800,9 @@ const CustomerManagement = () => {
           className={`mb-8 pb-6 border-b ${isDarkMode ? 'border-[#37474F]' : 'border-[#E0E0E0]'}`}
         >
           <div className="flex items-center gap-3 mb-2">
-            <FaUsers className={`text-3xl ${textSecondary}`} />
-            <h1 className={`text-2xl font-semibold mb-2 ${textPrimary}`}>
-              👥 Customer Management
+            <FaUsers className="text-3xl text-teal-600" />
+            <h1 className={`text-2xl font-semibold ${textPrimary}`}>
+              Customer Management
             </h1>
           </div>
           <p className={textSecondary}>
@@ -2106,7 +2464,7 @@ const CustomerManagement = () => {
                   pattern="\\d*"
                   maxLength={15}
                   placeholder="100XXXXXXXXXXXX"
-                  value={newSupplier.trnNumber}
+                  value={newSupplier.trn_number}
                   onChange={(e) =>
                     setNewSupplier({
                       ...newSupplier,
@@ -2117,9 +2475,9 @@ const CustomerManagement = () => {
                   }
                   className={inputClasses}
                 />
-                {validateTRN(newSupplier.trnNumber) ? (
+                {validateTRN(newSupplier.trn_number) ? (
                   <p className="text-xs text-red-600 mt-1">
-                    {validateTRN(newSupplier.trnNumber)}
+                    {validateTRN(newSupplier.trn_number)}
                   </p>
                 ) : (
                   <p className={`text-xs mt-1 ${textMuted}`}>
@@ -2131,7 +2489,7 @@ const CustomerManagement = () => {
                 <input
                   type="checkbox"
                   id="newSupplierDesignatedZone"
-                  checked={newSupplier.isDesignatedZone || false}
+                  checked={newSupplier.is_designated_zone || false}
                   onChange={(e) =>
                     setNewSupplier({
                       ...newSupplier,
@@ -2158,7 +2516,7 @@ const CustomerManagement = () => {
                   type="text"
                   id="newSupplierPaymentTerms"
                   placeholder="e.g., Net 30"
-                  value={newSupplier.paymentTerms}
+                  value={newSupplier.payment_terms}
                   onChange={(e) =>
                     setNewSupplier({
                       ...newSupplier,
@@ -2177,7 +2535,7 @@ const CustomerManagement = () => {
                 </label>
                 <select
                   id="newSupplierCurrency"
-                  value={newSupplier.defaultCurrency}
+                  value={newSupplier.default_currency}
                   onChange={(e) =>
                     setNewSupplier({
                       ...newSupplier,
@@ -2203,7 +2561,7 @@ const CustomerManagement = () => {
                   <input
                     type="text"
                     id="newSupplierContactName"
-                    value={newSupplier.contactName}
+                    value={newSupplier.contact_name}
                     onChange={(e) =>
                       setNewSupplier({
                         ...newSupplier,
@@ -2223,7 +2581,7 @@ const CustomerManagement = () => {
                   <input
                     type="email"
                     id="newSupplierContactEmail"
-                    value={newSupplier.contactEmail}
+                    value={newSupplier.contact_email}
                     onChange={(e) =>
                       setNewSupplier({
                         ...newSupplier,
@@ -2243,7 +2601,7 @@ const CustomerManagement = () => {
                   <input
                     type="tel"
                     id="newSupplierContactPhone"
-                    value={newSupplier.contactPhone}
+                    value={newSupplier.contact_phone}
                     onChange={(e) =>
                       setNewSupplier({
                         ...newSupplier,
@@ -2286,7 +2644,7 @@ const CustomerManagement = () => {
               <button
                 onClick={handleAddSupplier}
                 disabled={
-                  creatingSupplier || !!validateTRN(newSupplier.trnNumber)
+                  creatingSupplier || !!validateTRN(newSupplier.trn_number)
                 }
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
@@ -2407,7 +2765,7 @@ const CustomerManagement = () => {
                 <input
                   type="text"
                   id="editSupplierAddress"
-                  value={selectedSupplier.address || ''}
+                  value={formatAddress(selectedSupplier.address)}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2415,6 +2773,7 @@ const CustomerManagement = () => {
                     })
                   }
                   className={inputClasses}
+                  placeholder="Street, City, State, Postal Code, Country"
                 />
               </div>
               <div>
@@ -3245,7 +3604,7 @@ const CustomerManagement = () => {
                     <input
                       type="date"
                       id="contactDate"
-                      value={newContact.contactDate}
+                      value={newContact.contact_date}
                       onChange={(e) =>
                         setNewContact({
                           ...newContact,

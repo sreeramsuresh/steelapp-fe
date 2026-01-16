@@ -57,16 +57,16 @@ const getStatusChip = (status) => {
 };
 
 /**
- * Map MUI colors to Tailwind badge colors
+ * Map MUI colors to Tailwind badge colors (Light theme)
  */
 const getStatusBadgeClasses = (color) => {
   const colorMap = {
-    default: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    primary: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    success: 'bg-green-500/20 text-green-400 border-green-500/30',
-    warning: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    error: 'bg-red-500/20 text-red-400 border-red-500/30',
-    info: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+    default: 'bg-gray-100 text-gray-700 border-gray-300',
+    primary: 'bg-blue-50 text-blue-700 border-blue-200',
+    success: 'bg-green-50 text-green-700 border-green-200',
+    warning: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    error: 'bg-red-50 text-red-700 border-red-200',
+    info: 'bg-teal-50 text-teal-700 border-teal-200',
   };
   return colorMap[color] || colorMap.default;
 };
@@ -167,7 +167,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   }, [loadReservations]);
 
   // Handle page change
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_event, newPage) => {
     setPage(newPage);
   };
 
@@ -245,11 +245,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
     <div>
       {/* Error Alert */}
       {error && (
-        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
           <span>{error}</span>
           <button
             onClick={() => setError(null)}
-            className="text-red-400 hover:text-red-300"
+            className="text-red-600 hover:text-red-800"
           >
             <X size={18} />
           </button>
@@ -257,7 +257,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       )}
 
       {/* Standardized Filter Bar - Phase 3 Redesign */}
-      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F] p-4 mb-4">
+      <div className="rounded-xl border overflow-hidden bg-white border-gray-200 p-4 mb-4">
         <div className="flex gap-4 flex-wrap items-center">
           {/* Search Input */}
           <div className="relative min-w-[220px]">
@@ -273,7 +273,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 setSearchQuery(e.target.value);
                 setPage(0);
               }}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white border-gray-300 text-gray-900 placeholder-gray-400"
             />
           </div>
 
@@ -283,7 +283,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               setStatusFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
+            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
           >
             <option value="">All Status</option>
             {Object.values(RESERVATION_STATUSES).map((status) => (
@@ -299,7 +299,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               setWarehouseFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
           >
             <option value="">All Warehouses</option>
             {warehouses.map((wh) => (
@@ -315,7 +315,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               setIncludeExpired(e.target.value === 'yes');
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
+            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
           >
             <option value="no">Hide Expired</option>
             <option value="yes">Show Expired</option>
@@ -329,7 +329,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             onClick={loadReservations}
             disabled={loading}
             title="Refresh"
-            className="p-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
           >
             <RotateCcw size={18} />
           </button>
@@ -345,41 +345,41 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F]">
+      <div className="rounded-xl border overflow-hidden bg-white border-gray-200">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-800 border-b border-[#37474F]">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Reservation #
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Warehouse
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Reserved
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Progress
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Expiry
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#37474F]">
+            <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center">
@@ -395,7 +395,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 <tr>
                   <td
                     colSpan={9}
-                    className="px-4 py-8 text-center text-gray-400"
+                    className="px-4 py-8 text-center text-gray-500"
                   >
                     No reservations found
                   </td>
@@ -412,24 +412,24 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   );
 
                   return (
-                    <tr key={reservation.id} className="hover:bg-[#252a30]">
-                      <td className="px-4 py-3 text-sm font-medium text-white">
+                    <tr key={reservation.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
                         {reservation.reservationNumber}
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        <div className="text-white">
+                        <div className="text-gray-900">
                           {reservation.productName}
                         </div>
                         {reservation.productSku && (
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-gray-500">
                             {reservation.productSku}
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {reservation.warehouseName || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300 text-right">
+                      <td className="px-4 py-3 text-sm text-gray-600 text-right">
                         {formatQuantity(
                           reservation.quantityReserved,
                           reservation.unit,
@@ -440,17 +440,17 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                         style={{ minWidth: 150 }}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <div className="flex-1 bg-gray-700 rounded-full h-2 overflow-hidden">
+                          <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
                             <div
                               className={`h-full ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>
-                          <span className="text-xs text-gray-400 min-w-[35px] text-right">
+                          <span className="text-xs text-gray-500 min-w-[35px] text-right">
                             {progress}%
                           </span>
                         </div>
-                        <div className="text-xs text-gray-400 text-center">
+                        <div className="text-xs text-gray-500 text-center">
                           {formatQuantity(
                             reservation.quantityFulfilled,
                             reservation.unit,
@@ -469,10 +469,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                           {statusInfo.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {formatDate(reservation.expiryDate)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {formatDate(reservation.createdAt)}
                       </td>
                       <td className="px-4 py-3 text-sm text-right">
@@ -480,7 +480,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                           <button
                             onClick={() => onViewReservation?.(reservation)}
                             title="View"
-                            className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-white"
+                            className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                           >
                             <Eye size={18} />
                           </button>
@@ -490,7 +490,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                                 handleOpenFulfillDialog(reservation)
                               }
                               title="Fulfill"
-                              className="p-1.5 rounded hover:bg-gray-700 text-green-400 hover:text-green-300"
+                              className="p-1.5 rounded hover:bg-green-50 text-green-600 hover:text-green-700"
                             >
                               <CheckCircle size={18} />
                             </button>
@@ -501,7 +501,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                                 handleOpenCancelDialog(reservation)
                               }
                               title="Cancel"
-                              className="p-1.5 rounded hover:bg-gray-700 text-red-400 hover:text-red-300"
+                              className="p-1.5 rounded hover:bg-red-50 text-red-600 hover:text-red-700"
                             >
                               <X size={18} />
                             </button>
@@ -517,13 +517,13 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#37474F] bg-[#1E2328]">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Rows per page:</span>
+            <span className="text-sm text-gray-500">Rows per page:</span>
             <select
               value={rowsPerPage}
               onChange={handleChangeRowsPerPage}
-              className="px-2 py-1 rounded border bg-gray-800 border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="px-2 py-1 rounded border bg-white border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -531,7 +531,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             </select>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-gray-500">
               {page * rowsPerPage + 1}-
               {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount}
             </span>
@@ -539,14 +539,14 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               <button
                 onClick={(e) => handleChangePage(e, page - 1)}
                 disabled={page === 0}
-                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+                className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
                 Previous
               </button>
               <button
                 onClick={(e) => handleChangePage(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
-                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+                className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
                 Next
               </button>
@@ -570,26 +570,26 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             tabIndex={0}
             aria-label="Close dialog"
           />
-          <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white mb-4">
+          <div className="relative bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Fulfill Reservation
             </h3>
-            <div className="space-y-3 mb-6 text-gray-300">
+            <div className="space-y-3 mb-6 text-gray-600">
               <p>
                 Reservation:{' '}
-                <strong className="text-white">
+                <strong className="text-gray-900">
                   {fulfillDialog.reservation?.reservationNumber}
                 </strong>
               </p>
               <p>
                 Product:{' '}
-                <strong className="text-white">
+                <strong className="text-gray-900">
                   {fulfillDialog.reservation?.productName}
                 </strong>
               </p>
               <p>
                 Remaining:{' '}
-                <strong className="text-white">
+                <strong className="text-gray-900">
                   {formatQuantity(
                     fulfillDialog.reservation?.quantityRemaining,
                     fulfillDialog.reservation?.unit,
@@ -599,7 +599,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               <div>
                 <label
                   htmlFor="fulfill-quantity"
-                  className="block text-sm font-medium text-gray-300 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Quantity to Fulfill
                 </label>
@@ -611,9 +611,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   min={0}
                   max={fulfillDialog.reservation?.quantityRemaining}
                   step={0.01}
-                  className="w-full px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-gray-500">
                   Max: {fulfillDialog.reservation?.quantityRemaining || 0}{' '}
                   {fulfillDialog.reservation?.unit || 'KG'}
                 </p>
@@ -625,7 +625,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   setFulfillDialog({ open: false, reservation: null })
                 }
                 disabled={actionLoading}
-                className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+                className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
               >
                 Cancel
               </button>
@@ -663,19 +663,19 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             tabIndex={0}
             aria-label="Close dialog"
           />
-          <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white mb-4">
+          <div className="relative bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Cancel Reservation
             </h3>
             <div className="space-y-3 mb-6">
-              <p className="text-gray-300">
+              <p className="text-gray-600">
                 Are you sure you want to cancel reservation{' '}
-                <strong className="text-white">
+                <strong className="text-gray-900">
                   {cancelDialog.reservation?.reservationNumber}
                 </strong>
                 ?
               </p>
-              <p className="text-gray-400">
+              <p className="text-gray-500">
                 This will release{' '}
                 {formatQuantity(
                   cancelDialog.reservation?.quantityRemaining,
@@ -686,7 +686,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               <div>
                 <label
                   htmlFor="cancel-reason"
-                  className="block text-sm font-medium text-gray-300 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Cancellation Reason (Optional)
                 </label>
@@ -696,7 +696,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   onChange={(e) => setCancelReason(e.target.value)}
                   rows={2}
                   placeholder="Enter reason for cancellation..."
-                  className="w-full px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
             </div>
@@ -706,7 +706,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   setCancelDialog({ open: false, reservation: null })
                 }
                 disabled={actionLoading}
-                className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+                className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
               >
                 No, Go Back
               </button>

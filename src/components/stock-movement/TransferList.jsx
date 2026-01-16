@@ -51,16 +51,16 @@ const getStatusChip = (status) => {
 };
 
 /**
- * Map MUI colors to Tailwind badge colors
+ * Map MUI colors to Tailwind badge colors (Light theme)
  */
 const getStatusBadgeClasses = (color) => {
   const colorMap = {
-    default: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    primary: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    success: 'bg-green-500/20 text-green-400 border-green-500/30',
-    warning: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    error: 'bg-red-500/20 text-red-400 border-red-500/30',
-    info: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+    default: 'bg-gray-100 text-gray-700 border-gray-300',
+    primary: 'bg-blue-50 text-blue-700 border-blue-200',
+    success: 'bg-green-50 text-green-700 border-green-200',
+    warning: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    error: 'bg-red-50 text-red-700 border-red-200',
+    info: 'bg-teal-50 text-teal-700 border-teal-200',
   };
   return colorMap[color] || colorMap.default;
 };
@@ -156,7 +156,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   }, [loadTransfers]);
 
   // Handle page change
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_event, newPage) => {
     setPage(newPage);
   };
 
@@ -254,11 +254,11 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
     <div>
       {/* Error Alert */}
       {error && (
-        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
           <span>{error}</span>
           <button
             onClick={() => setError(null)}
-            className="text-red-400 hover:text-red-300"
+            className="text-red-600 hover:text-red-800"
           >
             <X size={18} />
           </button>
@@ -266,7 +266,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       )}
 
       {/* Standardized Filter Bar - Phase 3 Redesign */}
-      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F] p-4 mb-4">
+      <div className="rounded-xl border overflow-hidden bg-white border-gray-200 p-4 mb-4">
         <div className="flex gap-4 flex-wrap items-center">
           {/* Search Input */}
           <div className="relative min-w-[220px]">
@@ -282,7 +282,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 setSearchQuery(e.target.value);
                 setPage(0);
               }}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white border-gray-300 text-gray-900 placeholder-gray-400"
             />
           </div>
 
@@ -292,7 +292,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               setStatusFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
+            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
           >
             <option value="">All Status</option>
             {Object.values(TRANSFER_STATUSES).map((status) => (
@@ -308,7 +308,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               setSourceWarehouseFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
           >
             <option value="">All Sources</option>
             {warehouses.map((wh) => (
@@ -324,7 +324,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               setDestWarehouseFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-gray-800 border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
           >
             <option value="">All Destinations</option>
             {warehouses.map((wh) => (
@@ -342,7 +342,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             onClick={loadTransfers}
             disabled={loading}
             title="Refresh"
-            className="p-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
           >
             <RotateCcw size={18} />
           </button>
@@ -358,41 +358,41 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border overflow-hidden bg-[#1E2328] border-[#37474F]">
+      <div className="rounded-xl border overflow-hidden bg-white border-gray-200">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-800 border-b border-[#37474F]">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Transfer #
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   From
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   To
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Items
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Shipped
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Received
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#37474F]">
+            <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center">
@@ -408,7 +408,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 <tr>
                   <td
                     colSpan={9}
-                    className="px-4 py-8 text-center text-gray-400"
+                    className="px-4 py-8 text-center text-gray-500"
                   >
                     No transfers found
                   </td>
@@ -419,17 +419,17 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                   const actions = getAvailableActions(transfer);
 
                   return (
-                    <tr key={transfer.id} className="hover:bg-[#252a30]">
-                      <td className="px-4 py-3 text-sm font-medium text-white">
+                    <tr key={transfer.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
                         {transfer.transferNumber}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {transfer.sourceWarehouseName || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {transfer.destinationWarehouseName || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {transfer.items?.length || 0} items
                       </td>
                       <td className="px-4 py-3 text-sm">
@@ -439,13 +439,13 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                           {statusInfo.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {formatDate(transfer.createdAt)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {formatDate(transfer.shippedDate)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {formatDate(transfer.receivedDate)}
                       </td>
                       <td className="px-4 py-3 text-sm text-right">
@@ -459,7 +459,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                                   handleActionClick(action.type, transfer)
                                 }
                                 title={action.label}
-                                className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-white"
+                                className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                               >
                                 <IconComponent size={18} />
                               </button>
@@ -476,13 +476,13 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#37474F] bg-[#1E2328]">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Rows per page:</span>
+            <span className="text-sm text-gray-500">Rows per page:</span>
             <select
               value={rowsPerPage}
               onChange={handleChangeRowsPerPage}
-              className="px-2 py-1 rounded border bg-gray-800 border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="px-2 py-1 rounded border bg-white border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -490,7 +490,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             </select>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-gray-500">
               {page * rowsPerPage + 1}-
               {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount}
             </span>
@@ -498,14 +498,14 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               <button
                 onClick={(e) => handleChangePage(e, page - 1)}
                 disabled={page === 0}
-                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+                className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
                 Previous
               </button>
               <button
                 onClick={(e) => handleChangePage(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
-                className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm"
+                className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
                 Next
               </button>
@@ -534,20 +534,20 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
           />
 
           {/* Dialog */}
-          <div className="relative bg-[#1E2328] border border-[#37474F] rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="relative bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             {/* Title */}
-            <h3 className="text-lg font-semibold text-white mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {actionDialog.type === 'ship' && 'Ship Transfer'}
               {actionDialog.type === 'receive' && 'Receive Transfer'}
               {actionDialog.type === 'cancel' && 'Cancel Transfer'}
             </h3>
 
             {/* Content */}
-            <div className="mb-6 text-gray-300">
+            <div className="mb-6 text-gray-600">
               {actionDialog.type === 'ship' && (
                 <p>
                   Are you sure you want to ship transfer{' '}
-                  <strong className="text-white">
+                  <strong className="text-gray-900">
                     {actionDialog.transfer?.transferNumber}
                   </strong>
                   ? This will deduct stock from the source warehouse.
@@ -556,7 +556,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               {actionDialog.type === 'receive' && (
                 <p>
                   Are you sure you want to receive transfer{' '}
-                  <strong className="text-white">
+                  <strong className="text-gray-900">
                     {actionDialog.transfer?.transferNumber}
                   </strong>
                   ? This will add stock to the destination warehouse.
@@ -565,7 +565,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               {actionDialog.type === 'cancel' && (
                 <p>
                   Are you sure you want to cancel transfer{' '}
-                  <strong className="text-white">
+                  <strong className="text-gray-900">
                     {actionDialog.transfer?.transferNumber}
                   </strong>
                   ?
@@ -582,7 +582,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                   setActionDialog({ open: false, type: null, transfer: null })
                 }
                 disabled={actionLoading}
-                className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+                className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
               >
                 No, Go Back
               </button>

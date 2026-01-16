@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Download, FileText } from 'lucide-react';
+import { Search, Download, FileText, Package, AlertCircle, Loader2, Check } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -24,11 +24,42 @@ const PROCUREMENT_CHANNELS = [
   { value: 'IMPORTED', label: 'Imported' },
 ];
 
+/**
+ * Clean warehouse name by removing timestamps and test suffixes
+ */
+const cleanWarehouseName = (name) => {
+  if (!name) return 'Unknown Warehouse';
+  // Remove timestamp suffixes (e.g., "Warehouse 1768234260965")
+  return name.replace(/\s+\d{10,}$/, '').trim();
+};
+
+/**
+ * Deduplicate warehouses by name, keeping the first occurrence
+ */
+const deduplicateWarehouses = (warehouses) => {
+  const seen = new Map();
+  return warehouses.filter((warehouse) => {
+    const cleanedName = cleanWarehouseName(warehouse.name);
+    if (seen.has(cleanedName)) {
+      return false;
+    }
+    seen.set(cleanedName, warehouse.id);
+    return true;
+  });
+};
+
 export default function StockMovementReport() {
   const [loading, setLoading] = useState(false);
   const [movements, setMovements] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [products, setProducts] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Loading states for dropdowns
+  const [loadingWarehouses, setLoadingWarehouses] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [warehouseError, setWarehouseError] = useState(null);
+  const [productError, setProductError] = useState(null);
 
   // Filters
   const [dateFrom, setDateFrom] = useState('');
@@ -59,21 +90,34 @@ export default function StockMovementReport() {
 
   const fetchWarehouses = async () => {
     try {
+      setLoadingWarehouses(true);
+      setWarehouseError(null);
       const response = await warehouseService.getAll();
-      setWarehouses(response.data || []);
+      const rawWarehouses = response.data || [];
+      // Deduplicate warehouses by cleaned name
+      const uniqueWarehouses = deduplicateWarehouses(rawWarehouses);
+      setWarehouses(uniqueWarehouses);
     } catch (error) {
       console.error('Error fetching warehouses:', error);
+      setWarehouseError('Failed to load warehouses');
       toast.error('Failed to load warehouses');
+    } finally {
+      setLoadingWarehouses(false);
     }
   };
 
   const fetchProducts = async () => {
     try {
+      setLoadingProducts(true);
+      setProductError(null);
       const response = await productService.getAll();
       setProducts(response.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProductError('Failed to load products');
       toast.error('Failed to load products');
+    } finally {
+      setLoadingProducts(false);
     }
   };
 
@@ -85,6 +129,7 @@ export default function StockMovementReport() {
 
     try {
       setLoading(true);
+      setHasSearched(true);
 
       const filters = {
         page: pageNum,
@@ -164,8 +209,24 @@ export default function StockMovementReport() {
     fetchMovements(1);
   };
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (_event, value) => {
     fetchMovements(value);
+  };
+
+  const toggleMovementType = (type) => {
+    setSelectedMovementTypes((prev) =>
+      prev.includes(type)
+        ? prev.filter((t) => t !== type)
+        : [...prev, type],
+    );
+  };
+
+  const selectAllMovementTypes = () => {
+    if (selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length) {
+      setSelectedMovementTypes([]);
+    } else {
+      setSelectedMovementTypes(Object.keys(MOVEMENT_TYPES));
+    }
   };
 
   const handleExportCSV = () => {
@@ -249,17 +310,24 @@ export default function StockMovementReport() {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Stock Movement Report</h1>
+      {/* Header with description */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Stock Movement Report</h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          View and analyze inventory movements across warehouses. Select a date range to search for stock ins, outs, and transfers.
+        </p>
+      </div>
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Date From */}
           <div>
             <label
               htmlFor="stock-movement-start-date"
               className="block text-sm font-medium mb-2"
             >
-              Start Date
+              Start Date <span className="text-red-500">*</span>
             </label>
             <input
               id="stock-movement-start-date"
@@ -270,12 +338,14 @@ export default function StockMovementReport() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
+
+          {/* Date To */}
           <div>
             <label
               htmlFor="stock-movement-end-date"
               className="block text-sm font-medium mb-2"
             >
-              End Date
+              End Date <span className="text-red-500">*</span>
             </label>
             <input
               id="stock-movement-end-date"
@@ -286,6 +356,8 @@ export default function StockMovementReport() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
+
+          {/* Warehouse */}
           <div>
             <label
               htmlFor="stock-movement-warehouse"
@@ -293,20 +365,38 @@ export default function StockMovementReport() {
             >
               Warehouse
             </label>
-            <select
-              id="stock-movement-warehouse"
-              value={selectedWarehouse}
-              onChange={(e) => setSelectedWarehouse(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="">All Warehouses</option>
-              {warehouses.map((warehouse) => (
-                <option key={warehouse.id} value={warehouse.id}>
-                  {warehouse.name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="stock-movement-warehouse"
+                value={selectedWarehouse}
+                onChange={(e) => setSelectedWarehouse(e.target.value)}
+                disabled={loadingWarehouses}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white disabled:opacity-50"
+              >
+                <option value="">All Warehouses</option>
+                {warehouses.map((warehouse) => (
+                  <option key={warehouse.id} value={warehouse.id}>
+                    {cleanWarehouseName(warehouse.name)}
+                    {warehouse.code ? ` (${warehouse.code})` : ''}
+                    {warehouse.location ? ` - ${warehouse.location}` : ''}
+                  </option>
+                ))}
+              </select>
+              {loadingWarehouses && (
+                <div className="absolute right-8 top-1/2 -translate-y-1/2">
+                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                </div>
+              )}
+            </div>
+            {warehouseError && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {warehouseError}
+              </p>
+            )}
           </div>
+
+          {/* Product */}
           <div>
             <label
               htmlFor="stock-movement-product"
@@ -314,60 +404,89 @@ export default function StockMovementReport() {
             >
               Product
             </label>
-            <select
-              id="stock-movement-product"
-              value={selectedProduct}
-              onChange={(e) => setSelectedProduct(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="">All Products</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.uniqueName ||
-                    product.displayName ||
-                    product.name ||
-                    'N/A'}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="stock-movement-type"
-              className="block text-sm font-medium mb-2"
-            >
-              Movement Type
-            </label>
-            <select
-              id="stock-movement-type"
-              multiple
-              value={selectedMovementTypes}
-              onChange={(e) =>
-                setSelectedMovementTypes(
-                  Array.from(e.target.selectedOptions, (o) => o.value),
-                )
-              }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
-            >
-              {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
-                <option key={key} value={key}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-            {selectedMovementTypes.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {selectedMovementTypes.map((value) => (
-                  <span
-                    key={value}
-                    className="inline-flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full text-xs font-medium"
-                  >
-                    {getMovementTypeLabel(value)}
-                  </span>
+            <div className="relative">
+              <select
+                id="stock-movement-product"
+                value={selectedProduct}
+                onChange={(e) => setSelectedProduct(e.target.value)}
+                disabled={loadingProducts}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white disabled:opacity-50"
+              >
+                <option value="">All Products</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.uniqueName ||
+                      product.displayName ||
+                      product.name ||
+                      'N/A'}
+                  </option>
                 ))}
-              </div>
+              </select>
+              {loadingProducts && (
+                <div className="absolute right-8 top-1/2 -translate-y-1/2">
+                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                </div>
+              )}
+            </div>
+            {productError && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {productError}
+              </p>
+            )}
+            {!loadingProducts && !productError && products.length === 0 && (
+              <p className="text-xs text-gray-500 mt-1">No products available</p>
             )}
           </div>
+
+          {/* Movement Type - Checkbox style */}
+          <div className="lg:col-span-2">
+            <span className="block text-sm font-medium mb-2">
+              Movement Type
+              <span className="text-gray-500 font-normal ml-1">(select multiple)</span>
+            </span>
+            <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700">
+              <div className="flex flex-wrap gap-2">
+                {/* Select All button */}
+                <button
+                  type="button"
+                  onClick={selectAllMovementTypes}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                    selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500'
+                  }`}
+                >
+                  {selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length ? 'Deselect All' : 'Select All'}
+                </button>
+                <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1" />
+                {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => toggleMovementType(key)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                      selectedMovementTypes.includes(key)
+                        ? 'bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500'
+                    }`}
+                  >
+                    {selectedMovementTypes.includes(key) && (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {selectedMovementTypes.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                {selectedMovementTypes.length} type{selectedMovementTypes.length !== 1 ? 's' : ''} selected
+              </p>
+            )}
+          </div>
+
+          {/* Procurement Channel */}
           <div>
             <label
               htmlFor="stock-movement-procurement-channel"
@@ -388,22 +507,27 @@ export default function StockMovementReport() {
               ))}
             </select>
           </div>
-          <div className="flex gap-2 lg:col-span-1">
+
+          {/* Action buttons */}
+          <div className="flex items-end gap-2">
             <Button
               onClick={handleSearch}
               disabled={loading || !dateFrom || !dateTo}
               className="flex-1 gap-2"
             >
-              <Search className="w-4 h-4" />
-              Search
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Search className="w-4 h-4" />
+              )}
+              {loading ? 'Searching...' : 'Search'}
             </Button>
-          </div>
-          <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={handleExportCSV}
               disabled={movements.length === 0}
               className="gap-2"
+              title={movements.length === 0 ? 'Search for data first to export' : 'Export to CSV'}
             >
               <Download className="w-4 h-4" />
               CSV
@@ -413,6 +537,7 @@ export default function StockMovementReport() {
               onClick={handleExportPDF}
               disabled={movements.length === 0}
               className="gap-2"
+              title={movements.length === 0 ? 'Search for data first to export' : 'Export to PDF'}
             >
               <FileText className="w-4 h-4" />
               PDF
@@ -466,14 +591,51 @@ export default function StockMovementReport() {
 
       {/* Results Section */}
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
+          <div className="flex flex-col items-center justify-center">
+            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">Loading stock movements...</p>
+          </div>
         </div>
-      ) : movements.length === 0 && dateFrom && dateTo ? (
-        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200 px-4 py-3 rounded-lg">
-          No stock movements found for the selected criteria.
+      ) : !hasSearched ? (
+        /* Initial state - prompt user to search */
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
+              <Package className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Select Date Range to Get Started
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-md">
+              Choose a start and end date above, then click <strong>Search</strong> to view stock movements.
+              You can optionally filter by warehouse, product, or movement type.
+            </p>
+          </div>
         </div>
-      ) : movements.length > 0 ? (
+      ) : movements.length === 0 ? (
+        /* Empty state after search */
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mb-4">
+              <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              No Stock Movements Found
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-md mb-4">
+              No movements match your search criteria for{' '}
+              <strong>{dateFrom}</strong> to <strong>{dateTo}</strong>.
+            </p>
+            <ul className="text-sm text-gray-500 dark:text-gray-400 text-left list-disc list-inside">
+              <li>Try expanding the date range</li>
+              <li>Remove or change warehouse/product filters</li>
+              <li>Check if movement types are selected</li>
+            </ul>
+          </div>
+        </div>
+      ) : (
+        /* Results table */
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center">
@@ -586,11 +748,11 @@ export default function StockMovementReport() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {movement.warehouseName || 'N/A'}
+                        {cleanWarehouseName(movement.warehouseName) || 'N/A'}
                       </div>
                       {movement.destinationWarehouseName && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
-                          → {movement.destinationWarehouseName}
+                          → {cleanWarehouseName(movement.destinationWarehouseName)}
                         </div>
                       )}
                     </TableCell>
@@ -638,7 +800,7 @@ export default function StockMovementReport() {
             </div>
           )}
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

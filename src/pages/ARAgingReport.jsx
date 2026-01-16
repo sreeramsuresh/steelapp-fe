@@ -6,6 +6,15 @@ import { apiClient } from '../services/api';
 import { formatCurrency } from '../utils/invoiceUtils';
 
 /**
+ * Safe number formatting helper.
+ * Handles strings, null, undefined, objects - always returns a formatted string.
+ */
+const safeToFixed = (value, decimals = 2) => {
+  const num = parseFloat(value);
+  return isNaN(num) ? '0' : num.toFixed(decimals);
+};
+
+/**
  * AR Aging Report Page
  *
  * Full-page report showing AR aging buckets for all customers.
@@ -140,7 +149,7 @@ export default function ARAgingReport() {
               <h1
                 className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
-                🕐 AR Aging Report
+                AR Aging Report
               </h1>
               <p
                 className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
@@ -221,9 +230,9 @@ export default function ARAgingReport() {
                 Overdue %
               </p>
               <p
-                className={`text-2xl font-bold ${totals.overduePercentage > 30 ? 'text-red-500' : isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-2xl font-bold ${parseFloat(totals.overduePercentage) > 30 ? 'text-red-500' : isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
-                {totals.overduePercentage?.toFixed(1)}%
+                {safeToFixed(totals.overduePercentage, 1)}%
               </p>
             </div>
 
@@ -238,7 +247,7 @@ export default function ARAgingReport() {
               <p
                 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               >
-                {totals.averageDso?.toFixed(0)} days
+                {safeToFixed(totals.averageDso, 0)} days
               </p>
             </div>
           </div>
