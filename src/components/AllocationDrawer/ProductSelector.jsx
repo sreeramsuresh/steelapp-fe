@@ -215,7 +215,8 @@ const ProductSelector = ({
         <div
           ref={dropdownRef}
           className="product-dropdown"
-          data-testid="drawer-product-dropdown"
+          data-testid="drawer-product-dropdown drawer-product-search-listbox"
+          role="listbox"
         >
           {products.map((product, index) => (
             <div

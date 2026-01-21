@@ -35,6 +35,7 @@ const transformAdvancePaymentForServer = (paymentData) => {
     vatRate: parseFloat(paymentData.vatRate || 5),
     vatAmount: parseFloat(paymentData.vatAmount || 0),
     totalAmount: parseFloat(paymentData.totalAmount || 0),
+    totalReceived: parseFloat(paymentData.totalReceived || 0),
     // VAT tracking
     vatCategory: paymentData.vatCategory || 'STANDARD',
     isVatInclusive: paymentData.isVatInclusive !== false, // Default true
@@ -45,6 +46,10 @@ const transformAdvancePaymentForServer = (paymentData) => {
     paymentMethod: paymentData.paymentMethod || 'bank_transfer',
     referenceNumber: paymentData.referenceNumber || '',
     bankAccount: paymentData.bankAccount || '',
+    // Multi-currency support
+    currency: paymentData.currency || 'AED',
+    exchangeRate: parseFloat(paymentData.exchangeRate || 1),
+    amountInBaseCurrency: parseFloat(paymentData.amountInBaseCurrency || 0),
     // Status
     status: paymentData.status || 'received',
     // Metadata
