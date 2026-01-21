@@ -157,9 +157,31 @@ const mockCreditNote = {
   refundReference: '',
   expectedReturnDate: '2024-01-25',
   manualCreditAmount: 0,
+  // Steel Return Specifics (required nested objects)
+  vendorClaim: {
+    status: 'PENDING',
+    claimAmount: 0,
+    settlementAmount: 0,
+    notes: '',
+  },
+  qualityFailureDetails: {
+    testParameter: '',
+    measuredValue: '',
+    specValue: '',
+    testDate: '',
+    photos: [],
+  },
   heatNumberMatch: {
+    matches: null,
     originalHeat: '',
-    replacementHeat: '',
+    returnedHeat: '',
+    notes: '',
+  },
+  gradeVerification: {
+    pmiTestDone: false,
+    verifiedGrade: '',
+    originalGrade: '',
+    testCertificatePath: '',
   },
 };
 
@@ -1088,7 +1110,7 @@ describe('CreditNoteForm - Smoke Tests', () => {
     });
 
     it('logistics section only shows for RETURN_WITH_QC', async () => {
-      // First verify Return Logistics is not visible for ACCOUNTING_ONLY (default for new)
+      // First verify Quick Actions (which contains Return Logistics button) is not visible for ACCOUNTING_ONLY (default for new)
       const { unmount } = render(
         <TestWrapper>
           <CreditNoteForm />
@@ -1096,10 +1118,10 @@ describe('CreditNoteForm - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        // For ACCOUNTING_ONLY, Return Logistics section should not be visible
-        expect(
-          screen.queryByText(/return logistics/i),
-        ).not.toBeInTheDocument();
+        // For ACCOUNTING_ONLY, Quick Actions section (containing Return Logistics button) should not be visible
+        // Note: The Drawer component always renders in DOM with "Return Logistics" title,
+        // but the Quick Actions section that opens it is conditionally rendered
+        expect(screen.queryByText(/quick actions/i)).not.toBeInTheDocument();
       });
 
       unmount();
@@ -1116,10 +1138,9 @@ describe('CreditNoteForm - Smoke Tests', () => {
         </TestWrapper>,
       );
 
-      // Check Return Logistics section IS visible for RETURN_WITH_QC
+      // Check Quick Actions section IS visible for RETURN_WITH_QC
       await waitFor(() => {
-        const logisticsElements = screen.getAllByText(/return logistics/i);
-        expect(logisticsElements.length).toBeGreaterThan(0);
+        expect(screen.getByText(/quick actions/i)).toBeInTheDocument();
       });
     });
 
