@@ -157,6 +157,10 @@ const mockCreditNote = {
   refundReference: '',
   expectedReturnDate: '2024-01-25',
   manualCreditAmount: 0,
+  heatNumberMatch: {
+    originalHeat: '',
+    replacementHeat: '',
+  },
 };
 
 const mockCompany = {
