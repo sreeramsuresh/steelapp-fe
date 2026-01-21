@@ -1824,6 +1824,7 @@ const QuotationForm = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               <Input
                 data-testid="quotation-number"
+                name="quotationNumber"
                 label="Quotation Number"
                 type="text"
                 value={formData.quotationNumber}
@@ -1841,6 +1842,7 @@ const QuotationForm = () => {
 
               <Input
                 data-testid="quotation-date"
+                name="quotationDate"
                 label="Quotation Date"
                 type="date"
                 value={formData.quotationDate}

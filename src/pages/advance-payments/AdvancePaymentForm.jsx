@@ -610,6 +610,7 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
                     type="number"
                     step="0.01"
                     min="0"
+                    name="amount"
                     value={formData.amount}
                     onChange={(e) => handleChange('amount', e.target.value)}
                     className={inputClass}
@@ -811,6 +812,7 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
                     type="number"
                     step="0.0001"
                     min="0"
+                    name="exchangeRate"
                     value={formData.exchangeRate}
                     onChange={(e) =>
                       handleChange('exchangeRate', e.target.value)
