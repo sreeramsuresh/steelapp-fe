@@ -183,7 +183,10 @@ const TestWrapper = ({
   return (
     <MemoryRouter initialEntries={[route]}>
       <ThemeContext.Provider value={mockThemeContext}>
-        {children}
+        <Routes>
+          <Route path="/credit-notes/new" element={children} />
+          <Route path="/credit-notes/:id" element={children} />
+        </Routes>
       </ThemeContext.Provider>
     </MemoryRouter>
   );
