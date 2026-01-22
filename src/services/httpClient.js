@@ -378,7 +378,7 @@ export async function apiRequest(method, url, data = null, options = {}) {
   if (data && import.meta.env.DEV) {
     const validation = validateRequestContract(method, url, data);
     if (!validation.valid) {
-      const errorMsg = `[Contract Guard] Request validation failed for ${validation.routeKey}: ${validation.errors.map(e => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
+      const errorMsg = `[Contract Guard] Request validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
       console.error(errorMsg);
 
       // Throw error if strict mode enabled
@@ -441,7 +441,7 @@ export async function apiRequest(method, url, data = null, options = {}) {
   if (import.meta.env.DEV) {
     const validation = validateResponseContract(method, url, response.data);
     if (!validation.valid) {
-      const errorMsg = `[Contract Guard] Response validation failed for ${validation.routeKey}: ${validation.errors.map(e => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
+      const errorMsg = `[Contract Guard] Response validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
       console.error(errorMsg);
 
       // Throw error if strict mode enabled

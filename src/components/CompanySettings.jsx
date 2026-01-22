@@ -885,7 +885,9 @@ const CompanySettings = () => {
         });
 
         // Handle both array response and paginated response format
-        const remoteUsers = Array.isArray(response) ? response : response.data || [];
+        const remoteUsers = Array.isArray(response)
+          ? response
+          : response.data || [];
         const pageInfo = response.page_info || { total_pages: 1 };
 
         const mapped = remoteUsers.map((u) => ({
@@ -1715,7 +1717,9 @@ const CompanySettings = () => {
       return;
     }
 
-    if (passwordChangeModal.newPassword !== passwordChangeModal.confirmPassword) {
+    if (
+      passwordChangeModal.newPassword !== passwordChangeModal.confirmPassword
+    ) {
       setPasswordChangeModal((prev) => ({
         ...prev,
         error: 'Passwords do not match',
@@ -1724,7 +1728,11 @@ const CompanySettings = () => {
     }
 
     try {
-      setPasswordChangeModal((prev) => ({ ...prev, loading: true, error: null }));
+      setPasswordChangeModal((prev) => ({
+        ...prev,
+        loading: true,
+        error: null,
+      }));
       await userAdminAPI.changePassword(passwordChangeModal.userId, {
         current_password: passwordChangeModal.currentPassword,
         new_password: passwordChangeModal.newPassword,
@@ -3250,13 +3258,19 @@ const CompanySettings = () => {
 
             {/* Pagination Controls */}
             {userTotalPages > 1 && (
-              <div className={`flex items-center justify-between mt-6 pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <div
+                className={`flex items-center justify-between mt-6 pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+              >
+                <div
+                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                >
                   Page {userCurrentPage} of {userTotalPages}
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setUserCurrentPage(Math.max(1, userCurrentPage - 1))}
+                    onClick={() =>
+                      setUserCurrentPage(Math.max(1, userCurrentPage - 1))
+                    }
                     disabled={userCurrentPage === 1}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       userCurrentPage === 1
@@ -3264,14 +3278,18 @@ const CompanySettings = () => {
                           ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
                           : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : isDarkMode
-                        ? 'bg-gray-700 text-white hover:bg-gray-600'
-                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                          ? 'bg-gray-700 text-white hover:bg-gray-600'
+                          : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                     }`}
                   >
                     Previous
                   </button>
                   <button
-                    onClick={() => setUserCurrentPage(Math.min(userTotalPages, userCurrentPage + 1))}
+                    onClick={() =>
+                      setUserCurrentPage(
+                        Math.min(userTotalPages, userCurrentPage + 1),
+                      )
+                    }
                     disabled={userCurrentPage === userTotalPages}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       userCurrentPage === userTotalPages
@@ -3279,8 +3297,8 @@ const CompanySettings = () => {
                           ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
                           : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : isDarkMode
-                        ? 'bg-gray-700 text-white hover:bg-gray-600'
-                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                          ? 'bg-gray-700 text-white hover:bg-gray-600'
+                          : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                     }`}
                   >
                     Next
@@ -5164,7 +5182,9 @@ const CompanySettings = () => {
                 onClick={handleChangePassword}
                 disabled={passwordChangeModal.loading}
               >
-                {passwordChangeModal.loading ? 'Changing...' : 'Change Password'}
+                {passwordChangeModal.loading
+                  ? 'Changing...'
+                  : 'Change Password'}
               </Button>
             </div>
           </div>

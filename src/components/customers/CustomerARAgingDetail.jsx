@@ -187,7 +187,8 @@ export default function CustomerARAgingDetail({ customerId }) {
           <p
             className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}
           >
-            Payment Terms: {data.paymentTermsDays ? `${data.paymentTermsDays} days` : 'N/A'}
+            Payment Terms:{' '}
+            {data.paymentTermsDays ? `${data.paymentTermsDays} days` : 'N/A'}
           </p>
         </div>
 

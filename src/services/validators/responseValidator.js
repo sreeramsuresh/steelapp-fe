@@ -199,8 +199,10 @@ function validatePageInfo(pageInfo, url) {
     }
   }
   // pageSize/perPage - accept either (API returns perPage, legacy expects pageSize)
-  if (!Object.prototype.hasOwnProperty.call(pageInfo, 'pageSize') &&
-      !Object.prototype.hasOwnProperty.call(pageInfo, 'perPage')) {
+  if (
+    !Object.prototype.hasOwnProperty.call(pageInfo, 'pageSize') &&
+    !Object.prototype.hasOwnProperty.call(pageInfo, 'perPage')
+  ) {
     throw new ContractViolationError(
       url,
       'pageInfo.pageSize or pageInfo.perPage required',

@@ -99,7 +99,7 @@ export default function ReconciliationReport() {
         (warehouseResult.data || []).map((wh) => ({
           id: wh.id,
           name: wh.name,
-        }))
+        })),
       );
 
       // Load products from backend
@@ -111,7 +111,7 @@ export default function ReconciliationReport() {
           id: prod.id,
           name: prod.name,
           sku: prod.sku,
-        }))
+        })),
       );
     } catch (error) {
       // Error loading filter options - fail silently
@@ -131,13 +131,13 @@ export default function ReconciliationReport() {
         try {
           const apiResult = await stockMovementService.getReconciliationReport(
             parseInt(selectedWarehouse),
-            dateRange.endDate
+            dateRange.endDate,
           );
 
           // Transform backend data to component format
           reportData = transformBackendToReportFormat(
             apiResult,
-            selectedProduct !== 'all' ? parseInt(selectedProduct) : null
+            selectedProduct !== 'all' ? parseInt(selectedProduct) : null,
           );
 
           if (reportData.items.length === 0) {
@@ -149,7 +149,7 @@ export default function ReconciliationReport() {
           // eslint-disable-next-line no-console
           console.warn(
             'Could not fetch from API, using mock data:',
-            apiError.message
+            apiError.message,
           );
           reportData = generateMockData();
         }
@@ -176,7 +176,10 @@ export default function ReconciliationReport() {
    * Backend provides: productId, productName, systemQuantity, lastPhysicalCount, discrepancy
    * Component needs: openingStock, received, consumed, adjustments, expectedClosing, systemStock, variance
    */
-  const transformBackendToReportFormat = (apiResult, filterProductId = null) => {
+  const transformBackendToReportFormat = (
+    apiResult,
+    filterProductId = null,
+  ) => {
     let items = (apiResult.items || []).map((item) => {
       // Backend provides system quantity and discrepancy (difference from batch quantity)
       const systemStock = parseFloat(item.systemQuantity) || 0;
@@ -208,13 +211,16 @@ export default function ReconciliationReport() {
 
     // Calculate summary
     const summary = {
-      totalOpeningStock: items.reduce((sum, item) => sum + item.openingStock, 0),
+      totalOpeningStock: items.reduce(
+        (sum, item) => sum + item.openingStock,
+        0,
+      ),
       totalReceived: items.reduce((sum, item) => sum + item.received, 0),
       totalConsumed: items.reduce((sum, item) => sum + item.consumed, 0),
       totalAdjustments: items.reduce((sum, item) => sum + item.adjustments, 0),
       totalExpectedClosing: items.reduce(
         (sum, item) => sum + item.expectedClosing,
-        0
+        0,
       ),
       totalSystemStock: items.reduce((sum, item) => sum + item.systemStock, 0),
       totalVariance: items.reduce((sum, item) => sum + item.variance, 0),

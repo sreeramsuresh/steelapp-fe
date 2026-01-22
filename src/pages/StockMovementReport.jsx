@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Search, Download, FileText, Package, AlertCircle, Loader2, Check } from 'lucide-react';
+import {
+  Search,
+  Download,
+  FileText,
+  Package,
+  AlertCircle,
+  Loader2,
+  Check,
+} from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -215,9 +223,7 @@ export default function StockMovementReport() {
 
   const toggleMovementType = (type) => {
     setSelectedMovementTypes((prev) =>
-      prev.includes(type)
-        ? prev.filter((t) => t !== type)
-        : [...prev, type],
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -314,7 +320,8 @@ export default function StockMovementReport() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Stock Movement Report</h1>
         <p className="text-gray-600 dark:text-gray-400">
-          View and analyze inventory movements across warehouses. Select a date range to search for stock ins, outs, and transfers.
+          View and analyze inventory movements across warehouses. Select a date
+          range to search for stock ins, outs, and transfers.
         </p>
       </div>
 
@@ -435,7 +442,9 @@ export default function StockMovementReport() {
               </p>
             )}
             {!loadingProducts && !productError && products.length === 0 && (
-              <p className="text-xs text-gray-500 mt-1">No products available</p>
+              <p className="text-xs text-gray-500 mt-1">
+                No products available
+              </p>
             )}
           </div>
 
@@ -443,7 +452,9 @@ export default function StockMovementReport() {
           <div className="lg:col-span-2">
             <span className="block text-sm font-medium mb-2">
               Movement Type
-              <span className="text-gray-500 font-normal ml-1">(select multiple)</span>
+              <span className="text-gray-500 font-normal ml-1">
+                (select multiple)
+              </span>
             </span>
             <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700">
               <div className="flex flex-wrap gap-2">
@@ -452,12 +463,16 @@ export default function StockMovementReport() {
                   type="button"
                   onClick={selectAllMovementTypes}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
-                    selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length
+                    selectedMovementTypes.length ===
+                    Object.keys(MOVEMENT_TYPES).length
                       ? 'bg-blue-600 text-white border-blue-600'
                       : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500'
                   }`}
                 >
-                  {selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length ? 'Deselect All' : 'Select All'}
+                  {selectedMovementTypes.length ===
+                  Object.keys(MOVEMENT_TYPES).length
+                    ? 'Deselect All'
+                    : 'Select All'}
                 </button>
                 <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1" />
                 {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
@@ -481,7 +496,8 @@ export default function StockMovementReport() {
             </div>
             {selectedMovementTypes.length > 0 && (
               <p className="text-xs text-gray-500 mt-1">
-                {selectedMovementTypes.length} type{selectedMovementTypes.length !== 1 ? 's' : ''} selected
+                {selectedMovementTypes.length} type
+                {selectedMovementTypes.length !== 1 ? 's' : ''} selected
               </p>
             )}
           </div>
@@ -527,7 +543,11 @@ export default function StockMovementReport() {
               onClick={handleExportCSV}
               disabled={movements.length === 0}
               className="gap-2"
-              title={movements.length === 0 ? 'Search for data first to export' : 'Export to CSV'}
+              title={
+                movements.length === 0
+                  ? 'Search for data first to export'
+                  : 'Export to CSV'
+              }
             >
               <Download className="w-4 h-4" />
               CSV
@@ -537,7 +557,11 @@ export default function StockMovementReport() {
               onClick={handleExportPDF}
               disabled={movements.length === 0}
               className="gap-2"
-              title={movements.length === 0 ? 'Search for data first to export' : 'Export to PDF'}
+              title={
+                movements.length === 0
+                  ? 'Search for data first to export'
+                  : 'Export to PDF'
+              }
             >
               <FileText className="w-4 h-4" />
               PDF
@@ -594,7 +618,9 @@ export default function StockMovementReport() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">Loading stock movements...</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading stock movements...
+            </p>
           </div>
         </div>
       ) : !hasSearched ? (
@@ -608,8 +634,9 @@ export default function StockMovementReport() {
               Select Date Range to Get Started
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-md">
-              Choose a start and end date above, then click <strong>Search</strong> to view stock movements.
-              You can optionally filter by warehouse, product, or movement type.
+              Choose a start and end date above, then click{' '}
+              <strong>Search</strong> to view stock movements. You can
+              optionally filter by warehouse, product, or movement type.
             </p>
           </div>
         </div>
@@ -752,7 +779,10 @@ export default function StockMovementReport() {
                       </div>
                       {movement.destinationWarehouseName && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
-                          → {cleanWarehouseName(movement.destinationWarehouseName)}
+                          →{' '}
+                          {cleanWarehouseName(
+                            movement.destinationWarehouseName,
+                          )}
                         </div>
                       )}
                     </TableCell>

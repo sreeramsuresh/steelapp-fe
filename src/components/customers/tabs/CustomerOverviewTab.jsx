@@ -198,9 +198,9 @@ export default function CustomerOverviewTab({ customer }) {
           </div>
           <p className={`${secondaryText} flex items-center gap-2`}>
             <Clock className="w-4 h-4" />
-            {(customer.paymentTermsDays ||
-              customer.payment_terms_days ||
-              customer.paymentTerms)
+            {customer.paymentTermsDays ||
+            customer.payment_terms_days ||
+            customer.paymentTerms
               ? `Net ${customer.paymentTermsDays || customer.payment_terms_days || customer.paymentTerms} days`
               : 'N/A'}
           </p>

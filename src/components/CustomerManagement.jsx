@@ -31,7 +31,13 @@ import {
   FaUpload,
   FaArchive,
 } from 'react-icons/fa';
-import { ArrowUp, ArrowDown, ArrowUpDown, Settings2, Trash2 } from 'lucide-react';
+import {
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  Settings2,
+  Trash2,
+} from 'lucide-react';
 import CustomerUpload from './CustomerUpload';
 
 // Column definitions for Customers table
@@ -315,7 +321,10 @@ const CustomerManagement = () => {
   // Filter suppliers
   const filteredSuppliers = suppliers.filter((s) => {
     // Filter by status
-    if (supplierFilterStatus !== 'all' && normalizeStatus(s.status) !== supplierFilterStatus) {
+    if (
+      supplierFilterStatus !== 'all' &&
+      normalizeStatus(s.status) !== supplierFilterStatus
+    ) {
       return false;
     }
     // Filter out deleted unless showDeletedSuppliers is true
@@ -428,7 +437,9 @@ const CustomerManagement = () => {
       }
       setSelectedCustomerIds(new Set());
       refetchCustomers();
-      notificationService.success(`${selectedCustomerIds.size} customer(s) archived`);
+      notificationService.success(
+        `${selectedCustomerIds.size} customer(s) archived`,
+      );
     } catch (error) {
       notificationService.apiError('Bulk archive', error);
     }
@@ -449,7 +460,9 @@ const CustomerManagement = () => {
       }
       setSelectedSupplierIds(new Set());
       refetchSuppliers();
-      notificationService.success(`${selectedSupplierIds.size} supplier(s) deleted`);
+      notificationService.success(
+        `${selectedSupplierIds.size} supplier(s) deleted`,
+      );
     } catch (error) {
       notificationService.apiError('Bulk delete', error);
     }
@@ -476,7 +489,8 @@ const CustomerManagement = () => {
 
     // Check for duplicate name
     const duplicateName = customers.find(
-      (c) => c.name?.toLowerCase().trim() === newCustomer.name?.toLowerCase().trim(),
+      (c) =>
+        c.name?.toLowerCase().trim() === newCustomer.name?.toLowerCase().trim(),
     );
     if (duplicateName) {
       const proceed = await confirm({
@@ -642,7 +656,8 @@ const CustomerManagement = () => {
 
     // Check for duplicate name
     const duplicateName = suppliers.find(
-      (s) => s.name?.toLowerCase().trim() === newSupplier.name?.toLowerCase().trim(),
+      (s) =>
+        s.name?.toLowerCase().trim() === newSupplier.name?.toLowerCase().trim(),
     );
     if (duplicateName) {
       const proceed = await confirm({
@@ -771,7 +786,8 @@ const CustomerManagement = () => {
     if (address.street) parts.push(address.street);
     if (address.city) parts.push(address.city);
     if (address.state) parts.push(address.state);
-    if (address.postal_code || address.postalCode) parts.push(address.postal_code || address.postalCode);
+    if (address.postal_code || address.postalCode)
+      parts.push(address.postal_code || address.postalCode);
     if (address.country) parts.push(address.country);
     return parts.filter(Boolean).join(', ');
   };
@@ -963,9 +979,12 @@ const CustomerManagement = () => {
       </div>
 
       {/* Record Count Header */}
-      <div className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}>
+      <div
+        className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}
+      >
         <span className="text-sm">
-          Showing {sortedCustomers.length} of {customers.length} customer{customers.length !== 1 ? 's' : ''}
+          Showing {sortedCustomers.length} of {customers.length} customer
+          {customers.length !== 1 ? 's' : ''}
           {filterStatus !== 'all' && ` (filtered by ${filterStatus})`}
         </span>
         {selectedCustomerIds.size > 0 && (
@@ -990,10 +1009,15 @@ const CustomerManagement = () => {
           >
             <tr>
               {/* Select All Checkbox */}
-              <th className={`px-3 py-2 w-[40px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <th
+                className={`px-3 py-2 w-[40px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              >
                 <input
                   type="checkbox"
-                  checked={sortedCustomers.length > 0 && selectedCustomerIds.size === sortedCustomers.length}
+                  checked={
+                    sortedCustomers.length > 0 &&
+                    selectedCustomerIds.size === sortedCustomers.length
+                  }
                   onChange={toggleAllCustomers}
                   className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
                 />
@@ -1296,7 +1320,8 @@ const CustomerManagement = () => {
             <span className="text-sm">Show deleted</span>
           </label>
           <div className="text-sm text-gray-500 ml-auto">
-            {filteredSuppliers.length} supplier{filteredSuppliers.length !== 1 ? 's' : ''} found
+            {filteredSuppliers.length} supplier
+            {filteredSuppliers.length !== 1 ? 's' : ''} found
           </div>
         </div>
 
@@ -1393,10 +1418,14 @@ const CustomerManagement = () => {
       )}
 
       {/* Record Count Header */}
-      <div className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}>
+      <div
+        className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}
+      >
         <span className="text-sm">
-          Showing {sortedSuppliers.length} of {suppliers.length} supplier{suppliers.length !== 1 ? 's' : ''}
-          {supplierFilterStatus !== 'all' && ` (filtered by ${supplierFilterStatus})`}
+          Showing {sortedSuppliers.length} of {suppliers.length} supplier
+          {suppliers.length !== 1 ? 's' : ''}
+          {supplierFilterStatus !== 'all' &&
+            ` (filtered by ${supplierFilterStatus})`}
         </span>
         {selectedSupplierIds.size > 0 && (
           <span className="text-sm text-teal-600 font-medium">
@@ -1420,10 +1449,15 @@ const CustomerManagement = () => {
           >
             <tr>
               {/* Checkbox column header */}
-              <th className={`px-3 py-2 w-10 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <th
+                className={`px-3 py-2 w-10 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              >
                 <input
                   type="checkbox"
-                  checked={sortedSuppliers.length > 0 && selectedSupplierIds.size === sortedSuppliers.length}
+                  checked={
+                    sortedSuppliers.length > 0 &&
+                    selectedSupplierIds.size === sortedSuppliers.length
+                  }
                   onChange={toggleAllSuppliers}
                   className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
                   title="Select all suppliers"
@@ -1475,7 +1509,9 @@ const CustomerManagement = () => {
                 >
                   <div className="flex flex-col items-center gap-3">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-                    <p className={`text-lg font-medium ${textSecondary}`}>Loading suppliers...</p>
+                    <p className={`text-lg font-medium ${textSecondary}`}>
+                      Loading suppliers...
+                    </p>
                     <p className={`text-sm ${textMuted}`}>Please wait...</p>
                   </div>
                 </td>
@@ -1511,8 +1547,12 @@ const CustomerManagement = () => {
                   key={supplier.id}
                   className={`transition-colors ${
                     selectedSupplierIds.has(supplier.id)
-                      ? (isDarkMode ? 'bg-teal-900/30' : 'bg-teal-50')
-                      : (isDarkMode ? 'bg-gray-900 hover:bg-gray-800' : 'bg-white hover:bg-gray-50')
+                      ? isDarkMode
+                        ? 'bg-teal-900/30'
+                        : 'bg-teal-50'
+                      : isDarkMode
+                        ? 'bg-gray-900 hover:bg-gray-800'
+                        : 'bg-white hover:bg-gray-50'
                   }`}
                 >
                   {/* Selection checkbox */}
@@ -1728,7 +1768,8 @@ const CustomerManagement = () => {
           Only showing customers with credit limits assigned
         </p>
         <div className="space-y-4 max-h-96 overflow-y-auto">
-          {customers.filter(c => (c.creditLimit || c.credit_limit || 0) > 0).length === 0 ? (
+          {customers.filter((c) => (c.creditLimit || c.credit_limit || 0) > 0)
+            .length === 0 ? (
             <div className="text-center py-8">
               <FaCreditCard className={`mx-auto text-3xl mb-3 ${textMuted}`} />
               <p className={`text-sm ${textMuted}`}>
@@ -1737,16 +1778,25 @@ const CustomerManagement = () => {
             </div>
           ) : (
             customers
-              .filter(c => (c.creditLimit || c.credit_limit || 0) > 0)
+              .filter((c) => (c.creditLimit || c.credit_limit || 0) > 0)
               .sort((a, b) => {
-                const aUtil = ((a.currentCredit || a.current_credit || 0) / (a.creditLimit || a.credit_limit || 1)) * 100;
-                const bUtil = ((b.currentCredit || b.current_credit || 0) / (b.creditLimit || b.credit_limit || 1)) * 100;
+                const aUtil =
+                  ((a.currentCredit || a.current_credit || 0) /
+                    (a.creditLimit || a.credit_limit || 1)) *
+                  100;
+                const bUtil =
+                  ((b.currentCredit || b.current_credit || 0) /
+                    (b.creditLimit || b.credit_limit || 1)) *
+                  100;
                 return bUtil - aUtil; // Sort by utilization descending
               })
               .map((customer) => {
-                const creditLimit = customer.creditLimit || customer.credit_limit || 0;
-                const currentCredit = customer.currentCredit || customer.current_credit || 0;
-                const utilization = creditLimit > 0 ? (currentCredit / creditLimit) * 100 : 0;
+                const creditLimit =
+                  customer.creditLimit || customer.credit_limit || 0;
+                const currentCredit =
+                  customer.currentCredit || customer.current_credit || 0;
+                const utilization =
+                  creditLimit > 0 ? (currentCredit / creditLimit) * 100 : 0;
                 return (
                   <div
                     key={customer.id}
@@ -1766,14 +1816,22 @@ const CustomerManagement = () => {
                       >
                         <div
                           className={`h-3 rounded-full transition-all duration-300 ${
-                            utilization > 80 ? 'bg-red-500' : utilization > 50 ? 'bg-yellow-500' : 'bg-teal-600'
+                            utilization > 80
+                              ? 'bg-red-500'
+                              : utilization > 50
+                                ? 'bg-yellow-500'
+                                : 'bg-teal-600'
                           }`}
                           style={{ width: `${Math.min(utilization, 100)}%` }}
                         />
                       </div>
                       <span
                         className={`text-sm font-medium w-16 text-right ${
-                          utilization > 80 ? 'text-red-500' : utilization > 50 ? 'text-yellow-500' : textSecondary
+                          utilization > 80
+                            ? 'text-red-500'
+                            : utilization > 50
+                              ? 'text-yellow-500'
+                              : textSecondary
                         }`}
                       >
                         {Math.round(utilization)}%
