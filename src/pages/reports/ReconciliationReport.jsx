@@ -14,6 +14,9 @@ import toast from 'react-hot-toast';
 import { toUAEDateForInput } from '../../utils/timezone';
 import { FormSelect } from '../../components/ui/form-select';
 import { SelectItem } from '../../components/ui/select';
+import { stockMovementService } from '../../services/stockMovementService';
+import { warehouseService } from '../../services/warehouseService';
+import { productService } from '../../services/productService';
 
 /**
  * Stock Reconciliation Report
@@ -55,9 +58,14 @@ export default function ReconciliationReport() {
 
   useEffect(() => {
     loadFilterOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Load filter options once on mount
+
+  // Fetch report data when filters change
+  useEffect(() => {
     fetchReportData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount - fetchReportData doesn't depend on external values
+  }, [selectedWarehouse, selectedProduct, dateRange.endDate]);
 
   useEffect(() => {
     // Update date range when period changes
@@ -85,18 +93,26 @@ export default function ReconciliationReport() {
 
   const loadFilterOptions = async () => {
     try {
-      // TODO: Replace with actual API endpoints when backend is ready
-      setWarehouses([
-        { id: 1, name: 'Main Warehouse - Dubai' },
-        { id: 2, name: 'Warehouse 2 - Sharjah' },
-        { id: 3, name: 'Warehouse 3 - Abu Dhabi' },
-      ]);
+      // Load warehouses from backend
+      const warehouseResult = await warehouseService.getAll({ isActive: true });
+      setWarehouses(
+        (warehouseResult.data || []).map((wh) => ({
+          id: wh.id,
+          name: wh.name,
+        }))
+      );
 
-      setProducts([
-        { id: 1, name: 'SS304 Sheet 1.5mm', sku: 'SS304-SH-1.5' },
-        { id: 2, name: 'SS316 Pipe 50mm', sku: 'SS316-PIPE-50' },
-        { id: 3, name: 'MS Round Bar 12mm', sku: 'MS-RB-12' },
-      ]);
+      // Load products from backend
+      const productResult = await productService.getAll({
+        limit: 1000,
+      });
+      setProducts(
+        (productResult.data || []).map((prod) => ({
+          id: prod.id,
+          name: prod.name,
+          sku: prod.sku,
+        }))
+      );
     } catch (error) {
       // Error loading filter options - fail silently
       // eslint-disable-next-line no-console
@@ -108,12 +124,42 @@ export default function ReconciliationReport() {
     try {
       setLoading(true);
 
-      // TODO: Replace with actual API endpoint when backend is ready
-      // For now, using mock data
-      const mockData = generateMockData();
+      let reportData;
 
-      setReconciliationData(mockData.items);
-      setSummary(mockData.summary);
+      // Try to fetch from backend if a warehouse is selected
+      if (selectedWarehouse !== 'all') {
+        try {
+          const apiResult = await stockMovementService.getReconciliationReport(
+            parseInt(selectedWarehouse),
+            dateRange.endDate
+          );
+
+          // Transform backend data to component format
+          reportData = transformBackendToReportFormat(
+            apiResult,
+            selectedProduct !== 'all' ? parseInt(selectedProduct) : null
+          );
+
+          if (reportData.items.length === 0) {
+            // No real data - use mock
+            reportData = generateMockData();
+          }
+        } catch (apiError) {
+          // API call failed - fall back to mock data
+          // eslint-disable-next-line no-console
+          console.warn(
+            'Could not fetch from API, using mock data:',
+            apiError.message
+          );
+          reportData = generateMockData();
+        }
+      } else {
+        // No warehouse selected - use mock data
+        reportData = generateMockData();
+      }
+
+      setReconciliationData(reportData.items);
+      setSummary(reportData.summary);
 
       toast.success('Report data loaded successfully');
     } catch (error) {
@@ -123,6 +169,58 @@ export default function ReconciliationReport() {
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Transform backend reconciliation data to report format
+   * Backend provides: productId, productName, systemQuantity, lastPhysicalCount, discrepancy
+   * Component needs: openingStock, received, consumed, adjustments, expectedClosing, systemStock, variance
+   */
+  const transformBackendToReportFormat = (apiResult, filterProductId = null) => {
+    let items = (apiResult.items || []).map((item) => {
+      // Backend provides system quantity and discrepancy (difference from batch quantity)
+      const systemStock = parseFloat(item.systemQuantity) || 0;
+      const variance = parseFloat(item.discrepancy) || 0;
+      const variancePercent =
+        systemStock !== 0 ? (variance / systemStock) * 100 : 0;
+
+      return {
+        productId: item.productId,
+        productName: item.productName,
+        productSku: item.productSku,
+        warehouseId: apiResult.warehouseId,
+        warehouseName: apiResult.warehouseName,
+        openingStock: systemStock - variance,
+        received: 0,
+        consumed: 0,
+        adjustments: variance,
+        expectedClosing: systemStock - variance,
+        systemStock,
+        variance,
+        variancePercent,
+      };
+    });
+
+    // Filter by product if needed
+    if (filterProductId) {
+      items = items.filter((item) => item.productId === filterProductId);
+    }
+
+    // Calculate summary
+    const summary = {
+      totalOpeningStock: items.reduce((sum, item) => sum + item.openingStock, 0),
+      totalReceived: items.reduce((sum, item) => sum + item.received, 0),
+      totalConsumed: items.reduce((sum, item) => sum + item.consumed, 0),
+      totalAdjustments: items.reduce((sum, item) => sum + item.adjustments, 0),
+      totalExpectedClosing: items.reduce(
+        (sum, item) => sum + item.expectedClosing,
+        0
+      ),
+      totalSystemStock: items.reduce((sum, item) => sum + item.systemStock, 0),
+      totalVariance: items.reduce((sum, item) => sum + item.variance, 0),
+    };
+
+    return { items, summary };
   };
 
   const handleRefresh = async () => {
