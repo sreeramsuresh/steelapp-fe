@@ -4241,7 +4241,7 @@ const CompanySettings = () => {
 
               <div className="space-y-4">
                 {/* Selected Permissions Count */}
-                {customPermission.permissionKeys.length > 0 && (
+                {customPermission.permission_keys.length > 0 && (
                   <div
                     className={`p-3 rounded-lg ${
                       isDarkMode
@@ -4252,8 +4252,8 @@ const CompanySettings = () => {
                     <p
                       className={`text-sm font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-700'}`}
                     >
-                      {customPermission.permissionKeys.length} permission
-                      {customPermission.permissionKeys.length !== 1
+                      {customPermission.permission_keys.length} permission
+                      {customPermission.permission_keys.length !== 1
                         ? 's'
                         : ''}{' '}
                       selected
@@ -4334,10 +4334,10 @@ const CompanySettings = () => {
                           const isExpanded = expandedModules[module] !== false; // Default to expanded
                           const modulePerms = filteredPerms.map((p) => p.key);
                           const allSelected = modulePerms.every((k) =>
-                            customPermission.permissionKeys.includes(k),
+                            customPermission.permission_keys.includes(k),
                           );
                           const someSelected = modulePerms.some((k) =>
-                            customPermission.permissionKeys.includes(k),
+                            customPermission.permission_keys.includes(k),
                           );
 
                           return (
@@ -4386,11 +4386,11 @@ const CompanySettings = () => {
                                       const newKeys = e.target.checked
                                         ? [
                                             ...new Set([
-                                              ...customPermission.permissionKeys,
+                                              ...customPermission.permission_keys,
                                               ...modulePerms,
                                             ]),
                                           ]
-                                        : customPermission.permissionKeys.filter(
+                                        : customPermission.permission_keys.filter(
                                             (k) => !modulePerms.includes(k),
                                           );
                                       setCustomPermission({
@@ -4436,16 +4436,16 @@ const CompanySettings = () => {
                                     >
                                       <input
                                         type="checkbox"
-                                        checked={customPermission.permissionKeys.includes(
+                                        checked={customPermission.permission_keys.includes(
                                           perm.key,
                                         )}
                                         onChange={(e) => {
                                           const newKeys = e.target.checked
                                             ? [
-                                                ...customPermission.permissionKeys,
+                                                ...customPermission.permission_keys,
                                                 perm.key,
                                               ]
-                                            : customPermission.permissionKeys.filter(
+                                            : customPermission.permission_keys.filter(
                                                 (k) => k !== perm.key,
                                               );
                                           setCustomPermission({
@@ -4502,7 +4502,7 @@ const CompanySettings = () => {
                   <input
                     id="permission-expires-at"
                     type="datetime-local"
-                    value={customPermission.expiresAt || ''}
+                    value={customPermission.expires_at || ''}
                     onChange={(e) =>
                       setCustomPermission({
                         ...customPermission,
@@ -4539,7 +4539,7 @@ const CompanySettings = () => {
                 onClick={async () => {
                   try {
                     if (
-                      customPermission.permissionKeys.length === 0 ||
+                      customPermission.permission_keys.length === 0 ||
                       !customPermission.reason
                     ) {
                       notificationService.warning(
@@ -4550,12 +4550,12 @@ const CompanySettings = () => {
 
                     // Grant all selected permissions
                     const results = await Promise.allSettled(
-                      customPermission.permissionKeys.map((permKey) =>
+                      customPermission.permission_keys.map((permKey) =>
                         roleService.grantCustomPermission(
                           customPermissionModal.userId,
                           permKey,
                           customPermission.reason,
-                          customPermission.expiresAt || null,
+                          customPermission.expires_at || null,
                         ),
                       ),
                     );
@@ -4589,14 +4589,14 @@ const CompanySettings = () => {
                   }
                 }}
                 startIcon={<Shield size={20} />}
-                disabled={customPermission.permissionKeys.length === 0}
+                disabled={customPermission.permission_keys.length === 0}
               >
                 Grant{' '}
-                {customPermission.permissionKeys.length > 0
-                  ? `${customPermission.permissionKeys.length} `
+                {customPermission.permission_keys.length > 0
+                  ? `${customPermission.permission_keys.length} `
                   : ''}
                 Permission
-                {customPermission.permissionKeys.length !== 1 ? 's' : ''}
+                {customPermission.permission_keys.length !== 1 ? 's' : ''}
               </Button>
             </div>
           </div>
@@ -4939,11 +4939,11 @@ const CompanySettings = () => {
                                       </p>
                                     )}
                                   </div>
-                                  {grant.expiresAt && (
+                                  {grant.expires_at && (
                                     <div className="ml-4">
                                       <span
                                         className={`inline-flex items-center px-2 py-1 text-xs rounded ${
-                                          new Date(grant.expiresAt) < new Date()
+                                          new Date(grant.expires_at) < new Date()
                                             ? isDarkMode
                                               ? 'bg-red-900/30 text-red-400'
                                               : 'bg-red-100 text-red-700'
@@ -4955,7 +4955,7 @@ const CompanySettings = () => {
                                         <Clock size={12} className="mr-1" />
                                         Expires:{' '}
                                         {new Date(
-                                          grant.expiresAt,
+                                          grant.expires_at,
                                         ).toLocaleDateString()}
                                       </span>
                                     </div>
@@ -5079,11 +5079,13 @@ const CompanySettings = () => {
 
               <div>
                 <label
+                  htmlFor="current-password"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Current Password
                 </label>
                 <input
+                  id="current-password"
                   type="password"
                   value={passwordChangeModal.currentPassword}
                   onChange={(e) =>
@@ -5104,11 +5106,13 @@ const CompanySettings = () => {
 
               <div>
                 <label
+                  htmlFor="new-password"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   New Password
                 </label>
                 <input
+                  id="new-password"
                   type="password"
                   value={passwordChangeModal.newPassword}
                   onChange={(e) =>
@@ -5129,11 +5133,13 @@ const CompanySettings = () => {
 
               <div>
                 <label
+                  htmlFor="confirm-password"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Confirm New Password
                 </label>
                 <input
+                  id="confirm-password"
                   type="password"
                   value={passwordChangeModal.confirmPassword}
                   onChange={(e) =>
