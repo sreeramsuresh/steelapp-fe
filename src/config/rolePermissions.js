@@ -30,6 +30,7 @@ export const ROLE_PERMISSIONS = {
     'account_statements.read': true,
     'receivables.read': true,
     'analytics.read': true,
+    'audit_hub.view': true,
   },
   viewer: {
     // Viewer: read-only access to key documents and reports
@@ -44,6 +45,7 @@ export const ROLE_PERMISSIONS = {
     'receivables.read': true,
     'payables.read': true,
     'analytics.read': true,
+    'audit_hub.view': true,
   },
   operator: {
     // Operator: can manage inventory, products, and create operational documents
@@ -61,6 +63,43 @@ export const ROLE_PERMISSIONS = {
     'purchase_orders.update': true,
     'payables.read': true,
     'payables.create': true,
+    'audit_hub.view': true,
+  },
+  accountant: {
+    // Accountant: can view and prepare periods for audit
+    'audit_hub.view': true,
+    'audit_hub.close': true,
+    'audit_hub.sign_off': true,
+    'invoices_all.read': true,
+    'account_statements.read': true,
+    'receivables.read': true,
+    'payables.read': true,
+    'analytics.read': true,
+  },
+  senior_accountant: {
+    // Senior Accountant: can review and lock periods
+    'audit_hub.view': true,
+    'audit_hub.close': true,
+    'audit_hub.sign_off': true,
+    'audit_hub.lock': true,
+    'invoices_all.read': true,
+    'account_statements.read': true,
+    'receivables.read': true,
+    'payables.read': true,
+    'analytics.read': true,
+  },
+  finance_manager: {
+    // Finance Manager: full audit hub access
+    'audit_hub.view': true,
+    'audit_hub.close': true,
+    'audit_hub.sign_off': true,
+    'audit_hub.lock': true,
+    'audit_hub.unlock': true,
+    'invoices_all.read': true,
+    'account_statements.read': true,
+    'receivables.read': true,
+    'payables.read': true,
+    'analytics.read': true,
   },
 };
 

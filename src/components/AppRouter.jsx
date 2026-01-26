@@ -109,6 +109,17 @@ const VATReturnReport = lazy(() => import('./VATReturnReport'));
 // Admin Components - Roles & Permissions
 const RolesPage = lazy(() => import('../pages/RolesPage'));
 
+// Audit Hub Components
+const AuditHubDashboard = lazy(() =>
+  import('../pages/AuditHub/AuditHubDashboard').then((m) => ({ default: m.default }))
+);
+const DatasetExplorer = lazy(() =>
+  import('../pages/AuditHub/DatasetExplorer').then((m) => ({ default: m.default }))
+);
+const SignOffWorkflow = lazy(() =>
+  import('../pages/AuditHub/SignOffWorkflow').then((m) => ({ default: m.default }))
+);
+
 // Purchases Components
 const SupplierBillList = lazy(() =>
   import('../pages/purchases').then((m) => ({ default: m.SupplierBillList })),
@@ -1061,6 +1072,47 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredRole="admin">
                   <AuditLogs />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===== AUDIT HUB ===== */}
+            <Route
+              path="audit-hub"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredPermission="audit_hub.view"
+                >
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <AuditHubDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="audit-hub/datasets/:datasetId"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredPermission="audit_hub.view"
+                >
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <DatasetExplorer />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="audit-hub/datasets/:periodId/:datasetId/sign-off"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredPermission="audit_hub.sign_off"
+                >
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <SignOffWorkflow />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
