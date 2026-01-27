@@ -257,6 +257,22 @@ function displayStatus(status) {
       break;
     }
 
+    case "IN_PROGRESS": {
+      console.log(line("🟡 DATABASE BACKUP STATUS: IN PROGRESS"));
+      console.log(divider);
+      const lastAttempt = formatTime(status.lastAttemptAt);
+      console.log(line(`Backup started: ${lastAttempt}`));
+      if (status.lastSuccessAt) {
+        const lastSuccess = formatTime(status.lastSuccessAt);
+        console.log(line(`Last success: ${lastSuccess}`));
+      } else {
+        console.log(line("Last success: never"));
+      }
+      console.log(line(""));
+      console.log(line("⏳ Backup is currently running... check logs for progress"));
+      break;
+    }
+
     case "UNKNOWN":
     default: {
       console.log(line("🟠 DATABASE BACKUP STATUS: UNKNOWN"));
