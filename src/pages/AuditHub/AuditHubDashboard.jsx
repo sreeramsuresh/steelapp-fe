@@ -6,6 +6,7 @@ import { useAuditHub } from '../../contexts/AuditHubContext';
 import PeriodCard from '../../components/audit/PeriodCard';
 import PeriodFilters from '../../components/audit/PeriodFilters';
 import PeriodStatusBadge from '../../components/audit/PeriodStatusBadge';
+import CreatePeriodModal from '../../components/audit/CreatePeriodModal';
 import toast from 'react-hot-toast';
 
 /**
@@ -23,7 +24,7 @@ export default function AuditHubDashboard() {
     error,
     filters,
     updateFilters,
-    loadPeriods,
+    createPeriod,
     closePeriod,
     lockPeriod
   } = useAuditHub();
@@ -39,6 +40,17 @@ export default function AuditHubDashboard() {
       return;
     }
   }, [user?.companyId, navigate]);
+
+  // Handle create period
+  const handleCreatePeriod = async (periodType, year, month) => {
+    try {
+      await createPeriod(periodType, year, month);
+      setCreatingPeriod(false);
+      toast.success('Period created successfully!');
+    } catch (err) {
+      toast.error(`Failed to create period: ${err.message}`);
+    }
+  };
 
   // Handle close period
   const handleClosePeriod = async (periodId) => {
@@ -79,6 +91,14 @@ export default function AuditHubDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Create Period Modal */}
+      <CreatePeriodModal
+        isOpen={creatingPeriod}
+        onClose={() => setCreatingPeriod(false)}
+        onCreatePeriod={handleCreatePeriod}
+        isLoading={loading}
+      />
+
       {/* Header */}
       <div className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -13,9 +13,12 @@ class AuditHubService {
       if (filters.year) params.append('year', filters.year);
       if (filters.status) params.append('status', filters.status);
 
-      const response = await api.get(`/api/accounting-periods?${params.toString()}`, {
-        headers: { 'X-Company-Id': companyId }
-      });
+      const response = await api.get(
+        `/accounting-periods?${params.toString()}`,
+        {
+          headers: { 'X-Company-Id': companyId },
+        },
+      );
       return response.data;
     } catch (error) {
       console.error('[AuditHub] Get periods error:', error);
@@ -26,7 +29,7 @@ class AuditHubService {
   async getPeriodById(companyId, periodId) {
     try {
       const response = await api.get(`/api/accounting-periods/${periodId}`, {
-        headers: { 'X-Company-Id': companyId }
+        headers: { 'X-Company-Id': companyId },
       });
       return response.data;
     } catch (error) {
@@ -37,13 +40,17 @@ class AuditHubService {
 
   async createPeriod(companyId, periodType, year, month) {
     try {
-      const response = await api.post('/api/accounting-periods', {
-        periodType,
-        year,
-        month
-      }, {
-        headers: { 'X-Company-Id': companyId }
-      });
+      const response = await api.post(
+        '/accounting-periods',
+        {
+          periodType,
+          year,
+          month,
+        },
+        {
+          headers: { 'X-Company-Id': companyId },
+        },
+      );
       return response.data;
     } catch (error) {
       console.error('[AuditHub] Create period error:', error);
@@ -56,7 +63,7 @@ class AuditHubService {
       const response = await api.post(
         `/api/accounting-periods/${periodId}/close`,
         {},
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -70,7 +77,7 @@ class AuditHubService {
       const response = await api.post(
         `/api/accounting-periods/${periodId}/lock`,
         {},
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -82,9 +89,12 @@ class AuditHubService {
   // Datasets
   async getDatasets(companyId, periodId) {
     try {
-      const response = await api.get(`/api/audit-hub/datasets?period_id=${periodId}`, {
-        headers: { 'X-Company-Id': companyId }
-      });
+      const response = await api.get(
+        `/api/audit-hub/datasets?period_id=${periodId}`,
+        {
+          headers: { 'X-Company-Id': companyId },
+        },
+      );
       return response.data;
     } catch (error) {
       console.error('[AuditHub] Get datasets error:', error);
@@ -95,7 +105,7 @@ class AuditHubService {
   async getDatasetById(companyId, datasetId) {
     try {
       const response = await api.get(`/api/audit-hub/datasets/${datasetId}`, {
-        headers: { 'X-Company-Id': companyId }
+        headers: { 'X-Company-Id': companyId },
       });
       return response.data;
     } catch (error) {
@@ -113,7 +123,7 @@ class AuditHubService {
 
       const response = await api.get(
         `/api/audit-hub/datasets/${datasetId}/transactions?${params.toString()}`,
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -128,7 +138,7 @@ class AuditHubService {
       const response = await api.post(
         `/api/audit-hub/datasets/${datasetId}/export/excel`,
         {},
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -142,7 +152,7 @@ class AuditHubService {
       const response = await api.post(
         `/api/audit-hub/datasets/${datasetId}/export/pdf`,
         {},
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -156,7 +166,7 @@ class AuditHubService {
       const response = await api.post(
         `/api/audit-hub/datasets/${datasetId}/export/csv/${module.toLowerCase()}`,
         {},
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -169,7 +179,7 @@ class AuditHubService {
     try {
       const response = await api.get(
         `/api/audit-hub/datasets/${datasetId}/export/status`,
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -184,8 +194,8 @@ class AuditHubService {
         `/api/audit-hub/exports/download/${datasetId}/${exportType.toLowerCase()}`,
         {
           headers: { 'X-Company-Id': companyId },
-          responseType: 'blob'
-        }
+          responseType: 'blob',
+        },
       );
       return response;
     } catch (error) {
@@ -199,7 +209,7 @@ class AuditHubService {
       const response = await api.post(
         `/api/audit-hub/datasets/${datasetId}/export/verify`,
         { export_type: exportType },
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -213,7 +223,7 @@ class AuditHubService {
     try {
       const response = await api.get(
         `/api/reconciliations?fiscal_period=${fiscalPeriod}`,
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -225,9 +235,9 @@ class AuditHubService {
   async reconcileAR(companyId, fiscalPeriod) {
     try {
       const response = await api.post(
-        '/api/reconciliations/ar',
+        '/reconciliations/ar',
         { fiscal_period: fiscalPeriod },
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -239,9 +249,9 @@ class AuditHubService {
   async reconcileAP(companyId, fiscalPeriod) {
     try {
       const response = await api.post(
-        '/api/reconciliations/ap',
+        '/reconciliations/ap',
         { fiscal_period: fiscalPeriod },
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -253,9 +263,9 @@ class AuditHubService {
   async reconcileInventory(companyId, fiscalPeriod) {
     try {
       const response = await api.post(
-        '/api/reconciliations/inventory',
+        '/reconciliations/inventory',
         { fiscal_period: fiscalPeriod },
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -268,7 +278,7 @@ class AuditHubService {
     try {
       const response = await api.get(
         `/api/reconciliations/${reconciliationId}/exceptions`,
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -283,7 +293,7 @@ class AuditHubService {
       const response = await api.post(
         `/api/audit-hub/datasets/${datasetId}/sign-off`,
         { stage, comments },
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
@@ -296,7 +306,7 @@ class AuditHubService {
     try {
       const response = await api.get(
         `/api/audit-hub/datasets/${datasetId}/sign-offs`,
-        { headers: { 'X-Company-Id': companyId } }
+        { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useAuditHub } from '../../../contexts/AuditHubContext';
-import auditHubService from '../../../services/auditHubService';
+import { useAuth } from '../../contexts/AuthContext';
+import { useAuditHub } from '../../contexts/AuditHubContext';
+import auditHubService from '../../services/auditHubService';
 import DatasetTabs from '../../components/audit/DatasetTabs';
 import ExportPanel from '../../components/audit/ExportPanel';
 import HashVerificationBadge from '../../components/audit/HashVerificationBadge';
@@ -19,7 +19,7 @@ export default function DatasetExplorer() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { datasetId, periodId } = useParams();
-  const { selectedDataset, datasets, selectDataset } = useAuditHub();
+  const { selectDataset } = useAuditHub();
 
   const [dataset, setDataset] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,10 @@ export default function DatasetExplorer() {
     const loadDataset = async () => {
       setLoading(true);
       try {
-        const data = await auditHubService.getDatasetById(user.companyId, datasetId);
+        const data = await auditHubService.getDatasetById(
+          user.companyId,
+          datasetId,
+        );
         setDataset(data);
         selectDataset(data);
 
@@ -60,23 +63,26 @@ export default function DatasetExplorer() {
     };
 
     loadDataset();
-  }, [user?.companyId, datasetId, periodId, navigate, selectDataset]);
+  }, [user?.companyId, datasetId, periodId, navigate, selectDataset, loadModuleData]);
 
   // Load data for selected module
-  const loadModuleData = async (module) => {
-    try {
-      const data = await auditHubService.getDatasetTransactions(
-        user.companyId,
-        datasetId,
-        module,
-        { page: 1, pageSize: itemsPerPage }
-      );
-      setModuleData(data);
-      setCurrentPage(1);
-    } catch (err) {
-      toast.error(`Failed to load ${module} data: ${err.message}`);
-    }
-  };
+  const loadModuleData = useCallback(
+    async (module) => {
+      try {
+        const data = await auditHubService.getDatasetTransactions(
+          user.companyId,
+          datasetId,
+          module,
+          { page: 1, pageSize: itemsPerPage },
+        );
+        setModuleData(data);
+        setCurrentPage(1);
+      } catch (err) {
+        toast.error(`Failed to load ${module} data: ${err.message}`);
+      }
+    },
+    [user.companyId, datasetId, itemsPerPage],
+  );
 
   // Handle module tab change
   const handleModuleChange = async (module) => {
@@ -91,12 +97,12 @@ export default function DatasetExplorer() {
       const result = await auditHubService.verifyExportRegeneration(
         user.companyId,
         datasetId,
-        exportType
+        exportType,
       );
 
-      setExportStatus(prev => ({
+      setExportStatus((prev) => ({
         ...prev,
-        [exportType]: result
+        [exportType]: result,
       }));
 
       if (result.is_deterministic) {
@@ -123,7 +129,9 @@ export default function DatasetExplorer() {
             <div className="animate-spin">
               <RefreshCw className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto" />
             </div>
-            <p className="mt-4 text-slate-600 dark:text-slate-400">Loading dataset...</p>
+            <p className="mt-4 text-slate-600 dark:text-slate-400">
+              Loading dataset...
+            </p>
           </div>
         </div>
       </div>
@@ -154,7 +162,7 @@ export default function DatasetExplorer() {
   const totalPages = Math.ceil((moduleData.length || 0) / itemsPerPage);
   const paginatedData = moduleData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (
@@ -186,7 +194,10 @@ export default function DatasetExplorer() {
                 Records: {dataset.record_count}
               </p>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Total Amount: {dataset.total_amount ? `AED ${dataset.total_amount.toFixed(2)}` : 'N/A'}
+                Total Amount:{' '}
+                {dataset.total_amount
+                  ? `AED ${dataset.total_amount.toFixed(2)}`
+                  : 'N/A'}
               </p>
             </div>
           </div>
@@ -223,10 +234,12 @@ export default function DatasetExplorer() {
             onModuleChange={handleModuleChange}
             recordCounts={{
               SALES: dataset.module_name === 'SALES' ? dataset.record_count : 0,
-              PURCHASES: dataset.module_name === 'PURCHASES' ? dataset.record_count : 0,
-              INVENTORY: dataset.module_name === 'INVENTORY' ? dataset.record_count : 0,
+              PURCHASES:
+                dataset.module_name === 'PURCHASES' ? dataset.record_count : 0,
+              INVENTORY:
+                dataset.module_name === 'INVENTORY' ? dataset.record_count : 0,
               VAT: dataset.module_name === 'VAT' ? dataset.record_count : 0,
-              BANK: dataset.module_name === 'BANK' ? dataset.record_count : 0
+              BANK: dataset.module_name === 'BANK' ? dataset.record_count : 0,
             }}
           />
 
@@ -235,7 +248,9 @@ export default function DatasetExplorer() {
             {moduleData.length === 0 ? (
               <div className="text-center py-12">
                 <AlertCircle className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
-                <p className="text-slate-600 dark:text-slate-400">No transactions in this module</p>
+                <p className="text-slate-600 dark:text-slate-400">
+                  No transactions in this module
+                </p>
               </div>
             ) : (
               <>
@@ -263,7 +278,10 @@ export default function DatasetExplorer() {
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                       {paginatedData.map((record, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                        <tr
+                          key={idx}
+                          className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        >
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-white">
                             {record.transaction_date}
                           </td>
@@ -278,7 +296,9 @@ export default function DatasetExplorer() {
                             </a>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">
-                            {record.total_amount ? `AED ${record.total_amount.toFixed(2)}` : '-'}
+                            {record.total_amount
+                              ? `AED ${record.total_amount.toFixed(2)}`
+                              : '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
@@ -300,18 +320,24 @@ export default function DatasetExplorer() {
                   <div className="mt-6 flex items-center justify-between">
                     <div className="text-sm text-slate-600 dark:text-slate-400">
                       Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-                      {Math.min(currentPage * itemsPerPage, moduleData.length)} of {moduleData.length}
+                      {Math.min(currentPage * itemsPerPage, moduleData.length)}{' '}
+                      of {moduleData.length}
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        onClick={() =>
+                          setCurrentPage((p) => Math.max(1, p - 1))
+                        }
                         disabled={currentPage === 1}
                         className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-300 dark:hover:bg-slate-600"
                       >
                         Previous
                       </button>
                       <div className="flex items-center gap-2">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        {Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1,
+                        ).map((page) => (
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
@@ -326,7 +352,9 @@ export default function DatasetExplorer() {
                         ))}
                       </div>
                       <button
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        onClick={() =>
+                          setCurrentPage((p) => Math.min(totalPages, p + 1))
+                        }
                         disabled={currentPage === totalPages}
                         className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-300 dark:hover:bg-slate-600"
                       >

@@ -158,6 +158,28 @@ export function AuditHubProvider({ children }) {
     }
   }, [user?.companyId]);
 
+  // Create period
+  const createPeriod = useCallback(async (periodType, year, month) => {
+    if (!user?.companyId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const newPeriod = await auditHubService.createPeriod(user.companyId, periodType, year, month);
+
+      // Add new period to the list
+      setPeriods(prev => [newPeriod, ...prev]);
+
+      return newPeriod;
+    } catch (err) {
+      console.error('[AuditHub] Create period error:', err);
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.companyId]);
+
   // Update filters
   const updateFilters = useCallback((newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
@@ -180,6 +202,7 @@ export function AuditHubProvider({ children }) {
     loadPeriods,
     selectPeriod,
     selectDataset,
+    createPeriod,
     closePeriod,
     lockPeriod,
     loadReconciliations,

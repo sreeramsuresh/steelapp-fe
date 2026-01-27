@@ -5,6 +5,8 @@ import AppRouter from './components/AppRouter';
 import NotificationProvider from './components/NotificationProvider';
 import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
 import { ApiHealthProvider } from './contexts/ApiHealthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { AuditHubProvider } from './contexts/AuditHubContext';
 import { authService } from './services/axiosAuthService';
 import ApiStatusBanner from './components/common/ApiStatusBanner';
 
@@ -114,20 +116,24 @@ function App() {
   return (
     <ThemeProvider>
       <div data-testid="app-ready">
-        <ApiHealthProvider>
-          <Router>
-            <NotificationCenterProvider>
-              <NotificationProvider>
-                <ApiStatusBanner />
-                <ThemedApp
-                  user={user}
-                  handleSaveInvoice={handleSaveInvoice}
-                  onLoginSuccess={handleLoginSuccess}
-                />
-              </NotificationProvider>
-            </NotificationCenterProvider>
-          </Router>
-        </ApiHealthProvider>
+        <AuthProvider user={user}>
+          <AuditHubProvider>
+            <ApiHealthProvider>
+              <Router>
+                <NotificationCenterProvider>
+                  <NotificationProvider>
+                    <ApiStatusBanner />
+                    <ThemedApp
+                      user={user}
+                      handleSaveInvoice={handleSaveInvoice}
+                      onLoginSuccess={handleLoginSuccess}
+                    />
+                  </NotificationProvider>
+                </NotificationCenterProvider>
+              </Router>
+            </ApiHealthProvider>
+          </AuditHubProvider>
+        </AuthProvider>
       </div>
     </ThemeProvider>
   );

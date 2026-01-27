@@ -21,6 +21,7 @@ import {
   ChevronDown,
   Star,
   Coins,
+  Shield,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/axiosAuthService';
@@ -205,6 +206,28 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
           icon: FileText,
           description: 'Sales analytics, revenue trends, and VAT returns',
           requiredPermission: 'analytics.read',
+        },
+      ],
+    },
+
+    // 8. AUDIT & COMPLIANCE
+    {
+      section: 'Audit & Compliance',
+      items: [
+        {
+          name: 'Audit Hub',
+          path: '/analytics/audit-hub',
+          icon: Shield,
+          description: 'Financial audit trails, period locks, and sign-offs',
+          requiredRoles: [
+            'accountant',
+            'senior_accountant',
+            'finance_manager',
+            'manager',
+            'admin',
+            'super_admin',
+            'director',
+          ],
         },
       ],
     },

@@ -111,13 +111,19 @@ const RolesPage = lazy(() => import('../pages/RolesPage'));
 
 // Audit Hub Components
 const AuditHubDashboard = lazy(() =>
-  import('../pages/AuditHub/AuditHubDashboard').then((m) => ({ default: m.default }))
+  import('../pages/AuditHub/AuditHubDashboard').then((m) => ({
+    default: m.default,
+  })),
 );
 const DatasetExplorer = lazy(() =>
-  import('../pages/AuditHub/DatasetExplorer').then((m) => ({ default: m.default }))
+  import('../pages/AuditHub/DatasetExplorer').then((m) => ({
+    default: m.default,
+  })),
 );
 const SignOffWorkflow = lazy(() =>
-  import('../pages/AuditHub/SignOffWorkflow').then((m) => ({ default: m.default }))
+  import('../pages/AuditHub/SignOffWorkflow').then((m) => ({
+    default: m.default,
+  })),
 );
 
 // Purchases Components
@@ -1080,10 +1086,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="audit-hub"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="audit_hub.view"
-                >
+                <ProtectedRoute user={user} requiredPermission="audit_hub.view">
                   <Suspense fallback={<div>Loading...</div>}>
                     <AuditHubDashboard />
                   </Suspense>
@@ -1093,10 +1096,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="audit-hub/datasets/:datasetId"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="audit_hub.view"
-                >
+                <ProtectedRoute user={user} requiredPermission="audit_hub.view">
                   <Suspense fallback={<div>Loading...</div>}>
                     <DatasetExplorer />
                   </Suspense>
@@ -1191,6 +1191,27 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user}>
                   <AgentCommissionDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Audit Hub */}
+            <Route
+              path="audit-hub"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredRoles={[
+                    'accountant',
+                    'senior_accountant',
+                    'finance_manager',
+                    'manager',
+                    'admin',
+                    'super_admin',
+                    'director',
+                  ]}
+                >
+                  <AuditHubDashboard />
                 </ProtectedRoute>
               }
             />
