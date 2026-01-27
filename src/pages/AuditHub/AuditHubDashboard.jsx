@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, Lock, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAuditHub } from '../../contexts/AuditHubContext';
 import PeriodCard from '../../components/audit/PeriodCard';
 import PeriodFilters from '../../components/audit/PeriodFilters';
-import PeriodStatusBadge from '../../components/audit/PeriodStatusBadge';
 import CreatePeriodModal from '../../components/audit/CreatePeriodModal';
 import toast from 'react-hot-toast';
 
@@ -26,7 +25,7 @@ export default function AuditHubDashboard() {
     updateFilters,
     createPeriod,
     closePeriod,
-    lockPeriod
+    lockPeriod,
   } = useAuditHub();
 
   const [creatingPeriod, setCreatingPeriod] = useState(false);
@@ -86,7 +85,7 @@ export default function AuditHubDashboard() {
   const statusCounts = {
     OPEN: periods.filter(p => p.status === 'OPEN').length,
     REVIEW: periods.filter(p => p.status === 'REVIEW').length,
-    LOCKED: periods.filter(p => p.status === 'LOCKED').length
+    LOCKED: periods.filter(p => p.status === 'LOCKED').length,
   };
 
   return (
@@ -199,7 +198,7 @@ export default function AuditHubDashboard() {
                 period={period}
                 onClose={() => handleClosePeriod(period.id)}
                 onLock={() => handleLockPeriod(period.id)}
-                onView={() => navigate(`/audit-hub/datasets/${period.id}`)}
+                onView={() => navigate(`/app/audit-hub/datasets/${period.id}`)}
                 isClosing={closingPeriodId === period.id}
                 isLocking={lockingPeriodId === period.id}
               />

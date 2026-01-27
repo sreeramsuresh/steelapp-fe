@@ -28,7 +28,7 @@ class AuditHubService {
 
   async getPeriodById(companyId, periodId) {
     try {
-      const response = await api.get(`/api/accounting-periods/${periodId}`, {
+      const response = await api.get(`/accounting-periods/${periodId}`, {
         headers: { 'X-Company-Id': companyId },
       });
       return response.data;
@@ -61,7 +61,7 @@ class AuditHubService {
   async closePeriod(companyId, periodId) {
     try {
       const response = await api.post(
-        `/api/accounting-periods/${periodId}/close`,
+        `/accounting-periods/${periodId}/close`,
         {},
         { headers: { 'X-Company-Id': companyId } },
       );
@@ -75,7 +75,7 @@ class AuditHubService {
   async lockPeriod(companyId, periodId) {
     try {
       const response = await api.post(
-        `/api/accounting-periods/${periodId}/lock`,
+        `/accounting-periods/${periodId}/lock`,
         {},
         { headers: { 'X-Company-Id': companyId } },
       );
@@ -90,7 +90,7 @@ class AuditHubService {
   async getDatasets(companyId, periodId) {
     try {
       const response = await api.get(
-        `/api/audit-hub/datasets?period_id=${periodId}`,
+        `/audit-hub/datasets?period_id=${periodId}`,
         {
           headers: { 'X-Company-Id': companyId },
         },
@@ -104,7 +104,7 @@ class AuditHubService {
 
   async getDatasetById(companyId, datasetId) {
     try {
-      const response = await api.get(`/api/audit-hub/datasets/${datasetId}`, {
+      const response = await api.get(`/audit-hub/datasets/${datasetId}`, {
         headers: { 'X-Company-Id': companyId },
       });
       return response.data;
@@ -122,7 +122,7 @@ class AuditHubService {
       if (pagination.limit) params.append('limit', pagination.limit);
 
       const response = await api.get(
-        `/api/audit-hub/datasets/${datasetId}/transactions?${params.toString()}`,
+        `/audit-hub/datasets/${datasetId}/transactions?${params.toString()}`,
         { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
@@ -136,7 +136,7 @@ class AuditHubService {
   async generateExcelExport(companyId, datasetId) {
     try {
       const response = await api.post(
-        `/api/audit-hub/datasets/${datasetId}/export/excel`,
+        `/audit-hub/datasets/${datasetId}/export/excel`,
         {},
         { headers: { 'X-Company-Id': companyId } },
       );
@@ -150,7 +150,7 @@ class AuditHubService {
   async generatePDFExport(companyId, datasetId) {
     try {
       const response = await api.post(
-        `/api/audit-hub/datasets/${datasetId}/export/pdf`,
+        `/audit-hub/datasets/${datasetId}/export/pdf`,
         {},
         { headers: { 'X-Company-Id': companyId } },
       );
@@ -164,7 +164,7 @@ class AuditHubService {
   async generateCSVExport(companyId, datasetId, module) {
     try {
       const response = await api.post(
-        `/api/audit-hub/datasets/${datasetId}/export/csv/${module.toLowerCase()}`,
+        `/audit-hub/datasets/${datasetId}/export/csv/${module.toLowerCase()}`,
         {},
         { headers: { 'X-Company-Id': companyId } },
       );
@@ -178,7 +178,7 @@ class AuditHubService {
   async getExportStatus(companyId, datasetId) {
     try {
       const response = await api.get(
-        `/api/audit-hub/datasets/${datasetId}/export/status`,
+        `/audit-hub/datasets/${datasetId}/export/status`,
         { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
@@ -191,7 +191,7 @@ class AuditHubService {
   async downloadExport(companyId, datasetId, exportType) {
     try {
       const response = await api.get(
-        `/api/audit-hub/exports/download/${datasetId}/${exportType.toLowerCase()}`,
+        `/audit-hub/exports/download/${datasetId}/${exportType.toLowerCase()}`,
         {
           headers: { 'X-Company-Id': companyId },
           responseType: 'blob',
@@ -207,7 +207,7 @@ class AuditHubService {
   async verifyExportRegeneration(companyId, datasetId, exportType) {
     try {
       const response = await api.post(
-        `/api/audit-hub/datasets/${datasetId}/export/verify`,
+        `/audit-hub/datasets/${datasetId}/export/verify`,
         { export_type: exportType },
         { headers: { 'X-Company-Id': companyId } },
       );
@@ -222,7 +222,7 @@ class AuditHubService {
   async getReconciliations(companyId, fiscalPeriod) {
     try {
       const response = await api.get(
-        `/api/reconciliations?fiscal_period=${fiscalPeriod}`,
+        `/reconciliations?fiscal_period=${fiscalPeriod}`,
         { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
@@ -277,7 +277,7 @@ class AuditHubService {
   async getReconciliationExceptions(companyId, reconciliationId) {
     try {
       const response = await api.get(
-        `/api/reconciliations/${reconciliationId}/exceptions`,
+        `/reconciliations/${reconciliationId}/exceptions`,
         { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
@@ -288,16 +288,16 @@ class AuditHubService {
   }
 
   // Sign-Offs
-  async signOff(companyId, datasetId, stage, comments) {
+  async submitSignOff(companyId, datasetId, signOffType, notes) {
     try {
       const response = await api.post(
-        `/api/audit-hub/datasets/${datasetId}/sign-off`,
-        { stage, comments },
+        '/audit-hub/sign-offs',
+        { datasetId, signOffType, notes },
         { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
-      console.error('[AuditHub] Sign-off error:', error);
+      console.error('[AuditHub] Submit sign-off error:', error);
       throw error;
     }
   }
@@ -305,12 +305,53 @@ class AuditHubService {
   async getSignOffs(companyId, datasetId) {
     try {
       const response = await api.get(
-        `/api/audit-hub/datasets/${datasetId}/sign-offs`,
+        `/audit-hub/sign-offs/dataset/${datasetId}`,
         { headers: { 'X-Company-Id': companyId } },
       );
       return response.data;
     } catch (error) {
       console.error('[AuditHub] Get sign-offs error:', error);
+      throw error;
+    }
+  }
+
+  async getSignOffStatus(companyId, datasetId) {
+    try {
+      const response = await api.get(
+        `/audit-hub/sign-offs/dataset/${datasetId}/status`,
+        { headers: { 'X-Company-Id': companyId } },
+      );
+      return response.data;
+    } catch (error) {
+      console.error('[AuditHub] Get sign-off status error:', error);
+      throw error;
+    }
+  }
+
+  async approveSignOff(companyId, signOffId, approvalNotes) {
+    try {
+      const response = await api.post(
+        `/audit-hub/sign-offs/${signOffId}/approve`,
+        { approvalNotes },
+        { headers: { 'X-Company-Id': companyId } },
+      );
+      return response.data;
+    } catch (error) {
+      console.error('[AuditHub] Approve sign-off error:', error);
+      throw error;
+    }
+  }
+
+  async rejectSignOff(companyId, signOffId, rejectionReason) {
+    try {
+      const response = await api.post(
+        `/audit-hub/sign-offs/${signOffId}/reject`,
+        { rejectionReason },
+        { headers: { 'X-Company-Id': companyId } },
+      );
+      return response.data;
+    } catch (error) {
+      console.error('[AuditHub] Reject sign-off error:', error);
       throw error;
     }
   }

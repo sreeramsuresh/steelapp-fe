@@ -18,7 +18,7 @@ import toast from 'react-hot-toast';
 export default function DatasetExplorer() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { datasetId, periodId } = useParams();
+  const { datasetId } = useParams();
   const { selectDataset } = useAuditHub();
 
   const [dataset, setDataset] = useState(null);
@@ -38,33 +38,6 @@ export default function DatasetExplorer() {
     }
   }, [user?.companyId, navigate]);
 
-  // Load dataset on mount or when ID changes
-  useEffect(() => {
-    if (!user?.companyId || !datasetId || !periodId) return;
-
-    const loadDataset = async () => {
-      setLoading(true);
-      try {
-        const data = await auditHubService.getDatasetById(
-          user.companyId,
-          datasetId,
-        );
-        setDataset(data);
-        selectDataset(data);
-
-        // Load initial module data (SALES)
-        await loadModuleData('SALES');
-      } catch (err) {
-        toast.error(`Failed to load dataset: ${err.message}`);
-        navigate('/audit-hub');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadDataset();
-  }, [user?.companyId, datasetId, periodId, navigate, selectDataset, loadModuleData]);
-
   // Load data for selected module
   const loadModuleData = useCallback(
     async (module) => {
@@ -73,16 +46,43 @@ export default function DatasetExplorer() {
           user.companyId,
           datasetId,
           module,
-          { page: 1, pageSize: itemsPerPage },
+          { page: 1, limit: itemsPerPage },
         );
-        setModuleData(data);
+        setModuleData(data?.data || data || []);
         setCurrentPage(1);
       } catch (err) {
         toast.error(`Failed to load ${module} data: ${err.message}`);
       }
     },
-    [user.companyId, datasetId, itemsPerPage],
+    [user?.companyId, datasetId, itemsPerPage],
   );
+
+  // Load dataset on mount or when ID changes
+  useEffect(() => {
+    if (!user?.companyId || !datasetId) return;
+
+    const loadDataset = async () => {
+      setLoading(true);
+      try {
+        const data = await auditHubService.getDatasetById(
+          user.companyId,
+          datasetId,
+        );
+        setDataset(data?.data || data);
+        selectDataset(data?.data || data);
+
+        // Load initial module data (SALES)
+        await loadModuleData('SALES');
+      } catch (err) {
+        toast.error(`Failed to load dataset: ${err.message}`);
+        navigate('/app/audit-hub');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDataset();
+  }, [user?.companyId, datasetId, navigate, selectDataset, loadModuleData]);
 
   // Handle module tab change
   const handleModuleChange = async (module) => {
@@ -186,7 +186,7 @@ export default function DatasetExplorer() {
                 Dataset Snapshot
               </h1>
               <p className="mt-2 text-slate-600 dark:text-slate-400">
-                Period ID: {periodId} • Dataset ID: {datasetId}
+                Period ID: {dataset.period_id || 'N/A'} • Dataset ID: {datasetId}
               </p>
             </div>
             <div className="text-right">
@@ -277,9 +277,9 @@ export default function DatasetExplorer() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                      {paginatedData.map((record, idx) => (
+                      {paginatedData.map((record) => (
                         <tr
-                          key={idx}
+                          key={record.record_hash || record.id}
                           className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                         >
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-white">
