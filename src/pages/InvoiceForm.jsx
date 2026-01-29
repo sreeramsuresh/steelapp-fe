@@ -62,6 +62,7 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
 import AllocationPanel from '../components/invoice/AllocationPanel';
 import AllocationDrawer from '../components/AllocationDrawer';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { batchReservationService } from '../services/batchReservationService';
 import { v4 as uuidv4 } from 'uuid';
 import { FormSelect } from '@/components/ui/form-select';
@@ -1765,6 +1766,15 @@ const InvoiceForm = ({ onSave }) => {
   const [showChargesDrawer, setShowChargesDrawer] = useState(false);
   const [showNotesDrawer, setShowNotesDrawer] = useState(false);
   const [showAddProductDrawer, setShowAddProductDrawer] = useState(false);
+
+  // Confirmation dialogs
+  const [issueConfirm, setIssueConfirm] = useState({ open: false });
+  const [deleteLineItemConfirm, setDeleteLineItemConfirm] = useState({
+    open: false,
+    itemId: null,
+    itemName: null,
+    tempId: null,
+  });
 
   const [formPreferences, setFormPreferences] = useState(() => {
     const saved = localStorage.getItem('invoiceFormPreferences');
@@ -3856,17 +3866,11 @@ const InvoiceForm = ({ onSave }) => {
       return;
     }
 
-    // Confirm with user - this is irreversible
-    const confirmed = window.confirm(
-      'Issue Final Tax Invoice?\n\n' +
-        'WARNING: Once issued, this invoice cannot be modified.\n' +
-        'Any corrections must be made via Credit Note.\n\n' +
-        'This action cannot be undone.\n\n' +
-        'Are you sure you want to proceed?',
-    );
+    // Show confirmation dialog
+    setIssueConfirm({ open: true });
+  };
 
-    if (!confirmed) return;
-
+  const confirmIssueInvoice = async () => {
     try {
       setIsSaving(true);
       const issuedInvoice = await invoiceService.issueInvoice(invoice.id);
@@ -3888,6 +3892,17 @@ const InvoiceForm = ({ onSave }) => {
       );
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const confirmDeleteLineItem = () => {
+    const { itemId, tempId } = deleteLineItemConfirm;
+    if (tempId) {
+      handleDeleteLineItem(tempId);
+    } else {
+      removeItem(
+        invoice.items.findIndex((i) => i.id === itemId),
+      );
     }
   };
 
@@ -5627,23 +5642,12 @@ const InvoiceForm = ({ onSave }) => {
                                   <td className="py-2 px-2 text-center">
                                     <button
                                       onClick={() => {
-                                        if (
-                                          window.confirm(
-                                            `Delete "${item.name}"?`,
-                                          )
-                                        ) {
-                                          if (item.lineItemTempId) {
-                                            handleDeleteLineItem(
-                                              item.lineItemTempId,
-                                            );
-                                          } else {
-                                            removeItem(
-                                              invoice.items.findIndex(
-                                                (i) => i.id === item.id,
-                                              ),
-                                            );
-                                          }
-                                        }
+                                        setDeleteLineItemConfirm({
+                                          open: true,
+                                          itemId: item.id,
+                                          itemName: item.name,
+                                          tempId: item.lineItemTempId,
+                                        });
                                       }}
                                       className="text-gray-400 hover:text-red-500 p-1 transition-colors"
                                       title="Delete item"
@@ -7582,6 +7586,46 @@ const InvoiceForm = ({ onSave }) => {
           customerId={invoice.customer?.id || null} // NEW - for pricing
           priceListId={selectedPricelistId || null} // NEW - for pricing
           onAddLineItem={handleAddLineItem}
+        />
+      )}
+
+      {/* Issue Final Tax Invoice Confirmation Dialog */}
+      {issueConfirm.open && (
+        <ConfirmDialog
+          title="Issue Final Tax Invoice?"
+          message="WARNING: Once issued, this invoice cannot be modified. Any corrections must be made via Credit Note. This action cannot be undone. Are you sure you want to proceed?"
+          variant="danger"
+          onConfirm={() => {
+            confirmIssueInvoice();
+            setIssueConfirm({ open: false });
+          }}
+          onCancel={() => setIssueConfirm({ open: false })}
+        />
+      )}
+
+      {/* Delete Line Item Confirmation Dialog */}
+      {deleteLineItemConfirm.open && (
+        <ConfirmDialog
+          title="Delete Line Item?"
+          message={`Delete "${deleteLineItemConfirm.itemName}"?`}
+          variant="danger"
+          onConfirm={() => {
+            confirmDeleteLineItem();
+            setDeleteLineItemConfirm({
+              open: false,
+              itemId: null,
+              itemName: null,
+              tempId: null,
+            });
+          }}
+          onCancel={() =>
+            setDeleteLineItemConfirm({
+              open: false,
+              itemId: null,
+              itemName: null,
+              tempId: null,
+            })
+          }
         />
       )}
     </>

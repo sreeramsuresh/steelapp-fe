@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { invoiceService } from '../services/invoiceService';
 import { warehouseService } from '../services/warehouseService';
 import notificationService from '../services/notificationService';
+import ConfirmDialog from './ConfirmDialog';
 
 /**
  * Invoice Allocation Confirmation Screen
@@ -27,6 +28,9 @@ const InvoiceAllocationConfirmation = () => {
   const [isReleasing, setIsReleasing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editConfirm, setEditConfirm] = useState({
+    open: false,
+  });
 
   // Fetch invoice data
   useEffect(() => {
@@ -100,12 +104,10 @@ const InvoiceAllocationConfirmation = () => {
 
   const handleEditInvoice = async () => {
     if (isReleasing) return;
+    setEditConfirm({ open: true });
+  };
 
-    const confirmed = window.confirm(
-      'Are you sure you want to edit this invoice? The current batch allocation will be released.',
-    );
-    if (!confirmed) return;
-
+  const confirmEditInvoice = async () => {
     try {
       setIsReleasing(true);
       await invoiceService.releaseInvoiceReservation(invoiceId);
@@ -384,6 +386,20 @@ const InvoiceAllocationConfirmation = () => {
           {isConfirming ? 'Confirming...' : 'Confirm Allocation'}
         </button>
       </div>
+
+      {/* Edit Invoice Confirmation Dialog */}
+      {editConfirm.open && (
+        <ConfirmDialog
+          title="Edit Invoice?"
+          message="Are you sure you want to edit this invoice? The current batch allocation will be released."
+          variant="warning"
+          onConfirm={() => {
+            confirmEditInvoice();
+            setEditConfirm({ open: false });
+          }}
+          onCancel={() => setEditConfirm({ open: false })}
+        />
+      )}
     </div>
   );
 };

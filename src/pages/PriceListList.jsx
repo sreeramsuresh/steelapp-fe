@@ -14,6 +14,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import ConfirmDialog from '../components/ConfirmDialog';
 import pricelistService from '../services/pricelistService';
 import { notificationService } from '../services/notificationService';
 
@@ -91,6 +92,11 @@ export default function PriceListList() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [currencyFilter, setCurrencyFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    id: null,
+    name: null,
+  });
 
   useEffect(() => {
     fetchPricelists();
@@ -111,10 +117,11 @@ export default function PriceListList() {
 
   const handleDelete = async (id, name, e) => {
     e.stopPropagation();
-    if (!window.confirm(`Are you sure you want to deactivate "${name}"?`)) {
-      return;
-    }
+    setDeleteConfirm({ open: true, id, name });
+  };
 
+  const confirmDelete = async () => {
+    const { id } = deleteConfirm;
     try {
       await pricelistService.delete(id);
       notificationService.success('Price list deactivated');
@@ -619,6 +626,20 @@ export default function PriceListList() {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        {deleteConfirm.open && (
+          <ConfirmDialog
+            title="Deactivate Price List?"
+            message={`Are you sure you want to deactivate "${deleteConfirm.name}"?`}
+            variant="danger"
+            onConfirm={() => {
+              confirmDelete();
+              setDeleteConfirm({ open: false, id: null, name: null });
+            }}
+            onCancel={() => setDeleteConfirm({ open: false, id: null, name: null })}
+          />
         )}
       </div>
     </div>

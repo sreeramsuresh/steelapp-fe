@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
+import ConfirmDialog from '../ConfirmDialog';
 import { DarkModeContext } from '../../context/DarkModeContext';
 import { AlertTriangle, TrendingDown, Edit3, RefreshCw } from 'lucide-react';
 
@@ -40,6 +41,9 @@ const CreditManagementPanel = ({
   const [selectedCustomers, setSelectedCustomers] = useState(new Set());
   const [newCreditLimit, setNewCreditLimit] = useState('');
   const [updateReason, setUpdateReason] = useState('');
+  const [recalculateConfirm, setRecalculateConfirm] = useState({
+    open: false,
+  });
 
   // Load credit issues on mount
   useEffect(() => {
@@ -159,14 +163,10 @@ const CreditManagementPanel = ({
   };
 
   const handleRecalculateAll = async () => {
-    if (
-      !window.confirm(
-        'Recalculate credit for all customers? This may take a few moments.',
-      )
-    ) {
-      return;
-    }
+    setRecalculateConfirm({ open: true });
+  };
 
+  const confirmRecalculate = async () => {
     try {
       setLoading(true);
       // TODO: Call backend service
@@ -492,6 +492,20 @@ const CreditManagementPanel = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Recalculate All Confirmation Dialog */}
+      {recalculateConfirm.open && (
+        <ConfirmDialog
+          title="Recalculate Credit?"
+          message="Recalculate credit for all customers? This may take a few moments."
+          variant="warning"
+          onConfirm={() => {
+            confirmRecalculate();
+            setRecalculateConfirm({ open: false });
+          }}
+          onCancel={() => setRecalculateConfirm({ open: false })}
+        />
+      )}
     </div>
   );
 };

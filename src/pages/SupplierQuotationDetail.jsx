@@ -12,6 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import ConfirmDialog from '../components/ConfirmDialog';
 import {
   Loader2,
   ArrowLeft,
@@ -56,6 +57,9 @@ export function SupplierQuotationDetail() {
   const [rejectReason, setRejectReason] = useState('');
   const [showConvertDialog, setShowConvertDialog] = useState(false);
   const [convertNotes, setConvertNotes] = useState('');
+  const [approveConfirm, setApproveConfirm] = useState({
+    open: false,
+  });
 
   useEffect(() => {
     loadQuotation();
@@ -77,10 +81,10 @@ export function SupplierQuotationDetail() {
   };
 
   const handleApprove = async () => {
-    if (!window.confirm('Are you sure you want to approve this quotation?')) {
-      return;
-    }
+    setApproveConfirm({ open: true });
+  };
 
+  const confirmApprove = async () => {
     try {
       setProcessing(true);
       await approveSupplierQuotation(id);
@@ -593,6 +597,20 @@ export function SupplierQuotationDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Approve Confirmation Dialog */}
+      {approveConfirm.open && (
+        <ConfirmDialog
+          title="Approve Quotation?"
+          message="Are you sure you want to approve this quotation?"
+          variant="warning"
+          onConfirm={() => {
+            confirmApprove();
+            setApproveConfirm({ open: false });
+          }}
+          onCancel={() => setApproveConfirm({ open: false })}
+        />
+      )}
     </div>
   );
 }

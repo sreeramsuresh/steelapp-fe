@@ -34,6 +34,7 @@ import vatReturnService from '../services/vatReturnService';
 import supplierBillService from '../services/supplierBillService';
 import advancePaymentService from '../services/advancePaymentService';
 import vatAmendmentService from '../services/vatAmendmentService';
+import ConfirmDialog from './ConfirmDialog';
 
 /**
  * UAE VAT Return Report Component - Enhanced
@@ -101,6 +102,9 @@ const VATReturnReport = () => {
     blockedVat: false,
     amendments: false,
     invoices: false,
+  });
+  const [submitConfirm, setSubmitConfirm] = useState({
+    open: false,
   });
 
   // Load available periods on mount
@@ -289,13 +293,10 @@ const VATReturnReport = () => {
 
   const handleSubmit = async () => {
     if (!vatReturn?.id) return;
-    if (
-      !window.confirm(
-        'Are you sure you want to submit this VAT return to FTA? This action cannot be undone.',
-      )
-    ) {
-      return;
-    }
+    setSubmitConfirm({ open: true });
+  };
+
+  const confirmSubmit = async () => {
     try {
       const updated = await vatReturnService.submitReturn(vatReturn.id);
       setVatReturn(updated);
@@ -1672,6 +1673,20 @@ const VATReturnReport = () => {
             VAT return data
           </p>
         </div>
+      )}
+
+      {/* Submit VAT Return Confirmation Dialog */}
+      {submitConfirm.open && (
+        <ConfirmDialog
+          title="Submit VAT Return?"
+          message="Are you sure you want to submit this VAT return to FTA? This action cannot be undone."
+          variant="warning"
+          onConfirm={() => {
+            confirmSubmit();
+            setSubmitConfirm({ open: false });
+          }}
+          onCancel={() => setSubmitConfirm({ open: false })}
+        />
       )}
     </div>
   );

@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import ConfirmDialog from '../components/ConfirmDialog';
 import {
   Loader2,
   Plus,
@@ -48,6 +49,7 @@ export function SupplierQuotationList() {
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null });
   const limit = 20;
 
   // Debounce search
@@ -83,10 +85,12 @@ export function SupplierQuotationList() {
     loadQuotations();
   }, [loadQuotations]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this quotation?')) {
-      return;
-    }
+  const handleDelete = (id) => {
+    setDeleteConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    const { id } = deleteConfirm;
     try {
       await deleteSupplierQuotation(id);
       toast.success('Quotation deleted successfully');
@@ -330,6 +334,19 @@ export function SupplierQuotationList() {
           )}
         </CardContent>
       </Card>
+
+      {deleteConfirm.open && (
+        <ConfirmDialog
+          title="Delete Quotation?"
+          message="Are you sure you want to delete this quotation?"
+          variant="danger"
+          onConfirm={() => {
+            confirmDelete();
+            setDeleteConfirm({ open: false, id: null });
+          }}
+          onCancel={() => setDeleteConfirm({ open: false, id: null })}
+        />
+      )}
     </div>
   );
 }

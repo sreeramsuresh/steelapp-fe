@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { operatingExpenseService } from '../services/operatingExpenseService';
 import { chartOfAccountsService } from '../services/chartOfAccountsService';
 
@@ -62,6 +63,10 @@ export default function OperatingExpenseForm() {
   const [success, setSuccess] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    expenseId: null,
+  });
 
   // Load expense accounts from COA
   useEffect(() => {
@@ -177,9 +182,11 @@ export default function OperatingExpenseForm() {
   };
 
   const handleDelete = async (expenseId) => {
-    if (!window.confirm('Are you sure you want to delete this expense?'))
-      return;
+    setDeleteConfirm({ open: true, expenseId });
+  };
 
+  const confirmDelete = async () => {
+    const { expenseId } = deleteConfirm;
     setLoading(true);
     try {
       await operatingExpenseService.delete(expenseId);
@@ -548,6 +555,20 @@ export default function OperatingExpenseForm() {
           </>
         )}
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm.open && (
+        <ConfirmDialog
+          title="Delete Expense?"
+          message="Are you sure you want to delete this expense?"
+          variant="danger"
+          onConfirm={() => {
+            confirmDelete();
+            setDeleteConfirm({ open: false, expenseId: null });
+          }}
+          onCancel={() => setDeleteConfirm({ open: false, expenseId: null })}
+        />
+      )}
     </Box>
   );
 }

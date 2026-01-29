@@ -4,6 +4,7 @@ import { X, Loader2, Save, ChevronDown } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import advancePaymentService from '../../services/advancePaymentService';
 import { customersAPI } from '../../services/api';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -92,6 +93,9 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const [editConfirm, setEditConfirm] = useState({
+    open: false,
+  });
 
   // Load customers
   useEffect(() => {
@@ -292,15 +296,16 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
       isEditing &&
       ['FULLY_APPLIED', 'REFUNDED', 'EXPIRED'].includes(formData.status)
     ) {
-      if (
-        !window.confirm(
-          `This advance payment is ${formData.status}. Are you sure you want to edit it?`,
-        )
-      ) {
-        return;
-      }
+      setEditConfirm({ open: true });
+      return;
     }
 
+    // Proceed with save if no confirmation needed
+    await confirmEdit();
+  };
+
+  // Confirm edit of restricted status
+  const confirmEdit = async () => {
     setSaving(true);
     try {
       const payload = {
@@ -1110,6 +1115,20 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
             </Button>
           </div>
         </form>
+
+        {/* Edit Restricted Status Confirmation */}
+        {editConfirm.open && (
+          <ConfirmDialog
+            title="Edit Restricted Status?"
+            message={`This advance payment is ${formData.status}. Are you sure you want to edit it?`}
+            variant="warning"
+            onConfirm={() => {
+              confirmEdit();
+              setEditConfirm({ open: false });
+            }}
+            onCancel={() => setEditConfirm({ open: false })}
+          />
+        )}
       </div>
     </div>
   );

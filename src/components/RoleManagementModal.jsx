@@ -11,6 +11,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { roleService } from '../services/roleService';
 import { notificationService } from '../services/notificationService';
+import ConfirmDialog from './ConfirmDialog';
 
 /**
  * RoleManagementModal - Manage system and custom roles
@@ -38,6 +39,11 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
   });
   const [validationErrors, setValidationErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    roleId: null,
+    roleName: null,
+  });
 
   // Load roles when modal opens
   useEffect(() => {
@@ -187,16 +193,19 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
       return;
     }
 
-    if (
-      !window.confirm(
-        `Are you sure you want to delete the role "${role.name}"? This action cannot be undone.`,
-      )
-    ) {
-      return;
-    }
+    setDeleteConfirm({
+      open: true,
+      roleId: role.id,
+      roleName: role.name,
+    });
+  };
+
+  const confirmDelete = async () => {
+    const { roleId } = deleteConfirm;
+    if (!roleId) return;
 
     try {
-      await roleService.deleteRole(role.id);
+      await roleService.deleteRole(roleId);
       notificationService.success('Role deleted successfully');
       loadRoles();
       if (onRoleUpdated) onRoleUpdated();
@@ -511,6 +520,23 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm.open && (
+        <ConfirmDialog
+          title="Delete Role?"
+          message={`Are you sure you want to delete the role "${deleteConfirm.roleName}"? This action cannot be undone.`}
+          variant="danger"
+          onConfirm={() => {
+            confirmDelete().finally(() =>
+              setDeleteConfirm({ open: false, roleId: null, roleName: null }),
+            );
+          }}
+          onCancel={() =>
+            setDeleteConfirm({ open: false, roleId: null, roleName: null })
+          }
+        />
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import BatchAllocationPanel from './BatchAllocationPanel';
 import ReservationTimer from './ReservationTimer';
 import SourceTypeSelector from './SourceTypeSelector';
 import WarehouseAvailability from './WarehouseAvailability';
+import ConfirmDialog from '../ConfirmDialog';
 import { useReservations } from '../../hooks/useReservations';
 import pricelistService from '../../services/pricelistService';
 import { authService } from '../../services/axiosAuthService';
@@ -63,6 +64,13 @@ const AllocationDrawer = ({
     currentDisplayUnit: null, // BUGFIX: Track what unit the currently displayed unitPrice is in
     unitWeightKg: null, // Product weight in kg (for piece-to-weight conversions)
     primaryUom: null, // Product's primary unit from product master
+  });
+
+  // Confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    type: null, // 'quantity_change', 'source_type_change', 'warehouse_change'
+    newValue: null, // Store the new value to apply when confirmed
   });
 
   // Use the reservation hook (now uses selected warehouse)
@@ -597,13 +605,15 @@ const AllocationDrawer = ({
 
           // PCS-CENTRIC: Only warn if integer PCS changes
           if (newPcs !== currentPcs) {
-            const confirmed = window.confirm(
-              `Current batch allocations (${allocatedPcs} PCS) ` +
-                `match the existing quantity (${currentPcs} PCS).\n\n` +
-                `Changing to ${newPcs} PCS will require re-allocation.\n\n` +
-                `Continue?`,
-            );
-            if (!confirmed) return;
+            setConfirmDialog({
+              open: true,
+              type: 'quantity_change',
+              newValue: value,
+              allocatedPcs,
+              currentPcs,
+              newPcs,
+            });
+            return;
           }
         }
 
@@ -617,6 +627,15 @@ const AllocationDrawer = ({
     },
     [drawerState.sourceType, drawerState.quantity, allocations],
   );
+
+  // Confirm quantity change
+  const confirmQuantityChange = useCallback(() => {
+    setDrawerState((prev) => ({
+      ...prev,
+      quantity: confirmDialog.newValue,
+      error: null,
+    }));
+  }, [confirmDialog.newValue]);
 
   // Handle unit change - Phase 3: Convert price AND quantity
   const handleUnitChange = useCallback((e) => {
@@ -739,7 +758,7 @@ const AllocationDrawer = ({
 
   // Handle source type change
   const handleSourceTypeChange = useCallback(
-    async (sourceType) => {
+    (sourceType) => {
       // P2-3: Warn if switching FROM warehouse TO drop-ship with active allocations
       if (
         drawerState.sourceType === 'WAREHOUSE' &&
@@ -752,29 +771,13 @@ const AllocationDrawer = ({
           0,
         );
 
-        const confirmed = window.confirm(
-          `⚠️ Source Type Change Warning\n\n` +
-            `Current allocations: ${allocatedQty.toFixed(2)} ${drawerState.unit} from ${allocations.length} batch(es)\n\n` +
-            `Switching to Drop-Ship will:\n` +
-            `• Release all warehouse batch reservations\n` +
-            `• Clear allocation data\n` +
-            `• Mark this item as drop-ship (no warehouse stock impact)\n\n` +
-            `Continue?`,
-        );
-
-        if (!confirmed) return;
-
-        // Cancel reservation if switching away from warehouse
-        if (reservationId) {
-          try {
-            await cancelReservation();
-          } catch (err) {
-            console.warn(
-              'Failed to cancel reservation on source type change:',
-              err,
-            );
-          }
-        }
+        setConfirmDialog({
+          open: true,
+          type: 'source_type_change',
+          newValue: sourceType,
+          allocatedQty,
+        });
+        return;
       }
 
       setDrawerState((prev) => ({
@@ -787,14 +790,35 @@ const AllocationDrawer = ({
           sourceType === 'WAREHOUSE' ? prev.allocationMethod : null,
       }));
     },
-    [
-      drawerState.sourceType,
-      drawerState.unit,
-      allocations,
-      reservationId,
-      cancelReservation,
-    ],
+    [drawerState.sourceType, allocations],
   );
+
+  // Confirm source type change
+  const confirmSourceTypeChange = useCallback(async () => {
+    const sourceType = confirmDialog.newValue;
+
+    // Cancel reservation if switching away from warehouse
+    if (reservationId) {
+      try {
+        await cancelReservation();
+      } catch (err) {
+        console.warn(
+          'Failed to cancel reservation on source type change:',
+          err,
+        );
+      }
+    }
+
+    setDrawerState((prev) => ({
+      ...prev,
+      sourceType,
+      // Clear allocations when switching away from warehouse
+      selectedAllocations:
+        sourceType === 'WAREHOUSE' ? prev.selectedAllocations : [],
+      allocationMethod:
+        sourceType === 'WAREHOUSE' ? prev.allocationMethod : null,
+    }));
+  }, [confirmDialog.newValue, reservationId, cancelReservation]);
 
   // Handle allocation changes from BatchAllocationPanel
   const handleAllocationsChange = useCallback((newAllocations) => {
@@ -806,28 +830,18 @@ const AllocationDrawer = ({
 
   // Handle warehouse selection
   const handleWarehouseSelect = useCallback(
-    async (newWarehouseId) => {
+    (newWarehouseId) => {
       // Warn if changing warehouse with active allocations
       if (
         drawerState.selectedWarehouseId !== newWarehouseId &&
         allocations?.length > 0
       ) {
-        const confirmed = window.confirm(
-          'Changing warehouse will clear current batch allocations. Continue?',
-        );
-        if (!confirmed) return;
-      }
-
-      // Cancel existing reservations
-      if (reservationId) {
-        try {
-          await cancelReservation();
-        } catch (err) {
-          console.warn(
-            'Failed to cancel reservation on warehouse change:',
-            err,
-          );
-        }
+        setConfirmDialog({
+          open: true,
+          type: 'warehouse_change',
+          newValue: newWarehouseId,
+        });
+        return;
       }
 
       // Update selected warehouse and reset allocations
@@ -839,13 +853,34 @@ const AllocationDrawer = ({
         error: null,
       }));
     },
-    [
-      drawerState.selectedWarehouseId,
-      allocations,
-      reservationId,
-      cancelReservation,
-    ],
+    [drawerState.selectedWarehouseId, allocations],
   );
+
+  // Confirm warehouse change
+  const confirmWarehouseChange = useCallback(async () => {
+    const newWarehouseId = confirmDialog.newValue;
+
+    // Cancel existing reservations
+    if (reservationId) {
+      try {
+        await cancelReservation();
+      } catch (err) {
+        console.warn(
+          'Failed to cancel reservation on warehouse change:',
+          err,
+        );
+      }
+    }
+
+    // Update selected warehouse and reset allocations
+    setDrawerState((prev) => ({
+      ...prev,
+      selectedWarehouseId: newWarehouseId,
+      selectedAllocations: [],
+      allocationMethod: null,
+      error: null,
+    }));
+  }, [confirmDialog.newValue, reservationId, cancelReservation]);
 
   // Handle reservation expiry
   const handleReservationExpired = useCallback(() => {
@@ -1259,6 +1294,48 @@ const AllocationDrawer = ({
           {reservationLoading ? 'Loading...' : 'Add to Invoice'}
         </button>
       </div>
+
+      {/* Quantity Change Confirmation */}
+      {confirmDialog.open && confirmDialog.type === 'quantity_change' && (
+        <ConfirmDialog
+          title="Quantity Change Warning"
+          message={`Current batch allocations (${confirmDialog.allocatedPcs} PCS) match the existing quantity (${confirmDialog.currentPcs} PCS).\n\nChanging to ${confirmDialog.newPcs} PCS will require re-allocation.\n\nContinue?`}
+          variant="warning"
+          onConfirm={() => {
+            confirmQuantityChange();
+            setConfirmDialog({ open: false, type: null, newValue: null });
+          }}
+          onCancel={() => setConfirmDialog({ open: false, type: null, newValue: null })}
+        />
+      )}
+
+      {/* Source Type Change Confirmation */}
+      {confirmDialog.open && confirmDialog.type === 'source_type_change' && (
+        <ConfirmDialog
+          title="Source Type Change Warning"
+          message={`Current allocations: ${confirmDialog.allocatedQty.toFixed(2)} ${drawerState.unit} from ${allocations.length} batch(es)\n\nSwitching to Drop-Ship will:\n• Release all warehouse batch reservations\n• Clear allocation data\n• Mark this item as drop-ship (no warehouse stock impact)\n\nContinue?`}
+          variant="warning"
+          onConfirm={() => {
+            confirmSourceTypeChange();
+            setConfirmDialog({ open: false, type: null, newValue: null });
+          }}
+          onCancel={() => setConfirmDialog({ open: false, type: null, newValue: null })}
+        />
+      )}
+
+      {/* Warehouse Change Confirmation */}
+      {confirmDialog.open && confirmDialog.type === 'warehouse_change' && (
+        <ConfirmDialog
+          title="Warehouse Change Warning"
+          message="Changing warehouse will clear current batch allocations. Continue?"
+          variant="warning"
+          onConfirm={() => {
+            confirmWarehouseChange();
+            setConfirmDialog({ open: false, type: null, newValue: null });
+          }}
+          onCancel={() => setConfirmDialog({ open: false, type: null, newValue: null })}
+        />
+      )}
     </div>
   );
 };
