@@ -28,7 +28,12 @@ import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import { quotationService } from '../services/quotationService';
 import { useApiData } from '../hooks/useApi';
 import { companyService } from '../services';
-import { NewBadge, TruncatedText, IconButton } from '../components/shared';
+import {
+  NewBadge,
+  TruncatedText,
+  IconButton,
+  TableSkeleton,
+} from '../components/shared';
 import QuotationPreview from '../components/quotations/QuotationPreview';
 import { validateQuotationForDownload } from '../utils/recordUtils';
 import { notificationService } from '../services/notificationService';
@@ -225,11 +230,16 @@ const QuotationList = () => {
   if (loading) {
     return (
       <div
-        className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+        className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} p-4`}
       >
-        <div className="flex items-center justify-center min-h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+        {/* Header Skeleton */}
+        <div className="mb-6">
+          <div className="w-48 h-8 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-2" />
+          <div className="w-80 h-4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse" />
         </div>
+
+        {/* Table Skeleton */}
+        <TableSkeleton rows={5} cols={4} />
       </div>
     );
   }
