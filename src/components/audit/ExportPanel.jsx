@@ -13,7 +13,7 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
   const [generating, setGenerating] = useState({
     EXCEL: false,
     PDF: false,
-    CSV: false
+    CSV: false,
   });
 
   const exportConfigs = [
@@ -22,22 +22,22 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
       label: 'Excel Workbook',
       description: 'Multi-sheet spreadsheet with all modules',
       icon: '📊',
-      color: 'emerald'
+      color: 'emerald',
     },
     {
       type: 'PDF',
       label: 'PDF Report',
       description: 'Formatted audit package with TOC',
       icon: '📄',
-      color: 'blue'
+      color: 'blue',
     },
     {
       type: 'CSV',
       label: 'CSV Data',
       description: 'Transaction-level raw data export',
       icon: '📋',
-      color: 'amber'
-    }
+      color: 'amber',
+    },
   ];
 
   const handleGenerateExport = async (exportType) => {

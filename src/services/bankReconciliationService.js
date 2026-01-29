@@ -8,8 +8,8 @@ class BankReconciliationService {
     const response = await apiClient.get(
       `/bank-reconciliation/bank-ledger/${accountCode}`,
       {
-        params: { startDate, endDate }
-      }
+        params: { startDate, endDate },
+      },
     );
     return response.data;
   }
@@ -19,7 +19,7 @@ class BankReconciliationService {
    */
   async getBankReconciliation(statementId) {
     const response = await apiClient.get(
-      `/bank-reconciliation/brs/${statementId}`
+      `/bank-reconciliation/brs/${statementId}`,
     );
     return response.data;
   }
@@ -30,7 +30,7 @@ class BankReconciliationService {
   async importBankStatement(statementId, lines) {
     const response = await apiClient.post(
       '/bank-reconciliation/import-statement',
-      { statementId, lines }
+      { statementId, lines },
     );
     return response.data;
   }
@@ -41,7 +41,7 @@ class BankReconciliationService {
   async matchBankLine(lineId, journalEntryId) {
     const response = await apiClient.post(
       '/bank-reconciliation/match-line',
-      { lineId, journalEntryId }
+      { lineId, journalEntryId },
     );
     return response.data;
   }
@@ -58,9 +58,9 @@ class BankReconciliationService {
           endDate,
           cashAccountCode: options.cashAccountCode || '1100',
           page: options.page || 1,
-          limit: options.limit || 100
-        }
-      }
+          limit: options.limit || 100,
+        },
+      },
     );
     return response.data;
   }
@@ -72,8 +72,8 @@ class BankReconciliationService {
     const response = await apiClient.get(
       '/bank-reconciliation/cash-book-summary',
       {
-        params: { startDate, endDate, cashAccountCode }
-      }
+        params: { startDate, endDate, cashAccountCode },
+      },
     );
     return response.data;
   }
@@ -83,7 +83,7 @@ class BankReconciliationService {
    */
   async reconcileCashToBank(periodId) {
     const response = await apiClient.get(
-      `/bank-reconciliation/reconcile-cash-bank/${periodId}`
+      `/bank-reconciliation/reconcile-cash-bank/${periodId}`,
     );
     return response.data;
   }
@@ -95,7 +95,7 @@ class BankReconciliationService {
     return new Intl.NumberFormat('en-AE', {
       style: 'currency',
       currency: 'AED',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(amount);
   }
 

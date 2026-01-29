@@ -11,7 +11,7 @@ export default function CashBookReport() {
     endDate: null,
     cashAccountCode: '1100',
     page: 1,
-    limit: 50
+    limit: 50,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -32,14 +32,14 @@ export default function CashBookReport() {
           {
             cashAccountCode: filters.cashAccountCode,
             page: filters.page,
-            limit: filters.limit
-          }
+            limit: filters.limit,
+          },
         ),
         bankReconciliationService.getCashBookSummary(
           filters.startDate,
           filters.endDate,
-          filters.cashAccountCode
-        )
+          filters.cashAccountCode,
+        ),
       ]);
       setData(cashBookResult);
       setSummary(summaryResult);

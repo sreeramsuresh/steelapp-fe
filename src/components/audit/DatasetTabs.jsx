@@ -12,7 +12,7 @@ export default function DatasetTabs({ modules, activeModule, onModuleChange, rec
     PURCHASES: { icon: Truck, label: 'Purchases', color: 'green' },
     INVENTORY: { icon: Package, label: 'Inventory', color: 'purple' },
     VAT: { icon: DollarSign, label: 'VAT', color: 'amber' },
-    BANK: { icon: CreditCard, label: 'Bank', color: 'indigo' }
+    BANK: { icon: CreditCard, label: 'Bank', color: 'indigo' },
   };
 
   const colorClasses = {
@@ -20,7 +20,7 @@ export default function DatasetTabs({ modules, activeModule, onModuleChange, rec
     green: 'border-b-2 border-green-600 text-green-600 dark:text-green-400',
     purple: 'border-b-2 border-purple-600 text-purple-600 dark:text-purple-400',
     amber: 'border-b-2 border-amber-600 text-amber-600 dark:text-amber-400',
-    indigo: 'border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400'
+    indigo: 'border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400',
   };
 
   return (

@@ -35,7 +35,7 @@ export default function AuditTrailView({ datasetId, signOffs = [] }) {
   };
 
   const sortedSignOffs = [...signOffs].sort((a, b) =>
-    new Date(a.signed_at) - new Date(b.signed_at)
+    new Date(a.signed_at) - new Date(b.signed_at),
   );
 
   return (

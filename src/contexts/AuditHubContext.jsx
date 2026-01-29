@@ -23,7 +23,7 @@ export function AuditHubProvider({ children }) {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     year: new Date().getFullYear(),
-    status: null
+    status: null,
   });
 
   // Guard: Redirect if no company context
@@ -206,7 +206,7 @@ export function AuditHubProvider({ children }) {
     closePeriod,
     lockPeriod,
     loadReconciliations,
-    updateFilters
+    updateFilters,
   };
 
   return (

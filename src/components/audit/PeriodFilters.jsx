@@ -15,7 +15,7 @@ export default function PeriodFilters({ filters, onFilterChange }) {
     { value: 'OPEN', label: 'Open' },
     { value: 'REVIEW', label: 'In Review' },
     { value: 'LOCKED', label: 'Locked' },
-    { value: 'FINALIZED', label: 'Finalized' }
+    { value: 'FINALIZED', label: 'Finalized' },
   ];
 
   const handleYearChange = (year) => {

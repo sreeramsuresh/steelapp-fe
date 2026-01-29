@@ -69,7 +69,7 @@ class FinancialReportsService {
             startDate,
             endDate,
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {

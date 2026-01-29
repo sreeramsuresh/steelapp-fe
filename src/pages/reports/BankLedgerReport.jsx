@@ -8,7 +8,7 @@ export default function BankLedgerReport() {
   const [filters, setFilters] = useState({
     accountCode: '1100', // Default to Cash
     startDate: null,
-    endDate: null
+    endDate: null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,7 +25,7 @@ export default function BankLedgerReport() {
       const result = await bankReconciliationService.getBankLedger(
         filters.accountCode,
         filters.startDate,
-        filters.endDate
+        filters.endDate,
       );
       setData(result);
     } catch (err) {

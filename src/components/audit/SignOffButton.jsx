@@ -12,7 +12,7 @@ export default function SignOffButton({
   onClick,
   disabled = false,
   loading = false,
-  canUserSignOff = false
+  canUserSignOff = false,
 }) {
   if (!canUserSignOff) {
     return (
@@ -30,7 +30,7 @@ export default function SignOffButton({
   const colorClasses = {
     PREPARED: 'bg-blue-600 hover:bg-blue-700 text-white',
     REVIEWED: 'bg-amber-600 hover:bg-amber-700 text-white',
-    LOCKED: 'bg-green-600 hover:bg-green-700 text-white'
+    LOCKED: 'bg-green-600 hover:bg-green-700 text-white',
   };
 
   return (

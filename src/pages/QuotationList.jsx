@@ -28,7 +28,7 @@ import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import { quotationService } from '../services/quotationService';
 import { useApiData } from '../hooks/useApi';
 import { companyService } from '../services';
-import { NewBadge } from '../components/shared';
+import { NewBadge, TruncatedText, IconButton } from '../components/shared';
 import QuotationPreview from '../components/quotations/QuotationPreview';
 import { validateQuotationForDownload } from '../utils/recordUtils';
 import { notificationService } from '../services/notificationService';
@@ -467,17 +467,30 @@ const QuotationList = () => {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div
-                        className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                      >
-                        {quotation.customerDetails?.name || 'N/A'}
+                      <div>
+                        {quotation.customerDetails?.name ? (
+                          <TruncatedText
+                            text={quotation.customerDetails.name}
+                            maxWidth="w-48"
+                            className={`text-sm ${
+                              isDarkMode ? 'text-white' : 'text-gray-900'
+                            }`}
+                          />
+                        ) : (
+                          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            —
+                          </span>
+                        )}
                       </div>
                       {quotation.customerDetails?.company && (
-                        <div
-                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                        >
-                          {quotation.customerDetails.company}
-                        </div>
+                        <TruncatedText
+                          text={quotation.customerDetails.company}
+                          maxWidth="w-48"
+                          className={`text-xs ${
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}
+                          tag="div"
+                        />
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
