@@ -1014,7 +1014,7 @@ const CompanySettings = () => {
       }
 
       const updateData = {
-        name: companyProfile.name.trim(),
+        name: companyProfile.name.trim().replace(/\s+/g, ' '),
         address: {
           street: companyProfile.address || '',
           city: companyProfile.city || '',

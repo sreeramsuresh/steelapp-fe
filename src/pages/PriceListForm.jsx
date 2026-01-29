@@ -24,6 +24,7 @@ import {
   DollarSign,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { tokenUtils } from '../services/axiosApi';
 import pricelistService from '../services/pricelistService';
 import { productService } from '../services/dataService';
 import { notificationService } from '../services/notificationService';
@@ -1404,7 +1405,8 @@ export default function PriceListForm() {
   const handleApprove = async () => {
     try {
       setSaving(true);
-      const currentUser = 'Manager'; // TODO: Get from auth context
+      const user = tokenUtils.getUser();
+      const currentUser = user?.name || 'System';
       setFormData({
         ...formData,
         approvalStatus: 'approved',

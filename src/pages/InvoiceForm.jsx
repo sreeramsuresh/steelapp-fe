@@ -270,7 +270,7 @@ const ChargesDrawer = ({
                   heading="Auxiliary Charges & VAT Treatment (Article 45)"
                   content={[
                     'Add charges for services with supply: packing, freight, insurance, loading, other. These are taxable under UAE VAT Article 45.',
-                    'All charges subject to 5% VAT by default. Check "Export Invoice" for zero-rated treatment.',
+                    'All charges subject to 5% VAT by default.',
                   ]}
                 />
               </h4>
