@@ -12,6 +12,7 @@ import {
 import { roleService } from '../services/roleService';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import EmptyState from '../components/shared/EmptyState';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function RolesPage() {
   const navigate = useNavigate();
@@ -27,6 +28,11 @@ export default function RolesPage() {
     displayName: '',
     description: '',
     isDirector: false,
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    roleId: null,
+    roleName: null,
   });
 
   useEffect(() => {
@@ -101,7 +107,17 @@ export default function RolesPage() {
   };
 
   const handleDelete = async (roleId) => {
-    if (!window.confirm('Are you sure you want to delete this role?')) return;
+    const role = roles.find((r) => r.id === roleId);
+    setDeleteConfirm({
+      open: true,
+      roleId,
+      roleName: role ? role.display_name : 'role',
+    });
+  };
+
+  const confirmDelete = async () => {
+    const { roleId } = deleteConfirm;
+    if (!roleId) return;
 
     try {
       await roleService.deleteRole(roleId);
@@ -355,6 +371,23 @@ export default function RolesPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm.open && (
+        <ConfirmDialog
+          title="Delete Role?"
+          message={`Are you sure you want to delete the role "${deleteConfirm.roleName}"? This action cannot be undone.`}
+          variant="danger"
+          onConfirm={() => {
+            confirmDelete().finally(() =>
+              setDeleteConfirm({ open: false, roleId: null, roleName: null }),
+            );
+          }}
+          onCancel={() =>
+            setDeleteConfirm({ open: false, roleId: null, roleName: null })
+          }
+        />
       )}
     </div>
   );

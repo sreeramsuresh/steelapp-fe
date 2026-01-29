@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { creditNoteService } from '../../services/creditNoteService';
 import { notificationService } from '../../services/notificationService';
+import ConfirmDialog from '../ConfirmDialog';
 
 // Action configuration - maps status to button config
 const ACTION_CONFIG = {
@@ -76,6 +77,11 @@ const CreditNoteStatusActions = ({
   const [allowedTransitions, setAllowedTransitions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
+  const [confirmAction, setConfirmAction] = useState({
+    open: false,
+    targetStatus: null,
+    message: null,
+  });
 
   useEffect(() => {
     if (creditNoteId) {
@@ -121,7 +127,12 @@ const CreditNoteStatusActions = ({
       return;
     }
 
-    if (config.confirm && !window.confirm(config.confirm)) {
+    if (config.confirm) {
+      setConfirmAction({
+        open: true,
+        targetStatus,
+        message: config.confirm,
+      });
       return;
     }
 
@@ -197,40 +208,58 @@ const CreditNoteStatusActions = ({
   }
 
   return (
-    <div className={`flex ${compact ? 'gap-1' : 'gap-2'} flex-wrap`}>
-      {allowedTransitions.map((transition) => {
-        const config = ACTION_CONFIG[transition];
-        if (!config) return null;
+    <>
+      <div className={`flex ${compact ? 'gap-1' : 'gap-2'} flex-wrap`}>
+        {allowedTransitions.map((transition) => {
+          const config = ACTION_CONFIG[transition];
+          if (!config) return null;
 
-        const Icon = config.icon;
-        const isLoading = actionLoading === transition;
+          const Icon = config.icon;
+          const isLoading = actionLoading === transition;
 
-        return (
-          <button
-            key={transition}
-            onClick={() => handleAction(transition)}
-            disabled={isLoading || actionLoading !== null}
-            className={`
-              inline-flex items-center gap-1.5 
-              ${compact ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'}
-              font-medium text-white rounded-md
-              ${config.color}
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-colors
-            `}
-          >
-            {isLoading ? (
-              <Loader2
-                className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} animate-spin`}
-              />
-            ) : (
-              <Icon className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
-            )}
-            {config.label}
-          </button>
-        );
-      })}
-    </div>
+          return (
+            <button
+              key={transition}
+              onClick={() => handleAction(transition)}
+              disabled={isLoading || actionLoading !== null}
+              className={`
+                inline-flex items-center gap-1.5
+                ${compact ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'}
+                font-medium text-white rounded-md
+                ${config.color}
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transition-colors
+              `}
+            >
+              {isLoading ? (
+                <Loader2
+                  className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} animate-spin`}
+                />
+              ) : (
+                <Icon className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
+              )}
+              {config.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Action Confirmation Dialog */}
+      {confirmAction.open && (
+        <ConfirmDialog
+          title="Confirm Action?"
+          message={confirmAction.message}
+          variant="warning"
+          onConfirm={() => {
+            executeTransition(confirmAction.targetStatus);
+            setConfirmAction({ open: false, targetStatus: null, message: null });
+          }}
+          onCancel={() =>
+            setConfirmAction({ open: false, targetStatus: null, message: null })
+          }
+        />
+      )}
+    </>
   );
 };
 

@@ -25,6 +25,7 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import { notificationService } from '../../services/notificationService';
+import ConfirmDialog from '../ConfirmDialog';
 
 /**
  * CommissionPanel Component
@@ -52,6 +53,10 @@ const CommissionPanel = ({
   );
   const [adjustmentReason, setAdjustmentReason] = useState('');
   const [daysUntilGraceExpiry, setDaysUntilGraceExpiry] = useState(0);
+  const [actionConfirm, setActionConfirm] = useState({
+    open: false,
+    action: null, // 'approve' or 'paid'
+  });
 
   // Calculate days remaining in grace period
   useEffect(() => {
@@ -102,21 +107,31 @@ const CommissionPanel = ({
   };
 
   const handleApprove = () => {
-    if (window.confirm('Approve this commission for payout?')) {
-      onApproveCommission({
-        invoiceId: invoice.id,
-        commissionAmount: invoice.commissionAmount,
-      });
-    }
+    setActionConfirm({
+      open: true,
+      action: 'approve',
+    });
+  };
+
+  const confirmApprove = () => {
+    onApproveCommission({
+      invoiceId: invoice.id,
+      commissionAmount: invoice.commissionAmount,
+    });
   };
 
   const handleMarkAsPaid = () => {
-    if (window.confirm('Mark this commission as paid?')) {
-      onMarkAsPaid({
-        invoiceId: invoice.id,
-        commissionAmount: invoice.commissionAmount,
-      });
-    }
+    setActionConfirm({
+      open: true,
+      action: 'paid',
+    });
+  };
+
+  const confirmMarkAsPaid = () => {
+    onMarkAsPaid({
+      invoiceId: invoice.id,
+      commissionAmount: invoice.commissionAmount,
+    });
   };
 
   const cardBg = isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white';
@@ -399,6 +414,32 @@ const CommissionPanel = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Action Confirmation Dialog */}
+      {actionConfirm.open && (
+        <ConfirmDialog
+          title={
+            actionConfirm.action === 'approve'
+              ? 'Approve Commission?'
+              : 'Mark Commission as Paid?'
+          }
+          message={
+            actionConfirm.action === 'approve'
+              ? 'Approve this commission for payout? This action cannot be undone.'
+              : 'Mark this commission as paid? This will finalize the payout record.'
+          }
+          variant={actionConfirm.action === 'approve' ? 'warning' : 'info'}
+          onConfirm={() => {
+            if (actionConfirm.action === 'approve') {
+              confirmApprove();
+            } else if (actionConfirm.action === 'paid') {
+              confirmMarkAsPaid();
+            }
+            setActionConfirm({ open: false, action: null });
+          }}
+          onCancel={() => setActionConfirm({ open: false, action: null })}
+        />
+      )}
     </>
   );
 };
