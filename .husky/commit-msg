@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+
+# ============================================
+# ANTI-BYPASS COMMIT MESSAGE HOOK
+# Validates that commits follow guidelines
+# ============================================
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Color codes
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# Check if commit message is empty
+if [ -z "$(echo "$COMMIT_MSG" | grep -v '^#' | tr -d '\n')" ]; then
+  echo "${RED}❌ Commit message cannot be empty!${NC}"
+  exit 1
+fi
+
+# Check minimum length
+if [ $(echo "$COMMIT_MSG" | grep -v '^#' | wc -c) -lt 10 ]; then
+  echo "${RED}❌ Commit message must be at least 10 characters!${NC}"
+  exit 1
+fi
+
+# Warn about commits with no prefix
+if ! echo "$COMMIT_MSG" | grep -E "^(feat|fix|refactor|docs|test|style|chore|Phase|Update)" > /dev/null; then
+  echo "${YELLOW}⚠️  Warning: Commit message should start with a type (feat:, fix:, etc.)${NC}"
+  echo "${YELLOW}   Examples: 'feat: add new feature', 'fix: resolve issue'${NC}"
+fi
+
+echo "${GREEN}✅ Commit message validated${NC}"
+exit 0
