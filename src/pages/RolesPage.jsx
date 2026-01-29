@@ -9,6 +9,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { roleService } from '../services/roleService';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
+import EmptyState from '../components/shared/EmptyState';
 
 export default function RolesPage() {
   const [roles, setRoles] = useState([]);
@@ -106,11 +108,7 @@ export default function RolesPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner mode="block" message="Loading roles..." />;
   }
 
   return (
@@ -130,27 +128,30 @@ export default function RolesPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Users</TableCell>
-              <TableCell>Permissions</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {roles.length === 0 ? (
+      {roles.length === 0 ? (
+        <EmptyState
+          icon={Lock}
+          title="No Roles Created"
+          description="Create your first role to get started managing user permissions."
+          action={<Button onClick={() => handleOpenDialog()} className="gap-2">
+            <Plus className="w-4 h-4" /> Create Role
+          </Button>}
+        />
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No roles found. Create your first role to get started.
-                </TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Users</TableCell>
+                <TableCell>Permissions</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
-            ) : (
-              roles.map((role) => (
+            </TableHead>
+            <TableBody>
+              {roles.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell>
                     <div className="font-semibold">{role.display_name}</div>
@@ -200,11 +201,11 @@ export default function RolesPage() {
                     )}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       {openDialog && (

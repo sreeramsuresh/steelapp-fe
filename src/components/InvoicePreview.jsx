@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { X } from 'lucide-react';
+import { X, FileText } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import InvoiceTemplate from './invoice/InvoiceTemplate';
 import {
@@ -164,7 +164,14 @@ const InvoicePreview = ({
           className="flex-1 overflow-y-auto p-6"
           style={{ background: '#f5f5f5' }}
         >
-          {pagesWithIndices.map((page, idx) => (
+          {pagesWithIndices.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+              <FileText size={48} className="text-gray-400" />
+              <p className="text-gray-500 font-medium">No items to preview</p>
+              <p className="text-sm text-gray-400">Add items to the invoice to see a preview</p>
+            </div>
+          ) : (
+            pagesWithIndices.map((page, idx) => (
             <div key={idx} className="mb-8">
               <InvoiceTemplate
                 invoice={invoice}
@@ -205,7 +212,7 @@ const InvoicePreview = ({
                 </div>
               )}
             </div>
-          ))}
+          )))}
         </div>
 
         {/* Validation Warning */}

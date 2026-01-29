@@ -253,6 +253,19 @@ export default function ARAgingReport() {
           </div>
         )}
 
+        {/* Guidance Section */}
+        <div className={`p-4 rounded-lg mb-6 border ${isDarkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'}`}>
+          <h3 className={`font-semibold mb-2 ${isDarkMode ? 'text-blue-100' : 'text-blue-900'}`}>
+            Understanding AR Aging
+          </h3>
+          <ul className={`text-sm space-y-1 list-disc list-inside ${isDarkMode ? 'text-blue-200' : 'text-blue-800'}`}>
+            <li><strong>Aging Buckets:</strong> Current (0 days), 1-30, 31-60, 61-90, and 90+ days overdue</li>
+            <li><strong>DSO (Days Sales Outstanding):</strong> Average number of days to collect payment after sale</li>
+            <li><strong>Credit Grade:</strong> A (Excellent), B (Good), C (Fair), D (Poor), E (At Risk)</li>
+            <li><strong>Overdue %:</strong> Percentage of AR that is past due (90+ days bucket)</li>
+          </ul>
+        </div>
+
         {/* Search Bar */}
         <div className="relative">
           <Search

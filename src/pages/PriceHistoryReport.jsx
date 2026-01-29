@@ -13,6 +13,7 @@ import pricelistService from '../services/pricelistService';
 import { productService } from '../services/dataService';
 import toast from 'react-hot-toast';
 import { toUAETime } from '../utils/timezone';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 export default function PriceHistoryReport() {
   const [loading, setLoading] = useState(false);
@@ -112,6 +113,16 @@ export default function PriceHistoryReport() {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Price History Report</h1>
 
+      <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+        <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Understanding Price History</h3>
+        <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
+          <li><strong>Price List:</strong> The name of the price list where this price was set</li>
+          <li><strong>Effective Date:</strong> The date range during which this price was active</li>
+          <li><strong>Change:</strong> Percentage difference compared to the previous price</li>
+          <li><strong>Status:</strong> Whether the price list is currently active or inactive</li>
+        </ul>
+      </div>
+
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex-1 min-w-max">
@@ -182,9 +193,7 @@ export default function PriceHistoryReport() {
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
+        <LoadingSpinner mode="block" message="Loading price history..." />
       ) : priceHistory.length === 0 && selectedProduct ? (
         <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200 px-4 py-3 rounded-lg">
           No price history found for the selected product.

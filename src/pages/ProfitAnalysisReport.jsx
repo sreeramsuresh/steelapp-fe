@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, TrendingUp, DollarSign, ShoppingCart } from 'lucide-react';
+import { Download, TrendingUp, DollarSign, ShoppingCart, BarChart3 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -13,6 +13,8 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import { toUAEDateForInput } from '../utils/timezone';
 import { tokenUtils } from '../services/axiosApi';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
+import EmptyState from '../components/shared/EmptyState';
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
@@ -206,9 +208,14 @@ export default function ProfitAnalysisReport() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
+        <LoadingSpinner mode="block" message="Loading profit analysis..." />
+      ) : data.length === 0 ? (
+        <EmptyState
+          icon={BarChart3}
+          title="No Data Available"
+          description="Try adjusting your date range or generating a report to see profit analysis data."
+          action={<Button onClick={fetchReport}>Generate Report</Button>}
+        />
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
