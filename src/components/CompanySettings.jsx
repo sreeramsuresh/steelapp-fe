@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Settings,
   Building,
@@ -45,6 +46,7 @@ import {
   Pencil,
   ThumbsUp,
   Tag,
+  ArrowLeft,
 } from 'lucide-react';
 import { companyService } from '../services/companyService';
 import { authService } from '../services/axiosAuthService';
@@ -440,6 +442,7 @@ const Switch = ({ checked, onChange, label, disabled = false }) => {
 };
 
 const CompanySettings = () => {
+  const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -5985,6 +5988,18 @@ const CompanySettings = () => {
     <div
       className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
     >
+      {/* Back Button */}
+      <div className="mb-4">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-600'}`}
+          aria-label="Back to dashboard"
+          title="Back to dashboard"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+      </div>
+
       {/* Header Section */}
       <div
         className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? 'bg-[#1E2328] border-[#37474F]' : 'bg-white border-gray-200'} shadow-sm`}

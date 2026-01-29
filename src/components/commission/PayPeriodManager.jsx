@@ -98,6 +98,15 @@ const PayPeriodManager = () => {
     }
   };
 
+  const formatStatusDisplay = (status) => {
+    if (!status) return 'Open';
+    return status
+      .toLowerCase()
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const getStatusBadge = (status) => {
     const statusUpper = (status || '').toUpperCase();
     const config = {
@@ -132,7 +141,7 @@ const PayPeriodManager = () => {
         }`}
       >
         <Icon className="w-3 h-3" />
-        <span>{status || 'Open'}</span>
+        <span>{formatStatusDisplay(status)}</span>
       </span>
     );
   };

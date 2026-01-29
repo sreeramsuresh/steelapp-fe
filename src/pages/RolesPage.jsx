@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Users, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Pencil, Trash2, Users, Lock, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -13,11 +14,14 @@ import LoadingSpinner from '../components/shared/LoadingSpinner';
 import EmptyState from '../components/shared/EmptyState';
 
 export default function RolesPage() {
+  const navigate = useNavigate();
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
+  const [sortField, setSortField] = useState('displayName');
+  const [sortDirection, setSortDirection] = useState('asc');
   const [formData, setFormData] = useState({
     name: '',
     displayName: '',
@@ -107,16 +111,52 @@ export default function RolesPage() {
     }
   };
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedRoles = () => {
+    const sorted = [...roles].sort((a, b) => {
+      let aVal = a[sortField === 'displayName' ? 'display_name' : sortField];
+      let bVal = b[sortField === 'displayName' ? 'display_name' : sortField];
+
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+
+      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  };
+
   if (loading) {
     return <LoadingSpinner mode="block" message="Loading roles..." />;
   }
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Lock className="w-8 h-8" /> Roles & Permissions
-        </h1>
+      <div className="flex items-center gap-3 mb-6">
+        <button
+          onClick={() => navigate('/settings')}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          aria-label="Back to settings"
+          title="Back to settings"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Lock className="w-8 h-8" /> Roles & Permissions
+          </h1>
+        </div>
         <Button onClick={() => handleOpenDialog()} className="gap-2">
           <Plus className="w-4 h-4" /> Create Role
         </Button>
@@ -142,8 +182,18 @@ export default function RolesPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Description</TableCell>
+                <TableCell
+                  className="cursor-pointer hover:bg-gray-50 select-none"
+                  onClick={() => handleSort('displayName')}
+                >
+                  Name {sortField === 'displayName' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </TableCell>
+                <TableCell
+                  className="cursor-pointer hover:bg-gray-50 select-none"
+                  onClick={() => handleSort('description')}
+                >
+                  Description {sortField === 'description' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </TableCell>
                 <TableCell>Users</TableCell>
                 <TableCell>Permissions</TableCell>
                 <TableCell>Type</TableCell>
@@ -151,7 +201,7 @@ export default function RolesPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {roles.map((role) => (
+              {getSortedRoles().map((role) => (
                 <TableRow key={role.id}>
                   <TableCell>
                     <div className="font-semibold">{role.display_name}</div>

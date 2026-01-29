@@ -147,6 +147,15 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  const formatStatusDisplay = (status) => {
+    if (!status) return 'Pending';
+    return status
+      .toLowerCase()
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const getStatusBadge = (status) => {
     const statusUpper = (status || '').toUpperCase();
     const config = {
@@ -186,7 +195,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
         }`}
       >
         <Icon className="w-3 h-3" />
-        <span>{status || 'Pending'}</span>
+        <span>{formatStatusDisplay(status)}</span>
       </span>
     );
   };
