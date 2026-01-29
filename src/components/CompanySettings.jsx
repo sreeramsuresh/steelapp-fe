@@ -6156,7 +6156,7 @@ const CompanySettings = () => {
                   type: null,
                   itemId: null,
                   itemName: null,
-                })
+                }),
               );
             }
           }}
