@@ -22,3 +22,4 @@ export {
   ListSkeleton,
   FormSkeleton,
 } from './Skeleton';
+export { default as Breadcrumb } from './Breadcrumb';
