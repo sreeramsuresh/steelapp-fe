@@ -190,6 +190,24 @@ export default function PriceHistoryReport() {
           No price history found for the selected product.
         </div>
       ) : priceHistory.length > 0 ? (
+        <>
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-900 dark:text-amber-200 px-4 py-3 rounded-lg mb-6">
+            <p className="text-sm font-medium">Price History Guide:</p>
+            <ul className="text-xs mt-2 space-y-1 list-disc list-inside">
+              <li>
+                Displays historical prices across all active price lists
+              </li>
+              <li>
+                Effective Date shows when each price list became active
+              </li>
+              <li>
+                Change column shows price increase/decrease from previous entry
+              </li>
+              <li>
+                Default price list is marked for reference
+              </li>
+            </ul>
+          </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
@@ -271,6 +289,7 @@ export default function PriceHistoryReport() {
             </Table>
           </div>
         </div>
+        </>
       ) : null}
     </div>
   );
