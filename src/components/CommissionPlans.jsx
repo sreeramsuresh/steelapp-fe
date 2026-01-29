@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { commissionService } from '../services/commissionService';
 import { notificationService } from '../services/notificationService';
+import ConfirmDialog from './ConfirmDialog';
 
 const CommissionPlans = () => {
   const { isDarkMode } = useTheme();
@@ -24,6 +25,8 @@ const CommissionPlans = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -79,18 +82,25 @@ const CommissionPlans = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (planId) => {
-    if (!confirm('Are you sure you want to delete this plan?')) {
-      return;
-    }
+  const handleDeleteClick = (planId) => {
+    setPlanToDelete(planId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!planToDelete) return;
 
     try {
-      await commissionService.deletePlan(planId);
+      await commissionService.deletePlan(planToDelete);
       notificationService.success('Plan deleted successfully');
+      setShowDeleteConfirm(false);
+      setPlanToDelete(null);
       loadPlans();
     } catch (error) {
       console.error('Error deleting plan:', error);
       notificationService.error('Failed to delete plan');
+      setShowDeleteConfirm(false);
+      setPlanToDelete(null);
     }
   };
 
@@ -336,7 +346,7 @@ const CommissionPlans = () => {
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(plan.id)}
+                    onClick={() => handleDeleteClick(plan.id)}
                     className={`p-2 rounded-lg ${
                       isDarkMode
                         ? 'hover:bg-red-900/20 text-gray-400 hover:text-red-400'
@@ -884,6 +894,21 @@ const CommissionPlans = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete Commission Plan?"
+        message="Are you sure you want to delete this commission plan? This action cannot be undone. Any users assigned to this plan will no longer earn commissions from it."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setPlanToDelete(null);
+        }}
+      />
     </div>
   );
 };

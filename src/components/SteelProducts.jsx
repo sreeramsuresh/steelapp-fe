@@ -2254,7 +2254,7 @@ const SteelProducts = () => {
           />
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search products by name, code, or specification..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={`w-full h-9 pl-9 pr-3 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${

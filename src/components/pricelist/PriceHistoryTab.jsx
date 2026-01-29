@@ -184,7 +184,7 @@ const PriceHistoryTab = ({ pricelistId, products: _products = [] }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search products by name, code, or specification..."
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"

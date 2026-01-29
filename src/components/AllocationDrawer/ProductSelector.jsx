@@ -201,7 +201,7 @@ const ProductSelector = ({
           id="product-search"
           data-testid="drawer-product-search"
           type="text"
-          placeholder="Search products..."
+          placeholder="Search products by name, code, or specification..."
           value={searchTerm}
           onChange={handleInputChange}
           onFocus={() => searchTerm.length >= 2 && setShowDropdown(true)}

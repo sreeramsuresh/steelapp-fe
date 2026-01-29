@@ -845,7 +845,7 @@ const CustomerManagement = () => {
             <FaSearch className={`absolute left-3 ${textMuted}`} />
             <input
               type="text"
-              placeholder="Search customers..."
+              placeholder="Search customers by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 w-full ${
@@ -1276,7 +1276,7 @@ const CustomerManagement = () => {
             <FaSearch className={`absolute left-3 ${textMuted}`} />
             <input
               type="text"
-              placeholder="Search suppliers..."
+              placeholder="Search suppliers by name, contact, or email..."
               value={supplierSearchTerm}
               onChange={(e) => setSupplierSearchTerm(e.target.value)}
               className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 w-full ${

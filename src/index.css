@@ -3,6 +3,22 @@
 @tailwind utilities;
 
 @layer base {
+  /* Bug #26: Add visible focus indicators for accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-teal-500;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline-2 outline-offset-2 outline-teal-500;
+  }
+
+  .dark *:focus-visible {
+    @apply outline-teal-400;
+  }
+
   :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;

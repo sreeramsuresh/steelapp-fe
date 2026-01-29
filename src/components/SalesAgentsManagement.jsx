@@ -118,7 +118,7 @@ const SalesAgentsManagement = () => {
         />
         <input
           type="text"
-          placeholder="Search agents by name, username, or email..."
+          placeholder="Search sales agents by name, username, email, or ID..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
