@@ -126,6 +126,8 @@ export default function DeliveryScheduleModal({
               <button
                 onClick={onClose}
                 className={`p-1 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                aria-label="Close delivery schedule modal"
+                title="Close modal"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -138,6 +140,19 @@ export default function DeliveryScheduleModal({
               </div>
             )}
 
+            {/* Validation Requirements */}
+            <div
+              className={`p-3 mb-4 rounded-lg border text-sm ${isDarkMode ? 'bg-gray-900/30 border-amber-700 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-900'}`}
+            >
+              <p className="font-medium mb-2">Requirements:</p>
+              <ul className="space-y-1 text-xs list-disc list-inside">
+                <li>Total scheduled quantity must match line quantity ({lineQuantity} units)</li>
+                <li>Each delivery entry requires a date and quantity</li>
+                <li>Entries are sorted by date in the schedule</li>
+              </ul>
+            </div>
+
+            {/* Summary Progress */}
             <div
               className={`p-3 mb-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-blue-50'}`}
             >
@@ -277,6 +292,8 @@ export default function DeliveryScheduleModal({
                     <button
                       onClick={() => removeScheduleEntry(index)}
                       className="mt-5 p-1.5 text-red-600 hover:bg-red-50 rounded"
+                      aria-label={`Delete delivery date entry ${index + 1}`}
+                      title="Delete entry"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -288,6 +305,8 @@ export default function DeliveryScheduleModal({
             <button
               onClick={addScheduleEntry}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
+              aria-label="Add new delivery date entry"
+              title="Add delivery date"
             >
               <Plus className="h-4 w-4" />
               Add Delivery Date

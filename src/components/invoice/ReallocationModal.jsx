@@ -540,8 +540,24 @@ const ReallocationModal = ({
             </div>
           )}
 
+          {/* Reallocation Guidance */}
+          <div
+            className={`p-3 rounded-lg border text-sm ${isDarkMode ? 'bg-blue-900/20 border-blue-700 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-900'}`}
+          >
+            <p className="font-medium mb-1">About Reallocation:</p>
+            <p className="text-xs mb-2">
+              Change which stock batches are allocated to this invoice line. This is useful for handling customer requests, quality issues, or corrections to initial allocations.
+            </p>
+            <p className="text-xs font-medium">Requirements:</p>
+            <ul className="text-xs list-disc list-inside space-y-1 mt-1">
+              <li>Total allocated quantity must match the line quantity</li>
+              <li>You must select a reason code explaining the change</li>
+              <li>Available batches shown are for the same product and warehouse</li>
+            </ul>
+          </div>
+
           {/* Reason code selection */}
-          <div className="space-y-3">
+          <div className="space-y-3 mt-4">
             <h4
               className={`text-sm font-semibold ${
                 isDarkMode ? 'text-gray-200' : 'text-gray-800'

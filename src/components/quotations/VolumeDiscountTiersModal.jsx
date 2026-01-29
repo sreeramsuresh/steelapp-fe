@@ -69,17 +69,31 @@ export default function VolumeDiscountTiersModal({
               <button
                 onClick={onClose}
                 className={`p-1 rounded-lg hover:bg-gray-100 ${isDarkMode ? 'hover:bg-gray-700' : ''}`}
+                aria-label="Close volume discount tiers modal"
+                title="Close modal"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <p
-              className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              Define pricing breaks based on order quantity. Customers will see
-              these tiers on the quotation.
-            </p>
+            <div className="space-y-3 mb-4">
+              <p
+                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+              >
+                Define pricing breaks based on order quantity. Customers will see
+                these tiers on the quotation.
+              </p>
+              <div
+                className={`p-3 rounded-lg border text-xs ${isDarkMode ? 'bg-gray-900/30 border-amber-700 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-900'}`}
+              >
+                <p className="font-medium mb-1">Requirements:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Minimum quantity must be greater than 0</li>
+                  <li>Discount percentage must be between 0 and 100</li>
+                  <li>Tiers are automatically sorted by minimum quantity</li>
+                </ul>
+              </div>
+            </div>
 
             <div className="space-y-3 mb-4">
               {localTiers.map((tier, index) => (
@@ -177,6 +191,8 @@ export default function VolumeDiscountTiersModal({
                   <button
                     onClick={() => removeTier(index)}
                     className="mt-6 p-1.5 text-red-600 hover:bg-red-50 rounded"
+                    aria-label={`Delete tier ${index + 1}`}
+                    title="Delete tier"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -187,6 +203,8 @@ export default function VolumeDiscountTiersModal({
             <button
               onClick={addTier}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-teal-600 hover:bg-teal-50 rounded-lg"
+              aria-label="Add new volume discount tier"
+              title="Add new tier"
             >
               <Plus className="h-4 w-4" />
               Add Tier
