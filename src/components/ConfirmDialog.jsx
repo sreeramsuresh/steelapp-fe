@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle, Info, X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import useEscapeKey from '../hooks/useEscapeKey';
 
 /**
  * Professional Confirmation Dialog Component
@@ -30,6 +31,9 @@ const ConfirmDialog = ({
   showIcon = true,
 }) => {
   const { isDarkMode } = useTheme();
+
+  // Handle Escape key to cancel
+  useEscapeKey(onCancel, open);
 
   if (!open) return null;
 

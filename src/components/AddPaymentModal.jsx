@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, AlertTriangle, Loader2 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import useEscapeKey from '../hooks/useEscapeKey';
 import { formatCurrency, formatDateForInput } from '../utils/invoiceUtils';
 import {
   PAYMENT_MODES,
@@ -31,6 +32,9 @@ const AddPaymentModal = ({
   const [errors, setErrors] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const balanceDue = calculateBalanceDue(invoiceTotal, existingPayments);
+
+  // Handle Escape key to close modal
+  useEscapeKey(onClose, isOpen);
 
   // Load editing payment data
   useEffect(() => {
