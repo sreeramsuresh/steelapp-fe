@@ -190,32 +190,6 @@ export default function ARAgingReport() {
           </div>
         </div>
 
-        {/* AR Aging Guidance */}
-        <div
-          className={`p-4 rounded-lg border mb-6 ${
-            isDarkMode
-              ? 'bg-blue-900/20 border-blue-700 text-blue-200'
-              : 'bg-blue-50 border-blue-200 text-blue-900'
-          }`}
-        >
-          <p className="text-sm font-medium mb-2">Understanding AR Aging:</p>
-          <ul className="text-xs space-y-1 list-disc list-inside">
-            <li>
-              Current (0-30 days): Invoices not yet due - healthy receivables
-            </li>
-            <li>
-              30-60 days: Invoices overdue by up to 1 month - follow up required
-            </li>
-            <li>
-              60-90 days: Invoices overdue by 1-3 months - escalate collection
-            </li>
-            <li>
-              90+ days: Invoices overdue by more than 3 months - serious risk
-            </li>
-            <li>DSO = Days Sales Outstanding, ideal target: &lt;45 days</li>
-          </ul>
-        </div>
-
         {/* Summary Cards */}
         {totals && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
