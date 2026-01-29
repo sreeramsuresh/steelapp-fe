@@ -56,7 +56,9 @@ export default function AuditHubDashboard() {
     setClosingPeriodId(periodId);
     try {
       await closePeriod(periodId);
-      toast.success('Period closed successfully. Snapshots are being generated...');
+      toast.success(
+        'Period closed successfully. Snapshots are being generated...',
+      );
     } catch (err) {
       toast.error(`Failed to close period: ${err.message}`);
     } finally {
@@ -83,9 +85,9 @@ export default function AuditHubDashboard() {
 
   // Count periods by status
   const statusCounts = {
-    OPEN: periods.filter(p => p.status === 'OPEN').length,
-    REVIEW: periods.filter(p => p.status === 'REVIEW').length,
-    LOCKED: periods.filter(p => p.status === 'LOCKED').length,
+    OPEN: periods.filter((p) => p.status === 'OPEN').length,
+    REVIEW: periods.filter((p) => p.status === 'REVIEW').length,
+    LOCKED: periods.filter((p) => p.status === 'LOCKED').length,
   };
 
   return (
@@ -138,8 +140,12 @@ export default function AuditHubDashboard() {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Open Periods</p>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{statusCounts.OPEN}</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Open Periods
+                </p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                  {statusCounts.OPEN}
+                </p>
               </div>
               <Calendar className="w-8 h-8 text-blue-500 opacity-20" />
             </div>
@@ -148,8 +154,12 @@ export default function AuditHubDashboard() {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-amber-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">In Review</p>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{statusCounts.REVIEW}</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  In Review
+                </p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                  {statusCounts.REVIEW}
+                </p>
               </div>
               <CheckCircle className="w-8 h-8 text-amber-500 opacity-20" />
             </div>
@@ -158,8 +168,12 @@ export default function AuditHubDashboard() {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Locked</p>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{statusCounts.LOCKED}</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Locked
+                </p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                  {statusCounts.LOCKED}
+                </p>
               </div>
               <Lock className="w-8 h-8 text-green-500 opacity-20" />
             </div>
@@ -178,12 +192,16 @@ export default function AuditHubDashboard() {
               <div className="animate-spin">
                 <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto" />
               </div>
-              <p className="mt-4 text-slate-600 dark:text-slate-400">Loading periods...</p>
+              <p className="mt-4 text-slate-600 dark:text-slate-400">
+                Loading periods...
+              </p>
             </div>
           ) : periods.length === 0 ? (
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-12 text-center">
               <Calendar className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-600 dark:text-slate-400">No periods found</p>
+              <p className="text-slate-600 dark:text-slate-400">
+                No periods found
+              </p>
               <button
                 onClick={() => setCreatingPeriod(true)}
                 className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
@@ -192,7 +210,7 @@ export default function AuditHubDashboard() {
               </button>
             </div>
           ) : (
-            periods.map(period => (
+            periods.map((period) => (
               <PeriodCard
                 key={period.id}
                 period={period}

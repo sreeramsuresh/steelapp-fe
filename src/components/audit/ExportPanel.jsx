@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Download, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import auditHubService from '../../services/auditHubService';
 import toast from 'react-hot-toast';
@@ -9,7 +9,13 @@ import toast from 'react-hot-toast';
  * Implements FIX 4: Deterministic export verification
  */
 
-export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRegeneration, verifying, exportStatus }) {
+export default function ExportPanel({
+  datasetId,
+  onExportGenerated,
+  onVerifyRegeneration,
+  verifying,
+  exportStatus,
+}) {
   const [generating, setGenerating] = useState({
     EXCEL: false,
     PDF: false,
@@ -41,7 +47,7 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
   ];
 
   const handleGenerateExport = async (exportType) => {
-    setGenerating(prev => ({ ...prev, [exportType]: true }));
+    setGenerating((prev) => ({ ...prev, [exportType]: true }));
     try {
       const result = await auditHubService.generateExcelExport(datasetId);
 
@@ -61,7 +67,7 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
     } catch (err) {
       toast.error(`Failed to generate ${exportType}: ${err.message}`);
     } finally {
-      setGenerating(prev => ({ ...prev, [exportType]: false }));
+      setGenerating((prev) => ({ ...prev, [exportType]: false }));
     }
   };
 
@@ -81,7 +87,7 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {exportConfigs.map(config => {
+        {exportConfigs.map((config) => {
           const isGenerating = generating[config.type];
           const status = exportStatus[config.type];
 
@@ -170,7 +176,10 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
       {/* FIX 4 Explanation */}
       <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
         <p className="text-xs text-blue-900 dark:text-blue-100">
-          <strong>FIX 4 - Deterministic Snapshots:</strong> Exports use canonical ordering, fixed decimal places, and deterministic null handling. Regenerating the same export will produce byte-identical files. Click "Verify" to compare SHA-256 hashes.
+          <strong>FIX 4 - Deterministic Snapshots:</strong> Exports use
+          canonical ordering, fixed decimal places, and deterministic null
+          handling. Regenerating the same export will produce byte-identical
+          files. Click &quot;Verify&quot; to compare SHA-256 hashes.
         </p>
       </div>
     </div>

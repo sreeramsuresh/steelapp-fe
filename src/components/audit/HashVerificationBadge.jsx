@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { CheckCircle, AlertTriangle, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -15,11 +15,13 @@ export default function HashVerificationBadge({ hash, verified = true }) {
   };
 
   return (
-    <div className={`p-4 rounded-lg border-2 ${
-      verified
-        ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
-        : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
-    }`}>
+    <div
+      className={`p-4 rounded-lg border-2 ${
+        verified
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+          : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+      }`}
+    >
       <div className="flex items-start gap-3">
         {verified ? (
           <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
@@ -28,19 +30,23 @@ export default function HashVerificationBadge({ hash, verified = true }) {
         )}
 
         <div className="flex-1 min-w-0">
-          <h4 className={`font-semibold text-sm mb-2 ${
-            verified
-              ? 'text-green-900 dark:text-green-100'
-              : 'text-red-900 dark:text-red-100'
-          }`}>
+          <h4
+            className={`font-semibold text-sm mb-2 ${
+              verified
+                ? 'text-green-900 dark:text-green-100'
+                : 'text-red-900 dark:text-red-100'
+            }`}
+          >
             {verified ? '✓ Data Integrity Verified' : '✗ Data Integrity Issue'}
           </h4>
 
-          <p className={`text-xs mb-3 ${
-            verified
-              ? 'text-green-800 dark:text-green-200'
-              : 'text-red-800 dark:text-red-200'
-          }`}>
+          <p
+            className={`text-xs mb-3 ${
+              verified
+                ? 'text-green-800 dark:text-green-200'
+                : 'text-red-800 dark:text-red-200'
+            }`}
+          >
             {verified
               ? 'SHA-256 hash matches immutable snapshot. Data has not been modified.'
               : 'Hash mismatch detected! Data may have been modified after lock.'}
@@ -48,11 +54,13 @@ export default function HashVerificationBadge({ hash, verified = true }) {
 
           {hash && (
             <div className="flex items-center gap-2">
-              <code className={`text-xs font-mono flex-1 truncate p-2 rounded ${
-                verified
-                  ? 'bg-green-100 dark:bg-green-900/50 text-green-900 dark:text-green-100'
-                  : 'bg-red-100 dark:bg-red-900/50 text-red-900 dark:text-red-100'
-              }`}>
+              <code
+                className={`text-xs font-mono flex-1 truncate p-2 rounded ${
+                  verified
+                    ? 'bg-green-100 dark:bg-green-900/50 text-green-900 dark:text-green-100'
+                    : 'bg-red-100 dark:bg-red-900/50 text-red-900 dark:text-red-100'
+                }`}
+              >
                 {hash}
               </code>
               <button

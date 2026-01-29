@@ -7,7 +7,12 @@ import toast from 'react-hot-toast';
  * Dialog for creating new accounting periods
  */
 
-export default function CreatePeriodModal({ isOpen, onClose, onCreatePeriod, isLoading }) {
+export default function CreatePeriodModal({
+  isOpen,
+  onClose,
+  onCreatePeriod,
+  isLoading,
+}) {
   const [periodType, setPeriodType] = useState('MONTHLY');
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);

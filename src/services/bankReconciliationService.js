@@ -39,10 +39,10 @@ class BankReconciliationService {
    * Match bank statement line to journal entry
    */
   async matchBankLine(lineId, journalEntryId) {
-    const response = await apiClient.post(
-      '/bank-reconciliation/match-line',
-      { lineId, journalEntryId },
-    );
+    const response = await apiClient.post('/bank-reconciliation/match-line', {
+      lineId,
+      journalEntryId,
+    });
     return response.data;
   }
 
@@ -50,18 +50,15 @@ class BankReconciliationService {
    * Get Cash Book for period
    */
   async getCashBook(startDate, endDate, options = {}) {
-    const response = await apiClient.get(
-      '/bank-reconciliation/cash-book',
-      {
-        params: {
-          startDate,
-          endDate,
-          cashAccountCode: options.cashAccountCode || '1100',
-          page: options.page || 1,
-          limit: options.limit || 100,
-        },
+    const response = await apiClient.get('/bank-reconciliation/cash-book', {
+      params: {
+        startDate,
+        endDate,
+        cashAccountCode: options.cashAccountCode || '1100',
+        page: options.page || 1,
+        limit: options.limit || 100,
       },
-    );
+    });
     return response.data;
   }
 

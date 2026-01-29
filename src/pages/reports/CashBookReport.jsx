@@ -64,7 +64,9 @@ export default function CashBookReport() {
             </label>
             <select
               value={filters.cashAccountCode}
-              onChange={(e) => setFilters({...filters, cashAccountCode: e.target.value})}
+              onChange={(e) =>
+                setFilters({ ...filters, cashAccountCode: e.target.value })
+              }
               className="w-full border rounded px-3 py-2 text-sm"
             >
               <option value="1100">1100 - Cash on Hand</option>
@@ -78,7 +80,9 @@ export default function CashBookReport() {
             <input
               type="date"
               value={filters.startDate}
-              onChange={(e) => setFilters({...filters, startDate: e.target.value})}
+              onChange={(e) =>
+                setFilters({ ...filters, startDate: e.target.value })
+              }
               className="w-full border rounded px-3 py-2"
             />
           </div>
@@ -89,7 +93,9 @@ export default function CashBookReport() {
             <input
               type="date"
               value={filters.endDate}
-              onChange={(e) => setFilters({...filters, endDate: e.target.value})}
+              onChange={(e) =>
+                setFilters({ ...filters, endDate: e.target.value })
+              }
               className="w-full border rounded px-3 py-2"
             />
           </div>
@@ -103,9 +109,7 @@ export default function CashBookReport() {
             </button>
           </div>
           <div className="flex items-end">
-            <button
-              className="w-full bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2 text-sm"
-            >
+            <button className="w-full bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2 text-sm">
               Export
             </button>
           </div>
@@ -124,26 +128,32 @@ export default function CashBookReport() {
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm">Total Receipts</div>
             <div className="text-xl font-bold text-green-600">
-              {bankReconciliationService.formatCurrency(summary.totals.total_receipts)}
+              {bankReconciliationService.formatCurrency(
+                summary.totals.total_receipts,
+              )}
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm">Total Payments</div>
             <div className="text-xl font-bold text-red-600">
-              {bankReconciliationService.formatCurrency(summary.totals.total_payments)}
+              {bankReconciliationService.formatCurrency(
+                summary.totals.total_payments,
+              )}
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm">Net Cash Flow</div>
-            <div className={`text-xl font-bold ${summary.totals.net_cash_flow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {bankReconciliationService.formatCurrency(summary.totals.net_cash_flow)}
+            <div
+              className={`text-xl font-bold ${summary.totals.net_cash_flow >= 0 ? 'text-green-600' : 'text-red-600'}`}
+            >
+              {bankReconciliationService.formatCurrency(
+                summary.totals.net_cash_flow,
+              )}
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm">Total Days</div>
-            <div className="text-xl font-bold">
-              {summary.totals.total_days}
-            </div>
+            <div className="text-xl font-bold">{summary.totals.total_days}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-gray-600 text-sm">Transactions</div>
@@ -160,26 +170,46 @@ export default function CashBookReport() {
           <table className="min-w-full">
             <thead>
               <tr className="bg-gray-50 border-b">
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Date</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Receipts</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Payments</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Net Flow</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-900">Receipt #</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-900">Payment #</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                  Receipts
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                  Payments
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                  Net Flow
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-medium text-gray-900">
+                  Receipt #
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-medium text-gray-900">
+                  Payment #
+                </th>
               </tr>
             </thead>
             <tbody>
               {summary.summary.map((day, idx) => (
                 <tr key={idx} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm">{bankReconciliationService.formatDate(day.entry_date)}</td>
+                  <td className="px-4 py-3 text-sm">
+                    {bankReconciliationService.formatDate(day.entry_date)}
+                  </td>
                   <td className="px-4 py-3 text-right text-sm text-green-600">
-                    {bankReconciliationService.formatCurrency(day.total_receipts)}
+                    {bankReconciliationService.formatCurrency(
+                      day.total_receipts,
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-red-600">
-                    {bankReconciliationService.formatCurrency(day.total_payments)}
+                    {bankReconciliationService.formatCurrency(
+                      day.total_payments,
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right text-sm font-medium">
-                    {bankReconciliationService.formatCurrency(day.net_cash_flow)}
+                    {bankReconciliationService.formatCurrency(
+                      day.net_cash_flow,
+                    )}
                   </td>
                   <td className="px-4 py-3 text-center text-sm">
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
@@ -208,37 +238,73 @@ export default function CashBookReport() {
           <table className="min-w-full">
             <thead>
               <tr className="bg-gray-50 border-b">
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Date</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Journal #</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Type</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Contra Account</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Description</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Receipt</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Payment</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">By</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                  Journal #
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                  Type
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                  Contra Account
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                  Description
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                  Receipt
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                  Payment
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                  By
+                </th>
               </tr>
             </thead>
             <tbody>
               {data.entries.map((entry, idx) => (
                 <tr key={idx} className="border-b hover:bg-gray-50 text-sm">
-                  <td className="px-4 py-3">{bankReconciliationService.formatDate(entry.entry_date)}</td>
-                  <td className="px-4 py-3 font-medium">{entry.journal_number}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      entry.transaction_type === 'RECEIPT' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    {bankReconciliationService.formatDate(entry.entry_date)}
+                  </td>
+                  <td className="px-4 py-3 font-medium">
+                    {entry.journal_number}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        entry.transaction_type === 'RECEIPT'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
                       {entry.transaction_type}
                     </span>
                   </td>
                   <td className="px-4 py-3">{entry.contra_account}</td>
-                  <td className="px-4 py-3 text-gray-600">{entry.description}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {entry.description}
+                  </td>
                   <td className="px-4 py-3 text-right text-green-600">
-                    {entry.receipt_amount > 0 ? bankReconciliationService.formatCurrency(entry.receipt_amount) : '-'}
+                    {entry.receipt_amount > 0
+                      ? bankReconciliationService.formatCurrency(
+                          entry.receipt_amount,
+                        )
+                      : '-'}
                   </td>
                   <td className="px-4 py-3 text-right text-red-600">
-                    {entry.payment_amount > 0 ? bankReconciliationService.formatCurrency(entry.payment_amount) : '-'}
+                    {entry.payment_amount > 0
+                      ? bankReconciliationService.formatCurrency(
+                          entry.payment_amount,
+                        )
+                      : '-'}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{entry.created_by}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {entry.created_by}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -248,18 +314,26 @@ export default function CashBookReport() {
           {data.pagination && data.pagination.pages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t">
               <div className="text-sm text-gray-600">
-                Page {data.pagination.page} of {data.pagination.pages} ({data.pagination.total} total)
+                Page {data.pagination.page} of {data.pagination.pages} (
+                {data.pagination.total} total)
               </div>
               <div className="space-x-2">
                 <button
-                  onClick={() => setFilters({...filters, page: Math.max(1, filters.page - 1)})}
+                  onClick={() =>
+                    setFilters({
+                      ...filters,
+                      page: Math.max(1, filters.page - 1),
+                    })
+                  }
                   disabled={filters.page === 1}
                   className="px-3 py-1 border rounded disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
-                  onClick={() => setFilters({...filters, page: filters.page + 1})}
+                  onClick={() =>
+                    setFilters({ ...filters, page: filters.page + 1 })
+                  }
                   disabled={filters.page >= data.pagination.pages}
                   className="px-3 py-1 border rounded disabled:opacity-50"
                 >

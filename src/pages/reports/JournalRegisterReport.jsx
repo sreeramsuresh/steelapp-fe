@@ -89,7 +89,8 @@ export default function JournalRegisterReport() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Journal Register</h1>
         <p className="text-gray-600 mt-2">
-          Complete record of all journal entries posted during the selected period
+          Complete record of all journal entries posted during the selected
+          period
         </p>
       </div>
 
@@ -176,20 +177,29 @@ export default function JournalRegisterReport() {
               {financialReportsService.formatCurrency(data.totals.credit)}
             </p>
           </div>
-          <div className={`rounded-lg shadow p-4 ${
-            data.totals.variance < 0.01
-              ? 'bg-green-50 border border-green-200'
-              : 'bg-red-50 border border-red-200'
-          }`}>
-            <p className={`text-sm ${
-              data.totals.variance < 0.01 ? 'text-green-700' : 'text-red-700'
-            }`}>
-              {data.totals.variance < 0.01 ? 'Status: Balanced' : 'Status: Unbalanced'}
+          <div
+            className={`rounded-lg shadow p-4 ${
+              data.totals.variance < 0.01
+                ? 'bg-green-50 border border-green-200'
+                : 'bg-red-50 border border-red-200'
+            }`}
+          >
+            <p
+              className={`text-sm ${
+                data.totals.variance < 0.01 ? 'text-green-700' : 'text-red-700'
+              }`}
+            >
+              {data.totals.variance < 0.01
+                ? 'Status: Balanced'
+                : 'Status: Unbalanced'}
             </p>
-            <p className={`text-2xl font-bold mt-2 ${
-              data.totals.variance < 0.01 ? 'text-green-900' : 'text-red-900'
-            }`}>
-              Variance: {financialReportsService.formatCurrency(data.totals.variance)}
+            <p
+              className={`text-2xl font-bold mt-2 ${
+                data.totals.variance < 0.01 ? 'text-green-900' : 'text-red-900'
+              }`}
+            >
+              Variance:{' '}
+              {financialReportsService.formatCurrency(data.totals.variance)}
             </p>
           </div>
         </div>
@@ -238,12 +248,16 @@ export default function JournalRegisterReport() {
                   </td>
                   <td className="px-4 py-3 text-sm text-right font-mono">
                     {entry.debit_amount > 0
-                      ? financialReportsService.formatCurrency(entry.debit_amount)
+                      ? financialReportsService.formatCurrency(
+                          entry.debit_amount,
+                        )
                       : '-'}
                   </td>
                   <td className="px-4 py-3 text-sm text-right font-mono">
                     {entry.credit_amount > 0
-                      ? financialReportsService.formatCurrency(entry.credit_amount)
+                      ? financialReportsService.formatCurrency(
+                          entry.credit_amount,
+                        )
                       : '-'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
@@ -265,9 +279,12 @@ export default function JournalRegisterReport() {
       {data && data.pagination && (
         <div className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            Showing {((currentPage - 1) * data.pagination.limit) + 1} to{' '}
-            {Math.min(currentPage * data.pagination.limit, data.pagination.total)} of{' '}
-            {data.pagination.total} entries
+            Showing {(currentPage - 1) * data.pagination.limit + 1} to{' '}
+            {Math.min(
+              currentPage * data.pagination.limit,
+              data.pagination.total,
+            )}{' '}
+            of {data.pagination.total} entries
           </div>
           <div className="flex space-x-2">
             <button
@@ -306,14 +323,18 @@ export default function JournalRegisterReport() {
       {/* Empty State */}
       {!loading && !data && !error && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600">Select date range and click "Generate"</p>
+          <p className="text-gray-600">
+            Select date range and click &quot;Generate&quot;
+          </p>
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600 animate-pulse">Generating Journal Register...</p>
+          <p className="text-gray-600 animate-pulse">
+            Generating Journal Register...
+          </p>
         </div>
       )}
     </div>

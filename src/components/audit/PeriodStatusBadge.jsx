@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Clock, CheckCircle, Lock, AlertCircle } from 'lucide-react';
 
 /**
@@ -49,7 +49,9 @@ export default function PeriodStatusBadge({ status }) {
   const Icon = config.icon;
 
   return (
-    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${config.bgColor} ${config.textColor}`}>
+    <span
+      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${config.bgColor} ${config.textColor}`}
+    >
       <span className={`w-2 h-2 rounded-full ${config.dotColor}`}></span>
       <Icon className="w-4 h-4" />
       {config.label}

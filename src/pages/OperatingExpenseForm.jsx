@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -78,7 +78,7 @@ export default function OperatingExpenseForm() {
   const loadExpenseAccounts = async () => {
     try {
       const accounts = await chartOfAccountsService.getByCategory('EXPENSE');
-      setExpenseAccounts(accounts.filter(acc => acc.type !== 'HEADER'));
+      setExpenseAccounts(accounts.filter((acc) => acc.type !== 'HEADER'));
     } catch (err) {
       console.error('Failed to load expense accounts:', err);
     }
@@ -152,7 +152,11 @@ export default function OperatingExpenseForm() {
       // Switch to list tab after short delay
       setTimeout(() => setActiveTab('list'), 1000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to create expense');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to create expense',
+      );
     } finally {
       setLoading(false);
     }
@@ -173,7 +177,8 @@ export default function OperatingExpenseForm() {
   };
 
   const handleDelete = async (expenseId) => {
-    if (!window.confirm('Are you sure you want to delete this expense?')) return;
+    if (!window.confirm('Are you sure you want to delete this expense?'))
+      return;
 
     setLoading(true);
     try {
@@ -205,7 +210,11 @@ export default function OperatingExpenseForm() {
       )}
 
       {success && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(false)}>
+        <Alert
+          severity="success"
+          sx={{ mb: 2 }}
+          onClose={() => setSuccess(false)}
+        >
           Operation completed successfully!
         </Alert>
       )}
@@ -363,7 +372,11 @@ export default function OperatingExpenseForm() {
                       color="primary"
                       disabled={loading}
                     >
-                      {loading ? <CircularProgress size={24} /> : 'Create Expense'}
+                      {loading ? (
+                        <CircularProgress size={24} />
+                      ) : (
+                        'Create Expense'
+                      )}
                     </Button>
                     <Button
                       type="button"
@@ -419,10 +432,10 @@ export default function OperatingExpenseForm() {
                             expense.status === 'POSTED'
                               ? '#c8e6c9'
                               : expense.status === 'APPROVED'
-                              ? '#bbdefb'
-                              : expense.status === 'SUBMITTED'
-                              ? '#fff9c4'
-                              : '#f5f5f5',
+                                ? '#bbdefb'
+                                : expense.status === 'SUBMITTED'
+                                  ? '#fff9c4'
+                                  : '#f5f5f5',
                           borderRadius: 1,
                           fontSize: 12,
                           fontWeight: 600,
@@ -457,7 +470,12 @@ export default function OperatingExpenseForm() {
       )}
 
       {/* Details Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         {selectedExpense && (
           <>
             <DialogTitle>Expense Details</DialogTitle>
@@ -480,14 +498,17 @@ export default function OperatingExpenseForm() {
                     Account
                   </Typography>
                   <Typography>
-                    {selectedExpense.categoryCode} - {selectedExpense.categoryName}
+                    {selectedExpense.categoryCode} -{' '}
+                    {selectedExpense.categoryName}
                   </Typography>
                 </Box>
                 <Box>
                   <Typography variant="caption" color="textSecondary">
                     Amount
                   </Typography>
-                  <Typography>{parseFloat(selectedExpense.amount).toFixed(2)} AED</Typography>
+                  <Typography>
+                    {parseFloat(selectedExpense.amount).toFixed(2)} AED
+                  </Typography>
                 </Box>
                 <Box>
                   <Typography variant="caption" color="textSecondary">

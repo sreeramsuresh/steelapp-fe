@@ -63,7 +63,9 @@ const TextInput = ({
       />
       {error && <FormError message={error} />}
       {helpText && !error && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{helpText}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          {helpText}
+        </p>
       )}
     </div>
   );

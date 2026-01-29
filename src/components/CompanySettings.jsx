@@ -4943,7 +4943,8 @@ const CompanySettings = () => {
                                     <div className="ml-4">
                                       <span
                                         className={`inline-flex items-center px-2 py-1 text-xs rounded ${
-                                          new Date(grant.expires_at) < new Date()
+                                          new Date(grant.expires_at) <
+                                          new Date()
                                             ? isDarkMode
                                               ? 'bg-red-900/30 text-red-400'
                                               : 'bg-red-100 text-red-700'

@@ -1,12 +1,23 @@
-import React from 'react';
-import { ShoppingCart, Truck, Package, DollarSign, CreditCard } from 'lucide-react';
+
+import {
+  ShoppingCart,
+  Truck,
+  Package,
+  DollarSign,
+  CreditCard,
+} from 'lucide-react';
 
 /**
  * Dataset Tabs Component
  * Navigation between different snapshot modules (Sales, Purchases, Inventory, VAT, Bank)
  */
 
-export default function DatasetTabs({ modules, activeModule, onModuleChange, recordCounts = {} }) {
+export default function DatasetTabs({
+  modules,
+  activeModule,
+  onModuleChange,
+  recordCounts = {},
+}) {
   const moduleConfig = {
     SALES: { icon: ShoppingCart, label: 'Sales', color: 'blue' },
     PURCHASES: { icon: Truck, label: 'Purchases', color: 'green' },
@@ -26,7 +37,7 @@ export default function DatasetTabs({ modules, activeModule, onModuleChange, rec
   return (
     <div className="border-b border-slate-200 dark:border-slate-700">
       <div className="flex overflow-x-auto">
-        {modules.map(module => {
+        {modules.map((module) => {
           const config = moduleConfig[module];
           const Icon = config.icon;
           const isActive = activeModule === module;
@@ -45,11 +56,13 @@ export default function DatasetTabs({ modules, activeModule, onModuleChange, rec
               <Icon className="w-4 h-4" />
               {config.label}
               {count > 0 && (
-                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${
-                  isActive
-                    ? `bg-${config.color}-100 dark:bg-${config.color}-900/30 text-${config.color}-700 dark:text-${config.color}-300`
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
-                }`}>
+                <span
+                  className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${
+                    isActive
+                      ? `bg-${config.color}-100 dark:bg-${config.color}-900/30 text-${config.color}-700 dark:text-${config.color}-300`
+                      : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                  }`}
+                >
                   {count}
                 </span>
               )}

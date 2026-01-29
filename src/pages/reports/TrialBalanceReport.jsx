@@ -72,7 +72,9 @@ export default function TrialBalanceReport() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Trial Balance Report</h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Trial Balance Report
+        </h1>
         <p className="text-gray-600 mt-2">
           Verify that Total Debits = Total Credits for audit purposes
         </p>
@@ -88,7 +90,9 @@ export default function TrialBalanceReport() {
             </label>
             <select
               value={periodId || ''}
-              onChange={(e) => setPeriodId(e.target.value ? parseInt(e.target.value) : null)}
+              onChange={(e) =>
+                setPeriodId(e.target.value ? parseInt(e.target.value) : null)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Period...</option>
@@ -109,7 +113,9 @@ export default function TrialBalanceReport() {
                 onChange={(e) => setIncludeZeroBalances(e.target.checked)}
                 className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">Include Zero Balances</span>
+              <span className="ml-2 text-sm text-gray-700">
+                Include Zero Balances
+              </span>
             </label>
           </div>
 
@@ -135,24 +141,35 @@ export default function TrialBalanceReport() {
 
       {/* Trial Balance Status Badge */}
       {data && (
-        <div className={`rounded-lg p-4 ${
-          data.totals.balanced
-            ? 'bg-green-50 border border-green-200'
-            : 'bg-red-50 border border-red-200'
-        }`}>
+        <div
+          className={`rounded-lg p-4 ${
+            data.totals.balanced
+              ? 'bg-green-50 border border-green-200'
+              : 'bg-red-50 border border-red-200'
+          }`}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <h3 className={`font-bold text-lg ${
-                data.totals.balanced ? 'text-green-800' : 'text-red-800'
-              }`}>
-                {data.totals.balanced ? '✓ Trial Balance is Balanced' : '✗ Trial Balance is NOT Balanced'}
+              <h3
+                className={`font-bold text-lg ${
+                  data.totals.balanced ? 'text-green-800' : 'text-red-800'
+                }`}
+              >
+                {data.totals.balanced
+                  ? '✓ Trial Balance is Balanced'
+                  : '✗ Trial Balance is NOT Balanced'}
               </h3>
-              <p className={`text-sm mt-1 ${
-                data.totals.balanced ? 'text-green-700' : 'text-red-700'
-              }`}>
-                Total Debit: {financialReportsService.formatCurrency(data.totals.debit)} |
-                Total Credit: {financialReportsService.formatCurrency(data.totals.credit)} |
-                Variance: {financialReportsService.formatCurrency(data.totals.variance)}
+              <p
+                className={`text-sm mt-1 ${
+                  data.totals.balanced ? 'text-green-700' : 'text-red-700'
+                }`}
+              >
+                Total Debit:{' '}
+                {financialReportsService.formatCurrency(data.totals.debit)} |
+                Total Credit:{' '}
+                {financialReportsService.formatCurrency(data.totals.credit)} |
+                Variance:{' '}
+                {financialReportsService.formatCurrency(data.totals.variance)}
               </p>
             </div>
           </div>
@@ -199,12 +216,16 @@ export default function TrialBalanceReport() {
                   </td>
                   <td className="px-6 py-3 text-sm text-right font-mono">
                     {account.closing_debit > 0
-                      ? financialReportsService.formatCurrency(account.closing_debit)
+                      ? financialReportsService.formatCurrency(
+                          account.closing_debit,
+                        )
                       : '-'}
                   </td>
                   <td className="px-6 py-3 text-sm text-right font-mono">
                     {account.closing_credit > 0
-                      ? financialReportsService.formatCurrency(account.closing_credit)
+                      ? financialReportsService.formatCurrency(
+                          account.closing_credit,
+                        )
                       : '-'}
                   </td>
                   <td className="px-6 py-3 text-sm text-center">
@@ -229,9 +250,11 @@ export default function TrialBalanceReport() {
                   {financialReportsService.formatCurrency(data.totals.credit)}
                 </td>
                 <td className="px-6 py-3 text-sm text-center">
-                  <span className={`font-bold ${
-                    data.totals.balanced ? 'text-green-700' : 'text-red-700'
-                  }`}>
+                  <span
+                    className={`font-bold ${
+                      data.totals.balanced ? 'text-green-700' : 'text-red-700'
+                    }`}
+                  >
                     {data.totals.balanced ? '✓' : '✗'}
                   </span>
                 </td>
@@ -244,14 +267,18 @@ export default function TrialBalanceReport() {
       {/* Empty State */}
       {!loading && !data && !error && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600">Select an accounting period and click "Generate Report"</p>
+          <p className="text-gray-600">
+            Select an accounting period and click &quot;Generate Report&quot;
+          </p>
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600 animate-pulse">Generating Trial Balance...</p>
+          <p className="text-gray-600 animate-pulse">
+            Generating Trial Balance...
+          </p>
         </div>
       )}
     </div>

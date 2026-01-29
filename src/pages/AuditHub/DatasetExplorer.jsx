@@ -186,7 +186,8 @@ export default function DatasetExplorer() {
                 Dataset Snapshot
               </h1>
               <p className="mt-2 text-slate-600 dark:text-slate-400">
-                Period ID: {dataset.period_id || 'N/A'} • Dataset ID: {datasetId}
+                Period ID: {dataset.period_id || 'N/A'} • Dataset ID:{' '}
+                {datasetId}
               </p>
             </div>
             <div className="text-right">

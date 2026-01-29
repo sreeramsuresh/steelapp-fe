@@ -6,7 +6,11 @@
  *   <label>Product Name <RequiredIndicator /></label>
  */
 const RequiredIndicator = () => {
-  return <span className="text-red-600 dark:text-red-400 ml-1" aria-label="required">*</span>;
+  return (
+    <span className="text-red-600 dark:text-red-400 ml-1" aria-label="required">
+      *
+    </span>
+  );
 };
 
 export default RequiredIndicator;

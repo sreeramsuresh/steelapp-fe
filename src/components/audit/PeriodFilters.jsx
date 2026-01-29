@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Filter } from 'lucide-react';
 
 /**
@@ -30,7 +30,9 @@ export default function PeriodFilters({ filters, onFilterChange }) {
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700 p-4">
       <div className="flex items-center gap-2 mb-4">
         <Filter className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Filters</h3>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+          Filters
+        </h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -44,7 +46,7 @@ export default function PeriodFilters({ filters, onFilterChange }) {
             onChange={(e) => handleYearChange(parseInt(e.target.value))}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
           >
-            {years.map(year => (
+            {years.map((year) => (
               <option key={year} value={year}>
                 {year}
               </option>
@@ -62,7 +64,7 @@ export default function PeriodFilters({ filters, onFilterChange }) {
             onChange={(e) => handleStatusChange(e.target.value || null)}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
           >
-            {statusOptions.map(option => (
+            {statusOptions.map((option) => (
               <option key={option.value || 'null'} value={option.value || ''}>
                 {option.label}
               </option>

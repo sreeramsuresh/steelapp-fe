@@ -54,15 +54,23 @@ export default function PeriodCard({
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
               <div>
-                <p className="text-slate-600 dark:text-slate-400">Period Start</p>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Period Start
+                </p>
                 <p className="font-medium text-slate-900 dark:text-white">
-                  {format(new Date(period.startDate || period.period_start_date), 'MMM d, yyyy')}
+                  {format(
+                    new Date(period.startDate || period.period_start_date),
+                    'MMM d, yyyy',
+                  )}
                 </p>
               </div>
               <div>
                 <p className="text-slate-600 dark:text-slate-400">Period End</p>
                 <p className="font-medium text-slate-900 dark:text-white">
-                  {format(new Date(period.endDate || period.period_end_date), 'MMM d, yyyy')}
+                  {format(
+                    new Date(period.endDate || period.period_end_date),
+                    'MMM d, yyyy',
+                  )}
                 </p>
               </div>
               <div>
@@ -73,9 +81,14 @@ export default function PeriodCard({
               </div>
               {(period.lockedAt || period.locked_at) && (
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400">Locked At</p>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    Locked At
+                  </p>
                   <p className="font-medium text-slate-900 dark:text-white">
-                    {format(new Date(period.lockedAt || period.locked_at), 'MMM d, yyyy')}
+                    {format(
+                      new Date(period.lockedAt || period.locked_at),
+                      'MMM d, yyyy',
+                    )}
                   </p>
                 </div>
               )}
@@ -83,7 +96,9 @@ export default function PeriodCard({
 
             {(period.periodHash || period.period_hash) && (
               <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Period Hash (SHA-256)</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                  Period Hash (SHA-256)
+                </p>
                 <p className="font-mono text-xs text-slate-900 dark:text-slate-100 break-all">
                   {period.periodHash || period.period_hash}
                 </p>

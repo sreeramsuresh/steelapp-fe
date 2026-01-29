@@ -12,12 +12,17 @@ export const operatingExpenseService = {
   },
 
   list: async (filters = {}) => {
-    const response = await apiClient.get('/operating-expenses', { params: filters });
+    const response = await apiClient.get('/operating-expenses', {
+      params: filters,
+    });
     return response.data;
   },
 
   update: async (id, expenseData) => {
-    const response = await apiClient.patch(`/operating-expenses/${id}`, expenseData);
+    const response = await apiClient.patch(
+      `/operating-expenses/${id}`,
+      expenseData,
+    );
     return response.data.data;
   },
 

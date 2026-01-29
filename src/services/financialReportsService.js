@@ -39,15 +39,18 @@ class FinancialReportsService {
         limit = 100,
       } = options;
 
-      const response = await apiClient.get('/financial-reports/journal-register', {
-        params: {
-          startDate,
-          endDate,
-          sourceModule,
-          page,
-          limit,
+      const response = await apiClient.get(
+        '/financial-reports/journal-register',
+        {
+          params: {
+            startDate,
+            endDate,
+            sourceModule,
+            page,
+            limit,
+          },
         },
-      });
+      );
       return response.data;
     } catch (error) {
       console.error('Error fetching Journal Register:', error);
@@ -85,13 +88,16 @@ class FinancialReportsService {
     try {
       const { category = null, type = null, includeInactive = false } = options;
 
-      const response = await apiClient.get('/financial-reports/chart-of-accounts', {
-        params: {
-          category,
-          type,
-          includeInactive,
+      const response = await apiClient.get(
+        '/financial-reports/chart-of-accounts',
+        {
+          params: {
+            category,
+            type,
+            includeInactive,
+          },
         },
-      });
+      );
       return response.data;
     } catch (error) {
       console.error('Error fetching Chart of Accounts:', error);
@@ -104,9 +110,12 @@ class FinancialReportsService {
    */
   async validateTrialBalance(periodId) {
     try {
-      const response = await apiClient.post('/financial-reports/validate-trial-balance', {
-        periodId,
-      });
+      const response = await apiClient.post(
+        '/financial-reports/validate-trial-balance',
+        {
+          periodId,
+        },
+      );
       return response.data;
     } catch (error) {
       console.error('Error validating Trial Balance:', error);

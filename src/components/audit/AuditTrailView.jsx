@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 /**
@@ -34,8 +34,8 @@ export default function AuditTrailView({ datasetId, signOffs = [] }) {
     }
   };
 
-  const sortedSignOffs = [...signOffs].sort((a, b) =>
-    new Date(a.signed_at) - new Date(b.signed_at),
+  const sortedSignOffs = [...signOffs].sort(
+    (a, b) => new Date(a.signed_at) - new Date(b.signed_at),
   );
 
   return (
@@ -47,7 +47,9 @@ export default function AuditTrailView({ datasetId, signOffs = [] }) {
       {sortedSignOffs.length === 0 ? (
         <div className="text-center py-8">
           <AlertCircle className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
-          <p className="text-slate-600 dark:text-slate-400">No audit events yet</p>
+          <p className="text-slate-600 dark:text-slate-400">
+            No audit events yet
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -55,7 +57,9 @@ export default function AuditTrailView({ datasetId, signOffs = [] }) {
             <div key={idx} className="flex gap-4">
               {/* Timeline Line */}
               <div className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getEventColor(event.stage)}`}>
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getEventColor(event.stage)}`}
+                >
                   {getEventIcon(event.stage)}
                 </div>
                 {idx < sortedSignOffs.length - 1 && (
@@ -80,13 +84,15 @@ export default function AuditTrailView({ datasetId, signOffs = [] }) {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      event.stage === 'PREPARED'
-                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                        : event.stage === 'REVIEWED'
-                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        event.stage === 'PREPARED'
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                          : event.stage === 'REVIEWED'
+                            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                            : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                      }`}
+                    >
                       {event.stage}
                     </span>
                   </div>
@@ -95,7 +101,7 @@ export default function AuditTrailView({ datasetId, signOffs = [] }) {
                 {event.comments && (
                   <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded">
                     <p className="text-sm text-slate-700 dark:text-slate-300 italic">
-                      "{event.comments}"
+                      &quot;{event.comments}&quot;
                     </p>
                   </div>
                 )}

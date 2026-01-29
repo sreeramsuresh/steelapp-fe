@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import auditHubService from '../services/auditHubService';
 import { useAuth } from './AuthContext';
 
@@ -62,24 +68,30 @@ export function AuditHubProvider({ children }) {
   }, [user?.companyId, filters]);
 
   // Select period and load its datasets
-  const selectPeriod = useCallback(async (period) => {
-    if (!user?.companyId) return;
+  const selectPeriod = useCallback(
+    async (period) => {
+      if (!user?.companyId) return;
 
-    setSelectedPeriod(period);
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await auditHubService.getDatasets(user.companyId, period.id);
-      setDatasets(data);
-      setSelectedDataset(null);
-    } catch (err) {
-      console.error('[AuditHub] Select period error:', err);
-      setError(err.message);
-      setDatasets([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.companyId]);
+      setSelectedPeriod(period);
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await auditHubService.getDatasets(
+          user.companyId,
+          period.id,
+        );
+        setDatasets(data);
+        setSelectedDataset(null);
+      } catch (err) {
+        console.error('[AuditHub] Select period error:', err);
+        setError(err.message);
+        setDatasets([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.companyId],
+  );
 
   // Select dataset
   const selectDataset = useCallback((dataset) => {
@@ -87,102 +99,132 @@ export function AuditHubProvider({ children }) {
   }, []);
 
   // Close period
-  const closePeriod = useCallback(async (periodId) => {
-    if (!user?.companyId) return;
+  const closePeriod = useCallback(
+    async (periodId) => {
+      if (!user?.companyId) return;
 
-    setLoading(true);
-    setError(null);
-    try {
-      const updatedPeriod = await auditHubService.closePeriod(user.companyId, periodId);
+      setLoading(true);
+      setError(null);
+      try {
+        const updatedPeriod = await auditHubService.closePeriod(
+          user.companyId,
+          periodId,
+        );
 
-      // Update periods list
-      setPeriods(prev => prev.map(p => p.id === periodId ? updatedPeriod : p));
+        // Update periods list
+        setPeriods((prev) =>
+          prev.map((p) => (p.id === periodId ? updatedPeriod : p)),
+        );
 
-      // Update selected period if it was the one closed
-      if (selectedPeriod?.id === periodId) {
-        setSelectedPeriod(updatedPeriod);
+        // Update selected period if it was the one closed
+        if (selectedPeriod?.id === periodId) {
+          setSelectedPeriod(updatedPeriod);
+        }
+
+        return updatedPeriod;
+      } catch (err) {
+        console.error('[AuditHub] Close period error:', err);
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-
-      return updatedPeriod;
-    } catch (err) {
-      console.error('[AuditHub] Close period error:', err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.companyId, selectedPeriod]);
+    },
+    [user?.companyId, selectedPeriod],
+  );
 
   // Lock period
-  const lockPeriod = useCallback(async (periodId) => {
-    if (!user?.companyId) return;
+  const lockPeriod = useCallback(
+    async (periodId) => {
+      if (!user?.companyId) return;
 
-    setLoading(true);
-    setError(null);
-    try {
-      const updatedPeriod = await auditHubService.lockPeriod(user.companyId, periodId);
+      setLoading(true);
+      setError(null);
+      try {
+        const updatedPeriod = await auditHubService.lockPeriod(
+          user.companyId,
+          periodId,
+        );
 
-      // Update periods list
-      setPeriods(prev => prev.map(p => p.id === periodId ? updatedPeriod : p));
+        // Update periods list
+        setPeriods((prev) =>
+          prev.map((p) => (p.id === periodId ? updatedPeriod : p)),
+        );
 
-      // Update selected period if it was the one locked
-      if (selectedPeriod?.id === periodId) {
-        setSelectedPeriod(updatedPeriod);
+        // Update selected period if it was the one locked
+        if (selectedPeriod?.id === periodId) {
+          setSelectedPeriod(updatedPeriod);
+        }
+
+        return updatedPeriod;
+      } catch (err) {
+        console.error('[AuditHub] Lock period error:', err);
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-
-      return updatedPeriod;
-    } catch (err) {
-      console.error('[AuditHub] Lock period error:', err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.companyId, selectedPeriod]);
+    },
+    [user?.companyId, selectedPeriod],
+  );
 
   // Load reconciliations
-  const loadReconciliations = useCallback(async (fiscalPeriod) => {
-    if (!user?.companyId) return;
+  const loadReconciliations = useCallback(
+    async (fiscalPeriod) => {
+      if (!user?.companyId) return;
 
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await auditHubService.getReconciliations(user.companyId, fiscalPeriod);
-      setReconciliations(data);
-    } catch (err) {
-      console.error('[AuditHub] Load reconciliations error:', err);
-      setError(err.message);
-      setReconciliations([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.companyId]);
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await auditHubService.getReconciliations(
+          user.companyId,
+          fiscalPeriod,
+        );
+        setReconciliations(data);
+      } catch (err) {
+        console.error('[AuditHub] Load reconciliations error:', err);
+        setError(err.message);
+        setReconciliations([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.companyId],
+  );
 
   // Create period
-  const createPeriod = useCallback(async (periodType, year, month) => {
-    if (!user?.companyId) return;
+  const createPeriod = useCallback(
+    async (periodType, year, month) => {
+      if (!user?.companyId) return;
 
-    setLoading(true);
-    setError(null);
-    try {
-      const newPeriod = await auditHubService.createPeriod(user.companyId, periodType, year, month);
+      setLoading(true);
+      setError(null);
+      try {
+        const newPeriod = await auditHubService.createPeriod(
+          user.companyId,
+          periodType,
+          year,
+          month,
+        );
 
-      // Add new period to the list
-      setPeriods(prev => [newPeriod, ...prev]);
+        // Add new period to the list
+        setPeriods((prev) => [newPeriod, ...prev]);
 
-      return newPeriod;
-    } catch (err) {
-      console.error('[AuditHub] Create period error:', err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.companyId]);
+        return newPeriod;
+      } catch (err) {
+        console.error('[AuditHub] Create period error:', err);
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.companyId],
+  );
 
   // Update filters
   const updateFilters = useCallback((newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   }, []);
 
   // Context value
