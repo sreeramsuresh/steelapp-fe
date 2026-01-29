@@ -185,6 +185,41 @@ export default function AuditHubDashboard() {
           <PeriodFilters filters={filters} onFilterChange={updateFilters} />
         </div>
 
+        {/* Period Status Legend */}
+        <div className="mb-8 bg-slate-50 dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+          <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Period Status Guide</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex gap-2 items-start">
+              <span className="w-2 h-2 rounded-full bg-gray-500 mt-1.5 flex-shrink-0"></span>
+              <div>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">Open</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Period is currently active</p>
+              </div>
+            </div>
+            <div className="flex gap-2 items-start">
+              <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
+              <div>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">In Review</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Period is awaiting approval</p>
+              </div>
+            </div>
+            <div className="flex gap-2 items-start">
+              <span className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></span>
+              <div>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">Locked</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Period is finalized and locked</p>
+              </div>
+            </div>
+            <div className="flex gap-2 items-start">
+              <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></span>
+              <div>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">Finalized</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Period data is finalized</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Periods List */}
         <div className="space-y-4">
           {loading ? (

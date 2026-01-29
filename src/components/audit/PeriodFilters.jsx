@@ -35,6 +35,12 @@ export default function PeriodFilters({ filters, onFilterChange }) {
         </h3>
       </div>
 
+      <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
+          <strong>Tip:</strong> Use these filters to find periods by fiscal year and current status (Open, In Review, Locked, or Finalized).
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Year Filter */}
         <div>
