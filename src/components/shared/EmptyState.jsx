@@ -5,7 +5,7 @@ const EmptyState = ({
   title,
   description,
   action,
-  variant = 'default'
+  variant = 'default',
 }) => {
   const baseClasses = 'flex flex-col items-center justify-center py-12 px-4';
   const iconSize = variant === 'minimal' ? 40 : 64;

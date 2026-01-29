@@ -62,6 +62,7 @@ import ProductNamingHelpPanel from './ProductNamingHelpPanel';
 import VATRulesHelpPanel from './VATRulesHelpPanel';
 import { roleService } from '../services/roleService';
 import RolesHelpPanel from './RolesHelpPanel';
+import ConfirmDialog from './ConfirmDialog';
 
 // Custom Tailwind Components
 const Button = ({
@@ -445,6 +446,14 @@ const CompanySettings = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
+
+  // Delete confirmation state
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    type: null, // 'logo', 'brandmark', 'seal', 'vat', 'user', 'role'
+    itemId: null,
+    itemName: null,
+  });
 
   // Role icon mapping
   const getRoleIcon = (roleName) => {
@@ -1221,9 +1230,16 @@ const CompanySettings = () => {
   const handleLogoDelete = async () => {
     if (!companyProfile.logoUrl) return;
 
-    if (!window.confirm('Are you sure you want to delete the company logo?')) {
-      return;
-    }
+    setDeleteConfirm({
+      open: true,
+      type: 'logo',
+      itemId: null,
+      itemName: 'company logo',
+    });
+  };
+
+  const confirmLogoDelete = async () => {
+    if (!companyProfile.logoUrl) return;
 
     try {
       // Extract filename from URL
@@ -1364,11 +1380,16 @@ const CompanySettings = () => {
   const handleBrandmarkDelete = async () => {
     if (!companyProfile.brandmarkUrl) return;
 
-    if (
-      !window.confirm('Are you sure you want to delete the company brandmark?')
-    ) {
-      return;
-    }
+    setDeleteConfirm({
+      open: true,
+      type: 'brandmark',
+      itemId: null,
+      itemName: 'company brandmark',
+    });
+  };
+
+  const confirmBrandmarkDelete = async () => {
+    if (!companyProfile.brandmarkUrl) return;
 
     try {
       // Extract filename from URL
@@ -1521,9 +1542,16 @@ const CompanySettings = () => {
   const handleSealDelete = async () => {
     if (!companyProfile.pdfSealUrl) return;
 
-    if (!window.confirm('Are you sure you want to delete the company seal?')) {
-      return;
-    }
+    setDeleteConfirm({
+      open: true,
+      type: 'seal',
+      itemId: null,
+      itemName: 'company seal',
+    });
+  };
+
+  const confirmSealDelete = async () => {
+    if (!companyProfile.pdfSealUrl) return;
 
     try {
       // Extract filename from URL
@@ -1626,20 +1654,31 @@ const CompanySettings = () => {
   };
 
   const deleteVatRate = async (vatRateId) => {
-    if (window.confirm('Are you sure you want to delete this VAT rate?')) {
-      try {
-        await vatRateService.delete(vatRateId);
+    const vatRate = vatRates.find((r) => r.id === vatRateId);
+    setDeleteConfirm({
+      open: true,
+      type: 'vat',
+      itemId: vatRateId,
+      itemName: vatRate ? `${vatRate.rate}% VAT rate` : 'VAT rate',
+    });
+  };
 
-        // Update local state
-        const updatedVatRates = vatRates.filter(
-          (vatRate) => vatRate.id !== vatRateId,
-        );
-        setVatRates(updatedVatRates);
-        notificationService.success('VAT rate deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting VAT rate:', error);
-        notificationService.error('Failed to delete VAT rate');
-      }
+  const confirmVatDelete = async () => {
+    const vatRateId = deleteConfirm.itemId;
+    if (!vatRateId) return;
+
+    try {
+      await vatRateService.delete(vatRateId);
+
+      // Update local state
+      const updatedVatRates = vatRates.filter(
+        (vatRate) => vatRate.id !== vatRateId,
+      );
+      setVatRates(updatedVatRates);
+      notificationService.success('VAT rate deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting VAT rate:', error);
+      notificationService.error('Failed to delete VAT rate');
     }
   };
 
@@ -1675,7 +1714,19 @@ const CompanySettings = () => {
   };
 
   const deleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    const user = users.find((u) => u.id === userId);
+    setDeleteConfirm({
+      open: true,
+      type: 'user',
+      itemId: userId,
+      itemName: user ? user.name : 'user',
+    });
+  };
+
+  const confirmUserDelete = async () => {
+    const userId = deleteConfirm.itemId;
+    if (!userId) return;
+
     try {
       await userAdminAPI.remove(userId);
       const remoteUsers = await userAdminAPI.list();
@@ -1807,13 +1858,18 @@ const CompanySettings = () => {
   };
 
   const handleDeleteRole = async (roleId) => {
-    if (
-      !window.confirm(
-        'Are you sure you want to delete this role? Users with this role will lose their assigned permissions.',
-      )
-    ) {
-      return;
-    }
+    const role = availableRoles.find((r) => r.id === roleId);
+    setDeleteConfirm({
+      open: true,
+      type: 'role',
+      itemId: roleId,
+      itemName: role ? role.name : 'role',
+    });
+  };
+
+  const confirmRoleDelete = async () => {
+    const roleId = deleteConfirm.itemId;
+    if (!roleId) return;
 
     try {
       await roleService.deleteRole(roleId);
@@ -6076,6 +6132,44 @@ const CompanySettings = () => {
           </>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm.open && (
+        <ConfirmDialog
+          title={`Delete ${deleteConfirm.itemName}?`}
+          message={`Are you sure you want to delete this ${deleteConfirm.itemName}? This action cannot be undone.`}
+          variant="danger"
+          onConfirm={() => {
+            const handlers = {
+              logo: confirmLogoDelete,
+              brandmark: confirmBrandmarkDelete,
+              seal: confirmSealDelete,
+              vat: confirmVatDelete,
+              user: confirmUserDelete,
+              role: confirmRoleDelete,
+            };
+            const handler = handlers[deleteConfirm.type];
+            if (handler) {
+              handler().finally(() =>
+                setDeleteConfirm({
+                  open: false,
+                  type: null,
+                  itemId: null,
+                  itemName: null,
+                })
+              );
+            }
+          }}
+          onCancel={() =>
+            setDeleteConfirm({
+              open: false,
+              type: null,
+              itemId: null,
+              itemName: null,
+            })
+          }
+        />
+      )}
     </div>
   );
 };

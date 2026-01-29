@@ -4218,7 +4218,7 @@ const InvoiceForm = ({ onSave }) => {
 
       // Check for discount validation errors
       if (errorCode === 'INVALID_DISCOUNT') {
-        errorMessage = 'Discount validation failed: ' + (error?.response?.data?.message || 'Discount must be 0-100%');
+        errorMessage = `Discount validation failed: ${  error?.response?.data?.message || 'Discount must be 0-100%'}`;
       }
 
       // Check for amount mismatch errors
