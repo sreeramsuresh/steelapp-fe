@@ -23,3 +23,5 @@ export {
   FormSkeleton,
 } from './Skeleton';
 export { default as Breadcrumb } from './Breadcrumb';
+export { default as ResponsiveTable } from './ResponsiveTable';
+export { default as Container } from './Container';
