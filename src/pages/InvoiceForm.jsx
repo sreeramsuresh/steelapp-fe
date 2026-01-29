@@ -67,6 +67,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { FormSelect } from '@/components/ui/form-select';
 import { SelectItem } from '@/components/ui/select';
 
+// ==================== ROUTE HELPERS ====================
+
+// Route helpers - single source of truth for invoice navigation
+const INVOICE_ROUTES = {
+  list: () => '/app/invoices',
+  view: (id) => `/app/invoices/${id}`,
+  new: () => '/app/invoices/new',
+};
+
 // ==================== LAYOUT HELPERS (Updated: Theme-safe classes) ====================
 
 // Layout class helpers for consistent styling (NO hardcoded colors)
@@ -4045,7 +4054,13 @@ const InvoiceForm = ({ onSave }) => {
           );
           // Navigate to new invoice ID with smooth transition (300ms)
           setTimeout(() => {
-            navigate(`/edit/${updatedInvoice.newInvoiceId}`, { replace: true });
+            const newId = updatedInvoice?.newInvoiceId;
+            if (newId) {
+              navigate(INVOICE_ROUTES.view(newId), { replace: true });
+            } else {
+              console.error('Navigation failed: newInvoiceId is undefined');
+              navigate(INVOICE_ROUTES.list(), { replace: true });
+            }
           }, 300);
         } else {
           notificationService.success(
@@ -4187,6 +4202,35 @@ const InvoiceForm = ({ onSave }) => {
         errorMessage = error.message;
       }
 
+      // Check for numeric overflow error
+      const errorCode = error?.response?.data?.errorCode;
+      if (errorCode === 'NUMERIC_OVERFLOW') {
+        const limits = error?.response?.data?.details?.limits;
+        let msg = 'Values are too large for the system. Maximum limits:\n';
+        if (limits) {
+          msg += `• Quantity: ${limits.quantity.max.toLocaleString()}\n`;
+          msg += `• Unit Price: ${limits.rate.max.toLocaleString()}\n`;
+          msg += `• Line Amount: ${limits.amount.max.toLocaleString()}\n`;
+          msg += `• Invoice Total: ${limits.total.max.toLocaleString()}`;
+        }
+        errorMessage = msg;
+      }
+
+      // Check for discount validation errors
+      if (errorCode === 'INVALID_DISCOUNT') {
+        errorMessage = 'Discount validation failed: ' + (error?.response?.data?.message || 'Discount must be 0-100%');
+      }
+
+      // Check for amount mismatch errors
+      if (error?.response?.data?.message?.includes('amount mismatch')) {
+        errorMessage = `${error.response.data.message}. Ensure quantity × rate matches the item amount.`;
+      }
+
+      // Check for total mismatch errors
+      if (error?.response?.data?.message?.includes('Total mismatch')) {
+        errorMessage = `${error.response.data.message}. The system recalculated totals and they don't match. Please verify your invoice values.`;
+      }
+
       // Check for duplicate invoice number error (from database unique constraint)
       if (
         errorMessage.toLowerCase().includes('duplicate') ||
@@ -4285,10 +4329,13 @@ const InvoiceForm = ({ onSave }) => {
     // Navigate to edit mode to prevent duplicate creation
     // User can continue viewing/editing the invoice
     if (createdInvoiceId) {
-      navigate(`/edit/${createdInvoiceId}`);
+      navigate(INVOICE_ROUTES.view(createdInvoiceId));
       notificationService.success(
         'Invoice created successfully! Now in edit mode.',
       );
+    } else {
+      console.error('Navigation failed: createdInvoiceId is undefined');
+      navigate(INVOICE_ROUTES.list());
     }
   }, [createdInvoiceId, navigate]);
 
@@ -4449,7 +4496,7 @@ const InvoiceForm = ({ onSave }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate('/invoices')}
+                  onClick={() => navigate(INVOICE_ROUTES.list())}
                   className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
                     isDarkMode
                       ? 'text-gray-300 hover:bg-gray-700'
