@@ -19,6 +19,7 @@ import {
   generatePaymentReceipt,
   printPaymentReceipt,
 } from '../utils/paymentReceiptGenerator';
+import ConfirmDialog from './ConfirmDialog';
 
 const PaymentLedger = ({
   payments = [],
@@ -32,6 +33,10 @@ const PaymentLedger = ({
   const [selectedForDelete, setSelectedForDelete] = useState(new Set());
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    count: 0,
+  });
 
   // Calculate payment status from payments array only (industry standard)
   const invoiceTotal = invoice?.total || 0;
@@ -54,16 +59,17 @@ const PaymentLedger = ({
   const handleDeleteSelected = () => {
     if (selectedForDelete.size === 0) return;
 
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${selectedForDelete.size} payment(s)?`,
-      )
-    ) {
-      selectedForDelete.forEach((paymentId) => {
-        onDeletePayment(paymentId);
-      });
-      setSelectedForDelete(new Set());
-    }
+    setDeleteConfirm({
+      open: true,
+      count: selectedForDelete.size,
+    });
+  };
+
+  const confirmPaymentDelete = () => {
+    selectedForDelete.forEach((paymentId) => {
+      onDeletePayment(paymentId);
+    });
+    setSelectedForDelete(new Set());
   };
 
   const handleDownloadReceipt = async (payment, paymentIndex) => {
@@ -436,6 +442,20 @@ const PaymentLedger = ({
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm.open && (
+        <ConfirmDialog
+          title="Delete Payments?"
+          message={`Are you sure you want to delete ${deleteConfirm.count} payment(s)? This action cannot be undone.`}
+          variant="danger"
+          onConfirm={() => {
+            confirmPaymentDelete();
+            setDeleteConfirm({ open: false, count: 0 });
+          }}
+          onCancel={() => setDeleteConfirm({ open: false, count: 0 })}
+        />
       )}
     </div>
   );
