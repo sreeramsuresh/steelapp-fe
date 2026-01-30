@@ -534,22 +534,19 @@ const QuotationList = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       {quotation.validUntil ? (
-                        <div
-                          className={`text-sm flex items-center gap-2 ${
-                            isExpired(quotation.validUntil)
-                              ? 'text-red-600 font-medium'
-                              : isDarkMode
-                                ? 'text-white'
-                                : 'text-gray-900'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>{formatDate(quotation.validUntil)}</span>
-                            {isExpired(quotation.validUntil) && (
-                              <span className="text-xs text-red-500 font-semibold ml-2">EXPIRED</span>
-                            )}
-                          </div>
-                        </div>
+                        isExpired(quotation.validUntil) ? (
+                          <span className="text-sm text-red-500 font-semibold">
+                            EXPIRED ({formatDate(quotation.validUntil)})
+                          </span>
+                        ) : (
+                          <span
+                            className={`text-sm ${
+                              isDarkMode ? 'text-white' : 'text-gray-900'
+                            }`}
+                          >
+                            {formatDate(quotation.validUntil)}
+                          </span>
+                        )
                       ) : (
                         <span
                           className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}

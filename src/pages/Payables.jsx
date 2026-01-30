@@ -710,8 +710,16 @@ const POTab = ({ canManage }) => {
                 <tr>
                   <td colSpan={11} className="px-4 py-6 text-center">
                     <div className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-                      <p className="font-medium">No purchase orders found</p>
-                      <p className="text-sm mt-1">Create a purchase order to see payables</p>
+                      <p className="font-medium">
+                        {filters.q || filters.status !== 'all' || filters.start || filters.vendor
+                          ? 'No results match your filters'
+                          : 'No purchase orders found'}
+                      </p>
+                      <p className="text-sm mt-1">
+                        {filters.q || filters.status !== 'all' || filters.start || filters.vendor
+                          ? 'Try adjusting your filters'
+                          : 'Create a purchase order to get started'}
+                      </p>
                     </div>
                   </td>
                 </tr>

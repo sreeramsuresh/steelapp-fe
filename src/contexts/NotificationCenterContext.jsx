@@ -25,7 +25,10 @@ export const NotificationCenterProvider = ({ children }) => {
   const [notifications, setNotifications] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      // Validate that parsed data is an array
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
@@ -34,14 +37,22 @@ export const NotificationCenterProvider = ({ children }) => {
   const [error, setError] = useState('');
 
   const unreadCount = useMemo(
-    () => notifications.filter((n) => n.unread).length,
+    () => {
+      // Ensure notifications is always an array before filtering
+      const validNotifications = Array.isArray(notifications) ? notifications : [];
+      return validNotifications.filter((n) => n && n.unread).length;
+    },
     [notifications],
   );
 
   const persist = (next) => {
-    setNotifications(next);
+    // Validate and clean notifications before persisting
+    const validNotifications = Array.isArray(next)
+      ? next.filter((n) => n && typeof n === 'object' && n.id)
+      : [];
+    setNotifications(validNotifications);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(validNotifications));
     } catch {
       /* ignore storage errors */
     }
@@ -67,8 +78,13 @@ export const NotificationCenterProvider = ({ children }) => {
       // const list = Array.isArray(res?.notifications) ? res.notifications : (Array.isArray(res) ? res : []);
       // persist(normalize(list));
 
+      // Validate current notifications and sync with storage
+      const currentNotifications = Array.isArray(notifications)
+        ? notifications.filter((n) => n && n.id)
+        : [];
+
       // Fallback: seed with a couple of sample items if empty
-      if (notifications.length === 0) {
+      if (currentNotifications.length === 0) {
         const seed = normalize([
           {
             title: 'Welcome',
@@ -91,7 +107,10 @@ export const NotificationCenterProvider = ({ children }) => {
         err,
       );
       // Fallback: seed with a couple of sample items if empty
-      if (notifications.length === 0) {
+      const currentNotifications = Array.isArray(notifications)
+        ? notifications.filter((n) => n && n.id)
+        : [];
+      if (currentNotifications.length === 0) {
         const seed = normalize([
           {
             title: 'Welcome',
@@ -111,7 +130,7 @@ export const NotificationCenterProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [notifications.length]);
+  }, [notifications]);
 
   const markAsRead = useCallback(
     async (id) => {
@@ -145,9 +164,30 @@ export const NotificationCenterProvider = ({ children }) => {
     [notifications],
   );
 
+  // Sync notifications with storage to fix any corruption
+  const syncWithStorage = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        persist([]);
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      const validNotifications = Array.isArray(parsed)
+        ? parsed.filter((n) => n && typeof n === 'object' && n.id)
+        : [];
+      persist(validNotifications);
+    } catch {
+      // If storage is corrupted, clear it and reset
+      persist([]);
+    }
+  }, []);
+
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+    // Sync on mount to catch any storage corruption
+    syncWithStorage();
+  }, [fetchNotifications, syncWithStorage]);
 
   const value = {
     notifications,
