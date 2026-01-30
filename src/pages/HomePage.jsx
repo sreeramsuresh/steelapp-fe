@@ -22,58 +22,15 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import BrandmarkHero from '../components/BrandmarkHero';
+import { quotationService } from '../services/quotationService';
+import { invoiceService } from '../services/invoiceService';
+import { customerService } from '../services/customerService';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [userName, setUserName] = useState('User');
-  const [recentItems, setRecentItems] = useState([
-    {
-      id: 1,
-      type: 'quotation',
-      icon: Quote,
-      name: 'Quotation QT-202601-0003',
-      detail: 'Al Khaleej Trading',
-      timestamp: '2 hours ago',
-      link: '/app/quotations/1',
-    },
-    {
-      id: 2,
-      type: 'invoice',
-      icon: FileText,
-      name: 'Invoice DFT-202601-1767',
-      detail: 'Draft • USD 45,250',
-      timestamp: '2 hours ago',
-      link: '/app/invoices/2',
-    },
-    {
-      id: 3,
-      type: 'purchase',
-      icon: ShoppingCart,
-      name: 'Purchase Order PO-2025-001',
-      detail: 'Pending Approval',
-      timestamp: '1 day ago',
-      link: '/app/purchase-orders/3',
-    },
-    {
-      id: 4,
-      type: 'delivery',
-      icon: Truck,
-      name: 'Delivery Note DN-2025-005',
-      detail: 'Completed • 12/01/2025',
-      timestamp: '2 days ago',
-      link: '/app/delivery-notes/4',
-    },
-    {
-      id: 5,
-      type: 'customer',
-      icon: Users,
-      name: 'ABC Trading Inc',
-      detail: 'Dubai, UAE • Premium',
-      timestamp: '3 days ago',
-      link: '/app/customers/5',
-    },
-  ]);
+  const [recentItems, setRecentItems] = useState([]);
 
   const [quickAccessItems] = useState([
     { icon: Quote, name: 'Quotations', path: '/app/quotations', color: 'from-blue-500 to-blue-600' },
@@ -106,6 +63,78 @@ const HomePage = () => {
     } catch (error) {
       console.error('Error loading user info:', error);
     }
+  }, []);
+
+  // Fetch recent items from multiple modules (max 9 items)
+  useEffect(() => {
+    const fetchRecentItems = async () => {
+      try {
+        // Fetch from multiple services in parallel
+        const [quotationsRes, invoicesRes, customersRes] = await Promise.all([
+          quotationService.getAll({ limit: 3 }).catch(() => ({ data: [] })),
+          invoiceService.getInvoices({ limit: 3 }).catch(() => ({ invoices: [] })),
+          customerService.getCustomers({ limit: 3 }).catch(() => ({ data: [] })),
+        ]);
+
+        const allItems = [];
+
+        // Process quotations
+        const quotations = quotationsRes.data || quotationsRes.quotations || [];
+        if (Array.isArray(quotations)) {
+          quotations.forEach((q) => {
+            allItems.push({
+              id: q.id,
+              type: 'quotation',
+              icon: Quote,
+              name: `Quotation ${q.quotation_number || q.quotationNumber || 'N/A'}`,
+              detail: q.customer_details?.name || q.customerDetails?.name || 'No customer',
+              timestamp: 'Recently created',
+              link: `/app/quotations/${q.id}`,
+            });
+          });
+        }
+
+        // Process invoices
+        const invoices = invoicesRes.invoices || invoicesRes.data || [];
+        if (Array.isArray(invoices)) {
+          invoices.forEach((inv) => {
+            allItems.push({
+              id: inv.id,
+              type: 'invoice',
+              icon: FileText,
+              name: `Invoice ${inv.invoice_number || inv.invoiceNumber || 'N/A'}`,
+              detail: `${inv.status || 'N/A'} • ${inv.currency || 'AED'} ${inv.total || '0'}`,
+              timestamp: 'Recently created',
+              link: `/app/invoices/${inv.id}`,
+            });
+          });
+        }
+
+        // Process customers
+        const customers = customersRes.data || customersRes.customers || [];
+        if (Array.isArray(customers)) {
+          customers.forEach((c) => {
+            allItems.push({
+              id: c.id,
+              type: 'customer',
+              icon: Users,
+              name: c.name || 'N/A',
+              detail: `${c.address?.city || 'N/A'}, ${c.address?.country || 'N/A'} • ${c.tier || 'Standard'}`,
+              timestamp: 'Recently created',
+              link: `/app/customers/${c.id}`,
+            });
+          });
+        }
+
+        // Limit to 9 items and set
+        setRecentItems(allItems.slice(0, 9));
+      } catch (error) {
+        console.error('Error fetching recent items:', error);
+        setRecentItems([]);
+      }
+    };
+
+    fetchRecentItems();
   }, []);
 
   const handleNavigate = (path) => {

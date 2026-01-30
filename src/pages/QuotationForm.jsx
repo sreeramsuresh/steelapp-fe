@@ -474,25 +474,48 @@ const QuotationForm = () => {
           const response = await quotationService.getById(id);
 
           // Transform snake_case to camelCase
+          // Parse customerDetails safely
+          let parsedCustomerDetails = {
+            name: '',
+            company: '',
+            email: '',
+            phone: '',
+            address: {
+              street: '',
+              city: '',
+              emirate: '',
+              country: 'UAE',
+            },
+            vatNumber: '',
+          };
+
+          if (typeof response.customerDetails === 'string' && response.customerDetails.trim()) {
+            try {
+              parsedCustomerDetails = JSON.parse(response.customerDetails);
+            } catch (_parseError) {
+              // If JSON parse fails, use empty object
+              parsedCustomerDetails = {
+                name: '',
+                company: '',
+                email: '',
+                phone: '',
+                address: {
+                  street: '',
+                  city: '',
+                  emirate: '',
+                  country: 'UAE',
+                },
+                vatNumber: '',
+              };
+            }
+          } else if (typeof response.customerDetails === 'object' && response.customerDetails) {
+            parsedCustomerDetails = response.customerDetails;
+          }
+
           setFormData({
             quotationNumber: response.quotationNumber || '',
             customerId: response.customerId || '',
-            customerDetails:
-              typeof response.customerDetails === 'string'
-                ? JSON.parse(response.customerDetails)
-                : response.customerDetails || {
-                    name: '',
-                    company: '',
-                    email: '',
-                    phone: '',
-                    address: {
-                      street: '',
-                      city: '',
-                      emirate: '',
-                      country: 'UAE',
-                    },
-                    vatNumber: '',
-                  },
+            customerDetails: parsedCustomerDetails,
             quotationDate: response.quotationDate?.split('T')[0] || '',
             validUntil: response.validUntil?.split('T')[0] || '',
             customerPurchaseOrderNumber:
