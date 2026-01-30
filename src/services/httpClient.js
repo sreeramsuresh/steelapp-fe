@@ -36,7 +36,7 @@ let contracts = null;
 if (import.meta.env.DEV) {
   try {
     contracts = require('@steelapp/contracts');
-  } catch (e) {
+  } catch (_e) {
     // @steelapp/contracts not installed yet, validation disabled
   }
 }

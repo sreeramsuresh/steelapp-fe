@@ -169,7 +169,7 @@ export const supplierService = {
       // Contract validation in axiosApi ensures: {suppliers: [], pageInfo: {...}}
       // Trust the contract - no fallbacks needed
       return res;
-    } catch (e) {
+    } catch (_e) {
       return { suppliers: ls.all() };
     }
   },

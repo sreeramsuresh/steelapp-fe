@@ -107,8 +107,8 @@ export const payablesService = {
       });
 
       return { items, aggregates };
-    } catch (e) {
-      console.error('Error fetching invoices:', e);
+    } catch (_e) {
+      console.error('Error fetching invoices:', _e);
       return { items: [], aggregates: {} };
     }
   },
@@ -132,7 +132,7 @@ export const payablesService = {
         payload,
       );
       return { ...saved, ...computeInvoiceDerived(saved) };
-    } catch (e) {
+    } catch (_e) {
       // Fallback: store locally so it persists across refresh
       const localPayment = {
         id: payload.id || uuid(),
@@ -155,7 +155,7 @@ export const payablesService = {
         { reason },
       );
       return { ...saved, ...computeInvoiceDerived(saved) };
-    } catch (e) {
+    } catch (_e) {
       const current = ls.void('inv', id, paymentId);
       const merged = { id, payments: current };
       return {
@@ -181,8 +181,8 @@ export const payablesService = {
       });
 
       return { items, aggregates };
-    } catch (e) {
-      console.error('Error fetching POs:', e);
+    } catch (_e) {
+      console.error('Error fetching POs:', _e);
       return { items: [], aggregates: {} };
     }
   },
@@ -205,7 +205,7 @@ export const payablesService = {
         payload,
       );
       return { ...saved, ...computePODerived(saved) };
-    } catch (e) {
+    } catch (_e) {
       const localPayment = {
         id: payload.id || uuid(),
         created_at: new Date().toISOString(),
@@ -224,7 +224,7 @@ export const payablesService = {
         { reason },
       );
       return { ...saved, ...computePODerived(saved) };
-    } catch (e) {
+    } catch (_e) {
       const current = ls.void('po', id, paymentId);
       const merged = { id, payments: current };
       return { ...merged, ...computePODerived({ po_value: 0, ...merged }) };
