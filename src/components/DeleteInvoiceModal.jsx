@@ -82,7 +82,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
         reasonCode: selectedReason,
       });
       handleClose();
-    } catch (error) {
+    } catch (_error) {
       setIsDeleting(false);
       // Error handling done by parent
     }

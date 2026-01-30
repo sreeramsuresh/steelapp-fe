@@ -1589,7 +1589,7 @@ const ExportOrderForm = () => {
                 response.data?.name ||
                 'Custom Price List',
             );
-          } catch (error) {
+          } catch (_error) {
             // Silently ignore - pricelist is optional
             setSelectedPricelistId(null);
             setPricelistName(null);
@@ -1665,7 +1665,7 @@ const ExportOrderForm = () => {
             );
             sellingPrice =
               priceResponse.price || priceResponse.data?.price || sellingPrice;
-          } catch (error) {
+          } catch (_error) {
             // Fallback to default product price
           }
         }

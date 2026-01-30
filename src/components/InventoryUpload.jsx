@@ -104,7 +104,7 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
         message: 'Template downloaded successfully',
         type: 'success',
       });
-    } catch (error) {
+    } catch (_error) {
       addNotification({
         title: 'Download Failed',
         message: 'Failed to download template',

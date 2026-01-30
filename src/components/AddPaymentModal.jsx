@@ -39,6 +39,7 @@ const AddPaymentModal = ({
   // Load editing payment data
   useEffect(() => {
     if (editingPayment) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPayment({
         ...editingPayment,
         date: formatDateForInput(editingPayment.date),

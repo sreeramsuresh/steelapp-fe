@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import bankReconciliationService from '../../services/bankReconciliationService';
 
 export default function BankLedgerReport() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [data, setData] = useState(null);
   const [filters, setFilters] = useState({
     accountCode: '1100', // Default to Cash
@@ -44,10 +44,11 @@ export default function BankLedgerReport() {
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <div className="grid grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="bank-account" className="block text-sm font-medium text-gray-700 mb-1">
               Bank Account
             </label>
             <select
+              id="bank-account"
               value={filters.accountCode}
               onChange={(e) =>
                 setFilters({ ...filters, accountCode: e.target.value })
@@ -61,10 +62,11 @@ export default function BankLedgerReport() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-1">
               Start Date
             </label>
             <input
+              id="start-date"
               type="date"
               value={filters.startDate}
               onChange={(e) =>
@@ -74,10 +76,11 @@ export default function BankLedgerReport() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">
               End Date
             </label>
             <input
+              id="end-date"
               type="date"
               value={filters.endDate}
               onChange={(e) =>

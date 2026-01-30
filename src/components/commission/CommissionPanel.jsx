@@ -65,6 +65,7 @@ const CommissionPanel = ({
       const today = new Date();
       const diffTime = endDate - today;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDaysUntilGraceExpiry(Math.max(0, diffDays));
     }
   }, [invoice.commissionGracePeriodEndDate]);

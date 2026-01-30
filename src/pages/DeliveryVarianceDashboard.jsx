@@ -92,7 +92,6 @@ export default function DeliveryVarianceDashboard() {
 
   useEffect(() => {
     loadDashboard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading)

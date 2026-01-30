@@ -115,7 +115,7 @@ const StockMovement = () => {
       );
 
       setMovements(combined);
-    } catch (fetchError) {
+    } catch (_fetchError) {
       setError('Failed to load stock movements');
     } finally {
       setLoading(false);
@@ -163,7 +163,7 @@ const StockMovement = () => {
       }
       await fetchMovements();
       handleCloseDialog();
-    } catch (saveError) {
+    } catch (_saveError) {
       setError('Failed to save stock movement');
     }
   };
@@ -182,7 +182,7 @@ const StockMovement = () => {
     try {
       await stockMovementService.deleteMovement(id);
       await fetchMovements();
-    } catch (deleteError) {
+    } catch (_deleteError) {
       setError('Failed to delete stock movement');
     }
   };
@@ -209,7 +209,7 @@ const StockMovement = () => {
         });
         const rows = res?.data || res?.products || res || [];
         setProductOptions(rows);
-      } catch (e) {
+      } catch (_e) {
         setProductOptions([]);
       } finally {
         setProductSearching(false);

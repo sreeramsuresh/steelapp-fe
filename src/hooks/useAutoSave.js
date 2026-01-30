@@ -179,14 +179,12 @@ const useAutoSave = (
   useEffect(() => {
     if (!enabled || isInitializedRef.current) return;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     const existingDraft = checkForRecoverableDraft();
     if (existingDraft && onRecover) {
       // Notify parent component about recoverable draft
       onRecover(existingDraft);
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     isInitializedRef.current = true;
   }, [enabled, checkForRecoverableDraft, onRecover]);
 
@@ -200,9 +198,7 @@ const useAutoSave = (
     previousDataRef.current = dataString;
 
     // Mark as dirty immediately
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDirty(true);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStatus('unsaved');
 
     // Clear existing timer

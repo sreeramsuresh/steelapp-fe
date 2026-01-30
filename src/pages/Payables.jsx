@@ -327,7 +327,7 @@ const POTab = ({ canManage }) => {
     setItems((prev) => prev.map((i) => (i.id === po.id ? updatedPO : i)));
     try {
       await payablesService.addPOPayment(po.id, apiPayload);
-    } catch (e) {
+    } catch (_e) {
       console.warn('Failed to persist PO payment to backend:', e.message);
     }
   };
@@ -466,7 +466,7 @@ const POTab = ({ canManage }) => {
       const blob = await payablesService.exportDownload('pos', params, 'csv');
       downloadBlob(blob, 'pos.csv');
       return;
-    } catch (e) {
+    } catch (_e) {
       console.warn('Backend export failed, falling back to client CSV');
     }
     const headers = [
@@ -709,7 +709,10 @@ const POTab = ({ canManage }) => {
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={11} className="px-4 py-6 text-center">
-                    No records
+                    <div className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+                      <p className="font-medium">No purchase orders found</p>
+                      <p className="text-sm mt-1">Create a purchase order to see payables</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -1019,7 +1022,7 @@ const POTab = ({ canManage }) => {
                                 blob,
                                 `voucher-${drawer.item.poNo || drawer.item.poNumber}-${last.id}.pdf`,
                               );
-                            } catch (e) {
+                            } catch (_e) {
                               notificationService.error(
                                 'Failed to download voucher',
                               );
@@ -1039,7 +1042,7 @@ const POTab = ({ canManage }) => {
                               notificationService.success(
                                 'Voucher emailed to vendor',
                               );
-                            } catch (e) {
+                            } catch (_e) {
                               notificationService.error(
                                 'Failed to email voucher',
                               );

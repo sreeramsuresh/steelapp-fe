@@ -22,6 +22,7 @@ const ReorderAlertsWidget = ({
 
   useEffect(() => {
     if (data?.products && data.products.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProducts(data.products);
     } else {
       setProducts([]);

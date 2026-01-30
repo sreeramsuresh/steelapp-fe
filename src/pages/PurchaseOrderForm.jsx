@@ -802,7 +802,7 @@ const PurchaseOrderForm = () => {
         await pinnedProductsService.pinProduct(productId);
         setPinnedProductIds((prev) => [...prev, productId]);
       }
-    } catch (error) {
+    } catch (_error) {
       notificationService.error(error.message || 'Failed to update pin');
     }
   };
@@ -1092,7 +1092,7 @@ const PurchaseOrderForm = () => {
         if (data.warehouseId) {
           setSelectedWarehouse(data.warehouseId.toString());
         }
-      } catch (e) {
+      } catch (_e) {
         notificationService.error('Failed to load purchase order');
       } finally {
         setLoading(false);
@@ -1113,7 +1113,7 @@ const PurchaseOrderForm = () => {
       const response = await productService.getProducts();
       const products = response?.products || [];
       setAvailableProducts(products);
-    } catch (error) {
+    } catch (_error) {
       // Fallback to static product types if service fails
       setAvailableProducts(
         PRODUCT_TYPES.map((type) => ({ id: type, name: type, category: type })),
@@ -1135,7 +1135,7 @@ const PurchaseOrderForm = () => {
         setWarehouses(apiWarehouses.filter((w) => w.isActive !== false));
         return;
       }
-    } catch (error) {
+    } catch (_error) {
       // Try to seed warehouses if they don&apos;t exist
       try {
         await purchaseOrderService.seedWarehouses();
@@ -1143,7 +1143,7 @@ const PurchaseOrderForm = () => {
           'Warehouses initialized successfully. Please try again.',
         );
         return;
-      } catch (seedError) {
+      } catch (_seedError) {
         // Silently ignore seed failure
       }
     }
@@ -1185,7 +1185,7 @@ const PurchaseOrderForm = () => {
       const containers =
         response?.containers || response?.data || response || [];
       setImportContainers(Array.isArray(containers) ? containers : []);
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to fetch import containers:', error);
       setImportContainers([]);
     }
@@ -1279,7 +1279,7 @@ const PurchaseOrderForm = () => {
         const numMatch = last.match(/\d+(?:\.\d+)?/);
         if (numMatch) return `${numMatch[0]}mm`;
       }
-    } catch (err) {
+    } catch (_err) {
       // Silently ignore parsing error
     }
     return '';
@@ -1453,11 +1453,11 @@ const PurchaseOrderForm = () => {
             ...prev,
             __results: resp?.products || [],
           }));
-        } catch (err) {
+        } catch (_err) {
           setSearchInputs((prev) => ({ ...prev, __results: [] }));
         }
       }, 300);
-    } catch (err) {
+    } catch (_err) {
       // Silently ignore search error
     }
   }, []);
@@ -1889,7 +1889,7 @@ const PurchaseOrderForm = () => {
               'Inventory items created successfully!',
             );
           }
-        } catch (stockError) {
+        } catch (_stockError) {
           notificationService.warning(
             'Purchase order saved but inventory creation failed. Please check the inventory manually.',
           );
@@ -1901,7 +1901,7 @@ const PurchaseOrderForm = () => {
       notificationService.success(`Purchase order ${action} successfully!`);
 
       navigate('/purchase-orders');
-    } catch (error) {
+    } catch (_error) {
       // Extract more detailed error message
       let errorMessage = 'Unknown error';
       const errorData = error.response?.data;

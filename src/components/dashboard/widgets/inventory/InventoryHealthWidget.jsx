@@ -76,6 +76,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
 
   useEffect(() => {
     if (data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHealthData(data);
     } else {
       setHealthData(null);

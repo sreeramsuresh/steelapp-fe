@@ -240,12 +240,12 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
             <span
               className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
-              {inventoryCount.toLocaleString()}
+              {inventoryCount > 0 ? inventoryCount.toLocaleString() : '—'}
             </span>
             <span
               className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
             >
-              items
+              {inventoryCount > 0 ? 'items' : 'no data'}
             </span>
           </div>
 

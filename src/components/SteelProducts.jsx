@@ -178,7 +178,7 @@ const Textarea = ({ label, error, className = '', ...props }) => {
   );
 };
 
-const _StockProgressBar = ({ value, stockStatus }) => {
+const StockProgressBar = ({ value, stockStatus }) => {
   const { isDarkMode } = useTheme();
 
   const getColor = () => {
@@ -476,7 +476,7 @@ const ValidationMessage = ({ type = 'info', message, suggestion }) => {
 };
 
 // Accordion component for Zoho-style drawer
-const _AccordionSection = ({
+const AccordionSection = ({
   title,
   isOpen,
   onToggle,
@@ -525,7 +525,7 @@ const _AccordionSection = ({
 };
 
 // Row component for label-value pairs
-const _SpecRow = ({ label, value, badge, className = '' }) => {
+const SpecRow = ({ label, value, badge, className = '' }) => {
   const { isDarkMode } = useTheme();
 
   if (!value && value !== 0) return null;
@@ -2238,7 +2238,11 @@ const SteelProducts = () => {
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="text-sm font-medium text-red-500">
             {
-              products.filter((p) => (p.currentStock || 0) <= (p.minStock || 0))
+              products.filter((p) => {
+                const currentStock = p.currentStock || 0;
+                const minStock = p.minStock > 0 ? p.minStock : 5;
+                return currentStock > 0 && currentStock <= minStock;
+              })
                 .length
             }
           </span>
@@ -2708,8 +2712,8 @@ const SteelProducts = () => {
           <div className={`flex items-center justify-between mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Showing {(page - 1) * pageSize + 1} to{' '}
-              {Math.min(page * pageSize, pageInfo.totalCount || 0)} of{' '}
-              {pageInfo.totalCount || 0} products
+              {Math.min(page * pageSize, filteredProducts.length)} of{' '}
+              {filteredProducts.length} products
             </div>
             <div className="flex gap-4 items-center">
               {/* Page Size Selector */}

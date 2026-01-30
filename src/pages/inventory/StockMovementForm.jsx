@@ -109,7 +109,7 @@ const StockMovementForm = () => {
         ]);
         setProducts(productsRes?.data || productsRes || []);
         setWarehouses(warehousesRes?.data || warehousesRes || []);
-      } catch (err) {
+      } catch (_err) {
         notificationService.error('Failed to load products or warehouses');
       }
     };
@@ -139,7 +139,7 @@ const StockMovementForm = () => {
             coilNumber: movement.coilNumber || '',
             heatNumber: movement.heatNumber || '',
           });
-        } catch (err) {
+        } catch (_err) {
           notificationService.error('Failed to load stock movement');
           navigate('/inventory/stock-movements');
         } finally {

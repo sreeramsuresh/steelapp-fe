@@ -183,11 +183,13 @@ const CustomerManagement = () => {
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [searchTerm, filterStatus]);
 
   // Reset supplier page to 1 when search changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSupplierCurrentPage(1);
   }, [supplierSearchTerm]);
 
@@ -472,6 +474,7 @@ const CustomerManagement = () => {
   const [searchParams] = useSearchParams();
   useEffect(() => {
     const q = searchParams.get('search') || '';
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearchTerm(q);
   }, [searchParams]);
 

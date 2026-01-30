@@ -170,7 +170,7 @@ const PurchaseOrderList = () => {
       const calculatedTotalPages = Math.ceil(total / 10);
       setPurchaseOrders(orders);
       setTotalPages(calculatedTotalPages);
-    } catch (err) {
+    } catch (_err) {
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
@@ -214,7 +214,7 @@ const PurchaseOrderList = () => {
       // Use backend PDF generation only (per PDF_WORKFLOW.md)
       await purchaseOrderService.downloadPDF(po.id);
       notificationService.success('PDF downloaded successfully');
-    } catch (err) {
+    } catch (_err) {
       notificationService.error('Failed to download PDF');
     } finally {
       setDownloadingIds((prev) => {
@@ -239,7 +239,7 @@ const PurchaseOrderList = () => {
         await purchaseOrderService.delete(id);
         notificationService.success('Purchase order deleted successfully');
         fetchPurchaseOrders();
-      } catch (err) {
+      } catch (_err) {
         notificationService.error('Failed to delete purchase order');
       }
     }

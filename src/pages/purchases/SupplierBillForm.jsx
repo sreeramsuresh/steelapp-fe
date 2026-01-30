@@ -219,7 +219,7 @@ const Button = ({
   );
 };
 
-const _Input = ({
+const Input = ({
   label,
   error,
   className = '',

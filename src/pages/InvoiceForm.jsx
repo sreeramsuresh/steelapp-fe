@@ -1438,7 +1438,7 @@ const Autocomplete = ({
   );
 };
 
-const Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
+const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
   const { isDarkMode } = useTheme();
 
   if (!isOpen) return null;
@@ -2800,7 +2800,7 @@ const InvoiceForm = ({ onSave }) => {
           setShowTradeLicenseAlert(false);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Fall back to fetch with defensive parsing to capture server HTML errors
       try {
         const resp = await fetch(
@@ -2819,7 +2819,7 @@ const InvoiceForm = ({ onSave }) => {
         }
         const licenseStatus = await resp.json();
         setTradeLicenseStatus(licenseStatus);
-      } catch (fallbackErr) {
+      } catch (_fallbackErr) {
         // Silently ignore - trade license check is optional feature, route may not exist
         // console.debug('Trade license check unavailable:', fallbackErr.message);
       }
@@ -2859,7 +2859,7 @@ const InvoiceForm = ({ onSave }) => {
             );
             setSelectedPricelistId(selectedCustomer.pricelistId);
             setPricelistName(response.data.name);
-          } catch (error) {
+          } catch (_error) {
             // Silently ignore - pricelist is optional, may not be configured
             // console.debug('Pricelist fetch failed:', error.message);
             setSelectedPricelistId(null);
@@ -3000,7 +3000,7 @@ const InvoiceForm = ({ onSave }) => {
   );
 
   // Get UOM conversion display text
-  const getUomConversionText = useCallback((item) => {
+  const _getUomConversionText = useCallback((item) => {
     if (!item.itemUom || !item.primaryUom || item.itemUom === item.primaryUom) {
       return null;
     }
@@ -4276,7 +4276,7 @@ const InvoiceForm = ({ onSave }) => {
               'New invoice number assigned. Please try saving again.',
             );
             return; // Exit early so user can try again with new number
-          } catch (refetchError) {
+          } catch (_refetchError) {
             errorMessage = `Failed to get a new invoice number. Please refresh the page.`;
           }
         } else {

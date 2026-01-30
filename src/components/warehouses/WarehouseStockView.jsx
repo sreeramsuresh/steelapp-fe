@@ -101,12 +101,9 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
 
   useEffect(() => {
     // Simulate API call
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setTimeout(() => {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStockItems(mockStockData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
     }, 500);
   }, [warehouseId]);

@@ -310,6 +310,8 @@ const Receivables = () => {
   const getCustomerId = (r) => r.customer?.id || r.customerId || '';
 
   const aggregates = useMemo(() => {
+    // Use API aggregates if available (more accurate across all pages)
+    // Otherwise fall back to local calculation for current page only
     const totalInvoiced = items.reduce((s, r) => s + getInvoiceAmount(r), 0);
     const totalReceived = items.reduce((s, r) => s + getReceived(r), 0);
     const totalOutstanding = items.reduce((s, r) => s + getOutstanding(r), 0);
@@ -435,7 +437,7 @@ const Receivables = () => {
       const freshInv = { ...freshData, ...freshComputed };
       setDrawer({ open: true, item: freshInv });
       setItems((prev) => prev.map((i) => (i.id === inv.id ? freshInv : i)));
-    } catch (e) {
+    } catch (_e) {
       // Error - show notification and reload fresh data
       console.error('Failed to persist payment to backend:', e);
       const errorMsg =
@@ -636,7 +638,7 @@ const Receivables = () => {
       );
       downloadBlob(blob, 'invoices.csv');
       return;
-    } catch (e) {
+    } catch (_e) {
       console.warn('Backend export failed, falling back to client CSV');
     }
     const headers = [

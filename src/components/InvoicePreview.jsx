@@ -43,6 +43,7 @@ const InvoicePreview = ({
   };
 
   // Get template color reactively from company settings (handles both camelCase and snake_case)
+  // Note: This is computed but not currently used in the component
   const _primaryColor = useMemo(() => {
     return (
       company?.settings?.invoiceTemplate?.colors?.primary ||
@@ -98,14 +99,14 @@ const InvoicePreview = ({
   const pages = splitItemsIntoPages(invoice.items || [], pagination);
 
   // Calculate starting index for each page
-  let cumulativeIndex = 0;
-  const pagesWithIndices = pages.map((page) => {
-    const pageData = {
+  const pagesWithIndices = pages.map((page, idx) => {
+    const startingIndex = pages
+      .slice(0, idx)
+      .reduce((sum, p) => sum + p.items.length, 0);
+    return {
       ...page,
-      startingIndex: cumulativeIndex,
+      startingIndex,
     };
-    cumulativeIndex += page.items.length;
-    return pageData;
   });
 
   return (

@@ -72,7 +72,7 @@ export function SupplierQuotationDetail() {
       setError(null);
       const data = await getSupplierQuotation(id);
       setQuotation(data);
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to load quotation:', err);
       setError(err.message || 'Failed to load quotation');
     } finally {
@@ -90,7 +90,7 @@ export function SupplierQuotationDetail() {
       await approveSupplierQuotation(id);
       toast.success('Quotation approved');
       loadQuotation();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to approve quotation');
     } finally {
       setProcessing(false);
@@ -110,7 +110,7 @@ export function SupplierQuotationDetail() {
       setShowRejectDialog(false);
       setRejectReason('');
       loadQuotation();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to reject quotation');
     } finally {
       setProcessing(false);
@@ -128,7 +128,7 @@ export function SupplierQuotationDetail() {
       } else {
         loadQuotation();
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to convert to purchase order');
     } finally {
       setProcessing(false);

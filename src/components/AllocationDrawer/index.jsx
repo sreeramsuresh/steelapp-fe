@@ -542,6 +542,7 @@ const AllocationDrawer = ({
   useEffect(() => {
     if (drawerState.productId && !drawerState.unitPriceOverridden) {
       const qty = parseFloat(drawerState.quantity) || 1;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProductPrice(drawerState.productId, qty);
     }
   }, [

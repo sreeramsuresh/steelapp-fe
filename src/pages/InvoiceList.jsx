@@ -27,7 +27,7 @@ import { formatCurrency, formatDate } from '../utils/invoiceUtils';
 import { invoiceService } from '../services/dataService';
 import { companyService } from '../services';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
-import { deliveryNoteService } from '../services/deliveryNoteService';
+import { deliveryNoteService as _deliveryNoteService } from '../services/deliveryNoteService';
 import { notificationService } from '../services/notificationService';
 import { authService } from '../services/axiosAuthService';
 import { uuid } from '../utils/uuid';
@@ -371,13 +371,13 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   });
   const [downloadingIds, setDownloadingIds] = useState(new Set());
   const [sendingReminderIds, setSendingReminderIds] = useState(new Set());
-  const [calculatingCommissionIds, setCalculatingCommissionIds] = useState(
+  const [_calculatingCommissionIds, _setCalculatingCommissionIds] = useState(
     new Set(),
   );
   const [_selectedInvoice, _setSelectedInvoice] = useState(null);
   const [deliveryNoteStatus, setDeliveryNoteStatus] = useState({});
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
-  const [createdDeliveryNote, setCreatedDeliveryNote] = useState(null);
+  const [createdDeliveryNote, _setCreatedDeliveryNote] = useState(null);
   const [searchParams] = useSearchParams();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewInvoice, setPreviewInvoice] = useState(null);

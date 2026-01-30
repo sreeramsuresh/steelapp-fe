@@ -20,10 +20,8 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
 
   useEffect(() => {
     if (data?.products) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProducts(data.products);
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProducts([]);
     }
     if (data?.thresholds) {

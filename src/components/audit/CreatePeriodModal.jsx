@@ -68,10 +68,11 @@ export default function CreatePeriodModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Period Type */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="period-type" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Period Type
             </label>
             <select
+              id="period-type"
               value={periodType}
               onChange={(e) => setPeriodType(e.target.value)}
               disabled={isLoading}
@@ -85,10 +86,11 @@ export default function CreatePeriodModal({
 
           {/* Year */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="period-year" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Year
             </label>
             <select
+              id="period-year"
               value={year}
               onChange={(e) => setYear(parseInt(e.target.value))}
               disabled={isLoading}
@@ -105,10 +107,11 @@ export default function CreatePeriodModal({
           {/* Month (only for monthly periods) */}
           {periodType === 'MONTHLY' && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="period-month" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Month
               </label>
               <select
+                id="period-month"
                 value={month}
                 onChange={(e) => setMonth(parseInt(e.target.value))}
                 disabled={isLoading}

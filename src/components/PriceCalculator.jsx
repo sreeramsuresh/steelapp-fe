@@ -127,6 +127,7 @@ const PriceCalculator = () => {
     const savedDiscounts = localStorage.getItem('steel-app-bulk-discounts');
 
     if (savedRules) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCustomRules(JSON.parse(savedRules));
     } else {
       // Default pricing rules

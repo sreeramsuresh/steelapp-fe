@@ -394,7 +394,7 @@ const DeliveryNoteList = () => {
             : 'bg-white border-[#E0E0E0]'
         }`}
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto pb-2">
           <table className="w-full">
             <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
               <tr>
@@ -475,17 +475,26 @@ const DeliveryNoteList = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div
-                        className={`text-sm font-medium ${
-                          deliveryNote.invoiceNumber
-                            ? 'text-teal-600'
-                            : isDarkMode
-                              ? 'text-gray-400'
-                              : 'text-gray-500'
-                        }`}
-                      >
-                        {deliveryNote.invoiceNumber || '—'}
-                      </div>
+                      {deliveryNote.invoiceNumber && deliveryNote.invoiceId ? (
+                        <a
+                          href={`/app/invoices/${deliveryNote.invoiceId}`}
+                          className={`text-sm font-medium text-teal-600 hover:underline`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`/app/invoices/${deliveryNote.invoiceId}`);
+                          }}
+                        >
+                          {deliveryNote.invoiceNumber}
+                        </a>
+                      ) : (
+                        <div
+                          className={`text-sm font-medium ${
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}
+                        >
+                          {deliveryNote.invoiceNumber || '—'}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div

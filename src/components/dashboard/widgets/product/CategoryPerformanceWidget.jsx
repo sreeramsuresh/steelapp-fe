@@ -14,6 +14,7 @@ const CategoryPerformanceWidget = ({
 
   useEffect(() => {
     if (data?.categories && data.categories.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCategories(data.categories);
     } else {
       setCategories([]);

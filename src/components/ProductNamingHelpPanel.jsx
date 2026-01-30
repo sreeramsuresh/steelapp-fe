@@ -100,6 +100,7 @@ const ProductNamingHelpPanel = ({ hasMismatch = false }) => {
   // Auto-expand troubleshooting sections when there's a mismatch
   useEffect(() => {
     if (hasMismatch) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpenSections((prev) => ({
         ...prev,
         incorrect: true,

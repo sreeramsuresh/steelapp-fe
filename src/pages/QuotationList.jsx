@@ -543,10 +543,12 @@ const QuotationList = () => {
                                 : 'text-gray-900'
                           }`}
                         >
-                          {formatDate(quotation.validUntil)}
-                          {isExpired(quotation.validUntil) && (
-                            <span className="text-xs text-red-500 font-semibold">EXPIRED</span>
-                          )}
+                          <div className="flex items-center justify-between">
+                            <span>{formatDate(quotation.validUntil)}</span>
+                            {isExpired(quotation.validUntil) && (
+                              <span className="text-xs text-red-500 font-semibold ml-2">EXPIRED</span>
+                            )}
+                          </div>
                         </div>
                       ) : (
                         <span

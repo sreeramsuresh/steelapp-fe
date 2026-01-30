@@ -7,7 +7,7 @@ import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
  * Shows all sign-offs and state transitions
  */
 
-export default function AuditTrailView({ datasetId, signOffs = [] }) {
+export default function AuditTrailView({ datasetId: _datasetId, signOffs = [] }) {
   const getEventIcon = (stage) => {
     switch (stage) {
       case 'PREPARED':

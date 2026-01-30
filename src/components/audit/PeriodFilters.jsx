@@ -44,10 +44,11 @@ export default function PeriodFilters({ filters, onFilterChange }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Year Filter */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label htmlFor="filter-year" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Year
           </label>
           <select
+            id="filter-year"
             value={filters.year || ''}
             onChange={(e) => handleYearChange(parseInt(e.target.value))}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
@@ -62,10 +63,11 @@ export default function PeriodFilters({ filters, onFilterChange }) {
 
         {/* Status Filter */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label htmlFor="filter-status" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Status
           </label>
           <select
+            id="filter-status"
             value={filters.status || ''}
             onChange={(e) => handleStatusChange(e.target.value || null)}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"

@@ -250,7 +250,7 @@ const ExportOrderList = () => {
 
       // Trigger download (this would call an export endpoint)
       window.open(`/api/export-orders/export?${params.toString()}`, '_blank');
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to export to Excel');
     }
   };

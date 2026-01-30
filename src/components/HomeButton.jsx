@@ -4,7 +4,6 @@
  * Easily removable component (rollback: just delete this file and remove import from TopNavbar)
  */
 
-import React from 'react';
 import { Home } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';

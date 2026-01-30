@@ -258,7 +258,7 @@ const HomePage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {createNewItems.map((item) => {
-              const IconComponent = item.icon;
+              const _IconComponent = item.icon;
               return (
                 <button
                   key={item.name}
@@ -391,7 +391,7 @@ const HomePage = () => {
                   isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
-                Use Quick Access to navigate to any module, view recent items you've worked on, or create new documents. All your data is synchronized in real-time across the system.
+                Use Quick Access to navigate to any module, view recent items you&apos;ve worked on, or create new documents. All your data is synchronized in real-time across the system.
               </p>
             </div>
           </div>

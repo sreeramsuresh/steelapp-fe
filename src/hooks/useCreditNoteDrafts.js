@@ -347,15 +347,12 @@ const useCreditNoteDrafts = ({
     if (isInitializedRef.current) return;
 
     const cleanedDrafts = cleanupExpiredDrafts();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDrafts(cleanedDrafts);
     // Check for current invoice draft
     if (currentInvoiceId && cleanedDrafts[currentInvoiceId]) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentDraft(cleanedDrafts[currentInvoiceId]);
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     isInitializedRef.current = true;
   }, [currentInvoiceId]);
 
@@ -365,7 +362,6 @@ const useCreditNoteDrafts = ({
 
     const conflict = checkConflict(currentInvoiceId);
     if (conflict.type) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConflictInfo(conflict);
       if (onConflict) {
         onConflict(conflict);

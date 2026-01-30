@@ -296,7 +296,7 @@ const InventoryList = () => {
         });
         const rows = res?.data || res?.products || res || [];
         setProductOptions(rows);
-      } catch (e) {
+      } catch (_e) {
         setProductOptions([]);
       } finally {
         setProductSearching(false);

@@ -73,7 +73,7 @@ export function SupplierQuotationList() {
       });
       setQuotations(result.quotations || []);
       setPageInfo(result.pageInfo || { totalPages: 0, totalCount: 0 });
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to load quotations:', err);
       setError(err.message || 'Failed to load quotations');
     } finally {
@@ -95,7 +95,7 @@ export function SupplierQuotationList() {
       await deleteSupplierQuotation(id);
       toast.success('Quotation deleted successfully');
       loadQuotations();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to delete quotation');
     }
   };

@@ -73,7 +73,7 @@ const WarehouseManagement = () => {
       }));
 
       setWarehouses(transformedData);
-    } catch (fetchError) {
+    } catch (_fetchError) {
       notificationService.error('Failed to load warehouses');
     } finally {
       setLoading(false);
@@ -297,7 +297,7 @@ const WarehouseManagement = () => {
                   `Seeded ${response.warehousesInserted} warehouses successfully`,
                 );
                 await fetchWarehouses();
-              } catch (seedError) {
+              } catch (_seedError) {
                 notificationService.error('Failed to seed warehouses');
               } finally {
                 setLoading(false);
@@ -315,7 +315,7 @@ const WarehouseManagement = () => {
                 notificationService.success(
                   `Found ${response.companyCount} companies and ${response.warehouseCount} warehouses`,
                 );
-              } catch (debugError) {
+              } catch (_debugError) {
                 notificationService.error('Failed to fetch debug data');
               }
             }}
