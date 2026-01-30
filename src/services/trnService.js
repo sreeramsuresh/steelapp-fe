@@ -253,7 +253,7 @@ export const trnService = {
         success: true,
         ...response,
       };
-    } catch (error) {
+    } catch (_error) {
       // Fallback to local formats if API fails
       return {
         success: true,

@@ -844,7 +844,7 @@ export const generateInvoicePDF = async (invoice, company) => {
     pdf.text('Ultimate Steels', margin + sealSize + 3, signatureY + 9);
     pdf.text('Building Materials', margin + sealSize + 3, signatureY + 12);
     pdf.text('Trading LLC', margin + sealSize + 3, signatureY + 15);
-  } catch (error) {
+  } catch (_error) {
     // Fallback: just show text if seal image fails
     pdf.setDrawColor(60);
     pdf.rect(margin, signatureY, 20, 20);

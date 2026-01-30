@@ -158,7 +158,7 @@ class WarehouseService {
       };
 
       return summary;
-    } catch (error) {
+    } catch (_error) {
       // Fallback: Fetch from inventory health endpoint for data synchronization
       try {
         const inventoryHealth = await apiClient.get('/dashboard/inventory-health');
@@ -207,7 +207,7 @@ class WarehouseService {
         `${this.endpoint}/${warehouseId}/dashboard`,
       );
       return response;
-    } catch (error) {
+    } catch (_error) {
       // Return mock data if endpoint not available
       console.warn('Dashboard endpoint not available');
       return {
@@ -251,7 +251,7 @@ class WarehouseService {
         pagination: response?.pageInfo || response?.pagination || {},
         summary: response?.summary || {},
       };
-    } catch (error) {
+    } catch (_error) {
       console.warn('Stock endpoint not available');
       return {
         data: [],
@@ -284,7 +284,7 @@ class WarehouseService {
         },
       );
       return response;
-    } catch (error) {
+    } catch (_error) {
       console.warn('Analytics endpoint not available');
       return {
         inboundTrend: [],
