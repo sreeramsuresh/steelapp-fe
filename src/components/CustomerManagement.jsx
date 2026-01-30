@@ -74,7 +74,9 @@ const CustomerManagement = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showArchived, setShowArchived] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [customerPageSize, setCustomerPageSize] = useState(20);
   const [supplierCurrentPage, setSupplierCurrentPage] = useState(1);
+  const [supplierPageSize, setSupplierPageSize] = useState(20);
   const [supplierSearchTerm, setSupplierSearchTerm] = useState('');
   const [supplierFilterStatus, setSupplierFilterStatus] = useState('all');
   const [showDeletedSuppliers, setShowDeletedSuppliers] = useState(false);
@@ -125,9 +127,9 @@ const CustomerManagement = () => {
       search: searchTerm,
       status: filterStatus === 'all' ? undefined : filterStatus,
       page: currentPage,
-      limit: 20,
+      limit: customerPageSize,
     });
-  }, [searchTerm, filterStatus, currentPage, canReadCustomers]);
+  }, [searchTerm, filterStatus, currentPage, customerPageSize, canReadCustomers]);
 
   // Suppliers API hooks
   const {
@@ -140,9 +142,9 @@ const CustomerManagement = () => {
       supplierService.getSuppliers({
         query: supplierSearchTerm,
         page: supplierCurrentPage,
-        limit: 20,
+        limit: supplierPageSize,
       }),
-    [supplierSearchTerm, supplierCurrentPage],
+    [supplierSearchTerm, supplierCurrentPage, supplierPageSize],
   );
 
   // Pricelists API hooks
@@ -1217,37 +1219,64 @@ const CustomerManagement = () => {
             Showing page {pageInfo.currentPage} of {pageInfo.totalPages} (
             {pageInfo.totalItems} total customers)
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              disabled={!pageInfo.hasPrev}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                pageInfo.hasPrev
-                  ? isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
-                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
-                  : isDarkMode
-                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
-                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
-              }`}
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              disabled={!pageInfo.hasNext}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                pageInfo.hasNext
-                  ? isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
-                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
-                  : isDarkMode
-                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
-                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
-              }`}
-            >
-              Next
-            </button>
+          <div className="flex gap-4 items-center">
+            {/* Page Size Selector */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="customer-page-size" className={textSecondary}>
+                Per page:
+              </label>
+              <select
+                id="customer-page-size"
+                value={customerPageSize}
+                onChange={(e) => {
+                  setCustomerPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className={`px-3 py-2 rounded-lg border font-medium transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-700 text-white focus:border-teal-600 focus:ring-teal-600/20'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-teal-500 focus:ring-teal-500/20'
+                }`}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                disabled={!pageInfo.hasPrev}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  pageInfo.hasPrev
+                    ? isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                      : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                    : isDarkMode
+                      ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+                }`}
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                disabled={!pageInfo.hasNext}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  pageInfo.hasNext
+                    ? isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                      : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                    : isDarkMode
+                      ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+                }`}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1637,37 +1666,63 @@ const CustomerManagement = () => {
             {supplierPageInfo.totalPages} ({supplierPageInfo.totalItems} total
             suppliers)
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setSupplierCurrentPage((prev) => prev - 1)}
-              disabled={!supplierPageInfo.hasPrev}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                supplierPageInfo.hasPrev
-                  ? isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
-                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
-                  : isDarkMode
-                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
-                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
-              }`}
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setSupplierCurrentPage((prev) => prev + 1)}
-              disabled={!supplierPageInfo.hasNext}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                supplierPageInfo.hasNext
-                  ? isDarkMode
-                    ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
-                    : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
-                  : isDarkMode
-                    ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
-                    : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
-              }`}
-            >
-              Next
-            </button>
+          <div className="flex gap-4 items-center">
+            {/* Page Size Selector */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="supplier-page-size" className={textSecondary}>
+                Per page:
+              </label>
+              <select
+                id="supplier-page-size"
+                value={supplierPageSize}
+                onChange={(e) => {
+                  setSupplierPageSize(Number(e.target.value));
+                  setSupplierCurrentPage(1);
+                }}
+                className={`px-3 py-2 rounded-lg border font-medium transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-700 text-white focus:border-teal-600 focus:ring-teal-600/20'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-teal-500 focus:ring-teal-500/20'
+                }`}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSupplierCurrentPage((prev) => prev - 1)}
+                disabled={!supplierPageInfo.hasPrev}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  supplierPageInfo.hasPrev
+                    ? isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                      : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                    : isDarkMode
+                      ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+                }`}
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setSupplierCurrentPage((prev) => prev + 1)}
+                disabled={!supplierPageInfo.hasNext}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  supplierPageInfo.hasNext
+                    ? isDarkMode
+                      ? 'bg-teal-900/20 text-teal-300 border border-teal-600 hover:bg-teal-900/30'
+                      : 'bg-teal-50 text-teal-700 border border-teal-300 hover:bg-teal-100'
+                    : isDarkMode
+                      ? 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed'
+                }`}
+              >
+                Next
+              </button>
           </div>
         </div>
       )}
