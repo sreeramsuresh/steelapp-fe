@@ -656,27 +656,37 @@ const QuotationForm = () => {
             priceValidityCondition: response.priceValidityCondition || '',
             volumeDiscountTiers: (() => {
               try {
-                // Handle string JSON parsing
-                if (typeof response.volumeDiscountTiers === 'string') {
-                  // Empty or null strings
-                  if (!response.volumeDiscountTiers?.trim()) {
-                    return [];
-                  }
-                  const parsed = JSON.parse(response.volumeDiscountTiers);
-                  // Validate parsed result is array
-                  return Array.isArray(parsed) ? parsed : [];
+                // Handle null/undefined first
+                if (!response.volumeDiscountTiers) {
+                  return [];
                 }
                 // Handle array directly
                 if (Array.isArray(response.volumeDiscountTiers)) {
                   return response.volumeDiscountTiers;
                 }
-                // Handle null/undefined
+                // Handle string JSON parsing
+                if (typeof response.volumeDiscountTiers === 'string') {
+                  const trimmed = response.volumeDiscountTiers.trim();
+                  // Empty strings are valid (no tiers)
+                  if (!trimmed) {
+                    return [];
+                  }
+                  // Parse JSON safely
+                  const parsed = JSON.parse(trimmed);
+                  // Validate parsed result is array
+                  return Array.isArray(parsed) ? parsed : [];
+                }
+                // Unexpected type - return empty
+                console.warn('Unexpected volumeDiscountTiers type:', typeof response.volumeDiscountTiers);
                 return [];
               } catch (parseError) {
-                // Silent fail - volumeDiscountTiers is optional
-                if (process.env.NODE_ENV !== 'production') {
-                  console.warn('Failed to parse volumeDiscountTiers:', parseError);
-                }
+                // volumeDiscountTiers is optional - log detailed error for debugging
+                console.warn(
+                  'Failed to parse volumeDiscountTiers: ',
+                  parseError.message,
+                  'Raw value:',
+                  response.volumeDiscountTiers
+                );
                 return [];
               }
             })(),

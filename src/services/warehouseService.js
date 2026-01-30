@@ -173,8 +173,16 @@ class WarehouseService {
           ),
           totalStockValue: 0,
           // Use lowStockCount from inventory health (same source as products/dashboard)
-          lowStockItems: inventoryHealth?.summary?.lowStockCount ?? 0,
+          // Fallback ensures consistency even if inventory health endpoint is missing data
+          lowStockItems:
+            typeof inventoryHealth?.summary?.lowStockCount === 'number'
+              ? inventoryHealth.summary.lowStockCount
+              : 0,
         };
+        // Log if low stock count looks inconsistent
+        if (process.env.NODE_ENV === 'development' && inventoryHealth?.summary?.lowStockCount === undefined) {
+          console.warn('Low stock count undefined from inventory health endpoint - using 0');
+        }
         return summary;
       } catch (fallbackError) {
         // Final fallback
