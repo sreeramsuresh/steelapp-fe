@@ -2385,49 +2385,49 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                   />
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Invoice #
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Customer
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Date
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Due Date
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Amount
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
                   Status
                 </th>
                 <th
-                  className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${
+                  className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}
                 >
@@ -2629,6 +2629,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
                           className={`text-sm font-semibold ${
                             isDarkMode ? 'text-white' : 'text-gray-900'
                           }`}
+                          title={formatCurrency(invoice.total)}
                         >
                           {formatCurrency(invoice.total)}
                         </div>

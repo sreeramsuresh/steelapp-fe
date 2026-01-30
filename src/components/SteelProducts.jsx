@@ -2219,28 +2219,28 @@ const SteelProducts = () => {
             of {products.length}
           </span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-            Low:
-          </span>
-          <span className="font-semibold text-red-500">
+          <span className="text-sm font-medium text-red-500">
             {
               products.filter((p) => (p.currentStock || 0) <= (p.minStock || 0))
                 .length
             }
           </span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
           <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-            OK:
+            products with low stock
           </span>
-          <span className="font-semibold text-green-500">
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+          <span className="text-sm font-medium text-green-500">
             {
               products.filter((p) => (p.currentStock || 0) > (p.minStock || 0))
                 .length
             }
+          </span>
+          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+            products in stock
           </span>
         </div>
       </div>
@@ -2524,17 +2524,29 @@ const SteelProducts = () => {
                           {Number(getCellValue(product, col.key)).toFixed(2)}
                         </span>
                       ) : col.key === 'margin' ? (
-                        <span
-                          className={`font-medium ${
-                            getCellValue(product, col.key) > 20
-                              ? 'text-green-600'
-                              : getCellValue(product, col.key) > 10
-                                ? 'text-yellow-600'
-                                : 'text-red-500'
-                          }`}
-                        >
-                          {getCellValue(product, col.key)}%
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span
+                            className={`font-medium px-2 py-1 rounded ${
+                              getCellValue(product, col.key) < 0
+                                ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                : getCellValue(product, col.key) > 20
+                                  ? 'text-green-600'
+                                  : getCellValue(product, col.key) > 10
+                                    ? 'text-yellow-600'
+                                    : 'text-red-500'
+                            }`}
+                          >
+                            {getCellValue(product, col.key)}%
+                          </span>
+                          {getCellValue(product, col.key) < 0 && (
+                            <span
+                              className="text-red-500 font-bold"
+                              title="Negative margin alert"
+                            >
+                              ⚠️
+                            </span>
+                          )}
+                        </div>
                       ) : col.key === 'productName' ? (
                         <div>
                           <button

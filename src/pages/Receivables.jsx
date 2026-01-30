@@ -16,6 +16,7 @@ import { uuid } from '../utils/uuid';
 import {
   formatCurrency,
   formatDate as formatDateUtil,
+  formatDateDMY,
 } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
 import { notificationService } from '../services/notificationService';
@@ -827,26 +828,44 @@ const Receivables = () => {
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <input
-              type="number"
-              step="0.01"
-              placeholder="Min Outstanding"
-              value={filters.minOut}
-              onChange={(e) =>
-                setFilters({ minOut: numberInput(e.target.value), page: '1' })
-              }
-              className="px-3 py-2 rounded border w-full min-w-0"
-            />
-            <input
-              type="number"
-              step="0.01"
-              placeholder="Max Outstanding"
-              value={filters.maxOut}
-              onChange={(e) =>
-                setFilters({ maxOut: numberInput(e.target.value), page: '1' })
-              }
-              className="px-3 py-2 rounded border w-full min-w-0"
-            />
+            <div className="flex-1 min-w-0">
+              <label
+                htmlFor="min-outstanding"
+                className="block text-xs font-medium mb-1"
+              >
+                Min Outstanding
+              </label>
+              <input
+                id="min-outstanding"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={filters.minOut}
+                onChange={(e) =>
+                  setFilters({ minOut: numberInput(e.target.value), page: '1' })
+                }
+                className="px-3 py-2 rounded border w-full min-w-0"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <label
+                htmlFor="max-outstanding"
+                className="block text-xs font-medium mb-1"
+              >
+                Max Outstanding
+              </label>
+              <input
+                id="max-outstanding"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={filters.maxOut}
+                onChange={(e) =>
+                  setFilters({ maxOut: numberInput(e.target.value), page: '1' })
+                }
+                className="px-3 py-2 rounded border w-full min-w-0"
+              />
+            </div>
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
             <button
@@ -1035,12 +1054,18 @@ const Receivables = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
-                      {formatDate(row.invoiceDate || row.date)}
+                    <td
+                      className="px-4 py-2 whitespace-nowrap"
+                      onClick={() => openDrawer(row)}
+                    >
+                      {formatDateDMY(row.invoiceDate || row.date)}
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 whitespace-nowrap"
+                      onClick={() => openDrawer(row)}
+                    >
                       <div className="flex items-center gap-2">
-                        <span>{formatDate(row.dueDate || row.dueDate)}</span>
+                        <span>{formatDateDMY(row.dueDate || row.dueDate)}</span>
                         {row.status === 'overdue' && (
                           <Pill color="red">Overdue</Pill>
                         )}

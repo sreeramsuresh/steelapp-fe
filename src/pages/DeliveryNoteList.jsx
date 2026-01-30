@@ -67,7 +67,7 @@ const DeliveryNoteList = () => {
     warnings: [],
   });
 
-  const getStatusBadge = (status) => {
+  const _getStatusBadge = (status) => {
     const statusConfig = {
       pending: {
         className: isDarkMode
@@ -421,11 +421,6 @@ const DeliveryNoteList = () => {
                 <th
                   className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
                 >
-                  Status
-                </th>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-                >
                   Vehicle
                 </th>
                 <th
@@ -440,7 +435,7 @@ const DeliveryNoteList = () => {
             >
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center">
+                  <td colSpan={6} className="px-6 py-8 text-center">
                     <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
                       <span
@@ -454,7 +449,7 @@ const DeliveryNoteList = () => {
               ) : deliveryNotes.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={6}
                     className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                   >
                     No delivery notes found
@@ -480,8 +475,16 @@ const DeliveryNoteList = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-teal-600">
-                        {deliveryNote.invoiceNumber}
+                      <div
+                        className={`text-sm font-medium ${
+                          deliveryNote.invoiceNumber
+                            ? 'text-teal-600'
+                            : isDarkMode
+                              ? 'text-gray-400'
+                              : 'text-gray-500'
+                        }`}
+                      >
+                        {deliveryNote.invoiceNumber || '—'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -501,16 +504,6 @@ const DeliveryNoteList = () => {
                         className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                       >
                         {formatDate(deliveryNote.deliveryDate)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-1">
-                        {getStatusBadge(deliveryNote.status)}
-                        {deliveryNote.isPartial && (
-                          <span className="text-xs text-orange-500 font-medium">
-                            Partial Delivery
-                          </span>
-                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

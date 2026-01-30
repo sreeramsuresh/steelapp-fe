@@ -48,7 +48,6 @@ const CUSTOMER_COLUMNS = [
   { key: 'phone', label: 'Phone', width: 'w-[120px]' },
   { key: 'creditLimit', label: 'Credit Limit', width: 'w-[120px]' },
   { key: 'creditUsed', label: 'Credit Used', width: 'w-[120px]' },
-  { key: 'status', label: 'Status', width: 'w-[100px]' },
 ];
 
 // Column definitions for Suppliers table
@@ -59,7 +58,6 @@ const SUPPLIER_COLUMNS = [
   { key: 'phone', label: 'Phone', width: 'w-[120px]' },
   { key: 'trnNumber', label: 'TRN', width: 'w-[140px]' },
   { key: 'paymentTerms', label: 'Payment Terms', width: 'w-[120px]' },
-  { key: 'status', label: 'Status', width: 'w-[100px]' },
 ];
 
 const CustomerManagement = () => {
@@ -1122,16 +1120,18 @@ const CustomerManagement = () => {
                       }`}
                     >
                       {col.key === 'name' ? (
-                        <div>
+                        <div className="space-y-1">
                           <button
                             onClick={() => handleCustomerClick(customer.id)}
-                            className={`font-medium text-left hover:underline ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                            className={`font-medium text-left hover:underline block truncate max-w-[180px] ${isDarkMode ? 'text-teal-400 hover:text-teal-300' : 'text-teal-600 hover:text-teal-700'}`}
+                            title={getCustomerCellValue(customer, col.key)}
                           >
                             {getCustomerCellValue(customer, col.key)}
                           </button>
                           {customer.company && (
                             <div
-                              className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                              className={`text-xs truncate max-w-[180px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                              title={customer.company}
                             >
                               {customer.company}
                             </div>
@@ -1147,18 +1147,6 @@ const CustomerManagement = () => {
                           {formatCurrency(
                             getCustomerCellValue(customer, col.key),
                           )}
-                        </span>
-                      ) : col.key === 'status' ? (
-                        <span
-                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize ${
-                            normalizeStatus(customer.status) === 'active'
-                              ? 'bg-green-100 text-green-800'
-                              : normalizeStatus(customer.status) === 'archived'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-600'
-                          }`}
-                        >
-                          {normalizeStatus(customer.status)}
                         </span>
                       ) : col.key === 'email' ? (
                         <span
@@ -1592,18 +1580,6 @@ const CustomerManagement = () => {
                             </div>
                           )}
                         </div>
-                      ) : col.key === 'status' ? (
-                        <span
-                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize ${
-                            normalizeStatus(supplier.status) === 'active'
-                              ? 'bg-green-100 text-green-800'
-                              : normalizeStatus(supplier.status) === 'inactive'
-                                ? 'bg-gray-100 text-gray-600'
-                                : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {normalizeStatus(supplier.status)}
-                        </span>
                       ) : col.key === 'email' ? (
                         <span
                           className="block truncate max-w-[180px]"
