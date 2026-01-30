@@ -46,6 +46,7 @@ const QuotationList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -116,7 +117,7 @@ const QuotationList = () => {
     setError('');
 
     try {
-      const params = { page, limit: 10 };
+      const params = { page, limit: pageSize };
       if (searchTerm) params.search = searchTerm;
       if (statusFilter !== 'all') params.status = statusFilter;
 
@@ -141,7 +142,7 @@ const QuotationList = () => {
   useEffect(() => {
     fetchQuotations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchTerm, statusFilter]);
+  }, [page, pageSize, searchTerm, statusFilter]);
 
   const { data: company } = useApiData(companyService.getCompany, [], true);
 
@@ -351,6 +352,26 @@ const QuotationList = () => {
               <option value="rejected">Rejected</option>
               <option value="expired">Expired</option>
               <option value="converted">Converted</option>
+            </select>
+          </div>
+
+          {/* Page Size Selector */}
+          <div className="lg:w-40">
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(parseInt(e.target.value));
+                setPage(1); // Reset to first page when changing page size
+              }}
+              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                isDarkMode
+                  ? 'bg-gray-800 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={30}>30 per page</option>
             </select>
           </div>
 

@@ -17,6 +17,7 @@ const CustomerDetail = lazy(() => import('../pages/CustomerDetail'));
 
 // Core Components (converted to lazy loading)
 const Dashboard = lazy(() => import('./DashboardV2'));
+const HomePage = lazy(() => import('../pages/HomePage'));
 const InvoiceForm = lazy(() => import('../pages/InvoiceForm'));
 const InvoiceAllocationConfirmation = lazy(
   () => import('./InvoiceAllocationConfirmation'),
@@ -319,8 +320,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           {/* ========================================== */}
 
           <Route path="/app" element={<CoreERPLayout />}>
-            {/* Redirect /app to first operational page */}
-            <Route index element={<Navigate to="/app/quotations" replace />} />
+            {/* Home Page - Default landing */}
+            <Route index element={<HomePage />} />
+            <Route
+              path="home"
+              element={
+                <ProtectedRoute user={user}>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Search */}
             <Route
