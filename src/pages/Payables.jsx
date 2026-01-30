@@ -9,6 +9,7 @@ import {
   Trash2,
   CheckCircle,
   Printer,
+  ChevronDown,
 } from 'lucide-react';
 import { payablesService } from '../services/dataService';
 import { createPaymentPayload } from '../services/paymentService';
@@ -835,6 +836,80 @@ const POTab = ({ canManage }) => {
               )}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          {items.length > 0 && (
+            <div className={`flex items-center justify-between px-4 py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Showing {(page - 1) * size + 1} to{' '}
+                {Math.min(page * size, pageInfo.totalCount || 0)} of{' '}
+                {pageInfo.totalCount || 0} purchase orders
+              </div>
+              <div className="flex gap-4 items-center">
+                {/* Page Size Selector */}
+                <div className="flex items-center gap-2">
+                  <label htmlFor="payables-page-size" className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Per page:
+                  </label>
+                  <select
+                    id="payables-page-size"
+                    value={size}
+                    onChange={(e) => {
+                      setFilters({ ...filters, size: e.target.value, page: '1' });
+                    }}
+                    className={`px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-700 text-gray-300'
+                        : 'bg-white border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setFilters({ ...filters, page: String(Math.max(1, page - 1)) })}
+                    disabled={page === 1}
+                    className={`p-1.5 rounded border transition-colors ${
+                      page === 1
+                        ? isDarkMode
+                          ? 'opacity-50 cursor-not-allowed border-gray-700 text-gray-600'
+                          : 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+                        : isDarkMode
+                          ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                          : 'border-gray-300 text-gray-600 hover:bg-gray-100'
+                    }`}
+                    title="Previous page"
+                  >
+                    <ChevronDown size={16} className="rotate-90" />
+                  </button>
+                  <span className={`px-2 py-1 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Page {page} of {pageInfo.totalPages || 1}
+                  </span>
+                  <button
+                    onClick={() => setFilters({ ...filters, page: String(Math.min(pageInfo.totalPages || 1, page + 1)) })}
+                    disabled={page >= (pageInfo.totalPages || 1)}
+                    className={`p-1.5 rounded border transition-colors ${
+                      page >= (pageInfo.totalPages || 1)
+                        ? isDarkMode
+                          ? 'opacity-50 cursor-not-allowed border-gray-700 text-gray-600'
+                          : 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+                        : isDarkMode
+                          ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                          : 'border-gray-300 text-gray-600 hover:bg-gray-100'
+                    }`}
+                    title="Next page"
+                  >
+                    <ChevronDown size={16} className="-rotate-90" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
