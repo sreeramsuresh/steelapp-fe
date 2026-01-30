@@ -15,7 +15,7 @@ import { api } from './api';
 // Dev-only warning for deprecated _companyId parameter usage
 const IS_DEV = import.meta.env?.DEV || process.env.NODE_ENV === 'development';
 
-function warnDeprecatedCompanyId(methodName, companyId) {
+function _warnDeprecatedCompanyId(methodName, companyId) {
   if (IS_DEV && companyId !== undefined && companyId !== null) {
     console.warn(
       `[categoryPolicyService.${methodName}] DEPRECATED: _companyId parameter is ignored. ` +

@@ -172,7 +172,7 @@ class DemoDataService {
       const response = await productService.getProducts();
       const products = response?.products || [];
       return products.length > 0;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
