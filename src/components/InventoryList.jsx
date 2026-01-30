@@ -40,6 +40,9 @@ const InventoryList = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [productSearching, setProductSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState(''); // ERP: Filter by inventory status
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [totalCount, setTotalCount] = useState(0);
   const [formData, setFormData] = useState(() => {
     const item = createInventoryItem();
     return {
@@ -67,12 +70,17 @@ const InventoryList = () => {
   const fetchInventory = useCallback(async () => {
     try {
       setLoading(true);
-      const params = {};
+      const params = {
+        page,
+        limit: pageSize,
+      };
       if (statusFilter) {
         params.status = statusFilter;
       }
       const response = await inventoryService.getAllItems(params);
       setInventory(response.data || []);
+      // Extract pagination info from response
+      setTotalCount(response.pagination?.total || response.total || response.data?.length || 0);
     } catch (fetchError) {
       console.error('Error fetching inventory:', fetchError);
       setError('Failed to load inventory');
@@ -80,7 +88,7 @@ const InventoryList = () => {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]); // inventoryService is a stable import
+  }, [page, pageSize, statusFilter]); // inventoryService is a stable import
 
   const fetchWarehouses = useCallback(async () => {
     try {
@@ -946,6 +954,78 @@ const InventoryList = () => {
               )}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          {inventory.length > 0 && (
+            <div className={`flex items-center justify-between px-6 py-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount} items
+              </div>
+
+              <div className="flex gap-4 items-center">
+                {/* Page Size Selector */}
+                <div className="flex items-center gap-2">
+                  <label htmlFor="inventory-page-size" className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Per page:
+                  </label>
+                  <select
+                    id="inventory-page-size"
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setPage(1); // Reset to first page
+                    }}
+                    className={`px-2 py-1 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPage(Math.max(1, page - 1))}
+                    disabled={page === 1}
+                    className={`p-2 rounded-lg border transition-colors ${
+                      page === 1
+                        ? isDarkMode
+                          ? 'border-gray-700 text-gray-600'
+                          : 'border-gray-200 text-gray-400'
+                        : isDarkMode
+                          ? 'border-gray-600 text-white hover:bg-gray-700'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    ←
+                  </button>
+                  <span className={`px-3 py-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Page {page} of {Math.ceil(totalCount / pageSize)}
+                  </span>
+                  <button
+                    onClick={() => setPage(Math.min(Math.ceil(totalCount / pageSize), page + 1))}
+                    disabled={page >= Math.ceil(totalCount / pageSize)}
+                    className={`p-2 rounded-lg border transition-colors ${
+                      page >= Math.ceil(totalCount / pageSize)
+                        ? isDarkMode
+                          ? 'border-gray-700 text-gray-600'
+                          : 'border-gray-200 text-gray-400'
+                        : isDarkMode
+                          ? 'border-gray-600 text-white hover:bg-gray-700'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Add/Edit Dialog */}

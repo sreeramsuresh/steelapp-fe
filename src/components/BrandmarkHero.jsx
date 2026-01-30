@@ -13,69 +13,70 @@ const BrandmarkHero = () => {
   const [isHovering, setIsHovering] = useState(false);
 
   return (
-    <style>
-      {`
-        @keyframes slideInFromTop {
-          from {
-            opacity: 0;
-            transform: translateY(-40px) rotateX(30deg);
+    <>
+      <style>
+        {`
+          @keyframes slideInFromTop {
+            from {
+              opacity: 0;
+              transform: translateY(-40px) rotateX(30deg);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) rotateX(0deg);
+            }
           }
-          to {
-            opacity: 1;
-            transform: translateY(0) rotateX(0deg);
+
+          @keyframes breathingPulse {
+            0%, 100% {
+              transform: scale(1);
+              opacity: 1;
+            }
+            50% {
+              transform: scale(1.03);
+              opacity: 0.95;
+            }
           }
-        }
 
-        @keyframes breathingPulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 1;
+          @keyframes spinOnHover {
+            from {
+              transform: rotateZ(0deg);
+            }
+            to {
+              transform: rotateZ(360deg);
+            }
           }
-          50% {
-            transform: scale(1.03);
-            opacity: 0.95;
+
+          .brandmark-hero {
+            animation: slideInFromTop 0.8s ease-out;
           }
-        }
 
-        @keyframes spinOnHover {
-          from {
-            transform: rotateZ(0deg);
+          .brandmark-logo {
+            animation: breathingPulse 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
           }
-          to {
-            transform: rotateZ(360deg);
+
+          .brandmark-logo:hover {
+            animation: spinOnHover 0.6s ease-in-out, breathingPulse 3s ease-in-out infinite;
+            filter: drop-shadow(0 8px 20px rgba(20, 184, 166, 0.3));
           }
-        }
 
-        .brandmark-hero {
-          animation: slideInFromTop 0.8s ease-out;
-        }
+          .brandmark-text {
+            animation: slideInFromTop 0.8s ease-out 0.1s both;
+          }
 
-        .brandmark-logo {
-          animation: breathingPulse 3s ease-in-out infinite;
-          transition: all 0.3s ease;
-          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-        }
+          .brandmark-divider {
+            animation: slideInFromTop 0.8s ease-out 0.2s both;
+            background: linear-gradient(90deg,
+              transparent 0%,
+              ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.2)'} 50%,
+              transparent 100%);
+          }
+        `}
+      </style>
 
-        .brandmark-logo:hover {
-          animation: spinOnHover 0.6s ease-in-out, breathingPulse 3s ease-in-out infinite;
-          filter: drop-shadow(0 8px 20px rgba(20, 184, 166, 0.3));
-        }
-
-        .brandmark-text {
-          animation: slideInFromTop 0.8s ease-out 0.1s both;
-        }
-
-        .brandmark-divider {
-          animation: slideInFromTop 0.8s ease-out 0.2s both;
-          background: linear-gradient(90deg,
-            transparent 0%,
-            ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.2)'} 50%,
-            transparent 100%);
-        }
-      `}
-    </style>
-
-    <div className="brandmark-hero mb-12">
+      <div className="brandmark-hero mb-12">
       {/* Logo Section */}
       <div className="flex justify-center mb-8">
         <div
@@ -111,7 +112,8 @@ const BrandmarkHero = () => {
 
       {/* Divider */}
       <div className="brandmark-divider h-px mb-8"></div>
-    </div>
+      </div>
+    </>
   );
 };
 
