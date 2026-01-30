@@ -5,12 +5,10 @@
  * Easily removable component (rollback: just delete this file)
  */
 
-import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const BrandmarkHero = () => {
   const { isDarkMode } = useTheme();
-  const [isHovering, setIsHovering] = useState(false);
 
   return (
     <>
@@ -79,11 +77,7 @@ const BrandmarkHero = () => {
       <div className="brandmark-hero mb-12">
       {/* Logo Section */}
       <div className="flex justify-center mb-8">
-        <div
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-          className="brandmark-logo cursor-pointer"
-        >
+        <div className="brandmark-logo cursor-pointer">
           <img
             src="/assets/brandmark.jpeg"
             alt="Ultimate Steels Brandmark"
