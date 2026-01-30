@@ -179,6 +179,7 @@ const POTab = ({ canManage }) => {
   const [drawer, setDrawer] = useState({ open: false, item: null });
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
+  const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalCount: 0 });
 
   // Generate cache key based on current filters
   const getCacheKeyWithFilters = useCallback(() => {
@@ -190,6 +191,8 @@ const POTab = ({ canManage }) => {
       vendor: filters.vendor,
       minBal: filters.minBal,
       maxBal: filters.maxBal,
+      page: filters.page,
+      size: filters.size,
     });
     return `${CACHE_KEYS.PAYABLES}_${btoa(filterKey).slice(0, 20)}`;
   }, [
@@ -200,6 +203,8 @@ const POTab = ({ canManage }) => {
     filters.vendor,
     filters.minBal,
     filters.maxBal,
+    filters.page,
+    filters.size,
   ]);
 
   const fetchData = useCallback(
@@ -212,6 +217,9 @@ const POTab = ({ canManage }) => {
         if (cached && cached.data) {
           const isStale = Date.now() - cached.timestamp > CACHE_TTL_MS;
           setItems(cached.data.items || []);
+          if (cached.data.pageInfo) {
+            setPageInfo(cached.data.pageInfo);
+          }
 
           if (!isStale) {
             setLoading(false);
@@ -228,7 +236,10 @@ const POTab = ({ canManage }) => {
 
       // Fetch fresh data in background
       try {
-        const { items: fetchedPOs } = await payablesService.getPOs({
+        const page = Number(filters.page || 1);
+        const size = Number(filters.size || 10);
+
+        const response = await payablesService.getPOs({
           search: filters.q || undefined,
           status: filters.status === 'all' ? undefined : filters.status,
           start_date: filters.start || undefined,
@@ -236,11 +247,20 @@ const POTab = ({ canManage }) => {
           vendor: filters.vendor || undefined,
           min_balance: filters.minBal || undefined,
           max_balance: filters.maxBal || undefined,
+          page,
+          limit: size,
         });
 
+        const fetchedPOs = response.items || [];
         setItems(fetchedPOs);
+
+        // Extract and update pagination info
+        if (response.pageInfo) {
+          setPageInfo(response.pageInfo);
+        }
+
         // Update cache with fresh data
-        setCachedData(cacheKey, { items: fetchedPOs });
+        setCachedData(cacheKey, { items: fetchedPOs, pageInfo: response.pageInfo });
       } catch (error) {
         console.error('Failed to fetch payables:', error);
         // On error, keep showing cached data if available
@@ -256,6 +276,8 @@ const POTab = ({ canManage }) => {
       filters.vendor,
       filters.minBal,
       filters.maxBal,
+      filters.page,
+      filters.size,
       getCacheKeyWithFilters,
     ],
   );
