@@ -661,6 +661,9 @@ const SteelProducts = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
   const [productCategoryFilter, setProductCategoryFilter] = useState('all'); // Phase 3: Product category filter
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalCount: 0 });
   const [showSpeedButtons, setShowSpeedButtons] = useState(() => {
     const saved = localStorage.getItem('steelProducts_showQuickFilters');
     return saved !== null ? JSON.parse(saved) : false; // Default OFF
@@ -761,10 +764,18 @@ const SteelProducts = () => {
         search: searchTerm,
         category: categoryFilter === 'all' ? undefined : categoryFilter,
         stock_status: stockFilter === 'all' ? undefined : stockFilter,
-        limit: 1000,
+        page,
+        limit: pageSize,
       }),
-    [searchTerm, categoryFilter, stockFilter],
+    [searchTerm, categoryFilter, stockFilter, page, pageSize],
   );
+
+  // Extract pagination info from API response
+  useEffect(() => {
+    if (productsData?.pageInfo) {
+      setPageInfo(productsData.pageInfo);
+    }
+  }, [productsData?.pageInfo]);
 
   const { execute: createProduct, loading: _creatingProduct } = useApi(
     productService.createProduct,
@@ -2685,6 +2696,81 @@ const SteelProducts = () => {
             className={`p-8 text-center ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
           >
             No products found matching your criteria.
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {sortedProducts.length > 0 && (
+          <div className={`flex items-center justify-between mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Showing {(page - 1) * pageSize + 1} to{' '}
+              {Math.min(page * pageSize, pageInfo.totalCount || 0)} of{' '}
+              {pageInfo.totalCount || 0} products
+            </div>
+            <div className="flex gap-4 items-center">
+              {/* Page Size Selector */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="product-page-size" className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Per page:
+                </label>
+                <select
+                  id="product-page-size"
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  className={`px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-700 text-gray-300'
+                      : 'bg-white border-gray-300 text-gray-700'
+                  }`}
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className={`p-1.5 rounded border transition-colors ${
+                    page === 1
+                      ? isDarkMode
+                        ? 'opacity-50 cursor-not-allowed border-gray-700 text-gray-600'
+                        : 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+                      : isDarkMode
+                        ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                        : 'border-gray-300 text-gray-600 hover:bg-gray-100'
+                  }`}
+                  title="Previous page"
+                >
+                  <ChevronDown size={16} className="rotate-90" />
+                </button>
+                <span className={`px-2 py-1 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Page {page} of {pageInfo.totalPages || 1}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(pageInfo.totalPages || 1, p + 1))}
+                  disabled={page >= (pageInfo.totalPages || 1)}
+                  className={`p-1.5 rounded border transition-colors ${
+                    page >= (pageInfo.totalPages || 1)
+                      ? isDarkMode
+                        ? 'opacity-50 cursor-not-allowed border-gray-700 text-gray-600'
+                        : 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+                      : isDarkMode
+                        ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                        : 'border-gray-300 text-gray-600 hover:bg-gray-100'
+                  }`}
+                  title="Next page"
+                >
+                  <ChevronDown size={16} className="-rotate-90" />
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
