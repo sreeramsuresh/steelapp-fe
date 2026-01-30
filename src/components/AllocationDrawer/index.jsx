@@ -205,49 +205,65 @@ const AllocationDrawer = ({
     return false;
   };
 
-  // Convert price from one unit to another
-  const convertPrice = (price, fromUnit, toUnit, unitWeightKg) => {
-    if (fromUnit === toUnit || price == null) return price;
+  // CRITICAL FIX: Pure function to get conversion factor (basis → targetUnit)
+  // Returns null if conversion impossible; throws if guardconditions violated
+  const getFactor = useCallback(
+    (pricingBasisCode, targetUnit, unitWeightKg) => {
+      if (!pricingBasisCode) return null;
 
-    const numPrice = parseFloat(price);
-    if (isNaN(numPrice)) return price;
+      const basisCode = pricingBasisCode.toUpperCase();
+      const unit = (targetUnit || '').toUpperCase();
 
-    // MT to KG: 1 MT = 1000 KG → price_per_kg = price_per_mt / 1000
-    if (fromUnit === 'MT' && toUnit === 'KG') {
-      return numPrice / 1000;
-    }
+      // Block unsupported bases
+      if (basisCode === 'PER_METER' || basisCode === 'PER_LOT') {
+        return null; // Cannot convert
+      }
 
-    // KG to MT: price_per_mt = price_per_kg * 1000
-    if (fromUnit === 'KG' && toUnit === 'MT') {
-      return numPrice * 1000;
-    }
+      // Map basis to its native unit and factor
+      const mapping = {
+        PER_MT: { nativeUnit: 'MT', factors: { MT: 1, KG: 1 / 1000, PCS: unitWeightKg ? unitWeightKg / 1000 : null } },
+        PER_KG: { nativeUnit: 'KG', factors: { KG: 1, MT: 1000, PCS: unitWeightKg ? unitWeightKg : null } },
+        PER_PCS: { nativeUnit: 'PCS', factors: { PCS: 1, KG: unitWeightKg ? 1 / unitWeightKg : null, MT: unitWeightKg ? 1000 / unitWeightKg : null } },
+      };
 
-    // PCS to KG: price_per_kg = price_per_pcs / unitWeightKg
-    if (fromUnit === 'PCS' && toUnit === 'KG') {
-      if (!unitWeightKg || unitWeightKg === 0) return numPrice;
-      return numPrice / unitWeightKg;
-    }
+      const basisData = mapping[basisCode];
+      if (!basisData) return null;
 
-    // KG to PCS: price_per_pcs = price_per_kg * unitWeightKg
-    if (fromUnit === 'KG' && toUnit === 'PCS') {
-      if (!unitWeightKg || unitWeightKg === 0) return numPrice;
-      return numPrice * unitWeightKg;
-    }
+      const factor = basisData.factors[unit];
+      return factor; // May be null if PCS conversion blocked by missing unitWeightKg
+    },
+    [],
+  );
 
-    // PCS to MT: price_per_mt = price_per_pcs / (unitWeightKg / 1000)
-    if (fromUnit === 'PCS' && toUnit === 'MT') {
-      if (!unitWeightKg || unitWeightKg === 0) return numPrice;
-      return numPrice / (unitWeightKg / 1000);
-    }
+  // CRITICAL FIX: Pure function that derives display rate from immutable base
+  // Returns { displayRate, isValid, error }
+  const deriveDisplayRate = useCallback(
+    (baseRate, basePricingBasis, targetUnit, unitWeightKg) => {
+      if (baseRate == null || !basePricingBasis || !targetUnit) {
+        return { displayRate: '', isValid: false, error: null };
+      }
 
-    // MT to PCS: price_per_pcs = price_per_mt * (unitWeightKg / 1000)
-    if (fromUnit === 'MT' && toUnit === 'PCS') {
-      if (!unitWeightKg || unitWeightKg === 0) return numPrice;
-      return numPrice * (unitWeightKg / 1000);
-    }
+      const factor = getFactor(basePricingBasis, targetUnit, unitWeightKg);
 
-    return numPrice; // Fallback: no conversion
-  };
+      // Factor is null if conversion unsupported or blocked
+      if (factor === null) {
+        const errorMsg =
+          basePricingBasis === 'PER_METER'
+            ? 'Conversions from per-meter not supported'
+            : basePricingBasis === 'PER_LOT'
+            ? 'Fixed lot pricing cannot be converted'
+            : targetUnit === 'PCS' && (!unitWeightKg || unitWeightKg <= 0)
+            ? 'Unit weight (kg/pcs) required to convert to pieces'
+            : 'Conversion not supported';
+        return { displayRate: '', isValid: false, error: errorMsg };
+      }
+
+      const displayRate = baseRate * factor;
+      return { displayRate: Math.round(displayRate * 100) / 100, isValid: true, error: null };
+    },
+    [getFactor],
+  );
+
 
   // Convert quantity from one unit to another (preserves physical amount)
   const convertQuantity = (qty, fromUnit, toUnit, unitWeightKg) => {
@@ -391,18 +407,19 @@ const AllocationDrawer = ({
   );
 
   // Phase 5: Get pricing basis label for UI indicator
+  // BUGFIX: Use currentDisplayUnit instead of pricingBasisCode so label matches displayed price
   const getPricingBasisLabel = () => {
-    if (!drawerState.pricingBasisCode) return '';
+    if (!drawerState.currentDisplayUnit) return '';
 
-    const labelMap = {
-      PER_KG: 'per KG',
-      PER_MT: 'per MT',
-      PER_PCS: 'per PCS',
-      PER_METER: 'per M',
-      PER_LOT: 'per LOT',
+    const unitToLabel = {
+      KG: 'per KG',
+      MT: 'per MT',
+      PCS: 'per PCS',
+      M: 'per M',
+      LOT: 'per LOT',
     };
 
-    return labelMap[drawerState.pricingBasisCode] || '';
+    return unitToLabel[drawerState.currentDisplayUnit] || '';
   };
 
   // NOTE: Removed useEffect that initialized selectedWarehouseId from parent's warehouseId.
@@ -637,7 +654,7 @@ const AllocationDrawer = ({
     }));
   }, [confirmDialog.newValue]);
 
-  // Handle unit change - Phase 3: Convert price AND quantity
+  // Handle unit change - CRITICAL FIX: Derive display rate from baseRate, never in-place convert
   const handleUnitChange = useCallback((e) => {
     const newUnit = e.target.value;
 
@@ -677,33 +694,27 @@ const AllocationDrawer = ({
         };
       }
 
-      // BUGFIX: Convert price from CURRENT displayed unit to new unit (not from baseUnit)
-      // This fixes the bug where auto-calculated /PCS prices weren't converting properly
-      let newPrice = prev.unitPrice;
-      if (
-        !prev.unitPriceOverridden &&
-        prev.unitPrice &&
-        prev.currentDisplayUnit
-      ) {
-        // Convert from the unit the price is CURRENTLY displayed in, not baseUnit
-        newPrice = convertPrice(
-          parseFloat(prev.unitPrice),
-          prev.currentDisplayUnit,
-          newUnit,
-          prev.unitWeightKg,
-        );
-      } else if (
-        !prev.unitPriceOverridden &&
-        prev.basePrice != null &&
-        prev.baseUnit
-      ) {
-        // Fallback: if no currentDisplayUnit, use baseUnit (backward compatibility)
-        newPrice = convertPrice(
+      // CRITICAL FIX: ALWAYS derive new display price from immutable baseRate + basePricingBasis
+      // Do NOT convert the already-displayed price (which may be auto-calculated or user-entered)
+      let newPrice = prev.unitPrice; // Default: keep existing if override
+      let newError = null;
+
+      if (!prev.unitPriceOverridden && prev.basePrice != null && prev.pricingBasisCode) {
+        // Re-derive display price from base (single source of truth)
+        const { displayRate, isValid, error } = deriveDisplayRate(
           prev.basePrice,
-          prev.baseUnit,
+          prev.pricingBasisCode,
           newUnit,
           prev.unitWeightKg,
         );
+
+        if (isValid) {
+          newPrice = displayRate;
+        } else {
+          // Conversion failed (e.g., PCS without weight)
+          newPrice = '';
+          newError = error;
+        }
       }
 
       // ALWAYS convert quantity to preserve physical meaning
@@ -717,7 +728,7 @@ const AllocationDrawer = ({
         );
       }
 
-      // Format values (but store as numeric for precision)
+      // Format values
       const formattedPrice = formatPrice(newPrice, newUnit);
       const formattedQuantity = formatQuantity(newQuantity, newUnit);
 
@@ -726,11 +737,11 @@ const AllocationDrawer = ({
         unit: newUnit,
         unitPrice: formattedPrice.toString(),
         quantity: formattedQuantity.toString(),
-        currentDisplayUnit: newUnit, // BUGFIX: Update to reflect new display unit
-        error: null, // Clear any previous errors
+        currentDisplayUnit: newUnit, // Track that price is now displayed in newUnit
+        error: newError || null,
       };
     });
-  }, []);
+  }, [deriveDisplayRate]);
 
   // Handle unit price change
   const handleUnitPriceChange = useCallback((e) => {
@@ -994,22 +1005,51 @@ const AllocationDrawer = ({
       allocationMethod: null,
       loading: false,
       error: null,
+      // CRITICAL: Also clear base pricing info
+      pricingBasisCode: null,
+      baseUnit: null,
+      basePrice: null,
+      currentDisplayUnit: null,
+      unitWeightKg: null,
+      primaryUom: null,
+      unitPriceOverridden: false,
+      priceLoading: false,
+      selectedWarehouseId: null,
     });
   }, [reservationId, cancelReservation]);
 
-  // Handle add to invoice
+  // Handle add to invoice - CRITICAL: persist baseRate + basePricingBasis for audit trail
   const handleAddToInvoice = useCallback(() => {
     if (!isValid) return;
 
+    // GUARDRAIL: If PCS conversion involved, require unitWeightKg
+    if (drawerState.unit === 'PCS' && (!drawerState.unitWeightKg || drawerState.unitWeightKg <= 0)) {
+      setDrawerState((prev) => ({
+        ...prev,
+        error: 'Unit weight (kg/pcs) required for PCS pricing. Contact admin.',
+      }));
+      return;
+    }
+
     const lineItem = {
+      // Line item identification
       lineItemTempId,
       productId: drawerState.productId,
       product: drawerState.product,
       name: drawerState.productName,
+
+      // Display values (what user saw and entered)
       quantity: parseFloat(drawerState.quantity),
-      unit: drawerState.unit,
-      rate: parseFloat(drawerState.unitPrice),
-      amount: totalCost,
+      unit: drawerState.unit, // Display unit
+      rate: parseFloat(drawerState.unitPrice), // Display rate (per unit)
+      amount: totalCost, // Display quantity × display rate
+
+      // CRITICAL FIX: Base values for audit trail and unambiguous interpretation
+      baseRate: drawerState.basePrice,
+      basePricingBasis: drawerState.pricingBasisCode,
+      pricingBasis: drawerState.pricingBasisCode, // Alias for compatibility
+
+      // Stock allocation metadata
       sourceType: drawerState.sourceType,
       warehouseId: drawerState.sourceType === 'WAREHOUSE' ? warehouseId : null,
       allocations: drawerState.sourceType === 'WAREHOUSE' ? allocations : [],
@@ -1017,8 +1057,13 @@ const AllocationDrawer = ({
         drawerState.sourceType === 'WAREHOUSE'
           ? drawerState.allocationMethod || 'AUTO_FIFO'
           : null,
+
+      // Reservation tracking
       reservationId,
       expiresAt,
+
+      // Product weight for conversions
+      unitWeightKg: drawerState.unitWeightKg,
     };
 
     onAddLineItem(lineItem);
