@@ -310,15 +310,13 @@ const AllocationDrawer = ({
   };
 
   // Format price with backend-aligned precision
-  const formatPrice = (price, unit) => {
+  const formatPrice = (price) => {
     const numPrice = parseFloat(price);
     if (isNaN(numPrice)) return '';
 
-    // KG: 3 decimals, MT/PCS: 2 decimals
-    if (unit === 'KG') {
-      return numPrice; // Return numeric value (no premature rounding)
-    }
-    return numPrice; // Return numeric value
+    // CRITICAL: Format with proper decimal places to avoid floating-point display artifacts
+    // All prices display with 2 decimal places for consistency and audit trail
+    return numPrice.toFixed(2);
   };
 
   // Format quantity with unit-appropriate precision
@@ -729,7 +727,7 @@ const AllocationDrawer = ({
       }
 
       // Format values
-      const formattedPrice = formatPrice(newPrice, newUnit);
+      const formattedPrice = formatPrice(newPrice);
       const formattedQuantity = formatQuantity(newQuantity, newUnit);
 
       return {
@@ -1202,7 +1200,7 @@ const AllocationDrawer = ({
                   )}
                 </div>
                 <input
-                  type="text"
+                  type="number"
                   id="unitPrice"
                   data-testid="drawer-unit-price"
                   className={`form-input ${drawerState.priceLoading ? 'loading' : ''}`}
@@ -1212,6 +1210,9 @@ const AllocationDrawer = ({
                     drawerState.priceLoading ? 'Loading price...' : '0.00'
                   }
                   disabled={drawerState.priceLoading}
+                  step="0.01"
+                  inputMode="decimal"
+                  min="0"
                 />
               </div>
             </div>
