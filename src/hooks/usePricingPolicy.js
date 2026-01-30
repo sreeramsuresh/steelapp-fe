@@ -90,14 +90,22 @@ export function usePricingPolicy(companyId, options = {}) {
 
     try {
       const result = await categoryPolicyService.listCategoryPolicies(
-        companyId,
         activeOnly,
       );
-      setPolicies(result.policies || []);
+      // Defensive checks: ensure result is an object before accessing properties
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response from pricing policies API');
+      }
+      // Safely extract policies array with fallback
+      const policiesArray = Array.isArray(result.policies) ? result.policies : [];
+      setPolicies(policiesArray);
       setTaxonomyStatus(result.taxonomy_status || null);
     } catch (err) {
       console.error('Failed to fetch pricing policies:', err);
       setError(err.message || 'Failed to fetch pricing policies');
+      // Set safe defaults to prevent undefined access downstream
+      setPolicies([]);
+      setTaxonomyStatus(null);
     } finally {
       setLoading(false);
     }
