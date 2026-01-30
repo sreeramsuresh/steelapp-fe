@@ -354,6 +354,26 @@ const QuotationForm = () => {
   // Field validation state (real-time)
   const [fieldValidation, setFieldValidation] = useState({});
 
+  // Auto-clear success messages
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess('');
+      }, 5000); // Clear after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  // Auto-clear non-critical errors
+  useEffect(() => {
+    if (error && !error.includes('not found') && !error.includes('permission') && !error.includes('not have')) {
+      const timer = setTimeout(() => {
+        setError('');
+      }, 10000); // Clear after 10 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   // Auto-save functionality
   useEffect(() => {
     if (!isEdit && formData.items.length > 0) {
@@ -380,6 +400,24 @@ const QuotationForm = () => {
           break;
         case 'quotationDate':
           isValid = value && String(value).trim() !== '';
+          // Warn if date is in the future
+          if (isValid && new Date(value) > new Date()) {
+            console.warn('Quotation date is in the future');
+          }
+          break;
+        case 'validUntil':
+          isValid = true; // Optional field
+          if (value && formData.quotationDate && value < formData.quotationDate) {
+            isValid = false;
+          }
+          break;
+        case 'exchangeRate':
+          // Required if currency is not AED, must be positive
+          if (formData.currency !== 'AED') {
+            isValid = value && Number(value) > 0;
+          } else {
+            isValid = !value || Number(value) > 0;
+          }
           break;
         case 'warehouse':
           // Warehouse is optional for drafts, required for others
@@ -474,8 +512,8 @@ const QuotationForm = () => {
           const response = await quotationService.getById(id);
 
           // Transform snake_case to camelCase
-          // Parse customerDetails safely
-          let parsedCustomerDetails = {
+          // Parse customerDetails safely with better error handling
+          const defaultCustomerDetails = {
             name: '',
             company: '',
             email: '',
@@ -489,118 +527,183 @@ const QuotationForm = () => {
             vatNumber: '',
           };
 
-          if (typeof response.customerDetails === 'string' && response.customerDetails.trim()) {
+          let parsedCustomerDetails = defaultCustomerDetails;
+
+          if (typeof response.customerDetails === 'string' && response.customerDetails?.trim()) {
             try {
-              parsedCustomerDetails = JSON.parse(response.customerDetails);
-            } catch (_parseError) {
-              // If JSON parse fails, use empty object
-              parsedCustomerDetails = {
-                name: '',
-                company: '',
-                email: '',
-                phone: '',
-                address: {
-                  street: '',
-                  city: '',
-                  emirate: '',
-                  country: 'UAE',
-                },
-                vatNumber: '',
-              };
+              const parsed = JSON.parse(response.customerDetails);
+              // Validate parsed object has required structure
+              if (typeof parsed === 'object' && parsed !== null) {
+                parsedCustomerDetails = {
+                  ...defaultCustomerDetails,
+                  ...parsed,
+                };
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse customerDetails JSON:', parseError);
+              // Use defaults - don't throw or propagate parse error
+              parsedCustomerDetails = defaultCustomerDetails;
             }
           } else if (typeof response.customerDetails === 'object' && response.customerDetails) {
-            parsedCustomerDetails = response.customerDetails;
+            parsedCustomerDetails = {
+              ...defaultCustomerDetails,
+              ...response.customerDetails,
+            };
           }
 
+          // Helper function to safely parse numbers
+          const safeNumber = (value, defaultValue = 0) => {
+            const num = Number(value);
+            return isNaN(num) ? defaultValue : num;
+          };
+
+          // Helper function to safely extract date (YYYY-MM-DD format)
+          const safeDate = (dateString) => {
+            if (!dateString) return '';
+            if (typeof dateString === 'string' && dateString.includes('T')) {
+              return dateString.split('T')[0];
+            }
+            return dateString || '';
+          };
+
           setFormData({
-            quotationNumber: response.quotationNumber || '',
-            customerId: response.customerId || '',
+            quotationNumber: response.quotationNumber && String(response.quotationNumber).trim() ? String(response.quotationNumber) : '',
+            customerId: response.customerId ? String(response.customerId) : '',
             customerDetails: parsedCustomerDetails,
-            quotationDate: response.quotationDate?.split('T')[0] || '',
-            validUntil: response.validUntil?.split('T')[0] || '',
+            quotationDate: safeDate(response.quotationDate),
+            validUntil: safeDate(response.validUntil),
             customerPurchaseOrderNumber:
               response.customerPurchaseOrderNumber || '',
             customerPurchaseOrderDate:
-              response.customerPurchaseOrderDate?.split('T')[0] || '',
-            warehouseId: response.warehouseId?.toString() || '',
+              safeDate(response.customerPurchaseOrderDate),
+            warehouseId: response.warehouseId ? String(response.warehouseId) : '',
             warehouseName: response.warehouseName || '',
             warehouseCode: response.warehouseCode || '',
             warehouseCity: response.warehouseCity || '',
             currency: response.currency || 'AED',
-            exchangeRate: response.exchangeRate || 1,
+            exchangeRate: safeNumber(response.exchangeRate, 1),
             deliveryTerms: response.deliveryTerms || '',
             paymentTerms: response.paymentTerms || '',
             notes: response.notes || '',
             termsAndConditions: response.termsAndConditions || '',
-            items: (response.items || []).map((item) => ({
-              productId: item.productId || '',
-              name: item.name || '',
-              specification: item.specification || '',
-              grade: item.grade || '',
-              finish: item.finish || '',
-              size: item.size || '',
-              thickness: item.thickness || '',
-              description: item.description || '',
-              hsnCode: item.hsnCode || '',
-              unit: item.unit || 'pcs',
-              quantity: item.quantity || 0,
-              rate: item.rate || 0,
-              discount: item.discount || 0,
-              discountType: item.discountType || 'amount',
-              taxableAmount: item.taxableAmount || 0,
-              vatRate: item.vatRate || 5,
-              amount: item.amount || 0,
-              netAmount: item.netAmount || 0,
-              // Pricing & Commercial Fields
-              pricingBasis: item.pricingBasis || 'PER_MT',
-              unitWeightKg: item.unitWeightKg || null,
-              quantityUom: item.quantityUom || 'PCS',
-              theoreticalWeightKg: item.theoreticalWeightKg || null,
-              missingWeightWarning: false,
-              // Stock & Source Fields (Phase 3)
-              sourceType: item.sourceType || 'WAREHOUSE',
-              // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
-              stockReserved: item.stockReserved || false,
-              reservationExpiry: item.reservationExpiry || null,
-              estimatedLeadTimeDays: item.estimatedLeadTimeDays || null,
-              deliverySchedule:
-                typeof item.deliverySchedule === 'string'
-                  ? JSON.parse(item.deliverySchedule)
-                  : item.deliverySchedule || [],
-              alternativeProducts:
-                typeof item.alternativeProducts === 'string'
-                  ? JSON.parse(item.alternativeProducts)
-                  : item.alternativeProducts || [],
-            })),
-            subtotal: response.subtotal || 0,
-            vatAmount: response.vatAmount || 0,
-            totalQuantity: response.totalQuantity || 0,
-            totalWeight: response.totalWeight || 0,
-            packingCharges: response.packingCharges || 0,
-            freightCharges: response.freightCharges || 0,
-            insuranceCharges: response.insuranceCharges || 0,
-            loadingCharges: response.loadingCharges || 0,
-            otherCharges: response.otherCharges || 0,
+            items: (response.items || []).map((item) => {
+              // Safe JSON parsing helper for item fields
+              const safeJsonParse = (value, defaultValue = []) => {
+                if (typeof value === 'string') {
+                  try {
+                    return JSON.parse(value) || defaultValue;
+                  } catch (parseError) {
+                    console.warn('Failed to parse item field:', parseError);
+                    return defaultValue;
+                  }
+                }
+                return value || defaultValue;
+              };
+
+              return {
+                productId: item.productId ? String(item.productId) : '',
+                name: item.name || '',
+                specification: item.specification || '',
+                grade: item.grade || '',
+                finish: item.finish || '',
+                size: item.size || '',
+                thickness: item.thickness || '',
+                description: item.description || '',
+                hsnCode: item.hsnCode || '',
+                unit: item.unit || 'pcs',
+                quantity: safeNumber(item.quantity),
+                rate: safeNumber(item.rate),
+                discount: safeNumber(item.discount),
+                discountType: item.discountType || 'amount',
+                taxableAmount: safeNumber(item.taxableAmount),
+                vatRate: safeNumber(item.vatRate, 5),
+                amount: safeNumber(item.amount),
+                netAmount: safeNumber(item.netAmount),
+                // Pricing & Commercial Fields
+                pricingBasis: item.pricingBasis || 'PER_MT',
+                unitWeightKg: safeNumber(item.unitWeightKg, null),
+                quantityUom: item.quantityUom || 'PCS',
+                theoreticalWeightKg: safeNumber(item.theoreticalWeightKg, null),
+                missingWeightWarning: false,
+                // Stock & Source Fields (Phase 3)
+                sourceType: item.sourceType || 'WAREHOUSE',
+                // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
+                stockReserved: Boolean(item.stockReserved),
+                reservationExpiry: safeDate(item.reservationExpiry),
+                estimatedLeadTimeDays: safeNumber(item.estimatedLeadTimeDays),
+                deliverySchedule: safeJsonParse(item.deliverySchedule, []),
+                alternativeProducts: safeJsonParse(item.alternativeProducts, []),
+              };
+            }),
+            subtotal: safeNumber(response.subtotal),
+            vatAmount: safeNumber(response.vatAmount),
+            totalQuantity: safeNumber(response.totalQuantity),
+            totalWeight: safeNumber(response.totalWeight),
+            packingCharges: safeNumber(response.packingCharges),
+            freightCharges: safeNumber(response.freightCharges),
+            insuranceCharges: safeNumber(response.insuranceCharges),
+            loadingCharges: safeNumber(response.loadingCharges),
+            otherCharges: safeNumber(response.otherCharges),
             discountType: response.discountType || 'amount',
-            discountPercentage: response.discountPercentage || 0,
-            discountAmount: response.discountAmount || 0,
-            total: response.total || 0,
+            discountPercentage: safeNumber(response.discountPercentage),
+            discountAmount: safeNumber(response.discountAmount),
+            total: safeNumber(response.total),
             status: response.status || 'draft',
             // Steel industry specific fields (STEEL-FORMS-PHASE1 Priority 2)
             priceValidityCondition: response.priceValidityCondition || '',
-            volumeDiscountTiers:
-              typeof response.volumeDiscountTiers === 'string'
-                ? JSON.parse(response.volumeDiscountTiers)
-                : response.volumeDiscountTiers || [],
+            volumeDiscountTiers: (() => {
+              try {
+                if (typeof response.volumeDiscountTiers === 'string') {
+                  return JSON.parse(response.volumeDiscountTiers) || [];
+                }
+                return response.volumeDiscountTiers || [];
+              } catch (parseError) {
+                console.warn('Failed to parse volumeDiscountTiers:', parseError);
+                return [];
+              }
+            })(),
           });
 
-          // Set customer input value for autocomplete
-          if (response.customerId && response.customerDetails?.name) {
-            setCustomerInputValue(response.customerDetails.name);
+          // Set customer input value for autocomplete and load pricelist
+          if (response.customerId && parsedCustomerDetails?.name) {
+            setCustomerInputValue(parsedCustomerDetails.name);
+
+            // Try to find and load customer's pricelist
+            const customer = customers.find((c) => String(c.id) === String(response.customerId));
+            if (customer && (customer.pricelistId || customer.pricelist_id)) {
+              try {
+                const pricelistId = customer.pricelistId || customer.pricelist_id;
+                const pricelistResponse = await pricelistService.getById(pricelistId);
+                setSelectedPricelistId(pricelistId);
+                setPricelistName(
+                  pricelistResponse.pricelist?.name ||
+                    pricelistResponse.data?.name ||
+                    'Custom Price List',
+                );
+              } catch (_priceError) {
+                // Silently ignore - pricelist is optional
+                setSelectedPricelistId(null);
+                setPricelistName(null);
+              }
+            } else if (customer) {
+              setSelectedPricelistId(null);
+              setPricelistName('Default Price List');
+            }
           }
         } catch (err) {
           console.error('Error fetching quotation:', err);
-          setError('Failed to load quotation data. Please try refreshing the page or use the Refresh button to retry.');
+
+          // Provide specific error messages based on error type
+          let errorMessage = 'Failed to load quotation data.';
+          if (err.response?.status === 404) {
+            errorMessage = `Quotation #${id} not found. It may have been deleted.`;
+          } else if (err.response?.status === 401 || err.response?.status === 403) {
+            errorMessage = 'You do not have permission to view this quotation.';
+          } else if (err.message?.includes('JSON')) {
+            errorMessage = 'Server returned invalid data. Please try again.';
+          }
+
+          setError(errorMessage);
         } finally {
           setLoading(false);
         }
@@ -634,7 +737,9 @@ const QuotationForm = () => {
   const handleCustomerChange = async (customerId, selectedOption = null) => {
     // If called from Autocomplete (selectedOption provided), use that info
     if (selectedOption) {
-      const customer = customers.find((c) => c.id === selectedOption.id);
+      const customer = customers.find(
+        (c) => String(c.id) === String(selectedOption.id),
+      ) || selectedOption; // Fallback to selectedOption if not found in array
       customerId = selectedOption.id;
 
       if (customer) {
@@ -683,9 +788,11 @@ const QuotationForm = () => {
     }
 
     // Original logic for direct customerId (or when selectedOption not found)
-    const customer = customers.find((c) => c.id === parseInt(customerId));
+    const customer = customers.find(
+      (c) => String(c.id) === String(customerId),
+    );
     if (customer) {
-      setCustomerInputValue(customer.name);
+      setCustomerInputValue(customer.name || '');
       setFormData((prev) => ({
         ...prev,
         customerId,
@@ -1196,7 +1303,7 @@ const QuotationForm = () => {
     formData.discountType,
     formData.discountPercentage,
     formData.discountAmount,
-    formData.items,
+    formData.items.length, // Use items.length instead of items to avoid array reference changes
     calculateTotals,
   ]);
 
@@ -1216,6 +1323,14 @@ const QuotationForm = () => {
     }
     if (!formData.quotationDate) {
       errors.push('Quotation date is required');
+    }
+    // Validate dates
+    if (formData.validUntil && formData.quotationDate && formData.validUntil < formData.quotationDate) {
+      errors.push('Valid Until date must be after Quotation Date');
+    }
+    // Validate exchange rate
+    if (formData.currency !== 'AED' && (!formData.exchangeRate || formData.exchangeRate <= 0)) {
+      errors.push('Exchange Rate is required and must be greater than 0 for non-AED currencies');
     }
     if (!formData.items || formData.items.length === 0) {
       errors.push('At least one item is required');
@@ -1397,7 +1512,7 @@ const QuotationForm = () => {
     ...props
   }) => {
     const inputId =
-      elementId || `input-${Math.random().toString(36).substr(2, 9)}`;
+      elementId || `input-${Math.random().toString(36).substring(2, 11)}`;
 
     const getValidationClasses = () => {
       if (!showValidation) {
@@ -1807,12 +1922,24 @@ const QuotationForm = () => {
         <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 text-sm">
           <AlertCircle size={18} className="flex-shrink-0" />
           <div className="flex-1 whitespace-pre-line">{error}</div>
-          <button
-            onClick={() => setError('')}
-            className="text-red-500 hover:text-red-700"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex gap-2">
+            {isEdit && (error.includes('not found') || error.includes('permission')) && (
+              <button
+                onClick={() => {
+                  window.location.reload();
+                }}
+                className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
+              >
+                Retry
+              </button>
+            )}
+            <button
+              onClick={() => setError('')}
+              className="text-red-500 hover:text-red-700"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
       )}
 
@@ -1886,11 +2013,26 @@ const QuotationForm = () => {
                 label="Valid Until"
                 type="date"
                 value={formData.validUntil}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  // Validate: Valid Until should be after Quotation Date
+                  if (newDate && formData.quotationDate) {
+                    if (newDate < formData.quotationDate) {
+                      setError('Valid Until date must be after Quotation Date');
+                      return;
+                    }
+                  }
                   setFormData((prev) => ({
                     ...prev,
-                    validUntil: e.target.value,
-                  }))
+                    validUntil: newDate,
+                  }));
+                  setError('');
+                }}
+                helperText={
+                  formData.validUntil &&
+                  new Date(formData.validUntil) < new Date()
+                    ? 'This date is in the past'
+                    : ''
                 }
               />
 
@@ -1919,18 +2061,29 @@ const QuotationForm = () => {
                 label="Exchange Rate"
                 type="number"
                 step="0.0001"
-                min="0"
+                min="0.0001"
                 value={formData.exchangeRate || ''}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    exchangeRate: e.target.value,
-                  }))
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const numValue = parseFloat(value);
+                  // Validate: must be a positive number if provided
+                  if (value === '' || (numValue > 0 && !isNaN(numValue))) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      exchangeRate: value === '' ? 1 : numValue,
+                    }));
+                  }
+                }}
                 placeholder="1.0000"
+                required={formData.currency !== 'AED'}
+                validationState={
+                  formData.currency !== 'AED' && (!formData.exchangeRate || formData.exchangeRate <= 0)
+                    ? 'invalid'
+                    : null
+                }
                 helperText={
                   formData.currency !== 'AED'
-                    ? `Rate to convert ${formData.currency} to AED`
+                    ? `Rate to convert ${formData.currency} to AED (must be > 0)`
                     : 'Default currency (1.0000)'
                 }
               />
@@ -1963,19 +2116,26 @@ const QuotationForm = () => {
                   id: c.id,
                   label: c.name,
                   name: c.name,
+                  company: c.company,
+                  email: c.email,
+                  phone: c.phone,
+                  address: c.address,
+                  vatNumber: c.vatNumber,
+                  pricelistId: c.pricelistId,
+                  pricelist_id: c.pricelist_id,
                 }))}
                 value={
                   formData.customerId
                     ? customers.find(
-                        (c) => c.id === parseInt(formData.customerId),
+                        (c) => String(c.id) === String(formData.customerId),
                       )
                     : null
                 }
                 inputValue={customerInputValue}
-                onInputChange={(e, newValue) => {
+                onInputChange={(_e, newValue) => {
                   setCustomerInputValue(newValue || '');
                 }}
-                onChange={(e, selected) => {
+                onChange={(_e, selected) => {
                   if (selected) {
                     handleCustomerChange(selected.id, selected);
                   } else {

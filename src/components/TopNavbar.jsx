@@ -150,7 +150,11 @@ const TopNavbar = ({
             </div>
             <input
               type="text"
-              placeholder="Search invoices, customers..."
+              placeholder={
+                location.pathname.startsWith('/customers')
+                  ? 'Search customers...'
+                  : 'Search all items...'
+              }
               style={{
                 color: isDarkMode ? '#ffffff' : '#111827',
                 backgroundColor: 'transparent',
