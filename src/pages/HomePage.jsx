@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import BrandmarkHero from '../components/BrandmarkHero';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -150,6 +151,9 @@ const HomePage = () => {
             </svg>
           </button>
         </div>
+
+        {/* Brandmark Hero Section */}
+        <BrandmarkHero />
 
         {/* SECTION 1: Quick Access */}
         <div className="mb-8">

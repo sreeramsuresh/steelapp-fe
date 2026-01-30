@@ -45,12 +45,12 @@ export function SupplierQuotationList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalCount: 0 });
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null });
-  const limit = 20;
 
   // Debounce search
   useEffect(() => {
@@ -67,7 +67,7 @@ export function SupplierQuotationList() {
       setError(null);
       const result = await listSupplierQuotations({
         page,
-        limit,
+        limit: pageSize,
         status: statusFilter || undefined,
         search: searchDebounce || undefined,
       });
@@ -79,7 +79,7 @@ export function SupplierQuotationList() {
     } finally {
       setLoading(false);
     }
-  }, [page, statusFilter, searchDebounce]);
+  }, [page, pageSize, statusFilter, searchDebounce]);
 
   useEffect(() => {
     loadQuotations();
@@ -303,31 +303,54 @@ export function SupplierQuotationList() {
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-gray-500">
-                  Showing {(page - 1) * limit + 1} to{' '}
-                  {Math.min(page * limit, pageInfo.totalCount)} of{' '}
+                  Showing {(page - 1) * pageSize + 1} to{' '}
+                  {Math.min(page * pageSize, pageInfo.totalCount)} of{' '}
                   {pageInfo.totalCount} quotations
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setPage((p) => Math.min(pageInfo.totalPages, p + 1))
-                    }
-                    disabled={page >= pageInfo.totalPages}
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="flex gap-4 items-center">
+                  {/* Page Size Selector */}
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="page-size-select" className="text-sm text-gray-500">
+                      Per page:
+                    </label>
+                    <select
+                      id="page-size-select"
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setPage(1); // Reset to first page
+                      }}
+                      className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setPage((p) => Math.min(pageInfo.totalPages, p + 1))
+                      }
+                      disabled={page >= pageInfo.totalPages}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </>

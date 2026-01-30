@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../contexts/NotificationCenterContext';
+import HomeButton from './HomeButton';
 
 // Format notification timestamp to relative time
 const formatNotificationTime = (time) => {
@@ -118,7 +119,8 @@ const TopNavbar = ({
     >
       <div className="h-full px-4 flex justify-between items-center">
         {/* Left Section */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <HomeButton />
           <button
             onClick={onToggleSidebar}
             style={{
