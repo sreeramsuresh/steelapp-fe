@@ -47,6 +47,7 @@ const FinanceDashboard = () => {
         'credit-management',
       ].includes(tabParam)
     ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(tabParam);
     }
   }, [searchParams]);

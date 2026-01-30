@@ -56,6 +56,7 @@ const PurchasesDashboard = () => {
         'advance-payments',
       ].includes(normalizedTab)
     ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(normalizedTab);
     }
   }, [searchParams]);

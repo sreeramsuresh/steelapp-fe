@@ -178,6 +178,7 @@ const Autocomplete = ({
   // Reset highlighted index when filtered options change
   useEffect(() => {
     if (prevFilteredOptionsRef.current !== filteredOptions) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHighlightedIndex(-1);
       prevFilteredOptionsRef.current = filteredOptions;
     }

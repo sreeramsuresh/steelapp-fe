@@ -1175,6 +1175,7 @@ const Autocomplete = ({
   // Reset highlighted index when options change
   useEffect(() => {
     if (prevFilteredOptionsRef.current !== filteredOptions) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHighlightedIndex(-1);
       prevFilteredOptionsRef.current = filteredOptions;
     }
@@ -1436,7 +1437,7 @@ const Autocomplete = ({
   );
 };
 
-const _Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
+const Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
   const { isDarkMode } = useTheme();
 
   if (!isOpen) return null;

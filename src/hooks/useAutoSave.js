@@ -179,6 +179,7 @@ const useAutoSave = (
   useEffect(() => {
     if (!enabled || isInitializedRef.current) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     const existingDraft = checkForRecoverableDraft();
     if (existingDraft && onRecover) {
       // Notify parent component about recoverable draft
