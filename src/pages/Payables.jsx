@@ -658,43 +658,45 @@ const POTab = ({ canManage }) => {
       >
         <div className="overflow-auto">
           <table className="min-w-full divide-y">
-            <thead>
-              <tr
-                className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-              >
-                <th className="px-4 py-3 text-left text-xs uppercase">PO #</th>
-                <th className="px-4 py-3 text-left text-xs uppercase">
-                  Vendor
-                </th>
-                <th className="px-4 py-3 text-left text-xs uppercase">
-                  PO Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs uppercase">
-                  Due Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs uppercase">
-                  Currency
-                </th>
-                <th className="px-4 py-3 text-right text-xs uppercase">
-                  PO Value
-                </th>
-                <th className="px-4 py-3 text-right text-xs uppercase">
-                  Paid To-Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs uppercase">
-                  Last Payment
-                </th>
-                <th className="px-4 py-3 text-right text-xs uppercase">
-                  Balance
-                </th>
-                <th className="px-4 py-3 text-left text-xs uppercase">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-right text-xs uppercase">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+            {items.length > 0 && (
+              <thead>
+                <tr
+                  className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                >
+                  <th className="px-4 py-3 text-left text-xs uppercase">PO #</th>
+                  <th className="px-4 py-3 text-left text-xs uppercase">
+                    Vendor
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs uppercase">
+                    PO Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs uppercase">
+                    Due Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs uppercase">
+                    Currency
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs uppercase">
+                    PO Value
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs uppercase">
+                    Paid To-Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs uppercase">
+                    Last Payment
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs uppercase">
+                    Balance
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+            )}
             <tbody
               className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
             >

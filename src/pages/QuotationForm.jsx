@@ -577,7 +577,7 @@ const QuotationForm = () => {
           }
         } catch (err) {
           console.error('Error fetching quotation:', err);
-          setError('Failed to load quotation data');
+          setError('Failed to load quotation data. Please try refreshing the page or use the Refresh button to retry.');
         } finally {
           setLoading(false);
         }

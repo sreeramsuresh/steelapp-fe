@@ -589,6 +589,7 @@ const PurchaseOrderList = () => {
                       ? 'text-gray-300 hover:bg-gray-700'
                       : 'text-gray-600 hover:bg-gray-100'
                 }`}
+                title="Previous page"
               >
                 <ChevronLeft size={20} />
               </button>
@@ -609,6 +610,7 @@ const PurchaseOrderList = () => {
                       ? 'text-gray-300 hover:bg-gray-700'
                       : 'text-gray-600 hover:bg-gray-100'
                 }`}
+                title="Next page"
               >
                 <ChevronRight size={20} />
               </button>

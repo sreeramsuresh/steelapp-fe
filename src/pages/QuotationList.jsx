@@ -31,7 +31,6 @@ import { companyService } from '../services';
 import {
   NewBadge,
   TruncatedText,
-  IconButton,
   TableSkeleton,
 } from '../components/shared';
 import QuotationPreview from '../components/quotations/QuotationPreview';
@@ -515,7 +514,7 @@ const QuotationList = () => {
                     <td className="px-4 py-4 whitespace-nowrap">
                       {quotation.validUntil ? (
                         <div
-                          className={`text-sm ${
+                          className={`text-sm flex items-center gap-2 ${
                             isExpired(quotation.validUntil)
                               ? 'text-red-600 font-medium'
                               : isDarkMode
@@ -525,7 +524,7 @@ const QuotationList = () => {
                         >
                           {formatDate(quotation.validUntil)}
                           {isExpired(quotation.validUntil) && (
-                            <div className="text-xs text-red-500">Expired</div>
+                            <span className="text-xs text-red-500 font-semibold">EXPIRED</span>
                           )}
                         </div>
                       ) : (

@@ -17,6 +17,35 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../contexts/NotificationCenterContext';
 
+// Format notification timestamp to relative time
+const formatNotificationTime = (time) => {
+  // If it's already a relative time string, return as-is
+  if (typeof time === 'string' && (time.includes('ago') || time === 'Just now')) {
+    return time;
+  }
+
+  // Parse ISO format timestamp
+  try {
+    const date = new Date(time);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSecs < 60) return 'just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+    // For older dates, show the date
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return 'just now';
+  }
+};
+
 const TopNavbar = ({
   user,
   onLogout,
@@ -267,7 +296,7 @@ const TopNavbar = ({
                       <p
                         className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
                       >
-                        {n.time}
+                        {formatNotificationTime(n.time)}
                       </p>
                       {n.unread && (
                         <div className="absolute top-4 right-4 w-2 h-2 bg-teal-500 rounded-full"></div>

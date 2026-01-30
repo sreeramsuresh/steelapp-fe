@@ -112,6 +112,8 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className={`p-1 rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                title="More actions"
+                aria-label="More actions"
               >
                 <MoreVertical
                   className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
@@ -264,12 +266,12 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <span
-                className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               >
                 Utilization
               </span>
               <span
-                className={`text-xs font-medium ${getUtilizationColor(utilizationPercent)}`}
+                className={`text-xs font-medium min-w-fit ${getUtilizationColor(utilizationPercent)}`}
               >
                 {utilizationPercent}%
               </span>

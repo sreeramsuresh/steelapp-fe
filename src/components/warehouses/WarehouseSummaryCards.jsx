@@ -3,7 +3,7 @@
  * Displays KPI summary cards at the top of the warehouse list page
  */
 
-import { MapPin, CheckCircle, Package, AlertTriangle } from 'lucide-react';
+import { MapPin, CheckCircle, Package, AlertTriangle, Info } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const WarehouseSummaryCards = ({ summary, loading }) => {
@@ -97,10 +97,11 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
               isDarkMode
                 ? 'bg-[#1E2328] border-gray-700'
                 : 'bg-white border-gray-200'
-            }`}
+            } ${card.title === 'Total Items' && card.value === 0 ? 'opacity-60' : ''}`}
+            title={card.title === 'Total Items' && card.value === 0 ? 'Inventory synchronization pending' : ''}
           >
             <div className="flex items-start justify-between">
-              <div>
+              <div className="flex-1">
                 <p
                   className={`text-xs font-medium uppercase tracking-wide ${
                     isDarkMode ? 'text-gray-500' : 'text-gray-500'
@@ -117,9 +118,20 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
                     formatValue(card.value, card.format)
                   )}
                 </p>
+                {card.title === 'Total Items' && card.value === 0 && !loading && (
+                  <p
+                    className={`text-xs mt-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
+                  >
+                    Check the Products Catalog for inventory details
+                  </p>
+                )}
               </div>
               <div className={`p-2 rounded-lg ${colors.bg}`}>
-                <Icon className={`w-5 h-5 ${colors.icon}`} />
+                {card.title === 'Total Items' && card.value === 0 && !loading ? (
+                  <Info className={`w-5 h-5 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
+                ) : (
+                  <Icon className={`w-5 h-5 ${colors.icon}`} />
+                )}
               </div>
             </div>
           </div>

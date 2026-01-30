@@ -521,6 +521,7 @@ const SupplierBillList = () => {
                   ? 'border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600'
                   : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
               }`}
+              title="Refresh list"
             >
               <RefreshCw
                 className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`}

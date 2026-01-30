@@ -3589,7 +3589,9 @@ const InvoiceForm = ({ onSave }) => {
         quantity: parseFloat(lineItemData.quantity),
         quantityUom: lineItemData.unit || 'KG',
         rate: parseFloat(lineItemData.rate),
-        pricingBasis: 'PER_KG', // Default, will be updated
+        pricingBasis: lineItemData.pricingBasis || lineItemData.basePricingBasis || 'PER_MT', // Use base pricing basis from drawer
+        baseRate: lineItemData.baseRate, // CRITICAL: Persist immutable base price
+        basePricingBasis: lineItemData.basePricingBasis, // CRITICAL: Persist immutable base basis
         amount: parseFloat(lineItemData.amount),
         // Stock source
         sourceType: lineItemData.sourceType,

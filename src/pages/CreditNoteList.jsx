@@ -523,13 +523,10 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                       Status
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       Actions
                     </th>
-                    <th
-                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                    ></th>
                   </tr>
                 </thead>
                 <tbody
