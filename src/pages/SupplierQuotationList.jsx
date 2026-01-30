@@ -73,7 +73,7 @@ export function SupplierQuotationList() {
       });
       setQuotations(result.quotations || []);
       setPageInfo(result.pageInfo || { totalPages: 0, totalCount: 0 });
-    } catch (_err) {
+    } catch (err) {
       console.error('Failed to load quotations:', err);
       setError(err.message || 'Failed to load quotations');
     } finally {

@@ -258,7 +258,6 @@ const HomePage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {createNewItems.map((item) => {
-              const _IconComponent = item.icon;
               return (
                 <button
                   key={item.name}

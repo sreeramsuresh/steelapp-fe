@@ -72,7 +72,7 @@ export function SupplierQuotationDetail() {
       setError(null);
       const data = await getSupplierQuotation(id);
       setQuotation(data);
-    } catch (_err) {
+    } catch (err) {
       console.error('Failed to load quotation:', err);
       setError(err.message || 'Failed to load quotation');
     } finally {

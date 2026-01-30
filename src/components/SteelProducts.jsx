@@ -2231,7 +2231,7 @@ const SteelProducts = () => {
             {filteredProducts.length}
           </span>
           <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-            of {products.length}
+            of {pageInfo.totalItems || 0}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -2712,8 +2712,8 @@ const SteelProducts = () => {
           <div className={`flex items-center justify-between mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Showing {(page - 1) * pageSize + 1} to{' '}
-              {Math.min(page * pageSize, filteredProducts.length)} of{' '}
-              {filteredProducts.length} products
+              {Math.min(page * pageSize, pageInfo.totalItems || 0)} of{' '}
+              {pageInfo.totalItems || 0} products
             </div>
             <div className="flex gap-4 items-center">
               {/* Page Size Selector */}

@@ -802,7 +802,7 @@ const PurchaseOrderForm = () => {
         await pinnedProductsService.pinProduct(productId);
         setPinnedProductIds((prev) => [...prev, productId]);
       }
-    } catch (_error) {
+    } catch (error) {
       notificationService.error(error.message || 'Failed to update pin');
     }
   };
@@ -1185,7 +1185,7 @@ const PurchaseOrderForm = () => {
       const containers =
         response?.containers || response?.data || response || [];
       setImportContainers(Array.isArray(containers) ? containers : []);
-    } catch (_error) {
+    } catch (error) {
       console.error('Failed to fetch import containers:', error);
       setImportContainers([]);
     }
@@ -1901,7 +1901,7 @@ const PurchaseOrderForm = () => {
       notificationService.success(`Purchase order ${action} successfully!`);
 
       navigate('/purchase-orders');
-    } catch (_error) {
+    } catch (error) {
       // Extract more detailed error message
       let errorMessage = 'Unknown error';
       const errorData = error.response?.data;

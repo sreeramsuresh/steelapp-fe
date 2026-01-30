@@ -170,7 +170,7 @@ const PurchaseOrderList = () => {
       const calculatedTotalPages = Math.ceil(total / 10);
       setPurchaseOrders(orders);
       setTotalPages(calculatedTotalPages);
-    } catch (_err) {
+    } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
