@@ -33,7 +33,8 @@ export const categoryPolicyService = {
    * @returns {Promise<{policies: Array, taxonomy_status: Object}>}
    */
   async listCategoryPolicies(_companyId, activeOnly = true) {
-    warnDeprecatedCompanyId('listCategoryPolicies', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('listCategoryPolicies', _companyId);
     try {
       const response = await api.get('/category-policies', {
         params: {
@@ -55,7 +56,8 @@ export const categoryPolicyService = {
    * @returns {Promise<{policy: Object, is_frozen: boolean}>}
    */
   async getCategoryPolicy(_companyId, category) {
-    warnDeprecatedCompanyId('getCategoryPolicy', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('getCategoryPolicy', _companyId);
     try {
       const response = await api.get(`/category-policies/${category}`);
       return response.data;
@@ -73,7 +75,8 @@ export const categoryPolicyService = {
    * @returns {Promise<{subtypes: Array}>}
    */
   async getProductSubtypes(_companyId, category = null) {
-    warnDeprecatedCompanyId('getProductSubtypes', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('getProductSubtypes', _companyId);
     try {
       const params = {};
       if (category) {
@@ -96,7 +99,8 @@ export const categoryPolicyService = {
    * @returns {Promise<{status: Object, is_frozen: boolean}>}
    */
   async getTaxonomyStatus(_companyId) {
-    warnDeprecatedCompanyId('getTaxonomyStatus', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('getTaxonomyStatus', _companyId);
     try {
       const response = await api.get('/category-policies/taxonomy/status');
       return response.data;

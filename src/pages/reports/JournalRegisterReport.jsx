@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import financialReportsService from '../../services/financialReportsService';
 
 export default function JournalRegisterReport() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [sourceModule, setSourceModule] = useState('');
@@ -99,10 +99,11 @@ export default function JournalRegisterReport() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Start Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="journal-start-date" className="block text-sm font-medium text-gray-700 mb-2">
               Start Date
             </label>
             <input
+              id="journal-start-date"
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
@@ -112,10 +113,11 @@ export default function JournalRegisterReport() {
 
           {/* End Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="journal-end-date" className="block text-sm font-medium text-gray-700 mb-2">
               End Date
             </label>
             <input
+              id="journal-end-date"
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
@@ -125,10 +127,11 @@ export default function JournalRegisterReport() {
 
           {/* Source Module Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="journal-source-module" className="block text-sm font-medium text-gray-700 mb-2">
               Source Module
             </label>
             <select
+              id="journal-source-module"
               value={sourceModule}
               onChange={(e) => setSourceModule(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

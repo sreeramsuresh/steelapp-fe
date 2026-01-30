@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import financialReportsService from '../../services/financialReportsService';
 
 export default function TrialBalanceReport() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [periodId, setPeriodId] = useState(null);
   const [periods, setPeriods] = useState([]);
   const [data, setData] = useState(null);
@@ -85,10 +85,11 @@ export default function TrialBalanceReport() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Period Selector */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="trial-balance-period" className="block text-sm font-medium text-gray-700 mb-2">
               Accounting Period
             </label>
             <select
+              id="trial-balance-period"
               value={periodId || ''}
               onChange={(e) =>
                 setPeriodId(e.target.value ? parseInt(e.target.value) : null)

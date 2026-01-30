@@ -907,7 +907,7 @@ export default function PriceListForm() {
 
   const fetchProducts = async () => {
     try {
-      const response = await productService.getProducts();
+      const response = await productService.getProducts({ limit: 500 });
       setProducts(response.products || []);
     } catch (error) {
       console.error('Error fetching products:', error);

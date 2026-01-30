@@ -678,7 +678,7 @@ const SteelProducts = () => {
       required: true,
       width: 'min-w-[280px]',
     },
-    { key: 'stock', label: 'Stock', required: true, width: 'w-[90px]' },
+    { key: 'stock', label: 'Stock', required: true, width: 'w-[120px]' },
     { key: 'buyPrice', label: 'Buy Price', required: true, width: 'w-[100px]' },
     {
       key: 'sellPrice',
@@ -1638,6 +1638,12 @@ const SteelProducts = () => {
 
   const handleAddProduct = async () => {
     try {
+      // Validate required fields
+      if (!newProduct.category || newProduct.category.trim().length === 0) {
+        notificationService.error('Category is required');
+        return;
+      }
+
       const isPipeOrTube = /pipe|tube/i.test(newProduct.category || '');
       if (isPipeOrTube) {
         if (!newProduct.sizeInch && !newProduct.od && !newProduct.size) {
@@ -1943,6 +1949,12 @@ const SteelProducts = () => {
 
   const handleEditProduct = async () => {
     try {
+      // Validate required fields
+      if (!selectedProduct.category || selectedProduct.category.trim().length === 0) {
+        notificationService.error('Category is required');
+        return;
+      }
+
       // API Gateway auto-converts camelCase → snake_case, so send camelCase
       // Convert empty strings to appropriate default values
       const productData = {
@@ -2599,6 +2611,8 @@ const SteelProducts = () => {
                         onClick={() => {
                           const formattedProduct = {
                             ...product,
+                            category: product.category || '',
+                            commodity: product.commodity || 'SS',
                             sizeInch:
                               product.sizeInch || product.size_inch || '',
                             od: product.od || '',
@@ -2612,13 +2626,9 @@ const SteelProducts = () => {
                                 ? product.currentStock
                                 : product.current_stock || '',
                             minStock:
-                              product.minStock !== undefined
-                                ? product.minStock
-                                : product.min_stock || '',
+                              product.minStock ?? product.min_stock ?? '',
                             maxStock:
-                              product.maxStock !== undefined
-                                ? product.maxStock
-                                : product.max_stock || '',
+                              product.maxStock ?? product.max_stock ?? '',
                             costPrice:
                               product.costPrice !== undefined
                                 ? product.costPrice
@@ -4179,6 +4189,11 @@ const SteelProducts = () => {
                       })
                     }
                   />
+                  {selectedProduct.maxStock > 0 && selectedProduct.minStock > selectedProduct.maxStock && (
+                    <p className="text-sm text-red-500 mt-1">
+                      Minimum stock cannot be greater than maximum stock
+                    </p>
+                  )}
 
                   {/* Unit of Measure Section (added 2025-12-09) */}
                   <div className="sm:col-span-2 pt-2">

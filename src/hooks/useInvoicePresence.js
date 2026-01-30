@@ -79,6 +79,7 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
     if (!invoiceId) return;
 
     // Start session and fetch immediately
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     Promise.all([startSession(), fetchSessions()]).catch((err) =>
       console.warn('[Presence] Init failed:', err.message),
     );

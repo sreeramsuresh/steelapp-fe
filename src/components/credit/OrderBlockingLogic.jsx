@@ -37,9 +37,7 @@ const OrderBlockingLogic = ({
 
   useEffect(() => {
     if (!isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedAction(null);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowConfirmation(false);
     }
   }, [isOpen]);

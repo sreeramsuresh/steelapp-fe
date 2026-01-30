@@ -4,7 +4,6 @@ import {
   useMemo,
   useCallback,
   useRef,
-  Fragment,
   useId,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -5916,9 +5915,9 @@ const InvoiceForm = ({ onSave }) => {
                             const hasAllocations =
                               item.allocations && item.allocations.length > 0;
 
-                            return (
-                              <Fragment key={item.id || `item-${index}`}>
-                                <tr className="hover:bg-gray-50">
+                            return [
+                              (
+                                <tr key={item.id || `item-${index}`} className="hover:bg-gray-50">
                                   {/* Column 1: Expand button */}
                                   <td className="py-2 px-2 text-center">
                                     {item.productId && (
@@ -6646,10 +6645,9 @@ const InvoiceForm = ({ onSave }) => {
                                       </div>
                                     </td>
                                   </tr>
-                                )}
-
-                                {/* Keep existing AllocationPanel for locked/existing invoices */}
-                                {isExpanded &&
+                                ),
+                                // Keep existing AllocationPanel for locked/existing invoices
+                                isExpanded &&
                                   item.productId &&
                                   id && // Only show for existing invoices
                                   (() => {
@@ -6706,9 +6704,8 @@ const InvoiceForm = ({ onSave }) => {
                                       );
                                     }
                                     return null;
-                                  })()}
-                              </Fragment>
-                            );
+                                  })(),
+                              ].filter(Boolean);
                           })}
                         </tbody>
                       </table>

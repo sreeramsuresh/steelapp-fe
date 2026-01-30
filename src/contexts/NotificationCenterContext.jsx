@@ -187,7 +187,7 @@ export const NotificationCenterProvider = ({ children }) => {
     fetchNotifications();
     // Sync on mount to catch any storage corruption
     syncWithStorage();
-  }, [fetchNotifications, syncWithStorage]);
+  }, []);
 
   const value = {
     notifications,

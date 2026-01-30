@@ -1,0 +1,355 @@
+
+> ultimate-steels-app@0.0.0 lint
+> eslint src
+
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/AllocationDrawer/BatchAllocationPanel.jsx
+  253:14  warning  '_e' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/AllocationDrawer/index.jsx
+  990:16  warning  '_err' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/CustomerUpload.jsx
+  113:14  warning  '_error' is defined but never used                                                                                                                                                                 no-unused-vars
+  239:15  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/DeleteInvoiceModal.jsx
+  85:14  warning  '_error' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/InventoryList.jsx
+  299:16  warning  '_e' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/InventoryUpload.jsx
+  107:14  warning  '_error' is defined but never used                                                                                                                                                                 no-unused-vars
+  234:15  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/ProductUpload.jsx
+  107:14  warning  '_error' is defined but never used                                                                                                                                                                 no-unused-vars
+  235:15  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/RevenueTrends.jsx
+  304:12  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/SalesAnalytics.jsx
+   338:10  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+  1303:12  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+  1317:12  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/SteelProducts.jsx
+  181:7  warning  'StockProgressBar' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                        no-unused-vars
+  221:7  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+  479:7  warning  'AccordionSection' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                        no-unused-vars
+  528:7  warning  'SpecRow' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                 no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/StockMovement.jsx
+  118:14  warning  '_fetchError' is defined but never used                         no-unused-vars
+  166:14  warning  '_saveError' is defined but never used                          no-unused-vars
+  185:14  warning  '_deleteError' is defined but never used                        no-unused-vars
+  212:16  warning  '_e' is defined but never used                                  no-unused-vars
+  367:14  error    Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/TopNavbar.jsx
+  317:20  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/WarehouseManagement.jsx
+   76:14  warning  '_fetchError' is defined but never used  no-unused-vars
+  300:24  warning  '_seedError' is defined but never used   no-unused-vars
+  318:24  warning  '_debugError' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/credit/OrderBlockingLogic.jsx
+  42:7  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/customers/tabs/CustomerActivityTab.jsx
+  183:9  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/BaseWidget.jsx
+  389:5  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/customer/CustomerCLVWidget.jsx
+  333:15  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/customer/CustomerSegmentsWidget.jsx
+  356:13  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+  406:11  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/customer/NewCustomerWidget.jsx
+  481:15  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/inventory/StockTurnoverWidget.jsx
+  200:19  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/product/ProductMarginWidget.jsx
+  23:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  21 |   useEffect(() => {
+  22 |     if (data?.products) {
+> 23 |       setProducts(data.products);
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  24 |     } else {
+  25 |       setProducts([]);
+  26 |     }  react-hooks/set-state-in-effect
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/sales-agent/LeaderboardWidget.jsx
+  283:13  warning  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/dashboard/widgets/vat/VATComplianceAlertsWidget.jsx
+  287:22  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/purchase-order/POStockMovements.jsx
+  130:10  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/quotations/DeliveryScheduleModal.jsx
+  18:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  16 |   useEffect(() => {
+  17 |     if (isOpen) {
+> 18 |       setLocalSchedule(schedule || []);
+     |       ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  19 |       setValidationError('');
+  20 |     }
+  21 |   }, [isOpen, schedule]);  react-hooks/set-state-in-effect
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/components/warehouses/WarehouseStockView.jsx
+  104:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  102 |   useEffect(() => {
+  103 |     // Simulate API call
+> 104 |     setLoading(true);
+      |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  105 |     setTimeout(() => {
+  106 |       setStockItems(mockStockData);
+  107 |       setLoading(false);  react-hooks/set-state-in-effect
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/hooks/useAutoSave.js
+  182:27  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  180 |     if (!enabled || isInitializedRef.current) return;
+  181 |
+> 182 |     const existingDraft = checkForRecoverableDraft();
+      |                           ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  183 |     if (existingDraft && onRecover) {
+  184 |       // Notify parent component about recoverable draft
+  185 |       onRecover(existingDraft);  react-hooks/set-state-in-effect
+  201:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  199 |
+  200 |     // Mark as dirty immediately
+> 201 |     setIsDirty(true);
+      |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  202 |     setStatus('unsaved');
+  203 |
+  204 |     // Clear existing timer                                                                                                                                                                    react-hooks/set-state-in-effect
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/hooks/useCreditNoteDrafts.js
+  350:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  348 |
+  349 |     const cleanedDrafts = cleanupExpiredDrafts();
+> 350 |     setDrafts(cleanedDrafts);
+      |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  351 |     // Check for current invoice draft
+  352 |     if (currentInvoiceId && cleanedDrafts[currentInvoiceId]) {
+  353 |       setCurrentDraft(cleanedDrafts[currentInvoiceId]);  react-hooks/set-state-in-effect
+  365:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  363 |     const conflict = checkConflict(currentInvoiceId);
+  364 |     if (conflict.type) {
+> 365 |       setConflictInfo(conflict);
+      |       ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  366 |       if (onConflict) {
+  367 |         onConflict(conflict);
+  368 |       }                                                          react-hooks/set-state-in-effect
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/marketing/MarketingContact.jsx
+  265:16  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+  269:16  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+  273:16  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/marketing/MarketingProducts.jsx
+  209:22  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+  349:16  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+  353:16  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/ExportOrderForm.jsx
+  1592:20  warning  '_error' is defined but never used  no-unused-vars
+  1668:20  warning  '_error' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/ExportOrderList.jsx
+  253:14  warning  '_err' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/InvoiceForm.jsx
+  1442:26  error    React Hook "useTheme" is called in function "_Modal" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  2803:14  warning  '_error' is defined but never used                                                                                                                                                                                                            no-unused-vars
+  2822:16  warning  '_fallbackErr' is defined but never used                                                                                                                                                                                                      no-unused-vars
+  2862:20  warning  '_error' is defined but never used                                                                                                                                                                                                            no-unused-vars
+  4279:20  warning  '_refetchError' is defined but never used                                                                                                                                                                                                     no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/Payables.jsx
+   330:14  warning  '_e' is defined but never used  no-unused-vars
+   331:64  error    'e' is not defined              no-undef
+   368:14  warning  '_e' is defined but never used  no-unused-vars
+   469:14  warning  '_e' is defined but never used  no-unused-vars
+  1025:38  warning  '_e' is defined but never used  no-unused-vars
+  1045:38  warning  '_e' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/PurchaseOrderForm.jsx
+  1095:16  warning  '_e' is defined but never used           no-unused-vars
+  1116:14  warning  '_error' is defined but never used       no-unused-vars
+  1138:14  warning  '_error' is defined but never used       no-unused-vars
+  1146:16  warning  '_seedError' is defined but never used   no-unused-vars
+  1282:14  warning  '_err' is defined but never used         no-unused-vars
+  1456:18  warning  '_err' is defined but never used         no-unused-vars
+  1460:14  warning  '_err' is defined but never used         no-unused-vars
+  1892:18  warning  '_stockError' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/PurchaseOrderList.jsx
+  217:14  warning  '_err' is defined but never used  no-unused-vars
+  242:16  warning  '_err' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/QuotationForm.jsx
+   447:5   warning  React Hook useCallback has missing dependencies: 'formData.currency' and 'formData.quotationDate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+   701:24  warning  '_priceError' is defined but never used                                                                                                                no-unused-vars
+   794:20  warning  '_fetchError' is defined but never used                                                                                                                no-unused-vars
+   843:18  warning  '_fetchError' is defined but never used                                                                                                                no-unused-vars
+   924:16  warning  '_priceError' is defined but never used                                                                                                                no-unused-vars
+  1137:20  warning  '_priceError' is defined but never used                                                                                                                no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/Receivables.jsx
+  440:14  warning  '_e' is defined but never used  no-unused-vars
+  442:62  error    'e' is not defined              no-undef
+  444:9   error    'e' is not defined              no-undef
+  445:9   error    'e' is not defined              no-undef
+  446:9   error    'e' is not defined              no-undef
+  641:14  warning  '_e' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/SupplierQuotationDetail.jsx
+   93:14  warning  '_err' is defined but never used  no-unused-vars
+  113:14  warning  '_err' is defined but never used  no-unused-vars
+  131:14  warning  '_err' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/SupplierQuotationList.jsx
+  98:14  warning  '_err' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/__tests__/InvoiceForm.feature.test.jsx
+  269:14  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/__tests__/PaymentProcessing.feature.test.jsx
+  341:14  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/__tests__/PurchaseOrderForm.feature.test.jsx
+   60:14  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+  316:14  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/inventory/StockMovementForm.jsx
+  112:16  warning  '_err' is defined but never used  no-unused-vars
+  142:18  warning  '_err' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/purchases/SupplierBillForm.jsx
+  232:26  error    React Hook "useTheme" is called in function "_Input" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  233:3   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/purity')
+  234:19  error    React Hook "useMemo" is called in function "_Input" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"   react-hooks/rules-of-hooks
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/reports/BankReconciliationStatement.jsx
+  40:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/reports/CashBookReport.jsx
+  62:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  77:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  90:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/reports/JournalRegisterReport.jsx
+  102:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  115:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  128:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/pages/reports/TrialBalanceReport.jsx
+  88:13  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/axiosApi.js
+  37:12  warning  '_err' is defined but never used  no-unused-vars
+  56:10  warning  '_' is defined but never used     no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/categoryPolicyService.js
+  18:10  warning  'warnDeprecatedCompanyId' is defined but never used. Allowed unused vars must match /^_/u  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/demoDataService.js
+  175:14  warning  'error' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/httpClient.js
+  39:12  warning  'e' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/payablesService.js
+  135:14  warning  'e' is defined but never used  no-unused-vars
+  158:14  warning  'e' is defined but never used  no-unused-vars
+  208:14  warning  'e' is defined but never used  no-unused-vars
+  227:14  warning  'e' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/supplierService.js
+  172:14  warning  'e' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/trnService.js
+  256:14  warning  'error' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/services/warehouseService.js
+  161:14  warning  'error' is defined but never used  no-unused-vars
+  202:14  warning  'error' is defined but never used  no-unused-vars
+  246:14  warning  'error' is defined but never used  no-unused-vars
+  279:14  warning  'error' is defined but never used  no-unused-vars
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/test/utils/__tests__/asyncHelpers.test.jsx
+  6:1  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/test/utils/__tests__/buttonTestUtils.test.jsx
+  6:1  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/test/utils/__tests__/stateAssertions.test.jsx
+  6:1  error  Definition for rule 'local-rules/no-dead-button' was not found  local-rules/no-dead-button
+
+/mnt/d/Ultimate Steel/steelapp-fe/src/utils/pdfGenerator.js
+  847:12  warning  'error' is defined but never used  no-unused-vars
+
+✖ 127 problems (36 errors, 91 warnings)
+  0 errors and 3 warnings potentially fixable with the `--fix` option.
+

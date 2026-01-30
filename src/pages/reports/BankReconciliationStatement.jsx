@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import bankReconciliationService from '../../services/bankReconciliationService';
 
 export default function BankReconciliationStatement() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [data, setData] = useState(null);
   const [statementId, setStatementId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,10 +37,11 @@ export default function BankReconciliationStatement() {
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="statement-id" className="block text-sm font-medium text-gray-700 mb-1">
               Select Statement
             </label>
             <input
+              id="statement-id"
               type="number"
               value={statementId}
               onChange={(e) => setStatementId(e.target.value)}

@@ -696,10 +696,11 @@ const CompanySettings = () => {
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
 
-  // User list pagination
+  // User list pagination and error handling
   const [userCurrentPage, setUserCurrentPage] = useState(1);
   const [userPageSize] = useState(20);
   const [userTotalPages, setUserTotalPages] = useState(1);
+  const [userLoadingError, setUserLoadingError] = useState(null);
 
   // Product naming system - templates handled in renderProductNamingSystem()
 
@@ -919,13 +920,17 @@ const CompanySettings = () => {
         }));
         setUsers(mapped);
         setUserTotalPages(pageInfo.total_pages || 1);
+        setUserLoadingError(null);
       } catch (e) {
+        const errorMsg = e?.response?.data?.message || e?.message || 'Failed to load users from backend';
         console.warn(
           'Failed to load users from backend:',
-          e?.response?.data || e?.message,
+          errorMsg,
         );
         setUsers([]);
         setUserTotalPages(1);
+        setUserLoadingError(errorMsg);
+        notificationService.error(`User Management: ${errorMsg}`);
       }
     })();
      
@@ -3038,9 +3043,17 @@ const CompanySettings = () => {
                   <p
                     className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
-                    {userSearchTerm
-                      ? 'No users found matching your search'
-                      : 'No users yet. Add your first user to get started.'}
+                    {userLoadingError ? (
+                      <>
+                        <AlertTriangle className="w-8 h-8 mx-auto mb-4 text-red-500" />
+                        <p className="text-red-600 font-semibold mb-2">Failed to load users</p>
+                        <p className="text-sm text-gray-600">{userLoadingError}</p>
+                      </>
+                    ) : userSearchTerm ? (
+                      'No users found matching your search'
+                    ) : (
+                      'No users yet. Add your first user to get started.'
+                    )}
                   </p>
                 </div>
               ) : null}
