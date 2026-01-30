@@ -17,9 +17,25 @@ import CustomerCreditManagement from './CustomerCreditManagement';
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('credit-notes');
 
-  // Auto-open tab if navigated with tab parameter
+  // Initialize activeTab from URL parameter
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabParam = searchParams.get('tab');
+    if (
+      tabParam &&
+      [
+        'credit-notes',
+        'statements',
+        'commission-approvals',
+        'credit-management',
+      ].includes(tabParam)
+    ) {
+      return tabParam;
+    }
+    return 'credit-notes';
+  });
+
+  // Update tab when URL parameter changes
   useEffect(() => {
     const tabParam = searchParams.get('tab');
     if (

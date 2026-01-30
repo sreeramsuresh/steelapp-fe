@@ -212,11 +212,13 @@ export default function UserProfile() {
             <div className="space-y-4 border-t pt-6">
               <div>
                 <label
+                  htmlFor="user-name-input"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Full Name
                 </label>
                 <input
+                  id="user-name-input"
                   type="text"
                   value={editData.name}
                   onChange={(e) =>
@@ -232,11 +234,13 @@ export default function UserProfile() {
 
               <div>
                 <label
+                  htmlFor="user-email-input"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Email
                 </label>
                 <input
+                  id="user-email-input"
                   type="email"
                   value={editData.email}
                   onChange={(e) =>
@@ -325,11 +329,13 @@ export default function UserProfile() {
             <div className="space-y-4 border-t pt-6">
               <div>
                 <label
+                  htmlFor="current-password"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Current Password
                 </label>
                 <input
+                  id="current-password"
                   type="password"
                   value={passwordChange.currentPassword}
                   onChange={(e) =>
@@ -350,11 +356,13 @@ export default function UserProfile() {
 
               <div>
                 <label
+                  htmlFor="new-password"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   New Password
                 </label>
                 <input
+                  id="new-password"
                   type="password"
                   value={passwordChange.newPassword}
                   onChange={(e) =>
@@ -375,11 +383,13 @@ export default function UserProfile() {
 
               <div>
                 <label
+                  htmlFor="confirm-password"
                   className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
                 >
                   Confirm New Password
                 </label>
                 <input
+                  id="confirm-password"
                   type="password"
                   value={passwordChange.confirmPassword}
                   onChange={(e) =>

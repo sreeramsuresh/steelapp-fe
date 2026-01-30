@@ -205,7 +205,7 @@ const DeliveryNoteForm = () => {
   // Load invoices for selection
   useEffect(() => {
     loadInvoices();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []); // Intentionally run once on mount
 
   // Auto-select invoice if pre-selected

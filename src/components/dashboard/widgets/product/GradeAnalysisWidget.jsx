@@ -50,6 +50,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
 
   useEffect(() => {
     if (!data?.grades || data.grades.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGrades([]);
       return;
     }

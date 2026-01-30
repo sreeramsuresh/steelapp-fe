@@ -4,11 +4,7 @@ import MarketingLayout from './MarketingLayout';
 
 const Contact = () => {
   const [isVisible, setIsVisible] = useState({});
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [mounted] = useState(true);
 
   useEffect(() => {
     if (!mounted) return;

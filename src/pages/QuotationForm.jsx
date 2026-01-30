@@ -40,6 +40,36 @@ import AlternativeProductsModal from '../components/quotations/AlternativeProduc
 import StockReservationToggle from '../components/quotations/StockReservationToggle';
 import LeadTimeInput from '../components/quotations/LeadTimeInput';
 
+// Toggle Switch Component (extracted to avoid creating components during render)
+const ToggleSwitchQuotation = ({ enabled, onChange, label, description, isDarkMode }) => (
+  <div className="flex items-start justify-between py-3">
+    <div className="flex-1 pr-4">
+      <p
+        className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
+      >
+        {label}
+      </p>
+      <p
+        className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+      >
+        {description}
+      </p>
+    </div>
+    <button
+      onClick={onChange}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+        enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+      }`}
+    >
+      <span
+        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          enabled ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  </div>
+);
+
 const FormSettingsPanel = ({
   isOpen,
   onClose,
@@ -64,35 +94,6 @@ const FormSettingsPanel = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
-  const ToggleSwitch = ({ enabled, onChange, label, description }) => (
-    <div className="flex items-start justify-between py-3">
-      <div className="flex-1 pr-4">
-        <p
-          className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
-        >
-          {label}
-        </p>
-        <p
-          className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-        >
-          {description}
-        </p>
-      </div>
-      <button
-        onClick={onChange}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-          enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
-        }`}
-      >
-        <span
-          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-            enabled ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
-    </div>
-  );
 
   return (
     <div
@@ -122,7 +123,7 @@ const FormSettingsPanel = ({
       </div>
 
       <div className="px-4 py-2 divide-y divide-gray-200 dark:divide-gray-700">
-        <ToggleSwitch
+        <ToggleSwitchQuotation
           enabled={preferences.showValidationHighlighting}
           onChange={() =>
             onPreferenceChange(
@@ -132,8 +133,9 @@ const FormSettingsPanel = ({
           }
           label="Field Validation Highlighting"
           description="Show red/green borders for invalid/valid fields"
+          isDarkMode={isDarkMode}
         />
-        <ToggleSwitch
+        <ToggleSwitchQuotation
           enabled={preferences.showSpeedButtons}
           onChange={() =>
             onPreferenceChange(
@@ -141,6 +143,7 @@ const FormSettingsPanel = ({
               !preferences.showSpeedButtons,
             )
           }
+          isDarkMode={isDarkMode}
           label="Quick Add Speed Buttons"
           description="Show pinned & top products for quick adding"
         />
@@ -653,12 +656,27 @@ const QuotationForm = () => {
             priceValidityCondition: response.priceValidityCondition || '',
             volumeDiscountTiers: (() => {
               try {
+                // Handle string JSON parsing
                 if (typeof response.volumeDiscountTiers === 'string') {
-                  return JSON.parse(response.volumeDiscountTiers) || [];
+                  // Empty or null strings
+                  if (!response.volumeDiscountTiers?.trim()) {
+                    return [];
+                  }
+                  const parsed = JSON.parse(response.volumeDiscountTiers);
+                  // Validate parsed result is array
+                  return Array.isArray(parsed) ? parsed : [];
                 }
-                return response.volumeDiscountTiers || [];
+                // Handle array directly
+                if (Array.isArray(response.volumeDiscountTiers)) {
+                  return response.volumeDiscountTiers;
+                }
+                // Handle null/undefined
+                return [];
               } catch (parseError) {
-                console.warn('Failed to parse volumeDiscountTiers:', parseError);
+                // Silent fail - volumeDiscountTiers is optional
+                if (process.env.NODE_ENV !== 'production') {
+                  console.warn('Failed to parse volumeDiscountTiers:', parseError);
+                }
                 return [];
               }
             })(),

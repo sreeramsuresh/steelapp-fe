@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { stockMovementService } from '../../services/stockMovementService';
 import { warehouseService } from '../../services/warehouseService';
+import { clearInventoryCache } from '../../utils/inventorySyncUtils';
 
 /**
  * Format quantity with unit
@@ -470,6 +471,9 @@ const StockReceiptForm = ({
         setSuccess(
           `Successfully received ${result.totalCreated} item(s) into stock`,
         );
+
+        // Sync inventory cache across modules
+        clearInventoryCache();
 
         // Call success callback after short delay
         setTimeout(() => {

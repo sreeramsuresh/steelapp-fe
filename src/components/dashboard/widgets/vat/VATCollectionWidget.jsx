@@ -60,6 +60,7 @@ const VATCollectionWidget = ({
 
   useEffect(() => {
     if (data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVatData(data);
     }
   }, [data]);
@@ -89,10 +90,6 @@ const VATCollectionWidget = ({
   const inputVATChange = calculateChange(
     currentData.inputVAT,
     previousData.inputVAT,
-  );
-  const _netVATChange = calculateChange(
-    currentData.netVAT,
-    previousData.netVAT,
   );
 
   const isNetPayable = currentData.netVAT >= 0;

@@ -212,7 +212,7 @@ const PriceCalculator = () => {
 
     // Reset grade when product changes
     setSelectedGrade(productTypes[selectedProduct].grades[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [selectedProduct, productTypes]);
 
   const calculateWeight = useMemo(() => {
@@ -280,7 +280,7 @@ const PriceCalculator = () => {
     }
 
     return weightPerUnit * quantity;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [selectedProduct, dimensions, productTypes]);
 
   const calculatePrice = useMemo(() => {
@@ -369,7 +369,7 @@ const PriceCalculator = () => {
       total: subtotal,
       pricePerKg: totalWeight > 0 ? subtotal / totalWeight : 0,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [
     selectedProduct,
     selectedGrade,

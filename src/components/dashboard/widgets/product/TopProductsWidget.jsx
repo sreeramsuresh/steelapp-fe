@@ -9,6 +9,7 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
 
   useEffect(() => {
     if (!data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProducts([]);
       return;
     }

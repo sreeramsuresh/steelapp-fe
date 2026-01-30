@@ -38,14 +38,14 @@ const ProtectedRoute = ({
 
   // DEVELOPMENT MODE: Skip role check
   // Check role-based access (supports single role or array of roles)
-  // eslint-disable-next-line no-constant-condition
+   
   const hasRequiredRole = requiredRoles
     ? requiredRoles.some((role) => authService.hasRole(role))
     : requiredRole
       ? authService.hasRole(requiredRole)
       : true;
 
-  // eslint-disable-next-line no-constant-condition
+   
   if ((requiredRole || requiredRoles) && !hasRequiredRole) {
     return (
       <div

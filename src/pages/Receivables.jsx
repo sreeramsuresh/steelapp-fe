@@ -3,12 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   Banknote,
-  Download,
   RefreshCw,
-  X,
-  CheckCircle,
-  Trash2,
-  Printer,
   ChevronDown,
 } from 'lucide-react';
 import { payablesService, invoiceService } from '../services/dataService';
@@ -16,7 +11,6 @@ import { createPaymentPayload } from '../services/paymentService';
 import { uuid } from '../utils/uuid';
 import {
   formatCurrency,
-  formatDate as formatDateUtil,
   formatDateDMY,
 } from '../utils/invoiceUtils';
 import { authService } from '../services/axiosAuthService';
@@ -26,7 +20,6 @@ import {
   printPaymentReceipt,
 } from '../utils/paymentReceiptGenerator';
 import { PAYMENT_MODES } from '../utils/paymentUtils';
-import AddPaymentForm from '../components/payments/AddPaymentForm';
 import PaymentDrawer from '../components/payments/PaymentDrawer';
 import { FormSelect } from '../components/ui/form-select';
 import { SelectItem } from '../components/ui/select';
@@ -127,11 +120,6 @@ const StatusPill = ({ status }) => {
   };
   const cfg = map[status] || map.unpaid;
   return <Pill color={cfg.color}>{cfg.label}</Pill>;
-};
-
-// Use timezone-aware date formatting from invoiceUtils (which uses timezone.js)
-const formatDate = (d) => {
-  return formatDateUtil(d);
 };
 
 const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
@@ -471,67 +459,6 @@ const Receivables = () => {
       }
     } finally {
       setIsSavingPayment(false);
-    }
-  };
-
-  const handleVoidLast = async () => {
-    const inv = drawer.item;
-    if (!inv) return;
-    const payments = (inv.payments || []).filter((p) => !p.voided);
-    if (payments.length === 0) return;
-    const last = payments[payments.length - 1];
-
-    // Clear cache on mutation to ensure fresh data on next fetch
-    clearCache(getCacheKeyWithFilters());
-
-    const updatedPayments = inv.payments.map((p) =>
-      p.id === last.id
-        ? { ...p, voided: true, voidedAt: new Date().toISOString() }
-        : p,
-    );
-    const updated = { ...inv, payments: updatedPayments };
-    const invoiceAmount = getInvoiceAmount(inv);
-    const received = updatedPayments
-      .filter((p) => !p.voided)
-      .reduce((s, p) => s + Number(p.amount || 0), 0);
-    const outstanding = Math.max(0, +(invoiceAmount - received).toFixed(2));
-    let status = 'unpaid';
-    if (outstanding === 0) status = 'paid';
-    else if (outstanding < invoiceAmount) status = 'partially_paid';
-    const updatedInv = { ...updated, received, outstanding, status };
-    // Optimistic UI update
-    setDrawer({ open: true, item: updatedInv });
-    setItems((prev) => prev.map((i) => (i.id === inv.id ? updatedInv : i)));
-
-    try {
-      await invoiceService.voidInvoicePayment(
-        inv.id,
-        last.id,
-        'User void via UI',
-      );
-      notificationService.success('Payment voided successfully');
-
-      // Fetch fresh data
-      const freshData = await invoiceService.getInvoice(inv.id);
-      setDrawer({ open: true, item: freshData });
-      setItems((prev) => prev.map((i) => (i.id === inv.id ? freshData : i)));
-    } catch (e) {
-      console.error('Failed to persist void to backend:', e);
-      const errorMsg =
-        e.response?.data?.message ||
-        e.response?.data?.error ||
-        e.message ||
-        'Failed to void payment';
-      notificationService.error(errorMsg);
-
-      // Reload fresh data to restore correct state
-      try {
-        const freshData = await invoiceService.getInvoice(inv.id);
-        setDrawer({ open: true, item: freshData });
-        setItems((prev) => prev.map((i) => (i.id === inv.id ? freshData : i)));
-      } catch (reloadErr) {
-        console.error('Error reloading invoice:', reloadErr);
-      }
     }
   };
 
@@ -1248,214 +1175,6 @@ const Receivables = () => {
         PAYMENT_MODES={PAYMENT_MODES}
         VOID_REASONS={VOID_REASONS}
       />
-
-      {/* Temporary: Keep old drawer structure for reference - to be removed */}
-      {false && drawer.open && drawer.item && (
-        <div className="fixed inset-0 z-[1100] flex">
-          <div
-            className="flex-1 bg-black/30"
-            onClick={closeDrawer}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                closeDrawer();
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="Close drawer"
-          ></div>
-          <div
-            className={`w-full max-w-md h-full overflow-auto ${isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'} shadow-xl`}
-          >
-            <div className="p-4 border-b flex items-center justify-between">
-              <div>
-                <div className="font-semibold text-lg">
-                  {drawer.item.invoiceNo || drawer.item.invoiceNumber}
-                </div>
-                <div className="text-sm opacity-70">
-                  {getCustomerName(drawer.item)}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <StatusPill status={drawer.item.status} />
-                <button
-                  onClick={closeDrawer}
-                  className="p-2 rounded hover:bg-gray-100"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-            <div className="p-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <div className="opacity-70">Invoice Date</div>
-                  <div>
-                    {formatDate(drawer.item.invoiceDate || drawer.item.date)}
-                  </div>
-                </div>
-                <div>
-                  <div className="opacity-70">Due Date</div>
-                  <div>
-                    {formatDate(drawer.item.dueDate || drawer.item.due_date)}
-                  </div>
-                </div>
-                <div>
-                  <div className="opacity-70">Currency</div>
-                  <div>{drawer.item.currency || 'AED'}</div>
-                </div>
-                <div>
-                  <div className="opacity-70">Invoice Amount</div>
-                  <div className="font-semibold">
-                    {formatCurrency(getInvoiceAmount(drawer.item))}
-                  </div>
-                </div>
-                <div>
-                  <div className="opacity-70">Received</div>
-                  <div className="font-semibold">
-                    {formatCurrency(getReceived(drawer.item))}
-                  </div>
-                </div>
-                <div>
-                  <div className="opacity-70">Outstanding</div>
-                  <div className="font-semibold">
-                    {formatCurrency(getOutstanding(drawer.item))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Payments Timeline */}
-              <div>
-                <div className="font-semibold mb-2">Payments</div>
-                <div className="space-y-2">
-                  {(drawer.item.payments || []).length === 0 && (
-                    <div className="text-sm opacity-70">
-                      No payments recorded yet.
-                    </div>
-                  )}
-                  {(drawer.item.payments || []).map((p, idx) => {
-                    const paymentIndex = idx + 1;
-                    const isDownloading = downloadingReceiptId === p.id;
-                    const isPrinting = printingReceiptId === p.id;
-
-                    return (
-                      <div
-                        key={p.id || idx}
-                        className={`p-2 rounded border ${p.voided ? 'opacity-60 line-through' : ''}`}
-                      >
-                        <div className="flex justify-between items-start text-sm">
-                          <div className="flex-1">
-                            <div className="font-medium">
-                              {formatCurrency(p.amount || 0)}
-                            </div>
-                            <div className="opacity-70">
-                              {p.paymentMethod || p.method} •{' '}
-                              {p.referenceNumber || p.referenceNo || '—'}
-                            </div>
-                            {p.receiptNumber && (
-                              <div className="text-xs mt-1 text-teal-600 font-semibold">
-                                Receipt: {p.receiptNumber}
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-right flex items-center gap-2">
-                            <div>
-                              <div>{formatDate(p.paymentDate)}</div>
-                              {p.voided && (
-                                <div className="text-xs text-red-600">
-                                  Voided
-                                </div>
-                              )}
-                            </div>
-                            {!p.voided && (
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() =>
-                                    handlePrintReceipt(p, paymentIndex)
-                                  }
-                                  disabled={isPrinting}
-                                  className={`p-1.5 rounded transition-colors ${
-                                    isPrinting
-                                      ? 'opacity-50 cursor-not-allowed'
-                                      : 'hover:bg-purple-50 text-purple-600 hover:text-purple-700'
-                                  }`}
-                                  title="Print payment receipt"
-                                >
-                                  <Printer size={14} />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDownloadReceipt(p, paymentIndex)
-                                  }
-                                  disabled={isDownloading}
-                                  className={`p-1.5 rounded transition-colors ${
-                                    isDownloading
-                                      ? 'opacity-50 cursor-not-allowed'
-                                      : 'hover:bg-teal-50 text-teal-600 hover:text-teal-700'
-                                  }`}
-                                  title="Download payment receipt"
-                                >
-                                  <Download size={14} />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {p.notes && (
-                          <div className="text-xs mt-1 opacity-80">
-                            {p.notes}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Add Payment */}
-              {getOutstanding(drawer.item) <= 0 ||
-              getInvoiceAmount(drawer.item) === 0 ||
-              drawer.item.status === 'paid' ? (
-                <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
-                  <CheckCircle size={18} />
-                  <span className="font-medium">
-                    {getInvoiceAmount(drawer.item) === 0
-                      ? 'No Payment Required (Zero Invoice)'
-                      : 'Invoice Fully Paid'}
-                  </span>
-                </div>
-              ) : canManage ? (
-                <AddPaymentForm
-                  outstanding={getOutstanding(drawer.item)}
-                  onSave={handleAddPayment}
-                  isSaving={isSavingPayment}
-                  onCancel={closeDrawer}
-                />
-              ) : (
-                <div className="text-sm opacity-70">
-                  You don&apos;t have permission to add payments.
-                </div>
-              )}
-
-              {/* Quick Actions */}
-              {canManage &&
-                getOutstanding(drawer.item) > 0 &&
-                drawer.item.payments &&
-                drawer.item.payments.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      className="px-3 py-2 rounded border"
-                      onClick={handleVoidLast}
-                    >
-                      <Trash2 size={16} className="inline mr-1" />
-                      Void last
-                    </button>
-                  </div>
-                )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

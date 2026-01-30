@@ -174,7 +174,7 @@ export default function OperatingExpenseForm() {
       setSuccess(true);
       setOpenDialog(false);
       loadExpenses();
-    } catch (err) {
+    } catch {
       setError('Failed to approve expense');
     } finally {
       setLoading(false);
@@ -192,7 +192,7 @@ export default function OperatingExpenseForm() {
       await operatingExpenseService.delete(expenseId);
       setSuccess(true);
       loadExpenses();
-    } catch (err) {
+    } catch {
       setError('Failed to delete expense');
     } finally {
       setLoading(false);

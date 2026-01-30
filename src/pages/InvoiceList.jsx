@@ -334,36 +334,6 @@ const assertPaymentConsistency = (invoice) => {
   }
 };
 
-/**
- * Check if an invoice was recently created or updated (within last hour)
- * Uses updatedAt to catch both new invoices AND recently edited ones
- * @param {Object} invoice - Invoice object with updatedAt/createdAt timestamp
- * @returns {boolean} True if created/updated within last hour
- */
-const _isRecentlyModified = (_invoice) => {
-  // Try updatedAt first (covers edits), then fallback to createdAt
-  // Support both camelCase and snake_case field formats from API
-  const timestamp =
-    _invoice.updatedAt ||
-    _invoice.updated_at ||
-    _invoice.createdAt ||
-    _invoice.created_at;
-  if (!timestamp) return false;
-
-  // Handle both ISO string and gRPC timestamp {seconds, nanos} format
-  let timeMs;
-  if (typeof timestamp === 'object' && timestamp.seconds) {
-    timeMs = timestamp.seconds * 1000;
-  } else {
-    timeMs = new Date(timestamp).getTime();
-  }
-
-  if (isNaN(timeMs)) return false;
-
-  const oneHourAgo = Date.now() - 60 * 60 * 1000; // 1 hour in milliseconds
-  return timeMs > oneHourAgo;
-};
-
 const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
@@ -381,9 +351,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
   // STATE: Loading and summary data
   const [loading, setLoading] = useState(true);
   const [summaryData, setSummaryData] = useState(null);
-
-  // DEBUG: Track component instance to detect multiple mounts
-  const _instanceRef = React.useRef(Math.random().toString(36).substr(2, 9));
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
@@ -804,7 +771,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     filteredInvoices.some((inv) => selectedInvoiceIds.has(inv.id)) &&
     !isAllSelected;
 
-  const handlePageChange = (event, newPage) => {
+  const handlePageChange = (_event, newPage) => {
     setCurrentPage(newPage);
   };
 
@@ -816,10 +783,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     setCurrentPage(1);
     // Persist to sessionStorage
     sessionStorage.setItem('invoiceListPageSize', validSize.toString());
-  };
-
-  const _getTotalAmount = () => {
-    return invoices.reduce((sum, invoice) => sum + invoice.total, 0);
   };
 
   // Dashboard metric calculations
@@ -1085,16 +1048,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
     }
   };
 
-  const _handleGenerateStatement = (_invoice) => {
-    const customerId = _invoice.customer?.id || _invoice.customerId;
-    const customerName = _invoice.customer?.name || _invoice.customerName;
-
-    // Navigate to Finance Dashboard with customer pre-selected for SOA generation
-    navigate(
-      `/finance?tab=statements&customerId=${customerId}&customerName=${encodeURIComponent(customerName)}`,
-    );
-  };
-
   const handleOpenPaymentReminder = (invoice) => {
     setPaymentReminderInvoice(invoice);
     setShowPaymentReminderModal(true);
@@ -1217,41 +1170,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       notificationService.error('Failed to print receipt. Please try again.');
     } finally {
       setPrintingReceiptId(null);
-    }
-  };
-
-  const _handleCalculateCommission = async (invoice) => {
-    if (calculatingCommissionIds.has(invoice.id)) return;
-
-    if (!invoice.salesAgentId) {
-      notificationService.warning('No sales agent assigned to this invoice');
-      return;
-    }
-
-    if (invoice.paymentStatus !== 'paid') {
-      notificationService.warning(
-        'Commission can only be calculated for fully paid invoices',
-      );
-      return;
-    }
-
-    setCalculatingCommissionIds((prev) => new Set(prev).add(invoice.id));
-
-    try {
-      await commissionService.calculateCommission(invoice.id);
-      notificationService.success('Commission calculated successfully');
-      // Optionally refresh invoice list to show updated commission status
-    } catch (error) {
-      console.error('Error calculating commission:', error);
-      notificationService.error(
-        error.message || 'Failed to calculate commission',
-      );
-    } finally {
-      setCalculatingCommissionIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(invoice.id);
-        return newSet;
-      });
     }
   };
 
@@ -1616,62 +1534,6 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       notificationService.warning(
         `Downloaded ${successCount} PDF${successCount !== 1 ? 's' : ''}. ${failCount} failed.`,
       );
-    }
-  };
-
-  const _handleCreateDeliveryNote = async (invoice) => {
-    try {
-      const confirmed = await confirm({
-        title: 'Create Delivery Note',
-        message: `Create a delivery note for Invoice #${invoice.invoiceNumber}?\n\nNote: Only one delivery note is allowed per invoice.`,
-        confirmText: 'Create',
-        variant: 'info',
-      });
-      if (!confirmed) return;
-      // Create delivery note using axios client (auth + baseURL + refresh)
-      const { apiClient: deliveryClient } = await import('../services/api');
-      const resp = await deliveryClient.post(
-        `/invoices/${invoice.id}/generate-delivery-note`,
-      );
-      const dn = resp?.deliveryNote || resp?.data?.deliveryNote || resp;
-
-      notificationService.createSuccess('Delivery note');
-      // Open modal with the created delivery note
-      if (dn && dn.id) {
-        setCreatedDeliveryNote(dn);
-        setShowDeliveryModal(true);
-      }
-      // Refresh invoices to get updated status
-      fetchInvoices();
-    } catch (error) {
-      console.error('Error creating delivery note:', error);
-      // If a delivery note already exists, fetch it and open modal
-      const msg = error?.response?.data?.error || error?.message || '';
-      if (String(msg).toLowerCase().includes('already exists')) {
-        try {
-          const list = await deliveryNoteService.getAll({
-            invoice_id: invoice.id,
-            limit: 1,
-            page: 1,
-          });
-          const dn = Array.isArray(list?.deliveryNotes)
-            ? list.deliveryNotes[0]
-            : Array.isArray(list)
-              ? list[0]
-              : null;
-          if (dn) {
-            setCreatedDeliveryNote(dn);
-            setShowDeliveryModal(true);
-            notificationService.warning(
-              'Delivery note already exists. Showing it.',
-            );
-            return;
-          }
-        } catch (e) {
-          // ignore and fall through to error toast
-        }
-      }
-      notificationService.createError('Delivery note', error);
     }
   };
 
@@ -3084,6 +2946,7 @@ const InvoiceList = ({ defaultStatusFilter = 'all' }) => {
       />
 
       {/* Temporary: Keep old drawer structure for reference - to be removed */}
+      {/* eslint-disable-next-line no-constant-binary-expression */}
       {false && showRecordPaymentDrawer && paymentDrawerInvoice && (
         <div className="fixed inset-0 z-[1100] flex">
           {/* Backdrop: absolute overlay on mobile, flex-1 on desktop */}

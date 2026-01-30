@@ -5,7 +5,7 @@
  * UAE VAT requires VAT to be accounted for when advance payment is received.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -84,7 +84,8 @@ const Input = ({
   ...props
 }) => {
   const { isDarkMode } = useTheme();
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const inputId = useMemo(() => id || generatedId, [id, generatedId]);
 
   const getValidationClasses = () => {
     if (!showValidation) {
@@ -172,9 +173,14 @@ const Autocomplete = ({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+  const prevFilteredOptionsRef = useRef(filteredOptions);
 
+  // Reset highlighted index when filtered options change
   useEffect(() => {
-    setHighlightedIndex(-1);
+    if (prevFilteredOptionsRef.current !== filteredOptions) {
+      setHighlightedIndex(-1);
+      prevFilteredOptionsRef.current = filteredOptions;
+    }
   }, [filteredOptions]);
 
   // Fuzzy match helpers
@@ -244,13 +250,12 @@ const Autocomplete = ({
     [tokenMatch],
   );
 
+  // Compute filtered options based on input value
   useEffect(() => {
-    if (inputValue) {
-      const filtered = fuzzyFilter(options, inputValue);
-      setFilteredOptions(filtered.slice(0, 20));
-    } else {
-      setFilteredOptions(options);
-    }
+    const newFiltered = inputValue
+      ? fuzzyFilter(options, inputValue).slice(0, 20)
+      : options;
+    setFilteredOptions(newFiltered);
   }, [options, inputValue, fuzzyFilter]);
 
   const handleInputChange = (e) => {
@@ -862,10 +867,10 @@ const AdvancePaymentList = () => {
                         : null
                     }
                     inputValue={customerInputValue}
-                    onInputChange={(e, newValue) => {
+                    onInputChange={(_e, newValue) => {
                       setCustomerInputValue(newValue || '');
                     }}
-                    onChange={(e, selected) => {
+                    onChange={(_e, selected) => {
                       if (selected) {
                         setCustomerFilter(String(selected.id));
                         setCustomerInputValue(selected.name);

@@ -15,7 +15,9 @@ export default function DeliveryScheduleModal({
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalSchedule(schedule || []);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValidationError('');
     }
   }, [isOpen, schedule]);

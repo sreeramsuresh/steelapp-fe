@@ -5,7 +5,7 @@
  * Designed to match existing InvoiceList and Dashboard aesthetics
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   FileText,
   ShoppingCart,
@@ -29,8 +29,21 @@ import { customerService } from '../services/customerService';
 const HomePage = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
-  const [userName, setUserName] = useState('User');
   const [recentItems, setRecentItems] = useState([]);
+
+  // Initialize userName from localStorage (lazy initialization)
+  const [userName] = useState(() => {
+    try {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const user = JSON.parse(currentUser);
+        return user.name || user.email?.split('@')[0] || 'User';
+      }
+    } catch (error) {
+      console.error('Error loading user info:', error);
+    }
+    return 'User';
+  });
 
   const [quickAccessItems] = useState([
     { icon: Quote, name: 'Quotations', path: '/app/quotations', color: 'from-blue-500 to-blue-600' },
@@ -51,19 +64,6 @@ const HomePage = () => {
     { icon: Users, name: 'New Customer', path: '/app/customers/new', color: 'pink' },
     { icon: Package, name: 'New Product', path: '/app/products/new', color: 'indigo' },
   ];
-
-  useEffect(() => {
-    // Load user name from auth service if available
-    try {
-      const currentUser = localStorage.getItem('currentUser');
-      if (currentUser) {
-        const user = JSON.parse(currentUser);
-        setUserName(user.name || user.email?.split('@')[0] || 'User');
-      }
-    } catch (error) {
-      console.error('Error loading user info:', error);
-    }
-  }, []);
 
   // Fetch recent items from multiple modules (max 9 items)
   useEffect(() => {

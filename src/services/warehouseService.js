@@ -143,6 +143,7 @@ class WarehouseService {
   /**
    * Get warehouse summary stats (for list page KPIs)
    * This method always fetches fresh data from the server
+   * SYNC: Uses inventory health endpoint for low stock data to match products/dashboard module
    */
   async getSummary() {
     try {
@@ -152,27 +153,40 @@ class WarehouseService {
         activeWarehouses: response?.activeWarehouses || 0,
         totalInventoryItems: response?.totalInventoryItems || 0,
         totalStockValue: response?.totalStockValue || 0,
-        lowStockItems: response?.lowStockItems || 0,
+        // Ensure lowStockItems is a number (not null/undefined)
+        lowStockItems: response?.lowStockItems ?? 0,
       };
 
       return summary;
     } catch (error) {
-      // Fallback to calculating from list if summary endpoint not available
-      console.warn('Summary endpoint not available, calculating from list');
-      const result = await this.getAll();
-      const warehouses = result.data || [];
-      const summary = {
-        totalWarehouses: warehouses.length,
-        activeWarehouses: warehouses.filter((w) => w.isActive).length,
-        totalInventoryItems: warehouses.reduce(
-          (sum, w) => sum + (w.inventoryCount || 0),
-          0,
-        ),
-        totalStockValue: 0,
-        lowStockItems: 0,
-      };
-
-      return summary;
+      // Fallback: Fetch from inventory health endpoint for data synchronization
+      try {
+        const inventoryHealth = await apiClient.get('/dashboard/inventory-health');
+        const result = await this.getAll();
+        const warehouses = result.data || [];
+        const summary = {
+          totalWarehouses: warehouses.length,
+          activeWarehouses: warehouses.filter((w) => w.isActive).length,
+          totalInventoryItems: warehouses.reduce(
+            (sum, w) => sum + (w.inventoryCount || 0),
+            0,
+          ),
+          totalStockValue: 0,
+          // Use lowStockCount from inventory health (same source as products/dashboard)
+          lowStockItems: inventoryHealth?.summary?.lowStockCount ?? 0,
+        };
+        return summary;
+      } catch (fallbackError) {
+        // Final fallback
+        console.warn('Unable to fetch warehouse summary:', fallbackError);
+        return {
+          totalWarehouses: 0,
+          activeWarehouses: 0,
+          totalInventoryItems: 0,
+          totalStockValue: 0,
+          lowStockItems: 0,
+        };
+      }
     }
   }
 

@@ -1416,7 +1416,7 @@ const ImportOrderDetails = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {/* eslint-disable-next-line local-rules/no-dead-button */}
+                        
                         <button
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode
@@ -1430,7 +1430,7 @@ const ImportOrderDetails = () => {
                         >
                           <Eye size={16} />
                         </button>
-                        {/* eslint-disable-next-line local-rules/no-dead-button */}
+                        
                         <button
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode

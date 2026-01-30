@@ -27,20 +27,6 @@ import {
   ChevronRight,
   Building2,
 } from 'lucide-react';
-// UAE Designated Zones list
-const _DESIGNATED_ZONES = [
-  { code: 'JAFZA', name: 'Jebel Ali Free Zone', emirate: 'Dubai' },
-  { code: 'DAFZA', name: 'Dubai Airport Free Zone', emirate: 'Dubai' },
-  {
-    code: 'SAIF',
-    name: 'Sharjah Airport International Free Zone',
-    emirate: 'Sharjah',
-  },
-  { code: 'KIZAD', name: 'Khalifa Industrial Zone', emirate: 'Abu Dhabi' },
-  { code: 'RAKFTZ', name: 'RAK Free Trade Zone', emirate: 'Ras Al Khaimah' },
-  { code: 'AFZA', name: 'Ajman Free Zone', emirate: 'Ajman' },
-  { code: 'HFZA', name: 'Hamriyah Free Zone', emirate: 'Sharjah' },
-];
 
 // Mock data for designated zone transactions
 const mockZoneData = {
@@ -130,6 +116,7 @@ const DesignatedZoneWidget = ({
 
   useEffect(() => {
     if (data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setZoneData(data);
     }
   }, [data]);

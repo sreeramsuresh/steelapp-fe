@@ -188,7 +188,7 @@ const AccountStatementList = ({
     try {
       await accountStatementService.downloadPDF(statement.id);
       setSuccess('PDF downloaded successfully');
-    } catch (err) {
+    } catch {
       setError('Failed to download PDF');
     }
   };
@@ -199,7 +199,7 @@ const AccountStatementList = ({
     try {
       await accountStatementService.downloadPDF(downloadWarning.statement.id);
       setSuccess('PDF downloaded successfully');
-    } catch (err) {
+    } catch {
       setError('Failed to download PDF');
     } finally {
       setDownloadWarning({ open: false, statement: null, warnings: [] });

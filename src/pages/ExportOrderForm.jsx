@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useId } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -109,7 +109,8 @@ const Input = ({
   ...props
 }) => {
   const { isDarkMode } = useTheme();
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const inputId = useMemo(() => id || generatedId, [id, generatedId]);
 
   return (
     <div className="space-y-0.5">
@@ -159,8 +160,8 @@ const Textarea = ({
   ...props
 }) => {
   const { isDarkMode } = useTheme();
-  const textareaId =
-    id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const textareaId = useMemo(() => id || generatedId, [id, generatedId]);
 
   return (
     <div className="space-y-1">
@@ -191,48 +192,6 @@ const Textarea = ({
         </p>
       )}
     </div>
-  );
-};
-
-const _Checkbox = ({
-  label,
-  checked,
-  onChange,
-  disabled = false,
-  helperText,
-}) => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <label
-      className={`flex items-start gap-2 cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        disabled={disabled}
-        className={`mt-0.5 h-4 w-4 rounded border focus:ring-teal-500 focus:ring-2 transition-colors ${
-          isDarkMode
-            ? 'border-gray-600 bg-gray-800 text-teal-500'
-            : 'border-gray-300 bg-white text-teal-600'
-        }`}
-      />
-      <div>
-        <span
-          className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-        >
-          {label}
-        </span>
-        {helperText && (
-          <p
-            className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-          >
-            {helperText}
-          </p>
-        )}
-      </div>
-    </label>
   );
 };
 
@@ -1097,7 +1056,7 @@ const EXCHANGE_RATE_SOURCE_OPTIONS = [
 // ============================================================
 
 const createEmptyLineItem = () => ({
-  id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+  id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
   product_id: '',
   unique_name: '', // SSOT product naming
   description: '',
@@ -2013,15 +1972,14 @@ const ExportOrderForm = () => {
             .filter((item) => item.unique_name && item.quantity > 0),
         };
 
-        let _response;
         if (isEditMode) {
-          _response = await exportOrderService.updateExportOrder(
+          await exportOrderService.updateExportOrder(
             id,
             submitData,
           );
           notificationService.success('Export order updated successfully');
         } else {
-          _response = await exportOrderService.createExportOrder(submitData);
+          await exportOrderService.createExportOrder(submitData);
           notificationService.success('Export order created successfully');
         }
 

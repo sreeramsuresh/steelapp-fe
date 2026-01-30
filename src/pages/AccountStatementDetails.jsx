@@ -41,7 +41,7 @@ const AccountStatementDetails = () => {
   const handleDownloadPDF = async () => {
     try {
       await accountStatementService.downloadPDF(id);
-    } catch (err) {
+    } catch {
       setError('Failed to download PDF');
     }
   };

@@ -365,7 +365,7 @@ const POTab = ({ canManage }) => {
     setItems((prev) => prev.map((i) => (i.id === po.id ? updatedPO : i)));
     try {
       await payablesService.voidPOPayment(po.id, last.id, 'User void via UI');
-    } catch (e) {
+    } catch (_e) {
       /* ignore */
     }
   };

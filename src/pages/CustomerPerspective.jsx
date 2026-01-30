@@ -165,7 +165,7 @@ const CustomerPerspective = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       return;
-    } catch (e) {
+    } catch {
       // Fallback to CSV
       const headers = [
         'Invoice #',

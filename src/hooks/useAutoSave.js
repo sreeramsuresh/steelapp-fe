@@ -185,6 +185,7 @@ const useAutoSave = (
       onRecover(existingDraft);
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     isInitializedRef.current = true;
   }, [enabled, checkForRecoverableDraft, onRecover]);
 
@@ -198,7 +199,9 @@ const useAutoSave = (
     previousDataRef.current = dataString;
 
     // Mark as dirty immediately
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDirty(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStatus('unsaved');
 
     // Clear existing timer

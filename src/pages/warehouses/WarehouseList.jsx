@@ -14,6 +14,7 @@ import WarehouseSummaryCards from '../../components/warehouses/WarehouseSummaryC
 import WarehouseFormDialog from '../../components/warehouses/WarehouseFormDialog';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { useConfirm } from '../../hooks/useConfirm';
+import { clearInventoryCache } from '../../utils/inventorySyncUtils';
 
 const WarehouseList = () => {
   const navigate = useNavigate();
@@ -103,6 +104,8 @@ const WarehouseList = () => {
         await warehouseService.delete(warehouse.id);
         // Clear summary cache since warehouse count changed
         warehouseService.clearSummaryCache();
+        // Clear inventory cache to sync with products module
+        clearInventoryCache();
         notificationService.success('Warehouse deleted successfully');
         fetchWarehouses();
       } catch (error) {
@@ -123,6 +126,8 @@ const WarehouseList = () => {
         warehouseService.clearSummaryCache();
         notificationService.success('Warehouse created successfully');
       }
+      // Clear inventory cache to sync with products module
+      clearInventoryCache();
       setFormDialogOpen(false);
       setEditingWarehouse(null);
       fetchWarehouses();

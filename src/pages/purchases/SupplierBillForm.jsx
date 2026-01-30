@@ -219,7 +219,7 @@ const Button = ({
   );
 };
 
-const _Input = ({
+const Input = ({
   label,
   error,
   className = '',
@@ -230,7 +230,7 @@ const _Input = ({
   ...props
 }) => {
   const { isDarkMode } = useTheme();
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const inputId = useMemo(() => id || `input-${Math.random().toString(36).substr(2, 9)}`, [id]);
 
   const getValidationClasses = () => {
     if (!showValidation) {
@@ -307,34 +307,9 @@ const Card = ({ children, className = '' }) => {
   );
 };
 
-// Form Settings Panel Component
-const FormSettingsPanel = ({
-  isOpen,
-  onClose,
-  preferences,
-  onPreferenceChange,
-}) => {
-  const { isDarkMode } = useTheme();
-  const panelRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (panelRef.current && !panelRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  const ToggleSwitch = ({ enabled, onChange, label, description }) => (
-    <div className="flex items-start justify-between py-3">
+// Toggle Switch Component (extracted to avoid creating components during render)
+const ToggleSwitch = ({ enabled, onChange, label, description, isDarkMode }) => (
+  <div className="flex items-start justify-between py-3">
       <div className="flex-1 pr-4">
         <p
           className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
@@ -360,7 +335,19 @@ const FormSettingsPanel = ({
         />
       </button>
     </div>
-  );
+);
+
+// Form Settings Panel Component
+const FormSettingsPanel = ({
+  isOpen,
+  onClose,
+  preferences,
+  onPreferenceChange,
+}) => {
+  const { isDarkMode } = useTheme();
+  const panelRef = useRef(null);
+
+  if (!isOpen) return null;
 
   return (
     <div
@@ -400,6 +387,7 @@ const FormSettingsPanel = ({
           }
           label="Field Validation Highlighting"
           description="Show red/green borders for invalid/valid fields"
+          isDarkMode={isDarkMode}
         />
         <ToggleSwitch
           enabled={preferences.showSpeedButtons}
@@ -411,6 +399,7 @@ const FormSettingsPanel = ({
           }
           label="Quick Add Speed Buttons"
           description="Show pinned & top products for quick adding"
+          isDarkMode={isDarkMode}
         />
       </div>
 
@@ -1215,7 +1204,7 @@ const SupplierBillForm = () => {
       (item) =>
         (item.description || item.productName || item.product_name) &&
         item.quantity > 0 &&
-        (item.unitPrice > 0 || item.unit_price > 0),
+        item.unitPrice > 0,
     );
     if (validItems.length === 0) {
       errors.push('At least one valid line item is required');
@@ -1250,7 +1239,7 @@ const SupplierBillForm = () => {
         (item) =>
           (item.description || item.productName || item.product_name) &&
           item.quantity > 0 &&
-          (item.unitPrice > 0 || item.unit_price > 0),
+          item.unitPrice > 0,
       );
 
       const billData = {

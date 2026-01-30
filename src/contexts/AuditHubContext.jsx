@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useContext,
   useState,
@@ -32,23 +32,6 @@ export function AuditHubProvider({ children }) {
     status: null,
   });
 
-  // Guard: Redirect if no company context
-  useEffect(() => {
-    if (!user?.companyId) {
-      setError('No company context available');
-      setPeriods([]);
-      setDatasets([]);
-      return;
-    }
-  }, [user?.companyId]);
-
-  // Load periods whenever company context or filters change
-  useEffect(() => {
-    if (user?.companyId) {
-      loadPeriods();
-    }
-  }, [user?.companyId, filters]);
-
   // Load periods
   const loadPeriods = useCallback(async () => {
     if (!user?.companyId) return;
@@ -66,6 +49,23 @@ export function AuditHubProvider({ children }) {
       setLoading(false);
     }
   }, [user?.companyId, filters]);
+
+  // Guard: Redirect if no company context
+  useEffect(() => {
+    if (!user?.companyId) {
+      setError('No company context available');
+      setPeriods([]);
+      setDatasets([]);
+      return;
+    }
+  }, [user?.companyId]);
+
+  // Load periods whenever company context or filters change
+  useEffect(() => {
+    if (user?.companyId) {
+      loadPeriods();
+    }
+  }, [user?.companyId, filters, loadPeriods]);
 
   // Select period and load its datasets
   const selectPeriod = useCallback(

@@ -15,17 +15,11 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import {
-  Shield,
   CheckCircle,
   XCircle,
   Clock,
   AlertTriangle,
-  RefreshCw,
-  Users,
-  Building,
   Info,
-  ChevronRight,
-  ExternalLink,
 } from 'lucide-react';
 
 // Mock TRN validation data
@@ -140,6 +134,7 @@ const TRNValidationWidget = ({
 
   useEffect(() => {
     if (data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTRNData(data);
     }
   }, [data]);
@@ -192,16 +187,6 @@ const TRNValidationWidget = ({
   const formatTRN = (trn) => {
     if (!trn || trn.length !== 15) return trn;
     return `${trn.slice(0, 3)}-${trn.slice(3, 7)}-${trn.slice(7, 11)}-${trn.slice(11)}`;
-  };
-
-  const _formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-AE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
   };
 
   const filteredValidations = trnData.recentValidations.filter(

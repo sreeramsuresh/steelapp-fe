@@ -135,7 +135,7 @@ export const invoicesAPI = {
 
     // Check if the response is actually a PDF or an error
     if (!blob || !(blob instanceof Blob)) {
-      // eslint-disable-next-line no-console
+       
       console.error('[invoicesAPI.downloadPDF] Response is not a blob:', blob);
       throw new Error('Invalid response from server - expected PDF blob');
     }
@@ -143,7 +143,7 @@ export const invoicesAPI = {
     // If the blob is JSON (error response), parse and throw
     if (blob.type === 'application/json') {
       const errorText = await blob.text();
-      // eslint-disable-next-line no-console
+       
       console.error(
         '[invoicesAPI.downloadPDF] Server returned error JSON:',
         errorText,
@@ -156,7 +156,7 @@ export const invoicesAPI = {
 
     // Verify it's a PDF
     if (blob.type !== 'application/pdf' && blob.size < 1000) {
-      // eslint-disable-next-line no-console
+       
       console.warn(
         '[invoicesAPI.downloadPDF] Unexpected blob type:',
         blob.type,

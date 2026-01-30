@@ -35,6 +35,7 @@ import ConfirmDialog from './ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 import { notificationService } from '../services/notificationService';
 import { categoryPolicyService } from '../services/categoryPolicyService';
+import { clearInventoryCache } from '../utils/inventorySyncUtils';
 
 // Custom components for consistent theming
 const Button = ({
@@ -1692,7 +1693,8 @@ const SteelProducts = () => {
         ? `Product created successfully!\nDisplay Name: ${createdProduct.displayName}\nSystem ID: ${createdProduct.uniqueName}`
         : 'Product created successfully!';
 
-      // TODO: Implement proper cache utility
+      // Sync inventory cache across modules
+      clearInventoryCache();
       setNewProduct({
         displayName: '',
         category: 'sheet',
@@ -2006,7 +2008,8 @@ const SteelProducts = () => {
 
       await updateProduct(selectedProduct.id, productData);
 
-      // TODO: Implement proper cache utility
+      // Sync inventory cache across modules
+      clearInventoryCache();
 
       await refetchProducts();
 
@@ -2034,7 +2037,8 @@ const SteelProducts = () => {
 
     try {
       await deleteProduct(productId);
-      // TODO: Implement proper cache utility
+      // Sync inventory cache across modules
+      clearInventoryCache();
       refetchProducts();
       notificationService.success('Product deleted successfully');
     } catch (error) {

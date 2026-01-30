@@ -20,9 +20,28 @@ import { AdvancePaymentList } from './payments';
 const PurchasesDashboard = () => {
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('purchase-orders');
 
-  // Auto-open tab if navigated with tab parameter
+  // Initialize activeTab from URL parameter
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabParam = searchParams.get('tab');
+    // Support both supplier-bills and legacy vendor-bills
+    const normalizedTab =
+      tabParam === 'vendor-bills' ? 'supplier-bills' : tabParam;
+    if (
+      normalizedTab &&
+      [
+        'purchase-orders',
+        'supplier-bills',
+        'debit-notes',
+        'advance-payments',
+      ].includes(normalizedTab)
+    ) {
+      return normalizedTab;
+    }
+    return 'purchase-orders';
+  });
+
+  // Update tab when URL parameter changes
   useEffect(() => {
     const tabParam = searchParams.get('tab');
     // Support both supplier-bills and legacy vendor-bills

@@ -47,7 +47,7 @@ const COLORS = {
 };
 
 // Layout helper classes - eslint-disable-next-line for unused (referenced in JSX via template)
-// eslint-disable-next-line no-unused-vars
+ 
 const CARD_CLASSES = (isDarkMode) =>
   `${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white border-gray-200'} border rounded-2xl p-4`;
 
@@ -63,7 +63,7 @@ const LABEL_CLASSES = (isDarkMode) =>
 const BTN_CLASSES = (isDarkMode) =>
   `${isDarkMode ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]' : 'bg-white border-gray-300 text-gray-900 hover:border-blue-500'} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
 
-// eslint-disable-next-line no-unused-vars
+ 
 const BTN_PRIMARY =
   'bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer';
 

@@ -493,6 +493,28 @@ const CurrencyConversionModal = ({
   );
 };
 
+// InfoRow Component (extracted to avoid creating components during render)
+const InfoRow = ({ icon: Icon, label, value, valueClassName = '', isDarkMode }) => (
+  <div className="flex items-start gap-3 py-2">
+    <Icon
+      size={16}
+      className={`mt-0.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
+    />
+    <div className="flex-1 min-w-0">
+      <p
+        className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+      >
+        {label}
+      </p>
+      <p
+        className={`text-[13px] font-medium truncate ${valueClassName || (isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900')}`}
+      >
+        {value || '-'}
+      </p>
+    </div>
+  </div>
+);
+
 // Product Detail Drawer component
 const ProductDetailDrawer = ({
   product,
@@ -502,27 +524,6 @@ const ProductDetailDrawer = ({
   navigate,
 }) => {
   if (!isOpen || !product) return null;
-
-  const InfoRow = ({ icon: Icon, label, value, valueClassName = '' }) => (
-    <div className="flex items-start gap-3 py-2">
-      <Icon
-        size={16}
-        className={`mt-0.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-400'}`}
-      />
-      <div className="flex-1 min-w-0">
-        <p
-          className={`text-[11px] ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
-        >
-          {label}
-        </p>
-        <p
-          className={`text-[13px] font-medium truncate ${valueClassName || (isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900')}`}
-        >
-          {value || '-'}
-        </p>
-      </div>
-    </div>
-  );
 
   const handleDrawerOverlayKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -747,6 +748,7 @@ const ProductDetailDrawer = ({
                         product.country_of_origin ||
                         product.origin_country
                       }
+                      isDarkMode={isDarkMode}
                     />
                     <InfoRow
                       icon={Factory}
@@ -756,6 +758,7 @@ const ProductDetailDrawer = ({
                         product.mill_name ||
                         product.manufacturer
                       }
+                      isDarkMode={isDarkMode}
                     />
                   </div>
                 )}

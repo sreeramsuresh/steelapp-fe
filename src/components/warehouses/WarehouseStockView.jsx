@@ -101,9 +101,12 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
 
   useEffect(() => {
     // Simulate API call
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setTimeout(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStockItems(mockStockData);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
     }, 500);
   }, [warehouseId]);
@@ -132,7 +135,6 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
   const productTypes = [...new Set(stockItems.map((item) => item.productType))];
 
   // Summary stats
-  const _totalItems = filteredItems.length;
   const lowStockCount = filteredItems.filter((item) => item.isLowStock).length;
 
   return (

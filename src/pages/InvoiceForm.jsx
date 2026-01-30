@@ -5,6 +5,7 @@ import {
   useCallback,
   useRef,
   Fragment,
+  useId,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -868,7 +869,8 @@ const Input = ({
   ...props
 }) => {
   const { isDarkMode } = useTheme();
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const inputId = useMemo(() => id || generatedId, [id, generatedId]);
 
   // Determine border and background color based on validation state
   const getValidationClasses = () => {
@@ -945,8 +947,8 @@ const Textarea = ({
 }) => {
   const { isDarkMode } = useTheme();
   const textareaRef = useRef(null);
-  const textareaId =
-    id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const textareaId = useMemo(() => id || generatedId, [id, generatedId]);
 
   const adjustHeight = useCallback(() => {
     const textarea = textareaRef.current;
@@ -1168,10 +1170,14 @@ const Autocomplete = ({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+  const prevFilteredOptionsRef = useRef(filteredOptions);
 
   // Reset highlighted index when options change
   useEffect(() => {
-    setHighlightedIndex(-1);
+    if (prevFilteredOptionsRef.current !== filteredOptions) {
+      setHighlightedIndex(-1);
+      prevFilteredOptionsRef.current = filteredOptions;
+    }
   }, [filteredOptions]);
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
@@ -1247,13 +1253,12 @@ const Autocomplete = ({
     [tokenMatch],
   );
 
+  // Compute filtered options based on input value
   useEffect(() => {
-    if (inputValue) {
-      const filtered = fuzzyFilter(options, inputValue);
-      setFilteredOptions(filtered.slice(0, 20));
-    } else {
-      setFilteredOptions(options);
-    }
+    const newFiltered = inputValue
+      ? fuzzyFilter(options, inputValue).slice(0, 20)
+      : options;
+    setFilteredOptions(newFiltered);
   }, [options, inputValue, fuzzyFilter]);
 
   const handleInputChange = (e) => {
@@ -1512,6 +1517,36 @@ const LoadingSpinner = ({ size = 'md' }) => {
   );
 };
 
+// Toggle Switch Component (extracted to avoid creating components during render)
+const ToggleSwitchInvoice = ({ enabled, onChange, label, description, isDarkMode }) => (
+  <div className="flex items-start justify-between py-3">
+    <div className="flex-1 pr-4">
+      <p
+        className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
+      >
+        {label}
+      </p>
+      <p
+        className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+      >
+        {description}
+      </p>
+    </div>
+    <button
+      onClick={onChange}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+        enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+      }`}
+    >
+      <span
+        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          enabled ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  </div>
+);
+
 // Form Settings Panel Component
 const FormSettingsPanel = ({
   isOpen,
@@ -1538,35 +1573,6 @@ const FormSettingsPanel = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
-  const ToggleSwitch = ({ enabled, onChange, label, description }) => (
-    <div className="flex items-start justify-between py-3">
-      <div className="flex-1 pr-4">
-        <p
-          className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
-        >
-          {label}
-        </p>
-        <p
-          className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-        >
-          {description}
-        </p>
-      </div>
-      <button
-        onClick={onChange}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-          enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
-        }`}
-      >
-        <span
-          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-            enabled ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
-    </div>
-  );
 
   return (
     <div
@@ -1598,7 +1604,7 @@ const FormSettingsPanel = ({
 
       {/* Settings */}
       <div className="px-4 py-2 divide-y divide-gray-200 dark:divide-gray-700">
-        <ToggleSwitch
+        <ToggleSwitchInvoice
           enabled={preferences.showValidationHighlighting}
           onChange={() =>
             onPreferenceChange(
@@ -1608,8 +1614,9 @@ const FormSettingsPanel = ({
           }
           label="Field Validation Highlighting"
           description="Show red/green borders for invalid/valid fields"
+          isDarkMode={isDarkMode}
         />
-        <ToggleSwitch
+        <ToggleSwitchInvoice
           enabled={preferences.showSpeedButtons}
           onChange={() =>
             onPreferenceChange(
@@ -1617,6 +1624,7 @@ const FormSettingsPanel = ({
               !preferences.showSpeedButtons,
             )
           }
+          isDarkMode={isDarkMode}
           label="Quick Add Speed Buttons"
           description="Show pinned & top products for quick adding"
         />
@@ -5905,8 +5913,6 @@ const InvoiceForm = ({ onSave }) => {
                             const isExpanded = expandedAllocations.has(index);
                             const hasAllocations =
                               item.allocations && item.allocations.length > 0;
-                            const _uomConversionText =
-                              getUomConversionText(item);
 
                             return (
                               <Fragment key={item.id || `item-${index}`}>
@@ -5971,13 +5977,13 @@ const InvoiceForm = ({ onSave }) => {
                                       inputValue={
                                         searchInputs[index] || item.name || ''
                                       }
-                                      onInputChange={(event, newInputValue) => {
+                                      onInputChange={(_event, newInputValue) => {
                                         handleSearchInputChange(
                                           index,
                                           newInputValue,
                                         );
                                       }}
-                                      onChange={(event, newValue) => {
+                                      onChange={(_event, newValue) => {
                                         if (newValue) {
                                           handleProductSelect(index, newValue);
                                         }
@@ -6768,10 +6774,10 @@ const InvoiceForm = ({ onSave }) => {
                                 inputValue={
                                   searchInputs[index] || item.name || ''
                                 }
-                                onInputChange={(event, newInputValue) => {
+                                onInputChange={(_event, newInputValue) => {
                                   handleSearchInputChange(index, newInputValue);
                                 }}
-                                onChange={(event, newValue) => {
+                                onChange={(_event, newValue) => {
                                   if (newValue) {
                                     handleProductSelect(index, newValue);
                                   }
@@ -6854,9 +6860,7 @@ const InvoiceForm = ({ onSave }) => {
                                     }}
                                     onPaste={(e) => {
                                       e.preventDefault();
-                                      const t = (
-                                        e.clipboardData || window.clipboardData
-                                      ).getData('text');
+                                      const t = e.clipboardData.getData('text');
                                       const digits = (t || '').replace(
                                         /\D/g,
                                         '',

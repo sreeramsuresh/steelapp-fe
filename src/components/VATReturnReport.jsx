@@ -118,7 +118,7 @@ const VATReturnReport = () => {
     if (periodId) {
       loadVATReturnData(periodId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [periodId]); // loadVATReturnData is stable within component lifecycle
 
   const loadPeriods = async () => {

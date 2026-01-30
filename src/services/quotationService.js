@@ -40,6 +40,35 @@ export const transformQuotationItemFromServer = (item) => {
 };
 
 /**
+ * Normalize quotation status from gRPC enum to frontend string
+ * Maps Protocol Buffer enum constants to lowercase frontend values
+ */
+const normalizeQuotationStatus = (rawStatus) => {
+  // Handle null/undefined/empty
+  if (!rawStatus || rawStatus === '') {
+    return 'draft';
+  }
+
+  // If already normalized (lowercase), return as-is
+  if (rawStatus === rawStatus.toLowerCase()) {
+    return rawStatus;
+  }
+
+  // Map gRPC enum constants to frontend strings
+  const statusMap = {
+    STATUS_DRAFT: 'draft',
+    STATUS_UNSPECIFIED: 'draft',
+    STATUS_SENT: 'sent',
+    STATUS_ACCEPTED: 'accepted',
+    STATUS_REJECTED: 'rejected',
+    STATUS_EXPIRED: 'expired',
+    STATUS_CONVERTED: 'converted',
+  };
+
+  return statusMap[rawStatus] || 'draft';
+};
+
+/**
  * Transform quotation data from server (snake_case) to frontend (camelCase)
  * Maps Quotation proto message fields
  */
@@ -68,8 +97,28 @@ export const transformQuotationFromServer = (serverData) => {
     totalWeight: Number(serverData.totalWeight || serverData.total_weight) || 0,
     otherCharges:
       Number(serverData.otherCharges || serverData.other_charges) || 0,
-    total: Number(serverData.total) || 0,
-    status: serverData.status || 'draft',
+    total: (() => {
+      const serverTotal = Number(serverData.total) || 0;
+      if (serverTotal > 0) return serverTotal;
+
+      // If total is 0/missing, calculate from components
+      const subtotal = Number(serverData.subtotal) || 0;
+      const packing =
+        Number(serverData.packingCharges || serverData.packing_charges) || 0;
+      const freight =
+        Number(serverData.freightCharges || serverData.freight_charges) || 0;
+      const insurance =
+        Number(serverData.insuranceCharges || serverData.insurance_charges) || 0;
+      const loading =
+        Number(serverData.loadingCharges || serverData.loading_charges) || 0;
+      const other =
+        Number(serverData.otherCharges || serverData.other_charges) || 0;
+      const vat = Number(serverData.vatAmount || serverData.vat_amount) || 0;
+
+      const calculated = subtotal + packing + freight + insurance + loading + other + vat;
+      return Math.max(calculated, 0);
+    })(),
+    status: normalizeQuotationStatus(serverData.status),
     convertedToInvoice:
       serverData.convertedToInvoice || serverData.converted_to_invoice || false,
     invoiceId: serverData.invoiceId || serverData.invoice_id,

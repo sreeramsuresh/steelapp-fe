@@ -331,14 +331,29 @@ export function normalizeInvoice(
       outstanding: parseNumber(rawInvoice.outstanding, 0),
       // balanceDue: prefer 'outstanding' (primary) over legacy 'balanceAmount' fields
       // Note: 'balanceAmount' may be stale/zero while 'outstanding' is correct
-      balanceDue: parseNumber(
-        rawInvoice.balanceDue ??
-          rawInvoice.balance_due ??
-          rawInvoice.outstanding ??
-          rawInvoice.balanceAmount ??
-          rawInvoice.balance_amount,
-        0,
-      ),
+      // CRITICAL: Calculate balanceDue = total - received if not explicitly provided
+      balanceDue: (() => {
+        const explicitly = parseNumber(
+          rawInvoice.balanceDue ??
+            rawInvoice.balance_due ??
+            rawInvoice.outstanding ??
+            rawInvoice.balanceAmount ??
+            rawInvoice.balance_amount,
+        );
+
+        // If explicitly set to non-zero, use it
+        if (explicitly > 0) return explicitly;
+
+        // Otherwise calculate: balanceDue = total - received
+        const total = parseNumber(
+          rawInvoice.total || rawInvoice.totalAmount,
+          0,
+        );
+        const received = parseNumber(rawInvoice.received, 0);
+        const calculated = Math.max(0, total - received);
+
+        return calculated;
+      })(),
 
       // Discounts & Currency
       discountPercentage: parseNumber(

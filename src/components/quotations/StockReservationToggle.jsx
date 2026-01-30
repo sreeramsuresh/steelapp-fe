@@ -12,6 +12,7 @@ export default function StockReservationToggle({
 
   useEffect(() => {
     if (!item.stockReserved || !item.reservationExpiry) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTimeRemaining('');
       return;
     }

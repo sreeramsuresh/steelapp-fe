@@ -884,7 +884,7 @@ const CompanySettings = () => {
         setVatRates([]);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []); // Run once on mount - vatRateService and notificationService are stable imports
 
   // Load users with pagination
@@ -928,7 +928,7 @@ const CompanySettings = () => {
         setUserTotalPages(1);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [userCurrentPage, userPageSize]); // Load when page changes
 
   // Reset pagination when search term changes

@@ -87,7 +87,7 @@ export default function COGSAnalysisReport() {
       setProducts(productsRes.data || []);
     } catch (error) {
       // Error loading filter options - fail silently
-      // eslint-disable-next-line no-console
+       
       console.error('Error loading filter options:', error);
     }
   };
@@ -108,7 +108,7 @@ export default function COGSAnalysisReport() {
 
       toast.success('Report data loaded successfully');
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error fetching COGS report:', error);
       toast.error('Failed to load report data');
     } finally {

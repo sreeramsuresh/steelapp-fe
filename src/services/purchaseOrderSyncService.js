@@ -37,7 +37,7 @@ class PurchaseOrderSyncService {
 
       return true;
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error handling PO status change:', error);
       notificationService.error('Failed to sync PO with inventory');
       throw error;
@@ -109,7 +109,7 @@ class PurchaseOrderSyncService {
         `Added ${po.items.length} items to inventory from PO #${po.poNumber}`,
       );
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error adding PO items to inventory:', error);
       throw error;
     }
@@ -129,7 +129,7 @@ class PurchaseOrderSyncService {
         `PO #${po.poNumber} items moved from transit to stock`,
       );
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error moving PO from transit to stock:', error);
       throw error;
     }
@@ -175,7 +175,7 @@ class PurchaseOrderSyncService {
       // eslint-disable-next-line no-console
       console.log('Created stock movement:', stockMovement);
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error creating stock movement:', error);
       throw error;
     }

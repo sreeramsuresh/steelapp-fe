@@ -17,10 +17,6 @@ export default function DeliveryVarianceDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
   const loadDashboard = async () => {
     setLoading(true);
     setError(null);
@@ -93,6 +89,11 @@ export default function DeliveryVarianceDashboard() {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    loadDashboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading)
     return (

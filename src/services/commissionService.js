@@ -182,6 +182,17 @@ const commissionService = {
     }
   },
 
+  // Calculate commission for a single invoice
+  calculateCommission: async (invoiceId) => {
+    try {
+      const response = await api.post(`/commissions/calculate/${invoiceId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error calculating commission:', error);
+      throw error;
+    }
+  },
+
   // Batch calculate commissions for all eligible invoices
   batchCalculateCommissions: async () => {
     try {

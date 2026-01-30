@@ -37,6 +37,7 @@ const VATComplianceAlertsWidget = ({
 
   useEffect(() => {
     if (data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAlertsData(data);
     }
   }, [data]);

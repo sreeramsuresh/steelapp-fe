@@ -15,6 +15,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { inventoryService } from '../services/inventoryService';
 import { productService } from '../services/productService';
+import { clearInventoryCache } from '../utils/inventorySyncUtils';
 import {
   createInventoryItem,
   PRODUCT_TYPES,
@@ -78,16 +79,22 @@ const InventoryList = () => {
         params.status = statusFilter;
       }
       const response = await inventoryService.getAllItems(params);
-      setInventory(response.data || []);
-      // Extract pagination info from response
-      setTotalCount(response.pagination?.total || response.total || response.data?.length || 0);
+      const data = response.data || [];
+      setInventory(data);
+      // Extract pagination info - ensure totalCount >= actual data length
+      const total =
+        response.pagination?.total ||
+        response.total ||
+        response.pagination?.totalCount ||
+        data.length;
+      setTotalCount(Math.max(total, data.length));
     } catch (fetchError) {
       console.error('Error fetching inventory:', fetchError);
       setError('Failed to load inventory');
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [page, pageSize, statusFilter]); // inventoryService is a stable import
 
   const fetchWarehouses = useCallback(async () => {
@@ -242,6 +249,8 @@ const InventoryList = () => {
 
     try {
       await inventoryService.deleteItem(id);
+      // Clear inventory cache to ensure warehouse/product modules stay in sync
+      clearInventoryCache();
       await fetchInventory();
     } catch (deleteError) {
       console.error('Error deleting inventory item:', deleteError);

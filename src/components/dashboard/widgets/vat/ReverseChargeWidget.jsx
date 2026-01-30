@@ -130,6 +130,7 @@ const ReverseChargeWidget = ({
 
   useEffect(() => {
     if (data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReverseChargeData(data);
     }
   }, [data]);

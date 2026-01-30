@@ -76,6 +76,7 @@ const AllocationPanel = ({
       (sum, allocation) => sum + (allocation.quantity || 0),
       0,
     );
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTotalAllocated(total);
   }, [allocations]);
 

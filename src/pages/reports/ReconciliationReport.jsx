@@ -58,7 +58,7 @@ export default function ReconciliationReport() {
 
   useEffect(() => {
     loadFilterOptions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []); // Load filter options once on mount
 
   // Fetch report data when filters change
@@ -115,7 +115,7 @@ export default function ReconciliationReport() {
       );
     } catch (error) {
       // Error loading filter options - fail silently
-      // eslint-disable-next-line no-console
+       
       console.error('Error loading filter options:', error);
     }
   };
@@ -146,7 +146,7 @@ export default function ReconciliationReport() {
           }
         } catch (apiError) {
           // API call failed - fall back to mock data
-          // eslint-disable-next-line no-console
+           
           console.warn(
             'Could not fetch from API, using mock data:',
             apiError.message,
@@ -163,7 +163,7 @@ export default function ReconciliationReport() {
 
       toast.success('Report data loaded successfully');
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error fetching reconciliation report:', error);
       toast.error('Failed to load report data');
     } finally {

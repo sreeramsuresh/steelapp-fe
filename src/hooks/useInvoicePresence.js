@@ -78,11 +78,13 @@ export function useInvoicePresence(invoiceId, mode = 'view') {
   useEffect(() => {
     if (!invoiceId) return;
 
-    // Start session immediately
-    startSession();
-    fetchSessions();
+    // Start session and fetch immediately
+    Promise.all([startSession(), fetchSessions()]).catch((err) =>
+      console.warn('[Presence] Init failed:', err.message),
+    );
 
     // Set up heartbeat interval
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     heartbeatRef.current = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
 
     // Set up fetch interval
