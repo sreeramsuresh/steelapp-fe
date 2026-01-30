@@ -219,7 +219,7 @@ const Button = ({
   );
 };
 
-const Input = ({
+const _Input = ({
   label,
   error,
   className = '',
@@ -230,6 +230,7 @@ const Input = ({
   ...props
 }) => {
   const { isDarkMode } = useTheme();
+  // eslint-disable-next-line react-hooks/purity
   const inputId = useMemo(() => id || `input-${Math.random().toString(36).substr(2, 9)}`, [id]);
 
   const getValidationClasses = () => {

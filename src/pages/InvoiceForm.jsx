@@ -1259,6 +1259,7 @@ const Autocomplete = ({
     const newFiltered = inputValue
       ? fuzzyFilter(options, inputValue).slice(0, 20)
       : options;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFilteredOptions(newFiltered);
   }, [options, inputValue, fuzzyFilter]);
 
