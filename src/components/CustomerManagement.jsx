@@ -1723,6 +1723,7 @@ const CustomerManagement = () => {
               >
                 Next
               </button>
+            </div>
           </div>
         </div>
       )}
