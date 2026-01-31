@@ -140,7 +140,6 @@ export default [
       'jsx-a11y/no-static-element-interactions': 'warn',
       'jsx-a11y/role-supports-aria-props': 'warn',
       'jsx-a11y/no-autofocus': 'warn',
-      'local-rules/no-dead-button': 'off',
     },
   },
 
@@ -228,7 +227,6 @@ export default [
       'jsx-a11y/no-static-element-interactions': 'warn',
       'jsx-a11y/role-supports-aria-props': 'warn',
       'jsx-a11y/no-autofocus': 'warn',
-      'local-rules/no-dead-button': 'off',
     },
   },
 
