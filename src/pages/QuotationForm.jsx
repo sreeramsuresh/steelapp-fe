@@ -685,7 +685,7 @@ const QuotationForm = () => {
                   'Failed to parse volumeDiscountTiers: ',
                   parseError.message,
                   'Raw value:',
-                  response.volumeDiscountTiers
+                  response.volumeDiscountTiers,
                 );
                 return [];
               }

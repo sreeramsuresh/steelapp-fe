@@ -25,11 +25,187 @@ import BrandmarkHero from '../components/BrandmarkHero';
 import { quotationService } from '../services/quotationService';
 import { invoiceService } from '../services/invoiceService';
 import { customerService } from '../services/customerService';
+import useDragReorder, { DragHandleIcon } from '../hooks/useDragReorder';
+import useHomeSectionOrder from '../hooks/useHomeSectionOrder';
+
+/**
+ * Quick Access Section - Displays navigation shortcuts
+ */
+const QuickAccessSection = ({ quickAccessItems, handleNavigate, isDarkMode }) => (
+  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    {quickAccessItems.map((item) => {
+      const IconComponent = item.icon;
+      return (
+        <button
+          key={item.name}
+          onClick={() => handleNavigate(item.path)}
+          className={`p-6 rounded-xl border-2 transition-all duration-300 group ${
+            isDarkMode
+              ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500/50 hover:bg-[#252D38]'
+              : 'bg-white border-[#E0E0E0] hover:border-teal-500/50 hover:bg-gray-50'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div
+              className={`p-3 rounded-lg bg-gradient-to-br ${item.color}`}
+            >
+              <IconComponent className="w-6 h-6 text-white" />
+            </div>
+            <ArrowRight
+              className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${
+                isDarkMode ? 'text-gray-600' : 'text-gray-400'
+              }`}
+            />
+          </div>
+          <h3
+            className={`font-semibold text-left ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}
+          >
+            {item.name}
+          </h3>
+        </button>
+      );
+    })}
+  </div>
+);
+
+/**
+ * Create New Section - Displays quick creation shortcuts
+ */
+const CreateNewSection = ({ createNewItems, handleNavigate, isDarkMode }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {createNewItems.map((item) => {
+      return (
+        <button
+          key={item.name}
+          onClick={() => handleNavigate(item.path)}
+          className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 font-semibold transition-all duration-300 group ${
+            isDarkMode
+              ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500 hover:bg-[#252D38] text-white'
+              : 'bg-white border-[#E0E0E0] hover:border-teal-500 hover:bg-gray-50 text-gray-900'
+          }`}
+        >
+          <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
+          <span>{item.name}</span>
+        </button>
+      );
+    })}
+  </div>
+);
+
+/**
+ * Recent Items Section - Displays recently accessed items
+ */
+const RecentItemsSection = ({ recentItems, handleNavigate, isDarkMode }) => (
+  <div
+    className={`rounded-xl border transition-all ${
+      isDarkMode
+        ? 'bg-[#1E2328] border-[#37474F]'
+        : 'bg-white border-[#E0E0E0]'
+    }`}
+  >
+    {recentItems.length > 0 ? (
+      recentItems.map((item, index) => {
+        const IconComponent = item.icon;
+        return (
+          <button
+            key={item.id}
+            onClick={() => handleNavigate(item.link)}
+            className={`w-full flex items-center justify-between p-4 transition-all hover:bg-teal-500/10 ${
+              index !== recentItems.length - 1
+                ? isDarkMode
+                  ? 'border-b border-[#37474F]'
+                  : 'border-b border-[#E0E0E0]'
+                : ''
+            }`}
+          >
+            <div className="flex items-center gap-4 flex-1 text-left">
+              <div
+                className={`p-2.5 rounded-lg ${
+                  isDarkMode ? 'bg-[#252D38]' : 'bg-gray-100'
+                }`}
+              >
+                <IconComponent
+                  className={`w-5 h-5 ${
+                    isDarkMode ? 'text-teal-400' : 'text-teal-600'
+                  }`}
+                />
+              </div>
+              <div>
+                <p
+                  className={`font-semibold text-sm ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
+                  {item.name}
+                </p>
+                <p
+                  className={`text-xs ${
+                    isDarkMode ? 'text-gray-500' : 'text-gray-600'
+                  }`}
+                >
+                  {item.detail}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-xs whitespace-nowrap ${
+                  isDarkMode ? 'text-gray-500' : 'text-gray-600'
+                }`}
+              >
+                {item.timestamp}
+              </span>
+              <ArrowRight
+                className={`w-4 h-4 ${
+                  isDarkMode ? 'text-gray-600' : 'text-gray-400'
+                }`}
+              />
+            </div>
+          </button>
+        );
+      })
+    ) : (
+      <div className={`p-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+        <p>No recent items yet</p>
+      </div>
+    )}
+  </div>
+);
+
+/**
+ * Section configuration mapping
+ */
+const SECTION_CONFIG = {
+  quickAccess: {
+    id: 'quickAccess',
+    title: 'Quick Access',
+    Component: QuickAccessSection,
+  },
+  createNew: {
+    id: 'createNew',
+    title: 'Create New',
+    Component: CreateNewSection,
+  },
+  recentItems: {
+    id: 'recentItems',
+    title: 'Recent Items',
+    Component: RecentItemsSection,
+  },
+};
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [recentItems, setRecentItems] = useState([]);
+  const { sectionOrder, reorderSections } = useHomeSectionOrder();
+  const { getDragItemProps, getDragHandleProps, isDropTarget, isDragSource } =
+    useDragReorder({
+      items: sectionOrder,
+      onReorder: reorderSections,
+      enabled: true,
+    });
 
   // Initialize userName from localStorage (lazy initialization)
   const [userName] = useState(() => {
@@ -184,184 +360,70 @@ const HomePage = () => {
         {/* Brandmark Hero Section */}
         <BrandmarkHero />
 
-        {/* SECTION 1: Quick Access */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div
-              className={`h-1 w-1 rounded-full ${
-                isDarkMode ? 'bg-teal-500' : 'bg-teal-600'
-              }`}
-            ></div>
-            <h2
-              className={`text-2xl font-semibold ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              Quick Access
-            </h2>
-          </div>
+        {/* Dynamic Draggable Sections */}
+        {sectionOrder.map((sectionId, index) => {
+          const section = SECTION_CONFIG[sectionId];
+          if (!section) return null;
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {quickAccessItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => handleNavigate(item.path)}
-                  className={`p-6 rounded-xl border-2 transition-all duration-300 group ${
+          const SectionComponent = section.Component;
+
+          return (
+            <div
+              key={section.id}
+              {...getDragItemProps(index)}
+              className={`mb-8 transition-all ${
+                isDropTarget(index) ? 'opacity-50' : ''
+              } ${isDragSource(index) ? 'opacity-30' : ''}`}
+            >
+              {/* Section Card */}
+              <div
+                className={`relative rounded-xl border-2 p-6 transition-all ${
+                  isDarkMode
+                    ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500/30'
+                    : 'bg-white border-[#E0E0E0] hover:border-teal-500/30'
+                }`}
+              >
+                {/* Drag Handle - Top Right */}
+                <div
+                  {...getDragHandleProps(index)}
+                  className={`absolute top-4 right-4 p-2 rounded-lg cursor-grab active:cursor-grabbing transition-colors ${
                     isDarkMode
-                      ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500/50 hover:bg-[#252D38]'
-                      : 'bg-white border-[#E0E0E0] hover:border-teal-500/50 hover:bg-gray-50'
+                      ? 'hover:bg-gray-700 text-gray-500 hover:text-gray-300'
+                      : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600'
                   }`}
+                  title="Drag to reorder sections"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div
-                      className={`p-3 rounded-lg bg-gradient-to-br ${item.color}`}
-                    >
-                      <IconComponent className="w-6 h-6 text-white" />
-                    </div>
-                    <ArrowRight
-                      className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${
-                        isDarkMode ? 'text-gray-600' : 'text-gray-400'
-                      }`}
-                    />
-                  </div>
-                  <h3
-                    className={`font-semibold text-left ${
+                  <DragHandleIcon size={20} className="pointer-events-none" />
+                </div>
+
+                {/* Section Header */}
+                <div className="flex items-center gap-3 mb-6 pr-10">
+                  <div
+                    className={`h-1 w-1 rounded-full ${
+                      isDarkMode ? 'bg-teal-500' : 'bg-teal-600'
+                    }`}
+                  ></div>
+                  <h2
+                    className={`text-2xl font-semibold ${
                       isDarkMode ? 'text-white' : 'text-gray-900'
                     }`}
                   >
-                    {item.name}
-                  </h3>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                    {section.title}
+                  </h2>
+                </div>
 
-        {/* SECTION 2: Create New */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div
-              className={`h-1 w-1 rounded-full ${
-                isDarkMode ? 'bg-teal-500' : 'bg-teal-600'
-              }`}
-            ></div>
-            <h2
-              className={`text-2xl font-semibold ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              Create New
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {createNewItems.map((item) => {
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => handleNavigate(item.path)}
-                  className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 font-semibold transition-all duration-300 group ${
-                    isDarkMode
-                      ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500 hover:bg-[#252D38] text-white'
-                      : 'bg-white border-[#E0E0E0] hover:border-teal-500 hover:bg-gray-50 text-gray-900'
-                  }`}
-                >
-                  <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
-                  <span>{item.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* SECTION 3: Recent Items */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div
-              className={`h-1 w-1 rounded-full ${
-                isDarkMode ? 'bg-teal-500' : 'bg-teal-600'
-              }`}
-            ></div>
-            <h2
-              className={`text-2xl font-semibold ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              Recent Items
-            </h2>
-          </div>
-
-          <div
-            className={`rounded-xl border transition-all ${
-              isDarkMode
-                ? 'bg-[#1E2328] border-[#37474F]'
-                : 'bg-white border-[#E0E0E0]'
-            }`}
-          >
-            {recentItems.map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavigate(item.link)}
-                  className={`w-full flex items-center justify-between p-4 transition-all hover:bg-teal-500/10 ${
-                    index !== recentItems.length - 1
-                      ? isDarkMode
-                        ? 'border-b border-[#37474F]'
-                        : 'border-b border-[#E0E0E0]'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-4 flex-1 text-left">
-                    <div
-                      className={`p-2.5 rounded-lg ${
-                        isDarkMode ? 'bg-[#252D38]' : 'bg-gray-100'
-                      }`}
-                    >
-                      <IconComponent
-                        className={`w-5 h-5 ${
-                          isDarkMode ? 'text-teal-400' : 'text-teal-600'
-                        }`}
-                      />
-                    </div>
-                    <div>
-                      <p
-                        className={`font-semibold text-sm ${
-                          isDarkMode ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
-                        {item.name}
-                      </p>
-                      <p
-                        className={`text-xs ${
-                          isDarkMode ? 'text-gray-500' : 'text-gray-600'
-                        }`}
-                      >
-                        {item.detail}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xs whitespace-nowrap ${
-                        isDarkMode ? 'text-gray-500' : 'text-gray-600'
-                      }`}
-                    >
-                      {item.timestamp}
-                    </span>
-                    <ArrowRight
-                      className={`w-4 h-4 ${
-                        isDarkMode ? 'text-gray-600' : 'text-gray-400'
-                      }`}
-                    />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                {/* Section Content */}
+                <SectionComponent
+                  quickAccessItems={quickAccessItems}
+                  createNewItems={createNewItems}
+                  recentItems={recentItems}
+                  handleNavigate={handleNavigate}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
+            </div>
+          );
+        })}
 
         {/* BOTTOM: Info Card */}
         <div
