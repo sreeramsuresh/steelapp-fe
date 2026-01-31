@@ -30,6 +30,7 @@ vi.mock('../../utils/fieldAccessors', () => ({
 // Import after mocks are set up
 import { invoiceService } from '../invoiceService';
 import { apiClient } from '../api';
+import { normalizeUom } from '../../utils/fieldAccessors';
 
 describe('invoiceService', () => {
   beforeEach(() => {
@@ -83,9 +84,9 @@ describe('invoiceService', () => {
           total: 15,
           pageSize: 10,
         });
+        // Signal is only added to config if truthy, so expect only params when signal=null
         expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
           params: { page: 1, limit: 10 },
-          signal: null,
         });
       });
 
@@ -116,12 +117,12 @@ describe('invoiceService', () => {
 
         expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
           params: { page: 2, limit: 20, status: 'issued' },
-          signal: null,
         });
       });
 
       test('should support abort signal for cancellation', async () => {
-        const abortSignal = new AbortController().signal;
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
 
         apiClient.get.mockResolvedValueOnce({
           invoices: [],
@@ -130,10 +131,11 @@ describe('invoiceService', () => {
 
         await invoiceService.getInvoices({ page: 1 }, abortSignal);
 
-        expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
-          params: { page: 1 },
-          signal: abortSignal,
-        });
+        // Signal is included in config when provided (non-null)
+        const callArgs = apiClient.get.mock.calls[0];
+        expect(callArgs[0]).toBe('/invoices');
+        expect(callArgs[1].params).toEqual({ page: 1 });
+        expect(callArgs[1].signal).toBe(abortSignal);
       });
 
       test('should transform invoice fields from server', async () => {
@@ -255,7 +257,7 @@ describe('invoiceService', () => {
         );
       });
 
-      test('should transform items to snake_case', async () => {
+      test('should transform items to snake_case and normalize UOM', async () => {
         const invoiceData = {
           invoiceNumber: 'INV-TEST',
           items: [
@@ -266,6 +268,7 @@ describe('invoiceService', () => {
               rate: 100,
               vatRate: 5,
               amount: 105,
+              unit: 'MT',  // Should be normalized by normalizeUom
               sourceType: 'WAREHOUSE',
               warehouseId: 1,
               allocationMode: 'AUTO_FIFO',
@@ -284,6 +287,7 @@ describe('invoiceService', () => {
         await invoiceService.createInvoice(invoiceData);
 
         const callArgs = apiClient.post.mock.calls[0][1];
+        // Verify snake_case transformation
         expect(callArgs.items[0]).toEqual(
           expect.objectContaining({
             product_id: 10,
@@ -292,6 +296,49 @@ describe('invoiceService', () => {
             allocation_mode: 'AUTO_FIFO',
             pricing_basis: 'PER_MT',
             unit_weight_kg: 1000,
+            vat_rate: 5,  // camelCase to snake_case
+          })
+        );
+        // Verify normalizeUom was called
+        expect(normalizeUom).toHaveBeenCalled();
+        // Verify quantity_uom is set (normalized unit)
+        expect(callArgs.items[0].quantity_uom).toBe('MT');
+      });
+
+      test('should transform discounts and charges fields', async () => {
+        const invoiceData = {
+          invoiceNumber: 'INV-CHARGES',
+          customer: { id: 1 },
+          items: [],
+          subtotal: 1000,
+          discountType: 'percentage',
+          discountPercentage: 10,
+          discountAmount: 100,
+          packingCharges: 50,
+          freightCharges: 75,
+          insuranceCharges: 25,
+          loadingCharges: 30,
+          otherCharges: 20,
+          vatAmount: 0,
+          total: 1080,
+        };
+
+        apiClient.post.mockResolvedValueOnce({ id: 1, ...invoiceData });
+
+        await invoiceService.createInvoice(invoiceData);
+
+        const callArgs = apiClient.post.mock.calls[0][1];
+        // Verify all charges/discounts transformed to snake_case
+        expect(callArgs).toEqual(
+          expect.objectContaining({
+            discount_type: 'percentage',
+            discount_percentage: 10,
+            discount_amount: 100,
+            packing_charges: 50,
+            freight_charges: 75,
+            insurance_charges: 25,
+            loading_charges: 30,
+            other_charges: 20,
           })
         );
       });
@@ -552,30 +599,39 @@ describe('invoiceService', () => {
   describe('Search & Filtering Operations', () => {
     describe('searchInvoices()', () => {
       test('should search invoices by term', async () => {
-        apiClient.get.mockResolvedValueOnce({
+        const mockResult = {
           invoices: [{ id: 1, invoiceNumber: 'INV-001' }],
           pagination: null,
-        });
+        };
+        apiClient.get.mockResolvedValueOnce(mockResult);
 
-        await invoiceService.searchInvoices('INV-001');
+        const result = await invoiceService.searchInvoices('INV-001');
 
+        // Assert API call
         expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
           search: 'INV-001',
         });
+        // Assert return value (not just silently pass)
+        expect(result).toHaveProperty('invoices');
+        expect(result.invoices).toHaveLength(1);
+        expect(result.invoices[0].id).toBe(1);
       });
 
       test('should apply filters alongside search', async () => {
-        apiClient.get.mockResolvedValueOnce({
-          invoices: [],
+        const mockResult = {
+          invoices: [{ id: 2, invoiceNumber: 'INV-002', status: 'issued' }],
           pagination: null,
-        });
+        };
+        apiClient.get.mockResolvedValueOnce(mockResult);
 
-        await invoiceService.searchInvoices('Acme', { status: 'issued' });
+        const result = await invoiceService.searchInvoices('Acme', { status: 'issued' });
 
         expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
           search: 'Acme',
           status: 'issued',
         });
+        expect(result.invoices).toHaveLength(1);
+        expect(result.invoices[0].status).toBe('issued');
       });
 
       test('should handle empty search results', async () => {
@@ -586,6 +642,7 @@ describe('invoiceService', () => {
 
         const result = await invoiceService.searchInvoices('NONEXISTENT');
 
+        expect(result).toHaveProperty('invoices');
         expect(result.invoices).toHaveLength(0);
       });
     });
@@ -608,60 +665,130 @@ describe('invoiceService', () => {
 
     describe('getInvoicesByCustomer()', () => {
       test('should get all invoices for a customer', async () => {
-        apiClient.get.mockResolvedValueOnce({
+        const mockResult = {
           invoices: [
-            { id: 1, customerId: 5 },
-            { id: 2, customerId: 5 },
+            { id: 1, customerId: 5, invoiceNumber: 'INV-001' },
+            { id: 2, customerId: 5, invoiceNumber: 'INV-002' },
           ],
           pagination: null,
-        });
+        };
+        apiClient.get.mockResolvedValueOnce(mockResult);
 
         const result = await invoiceService.getInvoicesByCustomer(5);
 
+        // Verify API was called with snake_case customer_id (backend field)
         expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
           customer_id: 5,
         });
+        // Verify return value structure
+        expect(result).toHaveProperty('invoices');
         expect(result.invoices).toHaveLength(2);
+        expect(result.invoices[0].customerId).toBe(5);
+        expect(result.invoices[1].customerId).toBe(5);
+      });
+
+      test('should handle customer with no invoices', async () => {
+        apiClient.get.mockResolvedValueOnce({
+          invoices: [],
+          pagination: null,
+        });
+
+        const result = await invoiceService.getInvoicesByCustomer(999);
+
+        expect(result.invoices).toHaveLength(0);
+        expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
+          customer_id: 999,
+        });
       });
     });
 
     describe('getInvoicesByDateRange()', () => {
       test('should filter invoices by date range', async () => {
-        apiClient.get.mockResolvedValueOnce({
+        const mockResult = {
           invoices: [
-            { id: 1, invoiceDate: '2026-01-15' },
+            { id: 1, invoiceNumber: 'INV-001', date: '2026-01-15' },
+            { id: 2, invoiceNumber: 'INV-002', date: '2026-01-20' },
           ],
           pagination: null,
-        });
+        };
+        apiClient.get.mockResolvedValueOnce(mockResult);
 
-        await invoiceService.getInvoicesByDateRange(
+        const result = await invoiceService.getInvoicesByDateRange(
           '2026-01-01',
           '2026-01-31'
         );
 
+        // Verify API called with snake_case date parameters
         expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
           start_date: '2026-01-01',
           end_date: '2026-01-31',
         });
+        // Verify return value
+        expect(result).toHaveProperty('invoices');
+        expect(result.invoices).toHaveLength(2);
+      });
+
+      test('should handle date range with no invoices', async () => {
+        apiClient.get.mockResolvedValueOnce({
+          invoices: [],
+          pagination: null,
+        });
+
+        const result = await invoiceService.getInvoicesByDateRange(
+          '2025-01-01',
+          '2025-01-31'
+        );
+
+        expect(result.invoices).toHaveLength(0);
       });
     });
 
     describe('getInvoicesByStatus()', () => {
       test('should filter invoices by status', async () => {
-        apiClient.get.mockResolvedValueOnce({
+        const mockResult = {
           invoices: [
-            { id: 1, status: 'issued' },
-            { id: 2, status: 'issued' },
+            { id: 1, invoiceNumber: 'INV-001', status: 'issued' },
+            { id: 2, invoiceNumber: 'INV-002', status: 'issued' },
           ],
           pagination: null,
-        });
+        };
+        apiClient.get.mockResolvedValueOnce(mockResult);
 
         const result = await invoiceService.getInvoicesByStatus('issued');
 
         expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
           status: 'issued',
         });
+        expect(result).toHaveProperty('invoices');
         expect(result.invoices).toHaveLength(2);
+        expect(result.invoices.every(inv => inv.status === 'issued')).toBe(true);
+      });
+
+      test('should filter invoices by draft status', async () => {
+        apiClient.get.mockResolvedValueOnce({
+          invoices: [
+            { id: 3, invoiceNumber: 'INV-003', status: 'draft' },
+          ],
+          pagination: null,
+        });
+
+        const result = await invoiceService.getInvoicesByStatus('draft');
+
+        expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
+          status: 'draft',
+        });
+        expect(result.invoices[0].status).toBe('draft');
+      });
+
+      test('should handle status with no matching invoices', async () => {
+        apiClient.get.mockResolvedValueOnce({
+          invoices: [],
+          pagination: null,
+        });
+
+        const result = await invoiceService.getInvoicesByStatus('cancelled');
+
+        expect(result.invoices).toHaveLength(0);
       });
     });
   });
@@ -687,35 +814,67 @@ describe('invoiceService', () => {
     });
 
     describe('getInvoiceAnalytics()', () => {
-      test('should fetch invoice analytics', async () => {
-        apiClient.get.mockResolvedValueOnce({
+      test('should fetch invoice analytics with date range parameters', async () => {
+        const mockAnalytics = {
           totalInvoices: 50,
           totalAmount: 50000,
           avgAmount: 1000,
           outstanding: 12500,
-        });
+          receivedAmount: 37500,
+        };
+        apiClient.get.mockResolvedValueOnce(mockAnalytics);
 
+        // Service receives camelCase and passes through as-is (API Gateway converts)
         const result = await invoiceService.getInvoiceAnalytics({
           startDate: '2026-01-01',
           endDate: '2026-01-31',
         });
 
-        expect(result.totalInvoices).toBe(50);
+        // Verify API call - params are passed as-is
         expect(apiClient.get).toHaveBeenCalledWith(
           '/invoices/analytics',
           { startDate: '2026-01-01', endDate: '2026-01-31' }
         );
+        // Verify return value
+        expect(result).toHaveProperty('totalInvoices');
+        expect(result.totalInvoices).toBe(50);
+        expect(result.outstanding).toBe(12500);
       });
 
       test('should handle analytics with no parameters', async () => {
-        apiClient.get.mockResolvedValueOnce({});
+        const mockAnalytics = {
+          totalInvoices: 100,
+          totalAmount: 100000,
+          outstanding: 25000,
+        };
+        apiClient.get.mockResolvedValueOnce(mockAnalytics);
 
-        await invoiceService.getInvoiceAnalytics();
+        const result = await invoiceService.getInvoiceAnalytics();
 
         expect(apiClient.get).toHaveBeenCalledWith(
           '/invoices/analytics',
           {}
         );
+        expect(result).toHaveProperty('totalInvoices');
+        expect(result.totalInvoices).toBe(100);
+      });
+
+      test('should handle analytics with status filter', async () => {
+        apiClient.get.mockResolvedValueOnce({
+          totalInvoices: 25,
+          totalAmount: 25000,
+          outstanding: 5000,
+        });
+
+        const result = await invoiceService.getInvoiceAnalytics({
+          status: 'issued',
+        });
+
+        expect(apiClient.get).toHaveBeenCalledWith(
+          '/invoices/analytics',
+          { status: 'issued' }
+        );
+        expect(result.totalInvoices).toBe(25);
       });
     });
   });
