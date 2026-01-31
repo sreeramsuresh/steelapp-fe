@@ -36,12 +36,12 @@ const BrandmarkHero = () => {
             }
           }
 
-          @keyframes spinOnHover {
-            from {
-              transform: rotateZ(0deg);
+          @keyframes glowPulse {
+            0%, 100% {
+              filter: drop-shadow(0 4px 24px rgba(20, 184, 166, 0.15));
             }
-            to {
-              transform: rotateZ(360deg);
+            50% {
+              filter: drop-shadow(0 8px 40px rgba(20, 184, 166, 0.5));
             }
           }
 
@@ -50,14 +50,8 @@ const BrandmarkHero = () => {
           }
 
           .brandmark-logo {
-            animation: breathingPulse 3s ease-in-out infinite;
+            animation: breathingPulse 3s ease-in-out infinite, glowPulse 2s ease-in-out infinite;
             transition: all 0.3s ease;
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-          }
-
-          .brandmark-logo:hover {
-            animation: spinOnHover 0.6s ease-in-out, breathingPulse 3s ease-in-out infinite;
-            filter: drop-shadow(0 8px 20px rgba(20, 184, 166, 0.3));
           }
 
           .brandmark-text {
