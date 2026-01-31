@@ -8,20 +8,16 @@
 
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 
-// Mock the API client and utilities
-vi.mock('../api.js', async () => {
-  const actual = await vi.importActual('../api.js');
-  return {
-    ...actual,
-    apiClient: {
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      patch: vi.fn(),
-      delete: vi.fn(),
-    },
-  };
-});
+// Simplified mock pattern - avoid async/await issues with vi.importActual
+vi.mock('../api.js', () => ({
+  apiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
 
 vi.mock('../../utils/fieldAccessors', () => ({
   normalizeUom: vi.fn((item) => item.unit || 'KG'),
