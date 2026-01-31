@@ -6160,10 +6160,10 @@ const InvoiceForm = ({ onSave }) => {
                                     </button>
                                   </td>
                                 </tr>
-
-                                {/* Expandable Allocation Panel Row */}
-                                {isExpanded && item.productId && (
-                                  <tr key={`${item.id}-allocation`}>
+                              ),
+                              // Expandable Allocation Panel Row
+                              isExpanded && item.productId && (
+                                <tr key={`${item.id}-allocation`}>
                                     <td
                                       colSpan="9"
                                       className="bg-gray-50 px-4 py-3 border-l-4 border-teal-500"
