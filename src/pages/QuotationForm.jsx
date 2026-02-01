@@ -40,6 +40,7 @@ import DeliveryScheduleModal from '../components/quotations/DeliveryScheduleModa
 import AlternativeProductsModal from '../components/quotations/AlternativeProductsModal';
 import StockReservationToggle from '../components/quotations/StockReservationToggle';
 import LeadTimeInput from '../components/quotations/LeadTimeInput';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 // Helper to unescape product display names (Bug #25 fix)
 const unescapeProductName = (name) => {
@@ -286,6 +287,14 @@ const QuotationForm = () => {
           showValidationHighlighting: true,
         };
   });
+
+  // Unsaved changes dialog (Bug #53 fix)
+  const [unsavedChangesDialog, setUnsavedChangesDialog] = useState({
+    open: false,
+    pendingPath: null,
+  });
+
+  const [initialFormData, setInitialFormData] = useState(null);
 
   const [formData, setFormData] = useState({
     quotationNumber: 'QT-DRAFT',
@@ -1351,6 +1360,13 @@ const QuotationForm = () => {
     );
   }, [formData.items]);
 
+  // Capture initial form data once for change detection (Bug #53 fix)
+  useEffect(() => {
+    if (isEdit && initialFormData === null && formData.quotationNumber !== 'QT-DRAFT') {
+      setInitialFormData(JSON.parse(JSON.stringify(formData)));
+    }
+  }, [isEdit, initialFormData, formData.quotationNumber]);
+
   // Recalculate when charges, discount, or items change
   useEffect(() => {
     calculateTotals();
@@ -1366,6 +1382,24 @@ const QuotationForm = () => {
     itemsSerialized, // Track item amounts/rates/quantities deeply via serialization
     calculateTotals,
   ]);
+
+  // Check if form has unsaved changes (Bug #53 fix)
+  const hasUnsavedChanges = useCallback(() => {
+    if (!initialFormData) return false;
+    return JSON.stringify(formData) !== JSON.stringify(initialFormData);
+  }, [formData, initialFormData]);
+
+  // Handle back button with unsaved changes dialog (Bug #53 fix)
+  const handleBackClick = useCallback(() => {
+    if (hasUnsavedChanges()) {
+      setUnsavedChangesDialog({
+        open: true,
+        pendingPath: '/quotations',
+      });
+    } else {
+      navigate('/quotations');
+    }
+  }, [hasUnsavedChanges, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1919,15 +1953,28 @@ const QuotationForm = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} p-2 md:p-4`}
-      data-testid="quotation-form"
-    >
-      {/* Header - Compact on mobile */}
+    <>
+      {/* Unsaved changes confirmation dialog (Bug #53 fix) */}
+      <ConfirmDialog
+        open={unsavedChangesDialog.open}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to leave without saving?"
+        confirmText="Leave Without Saving"
+        cancelText="Keep Editing"
+        variant="warning"
+        onConfirm={() => navigate(unsavedChangesDialog.pendingPath)}
+        onCancel={() => setUnsavedChangesDialog({ open: false, pendingPath: null })}
+      />
+
+      <div
+        className={`min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'} p-2 md:p-4`}
+        data-testid="quotation-form"
+      >
+        {/* Header - Compact on mobile */}
       <div className="mb-4 md:mb-6">
         <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
           <button
-            onClick={() => navigate('/quotations')}
+            onClick={handleBackClick}
             className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
               isDarkMode
                 ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
@@ -3242,7 +3289,7 @@ const QuotationForm = () => {
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/quotations')}
+                onClick={handleBackClick}
                 className={`w-full py-2 text-[13px] text-center ${
                   isDarkMode
                     ? 'text-[#93a4b4] hover:text-white'
@@ -3699,7 +3746,8 @@ const QuotationForm = () => {
           }
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
