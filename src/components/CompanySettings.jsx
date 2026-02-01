@@ -22,6 +22,7 @@ import {
   Download,
   CheckCircle,
   AlertCircle,
+  AlertTriangle,
   Camera,
   ChevronDown,
   ChevronUp,
