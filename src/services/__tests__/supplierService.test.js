@@ -18,13 +18,15 @@ vi.mock('../api.js', () => ({
   },
 }));
 
-import { supplierService, transformSupplierFromServer } from '../supplierService';
+import supplierService, { transformSupplierFromServer } from '../supplierService';
 import { apiClient } from '../api';
 
 describe('supplierService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    // Mock environment variable to enable API calls in tests
+    import.meta.env.VITE_ENABLE_SUPPLIERS = 'true';
   });
 
   describe('getSuppliers', () => {
