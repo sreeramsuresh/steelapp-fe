@@ -3041,7 +3041,7 @@ const CompanySettings = () => {
                     size={48}
                     className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
                   />
-                  <p
+                  <div
                     className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   >
                     {userLoadingError ? (
@@ -3051,11 +3051,11 @@ const CompanySettings = () => {
                         <p className="text-sm text-gray-600">{userLoadingError}</p>
                       </>
                     ) : userSearchTerm ? (
-                      'No users found matching your search'
+                      <p>No users found matching your search</p>
                     ) : (
-                      'No users yet. Add your first user to get started.'
+                      <p>No users yet. Add your first user to get started.</p>
                     )}
-                  </p>
+                  </div>
                 </div>
               ) : null}
               {filteredUsers.map((user) => (

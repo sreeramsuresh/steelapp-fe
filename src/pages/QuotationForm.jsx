@@ -3165,7 +3165,7 @@ const QuotationForm = () => {
                   <span
                     className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}
                   >
-                    {formData.items.length} items
+                    {formData.items.length} item{formData.items.length === 1 ? '' : 's'}
                   </span>
                   <span
                     className={isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}

@@ -80,6 +80,13 @@ vi.mock('../../hooks/useCreditNoteDrafts', () => ({
   getDraftStatusMessage: vi.fn().mockReturnValue('Draft saved 5 minutes ago'),
 }));
 
+vi.mock('../../services/axiosAuthService', () => ({
+  authService: {
+    hasPermission: vi.fn(() => true),
+    getCurrentUser: vi.fn(),
+  },
+}));
+
 // Mock data
 const mockCreditNotes = [
   {
