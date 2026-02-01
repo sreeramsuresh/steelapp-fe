@@ -577,9 +577,9 @@ const DashboardV2 = () => {
               period: `${vatMetrics.currentPeriod?.quarter} ${vatMetrics.currentPeriod?.year}`,
               periodStart: vatMetrics.currentPeriod?.startDate,
               periodEnd: vatMetrics.currentPeriod?.endDate,
-              outputVAT: vatMetrics.collection?.outputVAT || 0,
-              inputVAT: vatMetrics.collection?.inputVAT || 0,
-              netVAT: vatMetrics.collection?.netPayable || 0,
+              outputVAT: parseFloat(vatMetrics.collection?.outputVAT || vatMetrics.collection?.output_vat || 0),
+              inputVAT: parseFloat(vatMetrics.collection?.inputVAT || vatMetrics.collection?.input_vat || 0),
+              netVAT: parseFloat(vatMetrics.collection?.netPayable || vatMetrics.collection?.net_payable || 0),
               dueDate: vatMetrics.returnStatus?.dueDate,
               daysUntilDue: vatMetrics.returnStatus?.daysRemaining || 30,
             },
@@ -590,9 +590,9 @@ const DashboardV2 = () => {
               netVAT: 0,
             },
             yearToDate: {
-              outputVAT: vatMetrics.collection?.outputVAT || 0,
-              inputVAT: vatMetrics.collection?.inputVAT || 0,
-              netVAT: vatMetrics.collection?.netPayable || 0,
+              outputVAT: parseFloat(vatMetrics.collection?.outputVAT || vatMetrics.collection?.output_vat || 0),
+              inputVAT: parseFloat(vatMetrics.collection?.inputVAT || vatMetrics.collection?.input_vat || 0),
+              netVAT: parseFloat(vatMetrics.collection?.netPayable || vatMetrics.collection?.net_payable || 0),
             },
             // VAT Return Status data
             returnStatus: {

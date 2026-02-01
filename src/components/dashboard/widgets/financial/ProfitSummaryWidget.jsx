@@ -49,8 +49,10 @@ const ProfitSummaryWidget = ({
     }).format(safeAmount);
   };
 
-  // Check if we have valid data
-  const hasData = data && (data.revenue > 0 || data.netProfit > 0);
+  // Check if we have valid data (support both camelCase and snake_case field names)
+  const revenue = parseFloat(data?.revenue || 0);
+  const netProfit = parseFloat(data?.netProfit || data?.net_profit || 0);
+  const hasData = data && (revenue > 0 || netProfit > 0);
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
@@ -107,44 +109,48 @@ const ProfitSummaryWidget = ({
     return ((current - previous) / previous) * 100;
   };
 
-  const _revenueChange = calculateChange(
-    data.revenue,
-    data.previousPeriod?.revenue,
-  );
-  const netProfitChange = calculateChange(
-    data.netProfit,
-    data.previousPeriod?.netProfit,
-  );
+  // Normalize field names (support both camelCase and snake_case)
+  const cogs = parseFloat(data?.cogs || data?.cost_of_goods_sold || 0);
+  const grossProfit = parseFloat(data?.grossProfit || data?.gross_profit || 0);
+  const operatingExpenses = parseFloat(data?.operatingExpenses || data?.operating_expenses || 0);
+  const grossMarginPercent = parseFloat(data?.grossMarginPercent || data?.gross_margin_percent || 0);
+  const netMarginPercent = parseFloat(data?.netMarginPercent || data?.net_margin_percent || 0);
+  const prevPeriod = data?.previousPeriod || data?.previous_period || {};
+  const prevRevenue = parseFloat(prevPeriod?.revenue || 0);
+  const prevNetProfit = parseFloat(prevPeriod?.netProfit || prevPeriod?.net_profit || 0);
+
+  const revenueChange = calculateChange(revenue, prevRevenue);
+  const netProfitChange = calculateChange(netProfit, prevNetProfit);
 
   // Waterfall chart data
   const waterfallItems = [
     {
       label: 'Revenue',
-      value: data.revenue,
+      value: revenue,
       type: 'positive',
       color: 'bg-blue-500',
     },
     {
       label: 'COGS',
-      value: -(data.cogs || 0),
+      value: -cogs,
       type: 'negative',
       color: 'bg-red-500',
     },
     {
       label: 'Gross Profit',
-      value: data.grossProfit || 0,
+      value: grossProfit,
       type: 'subtotal',
       color: 'bg-teal-500',
     },
     {
       label: 'Op. Expenses',
-      value: -(data.operatingExpenses || 0),
+      value: -operatingExpenses,
       type: 'negative',
       color: 'bg-orange-500',
     },
     {
       label: 'Net Profit',
-      value: data.netProfit || 0,
+      value: netProfit,
       type: 'total',
       color: 'bg-green-500',
     },
@@ -209,7 +215,7 @@ const ProfitSummaryWidget = ({
             <span
               className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
-              {(data.grossMarginPercent || 0).toFixed(1)}%
+              {grossMarginPercent.toFixed(1)}%
             </span>
           </div>
         </div>
@@ -227,7 +233,7 @@ const ProfitSummaryWidget = ({
             <span
               className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
             >
-              {(data.netMarginPercent || 0).toFixed(1)}%
+              {netMarginPercent.toFixed(1)}%
             </span>
             {netProfitChange !== 0 && (
               <span

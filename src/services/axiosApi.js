@@ -89,7 +89,7 @@ const Cookies = {
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // Increased from 10000ms to handle complex queries (user lists, analytics)
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
