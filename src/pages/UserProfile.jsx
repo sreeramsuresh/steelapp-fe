@@ -193,6 +193,15 @@ export default function UserProfile() {
                 >
                   {currentUser.email}
                 </p>
+                <span
+                  className={`inline-block px-2 py-0.5 text-xs font-medium rounded border mt-1 ${
+                    isDarkMode
+                      ? 'text-teal-400 border-teal-600 bg-teal-900/20'
+                      : 'text-teal-600 border-teal-300 bg-teal-50'
+                  }`}
+                >
+                  {currentUser.role || 'Administrator'}
+                </span>
               </div>
             </div>
             <button

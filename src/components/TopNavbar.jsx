@@ -399,7 +399,7 @@ const TopNavbar = ({
                         {user?.email || 'user@example.com'}
                       </p>
                       <span
-                        className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded border ${
+                        className={`inline-block px-2 py-0.5 text-xs font-medium rounded border ${
                           isDarkMode
                             ? 'text-teal-400 border-teal-600 bg-teal-900/20'
                             : 'text-teal-600 border-teal-300 bg-teal-50'
