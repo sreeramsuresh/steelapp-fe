@@ -488,7 +488,7 @@ const AllocationDrawer = ({
               ...prev,
               unitPrice: autoCalcError
                 ? ''
-                : displayPrice?.toString() || prev.unitPrice,
+                : displayPrice ? (Math.round(displayPrice * 100) / 100).toString() : prev.unitPrice,
               priceLoading: false,
               // Store pricing basis metadata
               pricingBasisCode: basisCode,
@@ -572,6 +572,40 @@ const AllocationDrawer = ({
     drawerState.productId,
     drawerState.unitPriceOverridden,
     fetchProductPrice,
+  ]);
+
+  // Auto-allocate FIFO when all required fields are filled for warehouse items
+  // This fixes the UX issue where users had to manually click "Auto-Fill FIFO"
+  useEffect(() => {
+    // Only auto-allocate for warehouse items (drop-ship doesn't need allocation)
+    if (drawerState.sourceType !== 'WAREHOUSE') return;
+
+    // Check if all required fields are filled
+    const hasProduct = !!drawerState.productId;
+    const hasWarehouse = !!drawerState.selectedWarehouseId;
+    const hasQuantity = drawerState.quantity && parseFloat(drawerState.quantity) > 0;
+    const hasPrice = drawerState.unitPrice && parseFloat(drawerState.unitPrice) > 0;
+
+    // Don't auto-allocate if already allocating or if allocations already exist
+    const hasAllocations = allocations && allocations.length > 0;
+    const shouldAutoAllocate = hasProduct && hasWarehouse && hasQuantity && hasPrice && !hasAllocations && !reservationLoading;
+
+    if (shouldAutoAllocate) {
+      // Trigger auto-fill FIFO
+      const requiredPcs = Math.floor(parseFloat(drawerState.quantity));
+      reserveFIFO(requiredPcs, 'PCS').catch(() => {
+        // Silently fail - user can manually click Auto-Fill if needed
+      });
+    }
+  }, [
+    drawerState.sourceType,
+    drawerState.productId,
+    drawerState.selectedWarehouseId,
+    drawerState.quantity,
+    drawerState.unitPrice,
+    allocations,
+    reservationLoading,
+    reserveFIFO,
   ]);
 
   // Handle product selection
@@ -746,9 +780,16 @@ const AllocationDrawer = ({
   const handleUnitPriceChange = useCallback((e) => {
     const value = e.target.value;
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      // Format price to 2 decimal places if it's a valid number
+      let formattedValue = value;
+      if (value && !isNaN(parseFloat(value))) {
+        const numValue = parseFloat(value);
+        formattedValue = (Math.round(numValue * 100) / 100).toString();
+      }
+
       setDrawerState((prev) => ({
         ...prev,
-        unitPrice: value,
+        unitPrice: formattedValue,
         unitPriceOverridden: true, // Mark as manually edited
         error: null,
       }));
@@ -1084,15 +1125,12 @@ const AllocationDrawer = ({
 
   // Wrap onCancel to cancel reservation on drawer close
   const handleCancel = useCallback(async () => {
-    if (reservationId) {
-      try {
-        await cancelReservation();
-      } catch (err) {
-        console.warn('[DRAWER CLOSE] Failed to cancel reservation:', err);
-      }
-    }
+    // Clear the form state first
+    await handleClear();
+
+    // Then close the drawer
     if (onCancel) onCancel();
-  }, [reservationId, cancelReservation, onCancel]);
+  }, [handleClear, onCancel]);
 
   if (!visible) return null;
 

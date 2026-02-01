@@ -258,7 +258,7 @@ describe('CreditNoteList - Smoke Tests', () => {
 
       await waitFor(() => {
         const searchInput = screen.getByPlaceholderText(
-          /search by credit note number, invoice number, or customer/i,
+          /search credit notes/i,
         );
         expect(searchInput).toBeInTheDocument();
         expect(searchInput).toHaveAttribute('type', 'text');
@@ -274,13 +274,13 @@ describe('CreditNoteList - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByPlaceholderText(/search by credit note number/i),
+          screen.getByPlaceholderText(/search credit notes/i),
         ).toBeInTheDocument();
       });
 
       // Search icon is rendered as SVG
       const searchInput = screen.getByPlaceholderText(
-        /search by credit note number/i,
+        /search credit notes/i,
       );
       expect(
         searchInput.parentElement.querySelector('svg'),
@@ -298,12 +298,12 @@ describe('CreditNoteList - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByPlaceholderText(/search by credit note number/i),
+          screen.getByPlaceholderText(/search credit notes/i),
         ).toBeInTheDocument();
       });
 
       const searchInput = screen.getByPlaceholderText(
-        /search by credit note number/i,
+        /search credit notes/i,
       );
       await user.type(searchInput, 'CN-2024');
 
@@ -1272,12 +1272,12 @@ describe('CreditNoteList - Smoke Tests', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByPlaceholderText(/search by credit note number/i),
+          screen.getByPlaceholderText(/search credit notes/i),
         ).toBeInTheDocument();
       });
 
       const searchInput = screen.getByPlaceholderText(
-        /search by credit note number/i,
+        /search credit notes/i,
       );
       await user.type(searchInput, 'NONEXISTENT');
 
