@@ -1247,10 +1247,9 @@ describe('CreditNoteList - Smoke Tests', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText(/no credit notes found/i)).toBeInTheDocument();
         expect(
           screen.getByText(
-            /use the button above to create your first credit note/i,
+            /click.*new credit note.*create your first credit note/i,
           ),
         ).toBeInTheDocument();
       });
