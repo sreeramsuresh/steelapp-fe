@@ -85,17 +85,19 @@ export const NotificationCenterProvider = ({ children }) => {
 
       // Fallback: seed with a couple of sample items if empty
       if (currentNotifications.length === 0) {
+        const now = new Date();
+        const oneMinAgo = new Date(now.getTime() - 60000);
         const seed = normalize([
           {
             title: 'Welcome',
             message: 'You are all set!',
-            time: 'Just now',
+            time: now.toISOString(),
             unread: true,
           },
           {
             title: 'Tip',
             message: 'Use the global search to find anything.',
-            time: '1 min ago',
+            time: oneMinAgo.toISOString(),
             unread: false,
           },
         ]);
@@ -111,17 +113,19 @@ export const NotificationCenterProvider = ({ children }) => {
         ? notifications.filter((n) => n && n.id)
         : [];
       if (currentNotifications.length === 0) {
+        const now = new Date();
+        const oneMinAgo = new Date(now.getTime() - 60000);
         const seed = normalize([
           {
             title: 'Welcome',
             message: 'You are all set!',
-            time: 'Just now',
+            time: now.toISOString(),
             unread: true,
           },
           {
             title: 'Tip',
             message: 'Use the global search to find anything.',
-            time: '1 min ago',
+            time: oneMinAgo.toISOString(),
             unread: false,
           },
         ]);
@@ -134,20 +138,20 @@ export const NotificationCenterProvider = ({ children }) => {
 
   const markAsRead = useCallback(
     async (id) => {
-      persist(
-        notifications.map((n) => (n.id === id ? { ...n, unread: false } : n)),
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
       );
       // Temporarily disabled until notifications endpoint is implemented
       // try { await apiClient.patch(`/notifications/${id}/read`, {}); } catch {}
     },
-    [notifications],
+    [],
   );
 
   const markAllAsRead = useCallback(async () => {
-    persist(notifications.map((n) => ({ ...n, unread: false })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
     // Temporarily disabled until notifications endpoint is implemented
     // try { await apiClient.patch('/notifications/read-all', {}); } catch {}
-  }, [notifications]);
+  }, []);
 
   const addNotification = useCallback(
     (notif) => {
