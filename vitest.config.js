@@ -9,6 +9,13 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.js",
     css: true,
+    pool: 'forks',
+    isolate: true,
+    poolOptions: {
+      forks: { singleFork: true },
+    },
+    testTimeout: 30000,
+    hookTimeout: 30000,
     // Disable API requests during tests
     env: {
       VITE_API_BASE_URL: '/api',

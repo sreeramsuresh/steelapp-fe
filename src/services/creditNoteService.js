@@ -4,7 +4,13 @@ import { apiClient } from './api.js';
 // Field validators enforce snake_case consistency
 const transformCreditNoteForServer = (creditNoteData) => {
   return {
-    ...creditNoteData,
+    // Explicit snake_case transformations (no spread to avoid conflicting keys)
+    credit_note_number: creditNoteData.creditNoteNumber ?? creditNoteData.credit_note_number ?? '',
+    invoice_id: creditNoteData.invoiceId ?? creditNoteData.invoice_id,
+    credit_note_date: creditNoteData.creditNoteDate ?? creditNoteData.credit_note_date,
+    status: creditNoteData.status,
+    credit_note_type: creditNoteData.creditNoteType ?? creditNoteData.credit_note_type,
+    reason_for_return: creditNoteData.reasonForReturn ?? creditNoteData.reason_for_return,
     // Extract customer fields if customer object provided
     customer_id: creditNoteData.customerId ?? creditNoteData.customer?.id,
     customer_name: creditNoteData.customerName ?? creditNoteData.customer?.name,
@@ -199,8 +205,8 @@ class CreditNoteService {
   }
 
   // Get single credit note by ID
-  async getCreditNote(id) {
-    const response = await apiClient.get(`${this.endpoint}/${id}`);
+  async getCreditNote(id, config = {}) {
+    const response = await apiClient.get(`${this.endpoint}/${id}`, config);
     return transformCreditNoteFromServer(response);
   }
 
