@@ -510,7 +510,7 @@ const QuotationList = () => {
                           <span
                             className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
                           >
-                            —
+                            No customer
                           </span>
                         )}
                       </div>

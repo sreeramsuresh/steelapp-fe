@@ -18,11 +18,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../contexts/NotificationCenterContext';
 import HomeButton from './HomeButton';
 
-// Format notification timestamp to relative time
+// Bug #29 fix: Format notification timestamp consistently using relative time format
 const formatNotificationTime = (time) => {
   // If it's already a relative time string, return as-is
-  if (typeof time === 'string' && (time.includes('ago') || time === 'Just now')) {
-    return time;
+  if (typeof time === 'string' && (time.includes('ago') || time === 'just now' || time === 'Just now')) {
+    // Normalize "Just now" to lowercase for consistency
+    return time === 'Just now' ? 'just now' : time;
   }
 
   // Parse ISO format timestamp
@@ -34,14 +35,16 @@ const formatNotificationTime = (time) => {
     const diffMins = Math.floor(diffSecs / 60);
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
+    const diffWeeks = Math.floor(diffDays / 7);
+    const diffMonths = Math.floor(diffDays / 30);
 
     if (diffSecs < 60) return 'just now';
     if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-
-    // For older dates, show the date
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
+    // Always use relative format - never switch to absolute date format
+    return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
   } catch {
     return 'just now';
   }
@@ -314,6 +317,7 @@ const TopNavbar = ({
                 <div
                   className={`p-4 border-t text-center ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
                 >
+                  {/* Bug #30 fix: Add total notification count to button label */}
                   {/* eslint-disable-next-line local-rules/no-dead-button */}
                   <button
                     onClick={() => {
@@ -325,7 +329,7 @@ const TopNavbar = ({
                         : 'text-teal-600 hover:text-teal-700'
                     }`}
                   >
-                    View all notifications
+                    View all notifications ({notifications.length})
                   </button>
                 </div>
               </div>

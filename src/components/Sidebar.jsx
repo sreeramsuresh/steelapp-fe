@@ -35,10 +35,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const scrollContainerRef = useRef(null);
   const [showTopFade, setShowTopFade] = useState(false);
   const [showBottomFade, setShowBottomFade] = useState(false);
-  const [expandedSections, setExpandedSections] = useState(() => {
-    const stored = localStorage.getItem('sidebarExpandedSections');
-    return stored ? JSON.parse(stored) : {};
-  });
 
   // Handle scroll to update fade indicators
   const handleScroll = () => {
@@ -73,15 +69,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
     container.scrollTo({
       top: container.scrollHeight,
       behavior: 'smooth',
-    });
-  };
-
-  // Toggle section expansion and persist to localStorage
-  const toggleSection = (sectionName) => {
-    setExpandedSections((prev) => {
-      const updated = { ...prev, [sectionName]: !prev[sectionName] };
-      localStorage.setItem('sidebarExpandedSections', JSON.stringify(updated));
-      return updated;
     });
   };
 

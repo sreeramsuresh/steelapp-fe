@@ -114,7 +114,7 @@ const useURLState = (initial) => {
 
 const StatusPill = ({ status }) => {
   const map = {
-    unpaid: { label: 'Unpaid', color: 'red' },
+    unpaid: { label: 'Outstanding', color: 'red' },
     partially_paid: { label: 'Partially Paid', color: 'yellow' },
     paid: { label: 'Paid', color: 'green' },
     overdue: { label: 'Overdue', color: 'red' },
@@ -754,7 +754,7 @@ const Receivables = () => {
               data-testid="status-filter"
             >
               <SelectItem value="all">All</SelectItem>
-              <SelectItem value="unpaid">Unpaid</SelectItem>
+              <SelectItem value="unpaid">Outstanding</SelectItem>
               <SelectItem value="partially_paid">Partially Paid</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
               <SelectItem value="overdue">Overdue</SelectItem>
@@ -982,6 +982,7 @@ const Receivables = () => {
                         </button>
                       ) : (
                         <span
+                          className="text-gray-400"
                           onClick={() => openDrawer(row)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
@@ -992,7 +993,7 @@ const Receivables = () => {
                           tabIndex={0}
                           style={{ cursor: 'pointer' }}
                         >
-                          {getCustomerName(row)}
+                          No Customer
                         </span>
                       )}
                     </td>
@@ -1055,12 +1056,12 @@ const Receivables = () => {
         </div>
 
         {/* Pagination Controls */}
-        {items.length > 0 && (
+        {items.length > 0 && pageInfo.totalCount > 0 && (
           <div className={`flex items-center justify-between px-4 py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Showing {(page - 1) * size + 1} to{' '}
-              {Math.min(page * size, pageInfo.totalCount || 0)} of{' '}
-              {pageInfo.totalCount || 0} records
+              Showing {Math.max(1, (page - 1) * size + 1)} to{' '}
+              {Math.min(page * size, pageInfo.totalCount)} of{' '}
+              {pageInfo.totalCount} records
             </div>
             <div className="flex gap-4 items-center">
               {/* Page Size Selector */}
@@ -1094,8 +1095,8 @@ const Receivables = () => {
                   className={`p-1.5 rounded border transition-colors ${
                     page === 1
                       ? isDarkMode
-                        ? 'opacity-50 cursor-not-allowed border-gray-700 text-gray-600'
-                        : 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+                        ? 'opacity-40 cursor-not-allowed border-gray-800 text-gray-700 bg-gray-900'
+                        : 'opacity-40 cursor-not-allowed border-gray-200 text-gray-400 bg-gray-50'
                       : isDarkMode
                         ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
                         : 'border-gray-300 text-gray-600 hover:bg-gray-100'
@@ -1113,8 +1114,8 @@ const Receivables = () => {
                   className={`p-1.5 rounded border transition-colors ${
                     page >= (pageInfo.totalPages || 1)
                       ? isDarkMode
-                        ? 'opacity-50 cursor-not-allowed border-gray-700 text-gray-600'
-                        : 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+                        ? 'opacity-40 cursor-not-allowed border-gray-800 text-gray-700 bg-gray-900'
+                        : 'opacity-40 cursor-not-allowed border-gray-200 text-gray-400 bg-gray-50'
                       : isDarkMode
                         ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
                         : 'border-gray-300 text-gray-600 hover:bg-gray-100'

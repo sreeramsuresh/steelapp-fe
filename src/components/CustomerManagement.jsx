@@ -266,9 +266,9 @@ const CustomerManagement = () => {
       case 'phone':
         return customer.phone || '-';
       case 'creditLimit':
-        return Number(customer.creditLimit) || 0;
+        return Number(customer.credit_limit) || 0;
       case 'creditUsed':
-        return Number(customer.currentCredit) || 0;
+        return Number(customer.current_credit) || 0;
       case 'status':
         return customer.status || 'active';
       default:
@@ -288,7 +288,7 @@ const CustomerManagement = () => {
       case 'phone':
         return supplier.phone || '-';
       case 'trnNumber':
-        return supplier.trnNumber || '-';
+        return supplier.trn_number || '-';
       case 'paymentTerms':
         return supplier.paymentTerms || '-';
       case 'status':
@@ -484,7 +484,7 @@ const CustomerManagement = () => {
   };
 
   const handleAddCustomer = async () => {
-    const trnError = validateTRN(newCustomer.trnNumber);
+    const trnError = validateTRN(newCustomer.trn_number);
     if (trnError) {
       notificationService.error(trnError);
       return;
@@ -509,11 +509,11 @@ const CustomerManagement = () => {
       const customerData = {
         ...newCustomer,
         credit_limit:
-          newCustomer.creditLimit === '' ? 0 : Number(newCustomer.creditLimit),
+          newCustomer.credit_limit === '' ? 0 : Number(newCustomer.credit_limit),
         current_credit:
-          newCustomer.currentCredit === ''
+          newCustomer.current_credit === ''
             ? 0
-            : Number(newCustomer.currentCredit),
+            : Number(newCustomer.current_credit),
       };
 
       // Serialize address object to JSON string for API Gateway
@@ -530,8 +530,8 @@ const CustomerManagement = () => {
       }
 
       // Remove camelCase variants to avoid case conversion collision
-      delete customerData.creditLimit;
-      delete customerData.currentCredit;
+      delete customerData.credit_limit;
+      delete customerData.current_credit;
 
       await createCustomer(customerData);
       // TODO: Implement proper cache utility
@@ -566,7 +566,7 @@ const CustomerManagement = () => {
   };
 
   const handleEditCustomer = async () => {
-    const trnError = validateTRN(selectedCustomer?.trnNumber);
+    const trnError = validateTRN(selectedCustomer?.trn_number);
     if (trnError) {
       notificationService.error(trnError);
       return;
@@ -575,13 +575,13 @@ const CustomerManagement = () => {
       const customerData = {
         ...selectedCustomer,
         credit_limit:
-          selectedCustomer.creditLimit === ''
+          selectedCustomer.credit_limit === ''
             ? 0
-            : Number(selectedCustomer.creditLimit),
+            : Number(selectedCustomer.credit_limit),
         current_credit:
-          selectedCustomer.currentCredit === ''
+          selectedCustomer.current_credit === ''
             ? 0
-            : Number(selectedCustomer.currentCredit),
+            : Number(selectedCustomer.current_credit),
       };
 
       // Serialize address object to JSON string for API Gateway
@@ -598,8 +598,8 @@ const CustomerManagement = () => {
       }
 
       // Remove camelCase variants to avoid case conversion collision
-      delete customerData.creditLimit;
-      delete customerData.currentCredit;
+      delete customerData.credit_limit;
+      delete customerData.current_credit;
 
       await updateCustomer(selectedCustomer.id, customerData);
       // TODO: Implement proper cache utility
@@ -651,7 +651,7 @@ const CustomerManagement = () => {
   });
 
   const handleAddSupplier = async () => {
-    const trnErr = validateTRN(newSupplier.trnNumber);
+    const trnErr = validateTRN(newSupplier.trn_number);
     if (trnErr) {
       notificationService.error(trnErr);
       return;
@@ -699,7 +699,7 @@ const CustomerManagement = () => {
   };
 
   const handleEditSupplier = async () => {
-    const trnErr = validateTRN(selectedSupplier?.trnNumber);
+    const trnErr = validateTRN(selectedSupplier?.trn_number);
     if (trnErr) {
       notificationService.error(trnErr);
       return;
@@ -801,11 +801,11 @@ const CustomerManagement = () => {
       (c) => normalizeStatus(c.status) === 'active',
     ).length;
     const totalCreditLimit = customers.reduce(
-      (sum, c) => sum + (Number(c.creditLimit) || 0),
+      (sum, c) => sum + (Number(c.credit_limit) || 0),
       0,
     );
     const totalCreditUsed = customers.reduce(
-      (sum, c) => sum + (Number(c.currentCredit) || 0),
+      (sum, c) => sum + (Number(c.current_credit) || 0),
       0,
     );
     const avgCreditUtilization =
@@ -986,8 +986,9 @@ const CustomerManagement = () => {
         className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}
       >
         <span className="text-sm">
-          Showing {sortedCustomers.length} of {customers.length} customer
+          Showing {Math.min(sortedCustomers.length, customers.length)} of {customers.length} customer
           {customers.length !== 1 ? 's' : ''}
+          {pageInfo.totalItems && pageInfo.totalItems > customers.length && ` (Page ${pageInfo.currentPage || 1} of ${pageInfo.totalPages || 1})`}
           {filterStatus !== 'all' && ` (filtered by ${filterStatus})`}
         </span>
         {selectedCustomerIds.size > 0 && (
@@ -1803,7 +1804,7 @@ const CustomerManagement = () => {
           Only showing customers with credit limits assigned
         </p>
         <div className="space-y-4 max-h-96 overflow-y-auto">
-          {customers.filter((c) => (c.creditLimit || c.credit_limit || 0) > 0)
+          {customers.filter((c) => (c.credit_limit || c.credit_limit || 0) > 0)
             .length === 0 ? (
             <div className="text-center py-8">
               <FaCreditCard className={`mx-auto text-3xl mb-3 ${textMuted}`} />
@@ -1813,23 +1814,23 @@ const CustomerManagement = () => {
             </div>
           ) : (
             customers
-              .filter((c) => (c.creditLimit || c.credit_limit || 0) > 0)
+              .filter((c) => (c.credit_limit || c.credit_limit || 0) > 0)
               .sort((a, b) => {
                 const aUtil =
-                  ((a.currentCredit || a.current_credit || 0) /
-                    (a.creditLimit || a.credit_limit || 1)) *
+                  ((a.current_credit || a.current_credit || 0) /
+                    (a.credit_limit || a.credit_limit || 1)) *
                   100;
                 const bUtil =
-                  ((b.currentCredit || b.current_credit || 0) /
-                    (b.creditLimit || b.credit_limit || 1)) *
+                  ((b.current_credit || b.current_credit || 0) /
+                    (b.credit_limit || b.credit_limit || 1)) *
                   100;
                 return bUtil - aUtil; // Sort by utilization descending
               })
               .map((customer) => {
                 const creditLimit =
-                  customer.creditLimit || customer.credit_limit || 0;
+                  customer.credit_limit || customer.credit_limit || 0;
                 const currentCredit =
-                  customer.currentCredit || customer.current_credit || 0;
+                  customer.current_credit || customer.current_credit || 0;
                 const utilization =
                   creditLimit > 0 ? (currentCredit / creditLimit) * 100 : 0;
                 return (
@@ -2117,7 +2118,7 @@ const CustomerManagement = () => {
                   <input
                     type="tel"
                     id="customerAlternatePhone"
-                    value={newCustomer.alternatePhone}
+                    value={newCustomer.alternate_phone}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2214,7 +2215,7 @@ const CustomerManagement = () => {
                     inputMode="numeric"
                     pattern="\\d*"
                     maxLength={15}
-                    value={newCustomer.trnNumber}
+                    value={newCustomer.trn_number}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2224,12 +2225,12 @@ const CustomerManagement = () => {
                     placeholder="100XXXXXXXXXXXX"
                     className={inputClasses}
                   />
-                  {validateTRN(newCustomer.trnNumber) && (
+                  {validateTRN(newCustomer.trn_number) && (
                     <p className="text-xs text-red-600 mt-1">
-                      {validateTRN(newCustomer.trnNumber)}
+                      {validateTRN(newCustomer.trn_number)}
                     </p>
                   )}
-                  {!validateTRN(newCustomer.trnNumber) && (
+                  {!validateTRN(newCustomer.trn_number) && (
                     <p className={`text-xs mt-1 ${textMuted}`}>
                       15 digits; must start with 100
                     </p>
@@ -2241,7 +2242,7 @@ const CustomerManagement = () => {
                   <input
                     type="checkbox"
                     id="newCustomerDesignatedZone"
-                    checked={newCustomer.isDesignatedZone || false}
+                    checked={newCustomer.is_designated_zone || false}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2268,7 +2269,7 @@ const CustomerManagement = () => {
                   <input
                     type="text"
                     id="customerTradeLicense"
-                    value={newCustomer.tradeLicenseNumber}
+                    value={newCustomer.trade_license_number}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2290,7 +2291,7 @@ const CustomerManagement = () => {
                   <input
                     type="date"
                     id="customerTradeLicenseExpiry"
-                    value={newCustomer.tradeLicenseExpiry}
+                    value={newCustomer.trade_license_expiry}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2314,7 +2315,7 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="customerCreditLimit"
-                    value={newCustomer.creditLimit || ''}
+                    value={newCustomer.credit_limit || ''}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2339,7 +2340,7 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="customerCurrentCredit"
-                    value={newCustomer.currentCredit || ''}
+                    value={newCustomer.current_credit || ''}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2363,7 +2364,7 @@ const CustomerManagement = () => {
                   </label>
                   <select
                     id="customerPriceList"
-                    value={newCustomer.pricelistId || ''}
+                    value={newCustomer.pricelist_id || ''}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
@@ -2426,7 +2427,7 @@ const CustomerManagement = () => {
               <button
                 onClick={handleAddCustomer}
                 disabled={
-                  creatingCustomer || !!validateTRN(newCustomer.trnNumber)
+                  creatingCustomer || !!validateTRN(newCustomer.trn_number)
                 }
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
@@ -2883,7 +2884,7 @@ const CustomerManagement = () => {
                   pattern="\\d*"
                   maxLength={15}
                   placeholder="100XXXXXXXXXXXX"
-                  value={selectedSupplier.trnNumber || ''}
+                  value={selectedSupplier.trn_number || ''}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -2894,9 +2895,9 @@ const CustomerManagement = () => {
                   }
                   className={inputClasses}
                 />
-                {validateTRN(selectedSupplier.trnNumber) ? (
+                {validateTRN(selectedSupplier.trn_number) ? (
                   <p className="text-xs text-red-600 mt-1">
-                    {validateTRN(selectedSupplier.trnNumber)}
+                    {validateTRN(selectedSupplier.trn_number)}
                   </p>
                 ) : (
                   <p className={`text-xs mt-1 ${textMuted}`}>
@@ -2908,7 +2909,7 @@ const CustomerManagement = () => {
                 <input
                   type="checkbox"
                   id="editSupplierDesignatedZone"
-                  checked={selectedSupplier.isDesignatedZone || false}
+                  checked={selectedSupplier.is_designated_zone || false}
                   onChange={(e) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
@@ -3066,7 +3067,7 @@ const CustomerManagement = () => {
               <button
                 onClick={handleEditSupplier}
                 disabled={
-                  updatingSupplier || !!validateTRN(selectedSupplier.trnNumber)
+                  updatingSupplier || !!validateTRN(selectedSupplier.trn_number)
                 }
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
@@ -3195,7 +3196,7 @@ const CustomerManagement = () => {
                   <input
                     type="tel"
                     id="editCustomerAlternatePhone"
-                    value={selectedCustomer.alternatePhone || ''}
+                    value={selectedCustomer.alternate_phone || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3410,7 +3411,7 @@ const CustomerManagement = () => {
                     inputMode="numeric"
                     pattern="\\d*"
                     maxLength={15}
-                    value={selectedCustomer.trnNumber || ''}
+                    value={selectedCustomer.trn_number || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3420,12 +3421,12 @@ const CustomerManagement = () => {
                     placeholder="100XXXXXXXXXXXX"
                     className={inputClasses}
                   />
-                  {validateTRN(selectedCustomer.trnNumber) && (
+                  {validateTRN(selectedCustomer.trn_number) && (
                     <p className="text-xs text-red-600 mt-1">
-                      {validateTRN(selectedCustomer.trnNumber)}
+                      {validateTRN(selectedCustomer.trn_number)}
                     </p>
                   )}
-                  {!validateTRN(selectedCustomer.trnNumber) && (
+                  {!validateTRN(selectedCustomer.trn_number) && (
                     <p className={`text-xs mt-1 ${textMuted}`}>
                       15 digits; must start with 100
                     </p>
@@ -3437,7 +3438,7 @@ const CustomerManagement = () => {
                   <input
                     type="checkbox"
                     id="editCustomerDesignatedZone"
-                    checked={selectedCustomer.isDesignatedZone || false}
+                    checked={selectedCustomer.is_designated_zone || false}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3464,7 +3465,7 @@ const CustomerManagement = () => {
                   <input
                     type="text"
                     id="editCustomerTradeLicense"
-                    value={selectedCustomer.tradeLicenseNumber || ''}
+                    value={selectedCustomer.trade_license_number || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3485,7 +3486,7 @@ const CustomerManagement = () => {
                   <input
                     type="date"
                     id="editCustomerTradeLicenseExpiry"
-                    value={selectedCustomer.tradeLicenseExpiry || ''}
+                    value={selectedCustomer.trade_license_expiry || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3509,7 +3510,7 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="editCustomerCreditLimit"
-                    value={selectedCustomer.creditLimit || ''}
+                    value={selectedCustomer.credit_limit || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3533,7 +3534,7 @@ const CustomerManagement = () => {
                   <input
                     type="number"
                     id="editCustomerCurrentCredit"
-                    value={selectedCustomer.currentCredit || ''}
+                    value={selectedCustomer.current_credit || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3556,7 +3557,7 @@ const CustomerManagement = () => {
                   </label>
                   <select
                     id="editCustomerPriceList"
-                    value={selectedCustomer.pricelistId || ''}
+                    value={selectedCustomer.pricelist_id || ''}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
@@ -3622,7 +3623,7 @@ const CustomerManagement = () => {
               <button
                 onClick={handleEditCustomer}
                 disabled={
-                  updatingCustomer || !!validateTRN(selectedCustomer.trnNumber)
+                  updatingCustomer || !!validateTRN(selectedCustomer.trn_number)
                 }
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >

@@ -40,6 +40,16 @@ import AlternativeProductsModal from '../components/quotations/AlternativeProduc
 import StockReservationToggle from '../components/quotations/StockReservationToggle';
 import LeadTimeInput from '../components/quotations/LeadTimeInput';
 
+// Helper to unescape product display names (Bug #25 fix)
+const unescapeProductName = (name) => {
+  if (!name || typeof name !== 'string') return name || '';
+  // Unescape common escaped characters: \" -> ", \\ -> \, etc.
+  return name
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\'/g, "'");
+};
+
 // Toggle Switch Component (extracted to avoid creating components during render)
 const ToggleSwitchQuotation = ({ enabled, onChange, label, description, isDarkMode }) => (
   <div className="flex items-start justify-between py-3">
@@ -468,7 +478,9 @@ const QuotationForm = () => {
         const activeWarehouses = warehouseList.filter(
           (w) => w.isActive !== false,
         );
-        setWarehouses(activeWarehouses);
+        // Bug #24 fix: Store full list to allow inactive warehouse pre-population in edit mode
+        // For edit mode, we'll merge in the saved warehouse if not in active list
+        setWarehouses(isEdit ? warehouseList : activeWarehouses);
 
         // Set default warehouse (Sharjah) for new quotations
         if (!isEdit && activeWarehouses.length > 0 && !formData.warehouseId) {
@@ -771,13 +783,15 @@ const QuotationForm = () => {
       customerId = selectedOption.id;
 
       if (customer) {
-        setCustomerInputValue(customer.name);
+        // Bug #26 fix: Handle both 'name' and 'label' fields, and snake_case variants
+        const customerName = customer.name || customer.label || customer.customer_name || '';
+        setCustomerInputValue(customerName);
         setFormData((prev) => ({
           ...prev,
           customerId: String(customerId),
           customerDetails: {
-            name: customer.name,
-            company: customer.company || '',
+            name: customerName,
+            company: customer.company || customer.company_name || '',
             email: customer.email || '',
             phone: customer.phone || '',
             address: customer.address || {
@@ -786,7 +800,7 @@ const QuotationForm = () => {
               emirate: '',
               country: 'UAE',
             },
-            vatNumber: customer.vatNumber || '',
+            vatNumber: customer.vatNumber || customer.vat_number || '',
           },
         }));
 
@@ -820,13 +834,15 @@ const QuotationForm = () => {
       (c) => String(c.id) === String(customerId),
     );
     if (customer) {
-      setCustomerInputValue(customer.name || '');
+      // Bug #26 fix: Handle field name variations consistently
+      const customerName = customer.name || customer.label || customer.customer_name || '';
+      setCustomerInputValue(customerName);
       setFormData((prev) => ({
         ...prev,
         customerId,
         customerDetails: {
-          name: customer.name,
-          company: customer.company || '',
+          name: customerName,
+          company: customer.company || customer.company_name || '',
           email: customer.email || '',
           phone: customer.phone || '',
           address: customer.address || {
@@ -835,7 +851,7 @@ const QuotationForm = () => {
             emirate: '',
             country: 'UAE',
           },
-          vatNumber: customer.vatNumber || '',
+          vatNumber: customer.vatNumber || customer.vat_number || '',
         },
       }));
 
@@ -913,12 +929,13 @@ const QuotationForm = () => {
   // Quick add item from speed button
   const quickAddItem = async (product) => {
     // Handle both camelCase and snake_case field names
-    const productDisplayName =
+    // Bug #25 fix: Unescape product names with special characters
+    const productDisplayName = unescapeProductName(
       product.displayName ||
       product.display_name ||
       product.uniqueName ||
       product.unique_name ||
-      '';
+      '');
 
     // Fetch price from pricelist if available
     let sellingPrice = parseFloat(product.sellingPrice || product.price) || 0;
@@ -1127,11 +1144,12 @@ const QuotationForm = () => {
     if (field === 'productId' && value) {
       const product = products.find((p) => p.id === parseInt(value));
       if (product) {
-        const productDisplayName =
+        // Bug #25 fix: Unescape product names with special characters
+        const productDisplayName = unescapeProductName(
           product.displayName ||
           product.display_name ||
           product.uniqueName ||
-          product.unique_name;
+          product.unique_name);
 
         // Fetch price from pricelist if available
         let sellingPrice = product.sellingPrice || product.price || 0;
@@ -2013,9 +2031,11 @@ const QuotationForm = () => {
                   }));
                   validateField('quotationNumber', e.target.value);
                 }}
+                readOnly={true}
                 required
                 validationState={fieldValidation.quotationNumber}
                 showValidation={formPreferences.showValidationHighlighting}
+                helperText="Generated automatically"
               />
 
               <Input
@@ -2031,6 +2051,7 @@ const QuotationForm = () => {
                   }));
                   validateField('quotationDate', e.target.value);
                 }}
+                placeholder="DD/MM/YYYY"
                 required
                 validationState={fieldValidation.quotationDate}
                 showValidation={formPreferences.showValidationHighlighting}
@@ -2056,6 +2077,7 @@ const QuotationForm = () => {
                   }));
                   setError('');
                 }}
+                placeholder="DD/MM/YYYY"
                 helperText={
                   formData.validUntil &&
                   new Date(formData.validUntil) < new Date()
@@ -2112,7 +2134,7 @@ const QuotationForm = () => {
                 helperText={
                   formData.currency !== 'AED'
                     ? `Rate to convert ${formData.currency} to AED (must be > 0)`
-                    : 'Default currency (1.0000)'
+                    : 'Default currency rates are 1.0000'
                 }
               />
             </div>
@@ -2437,11 +2459,11 @@ const QuotationForm = () => {
                                 : 'border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md'
                           }`}
                         >
-                          {product.displayName ||
+                          {unescapeProductName(product.displayName ||
                             product.display_name ||
                             product.uniqueName ||
                             product.unique_name ||
-                            'N/A'}
+                            'N/A')}
                         </button>
                         <button
                           type="button"
@@ -2643,11 +2665,11 @@ const QuotationForm = () => {
                               key={product.id}
                               value={product.id.toString()}
                             >
-                              {product.displayName ||
+                              {unescapeProductName(product.displayName ||
                                 product.display_name ||
                                 product.uniqueName ||
                                 product.unique_name ||
-                                'N/A'}
+                                'N/A')}
                             </SelectItem>
                           ))}
                         </FormSelect>

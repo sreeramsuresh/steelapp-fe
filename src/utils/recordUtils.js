@@ -119,7 +119,7 @@ export const validateQuotationForDownload = (quotation) => {
     warnings.push('Customer');
   }
 
-  // Check items
+  // Check items - only validate if items exist
   const hasItems = quotation.items && quotation.items.length > 0;
   const hasValidItems =
     hasItems &&
@@ -129,7 +129,8 @@ export const validateQuotationForDownload = (quotation) => {
         item.quantity > 0 &&
         (item.rate > 0 || item.unit_price > 0),
     );
-  if (!hasItems || !hasValidItems) {
+  // Only show error if items exist but are malformed (not if items are missing)
+  if (hasItems && !hasValidItems) {
     missing.items = true;
     warnings.push('Items (with name, quantity, and rate)');
   }
