@@ -16,7 +16,7 @@ vi.mock('../utils/uuid', () => ({
 import { payablesService } from '../payablesService';
 import { apiClient } from '../api';
 
-// Mock localStorage
+// Mock localStorage - define mock object
 const localStorageMock = (() => {
   let store = {};
   return {
@@ -33,14 +33,17 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
-
 describe('payablesService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.clear();
+    // Set up localStorage mock before each test
+    if (typeof window !== 'undefined') {
+      Object.defineProperty(window, 'localStorage', {
+        value: localStorageMock,
+        writable: true,
+      });
+    }
+    localStorageMock.clear();
   });
 
   describe('Invoice Management', () => {
