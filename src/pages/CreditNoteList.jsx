@@ -335,7 +335,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                 />
                 <input
                   type="text"
-                  placeholder="Search by credit note number, invoice number, or customer..."
+                  placeholder="Search credit notes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
@@ -479,7 +479,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
               >
                 {debouncedSearch || statusFilter
                   ? 'Try adjusting your search or filter criteria'
-                  : 'Use the button above to create your first credit note'}
+                  : 'Click "New Credit Note" to create your first credit note'}
               </p>
             </div>
           ) : (

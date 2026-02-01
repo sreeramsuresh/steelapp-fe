@@ -410,7 +410,7 @@ const ReconciliationDashboard = () => {
           </>
         ) : (
           <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
-            Select a warehouse to view the reconciliation report.
+            Please select a warehouse to view the reconciliation report.
           </div>
         )}
       </TabPanel>

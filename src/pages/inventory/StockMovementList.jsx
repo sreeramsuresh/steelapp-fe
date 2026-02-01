@@ -291,7 +291,7 @@ const StockMovementList = () => {
               </div>
               <input
                 type="text"
-                placeholder="Search by reference number or notes..."
+                placeholder="Search movements..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);

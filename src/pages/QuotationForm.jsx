@@ -1976,8 +1976,8 @@ const QuotationForm = () => {
         data-testid="quotation-form"
       >
         {/* Header - Compact on mobile */}
-      <div className="mb-4 md:mb-6">
-        <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
+        <div className="mb-4 md:mb-6">
+          <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
           <button
             onClick={handleBackClick}
             className={`p-1.5 md:p-2 rounded-lg border transition-colors ${

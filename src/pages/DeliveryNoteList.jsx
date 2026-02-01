@@ -318,7 +318,7 @@ const DeliveryNoteList = () => {
             </div>
             <input
               type="text"
-              placeholder="Search by delivery note number, invoice, or customer..."
+              placeholder="Search delivery notes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
