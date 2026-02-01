@@ -615,9 +615,12 @@ export const formatCurrency = (amount) => {
   const numericAmount = parseFloat(amount);
   const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
 
+  // Bug #38 fix: Explicitly set decimal places to ensure consistent formatting
   return new Intl.NumberFormat('en-AE', {
     style: 'currency',
     currency: 'AED',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(safeAmount);
 };
 
