@@ -551,7 +551,9 @@ const ReconciliationDashboard = () => {
                       colSpan={9}
                       className="px-4 py-8 text-center text-gray-500"
                     >
-                      No audit entries found
+                      {!selectedWarehouseId
+                        ? 'Please select a warehouse to view audit history'
+                        : 'No audit entries found for the selected warehouse and date range'}
                     </td>
                   </tr>
                 ) : (

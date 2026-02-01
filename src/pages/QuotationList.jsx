@@ -736,8 +736,8 @@ const QuotationList = () => {
                   className={`p-2 rounded-lg border transition-colors ${
                     page === 1
                       ? isDarkMode
-                        ? 'border-gray-700 text-gray-600'
-                        : 'border-gray-200 text-gray-400'
+                        ? 'border-gray-700 text-gray-600 cursor-not-allowed'
+                        : 'border-gray-200 text-gray-600 cursor-not-allowed'
                       : isDarkMode
                         ? 'border-gray-600 text-white hover:bg-gray-700'
                         : 'border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -751,8 +751,8 @@ const QuotationList = () => {
                   className={`p-2 rounded-lg border transition-colors ${
                     page === totalPages
                       ? isDarkMode
-                        ? 'border-gray-700 text-gray-600'
-                        : 'border-gray-200 text-gray-400'
+                        ? 'border-gray-700 text-gray-600 cursor-not-allowed'
+                        : 'border-gray-200 text-gray-600 cursor-not-allowed'
                       : isDarkMode
                         ? 'border-gray-600 text-white hover:bg-gray-700'
                         : 'border-gray-300 text-gray-700 hover:bg-gray-50'

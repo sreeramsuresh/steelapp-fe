@@ -480,6 +480,8 @@ const StockMovementPage = () => {
                       setReservationView('list');
                       setSelectedReservation(null);
                     }
+                    // Scroll to top when tab changes (Bug #80 fix)
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${
                     isActive

@@ -76,6 +76,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [warehouses, setWarehouses] = useState([]);
+  const [warehouseError, setWarehouseError] = useState(null);
 
   // Pagination
   const [page, setPage] = useState(0);
@@ -101,14 +102,16 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
   const [cancelReason, setCancelReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Load warehouses for filter dropdown
+  // Load warehouses for filter dropdown (Bug #71 fix)
   useEffect(() => {
     const loadWarehouses = async () => {
       try {
+        setWarehouseError(null);
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
         console.error('Error loading warehouses:', err);
+        setWarehouseError('Failed to load warehouses. Some filters may not be available.');
       }
     };
     loadWarehouses();
@@ -250,6 +253,19 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           <button
             onClick={() => setError(null)}
             className="text-red-600 hover:text-red-800"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
+
+      {/* Warehouse Loading Error (Bug #71 fix) */}
+      {warehouseError && (
+        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-700">
+          <span>{warehouseError}</span>
+          <button
+            onClick={() => setWarehouseError(null)}
+            className="text-yellow-600 hover:text-yellow-800"
           >
             <X size={18} />
           </button>
@@ -532,8 +548,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-500">
-              {page * rowsPerPage + 1}-
-              {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount}
+              {totalCount === 0
+                ? '0 of 0'
+                : `${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, totalCount)} of ${totalCount}`}
             </span>
             <div className="flex gap-1">
               <button

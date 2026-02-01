@@ -70,6 +70,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [warehouses, setWarehouses] = useState([]);
+  const [warehouseError, setWarehouseError] = useState(null);
 
   // Pagination
   const [page, setPage] = useState(0);
@@ -90,14 +91,16 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
   });
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Load warehouses for filter dropdowns
+  // Load warehouses for filter dropdowns (Bug #67 fix)
   useEffect(() => {
     const loadWarehouses = async () => {
       try {
+        setWarehouseError(null);
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
       } catch (err) {
         console.error('Error loading warehouses:', err);
+        setWarehouseError('Failed to load warehouses. Some filters may not be available.');
       }
     };
     loadWarehouses();
@@ -265,6 +268,19 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         </div>
       )}
 
+      {/* Warehouse Loading Error (Bug #67 fix) */}
+      {warehouseError && (
+        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-700">
+          <span>{warehouseError}</span>
+          <button
+            onClick={() => setWarehouseError(null)}
+            className="text-yellow-600 hover:text-yellow-800"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
+
       {/* Standardized Filter Bar - Phase 3 Redesign */}
       <div className="rounded-xl border overflow-hidden bg-white border-gray-200 p-4 mb-4">
         <div className="flex gap-4 flex-wrap items-center">
@@ -344,7 +360,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             title="Refresh"
             className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
           >
-            <RotateCcw size={18} />
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <RotateCcw size={18} />}
           </button>
 
           <button
@@ -491,8 +507,9 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-500">
-              {page * rowsPerPage + 1}-
-              {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount}
+              {totalCount === 0
+                ? '0 of 0'
+                : `${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, totalCount)} of ${totalCount}`}
             </span>
             <div className="flex gap-1">
               <button

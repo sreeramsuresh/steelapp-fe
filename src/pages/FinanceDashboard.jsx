@@ -61,7 +61,7 @@ const FinanceDashboard = () => {
     },
     {
       id: 'statements',
-      label: 'Statement of Accounts',
+      label: 'Account Statements',
       icon: FileText,
       component: AccountStatementList,
     },

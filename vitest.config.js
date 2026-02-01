@@ -10,10 +10,6 @@ export default defineConfig({
     setupFiles: "./src/test/setup.js",
     css: true,
     pool: 'forks',
-    isolate: true,
-    poolOptions: {
-      forks: { singleFork: true },
-    },
     testTimeout: 30000,
     hookTimeout: 30000,
     // Disable API requests during tests
