@@ -35,6 +35,15 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const scrollContainerRef = useRef(null);
   const [showTopFade, setShowTopFade] = useState(false);
   const [showBottomFade, setShowBottomFade] = useState(false);
+  // Bug #31 fix: Add state for collapsed/expanded sections with localStorage persistence
+  const [expandedSections, setExpandedSections] = useState(() => {
+    try {
+      const stored = localStorage.getItem('sidebarExpandedSections');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
 
   // Handle scroll to update fade indicators
   const handleScroll = () => {
@@ -69,6 +78,22 @@ const Sidebar = ({ isOpen, onToggle }) => {
     container.scrollTo({
       top: container.scrollHeight,
       behavior: 'smooth',
+    });
+  };
+
+  // Bug #31 fix: Toggle section expansion and persist to localStorage
+  const toggleSection = (sectionName) => {
+    setExpandedSections((prev) => {
+      const updated = {
+        ...prev,
+        [sectionName]: !prev[sectionName],
+      };
+      try {
+        localStorage.setItem('sidebarExpandedSections', JSON.stringify(updated));
+      } catch {
+        /* ignore storage errors */
+      }
+      return updated;
     });
   };
 
@@ -406,19 +431,43 @@ const Sidebar = ({ isOpen, onToggle }) => {
           ref={scrollContainerRef}
           className="absolute inset-0 overflow-y-auto py-2 no-scrollbar"
         >
-          {navigationItems.map((section, sectionIndex) => (
-            <div key={sectionIndex}>
-              {section.section !== 'Dashboard' && (
-                <div
-                  className={`px-4 py-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  {section.section}
-                </div>
-              )}
-              <div className="space-y-1">
-                {section.items
+          {navigationItems.map((section, sectionIndex) => {
+            // Bug #31 fix: Add collapsible section with toggle button
+            const isExpanded = expandedSections[section.section] !== false; // Default to expanded
+            const canCollapse = section.section !== 'Dashboard';
+
+            return (
+              <div key={sectionIndex}>
+                {section.section !== 'Dashboard' && (
+                  <div
+                    className={`px-4 py-2 pb-1 flex items-center justify-between group cursor-pointer hover:opacity-80 transition-opacity ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                    onClick={() => canCollapse && toggleSection(section.section)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ' ') && canCollapse) {
+                        toggleSection(section.section);
+                      }
+                    }}
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-wider">
+                      {section.section}
+                    </span>
+                    {canCollapse && (
+                      <ChevronDown
+                        size={14}
+                        className={`transition-transform duration-300 ${
+                          isExpanded ? 'rotate-0' : '-rotate-90'
+                        }`}
+                      />
+                    )}
+                  </div>
+                )}
+                {(isExpanded || !canCollapse) && (
+                  <div className="space-y-1">
+                    {section.items
                   .filter((item) => {
                     if (item.requiredRoles) {
                       return item.requiredRoles.some((role) =>
@@ -482,9 +531,11 @@ const Sidebar = ({ isOpen, onToggle }) => {
                       </div>
                     );
                   })}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Bottom fade indicator */}

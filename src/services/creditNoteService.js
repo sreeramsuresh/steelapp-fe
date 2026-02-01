@@ -29,7 +29,7 @@ const transformCreditNoteForServer = (creditNoteData) => {
       original_quantity: parseFloat(item.originalQuantity || 0),
       rate: parseFloat(item.rate || 0),
       amount: parseFloat(item.amount || 0),
-      vat_rate: parseFloat(item.vatRate || 5),
+      vat_rate: item.vatRate !== undefined && item.vatRate !== null ? parseFloat(item.vatRate) : 5,
       vat_amount: parseFloat(item.vatAmount || 0),
       restocked_quantity: parseFloat(item.restockedQuantity || 0),
       damaged_quantity: parseFloat(item.damagedQuantity || 0),

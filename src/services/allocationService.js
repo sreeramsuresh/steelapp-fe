@@ -27,7 +27,7 @@ export const allocationService = {
       '/stock-batches/available',
       queryParams,
     );
-    return response.data || response;
+    return response?.data || response;
   },
 
   /**
@@ -47,7 +47,7 @@ export const allocationService = {
     };
 
     const response = await apiClient.post('/allocations/fifo', payload);
-    return response.data || response;
+    return response?.data || response;
   },
 
   /**
@@ -70,7 +70,7 @@ export const allocationService = {
       '/allocations/fifo/preview',
       queryParams,
     );
-    return response.data || response;
+    return response?.data || response;
   },
 };
 
