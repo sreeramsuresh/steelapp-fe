@@ -868,11 +868,11 @@ const InventoryList = () => {
                     >
                       {item.quantityReserved > 0 ? (
                         <span className="text-blue-600">
-                          {item.quantityReserved.toFixed(3)} {item.unit || 'KG'}
+                          {item.quantityReserved.toFixed(3)} {(item.unit || 'KG').toUpperCase()}
                         </span>
                       ) : (
                         <span className="text-gray-400">
-                          0.000 {item.unit || 'KG'}
+                          0.000 {(item.unit || 'KG').toUpperCase()}
                         </span>
                       )}
                     </div>
@@ -884,7 +884,7 @@ const InventoryList = () => {
                       className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
                       <span className="text-green-600">
-                        {item.quantityAvailable.toFixed(3)} {item.unit || 'KG'}
+                        {item.quantityAvailable.toFixed(3)} {(item.unit || 'KG').toUpperCase()}
                       </span>
                     </div>
                     {item.isLowStock && (
