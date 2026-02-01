@@ -9,6 +9,11 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.js",
     css: true,
+    // Disable API requests during tests
+    env: {
+      VITE_API_BASE_URL: '/api',
+      VITE_DISABLE_CONTRACT_VALIDATION: 'true',
+    },
     // Coverage configuration for Phase 1: 100% test coverage initiative
     coverage: {
       provider: 'v8',
