@@ -1372,9 +1372,10 @@ const QuotationForm = () => {
     localStorage.setItem('quotationFormPreferences', JSON.stringify(formPreferences));
   }, [formPreferences]);
 
-  // Recalculate when charges, discount, or items change
+  // Recalculate when charges, discount, or items change (Bug #60 fix)
   useEffect(() => {
     calculateTotals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     formData.packingCharges,
     formData.freightCharges,
@@ -1385,7 +1386,6 @@ const QuotationForm = () => {
     formData.discountPercentage,
     formData.discountAmount,
     itemsSerialized, // Track item amounts/rates/quantities deeply via serialization
-    calculateTotals,
   ]);
 
   // Check if form has unsaved changes (Bug #53 fix)
