@@ -32,17 +32,17 @@ export default function PriceValiditySelector({ value, onChange }) {
       >
         <option value="">No specific condition</option>
         {PRICE_VALIDITY_OPTIONS.map((option) => (
-          <option key={option.value} value={option.label}>
+          <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
-      {value === 'Custom' && (
+      {value === 'custom' && (
         <input
           type="text"
           placeholder="Enter custom condition"
-          value={value.startsWith('Custom:') ? value.substring(7) : ''}
-          onChange={(e) => onChange(`Custom: ${e.target.value}`)}
+          value={value.startsWith('custom:') ? value.substring(7) : ''}
+          onChange={(e) => onChange(`custom:${e.target.value}`)}
           className={`w-full px-3 py-2 mt-2 rounded-lg border ${
             isDarkMode
               ? 'bg-gray-700 border-gray-600 text-white'
