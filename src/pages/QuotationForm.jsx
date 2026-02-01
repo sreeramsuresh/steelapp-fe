@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import FormErrorBoundaryWithTheme from '../components/quotations/FormErrorBoundary';
 import {
   Save,
   Plus,
@@ -1337,6 +1338,19 @@ const QuotationForm = () => {
     });
   }, []);
 
+  // Bug #55 fix: Create a memoized serialization of items to detect deep changes
+  const itemsSerialized = useMemo(() => {
+    return JSON.stringify(
+      formData.items.map((item) => ({
+        amount: item.amount,
+        quantity: item.quantity,
+        rate: item.rate,
+        discount: item.discount,
+        discountType: item.discountType,
+      })),
+    );
+  }, [formData.items]);
+
   // Recalculate when charges, discount, or items change
   useEffect(() => {
     calculateTotals();
@@ -1349,7 +1363,7 @@ const QuotationForm = () => {
     formData.discountType,
     formData.discountPercentage,
     formData.discountAmount,
-    formData.items.length, // Use items.length instead of items to avoid array reference changes
+    itemsSerialized, // Track item amounts/rates/quantities deeply via serialization
     calculateTotals,
   ]);
 
@@ -2134,7 +2148,7 @@ const QuotationForm = () => {
                 helperText={
                   formData.currency !== 'AED'
                     ? `Rate to convert ${formData.currency} to AED (must be > 0)`
-                    : 'Default currency rates are 1.0000'
+                    : 'Exchange rate is 1.0000 (AED is the base currency)'
                 }
               />
             </div>
@@ -3687,4 +3701,11 @@ const QuotationForm = () => {
   );
 };
 
-export default QuotationForm;
+// Bug #59 fix: Wrap with error boundary to prevent full app crash
+const QuotationFormWithErrorBoundary = (props) => (
+  <FormErrorBoundaryWithTheme formName="Quotation Form">
+    <QuotationForm {...props} />
+  </FormErrorBoundaryWithTheme>
+);
+
+export default QuotationFormWithErrorBoundary;
