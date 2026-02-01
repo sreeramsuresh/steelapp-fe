@@ -1367,6 +1367,11 @@ const QuotationForm = () => {
     }
   }, [isEdit, initialFormData, formData.quotationNumber]);
 
+  // Persist form preferences to localStorage (Bug #54 fix)
+  useEffect(() => {
+    localStorage.setItem('quotationFormPreferences', JSON.stringify(formPreferences));
+  }, [formPreferences]);
+
   // Recalculate when charges, discount, or items change
   useEffect(() => {
     calculateTotals();
