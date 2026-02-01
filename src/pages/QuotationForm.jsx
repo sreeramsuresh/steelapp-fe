@@ -2037,6 +2037,7 @@ const QuotationForm = () => {
                 name="quotationNumber"
                 label="Quotation Number"
                 type="text"
+                placeholder="QT-XXXXX"
                 value={formData.quotationNumber || 'QT-DRAFT'}
                 onChange={(e) => {
                   setFormData((prev) => ({
@@ -2305,6 +2306,7 @@ const QuotationForm = () => {
               <Input
                 label="Customer PO Date"
                 type="date"
+                placeholder="DD/MM/YYYY"
                 value={formData.customerPurchaseOrderDate}
                 onChange={(e) =>
                   setFormData((prev) => ({
