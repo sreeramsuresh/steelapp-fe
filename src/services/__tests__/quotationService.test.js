@@ -19,7 +19,7 @@ vi.mock('../api.js', () => ({
   },
 }));
 
-vi.mock('./axiosApi', () => ({
+vi.mock('../axiosApi', () => ({
   apiService: {
     request: vi.fn(),
   },
@@ -30,6 +30,9 @@ global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
 global.URL.revokeObjectURL = vi.fn();
 global.document.createElement = vi.fn(() => ({
   click: vi.fn(),
+  style: { display: '' },
+  href: '',
+  download: '',
 }));
 global.document.body.appendChild = vi.fn();
 global.document.body.removeChild = vi.fn();
@@ -37,7 +40,7 @@ global.document.body.removeChild = vi.fn();
 // Import after mocks
 import { quotationService, transformQuotationFromServer } from '../quotationService';
 import { apiClient } from '../api';
-import { apiService } from './axiosApi';
+import { apiService } from '../axiosApi';
 
 describe('quotationService', () => {
   beforeEach(() => {
@@ -452,7 +455,7 @@ describe('quotationService', () => {
 
       test('should trigger download with correct filename', async () => {
         const mockBlob = new Blob(['PDF'], { type: 'application/pdf' });
-        const mockLink = { click: vi.fn() };
+        const mockLink = { click: vi.fn(), style: { display: '' }, href: '', download: '' };
         vi.mocked(global.document.createElement).mockReturnValueOnce(mockLink);
         apiService.request.mockResolvedValueOnce(mockBlob);
 

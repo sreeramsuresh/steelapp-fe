@@ -19,7 +19,7 @@ vi.mock('../api.js', () => ({
   },
 }));
 
-vi.mock('./axiosApi', () => ({
+vi.mock('../axiosApi', () => ({
   apiService: {
     request: vi.fn(),
   },
@@ -30,6 +30,9 @@ global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
 global.URL.revokeObjectURL = vi.fn();
 global.document.createElement = vi.fn(() => ({
   click: vi.fn(),
+  style: { display: '' },
+  href: '',
+  download: '',
 }));
 global.document.body.appendChild = vi.fn();
 global.document.body.removeChild = vi.fn();
@@ -461,7 +464,7 @@ describe('productService', () => {
           type: 'application/vnd.openxmlformats',
         });
 
-        const { apiService } = await import('./axiosApi');
+        const { apiService } = await import('../axiosApi');
         apiService.request = vi.fn().mockResolvedValueOnce(mockBlob);
 
         // Mock document functions
