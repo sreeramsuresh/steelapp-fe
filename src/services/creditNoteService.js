@@ -6,34 +6,35 @@ const transformCreditNoteForServer = (creditNoteData) => {
   return {
     ...creditNoteData,
     // Extract customer fields if customer object provided
-    customer_id: creditNoteData.customerId || creditNoteData.customer?.id,
-    customer_name: creditNoteData.customerName || creditNoteData.customer?.name,
+    customer_id: creditNoteData.customerId ?? creditNoteData.customer?.id,
+    customer_name: creditNoteData.customerName ?? creditNoteData.customer?.name,
     customer_address:
-      creditNoteData.customerAddress || creditNoteData.customer?.address,
+      creditNoteData.customerAddress ?? creditNoteData.customer?.address,
     customer_phone:
-      creditNoteData.customerPhone || creditNoteData.customer?.phone,
+      creditNoteData.customerPhone ?? creditNoteData.customer?.phone,
     customer_email:
-      creditNoteData.customerEmail || creditNoteData.customer?.email,
-    customer_trn: creditNoteData.customerTrn || creditNoteData.customer?.trn,
+      creditNoteData.customerEmail ?? creditNoteData.customer?.email,
+    customer_trn: creditNoteData.customerTrn ?? creditNoteData.customer?.trn,
+    notes: creditNoteData.notes ?? '',
     // Ensure numeric fields are numbers
-    subtotal: parseFloat(creditNoteData.subtotal || 0),
-    vat_amount: parseFloat(creditNoteData.vatAmount || 0),
-    total_credit: parseFloat(creditNoteData.totalCredit || 0),
-    manual_credit_amount: parseFloat(creditNoteData.manualCreditAmount || 0),
+    subtotal: parseFloat(creditNoteData.subtotal ?? 0),
+    vat_amount: parseFloat(creditNoteData.vatAmount ?? 0),
+    total_credit: parseFloat(creditNoteData.totalCredit ?? 0),
+    manual_credit_amount: parseFloat(creditNoteData.manualCreditAmount ?? 0),
     // Ensure items is array with numeric fields converted
-    items: (creditNoteData.items || []).map((item) => ({
+    items: (creditNoteData.items ?? []).map((item) => ({
       ...item,
       quantity_returned: parseFloat(
-        item.quantityReturned || item.quantity || 0,
+        item.quantityReturned ?? item.quantity ?? 0,
       ),
-      original_quantity: parseFloat(item.originalQuantity || 0),
-      rate: parseFloat(item.rate || 0),
-      amount: parseFloat(item.amount || 0),
+      original_quantity: parseFloat(item.originalQuantity ?? 0),
+      rate: parseFloat(item.rate ?? 0),
+      amount: parseFloat(item.amount ?? 0),
       vat_rate: item.vatRate !== undefined && item.vatRate !== null ? parseFloat(item.vatRate) : 5,
-      vat_amount: parseFloat(item.vatAmount || 0),
-      restocked_quantity: parseFloat(item.restockedQuantity || 0),
-      damaged_quantity: parseFloat(item.damagedQuantity || 0),
-      defective_quantity: parseFloat(item.defectiveQuantity || 0),
+      vat_amount: parseFloat(item.vatAmount ?? 0),
+      restocked_quantity: parseFloat(item.restockedQuantity ?? 0),
+      damaged_quantity: parseFloat(item.damagedQuantity ?? 0),
+      defective_quantity: parseFloat(item.defectiveQuantity ?? 0),
     })),
   };
 };
@@ -43,109 +44,109 @@ const transformCreditNoteFromServer = (serverData) => {
   if (!serverData) return null;
 
   // Transform items if present
-  const items = (serverData.items || []).map((item) => ({
+  const items = (serverData.items ?? []).map((item) => ({
     id: item.id,
-    productId: item.productId || item.product_id,
+    productId: item.productId ?? item.product_id,
     productName:
-      item.productName || item.product_name || item.description || '',
+      item.productName ?? item.product_name ?? item.description ?? '',
     description:
-      item.description || item.productName || item.product_name || '',
-    quantity: parseFloat(item.quantity || 0),
+      item.description ?? item.productName ?? item.product_name ?? '',
+    quantity: parseFloat(item.quantity ?? 0),
     quantityReturned: parseFloat(
-      item.quantityReturned || item.quantity_returned || 0,
+      item.quantityReturned ?? item.quantity_returned ?? 0,
     ),
-    unitPrice: parseFloat(item.unitPrice || item.unit_price || item.rate || 0),
-    amount: parseFloat(item.amount || item.total || 0),
-    selected: (item.quantityReturned || item.quantity_returned || 0) > 0,
+    unitPrice: parseFloat(item.unitPrice ?? item.unit_price ?? item.rate ?? 0),
+    amount: parseFloat(item.amount ?? item.total ?? 0),
+    selected: (item.quantityReturned ?? item.quantity_returned ?? 0) > 0,
   }));
 
   return {
     id: serverData.id,
     // BUG #1: creditNoteNumber - frontend expects creditNoteNumber, proto sends credit_note_number
     creditNoteNumber:
-      serverData.creditNoteNumber || serverData.credit_note_number || '',
+      serverData.creditNoteNumber ?? serverData.credit_note_number ?? '',
     // BUG #2: credit_note_number - frontend expects credit_note_number, proto sends credit_note_number
     credit_note_number:
-      serverData.credit_note_number || serverData.creditNoteNumber || '',
+      serverData.credit_note_number ?? serverData.creditNoteNumber ?? '',
     // BUG #3: invoiceId - frontend expects invoiceId, proto sends invoice_id
-    invoiceId: serverData.invoiceId || serverData.invoice_id || null,
+    invoiceId: serverData.invoiceId ?? serverData.invoice_id ?? null,
     // BUG #4: invoice_id - frontend expects invoice_id, proto sends invoice_id
-    invoice_id: serverData.invoice_id || serverData.invoiceId || null,
-    invoiceNumber: serverData.invoiceNumber || serverData.invoice_number || '',
+    invoice_id: serverData.invoice_id ?? serverData.invoiceId ?? null,
+    invoiceNumber: serverData.invoiceNumber ?? serverData.invoice_number ?? '',
     // BUG #5: customer_id - frontend expects customer_id, proto sends customer_id
-    customer_id: serverData.customer_id || serverData.customerId || null,
-    customerId: serverData.customerId || serverData.customer_id,
+    customer_id: serverData.customer_id ?? serverData.customerId ?? null,
+    customerId: serverData.customerId ?? serverData.customer_id,
     // BUG #6: customer_name - frontend expects customer_name, proto sends customer_name
-    customer_name: serverData.customer_name || serverData.customerName || '',
-    customerName: serverData.customerName || serverData.customer_name || '',
+    customer_name: serverData.customer_name ?? serverData.customerName ?? '',
+    customerName: serverData.customerName ?? serverData.customer_name ?? '',
     customer: {
-      id: serverData.customerId || serverData.customer_id,
-      name: serverData.customerName || serverData.customer_name || '',
-      address: serverData.customerAddress || serverData.customer_address || {},
-      phone: serverData.customerPhone || serverData.customer_phone || '',
-      email: serverData.customerEmail || serverData.customer_email || '',
-      trn: serverData.customerTrn || serverData.customer_trn || '',
+      id: serverData.customerId ?? serverData.customer_id,
+      name: serverData.customerName ?? serverData.customer_name ?? '',
+      address: serverData.customerAddress ?? serverData.customer_address ?? {},
+      phone: serverData.customerPhone ?? serverData.customer_phone ?? '',
+      email: serverData.customerEmail ?? serverData.customer_email ?? '',
+      trn: serverData.customerTrn ?? serverData.customer_trn ?? '',
     },
     creditNoteDate:
-      serverData.creditNoteDate ||
-      serverData.credit_note_date ||
+      serverData.creditNoteDate ??
+      serverData.credit_note_date ??
       new Date().toISOString().split('T')[0],
-    status: serverData.status || 'draft',
+    status: serverData.status ?? 'draft',
     creditNoteType:
-      serverData.creditNoteType ||
-      serverData.credit_note_type ||
+      serverData.creditNoteType ??
+      serverData.credit_note_type ??
       'RETURN_WITH_QC',
     // BUG #10: credit_note_type - frontend expects credit_note_type, proto sends credit_note_type
     credit_note_type:
-      serverData.credit_note_type ||
-      serverData.creditNoteType ||
+      serverData.credit_note_type ??
+      serverData.creditNoteType ??
       'RETURN_WITH_QC',
     reasonForReturn:
-      serverData.reasonForReturn || serverData.reason_for_return || '',
+      serverData.reasonForReturn ?? serverData.reason_for_return ?? '',
     // BUG #7: adjustment_type - frontend expects adjustment_type (mapped from reason_for_return)
     adjustment_type:
-      serverData.adjustment_type ||
-      serverData.adjustmentType ||
-      serverData.reason_for_return ||
+      serverData.adjustment_type ??
+      serverData.adjustmentType ??
+      serverData.reason_for_return ??
       '',
     // BUG #8: reason_category - frontend expects reason_category, proto sends return_reason_category
     reason_category:
-      serverData.reason_category ||
-      serverData.reasonCategory ||
-      serverData.return_reason_category ||
+      serverData.reason_category ??
+      serverData.reasonCategory ??
+      serverData.return_reason_category ??
       '',
     // BUG #9: reasonCat - frontend expects reasonCat (short alias for reason_category)
     reasonCat:
-      serverData.reasonCat ||
-      serverData.reasonCategory ||
-      serverData.return_reason_category ||
+      serverData.reasonCat ??
+      serverData.reasonCategory ??
+      serverData.return_reason_category ??
       '',
     items,
-    subtotal: parseFloat(serverData.subtotal || serverData.sub_total || 0),
-    vatAmount: parseFloat(serverData.vatAmount || serverData.vat_amount || 0),
+    subtotal: parseFloat(serverData.subtotal ?? serverData.sub_total ?? 0),
+    vatAmount: parseFloat(serverData.vatAmount ?? serverData.vat_amount ?? 0),
     // BUG #11: vat_amount - frontend expects vat_amount, proto sends vat_amount
-    vat_amount: parseFloat(serverData.vat_amount || serverData.vatAmount || 0),
+    vat_amount: parseFloat(serverData.vat_amount ?? serverData.vatAmount ?? 0),
     totalCredit: parseFloat(
-      serverData.totalCredit || serverData.total_credit || 0,
+      serverData.totalCredit ?? serverData.total_credit ?? 0,
     ),
     // BUG #12: manualCreditAmount - frontend expects manualCreditAmount, proto sends manual_credit_amount
     manualCreditAmount: parseFloat(
-      serverData.manualCreditAmount || serverData.manual_credit_amount || 0,
+      serverData.manualCreditAmount ?? serverData.manual_credit_amount ?? 0,
     ),
     // BUG #13: manual_credit_amount - frontend expects manual_credit_amount, proto sends manual_credit_amount
     manual_credit_amount: parseFloat(
-      serverData.manual_credit_amount || serverData.manualCreditAmount || 0,
+      serverData.manual_credit_amount ?? serverData.manualCreditAmount ?? 0,
     ),
-    notes: serverData.notes || '',
+    notes: serverData.notes ?? '',
     createdAt:
-      serverData.createdAt ||
-      serverData.created_at ||
-      serverData.audit?.createdAt ||
+      serverData.createdAt ??
+      serverData.created_at ??
+      serverData.audit?.createdAt ??
       null,
     updatedAt:
-      serverData.updatedAt ||
-      serverData.updated_at ||
-      serverData.audit?.updatedAt ||
+      serverData.updatedAt ??
+      serverData.updated_at ??
+      serverData.audit?.updatedAt ??
       null,
   };
 };
@@ -158,14 +159,14 @@ class CreditNoteService {
   // Get all credit notes with optional filters
   async getAllCreditNotes(params = {}, signal = null) {
     const queryParams = {
-      page: params.page || 1,
-      limit: params.limit || 50,
-      search: params.search || undefined,
-      status: params.status || undefined,
-      invoice_id: params.invoiceId || undefined,
-      customer_id: params.customerId || undefined,
-      start_date: params.startDate || undefined,
-      end_date: params.endDate || undefined,
+      page: params.page ?? 1,
+      limit: params.limit ?? 50,
+      search: params.search,
+      status: params.status,
+      invoice_id: params.invoiceId,
+      customer_id: params.customerId,
+      start_date: params.startDate,
+      end_date: params.endDate,
     };
 
     // Remove undefined params
@@ -173,28 +174,24 @@ class CreditNoteService {
       (key) => queryParams[key] === undefined && delete queryParams[key],
     );
 
-    const axiosConfig = {};
-    if (signal) {
-      axiosConfig.signal = signal;
-    }
+    const axiosConfig = signal ? { signal } : {};
 
-    const response = await apiClient.get(this.endpoint, {
-      ...queryParams,
-      ...axiosConfig,
-    });
+    const response = await apiClient.get(this.endpoint, queryParams, axiosConfig);
 
     // Handle paginated response
-    if (response.data && Array.isArray(response.data)) {
+    if (response?.data && Array.isArray(response.data)) {
       return {
         data: response.data.map(transformCreditNoteFromServer),
-        pagination: response.pagination || null,
+        pagination: response.pagination ?? null,
       };
     }
 
-    // Handle non-paginated response
+    // Handle non-paginated response (array directly)
     const creditNotes = Array.isArray(response)
       ? response
-      : response.data || [];
+      : Array.isArray(response?.data)
+      ? response.data
+      : [];
     return {
       data: creditNotes.map(transformCreditNoteFromServer),
       pagination: null,
@@ -280,7 +277,9 @@ class CreditNoteService {
     );
     const creditNotes = Array.isArray(response)
       ? response
-      : response.data || [];
+      : Array.isArray(response?.data)
+      ? response.data
+      : [];
     return creditNotes.map(transformCreditNoteFromServer);
   }
 
@@ -309,9 +308,9 @@ class CreditNoteService {
     const response = await apiClient.post(
       `${this.endpoint}/${creditNoteId}/receive-items`,
       {
-        notes: receivedData.notes || '',
-        items: (receivedData.items || []).map((item) => ({
-          credit_note_item_id: item.creditNoteItemId || item.id,
+        notes: receivedData.notes ?? '',
+        items: (receivedData.items ?? []).map((item) => ({
+          credit_note_item_id: item.creditNoteItemId ?? item.id,
           quantity_received: item.quantityReceived,
           warehouse_id: item.warehouseId,
         })),
@@ -327,16 +326,16 @@ class CreditNoteService {
       `${this.endpoint}/${creditNoteId}/inspect-items`,
       {
         qc_result: inspectionData.qcResult, // 'GOOD', 'BAD', or 'PARTIAL'
-        qc_notes: inspectionData.qcNotes || '',
-        item_results: (inspectionData.itemResults || []).map((item) => ({
-          credit_note_item_id: item.creditNoteItemId || item.id,
-          restocked_quantity: item.restockedQuantity || 0,
-          damaged_quantity: item.damagedQuantity || 0,
-          defective_quantity: item.defectiveQuantity || 0,
-          inspection_notes: item.inspectionNotes || '',
-          warehouse_id: item.warehouseId || 0,
-          scrap_reason_category: item.scrapReasonCategory || 'OTHER',
-          scrap_reason: item.scrapReason || '',
+        qc_notes: inspectionData.qcNotes ?? '',
+        item_results: (inspectionData.itemResults ?? []).map((item) => ({
+          credit_note_item_id: item.creditNoteItemId ?? item.id,
+          restocked_quantity: item.restockedQuantity ?? 0,
+          damaged_quantity: item.damagedQuantity ?? 0,
+          defective_quantity: item.defectiveQuantity ?? 0,
+          inspection_notes: item.inspectionNotes ?? '',
+          warehouse_id: item.warehouseId ?? 0,
+          scrap_reason_category: item.scrapReasonCategory ?? 'OTHER',
+          scrap_reason: item.scrapReason ?? '',
         })),
       },
     );
@@ -348,9 +347,9 @@ class CreditNoteService {
     const response = await apiClient.post(
       `${this.endpoint}/${creditNoteId}/refund`,
       {
-        refund_method: refundData.refundMethod || '',
-        refund_reference: refundData.refundReference || '',
-        notes: refundData.notes || '',
+        refund_method: refundData.refundMethod ?? '',
+        refund_reference: refundData.refundReference ?? '',
+        notes: refundData.notes ?? '',
       },
     );
     return transformCreditNoteFromServer(response);
@@ -376,10 +375,10 @@ class CreditNoteService {
   // Get all scrap items with filters
   async getScrapItems(params = {}) {
     const queryParams = {
-      page: params.page || 1,
-      limit: params.limit || 50,
-      product_id: params.productId || undefined,
-      reason_category: params.reasonCategory || undefined,
+      page: params.page ?? 1,
+      limit: params.limit ?? 50,
+      product_id: params.productId,
+      reason_category: params.reasonCategory,
     };
     Object.keys(queryParams).forEach(
       (key) => queryParams[key] === undefined && delete queryParams[key],
