@@ -452,11 +452,19 @@ describe('vatService', () => {
     });
 
     test('should handle errors in VAT dashboard metrics gracefully', async () => {
+      // The method calls both getVATReturns and getBlockedVATCategories
+      // Each has .catch() fallbacks, so it won't throw
+      // Mock both to fail and verify fallback behavior
+      apiClient.get.mockRejectedValueOnce(new Error('API error'));
       apiClient.get.mockRejectedValueOnce(new Error('API error'));
 
-      await expect(
-        vatService.getVATDashboardMetrics()
-      ).rejects.toThrow('API error');
+      const result = await vatService.getVATDashboardMetrics();
+
+      expect(result).toBeDefined();
+      expect(result.currentPeriod).toBeDefined();
+      expect(result.blockedVAT.total).toBe(0);
+      expect(result.blockedVAT.categories).toEqual([]);
+      expect(result.history).toEqual([]);
     });
 
     test('should generate alerts for VAT returns due soon', async () => {
