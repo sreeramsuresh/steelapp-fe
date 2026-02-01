@@ -1,20 +1,21 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { vi, describe, beforeEach, test, expect } from 'vitest';
 import useHomeSectionOrder from '../useHomeSectionOrder';
 import { userPreferencesService } from '../../services/userPreferencesService';
 
 // Mock the userPreferencesService
-jest.mock('../../services/userPreferencesService', () => ({
+vi.mock('../../services/userPreferencesService', () => ({
   userPreferencesService: {
-    getHomeSectionOrder: jest.fn(),
-    setHomeSectionOrder: jest.fn(),
-    getCurrentUser: jest.fn(),
-    updatePermissions: jest.fn(),
+    getHomeSectionOrder: vi.fn(),
+    setHomeSectionOrder: vi.fn(),
+    getCurrentUser: vi.fn(),
+    updatePermissions: vi.fn(),
   },
 }));
 
 describe('useHomeSectionOrder', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
   });
 
@@ -190,7 +191,7 @@ describe('useHomeSectionOrder', () => {
 
   describe('Cleanup', () => {
     test('should clear debounce timer on unmount', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       userPreferencesService.getCurrentUser.mockReturnValue({ id: 1, permissions: {} });
 
@@ -203,11 +204,11 @@ describe('useHomeSectionOrder', () => {
       unmount();
 
       // Debounce timer should be cleared
-      jest.runAllTimers();
+      vi.runAllTimers();
       // Should not throw or call updatePermissions after unmount
       expect(userPreferencesService.updatePermissions).not.toHaveBeenCalled();
 
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 });

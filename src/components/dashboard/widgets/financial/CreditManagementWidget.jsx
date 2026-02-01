@@ -46,9 +46,14 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
     }).format(safeAmount);
   };
 
-  // Check if we have valid data
+  // Check if we have valid data (include risk data even if limits are zero)
   const hasData =
-    data && (data.totalCreditLimit > 0 || data.totalCreditUsed > 0);
+    data && (
+      data.totalCreditLimit > 0 ||
+      data.totalCreditUsed > 0 ||
+      (data.atRiskAccounts && data.atRiskAccounts.length > 0) ||
+      (data.overLimitCustomers && data.overLimitCustomers.length > 0)
+    );
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {

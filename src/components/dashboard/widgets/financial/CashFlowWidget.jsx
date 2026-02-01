@@ -67,8 +67,11 @@ const CashFlowWidget = ({
     ytd: 'Year to Date',
   };
 
-  // Check if we have valid data
-  const hasData = data && (data.mtd || data.qtd || data.ytd);
+  // Check if we have valid data (support both camelCase and snake_case)
+  const mtd = data?.mtd || data?.m_t_d || null;
+  const qtd = data?.qtd || data?.q_t_d || null;
+  const ytd = data?.ytd || data?.y_t_d || null;
+  const hasData = data && (mtd || qtd || ytd);
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
@@ -120,12 +123,17 @@ const CashFlowWidget = ({
     );
   }
 
-  const currentData = data[period] || data.mtd;
+  // Get current period data with fallback to normalized variables
+  const currentData =
+    (period === 'mtd' ? mtd : period === 'qtd' ? qtd : ytd) ||
+    data[period] ||
+    mtd || {};
+
   const maxValue =
     currentData?.trend?.length > 0
       ? Math.max(
           ...currentData.trend.map((d) =>
-            Math.max(d.inflow || 0, d.outflow || 0),
+            Math.max(d.inflow || d.inflows || 0, d.outflow || d.outflows || 0),
           ),
         )
       : 0;

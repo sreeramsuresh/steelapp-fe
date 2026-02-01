@@ -264,13 +264,15 @@ const Receivables = () => {
         const fetchedItems = response.items || [];
         setItems(fetchedItems);
 
-        // Extract and update pagination info
-        if (response.pageInfo) {
-          setPageInfo(response.pageInfo);
-        }
+        // Extract and update pagination info with fallbacks
+        const paginationInfo = response.pageInfo || response.page_info || response.pagination || {
+          totalPages: Math.ceil(fetchedItems.length / size),
+          totalCount: fetchedItems.length,
+        };
+        setPageInfo(paginationInfo);
 
         // Update cache with fresh data
-        setCachedData(cacheKey, { items: fetchedItems, pageInfo: response.pageInfo });
+        setCachedData(cacheKey, { items: fetchedItems, pageInfo: paginationInfo });
       } catch (error) {
         console.error('Failed to fetch receivables:', error);
         // On error, keep showing cached data if available

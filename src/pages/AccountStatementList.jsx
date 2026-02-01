@@ -74,14 +74,21 @@ const AccountStatementList = ({
         customer_id: customerFilter || undefined,
       });
 
-      setStatements(response.data || response.accountStatements || []);
-      if (response.pagination) {
-        setTotalPages(
-          response.pagination.totalPages ||
-            response.pagination.total_pages ||
-            1,
-        );
-      }
+      // Handle different response structures from API
+      const statements = Array.isArray(response) ? response :
+                         Array.isArray(response.data) ? response.data :
+                         Array.isArray(response.accountStatements) ? response.accountStatements :
+                         Array.isArray(response.items) ? response.items : [];
+      setStatements(statements);
+
+      // Extract pagination info with fallbacks
+      const pagination = response.pagination || response.page_info || {};
+      setTotalPages(
+        pagination.totalPages ||
+        pagination.total_pages ||
+        Math.ceil((statements.length || 0) / 10) ||
+        1,
+      );
     } catch (err) {
       console.error('Error fetching account statements:', err);
       setError('Failed to load account statements');

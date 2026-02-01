@@ -1,5 +1,6 @@
 import { Percent } from 'lucide-react';
-import BaseWidget, { MetricValue } from '../BaseWidget';
+import BaseWidget from '../BaseWidget';
+import { MetricValue } from '../BaseWidget';
 import { GaugeChartWrapper } from '../../charts';
 
 // Mock data for Phase 1 - used when no API data available
@@ -14,7 +15,7 @@ const MOCK_GROSS_MARGIN = 18.5;
  * @param {function} props.onRefresh - Refresh callback
  * @param {boolean} props.showGauge - Show gauge chart instead of simple metric
  */
-export const GrossMarginWidget = ({
+const GrossMarginWidget = ({
   grossMargin,
   loading = false,
   onRefresh,

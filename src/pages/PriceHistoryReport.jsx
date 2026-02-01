@@ -30,7 +30,7 @@ export default function PriceHistoryReport() {
   const fetchProducts = async () => {
     try {
       const response = await productService.getProducts();
-      setProducts(response.data || []);
+      setProducts((response && (response.data || response.items || response)) || []);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error('Failed to load products');
@@ -40,7 +40,7 @@ export default function PriceHistoryReport() {
   const fetchPricelists = async () => {
     try {
       const response = await pricelistService.getAll();
-      setPricelists(response.data || []);
+      setPricelists((response && (response.data || response.items || response)) || []);
     } catch (error) {
       console.error('Error fetching pricelists:', error);
       toast.error('Failed to load price lists');

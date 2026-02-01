@@ -175,9 +175,20 @@ export const payablesService = {
       // Ensure status is computed correctly based on payments data
       // Backend may return stale status - recompute from paid/balance/payments
       const items = (Array.isArray(list) ? list : []).map((po) => {
+        // Normalize field names from snake_case to camelCase
+        const normalized = {
+          ...po,
+          poNo: po.poNo || po.poNumber || po.po_number || '',
+          poNumber: po.poNumber || po.po_number || '',
+          poDate: po.poDate || po.po_date,
+          dueDate: po.dueDate || po.due_date,
+          poValue: parseFloat(po.poValue || po.total_amount || po.po_value || 0),
+          supplierId: po.supplierId || po.supplier_id,
+          supplierName: po.supplierName || po.supplier_name || '',
+        };
         // Compute derived fields to ensure status is accurate
-        const computed = computePODerived(po);
-        return { ...po, ...computed };
+        const computed = computePODerived(normalized);
+        return { ...normalized, ...computed };
       });
 
       return { items, aggregates };

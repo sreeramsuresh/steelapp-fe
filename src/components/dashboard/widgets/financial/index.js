@@ -9,11 +9,11 @@
  */
 
 // Core KPI widgets
-export { RevenueKPIWidget } from './RevenueKPIWidget';
-export { ARAgingWidget } from './ARAgingWidget';
-export { GrossMarginWidget } from './GrossMarginWidget';
-export { DSOWidget } from './DSOWidget';
-export { CreditUtilizationWidget } from './CreditUtilizationWidget';
+export { default as RevenueKPIWidget } from './RevenueKPIWidget';
+export { default as ARAgingWidget } from './ARAgingWidget';
+export { default as GrossMarginWidget } from './GrossMarginWidget';
+export { default as DSOWidget } from './DSOWidget';
+export { default as CreditUtilizationWidget } from './CreditUtilizationWidget';
 
 // Legacy exports (for backward compatibility if these files exist)
 export { default as APAgingWidget } from './APAgingWidget';

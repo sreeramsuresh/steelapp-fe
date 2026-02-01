@@ -553,12 +553,16 @@ export const dashboardService = {
             }),
         ]);
 
-      // Process agents data
-      const agentsList = commissionAgents?.agents || [];
+      // Process agents data (handle both array directly and object with agents key)
+      const agentsList = (
+        Array.isArray(commissionAgents) ? commissionAgents :
+        commissionAgents?.agents || []
+      );
 
-      // Build agent summaries by aggregating transaction data
+      // Build agent summaries by aggregating transaction data (handle both array and object)
       const agentTransactionMap = {};
-      (commissionTransactions?.transactions || []).forEach((tx) => {
+      const txArray = Array.isArray(commissionTransactions) ? commissionTransactions : (commissionTransactions?.transactions || []);
+      txArray.forEach((tx) => {
         const agentId = tx.userId || tx.user_id;
         if (!agentTransactionMap[agentId]) {
           agentTransactionMap[agentId] = {

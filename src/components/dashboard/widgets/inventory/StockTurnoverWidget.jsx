@@ -47,8 +47,16 @@ const StockTurnoverWidget = ({
   useEffect(() => {
     // Use API data if available and has products, otherwise use fallback
     if (data && data.products && data.products.length > 0) {
-      setTurnoverData(data);
+      // Verify data has expected structure
+      const hasValidData = data.products.some(p => p.data && Array.isArray(p.data) && p.data.length > 0);
+      if (hasValidData) {
+        setTurnoverData(data);
+      } else {
+        // API returned products but no data, use fallback
+        setTurnoverData(generateFallbackData());
+      }
     } else {
+      // No API data, use fallback
       setTurnoverData(generateFallbackData());
     }
   }, [data]);

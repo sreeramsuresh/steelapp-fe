@@ -64,10 +64,24 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
     quotation.customerDetails || quotation.customer_details || {};
   const customerAddress = customerDetails.address || {};
 
-  // Calculate totals
-  const subtotal = quotation.subtotal || 0;
-  const vatAmount = quotation.vatAmount || quotation.vat_amount || 0;
-  const total = quotation.total || 0;
+  // Calculate totals - handle both API response fields and manual calculation
+  let subtotal = parseFloat(quotation.subtotal || quotation.sub_total || 0);
+  let vatAmount = parseFloat(quotation.vatAmount || quotation.vat_amount || quotation.vat || 0);
+  let total = parseFloat(quotation.total || quotation.grand_total || 0);
+
+  // If totals are 0 and we have items, calculate from items
+  if ((subtotal === 0 || total === 0) && items.length > 0) {
+    const calculatedSubtotal = items.reduce((sum, item) => {
+      const itemTotal = parseFloat(item.amount || item.lineTotal || item.line_total || 0);
+      return sum + itemTotal;
+    }, 0);
+    if (calculatedSubtotal > 0) {
+      subtotal = calculatedSubtotal;
+      const vatRate = parseFloat(quotation.vatRate || quotation.vat_rate || 0.05);
+      vatAmount = subtotal * vatRate;
+      total = subtotal + vatAmount;
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

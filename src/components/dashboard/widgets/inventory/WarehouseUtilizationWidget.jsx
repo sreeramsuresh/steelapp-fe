@@ -95,7 +95,17 @@ const WarehouseUtilizationWidget = ({
   useEffect(() => {
     // Use API data if available and has warehouses, otherwise use fallback
     if (data && data.warehouses && data.warehouses.length > 0) {
-      setWarehouseData(data);
+      // Recalculate avgUtilization to ensure it's correct: (totalUsed/totalCapacity)*100
+      const correctedData = {
+        ...data,
+        summary: {
+          ...data.summary,
+          avgUtilization: data.summary && data.summary.totalCapacity > 0
+            ? ((data.summary.totalUsed || 0) / data.summary.totalCapacity) * 100
+            : data.summary?.avgUtilization || 0,
+        },
+      };
+      setWarehouseData(correctedData);
     } else {
       setWarehouseData(generateFallbackData());
     }

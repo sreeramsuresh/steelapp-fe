@@ -83,10 +83,11 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
     }
   }, [data]);
 
-  // Check if we have valid data
+  // Check if we have valid data - require actual tracked items or inventory value
   const hasData =
     healthData &&
-    (healthData.healthScore !== undefined || healthData.totalValue > 0);
+    (healthData.totalItems > 0 || healthData.totalValue > 0) &&
+    (healthData.healthScore !== undefined);
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
@@ -231,7 +232,9 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
           <p
             className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
           >
-            {healthData.daysOfStock} days
+            {healthData.totalItems > 0 && healthData.daysOfStock !== undefined
+              ? `${healthData.daysOfStock} days`
+              : 'N/A'}
           </p>
         </div>
       </div>

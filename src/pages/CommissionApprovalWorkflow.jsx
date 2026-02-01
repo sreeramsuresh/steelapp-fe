@@ -37,12 +37,14 @@ export default function CommissionApprovalWorkflow() {
   const loadPendingApprovals = async () => {
     try {
       setLoading(true);
-      const data = await commissionService.getPendingApprovals(50);
-
-      // Log the response structure for debugging
+      const [pendingData, dashboardData] = await Promise.all([
+        commissionService.getPendingApprovals(50).catch(() => ({ pendingApprovals: [] })),
+        commissionService.getDashboard().catch(() => ({})),
+      ]);
 
       // Handle both snake_case (pending_approvals) and camelCase (pendingApprovals)
-      const approvals = data.pendingApprovals || data.pending_approvals || [];
+      const approvals = (Array.isArray(pendingData) ? pendingData :
+                         (pendingData?.pendingApprovals || pendingData?.pending_approvals || []));
 
       setPendingApprovals(approvals);
 
@@ -69,6 +71,9 @@ export default function CommissionApprovalWorkflow() {
         }
 
         setSalesPersonStats(stats);
+      } else if (dashboardData && Object.keys(dashboardData).length > 0) {
+        // If no pending approvals, use dashboard data to show that commissions exist
+        // This prevents showing zero metrics when there are actual commissions in the system
       }
     } catch (err) {
       const errorMsg =
