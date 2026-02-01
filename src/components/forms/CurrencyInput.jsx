@@ -75,16 +75,16 @@ const CurrencyInput = ({
   };
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 ${className}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${className}`}>
       {/* Currency Selector */}
       <div>
-        <div className="text-xs opacity-70 mb-1 flex items-center gap-1">
+        <div className="text-xs opacity-70 mb-2 flex items-center gap-1">
           <Globe size={12} />
           Currency
           {required && <span className="text-red-500"> *</span>}
         </div>
         <select
-          className="px-2 py-2 rounded border w-full"
+          className="px-3 py-2 rounded border w-full focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           value={currency}
           onChange={(e) => handleCurrencyChange(e.target.value)}
           required={required}
@@ -99,15 +99,15 @@ const CurrencyInput = ({
 
       {/* Amount Input */}
       <div>
-        <div className="text-xs opacity-70 mb-1">
+        <div className="text-xs opacity-70 mb-2 flex items-center">
           {getAmountLabel()}
-          {required && <span className="text-red-500"> *</span>}
+          {required && <span className="text-red-500 ml-1"> *</span>}
         </div>
         <input
           type="number"
           step="0.01"
           max={maxAmount}
-          className="px-2 py-2 rounded border w-full"
+          className="px-3 py-2 rounded border w-full focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           value={amount}
           onChange={(e) => onAmountChange(numberInput(e.target.value))}
           required={required}
