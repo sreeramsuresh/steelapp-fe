@@ -320,11 +320,11 @@ describe('creditNoteService', () => {
       };
 
       apiClient.post.mockRejectedValueOnce(
-        new Error('Customer ID is required')
+        new Error('Customer ID is required'),
       );
 
       await expect(
-        creditNoteService.createCreditNote(invalidData)
+        creditNoteService.createCreditNote(invalidData),
       ).rejects.toThrow('Customer ID is required');
     });
 
@@ -409,11 +409,11 @@ describe('creditNoteService', () => {
 
     test('should prevent update of issued credit notes', async () => {
       apiClient.put.mockRejectedValueOnce(
-        new Error('Cannot update issued credit note')
+        new Error('Cannot update issued credit note'),
       );
 
       await expect(
-        creditNoteService.updateCreditNote(1, { status: 'draft' })
+        creditNoteService.updateCreditNote(1, { status: 'draft' }),
       ).rejects.toThrow('Cannot update issued credit note');
     });
   });
@@ -434,11 +434,11 @@ describe('creditNoteService', () => {
 
     test('should handle deletion of non-existent credit note', async () => {
       apiClient.delete.mockRejectedValueOnce(
-        new Error('Credit note not found')
+        new Error('Credit note not found'),
       );
 
       await expect(
-        creditNoteService.deleteCreditNote(999)
+        creditNoteService.deleteCreditNote(999),
       ).rejects.toThrow('Credit note not found');
     });
   });
@@ -520,17 +520,17 @@ describe('creditNoteService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(
-        creditNoteService.getAllCreditNotes()
+        creditNoteService.getAllCreditNotes(),
       ).rejects.toThrow('Network error');
     });
 
     test('should handle server validation errors', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Validation: VAT amount must match calculation')
+        new Error('Validation: VAT amount must match calculation'),
       );
 
       await expect(
-        creditNoteService.createCreditNote({})
+        creditNoteService.createCreditNote({}),
       ).rejects.toThrow('Validation');
     });
 
@@ -538,7 +538,7 @@ describe('creditNoteService', () => {
       apiClient.delete.mockRejectedValueOnce(new Error('Unauthorized'));
 
       await expect(
-        creditNoteService.deleteCreditNote(1)
+        creditNoteService.deleteCreditNote(1),
       ).rejects.toThrow('Unauthorized');
     });
   });

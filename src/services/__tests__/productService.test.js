@@ -145,7 +145,7 @@ describe('productService', () => {
         apiClient.get.mockRejectedValueOnce(new Error('Not found'));
 
         await expect(productService.getProduct(999)).rejects.toThrow(
-          'Not found'
+          'Not found',
         );
       });
     });
@@ -176,7 +176,7 @@ describe('productService', () => {
 
         expect(apiClient.post).toHaveBeenCalledWith(
           '/products',
-          newProduct
+          newProduct,
         );
         expect(result.id).toBe(10);
         expect(result.name).toBe('SS-304-Pipe');
@@ -184,13 +184,13 @@ describe('productService', () => {
 
       test('should validate required fields', async () => {
         apiClient.post.mockRejectedValueOnce(
-          new Error('Validation: Name required')
+          new Error('Validation: Name required'),
         );
 
         await expect(
           productService.createProduct({
             sku: 'INCOMPLETE',
-          })
+          }),
         ).rejects.toThrow('Validation');
       });
     });
@@ -215,7 +215,7 @@ describe('productService', () => {
 
         expect(apiClient.put).toHaveBeenCalledWith(
           '/products/1',
-          updates
+          updates,
         );
         expect(result.sellingPrice).toBe(175);
       });
@@ -255,7 +255,7 @@ describe('productService', () => {
 
         expect(apiClient.post).toHaveBeenCalledWith(
           '/products/1/price-update',
-          priceData
+          priceData,
         );
         expect(result.sellingPrice).toBe(160);
       });
@@ -278,7 +278,7 @@ describe('productService', () => {
 
         expect(apiClient.put).toHaveBeenCalledWith(
           '/products/1/stock',
-          stockData
+          stockData,
         );
         expect(result.quantityInStock).toBe(450);
       });
@@ -306,7 +306,7 @@ describe('productService', () => {
         const result = await productService.getProductAnalytics();
 
         expect(apiClient.get).toHaveBeenCalledWith(
-          '/products/analytics'
+          '/products/analytics',
         );
         expect(result.totalProducts).toBe(150);
         expect(result.activeProducts).toBe(145);
@@ -445,7 +445,7 @@ describe('productService', () => {
 
         expect(apiClient.get).toHaveBeenCalledWith(
           '/products/warehouse-stock',
-          { productId: 1 }
+          { productId: 1 },
         );
         expect(result.totalStock).toBe(500);
         expect(result.warehouses).toHaveLength(2);
@@ -524,7 +524,7 @@ describe('productService', () => {
         const result = transformProductFromServer(serverData);
 
         expect(result.uniqueName).toBe(
-          'SS-304-Sheet-Brushed-1000mm-2mm-2000mm'
+          'SS-304-Sheet-Brushed-1000mm-2mm-2000mm',
         );
         expect(result.displayName).toBe('SS-304-Sheet');
         expect(result.fullName).toContain('Stainless Steel');

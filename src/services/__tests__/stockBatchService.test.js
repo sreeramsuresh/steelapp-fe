@@ -116,7 +116,7 @@ describe('stockBatchService', () => {
 
       expect(apiClient.get).toHaveBeenCalledWith(
         '/stock-batches/product/5',
-        expect.objectContaining({ procurementChannel: 'LOCAL' })
+        expect.objectContaining({ procurementChannel: 'LOCAL' }),
       );
     });
   });
@@ -137,7 +137,7 @@ describe('stockBatchService', () => {
       expect(result.importedQty).toBe(50);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/stock-batches/product/5/summary',
-        {}
+        {},
       );
     });
   });
@@ -166,7 +166,7 @@ describe('stockBatchService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(
-        stockBatchService.getBatches()
+        stockBatchService.getBatches(),
       ).rejects.toThrow('Network error');
     });
 
@@ -174,7 +174,7 @@ describe('stockBatchService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Product not found'));
 
       await expect(
-        stockBatchService.getProcurementSummary(999)
+        stockBatchService.getProcurementSummary(999),
       ).rejects.toThrow('Product not found');
     });
 
@@ -182,7 +182,7 @@ describe('stockBatchService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Not found'));
 
       await expect(
-        stockBatchService.getBatchesByProduct(999)
+        stockBatchService.getBatchesByProduct(999),
       ).rejects.toThrow('Not found');
     });
   });

@@ -101,7 +101,7 @@ describe('authService', () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'steel-app-refresh-token',
-        'refresh-token-456'
+        'refresh-token-456',
       );
     });
 
@@ -135,7 +135,7 @@ describe('authService', () => {
       apiClient.post.mockRejectedValueOnce(error);
 
       await expect(authService.login('test@test.com', 'wrongpass')).rejects.toThrow(
-        'Invalid email or password'
+        'Invalid email or password',
       );
     });
   });
@@ -252,7 +252,7 @@ describe('authService', () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'steel-app-refresh-token',
-        'new-refresh-token'
+        'new-refresh-token',
       );
     });
 
@@ -362,7 +362,7 @@ describe('authService', () => {
       apiClient.post.mockRejectedValueOnce(error);
 
       await expect(
-        authService.changePassword('wrongPassword', 'newPassword456!')
+        authService.changePassword('wrongPassword', 'newPassword456!'),
       ).rejects.toThrow('Current password is incorrect');
     });
   });
@@ -377,7 +377,7 @@ describe('authService', () => {
       apiClient.post.mockRejectedValueOnce(error);
 
       await expect(authService.login('test@test.com', 'password')).rejects.toThrow(
-        'Network timeout'
+        'Network timeout',
       );
     });
 
@@ -416,7 +416,7 @@ describe('authService', () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'steel-app-user',
-        expect.stringContaining('"companyId":5')
+        expect.stringContaining('"companyId":5'),
       );
     });
 

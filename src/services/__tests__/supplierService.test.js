@@ -103,7 +103,7 @@ describe('supplierService', () => {
       const localSupplier = { id: 3, name: 'Local Supplier', country: 'UAE' };
       localStorage.setItem(
         'steel-app-suppliers',
-        JSON.stringify([localSupplier])
+        JSON.stringify([localSupplier]),
       );
       apiClient.get.mockRejectedValueOnce(new Error('API unavailable'));
 
@@ -201,7 +201,7 @@ describe('supplierService', () => {
       // Verify it was saved to localStorage
       const stored = JSON.parse(localStorage.getItem('steel-app-suppliers'));
       expect(stored.some((s) => s.id === 3 && s.status === 'INACTIVE')).toBe(
-        true
+        true,
       );
     });
   });
@@ -222,7 +222,7 @@ describe('supplierService', () => {
         JSON.stringify([
           { id: 5, name: 'To Delete', country: 'UAE' },
           { id: 6, name: 'Keep', country: 'UAE' },
-        ])
+        ]),
       );
       apiClient.delete.mockRejectedValueOnce(new Error('API error'));
 
@@ -332,7 +332,7 @@ describe('supplierService', () => {
   describe('Error Handling', () => {
     test('should handle network errors in getSuppliers gracefully', async () => {
       apiClient.get.mockRejectedValueOnce(
-        new Error('Network timeout')
+        new Error('Network timeout'),
       );
 
       const result = await supplierService.getSuppliers();

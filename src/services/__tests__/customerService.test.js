@@ -107,11 +107,11 @@ describe('customerService', () => {
 
       test('should handle 404 for non-existent customer', async () => {
         apiClient.get.mockRejectedValueOnce(
-          new Error('Customer not found')
+          new Error('Customer not found'),
         );
 
         await expect(customerService.getCustomer(999)).rejects.toThrow(
-          'Customer not found'
+          'Customer not found',
         );
       });
     });
@@ -151,11 +151,11 @@ describe('customerService', () => {
 
       test('should handle validation errors on creation', async () => {
         apiClient.post.mockRejectedValueOnce(
-          new Error('Email is required')
+          new Error('Email is required'),
         );
 
         await expect(
-          customerService.createCustomer({ name: 'Test' })
+          customerService.createCustomer({ name: 'Test' }),
         ).rejects.toThrow('Email is required');
       });
 
@@ -197,11 +197,11 @@ describe('customerService', () => {
 
       test('should handle update conflicts', async () => {
         apiClient.put.mockRejectedValueOnce(
-          new Error('Customer was modified by another user')
+          new Error('Customer was modified by another user'),
         );
 
         await expect(
-          customerService.updateCustomer(1, { name: 'Updated' })
+          customerService.updateCustomer(1, { name: 'Updated' }),
         ).rejects.toThrow('Customer was modified');
       });
     });
@@ -220,11 +220,11 @@ describe('customerService', () => {
 
       test('should handle deletion of customer with outstanding balance', async () => {
         apiClient.delete.mockRejectedValueOnce(
-          new Error('Cannot delete customer with outstanding balance')
+          new Error('Cannot delete customer with outstanding balance'),
         );
 
         await expect(
-          customerService.deleteCustomer(1)
+          customerService.deleteCustomer(1),
         ).rejects.toThrow('outstanding balance');
       });
     });
@@ -481,11 +481,11 @@ describe('customerService', () => {
 
     test('should not allow cross-tenant customer access', async () => {
       apiClient.get.mockRejectedValueOnce(
-        new Error('Not authorized to access this customer')
+        new Error('Not authorized to access this customer'),
       );
 
       await expect(customerService.getCustomer(999)).rejects.toThrow(
-        'Not authorized'
+        'Not authorized',
       );
     });
   });
@@ -499,20 +499,20 @@ describe('customerService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network timeout'));
 
       await expect(
-        customerService.getCustomers()
+        customerService.getCustomers(),
       ).rejects.toThrow('Network timeout');
     });
 
     test('should handle invalid email format validation', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Invalid email format')
+        new Error('Invalid email format'),
       );
 
       await expect(
         customerService.createCustomer({
           name: 'Test',
           email: 'invalid-email',
-        })
+        }),
       ).rejects.toThrow('Invalid email format');
     });
 

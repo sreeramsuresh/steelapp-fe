@@ -94,7 +94,7 @@ describe('useHomeSectionOrder', () => {
 
       expect(result.current.sectionOrder).toEqual(['quickAccess', 'createNew', 'recentItems']);
       expect(userPreferencesService.setHomeSectionOrder).toHaveBeenCalledWith(
-        ['quickAccess', 'createNew', 'recentItems']
+        ['quickAccess', 'createNew', 'recentItems'],
       );
     });
 

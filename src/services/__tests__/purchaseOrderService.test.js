@@ -170,7 +170,7 @@ describe('purchaseOrderService', () => {
       expect(result.poNumber).toBe('PO-002');
       expect(apiClient.post).toHaveBeenCalledWith(
         '/purchase-orders',
-        newPO
+        newPO,
       );
     });
 
@@ -186,7 +186,7 @@ describe('purchaseOrderService', () => {
 
       expect(apiClient.post).toHaveBeenCalledWith(
         '/purchase-orders',
-        incompletePO
+        incompletePO,
       );
     });
   });
@@ -206,7 +206,7 @@ describe('purchaseOrderService', () => {
       expect(result.id).toBe(1);
       expect(apiClient.put).toHaveBeenCalledWith(
         '/purchase-orders/1',
-        updates
+        updates,
       );
     });
 
@@ -234,7 +234,7 @@ describe('purchaseOrderService', () => {
       expect(result.status).toBe('approved');
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/purchase-orders/1/status',
-        { status: 'approved' }
+        { status: 'approved' },
       );
     });
 
@@ -245,7 +245,7 @@ describe('purchaseOrderService', () => {
 
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/purchase-orders/1/status',
-        { status: 'closed' }
+        { status: 'closed' },
       );
     });
   });
@@ -257,13 +257,13 @@ describe('purchaseOrderService', () => {
 
       const result = await purchaseOrderService.updateTransitStatus(
         1,
-        'in_transit'
+        'in_transit',
       );
 
       expect(result.transitStatus).toBe('in_transit');
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/purchase-orders/1/transit-status',
-        { transit_status: 'in_transit' }
+        { transit_status: 'in_transit' },
       );
     });
 
@@ -276,7 +276,7 @@ describe('purchaseOrderService', () => {
 
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/purchase-orders/1/transit-status',
-        { transit_status: 'delivered' }
+        { transit_status: 'delivered' },
       );
     });
   });
@@ -288,13 +288,13 @@ describe('purchaseOrderService', () => {
 
       const result = await purchaseOrderService.updateStockStatus(
         1,
-        'received'
+        'received',
       );
 
       expect(result.stockStatus).toBe('received');
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/purchase-orders/1/stock-status',
-        { stock_status: 'received' }
+        { stock_status: 'received' },
       );
     });
 
@@ -305,7 +305,7 @@ describe('purchaseOrderService', () => {
 
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/purchase-orders/1/stock-status',
-        { stock_status: 'inspected' }
+        { stock_status: 'inspected' },
       );
     });
   });
@@ -393,11 +393,11 @@ describe('purchaseOrderService', () => {
 
     test('should handle PDF download errors', async () => {
       apiService.request.mockRejectedValueOnce(
-        new Error('PDF generation failed')
+        new Error('PDF generation failed'),
       );
 
       await expect(purchaseOrderService.downloadPDF(999)).rejects.toThrow(
-        'PDF generation failed'
+        'PDF generation failed',
       );
     });
   });
@@ -407,7 +407,7 @@ describe('purchaseOrderService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(purchaseOrderService.getAll()).rejects.toThrow(
-        'Network error'
+        'Network error',
       );
     });
 
@@ -415,17 +415,17 @@ describe('purchaseOrderService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Validation failed'));
 
       await expect(
-        purchaseOrderService.create({})
+        purchaseOrderService.create({}),
       ).rejects.toThrow('Validation failed');
     });
 
     test('should handle errors in updateStatus', async () => {
       apiClient.patch.mockRejectedValueOnce(
-        new Error('Invalid status transition')
+        new Error('Invalid status transition'),
       );
 
       await expect(
-        purchaseOrderService.updateStatus(1, 'invalid')
+        purchaseOrderService.updateStatus(1, 'invalid'),
       ).rejects.toThrow('Invalid status transition');
     });
   });

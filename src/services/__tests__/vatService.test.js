@@ -89,7 +89,7 @@ describe('vatService', () => {
       expect(result.id).toBe(5);
       expect(apiClient.post).toHaveBeenCalledWith(
         '/vat-return/generate',
-        periodData
+        periodData,
       );
     });
 
@@ -121,7 +121,7 @@ describe('vatService', () => {
       expect(result.status).toBe('submitted');
       expect(apiClient.post).toHaveBeenCalledWith(
         '/vat-return/1/submit',
-        submissionData
+        submissionData,
       );
     });
 
@@ -138,7 +138,7 @@ describe('vatService', () => {
       expect(result.box15NetVatDue).toBe(30000);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/vat-return/1/form-201',
-        {}
+        {},
       );
     });
 
@@ -155,7 +155,7 @@ describe('vatService', () => {
       expect(result.totalInvoices).toBe(150);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/vat-return/1/reconciliation',
-        {}
+        {},
       );
     });
 
@@ -172,7 +172,7 @@ describe('vatService', () => {
       expect(result[0].action).toBe('submitted');
       expect(apiClient.get).toHaveBeenCalledWith(
         '/vat-return/1/audit-trail',
-        {}
+        {},
       );
     });
 
@@ -239,7 +239,7 @@ describe('vatService', () => {
       expect(result.id).toBe(10);
       expect(apiClient.post).toHaveBeenCalledWith(
         '/vat-return/adjustments',
-        adjustmentData
+        adjustmentData,
       );
     });
 
@@ -253,7 +253,7 @@ describe('vatService', () => {
       expect(result.amount).toBe(6000);
       expect(apiClient.put).toHaveBeenCalledWith(
         '/vat-return/adjustments/1',
-        updates
+        updates,
       );
     });
 
@@ -271,7 +271,7 @@ describe('vatService', () => {
       expect(result.status).toBe('approved');
       expect(apiClient.post).toHaveBeenCalledWith(
         '/vat-return/adjustments/1/approve',
-        approvalData
+        approvalData,
       );
     });
 
@@ -289,7 +289,7 @@ describe('vatService', () => {
       expect(result.status).toBe('rejected');
       expect(apiClient.post).toHaveBeenCalledWith(
         '/vat-return/adjustments/1/reject',
-        rejectionData
+        rejectionData,
       );
     });
   });
@@ -330,7 +330,7 @@ describe('vatService', () => {
       expect(result.id).toBe(5);
       expect(apiClient.post).toHaveBeenCalledWith(
         '/vat-return/amendments',
-        amendmentData
+        amendmentData,
       );
     });
 
@@ -342,7 +342,7 @@ describe('vatService', () => {
 
       expect(result.status).toBe('submitted');
       expect(apiClient.post).toHaveBeenCalledWith(
-        '/vat-return/amendments/1/submit'
+        '/vat-return/amendments/1/submit',
       );
     });
 
@@ -355,7 +355,7 @@ describe('vatService', () => {
       expect(result.penaltyAmount).toBe(500);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/vat-return/amendments/1/penalty',
-        {}
+        {},
       );
     });
   });
@@ -376,7 +376,7 @@ describe('vatService', () => {
       expect(result.categories).toHaveLength(2);
       expect(result.total_blocked_vat).toBe(15000);
       expect(apiClient.get).toHaveBeenCalledWith(
-        '/vat-return/blocked-vat/categories'
+        '/vat-return/blocked-vat/categories',
       );
     });
 
@@ -395,7 +395,7 @@ describe('vatService', () => {
       expect(result).toHaveLength(1);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/vat-return/blocked-vat/log',
-        {}
+        {},
       );
     });
 
@@ -413,7 +413,7 @@ describe('vatService', () => {
       expect(result.id).toBe(100);
       expect(apiClient.post).toHaveBeenCalledWith(
         '/vat-return/blocked-vat/record',
-        blockedData
+        blockedData,
       );
     });
   });
@@ -488,7 +488,7 @@ describe('vatService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(
-        vatService.getVATReturns()
+        vatService.getVATReturns(),
       ).rejects.toThrow('Network error');
     });
 
@@ -496,7 +496,7 @@ describe('vatService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Submission failed'));
 
       await expect(
-        vatService.submitVATReturn(1, {})
+        vatService.submitVATReturn(1, {}),
       ).rejects.toThrow('Submission failed');
     });
 
@@ -504,7 +504,7 @@ describe('vatService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Validation error'));
 
       await expect(
-        vatService.createVATAdjustment({})
+        vatService.createVATAdjustment({}),
       ).rejects.toThrow('Validation error');
     });
 
@@ -512,7 +512,7 @@ describe('vatService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Recording failed'));
 
       await expect(
-        vatService.recordBlockedVAT({})
+        vatService.recordBlockedVAT({}),
       ).rejects.toThrow('Recording failed');
     });
   });

@@ -155,11 +155,11 @@ describe('grnService', () => {
 
     test('should prevent updating approved GRN', async () => {
       apiClient.put.mockRejectedValueOnce(
-        new Error('Cannot update approved GRN')
+        new Error('Cannot update approved GRN'),
       );
 
       await expect(grnService.update(1, {})).rejects.toThrow(
-        'Cannot update approved GRN'
+        'Cannot update approved GRN',
       );
     });
   });
@@ -205,13 +205,13 @@ describe('grnService', () => {
 
     test('should prevent exceeding ordered quantity', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Received quantity exceeds ordered quantity')
+        new Error('Received quantity exceeds ordered quantity'),
       );
 
       await expect(
         grnService.create({
           items: [{ orderedQuantity: 1000, receivedQuantity: 1100 }],
-        })
+        }),
       ).rejects.toThrow('exceeds ordered quantity');
     });
   });
@@ -239,7 +239,7 @@ describe('grnService', () => {
 
     test('should prevent approving GRN with rejections', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Cannot approve GRN with rejected items')
+        new Error('Cannot approve GRN with rejected items'),
       );
 
       await expect(grnService.approve(1)).rejects.toThrow('Cannot approve GRN');
@@ -265,7 +265,7 @@ describe('grnService', () => {
 
     test('should prevent cancelling approved GRN', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Cannot cancel approved GRN')
+        new Error('Cannot cancel approved GRN'),
       );
 
       await expect(grnService.cancel(1)).rejects.toThrow('Cannot cancel approved GRN');
@@ -295,11 +295,11 @@ describe('grnService', () => {
 
     test('should enforce 3-way match logic', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('PO, GRN, and Bill quantities do not match')
+        new Error('PO, GRN, and Bill quantities do not match'),
       );
 
       await expect(grnService.markBilled(1, 500)).rejects.toThrow(
-        'do not match'
+        'do not match',
       );
     });
   });

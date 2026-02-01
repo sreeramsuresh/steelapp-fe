@@ -147,7 +147,7 @@ describe('userPreferencesService', () => {
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         'Failed to save section order to localStorage:',
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleWarnSpy.mockRestore();

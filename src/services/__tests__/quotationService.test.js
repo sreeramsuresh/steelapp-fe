@@ -218,17 +218,17 @@ describe('quotationService', () => {
       expect(result.invoiceId).toBe(10);
       expect(result.invoiceNumber).toBe('INV-001');
       expect(apiClient.post).toHaveBeenCalledWith(
-        '/quotations/1/convert-to-invoice'
+        '/quotations/1/convert-to-invoice',
       );
     });
 
     test('should not convert expired quotation', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Cannot convert expired quotation')
+        new Error('Cannot convert expired quotation'),
       );
 
       await expect(quotationService.convertToInvoice(1)).rejects.toThrow(
-        'Cannot convert expired quotation'
+        'Cannot convert expired quotation',
       );
     });
   });
@@ -270,11 +270,11 @@ describe('quotationService', () => {
 
     test('should handle PDF download errors', async () => {
       apiService.request.mockRejectedValueOnce(
-        new Error('PDF generation failed')
+        new Error('PDF generation failed'),
       );
 
       await expect(quotationService.downloadPDF(999)).rejects.toThrow(
-        'PDF generation failed'
+        'PDF generation failed',
       );
     });
   });
@@ -284,7 +284,7 @@ describe('quotationService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(quotationService.getAll()).rejects.toThrow(
-        'Network error'
+        'Network error',
       );
     });
 
@@ -292,7 +292,7 @@ describe('quotationService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Validation failed'));
 
       await expect(quotationService.create({})).rejects.toThrow(
-        'Validation failed'
+        'Validation failed',
       );
     });
 
@@ -300,17 +300,17 @@ describe('quotationService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Conversion failed'));
 
       await expect(quotationService.convertToInvoice(1)).rejects.toThrow(
-        'Conversion failed'
+        'Conversion failed',
       );
     });
 
     test('should handle errors in updateStatus', async () => {
       apiClient.patch.mockRejectedValueOnce(
-        new Error('Invalid status transition')
+        new Error('Invalid status transition'),
       );
 
       await expect(
-        quotationService.updateStatus(1, 'invalid')
+        quotationService.updateStatus(1, 'invalid'),
       ).rejects.toThrow('Invalid status transition');
     });
   });

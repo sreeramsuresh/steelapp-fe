@@ -104,10 +104,12 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
         message: 'Template downloaded successfully',
         type: 'success',
       });
-    } catch (_error) {
+    } catch (error) {
+      // Bug #28 fix: Add error context to download failure notification
+      const errorMessage = error?.message || 'Unknown error occurred';
       addNotification({
         title: 'Download Failed',
-        message: 'Failed to download template',
+        message: `Failed to download template: ${errorMessage}`,
         type: 'error',
       });
     }

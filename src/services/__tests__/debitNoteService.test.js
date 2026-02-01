@@ -291,11 +291,11 @@ describe('debitNoteService', () => {
       };
 
       apiClient.post.mockRejectedValueOnce(
-        new Error('Supplier ID is required')
+        new Error('Supplier ID is required'),
       );
 
       await expect(
-        debitNoteService.createDebitNote(invalidData)
+        debitNoteService.createDebitNote(invalidData),
       ).rejects.toThrow('Supplier ID is required');
     });
 
@@ -374,11 +374,11 @@ describe('debitNoteService', () => {
 
     test('should prevent update of issued debit notes', async () => {
       apiClient.put.mockRejectedValueOnce(
-        new Error('Cannot update issued debit note')
+        new Error('Cannot update issued debit note'),
       );
 
       await expect(
-        debitNoteService.updateDebitNote(1, { status: 'draft' })
+        debitNoteService.updateDebitNote(1, { status: 'draft' }),
       ).rejects.toThrow('Cannot update issued debit note');
     });
   });
@@ -399,11 +399,11 @@ describe('debitNoteService', () => {
 
     test('should handle deletion of non-existent debit note', async () => {
       apiClient.delete.mockRejectedValueOnce(
-        new Error('Debit note not found')
+        new Error('Debit note not found'),
       );
 
       await expect(
-        debitNoteService.deleteDebitNote(999)
+        debitNoteService.deleteDebitNote(999),
       ).rejects.toThrow('Debit note not found');
     });
   });
@@ -551,17 +551,17 @@ describe('debitNoteService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network timeout'));
 
       await expect(
-        debitNoteService.getAllDebitNotes()
+        debitNoteService.getAllDebitNotes(),
       ).rejects.toThrow('Network timeout');
     });
 
     test('should handle server validation errors', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Validation: VAT amount mismatch')
+        new Error('Validation: VAT amount mismatch'),
       );
 
       await expect(
-        debitNoteService.createDebitNote({})
+        debitNoteService.createDebitNote({}),
       ).rejects.toThrow('Validation');
     });
 
@@ -569,7 +569,7 @@ describe('debitNoteService', () => {
       apiClient.delete.mockRejectedValueOnce(new Error('Forbidden'));
 
       await expect(
-        debitNoteService.deleteDebitNote(1)
+        debitNoteService.deleteDebitNote(1),
       ).rejects.toThrow('Forbidden');
     });
   });

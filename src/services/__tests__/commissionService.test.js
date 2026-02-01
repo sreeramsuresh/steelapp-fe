@@ -60,7 +60,7 @@ describe('commissionService', () => {
       api.get.mockRejectedValueOnce(new Error('Commission not found'));
 
       await expect(commissionService.getInvoiceCommission(999)).rejects.toThrow(
-        'Commission not found'
+        'Commission not found',
       );
     });
 
@@ -68,7 +68,7 @@ describe('commissionService', () => {
       api.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(commissionService.getInvoiceCommission(100)).rejects.toThrow(
-        'Network error'
+        'Network error',
       );
     });
   });
@@ -110,7 +110,7 @@ describe('commissionService', () => {
       expect(result[2].status).toBe('PAID');
       expect(api.get).toHaveBeenCalledWith(
         '/commissions/sales-person/5',
-        { params: { status: 'PENDING', daysBack: 90 } }
+        { params: { status: 'PENDING', daysBack: 90 } },
       );
     });
 
@@ -122,7 +122,7 @@ describe('commissionService', () => {
 
       expect(api.get).toHaveBeenCalledWith(
         '/commissions/sales-person/5',
-        { params: { status: 'APPROVED', daysBack: 180 } }
+        { params: { status: 'APPROVED', daysBack: 180 } },
       );
     });
 
@@ -159,7 +159,7 @@ describe('commissionService', () => {
       const result = await commissionService.adjustCommissionAmount(
         100,
         200,
-        'Customer discount applied'
+        'Customer discount applied',
       );
 
       expect(result.originalCommissionAmount).toBe(250);
@@ -171,37 +171,37 @@ describe('commissionService', () => {
         {
           newCommissionAmount: 200,
           reason: 'Customer discount applied',
-        }
+        },
       );
     });
 
     test('should handle adjustment outside grace period', async () => {
       api.put.mockRejectedValueOnce(
-        new Error('Grace period expired - cannot adjust commission')
+        new Error('Grace period expired - cannot adjust commission'),
       );
 
       await expect(
-        commissionService.adjustCommissionAmount(100, 200, 'Late adjustment')
+        commissionService.adjustCommissionAmount(100, 200, 'Late adjustment'),
       ).rejects.toThrow('Grace period expired');
     });
 
     test('should validate new amount is less than original', async () => {
       api.put.mockRejectedValueOnce(
-        new Error('Adjusted amount cannot exceed original')
+        new Error('Adjusted amount cannot exceed original'),
       );
 
       await expect(
-        commissionService.adjustCommissionAmount(100, 300, 'Invalid increase')
+        commissionService.adjustCommissionAmount(100, 300, 'Invalid increase'),
       ).rejects.toThrow('Adjusted amount cannot exceed original');
     });
 
     test('should prevent negative commission amounts', async () => {
       api.put.mockRejectedValueOnce(
-        new Error('Commission amount must be positive')
+        new Error('Commission amount must be positive'),
       );
 
       await expect(
-        commissionService.adjustCommissionAmount(100, -50, 'Negative amount')
+        commissionService.adjustCommissionAmount(100, -50, 'Negative amount'),
       ).rejects.toThrow('Commission amount must be positive');
     });
   });
@@ -232,27 +232,27 @@ describe('commissionService', () => {
       expect(result.approvedAt).toBeDefined();
       expect(api.post).toHaveBeenCalledWith(
         '/commissions/invoice/100/approve',
-        { approvedByUserId: 'mgr001' }
+        { approvedByUserId: 'mgr001' },
       );
     });
 
     test('should prevent double approval', async () => {
       api.post.mockRejectedValueOnce(
-        new Error('Commission already approved')
+        new Error('Commission already approved'),
       );
 
       await expect(
-        commissionService.approveCommission(100, 'mgr001')
+        commissionService.approveCommission(100, 'mgr001'),
       ).rejects.toThrow('Commission already approved');
     });
 
     test('should require manager authorization', async () => {
       api.post.mockRejectedValueOnce(
-        new Error('Insufficient permissions to approve commission')
+        new Error('Insufficient permissions to approve commission'),
       );
 
       await expect(
-        commissionService.approveCommission(100, 'user123')
+        commissionService.approveCommission(100, 'user123'),
       ).rejects.toThrow('Insufficient permissions');
     });
   });
@@ -278,7 +278,7 @@ describe('commissionService', () => {
 
       const result = await commissionService.markCommissionAsPaid(
         100,
-        'BANK-TXN-2026-001'
+        'BANK-TXN-2026-001',
       );
 
       expect(result.status).toBe('PAID');
@@ -286,37 +286,37 @@ describe('commissionService', () => {
       expect(result.paidAt).toBeDefined();
       expect(api.post).toHaveBeenCalledWith(
         '/commissions/invoice/100/pay',
-        { paymentReference: 'BANK-TXN-2026-001' }
+        { paymentReference: 'BANK-TXN-2026-001' },
       );
     });
 
     test('should prevent paying unapproved commission', async () => {
       api.post.mockRejectedValueOnce(
-        new Error('Commission must be approved before payment')
+        new Error('Commission must be approved before payment'),
       );
 
       await expect(
-        commissionService.markCommissionAsPaid(100, 'BANK-TXN-001')
+        commissionService.markCommissionAsPaid(100, 'BANK-TXN-001'),
       ).rejects.toThrow('Commission must be approved before payment');
     });
 
     test('should prevent double payment', async () => {
       api.post.mockRejectedValueOnce(
-        new Error('Commission already paid')
+        new Error('Commission already paid'),
       );
 
       await expect(
-        commissionService.markCommissionAsPaid(100, 'BANK-TXN-001')
+        commissionService.markCommissionAsPaid(100, 'BANK-TXN-001'),
       ).rejects.toThrow('Commission already paid');
     });
 
     test('should require payment reference', async () => {
       api.post.mockRejectedValueOnce(
-        new Error('Payment reference is required')
+        new Error('Payment reference is required'),
       );
 
       await expect(
-        commissionService.markCommissionAsPaid(100, '')
+        commissionService.markCommissionAsPaid(100, ''),
       ).rejects.toThrow('Payment reference is required');
     });
   });
@@ -441,7 +441,7 @@ describe('commissionService', () => {
       api.get.mockRejectedValueOnce(new Error('Network timeout'));
 
       await expect(commissionService.getInvoiceCommission(100)).rejects.toThrow(
-        'Network timeout'
+        'Network timeout',
       );
     });
 
@@ -449,7 +449,7 @@ describe('commissionService', () => {
       api.post.mockRejectedValueOnce(new Error('Server error'));
 
       await expect(
-        commissionService.approveCommission(100, 'mgr001')
+        commissionService.approveCommission(100, 'mgr001'),
       ).rejects.toThrow('Server error');
     });
 
@@ -457,7 +457,7 @@ describe('commissionService', () => {
       api.post.mockRejectedValueOnce(new Error('Database error'));
 
       await expect(
-        commissionService.markCommissionAsPaid(100, 'BANK-001')
+        commissionService.markCommissionAsPaid(100, 'BANK-001'),
       ).rejects.toThrow('Database error');
     });
 
@@ -465,7 +465,7 @@ describe('commissionService', () => {
       api.put.mockRejectedValueOnce(new Error('Service unavailable'));
 
       await expect(
-        commissionService.adjustCommissionAmount(100, 200, 'Adjustment')
+        commissionService.adjustCommissionAmount(100, 200, 'Adjustment'),
       ).rejects.toThrow('Service unavailable');
     });
   });
@@ -477,31 +477,31 @@ describe('commissionService', () => {
   describe('Commission Eligibility & Rules', () => {
     test('should not calculate commission for cancelled invoices', async () => {
       api.get.mockRejectedValueOnce(
-        new Error('No commission for cancelled invoices')
+        new Error('No commission for cancelled invoices'),
       );
 
       await expect(commissionService.getInvoiceCommission(100)).rejects.toThrow(
-        'No commission for cancelled invoices'
+        'No commission for cancelled invoices',
       );
     });
 
     test('should enforce 15-day grace period for adjustments', async () => {
       api.put.mockRejectedValueOnce(
-        new Error('Commission is outside the 15-day adjustment window')
+        new Error('Commission is outside the 15-day adjustment window'),
       );
 
       await expect(
-        commissionService.adjustCommissionAmount(100, 200, 'Late adjustment')
+        commissionService.adjustCommissionAmount(100, 200, 'Late adjustment'),
       ).rejects.toThrow('outside the 15-day adjustment window');
     });
 
     test('should prevent commission for internal sales', async () => {
       api.get.mockRejectedValueOnce(
-        new Error('No commission for internal sales')
+        new Error('No commission for internal sales'),
       );
 
       await expect(commissionService.getInvoiceCommission(100)).rejects.toThrow(
-        'No commission for internal sales'
+        'No commission for internal sales',
       );
     });
   });

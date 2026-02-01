@@ -265,11 +265,11 @@ describe('deliveryNoteService', () => {
         deliveryDate: '',
       };
       apiClient.post.mockRejectedValueOnce(
-        new Error('Missing required fields')
+        new Error('Missing required fields'),
       );
 
       await expect(deliveryNoteService.create(invalidData)).rejects.toThrow(
-        'Missing required fields'
+        'Missing required fields',
       );
     });
   });
@@ -299,7 +299,7 @@ describe('deliveryNoteService', () => {
       apiClient.put.mockRejectedValueOnce(new Error('Cannot update delivered note'));
 
       await expect(
-        deliveryNoteService.update(1, { driverName: 'John' })
+        deliveryNoteService.update(1, { driverName: 'John' }),
       ).rejects.toThrow('Cannot update delivered note');
     });
   });
@@ -329,7 +329,7 @@ describe('deliveryNoteService', () => {
       expect(result.isFullyDelivered).toBe(false);
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/delivery-notes/1/items/10/deliver',
-        deliveryData
+        deliveryData,
       );
     });
 
@@ -351,11 +351,11 @@ describe('deliveryNoteService', () => {
     test('should prevent exceeding ordered quantity', async () => {
       const deliveryData = { deliveredQuantity: 150 }; // Exceeds ordered quantity of 100
       apiClient.patch.mockRejectedValueOnce(
-        new Error('Cannot deliver more than ordered quantity')
+        new Error('Cannot deliver more than ordered quantity'),
       );
 
       await expect(
-        deliveryNoteService.updateDelivery(1, 10, deliveryData)
+        deliveryNoteService.updateDelivery(1, 10, deliveryData),
       ).rejects.toThrow('Cannot deliver more than ordered quantity');
     });
   });
@@ -380,7 +380,7 @@ describe('deliveryNoteService', () => {
       expect(result.stockDeducted).toBe(true);
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/delivery-notes/1/status',
-        { status: 'DELIVERED', notes: 'Delivered successfully' }
+        { status: 'DELIVERED', notes: 'Delivered successfully' },
       );
     });
 
@@ -392,17 +392,17 @@ describe('deliveryNoteService', () => {
 
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/delivery-notes/1/status',
-        { status: 'CANCELLED', notes: '' }
+        { status: 'CANCELLED', notes: '' },
       );
     });
 
     test('should prevent invalid status transitions', async () => {
       apiClient.patch.mockRejectedValueOnce(
-        new Error('Cannot cancel delivered note')
+        new Error('Cannot cancel delivered note'),
       );
 
       await expect(
-        deliveryNoteService.updateStatus(1, 'CANCELLED')
+        deliveryNoteService.updateStatus(1, 'CANCELLED'),
       ).rejects.toThrow('Cannot cancel delivered note');
     });
 
@@ -415,7 +415,7 @@ describe('deliveryNoteService', () => {
       expect(result.status).toBe('HOLD');
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/delivery-notes/1/status',
-        { status: 'HOLD', notes: 'On hold pending inspection' }
+        { status: 'HOLD', notes: 'On hold pending inspection' },
       );
     });
   });
@@ -436,11 +436,11 @@ describe('deliveryNoteService', () => {
 
     test('should prevent deleting delivered note', async () => {
       apiClient.delete.mockRejectedValueOnce(
-        new Error('Cannot delete delivered note')
+        new Error('Cannot delete delivered note'),
       );
 
       await expect(deliveryNoteService.delete(1)).rejects.toThrow(
-        'Cannot delete delivered note'
+        'Cannot delete delivered note',
       );
     });
   });
@@ -558,7 +558,7 @@ describe('deliveryNoteService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(
-        deliveryNoteService.create({ invoiceId: 1 })
+        deliveryNoteService.create({ invoiceId: 1 }),
       ).rejects.toThrow('Network error');
     });
 
@@ -566,7 +566,7 @@ describe('deliveryNoteService', () => {
       apiClient.patch.mockRejectedValueOnce(new Error('Server error'));
 
       await expect(
-        deliveryNoteService.updateStatus(1, 'DELIVERED')
+        deliveryNoteService.updateStatus(1, 'DELIVERED'),
       ).rejects.toThrow('Server error');
     });
 

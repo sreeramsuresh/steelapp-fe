@@ -75,7 +75,7 @@ describe('allocationService', () => {
           productId: 1,
           warehouseId: 1,
           hasStock: true,
-        })
+        }),
       );
     });
 
@@ -217,7 +217,7 @@ describe('allocationService', () => {
       await allocationService.getAvailableBatches(1, 1);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/stock-batches/available',
-        expect.objectContaining({ warehouseId: 1 })
+        expect.objectContaining({ warehouseId: 1 }),
       );
 
       apiClient.get.mockClear();
@@ -226,7 +226,7 @@ describe('allocationService', () => {
       await allocationService.getAvailableBatches(1, 2);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/stock-batches/available',
-        expect.objectContaining({ warehouseId: 2 })
+        expect.objectContaining({ warehouseId: 2 }),
       );
     });
   });
@@ -267,7 +267,7 @@ describe('allocationService', () => {
           productId: 1,
           warehouseId: 1,
           quantity: 50,
-        })
+        }),
       );
     });
 
@@ -494,27 +494,27 @@ describe('allocationService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(
-        allocationService.getAvailableBatches(1, 1)
+        allocationService.getAvailableBatches(1, 1),
       ).rejects.toThrow('Network error');
     });
 
     test('should handle allocation API errors', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Invalid product or warehouse')
+        new Error('Invalid product or warehouse'),
       );
 
       await expect(
-        allocationService.allocateFIFO(999, 999, 100)
+        allocationService.allocateFIFO(999, 999, 100),
       ).rejects.toThrow('Invalid product or warehouse');
     });
 
     test('should handle server errors (5xx)', async () => {
       apiClient.get.mockRejectedValueOnce(
-        new Error('Internal Server Error')
+        new Error('Internal Server Error'),
       );
 
       await expect(
-        allocationService.getAvailableBatches(1, 1)
+        allocationService.getAvailableBatches(1, 1),
       ).rejects.toThrow('Internal Server Error');
     });
 
@@ -522,7 +522,7 @@ describe('allocationService', () => {
       apiClient.post.mockRejectedValueOnce(new Error('Unauthorized'));
 
       await expect(
-        allocationService.allocateFIFO(1, 1, 50)
+        allocationService.allocateFIFO(1, 1, 50),
       ).rejects.toThrow('Unauthorized');
     });
   });

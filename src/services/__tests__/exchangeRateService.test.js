@@ -113,7 +113,7 @@ describe('exchangeRateService', () => {
       api.post.mockRejectedValueOnce(new Error('Invalid currency'));
 
       await expect(
-        exchangeRateService.convertCurrency({ amount: 100, from: 'XXX', to: 'YYY' })
+        exchangeRateService.convertCurrency({ amount: 100, from: 'XXX', to: 'YYY' }),
       ).rejects.toThrow('Invalid currency');
     });
   });
@@ -210,7 +210,7 @@ describe('exchangeRateService', () => {
       api.get.mockRejectedValueOnce(new Error('Network timeout'));
 
       await expect(
-        exchangeRateService.getExchangeRates()
+        exchangeRateService.getExchangeRates(),
       ).rejects.toThrow('Network timeout');
     });
 
@@ -218,7 +218,7 @@ describe('exchangeRateService', () => {
       api.get.mockRejectedValueOnce(new Error('Rate not found'));
 
       await expect(
-        exchangeRateService.getLatestRate('XXX', 'YYY')
+        exchangeRateService.getLatestRate('XXX', 'YYY'),
       ).rejects.toThrow('Rate not found');
     });
 
@@ -226,7 +226,7 @@ describe('exchangeRateService', () => {
       api.post.mockRejectedValueOnce(new Error('Validation failed'));
 
       await expect(
-        exchangeRateService.createExchangeRate({})
+        exchangeRateService.createExchangeRate({}),
       ).rejects.toThrow('Validation failed');
     });
 
@@ -234,7 +234,7 @@ describe('exchangeRateService', () => {
       api.put.mockRejectedValueOnce(new Error('Rate not found'));
 
       await expect(
-        exchangeRateService.updateExchangeRate(999, { rate: 4.0 })
+        exchangeRateService.updateExchangeRate(999, { rate: 4.0 }),
       ).rejects.toThrow('Rate not found');
     });
 
@@ -242,7 +242,7 @@ describe('exchangeRateService', () => {
       api.delete.mockRejectedValueOnce(new Error('Rate not found'));
 
       await expect(
-        exchangeRateService.deleteExchangeRate(999)
+        exchangeRateService.deleteExchangeRate(999),
       ).rejects.toThrow('Rate not found');
     });
 
@@ -250,7 +250,7 @@ describe('exchangeRateService', () => {
       api.post.mockRejectedValueOnce(new Error('Import failed'));
 
       await expect(
-        exchangeRateService.bulkImportRates([])
+        exchangeRateService.bulkImportRates([]),
       ).rejects.toThrow('Import failed');
     });
 
@@ -258,7 +258,7 @@ describe('exchangeRateService', () => {
       api.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(
-        exchangeRateService.getCurrencies()
+        exchangeRateService.getCurrencies(),
       ).rejects.toThrow('Network error');
     });
 
@@ -266,7 +266,7 @@ describe('exchangeRateService', () => {
       api.get.mockRejectedValueOnce(new Error('History not available'));
 
       await expect(
-        exchangeRateService.getRateHistory('AED', 'USD')
+        exchangeRateService.getRateHistory('AED', 'USD'),
       ).rejects.toThrow('History not available');
     });
   });

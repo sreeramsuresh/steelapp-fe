@@ -29,12 +29,6 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const textSecondary = isDarkMode ? 'text-[#B0BEC5]' : 'text-[#666666]';
   const textMuted = isDarkMode ? 'text-[#78909C]' : 'text-[#BDBDBD]';
 
-  const _inputClasses = `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 ${
-    isDarkMode
-      ? 'border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]'
-      : 'border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]'
-  }`;
-
   const handleFileSelect = (file) => {
     const allowedTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -110,10 +104,12 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
         message: 'Template downloaded successfully',
         type: 'success',
       });
-    } catch (_error) {
+    } catch (error) {
+      // Bug #28 fix: Add error context to download failure notification
+      const errorMessage = error?.message || 'Unknown error occurred';
       addNotification({
         title: 'Download Failed',
-        message: 'Failed to download template',
+        message: `Failed to download template: ${errorMessage}`,
         type: 'error',
       });
     }

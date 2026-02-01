@@ -177,7 +177,7 @@ describe('invoiceService', () => {
         expect.objectContaining({
           invoice_number: 'INV-002',
           customer_id: 2,
-        })
+        }),
       );
     });
 
@@ -204,7 +204,7 @@ describe('invoiceService', () => {
           invoice_number: 'INV-003',
           packing_charges: 500,
           freight_charges: 1000,
-        })
+        }),
       );
     });
 
@@ -233,7 +233,7 @@ describe('invoiceService', () => {
           place_of_supply: 'AE-DU',
           supply_date: '2026-02-01',
           is_reverse_charge: false,
-        })
+        }),
       );
     });
 
@@ -272,7 +272,7 @@ describe('invoiceService', () => {
               manual_allocations: [{ batchId: 1, quantity: 100 }],
             }),
           ]),
-        })
+        }),
       );
     });
   });
@@ -288,7 +288,7 @@ describe('invoiceService', () => {
       expect(result.id).toBe(1);
       expect(apiClient.put).toHaveBeenCalledWith(
         '/invoices/1',
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -336,7 +336,7 @@ describe('invoiceService', () => {
       expect(result.status).toBe('restored');
       expect(apiClient.patch).toHaveBeenCalledWith(
         '/invoices/1/restore',
-        {}
+        {},
       );
     });
   });
@@ -407,7 +407,7 @@ describe('invoiceService', () => {
       expect(result.success).toBe(true);
       expect(result.allocationCount).toBe(2);
       expect(apiClient.post).toHaveBeenCalledWith(
-        '/invoices/1/confirm-allocation'
+        '/invoices/1/confirm-allocation',
       );
     });
 
@@ -420,7 +420,7 @@ describe('invoiceService', () => {
       expect(result.success).toBe(true);
       expect(result.released).toBe(true);
       expect(apiClient.post).toHaveBeenCalledWith(
-        '/invoices/1/release-reservation'
+        '/invoices/1/release-reservation',
       );
     });
   });
@@ -466,7 +466,7 @@ describe('invoiceService', () => {
         expect.objectContaining({
           startDate: '2026-01-01',
           endDate: '2026-01-31',
-        })
+        }),
       );
     });
   });
@@ -510,7 +510,7 @@ describe('invoiceService', () => {
       expect(result).toHaveLength(1);
       expect(apiClient.get).toHaveBeenCalledWith(
         '/invoices/search-for-credit-note',
-        { q: 'ABC' }
+        { q: 'ABC' },
       );
     });
 
@@ -535,7 +535,7 @@ describe('invoiceService', () => {
 
       await invoiceService.getInvoicesByDateRange(
         '2026-01-01',
-        '2026-01-31'
+        '2026-01-31',
       );
 
       expect(apiClient.get).toHaveBeenCalledWith('/invoices', {
@@ -550,37 +550,37 @@ describe('invoiceService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(invoiceService.getInvoices()).rejects.toThrow(
-        'Network error'
+        'Network error',
       );
     });
 
     test('should handle errors in createInvoice', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Validation failed')
+        new Error('Validation failed'),
       );
 
       await expect(
-        invoiceService.createInvoice({})
+        invoiceService.createInvoice({}),
       ).rejects.toThrow('Validation failed');
     });
 
     test('should handle errors in issueInvoice', async () => {
       apiClient.post.mockRejectedValueOnce(
-        new Error('Cannot issue locked invoice')
+        new Error('Cannot issue locked invoice'),
       );
 
       await expect(
-        invoiceService.issueInvoice(1)
+        invoiceService.issueInvoice(1),
       ).rejects.toThrow('Cannot issue locked invoice');
     });
 
     test('should handle errors in updateInvoiceStatus', async () => {
       apiClient.patch.mockRejectedValueOnce(
-        new Error('Invalid status transition')
+        new Error('Invalid status transition'),
       );
 
       await expect(
-        invoiceService.updateInvoiceStatus(1, 'invalid')
+        invoiceService.updateInvoiceStatus(1, 'invalid'),
       ).rejects.toThrow('Invalid status transition');
     });
   });
