@@ -3047,13 +3047,13 @@ const CompanySettings = () => {
                     {userLoadingError ? (
                       <>
                         <AlertTriangle className="w-8 h-8 mx-auto mb-4 text-red-500" />
-                        <p className="text-red-600 font-semibold mb-2">Failed to load users</p>
-                        <p className="text-sm text-gray-600">{userLoadingError}</p>
+                        <div className="text-red-600 font-semibold mb-2">Failed to load users</div>
+                        <div className="text-sm text-gray-600">{userLoadingError}</div>
                       </>
                     ) : userSearchTerm ? (
-                      <p>No users found matching your search</p>
+                      <div>No users found matching your search</div>
                     ) : (
-                      <p>No users yet. Add your first user to get started.</p>
+                      <div>No users yet. Add your first user to get started.</div>
                     )}
                   </div>
                 </div>

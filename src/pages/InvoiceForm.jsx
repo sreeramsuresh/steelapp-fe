@@ -59,6 +59,7 @@ import useInvoiceTemplates from '../hooks/useInvoiceTemplates';
 import { useReducedMotion } from '../hooks/useAccessibility';
 import { notificationService } from '../services/notificationService';
 import LoadingOverlay from '../components/LoadingOverlay';
+import FormErrorBoundaryWithTheme from '../components/quotations/FormErrorBoundary';
 import SourceTypeSelector from '../components/invoice/SourceTypeSelector';
 import AllocationPanel from '../components/invoice/AllocationPanel';
 import AllocationDrawer from '../components/AllocationDrawer';
@@ -4504,6 +4505,13 @@ const InvoiceForm = ({ onSave }) => {
 
   return (
     <>
+      {/* Loading overlay for initial page load */}
+      <LoadingOverlay
+        show={loadingCompany || loadingCustomers || loadingProducts || loadingAgents}
+        message="Loading invoice form..."
+        detail="Initializing form data"
+      />
+
       <div
         className={`min-h-screen pb-32 md:pb-6 ${
           isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
@@ -7637,4 +7645,11 @@ const InvoiceForm = ({ onSave }) => {
   );
 };
 
-export default InvoiceForm;
+// Wrap with error boundary to prevent full app crash
+const InvoiceFormWithErrorBoundary = (props) => (
+  <FormErrorBoundaryWithTheme formName="Invoice Form">
+    <InvoiceForm {...props} />
+  </FormErrorBoundaryWithTheme>
+);
+
+export default InvoiceFormWithErrorBoundary;

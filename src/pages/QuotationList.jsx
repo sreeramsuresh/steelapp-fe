@@ -144,6 +144,18 @@ const QuotationList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, searchTerm, statusFilter]);
 
+  // Bug #3 fix: Refresh list when page becomes visible (e.g., when returning from edit)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchQuotations();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   const { data: company } = useApiData(companyService.getCompany, [], true);
 
   const handleDelete = async (id) => {
@@ -498,9 +510,9 @@ const QuotationList = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div>
-                        {quotation.customerDetails?.name ? (
+                        {quotation.customerDetails?.name || quotation.customer?.name ? (
                           <TruncatedText
-                            text={quotation.customerDetails.name}
+                            text={quotation.customerDetails?.name || quotation.customer?.name}
                             maxWidth="w-48"
                             className={`text-sm ${
                               isDarkMode ? 'text-white' : 'text-gray-900'

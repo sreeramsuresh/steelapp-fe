@@ -784,6 +784,20 @@ const QuotationForm = () => {
     validateField,
   ]);
 
+  // Bug #8-9 fix: Auto-calculate validUntil date (30 days from quotation date) for new quotations
+  useEffect(() => {
+    if (!isEdit && formData.quotationDate && !formData.validUntil) {
+      const quotationDate = new Date(formData.quotationDate);
+      const validUntilDate = new Date(quotationDate);
+      validUntilDate.setDate(validUntilDate.getDate() + 30);
+      const validUntilString = validUntilDate.toISOString().split('T')[0];
+      setFormData((prev) => ({
+        ...prev,
+        validUntil: validUntilString,
+      }));
+    }
+  }, [isEdit, formData.quotationDate]);
+
   const handleCustomerChange = async (customerId, selectedOption = null) => {
     // If called from Autocomplete (selectedOption provided), use that info
     if (selectedOption) {
@@ -947,8 +961,10 @@ const QuotationForm = () => {
       product.unique_name ||
       '');
 
-    // Fetch price from pricelist if available
+    // Fetch price from pricelist if available, or use product selling price
+    // Bug #5-7 fix: Ensure we fetch prices and don't default to 0
     let sellingPrice = parseFloat(product.sellingPrice || product.price) || 0;
+
     if (selectedPricelistId) {
       try {
         const priceResponse = await pricelistService.getPriceForQuantity(
@@ -956,10 +972,29 @@ const QuotationForm = () => {
           selectedPricelistId,
           1,
         );
-        sellingPrice =
-          priceResponse.price || priceResponse.data?.price || sellingPrice;
+        const fetchedPrice = priceResponse.price || priceResponse.data?.price;
+        if (fetchedPrice && fetchedPrice > 0) {
+          sellingPrice = fetchedPrice;
+        }
       } catch (_priceError) {
         // Fallback to default product price
+      }
+    }
+
+    // If price is still 0, try to fetch from default pricelist
+    if (sellingPrice === 0 && !selectedPricelistId) {
+      try {
+        const defaultPriceResponse = await pricelistService.getPriceForQuantity(
+          product.id,
+          1, // Attempt with default pricelist ID = 1
+          1,
+        );
+        const defaultPrice = defaultPriceResponse.price || defaultPriceResponse.data?.price;
+        if (defaultPrice && defaultPrice > 0) {
+          sellingPrice = defaultPrice;
+        }
+      } catch (_defaultPriceError) {
+        // Silently ignore if default pricelist fetch fails
       }
     }
 
@@ -1161,8 +1196,10 @@ const QuotationForm = () => {
           product.uniqueName ||
           product.unique_name);
 
-        // Fetch price from pricelist if available
+        // Fetch price from pricelist if available, or use product selling price
+        // Bug #5-7 fix: Ensure we fetch prices and don't default to 0
         let sellingPrice = product.sellingPrice || product.price || 0;
+
         if (selectedPricelistId) {
           try {
             const priceResponse = await pricelistService.getPriceForQuantity(
@@ -1170,10 +1207,30 @@ const QuotationForm = () => {
               selectedPricelistId,
               1,
             );
-            sellingPrice =
-              priceResponse.price || priceResponse.data?.price || sellingPrice;
+            const fetchedPrice = priceResponse.price || priceResponse.data?.price;
+            if (fetchedPrice && fetchedPrice > 0) {
+              sellingPrice = fetchedPrice;
+            }
           } catch (_priceError) {
             // Fallback to default product price
+          }
+        }
+
+        // If price is still 0, try to fetch from default pricelist
+        if (sellingPrice === 0 && !selectedPricelistId) {
+          try {
+            // Try fetching the first/default pricelist
+            const defaultPriceResponse = await pricelistService.getPriceForQuantity(
+              product.id,
+              1, // Attempt with default pricelist ID = 1
+              1,
+            );
+            const defaultPrice = defaultPriceResponse.price || defaultPriceResponse.data?.price;
+            if (defaultPrice && defaultPrice > 0) {
+              sellingPrice = defaultPrice;
+            }
+          } catch (_defaultPriceError) {
+            // Silently ignore if default pricelist fetch fails
           }
         }
 
@@ -2419,13 +2476,18 @@ const QuotationForm = () => {
                 required={formData.status !== 'draft'}
                 validationState={fieldValidation.warehouse}
                 showValidation={formPreferences.showValidationHighlighting}
+                disabled={loading || warehouses.length === 0}
               >
-                <SelectItem value="none">Select warehouse</SelectItem>
-                {warehouses.map((wh) => (
-                  <SelectItem key={wh.id} value={wh.id.toString()}>
-                    {wh.name} ({wh.city})
-                  </SelectItem>
-                ))}
+                <SelectItem value="none">
+                  {loading ? 'Loading warehouses...' : warehouses.length === 0 ? 'No warehouses available' : 'Select warehouse'}
+                </SelectItem>
+                {warehouses && warehouses.length > 0 ? (
+                  warehouses.map((wh) => (
+                    <SelectItem key={wh.id} value={wh.id.toString()}>
+                      {wh.name} ({wh.city})
+                    </SelectItem>
+                  ))
+                ) : null}
               </FormSelect>
 
               <Input
