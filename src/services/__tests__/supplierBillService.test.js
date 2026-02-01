@@ -739,7 +739,7 @@ describe('supplierBillService', () => {
           {
             quantity: 100,
             unit_price: 10,
-            vat_rate: 0,
+            vatRate: 0,
             vat_category: 'ZERO_RATED',
             vat_amount: 0,
           },
@@ -750,6 +750,7 @@ describe('supplierBillService', () => {
       const result = await supplierBillService.getById(1);
 
       expect(result.items[0].vatRate).toBe(0);
+      expect(result.items[0].vatCategory).toBe('ZERO_RATED');
     });
 
     test('should track blocked VAT items', async () => {
