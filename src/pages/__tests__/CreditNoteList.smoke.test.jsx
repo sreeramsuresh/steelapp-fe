@@ -62,6 +62,17 @@ vi.mock('../../services/notificationService', () => {
     },
   };
 });
+
+// Mock authService to enable permission-gated UI elements
+vi.mock('../../services/axiosAuthService', () => {
+  return {
+    authService: {
+      hasPermission: () => true, // Allow all permission checks
+      getCurrentUser: vi.fn().mockReturnValue({ id: 1, companyId: 1 }),
+    },
+  };
+});
+
 vi.mock('../../hooks/useConfirm', () => ({
   useConfirm: () => ({
     confirm: vi.fn().mockResolvedValue(true),
