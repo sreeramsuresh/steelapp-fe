@@ -43,6 +43,10 @@ export function useReservations({
   // Track active reservation for cleanup
   const activeReservationRef = useRef(null);
 
+  // Track failed attempts to prevent infinite retry loops
+  const failedAttemptsRef = useRef(0);
+  const maxFailedAttempts = 3;
+
   // Update ref when reservationId changes
   useEffect(() => {
     activeReservationRef.current = reservationId;
@@ -109,6 +113,13 @@ export function useReservations({
         return;
       }
 
+      // Prevent infinite retry loops: stop after max failed attempts
+      if (failedAttemptsRef.current >= maxFailedAttempts) {
+        setError('Reservation service is temporarily unavailable. Please try again later.');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -127,9 +138,14 @@ export function useReservations({
         const response =
           await batchReservationService.reserveFIFO(requestParams);
 
+        // Reset failure counter on success
+        failedAttemptsRef.current = 0;
         processReservationResponse(response);
       } catch (err) {
         if (isMountedRef.current) {
+          // Increment failure counter
+          failedAttemptsRef.current += 1;
+
           const errorMessage =
             err.response?.data?.message ||
             err.response?.data?.error ||
@@ -170,6 +186,13 @@ export function useReservations({
         return;
       }
 
+      // Prevent infinite retry loops: stop after max failed attempts
+      if (failedAttemptsRef.current >= maxFailedAttempts) {
+        setError('Reservation service is temporarily unavailable. Please try again later.');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -182,9 +205,14 @@ export function useReservations({
           allocations: manualAllocations,
         });
 
+        // Reset failure counter on success
+        failedAttemptsRef.current = 0;
         processReservationResponse(response);
       } catch (err) {
         if (isMountedRef.current) {
+          // Increment failure counter
+          failedAttemptsRef.current += 1;
+
           const errorMessage =
             err.response?.data?.message ||
             err.response?.data?.error ||

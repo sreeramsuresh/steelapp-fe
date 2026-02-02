@@ -574,40 +574,6 @@ const AllocationDrawer = ({
     fetchProductPrice,
   ]);
 
-  // Auto-allocate FIFO when all required fields are filled for warehouse items
-  // This fixes the UX issue where users had to manually click "Auto-Fill FIFO"
-  useEffect(() => {
-    // Only auto-allocate for warehouse items (drop-ship doesn't need allocation)
-    if (drawerState.sourceType !== 'WAREHOUSE') return;
-
-    // Check if all required fields are filled
-    const hasProduct = !!drawerState.productId;
-    const hasWarehouse = !!drawerState.selectedWarehouseId;
-    const hasQuantity = drawerState.quantity && parseFloat(drawerState.quantity) > 0;
-    const hasPrice = drawerState.unitPrice && parseFloat(drawerState.unitPrice) > 0;
-
-    // Don't auto-allocate if already allocating or if allocations already exist
-    const hasAllocations = allocations && allocations.length > 0;
-    const shouldAutoAllocate = hasProduct && hasWarehouse && hasQuantity && hasPrice && !hasAllocations && !reservationLoading;
-
-    if (shouldAutoAllocate) {
-      // Trigger auto-fill FIFO
-      const requiredPcs = Math.floor(parseFloat(drawerState.quantity));
-      reserveFIFO(requiredPcs, 'PCS').catch(() => {
-        // Silently fail - user can manually click Auto-Fill if needed
-      });
-    }
-  }, [
-    drawerState.sourceType,
-    drawerState.productId,
-    drawerState.selectedWarehouseId,
-    drawerState.quantity,
-    drawerState.unitPrice,
-    allocations,
-    reservationLoading,
-    reserveFIFO,
-  ]);
-
   // Handle product selection
   const handleProductSelect = useCallback(
     (product) => {
