@@ -15,7 +15,7 @@ vi.mock('../api.js', () => ({
 }));
 
 import { apiClient } from '../api.js';
-import { integrationService } from '../integrationService.js';
+import integrationService from '../integrationService.js';
 
 describe('integrationService', () => {
   beforeEach(() => {

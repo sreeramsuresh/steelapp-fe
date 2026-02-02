@@ -22,7 +22,7 @@ vi.mock('../api.js', () => ({
   },
 }));
 
-import { allocationService } from '../allocationService';
+import allocationService from '../allocationService';
 import { apiClient } from '../api';
 
 describe('allocationService', () => {

@@ -17,7 +17,7 @@ vi.mock('../api.js', () => ({
   },
 }));
 
-import { vatService } from '../vatService';
+import vatService from '../vatService';
 import { apiClient } from '../api';
 
 describe('vatService', () => {

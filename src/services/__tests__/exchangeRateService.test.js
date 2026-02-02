@@ -17,7 +17,7 @@ vi.mock('../api.js', () => ({
   },
 }));
 
-import { exchangeRateService } from '../exchangeRateService';
+import exchangeRateService from '../exchangeRateService';
 import { api } from '../api';
 
 describe('exchangeRateService', () => {

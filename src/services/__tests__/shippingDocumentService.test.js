@@ -9,7 +9,7 @@ vi.mock('../api.js', () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
-import { shippingDocumentService } from '../shippingDocumentService';
+import shippingDocumentService from '../shippingDocumentService';
 import { apiClient } from '../api';
 
 describe('shippingDocumentService', () => {

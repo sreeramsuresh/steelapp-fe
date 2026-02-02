@@ -60,7 +60,7 @@ vi.mock('../warehouseService.js', () => ({
   },
 }));
 
-import { dashboardService } from '../dashboardService';
+import dashboardService from '../dashboardService';
 import { analyticsService } from '../analyticsService';
 import { invoiceService } from '../invoiceService';
 import { inventoryService } from '../inventoryService';
