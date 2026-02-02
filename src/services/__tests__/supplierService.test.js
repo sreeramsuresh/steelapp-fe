@@ -125,7 +125,7 @@ describe('supplierService', () => {
     test('should create supplier via API', async () => {
       const newSupplier = {
         name: 'New Vendor',
-        country: 'Singapore',
+        address: { country: 'Singapore' },
         contactEmail: 'vendor@company.com',
       };
       const mockResponse = {
@@ -146,7 +146,7 @@ describe('supplierService', () => {
       const newSupplier = {
         id: 10,
         name: 'Fallback Supplier',
-        country: 'UAE',
+        address: { country: 'UAE' },
       };
       apiClient.post.mockRejectedValueOnce(new Error('API error'));
 
@@ -161,7 +161,7 @@ describe('supplierService', () => {
     test('should generate ID if not provided in fallback', async () => {
       const newSupplier = {
         name: 'No ID Supplier',
-        country: 'UAE',
+        address: { country: 'UAE' },
       };
       apiClient.post.mockRejectedValueOnce(new Error('API error'));
 

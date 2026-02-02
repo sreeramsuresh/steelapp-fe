@@ -10,6 +10,7 @@ export const transformSupplierFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId || serverData.company_id,
+    code: serverData.code || '',
     name: serverData.name || '',
     company: serverData.company || '',
     address: serverData.address, // JSONB object
