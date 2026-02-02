@@ -18,14 +18,11 @@ vi.mock('../api.js', () => ({
 }));
 
 import { apiClient } from '../api';
-import { BankReconciliationService } from '../bankReconciliationService';
+import bankReconciliationService from '../bankReconciliationService';
 
-describe('BankReconciliationService', () => {
-  let service;
-
+describe('bankReconciliationService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new BankReconciliationService();
   });
 
   describe('getBankLedger', () => {
@@ -48,7 +45,7 @@ describe('BankReconciliationService', () => {
       ];
       apiClient.get.mockResolvedValueOnce({ data: mockLedger });
 
-      const result = await service.getBankLedger(
+      const result = await bankReconciliationService.getBankLedger(
         'BANK001',
         '2024-02-01',
         '2024-02-28',
@@ -75,7 +72,7 @@ describe('BankReconciliationService', () => {
       };
       apiClient.get.mockResolvedValueOnce({ data: mockBRS });
 
-      const result = await service.getBankReconciliation(1);
+      const result = await bankReconciliationService.getBankReconciliation(1);
 
       expect(result.statementDate).toBe('2024-02-29');
       expect(result.difference).toBe(500);
@@ -94,7 +91,7 @@ describe('BankReconciliationService', () => {
       const mockResponse = { imported: 2, errors: 0 };
       apiClient.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.importBankStatement(1, lines);
+      const result = await bankReconciliationService.importBankStatement(1, lines);
 
       expect(result.imported).toBe(2);
       expect(apiClient.post).toHaveBeenCalledWith(
@@ -109,7 +106,7 @@ describe('BankReconciliationService', () => {
       const mockResponse = { matched: true, lineId: 100, journalId: 500 };
       apiClient.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.matchBankLine(100, 500);
+      const result = await bankReconciliationService.matchBankLine(100, 500);
 
       expect(result.matched).toBe(true);
       expect(apiClient.post).toHaveBeenCalledWith(
@@ -125,7 +122,7 @@ describe('BankReconciliationService', () => {
       };
       apiClient.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.matchBankLine(100, 500);
+      const result = await bankReconciliationService.matchBankLine(100, 500);
 
       expect(result.matched).toBe(false);
       expect(result.error).toContain('mismatch');
@@ -146,7 +143,7 @@ describe('BankReconciliationService', () => {
       };
       apiClient.get.mockResolvedValueOnce({ data: mockCashBook });
 
-      const result = await service.getCashBook(1);
+      const result = await bankReconciliationService.getCashBook(1);
 
       expect(result.receipts).toHaveLength(1);
       expect(result.payments).toHaveLength(1);
@@ -162,7 +159,7 @@ describe('BankReconciliationService', () => {
       ];
       apiClient.get.mockResolvedValueOnce({ data: mockItems });
 
-      const result = await service.getOutstandingItems(1);
+      const result = await bankReconciliationService.getOutstandingItems(1);
 
       expect(result).toHaveLength(2);
       expect(result[0].matched).toBe(false);
@@ -179,7 +176,7 @@ describe('BankReconciliationService', () => {
       };
       apiClient.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.reconcileStatement(1);
+      const result = await bankReconciliationService.reconcileStatement(1);
 
       expect(result.reconciled).toBe(true);
       expect(result.totalUnmatched).toBe(0);
@@ -191,14 +188,14 @@ describe('BankReconciliationService', () => {
       apiClient.get.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(
-        service.getBankLedger('BANK001', '2024-02-01', '2024-02-28'),
+        bankReconciliationService.getBankLedger('BANK001', '2024-02-01', '2024-02-28'),
       ).rejects.toThrow('Network error');
     });
 
     test('should handle invalid statement', async () => {
       apiClient.get.mockRejectedValueOnce(new Error('Statement not found'));
 
-      await expect(service.getBankReconciliation(999)).rejects.toThrow(
+      await expect(bankReconciliationService.getBankReconciliation(999)).rejects.toThrow(
         'Statement not found',
       );
     });
@@ -206,7 +203,7 @@ describe('BankReconciliationService', () => {
     test('should handle import errors', async () => {
       apiClient.post.mockRejectedValueOnce(new Error('Invalid line format'));
 
-      await expect(service.importBankStatement(1, [])).rejects.toThrow(
+      await expect(bankReconciliationService.importBankStatement(1, [])).rejects.toThrow(
         'Invalid line format',
       );
     });
@@ -222,7 +219,7 @@ describe('BankReconciliationService', () => {
       };
       apiClient.get.mockResolvedValueOnce({ data: mockBRS });
 
-      const result = await service.getBankReconciliation(1);
+      const result = await bankReconciliationService.getBankReconciliation(1);
 
       expect(result.difference).toBe(result.bankBalance - result.bookBalance);
     });
@@ -237,7 +234,7 @@ describe('BankReconciliationService', () => {
       };
       apiClient.get.mockResolvedValueOnce({ data: mockBRS });
 
-      const result = await service.getBankReconciliation(1);
+      const result = await bankReconciliationService.getBankReconciliation(1);
 
       expect(result.reconciled).toBe(false);
     });

@@ -18,15 +18,13 @@ vi.mock('../api.js', () => ({
 }));
 
 import api from '../api';
-import { AuditHubService } from '../auditHubService';
+import auditHubService from '../auditHubService';
 
-describe('AuditHubService', () => {
-  let service;
+describe('auditHubService', () => {
   const companyId = 1;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new AuditHubService();
   });
 
   describe('Accounting Periods', () => {
@@ -37,7 +35,7 @@ describe('AuditHubService', () => {
       ];
       api.get.mockResolvedValueOnce({ data: mockPeriods });
 
-      const result = await service.getPeriods(companyId, {
+      const result = await auditHubService.getPeriods(companyId, {
         year: 2024,
         status: 'OPEN',
       });
@@ -59,7 +57,7 @@ describe('AuditHubService', () => {
       };
       api.get.mockResolvedValueOnce({ data: mockPeriod });
 
-      const result = await service.getPeriodById(companyId, 1);
+      const result = await auditHubService.getPeriodById(companyId, 1);
 
       expect(result.year).toBe(2024);
       expect(api.get).toHaveBeenCalledWith('/accounting-periods/1', {
@@ -76,7 +74,7 @@ describe('AuditHubService', () => {
       };
       api.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.createPeriod(companyId, 'MONTHLY', 2024, 3);
+      const result = await auditHubService.createPeriod(companyId, 'MONTHLY', 2024, 3);
 
       expect(result.month).toBe(3);
       expect(api.post).toHaveBeenCalled();
@@ -88,7 +86,7 @@ describe('AuditHubService', () => {
       const mockResponse = { id: 1, status: 'CLOSED' };
       api.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.closePeriod(companyId, 1);
+      const result = await auditHubService.closePeriod(companyId, 1);
 
       expect(result.status).toBe('CLOSED');
       expect(api.post).toHaveBeenCalled();
@@ -103,7 +101,7 @@ describe('AuditHubService', () => {
       ];
       api.get.mockResolvedValueOnce({ data: mockEntries });
 
-      const result = await service.getJournalEntries(companyId, 1);
+      const result = await auditHubService.getJournalEntries(companyId, 1);
 
       expect(result).toHaveLength(2);
       expect(result[0].debit).toBe(1000);
@@ -122,7 +120,7 @@ describe('AuditHubService', () => {
       const mockResponse = { id: 100, ...entryData };
       api.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.createJournalEntry(companyId, entryData);
+      const result = await auditHubService.createJournalEntry(companyId, entryData);
 
       expect(result.id).toBe(100);
       expect(api.post).toHaveBeenCalled();
@@ -132,7 +130,7 @@ describe('AuditHubService', () => {
       const mockResponse = { id: 100, posted: true, locked: true };
       api.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.postJournalEntry(companyId, 100);
+      const result = await auditHubService.postJournalEntry(companyId, 100);
 
       expect(result.posted).toBe(true);
       expect(api.post).toHaveBeenCalled();
@@ -146,7 +144,7 @@ describe('AuditHubService', () => {
       };
       api.post.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await service.reverseJournalEntry(companyId, 100);
+      const result = await auditHubService.reverseJournalEntry(companyId, 100);
 
       expect(result.status).toBe('REVERSED');
       expect(result.reversalId).toBe(101);
@@ -169,7 +167,7 @@ describe('AuditHubService', () => {
       ];
       api.get.mockResolvedValueOnce({ data: mockTrail });
 
-      const result = await service.getAuditTrail(companyId, 'invoice', 123);
+      const result = await auditHubService.getAuditTrail(companyId, 'invoice', 123);
 
       expect(result).toHaveLength(2);
       expect(result[0].action).toBe('CREATED');
@@ -182,7 +180,7 @@ describe('AuditHubService', () => {
       ];
       api.get.mockResolvedValueOnce({ data: mockHistory });
 
-      const result = await service.getTransactionHistory(companyId, {
+      const result = await auditHubService.getTransactionHistory(companyId, {
         startDate: '2024-02-01',
       });
 
@@ -205,7 +203,7 @@ describe('AuditHubService', () => {
       };
       api.get.mockResolvedValueOnce({ data: mockTrialBalance });
 
-      const result = await service.getTrialBalance(companyId, 1);
+      const result = await auditHubService.getTrialBalance(companyId, 1);
 
       expect(result.totalDebit).toBe(result.totalCredit);
       expect(result.accounts).toHaveLength(2);
@@ -216,7 +214,7 @@ describe('AuditHubService', () => {
     test('should handle period fetch errors', async () => {
       api.get.mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(service.getPeriods(companyId)).rejects.toThrow(
+      await expect(auditHubService.getPeriods(companyId)).rejects.toThrow(
         'Network error',
       );
     });
@@ -226,14 +224,14 @@ describe('AuditHubService', () => {
       api.post.mockRejectedValueOnce(new Error('Validation failed'));
 
       await expect(
-        service.createJournalEntry(companyId, entryData),
+        auditHubService.createJournalEntry(companyId, entryData),
       ).rejects.toThrow('Validation failed');
     });
 
     test('should include company ID in all requests', async () => {
       api.get.mockResolvedValueOnce({ data: [] });
 
-      await service.getPeriods(companyId);
+      await auditHubService.getPeriods(companyId);
 
       const call = api.get.mock.calls[0];
       expect(call[1].headers['X-Company-Id']).toBe(companyId);
@@ -244,7 +242,7 @@ describe('AuditHubService', () => {
     test('should enforce company_id in all operations', async () => {
       api.get.mockResolvedValueOnce({ data: {} });
 
-      await service.getPeriodById(companyId, 1);
+      await auditHubService.getPeriodById(companyId, 1);
 
       const call = api.get.mock.calls[0];
       expect(call[1]).toHaveProperty('headers');
@@ -255,7 +253,7 @@ describe('AuditHubService', () => {
     test('should prevent cross-company data access', async () => {
       api.get.mockResolvedValueOnce({ data: { companyId: 999 } });
 
-      await service.getPeriodById(2, 1);
+      await auditHubService.getPeriodById(2, 1);
 
       const call = api.get.mock.calls[0];
       expect(call[1].headers['X-Company-Id']).toBe(2);
