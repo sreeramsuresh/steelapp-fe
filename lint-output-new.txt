@@ -1,4 +1,0 @@
-
-> ultimate-steels-app@0.0.0 lint
-> eslint src
-
