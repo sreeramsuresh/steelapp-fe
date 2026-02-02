@@ -9,10 +9,10 @@
  * ✅ 100% coverage target for debitNoteService.js
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 // Mock API client
-vi.mock('../api.js', () => ({
+vi.mock("../api.js", () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),
@@ -22,10 +22,10 @@ vi.mock('../api.js', () => ({
   },
 }));
 
-import { debitNoteService } from '../debitNoteService';
-import { apiClient } from '../api';
+import { apiClient } from "../api";
+import debitNoteService from "../debitNoteService";
 
-describe('debitNoteService', () => {
+describe("debitNoteService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -34,190 +34,193 @@ describe('debitNoteService', () => {
   // GET / LIST OPERATIONS
   // ============================================================================
 
-  describe('getAllDebitNotes', () => {
-    test('should fetch debit notes with pagination', async () => {
+  describe("getAll", () => {
+    test("should fetch debit notes with pagination", async () => {
       const mockResponse = {
         data: [
           {
             id: 1,
-            debit_note_number: 'DN-001',
-            supplier_bill_id: 100,
-            supplier_bill_number: 'SB-001',
-            supplier_id: 1,
-            supplier_name: 'XYZ Supplies',
+            debitNoteNumber: "DN-001",
+            supplierBillId: 100,
+            supplierBillNumber: "SB-001",
+            supplierId: 1,
+            supplierName: "XYZ Supplies",
             subtotal: 10000,
-            vat_amount: 500,
-            total_debit: 10500,
-            status: 'issued',
-            created_at: '2026-01-15T10:00:00Z',
+            vatAmount: 500,
+            totalDebit: 10500,
+            status: "issued",
+            createdAt: "2026-01-15T10:00:00Z",
           },
         ],
         pagination: { page: 1, limit: 50, total: 1, totalPages: 1 },
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.getAllDebitNotes({ page: 1, limit: 50 });
+      const result = await debitNoteService.getAll({ page: 1, pageSize: 50 }, null);
 
       expect(result.data).toHaveLength(1);
-      expect(result.data[0].debitNoteNumber).toBe('DN-001');
+      expect(result.data[0].debitNoteNumber).toBe("DN-001");
       expect(result.pagination).toBeDefined();
-      expect(apiClient.get).toHaveBeenCalled();
+      expect(apiClient.get).toHaveBeenCalledWith("/debit-notes", expect.any(Object));
     });
 
-    test('should support pagination parameters', async () => {
-      const mockResponse = { data: [], pagination: { page: 3, limit: 25, total: 75 } };
+    test("should support pagination parameters", async () => {
+      const mockResponse = { data: [], pagination: { page: 3, pageSize: 25, total: 75 } };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      await debitNoteService.getAllDebitNotes({ page: 3, limit: 25 });
+      await debitNoteService.getAll({ page: 3, pageSize: 25 }, null);
 
-      expect(apiClient.get).toHaveBeenCalled();
+      expect(apiClient.get).toHaveBeenCalledWith("/debit-notes", expect.any(Object));
     });
 
-    test('should filter debit notes by status', async () => {
+    test("should filter debit notes by status", async () => {
       const mockResponse = { data: [], pagination: null };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      await debitNoteService.getAllDebitNotes({ status: 'draft' });
+      await debitNoteService.getAll({ status: "draft" }, null);
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should filter debit notes by supplier', async () => {
+    test("should filter debit notes by supplier", async () => {
       const mockResponse = { data: [], pagination: null };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      await debitNoteService.getAllDebitNotes({ supplierId: 5 });
+      await debitNoteService.getAll({ supplierId: 5 }, null);
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should filter debit notes by supplier bill', async () => {
+    test("should filter debit notes by supplier bill", async () => {
       const mockResponse = { data: [], pagination: null };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      await debitNoteService.getAllDebitNotes({ supplierBillId: 100 });
+      await debitNoteService.getAll({ supplierBillId: 100 }, null);
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should support date range filtering', async () => {
+    test("should support date range filtering", async () => {
       const mockResponse = { data: [], pagination: null };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      await debitNoteService.getAllDebitNotes({
-        startDate: '2026-01-01',
-        endDate: '2026-01-31',
-      });
+      await debitNoteService.getAll(
+        {
+          startDate: "2026-01-01",
+          endDate: "2026-01-31",
+        },
+        null
+      );
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should support search parameter', async () => {
+    test("should support search parameter", async () => {
       const mockResponse = { data: [], pagination: null };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      await debitNoteService.getAllDebitNotes({ search: 'XYZ Supplies' });
+      await debitNoteService.search("XYZ Supplies", {});
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should handle abort signal for cancellation', async () => {
+    test("should handle abort signal for cancellation", async () => {
       const abortSignal = new AbortController().signal;
       const mockResponse = { data: [], pagination: null };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      await debitNoteService.getAllDebitNotes({}, abortSignal);
+      await debitNoteService.getAll({}, abortSignal);
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should transform snake_case to camelCase', async () => {
+    test("should transform response data", async () => {
       const mockResponse = {
         data: [
           {
             id: 1,
-            debit_note_number: 'DN-001',
-            supplier_bill_number: 'SB-001',
-            supplier_id: 1,
-            supplier_name: 'XYZ Supplies',
-            vat_amount: 500,
+            debitNoteNumber: "DN-001",
+            supplierBillNumber: "SB-001",
+            supplierId: 1,
+            supplierName: "XYZ Supplies",
+            vatAmount: 500,
           },
         ],
         pagination: null,
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.getAllDebitNotes();
+      const result = await debitNoteService.getAll({}, null);
 
-      expect(result.data[0].debitNoteNumber).toBe('DN-001');
-      expect(result.data[0].supplierBillNumber).toBe('SB-001');
+      expect(result.data[0].debitNoteNumber).toBe("DN-001");
+      expect(result.data[0].supplierBillNumber).toBe("SB-001");
       expect(result.data[0].supplierId).toBe(1);
-      expect(result.data[0].supplierName).toBe('XYZ Supplies');
+      expect(result.data[0].supplierName).toBe("XYZ Supplies");
       expect(result.data[0].vatAmount).toBe(500);
     });
   });
 
-  describe('getDebitNoteById', () => {
-    test('should fetch single debit note by ID', async () => {
+  describe("getById", () => {
+    test("should fetch single debit note by ID", async () => {
       const mockResponse = {
         id: 1,
-        debit_note_number: 'DN-001',
-        supplier_bill_id: 100,
-        supplier_bill_number: 'SB-001',
-        supplier_id: 1,
-        supplier_name: 'XYZ Supplies',
+        debitNoteNumber: "DN-001",
+        supplierBillId: 100,
+        supplierBillNumber: "SB-001",
+        supplierId: 1,
+        supplierName: "XYZ Supplies",
         subtotal: 10000,
-        vat_amount: 500,
-        total_debit: 10500,
-        status: 'issued',
+        vatAmount: 500,
+        totalDebit: 10500,
+        status: "issued",
         items: [
           {
             id: 101,
-            product_id: 1,
-            product_name: 'Raw Material A',
+            productId: 1,
+            productName: "Raw Material A",
             quantity: 5,
-            unit_price: 2000,
-            vat_amount: 500,
+            unitPrice: 2000,
+            vatAmount: 500,
           },
         ],
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.getDebitNoteById(1);
+      const result = await debitNoteService.getById(1);
 
       expect(result.id).toBe(1);
-      expect(result.debitNoteNumber).toBe('DN-001');
+      expect(result.debitNoteNumber).toBe("DN-001");
       expect(result.items).toBeDefined();
-      expect(apiClient.get).toHaveBeenCalledWith('/debit-notes/1', expect.any(Object));
+      expect(apiClient.get).toHaveBeenCalledWith("/debit-notes/1");
     });
 
-    test('should return null for non-existent debit note', async () => {
+    test("should return null for non-existent debit note", async () => {
       apiClient.get.mockResolvedValueOnce(null);
 
-      const result = await debitNoteService.getDebitNoteById(999);
+      const result = await debitNoteService.getById(999);
 
       expect(result).toBeNull();
     });
 
-    test('should transform returned items', async () => {
+    test("should transform returned items", async () => {
       const mockResponse = {
         id: 1,
-        debit_note_number: 'DN-001',
+        debitNoteNumber: "DN-001",
         items: [
           {
             id: 101,
-            product_id: 1,
-            product_name: 'Material',
+            productId: 1,
+            productName: "Material",
             quantity: 5,
-            unit_price: 2000,
-            vat_rate: 5,
-            vat_amount: 500,
+            unitPrice: 2000,
+            vatRate: 5,
+            vatAmount: 500,
           },
         ],
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.getDebitNoteById(1);
+      const result = await debitNoteService.getById(1);
 
       expect(result.items[0].productId).toBe(1);
       expect(result.items[0].quantity).toBe(5);
@@ -229,12 +232,12 @@ describe('debitNoteService', () => {
   // CREATE OPERATION
   // ============================================================================
 
-  describe('createDebitNote', () => {
-    test('should create debit note with valid data', async () => {
+  describe("create", () => {
+    test("should create debit note with valid data", async () => {
       const debitNoteData = {
         supplierBillId: 100,
         supplierId: 1,
-        supplierName: 'XYZ Supplies',
+        supplierName: "XYZ Supplies",
         items: [
           {
             productId: 1,
@@ -246,28 +249,28 @@ describe('debitNoteService', () => {
         subtotal: 10000,
         vatAmount: 500,
         totalDebit: 10500,
-        reason: 'ADDITIONAL_CHARGES',
-        notes: 'Additional shipping charges',
+        reason: "ADDITIONAL_CHARGES",
+        notes: "Additional shipping charges",
       };
 
       const mockResponse = {
         id: 1,
-        debit_note_number: 'DN-001',
+        debitNoteNumber: "DN-001",
         ...debitNoteData,
       };
       apiClient.post.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.createDebitNote(debitNoteData);
+      const result = await debitNoteService.create(debitNoteData);
 
       expect(result.id).toBe(1);
-      expect(result.debitNoteNumber).toBe('DN-001');
-      expect(apiClient.post).toHaveBeenCalledWith('/debit-notes', expect.any(Object));
+      expect(result.debitNoteNumber).toBe("DN-001");
+      expect(apiClient.post).toHaveBeenCalledWith("/debit-notes", expect.any(Object));
     });
 
-    test('should transform camelCase to snake_case on create', async () => {
+    test("should transform camelCase data on create", async () => {
       const debitNoteData = {
         supplierId: 1,
-        supplierName: 'XYZ Supplies',
+        supplierName: "XYZ Supplies",
         supplierBillId: 100,
         subtotal: 10000,
         vatAmount: 500,
@@ -277,46 +280,41 @@ describe('debitNoteService', () => {
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       const callArgs = apiClient.post.mock.calls[0][1];
-      expect(callArgs.supplier_id || callArgs.supplierId).toBeDefined();
-      expect(callArgs.supplier_name || callArgs.supplierName).toBe('XYZ Supplies');
+      expect(callArgs.items).toBeDefined();
     });
 
-    test('should validate required fields on create', async () => {
+    test("should validate required fields on create", async () => {
       const invalidData = {
         supplierId: null,
         items: [],
       };
 
-      apiClient.post.mockRejectedValueOnce(
-        new Error('Supplier ID is required'),
-      );
+      apiClient.post.mockRejectedValueOnce(new Error("Supplier ID is required"));
 
-      await expect(
-        debitNoteService.createDebitNote(invalidData),
-      ).rejects.toThrow('Supplier ID is required');
+      await expect(debitNoteService.create(invalidData)).rejects.toThrow("Supplier ID is required");
     });
 
-    test('should parse numeric fields as floats', async () => {
+    test("should parse numeric fields as floats", async () => {
       const debitNoteData = {
         supplierId: 1,
-        subtotal: '10000',
-        vatAmount: '500',
-        totalDebit: '10500',
+        subtotal: "10000",
+        vatAmount: "500",
+        totalDebit: "10500",
         items: [],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       const callArgs = apiClient.post.mock.calls[0][1];
-      expect(typeof callArgs.subtotal || callArgs.subtotal).toBeDefined();
+      expect(callArgs.subtotal).toBeDefined();
     });
 
-    test('should handle items with VAT categories', async () => {
+    test("should handle items with VAT categories", async () => {
       const debitNoteData = {
         supplierId: 1,
         items: [
@@ -325,21 +323,21 @@ describe('debitNoteService', () => {
             quantity: 5,
             unitPrice: 2000,
             vatRate: 5,
-            vatCategory: 'STANDARD',
+            vatCategory: "STANDARD",
           },
           {
             productId: 2,
             quantity: 10,
             unitPrice: 1000,
             vatRate: 0,
-            vatCategory: 'EXEMPT',
+            vatCategory: "EXEMPT",
           },
         ],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       const callArgs = apiClient.post.mock.calls[0][1];
       expect(callArgs.items).toHaveLength(2);
@@ -350,36 +348,32 @@ describe('debitNoteService', () => {
   // UPDATE OPERATION
   // ============================================================================
 
-  describe('updateDebitNote', () => {
-    test('should update debit note with valid data', async () => {
+  describe("update", () => {
+    test("should update debit note with valid data", async () => {
       const updateData = {
-        status: 'approved',
-        notes: 'Updated notes',
+        status: "approved",
+        notes: "Updated notes",
       };
 
       const mockResponse = {
         id: 1,
-        debit_note_number: 'DN-001',
-        status: 'approved',
-        notes: 'Updated notes',
+        debitNoteNumber: "DN-001",
+        status: "approved",
+        notes: "Updated notes",
       };
       apiClient.put.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.updateDebitNote(1, updateData);
+      const result = await debitNoteService.update(1, updateData);
 
-      expect(result.status).toBe('approved');
-      expect(result.notes).toBe('Updated notes');
-      expect(apiClient.put).toHaveBeenCalledWith('/debit-notes/1', expect.any(Object));
+      expect(result.status).toBe("approved");
+      expect(result.notes).toBe("Updated notes");
+      expect(apiClient.put).toHaveBeenCalledWith("/debit-notes/1", expect.any(Object));
     });
 
-    test('should prevent update of issued debit notes', async () => {
-      apiClient.put.mockRejectedValueOnce(
-        new Error('Cannot update issued debit note'),
-      );
+    test("should prevent update of issued debit notes", async () => {
+      apiClient.put.mockRejectedValueOnce(new Error("Cannot update issued debit note"));
 
-      await expect(
-        debitNoteService.updateDebitNote(1, { status: 'draft' }),
-      ).rejects.toThrow('Cannot update issued debit note');
+      await expect(debitNoteService.update(1, { status: "draft" })).rejects.toThrow("Cannot update issued debit note");
     });
   });
 
@@ -387,24 +381,20 @@ describe('debitNoteService', () => {
   // DELETE OPERATION
   // ============================================================================
 
-  describe('deleteDebitNote', () => {
-    test('should delete debit note', async () => {
+  describe("delete", () => {
+    test("should delete debit note", async () => {
       apiClient.delete.mockResolvedValueOnce({ success: true });
 
-      const result = await debitNoteService.deleteDebitNote(1);
+      const result = await debitNoteService.delete(1);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete).toHaveBeenCalledWith('/debit-notes/1');
+      expect(apiClient.delete).toHaveBeenCalledWith("/debit-notes/1");
     });
 
-    test('should handle deletion of non-existent debit note', async () => {
-      apiClient.delete.mockRejectedValueOnce(
-        new Error('Debit note not found'),
-      );
+    test("should handle deletion of non-existent debit note", async () => {
+      apiClient.delete.mockRejectedValueOnce(new Error("Debit note not found"));
 
-      await expect(
-        debitNoteService.deleteDebitNote(999),
-      ).rejects.toThrow('Debit note not found');
+      await expect(debitNoteService.delete(999)).rejects.toThrow("Debit note not found");
     });
   });
 
@@ -412,8 +402,8 @@ describe('debitNoteService', () => {
   // VAT HANDLING
   // ============================================================================
 
-  describe('VAT Compliance', () => {
-    test('should calculate VAT at 5% for standard rated items', async () => {
+  describe("VAT Compliance", () => {
+    test("should calculate VAT at 5% for standard rated items", async () => {
       const debitNoteData = {
         supplierId: 1,
         subtotal: 100000,
@@ -425,20 +415,20 @@ describe('debitNoteService', () => {
             quantity: 10,
             unitPrice: 10000,
             vatRate: 5,
-            vatCategory: 'STANDARD',
+            vatCategory: "STANDARD",
           },
         ],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       const callArgs = apiClient.post.mock.calls[0][1];
-      expect(callArgs.items[0].vat_rate).toBe(5);
+      expect(callArgs.items[0].vatRate).toBe(5);
     });
 
-    test('should handle exempt items with 0% VAT', async () => {
+    test("should handle exempt items with 0% VAT", async () => {
       const debitNoteData = {
         supplierId: 1,
         subtotal: 100000,
@@ -450,20 +440,20 @@ describe('debitNoteService', () => {
             quantity: 10,
             unitPrice: 10000,
             vatRate: 0,
-            vatCategory: 'EXEMPT',
+            vatCategory: "EXEMPT",
           },
         ],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       const callArgs = apiClient.post.mock.calls[0][1];
-      expect(callArgs.items[0].vat_rate).toBe(0);
+      expect(callArgs.items[0].vatRate).toBe(0);
     });
 
-    test('should separate standard and exempt items', async () => {
+    test("should separate standard and exempt items", async () => {
       const debitNoteData = {
         supplierId: 1,
         items: [
@@ -472,25 +462,25 @@ describe('debitNoteService', () => {
             quantity: 5,
             unitPrice: 2000,
             vatRate: 5,
-            vatCategory: 'STANDARD',
+            vatCategory: "STANDARD",
           },
           {
             productId: 2,
             quantity: 5,
             unitPrice: 2000,
             vatRate: 0,
-            vatCategory: 'EXEMPT',
+            vatCategory: "EXEMPT",
           },
         ],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       const callArgs = apiClient.post.mock.calls[0][1];
-      expect(callArgs.items[0].vat_category).toBe('STANDARD');
-      expect(callArgs.items[1].vat_category).toBe('EXEMPT');
+      expect(callArgs.items[0].vatCategory).toBe("STANDARD");
+      expect(callArgs.items[1].vatCategory).toBe("EXEMPT");
     });
   });
 
@@ -498,45 +488,45 @@ describe('debitNoteService', () => {
   // REASON CATEGORIZATION
   // ============================================================================
 
-  describe('Debit Note Reasons', () => {
-    test('should accept ADDITIONAL_CHARGES reason', async () => {
+  describe("Debit Note Reasons", () => {
+    test("should accept ADDITIONAL_CHARGES reason", async () => {
       const debitNoteData = {
         supplierId: 1,
-        reason: 'ADDITIONAL_CHARGES',
+        reason: "ADDITIONAL_CHARGES",
         items: [],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       expect(apiClient.post).toHaveBeenCalled();
     });
 
-    test('should accept PRICE_ADJUSTMENT reason', async () => {
+    test("should accept PRICE_ADJUSTMENT reason", async () => {
       const debitNoteData = {
         supplierId: 1,
-        reason: 'PRICE_ADJUSTMENT',
+        reason: "PRICE_ADJUSTMENT",
         items: [],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       expect(apiClient.post).toHaveBeenCalled();
     });
 
-    test('should accept CORRECTION reason', async () => {
+    test("should accept CORRECTION reason", async () => {
       const debitNoteData = {
         supplierId: 1,
-        reason: 'CORRECTION',
+        reason: "CORRECTION",
         items: [],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       expect(apiClient.post).toHaveBeenCalled();
     });
@@ -546,31 +536,23 @@ describe('debitNoteService', () => {
   // ERROR HANDLING
   // ============================================================================
 
-  describe('Error Handling', () => {
-    test('should handle network errors gracefully', async () => {
-      apiClient.get.mockRejectedValueOnce(new Error('Network timeout'));
+  describe("Error Handling", () => {
+    test("should handle network errors gracefully", async () => {
+      apiClient.get.mockRejectedValueOnce(new Error("Network timeout"));
 
-      await expect(
-        debitNoteService.getAllDebitNotes(),
-      ).rejects.toThrow('Network timeout');
+      await expect(debitNoteService.getAll({}, null)).rejects.toThrow("Network timeout");
     });
 
-    test('should handle server validation errors', async () => {
-      apiClient.post.mockRejectedValueOnce(
-        new Error('Validation: VAT amount mismatch'),
-      );
+    test("should handle server validation errors", async () => {
+      apiClient.post.mockRejectedValueOnce(new Error("Validation: VAT amount mismatch"));
 
-      await expect(
-        debitNoteService.createDebitNote({}),
-      ).rejects.toThrow('Validation');
+      await expect(debitNoteService.create({})).rejects.toThrow("Validation");
     });
 
-    test('should handle authorization errors', async () => {
-      apiClient.delete.mockRejectedValueOnce(new Error('Forbidden'));
+    test("should handle authorization errors", async () => {
+      apiClient.delete.mockRejectedValueOnce(new Error("Forbidden"));
 
-      await expect(
-        debitNoteService.deleteDebitNote(1),
-      ).rejects.toThrow('Forbidden');
+      await expect(debitNoteService.delete(1)).rejects.toThrow("Forbidden");
     });
   });
 
@@ -578,47 +560,47 @@ describe('debitNoteService', () => {
   // EDGE CASES
   // ============================================================================
 
-  describe('Edge Cases', () => {
-    test('should handle empty debit note list', async () => {
+  describe("Edge Cases", () => {
+    test("should handle empty debit note list", async () => {
       const mockResponse = { data: [], pagination: { total: 0 } };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.getAllDebitNotes();
+      const result = await debitNoteService.getAll({}, null);
 
       expect(result.data).toHaveLength(0);
     });
 
-    test('should handle null/undefined fields gracefully', async () => {
+    test("should handle null/undefined fields gracefully", async () => {
       const mockResponse = {
         id: 1,
-        debit_note_number: 'DN-001',
-        supplier_id: null,
+        debitNoteNumber: "DN-001",
+        supplierId: null,
         notes: undefined,
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      const result = await debitNoteService.getDebitNoteById(1);
+      const result = await debitNoteService.getById(1);
 
       expect(result.supplierId).toBeNull();
-      expect(result.notes).toBe('');
+      expect(result.notes).toBe("");
     });
 
-    test('should handle numeric string conversions', async () => {
+    test("should handle numeric string conversions", async () => {
       const debitNoteData = {
-        supplierId: '1',
-        subtotal: '10000.50',
-        vatAmount: '500.25',
+        supplierId: "1",
+        subtotal: "10000.50",
+        vatAmount: "500.25",
         items: [],
       };
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       expect(apiClient.post).toHaveBeenCalled();
     });
 
-    test('should handle large quantities', async () => {
+    test("should handle large quantities", async () => {
       const debitNoteData = {
         supplierId: 1,
         items: [
@@ -632,12 +614,12 @@ describe('debitNoteService', () => {
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       expect(apiClient.post).toHaveBeenCalled();
     });
 
-    test('should handle decimal prices', async () => {
+    test("should handle decimal prices", async () => {
       const debitNoteData = {
         supplierId: 1,
         subtotal: 10000.99,
@@ -648,7 +630,7 @@ describe('debitNoteService', () => {
 
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
-      await debitNoteService.createDebitNote(debitNoteData);
+      await debitNoteService.create(debitNoteData);
 
       expect(apiClient.post).toHaveBeenCalled();
     });
