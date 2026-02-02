@@ -15,29 +15,27 @@ echo ""
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
 # ============================================
-# 1. ESLint on staged JavaScript/TypeScript files
+# 1. Biome lint and format on staged files
 # ============================================
-JS_FILES=$(echo "$STAGED_FILES" | grep -E '\.(js|jsx|ts|tsx)$' | grep '^src/' || true)
+JS_FILES=$(echo "$STAGED_FILES" | grep -E '\.(js|jsx|ts|tsx|json)$' || true)
 
 if [ -n "$JS_FILES" ]; then
-  echo "[1/2] Running ESLint on staged files..."
+  echo "[1/2] Running Biome on staged files..."
 
-  # Run ESLint on staged files with --max-warnings=0 (matches CI)
-  # NOTE: ESLint temporarily disabled due to systemic hanging issue
-  # TODO: Fix ESLint environment - investigate Node/npm system-level issue
-  # echo "$JS_FILES" | xargs npx eslint --ext .js,.jsx,.ts,.tsx --max-warnings=0
+  # Run Biome check and apply fixes to staged files
+  npx biome check --apply src/
 
   if [ $? -ne 0 ]; then
     echo ""
-    echo "ESLint check failed!"
+    echo "Biome check failed!"
     echo "Fix the issues above or run: npm run lint:fix"
     echo ""
     echo "To run the same check as CI: npm run lint:ci"
     exit 1
   fi
-  echo "ESLint passed"
+  echo "Biome passed"
 else
-  echo "[1/2] No JavaScript/TypeScript files staged, skipping ESLint"
+  echo "[1/2] No files staged, skipping Biome"
 fi
 
 # ============================================
