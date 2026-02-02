@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const IS_DEV = import.meta.env.DEV;
+const IS_DEV = import.meta?.env?.DEV ?? false;
 
 // ============================================================================
 // DEV-ONLY: Response Validator Import (Module Load Time - Correction #3)
@@ -42,7 +42,7 @@ async function getContractGuard() {
 // Resolve API base URL with a LAN-safe fallback.
 // If the env points to localhost but the app is accessed via a LAN IP/hostname,
 // use relative "/api" so the Vite proxy handles requests correctly.
-let API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+let API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL ?? '/api';
 try {
   const host = typeof window !== 'undefined' ? window.location.hostname : '';
   if (
@@ -58,7 +58,7 @@ try {
 }
 
 const REFRESH_ENDPOINT =
-  import.meta.env.VITE_REFRESH_ENDPOINT || '/auth/refresh-token';
+  import.meta?.env?.VITE_REFRESH_ENDPOINT ?? '/auth/refresh-token';
 
 // Simple cookie helper (matching GigLabz approach)
 const Cookies = {

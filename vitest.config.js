@@ -9,12 +9,16 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.js",
     css: true,
-    testTimeout: 60000,
-    hookTimeout: 60000,
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    threads: {
+      singleThread: true,
+    },
     // Disable API requests during tests
     env: {
       VITE_API_BASE_URL: '/api',
       VITE_DISABLE_CONTRACT_VALIDATION: 'true',
+      VITE_REFRESH_ENDPOINT: '/auth/refresh-token',
     },
     // Coverage configuration for Phase 1: 100% test coverage initiative
     coverage: {

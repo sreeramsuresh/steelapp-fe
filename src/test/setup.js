@@ -26,9 +26,34 @@ function createLocalStorageMock() {
 
 global.localStorage = createLocalStorageMock();
 
+// Mock sessionStorage with actual storage behavior
+let sessionStorageData = {};
+
+function createSessionStorageMock() {
+  return {
+    getItem: (key) => sessionStorageData[key] || null,
+    setItem: (key, value) => {
+      sessionStorageData[key] = String(value);
+    },
+    removeItem: (key) => {
+      delete sessionStorageData[key];
+    },
+    clear: () => {
+      sessionStorageData = {};
+    },
+    get length() {
+      return Object.keys(sessionStorageData).length;
+    },
+    key: (index) => Object.keys(sessionStorageData)[index] || null,
+  };
+}
+
+global.sessionStorage = createSessionStorageMock();
+
 // Reset storage before each test
 beforeEach(() => {
   storage = {};
+  sessionStorageData = {};
 });
 
 // Cleanup after each test
