@@ -1,4 +1,4 @@
-import { apiService } from "./axiosApi";
+import { apiService } from "./axiosApi.js";
 
 export const userAdminAPI = {
   async list(params = {}) {
