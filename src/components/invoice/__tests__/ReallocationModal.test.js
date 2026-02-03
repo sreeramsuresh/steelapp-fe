@@ -5,7 +5,8 @@
  * Tests batch reallocation modal for invoice line items
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+// Jest provides describe, it, expect, beforeEach globally - no need to import
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockArray, createMockBatch } from "../../../test/mock-factories";
 import ReallocationModal from "../ReallocationModal";

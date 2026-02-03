@@ -5,7 +5,8 @@
  * Tests invoice footer with company details and disclaimer
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+// Jest provides describe, it, expect, beforeEach globally - no need to import
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import InvoiceFooter from "../InvoiceFooter";
 

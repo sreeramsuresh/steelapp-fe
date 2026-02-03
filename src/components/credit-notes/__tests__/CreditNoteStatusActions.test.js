@@ -5,7 +5,8 @@
  * Tests credit note status transitions, action buttons, and workflow management
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+// Jest provides describe, it, expect, beforeEach globally - no need to import
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import CreditNoteStatusActions from "../CreditNoteStatusActions";
 

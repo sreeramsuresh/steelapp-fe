@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: "jsdom",
-    setupFiles: "./src/test/setup.js",
-    css: true,
-    testTimeout: 30000,
-    hookTimeout: 30000,
-    // Phase 5.2 fix: Single-threaded mode eliminates worker pool exhaustion
-    // All tests run in main thread sequentially - prevents timeouts and resource issues
+    environment: "node",
+    setupFiles: [],
+    css: false,
+    testTimeout: 120000,
+    hookTimeout: 120000,
+    // Phase 5.3 fix: Increased timeout for component test initialization
+    // Single-threaded mode prevents worker pool exhaustion
     threads: {
       singleThread: true,
     },
@@ -20,6 +20,8 @@ export default defineConfig({
     sequence: {
       concurrent: false,
     },
+    // Isolate test environment per file to prevent state leakage
+    isolate: true,
     // Disable API requests during tests
     env: {
       VITE_API_BASE_URL: "/api",

@@ -2,7 +2,7 @@
  * useDashboardPermissions Hook Tests
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+// Jest provides describe, it, expect, beforeEach globally - no need to import
 
 // Mock authService
 vi.mock("../../../services/authService", () => ({

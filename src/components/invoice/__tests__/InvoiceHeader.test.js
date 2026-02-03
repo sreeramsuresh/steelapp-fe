@@ -5,7 +5,8 @@
  * Tests invoice header with company info, invoice details, and customer billing
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+// Jest provides describe, it, expect, beforeEach globally - no need to import
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import { createMockCompany, createMockInvoice } from "../../../test/mock-factories";
 import InvoiceHeader from "../InvoiceHeader";

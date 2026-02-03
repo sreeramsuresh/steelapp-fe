@@ -5,7 +5,8 @@
  * Tests warehouse selection with stock availability display
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+// Jest provides describe, it, expect, beforeEach globally - no need to import
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockArray, createMockWarehouse } from "../../../test/mock-factories";
 import WarehouseStockSelector from "../WarehouseStockSelector";

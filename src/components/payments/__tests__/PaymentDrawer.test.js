@@ -5,7 +5,8 @@
  * Tests payment drawer UI, payment history, receipts, and void management
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+// Jest provides describe, it, expect, beforeEach globally - no need to import
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import PaymentDrawer from "../PaymentDrawer";
 
