@@ -11,6 +11,14 @@ export default defineConfig({
     css: true,
     testTimeout: 10000,
     hookTimeout: 10000,
+    // Prevent worker pool exhaustion under load (Phase 5.2 fix)
+    maxWorkers: 2,
+    minWorkers: 1,
+    fileParallelism: false,
+    // Keep tests sequential within each worker
+    sequence: {
+      concurrent: false,
+    },
     threads: {
       singleThread: true,
     },
