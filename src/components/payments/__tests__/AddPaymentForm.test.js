@@ -92,7 +92,8 @@ describe("AddPaymentForm", () => {
       setupUser();
       const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} />);
 
-      const saveButton = container.querySelector("button[type='submit']") || container.querySelector("button:has-text('Save')");
+      const saveButton =
+        container.querySelector("button[type='submit']") || container.querySelector("button:has-text('Save')");
       if (saveButton) {
         await user.click(saveButton);
         expect(mockOnSave).not.toHaveBeenCalled();
@@ -127,17 +128,13 @@ describe("AddPaymentForm", () => {
     });
 
     it("should accept partial payment", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} outstanding={10000} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} outstanding={10000} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should accept full payment", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} outstanding={5000} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} outstanding={5000} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -195,9 +192,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should allow currency selection", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} defaultCurrency="AED" />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} defaultCurrency="AED" />);
 
       expect(container).toBeInTheDocument();
     });
@@ -209,9 +204,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should calculate AED equivalent for foreign currency", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} defaultCurrency="USD" />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} defaultCurrency="USD" />);
 
       expect(container).toBeInTheDocument();
     });
@@ -223,9 +216,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should handle USD payments with exchange rate", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} defaultCurrency="USD" />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} defaultCurrency="USD" />);
 
       expect(container).toBeInTheDocument();
     });
@@ -280,9 +271,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should display credit limit", async () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} customerId={123} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} customerId={123} />);
 
       // Wait for credit data
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -291,9 +280,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should display current credit usage", async () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} customerId={123} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} customerId={123} />);
 
       // Wait for credit data
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -302,9 +289,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should display available credit", async () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} customerId={123} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} customerId={123} />);
 
       // Wait for credit data
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -318,9 +303,7 @@ describe("AddPaymentForm", () => {
         currentCredit: 48000, // 96% utilization
       });
 
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} customerId={123} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} customerId={123} />);
 
       // Wait for credit data
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -329,13 +312,9 @@ describe("AddPaymentForm", () => {
     });
 
     it("should handle missing credit information gracefully", async () => {
-      mockCustomerCreditService.getCustomerCreditSummary.mockRejectedValue(
-        new Error("Failed to fetch credit")
-      );
+      mockCustomerCreditService.getCustomerCreditSummary.mockRejectedValue(new Error("Failed to fetch credit"));
 
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} customerId={123} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} customerId={123} />);
 
       // Wait for error handling
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -344,9 +323,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should calculate new credit usage after payment", async () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} customerId={123} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} customerId={123} />);
 
       // Wait for credit data
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -365,9 +342,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should disable save button while saving", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} isSaving={true} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} isSaving={true} />);
 
       const saveButton = container.querySelector("button[type='submit']");
       expect(saveButton?.disabled || container.textContent.includes("Saving")).toBeTruthy();
@@ -389,8 +364,8 @@ describe("AddPaymentForm", () => {
       const user = setupUser();
       const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} />);
 
-      const cancelButton = Array.from(container.querySelectorAll("button")).find(
-        (btn) => btn.textContent.toLowerCase().includes("cancel")
+      const cancelButton = Array.from(container.querySelectorAll("button")).find((btn) =>
+        btn.textContent.toLowerCase().includes("cancel")
       );
       if (cancelButton) {
         await user.click(cancelButton);
@@ -401,17 +376,13 @@ describe("AddPaymentForm", () => {
 
   describe("Entity Type Context", () => {
     it("should accept invoice entity type", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} entityType="invoice" />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} entityType="invoice" />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should accept po entity type", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} entityType="po" />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} entityType="po" />);
 
       expect(container).toBeInTheDocument();
     });
@@ -493,41 +464,31 @@ describe("AddPaymentForm", () => {
 
   describe("Edge Cases", () => {
     it("should handle zero outstanding balance", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} outstanding={0} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} outstanding={0} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle very large outstanding amounts", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} outstanding={999999999} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} outstanding={999999999} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle missing customerId gracefully", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} customerId={null} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} customerId={null} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle null currency", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} defaultCurrency={null} />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} defaultCurrency={null} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle extreme exchange rates", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentForm {...defaultProps} defaultCurrency="USD" />
-      );
+      const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} defaultCurrency="USD" />);
 
       expect(container).toBeInTheDocument();
     });

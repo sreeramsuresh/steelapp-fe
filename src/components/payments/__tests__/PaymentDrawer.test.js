@@ -105,9 +105,7 @@ describe("PaymentDrawer", () => {
     });
 
     it("should hide payment form when drawer is closed", () => {
-      const { queryByTestId } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} isOpen={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<PaymentDrawer {...defaultProps} isOpen={false} />);
 
       expect(queryByTestId("add-payment-form")).not.toBeInTheDocument();
     });
@@ -154,10 +152,7 @@ describe("PaymentDrawer", () => {
 
     it("should handle empty payment history", () => {
       const { container } = renderWithProviders(
-        <PaymentDrawer
-          {...defaultProps}
-          invoice={{ ...defaultProps.invoice, payments: [] }}
-        />
+        <PaymentDrawer {...defaultProps} invoice={{ ...defaultProps.invoice, payments: [] }} />
       );
 
       expect(container).toBeInTheDocument();
@@ -172,9 +167,7 @@ describe("PaymentDrawer", () => {
         ],
       };
 
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} invoice={multiPaymentInvoice} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} invoice={multiPaymentInvoice} />);
 
       expect(container.textContent).toContain("5000");
       expect(container.textContent).toContain("3000");
@@ -227,17 +220,13 @@ describe("PaymentDrawer", () => {
     });
 
     it("should show loading state for print", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} printingReceiptId={1} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} printingReceiptId={1} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should show loading state for download", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} downloadingReceiptId={1} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} downloadingReceiptId={1} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -245,33 +234,25 @@ describe("PaymentDrawer", () => {
 
   describe("Void Payment Management", () => {
     it("should display void button for each payment when can manage", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} canManage={true} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} canManage={true} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should hide void button when cannot manage", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} canManage={false} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} canManage={false} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should show void dropdown when toggled", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} voidDropdownPaymentId={1} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} voidDropdownPaymentId={1} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should hide void dropdown when not toggled", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} voidDropdownPaymentId={null} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} voidDropdownPaymentId={null} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -283,17 +264,13 @@ describe("PaymentDrawer", () => {
     });
 
     it("should show loading state for void operation", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} isVoidingPayment={true} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} isVoidingPayment={true} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should support custom void reason", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} voidCustomReason="Wrong amount" />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} voidCustomReason="Wrong amount" />);
 
       expect(container).toBeInTheDocument();
     });
@@ -302,33 +279,21 @@ describe("PaymentDrawer", () => {
   describe("User Management / Presence Tracking", () => {
     it("should display other users when present", () => {
       const { container } = renderWithProviders(
-        <PaymentDrawer
-          {...defaultProps}
-          otherSessions={[
-            { userId: "user2", name: "John Doe", action: "viewing" },
-          ]}
-        />
+        <PaymentDrawer {...defaultProps} otherSessions={[{ userId: "user2", name: "John Doe", action: "viewing" }]} />
       );
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle no other users", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} otherSessions={[]} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} otherSessions={[]} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should show user presence status", () => {
       const { container } = renderWithProviders(
-        <PaymentDrawer
-          {...defaultProps}
-          otherSessions={[
-            { userId: "user2", name: "Jane Smith", action: "editing" },
-          ]}
-        />
+        <PaymentDrawer {...defaultProps} otherSessions={[{ userId: "user2", name: "Jane Smith", action: "editing" }]} />
       );
 
       expect(container).toBeInTheDocument();
@@ -337,17 +302,13 @@ describe("PaymentDrawer", () => {
 
   describe("Dark Mode Support", () => {
     it("should render with dark mode colors", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} isDarkMode={true} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} isDarkMode={true} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should render with light mode colors", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} isDarkMode={false} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} isDarkMode={false} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -355,17 +316,13 @@ describe("PaymentDrawer", () => {
 
   describe("Saving State", () => {
     it("should disable form while saving", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} isSaving={true} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} isSaving={true} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should enable form when not saving", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer {...defaultProps} isSaving={false} />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} isSaving={false} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -376,7 +333,8 @@ describe("PaymentDrawer", () => {
       const user = setupUser();
       const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} isOpen={true} />);
 
-      const closeButton = container.querySelector("button[aria-label='Close']") ||
+      const closeButton =
+        container.querySelector("button[aria-label='Close']") ||
         container.querySelector("button:has-text('Close')") ||
         container.querySelector("button");
       if (closeButton) {
@@ -421,10 +379,7 @@ describe("PaymentDrawer", () => {
   describe("Edge Cases", () => {
     it("should handle invoice with no payments", () => {
       const { container } = renderWithProviders(
-        <PaymentDrawer
-          {...defaultProps}
-          invoice={{ ...defaultProps.invoice, payments: [] }}
-        />
+        <PaymentDrawer {...defaultProps} invoice={{ ...defaultProps.invoice, payments: [] }} />
       );
 
       expect(container).toBeInTheDocument();
@@ -446,12 +401,7 @@ describe("PaymentDrawer", () => {
     });
 
     it("should handle null invoice data gracefully", () => {
-      const { container } = renderWithProviders(
-        <PaymentDrawer
-          {...defaultProps}
-          invoice={null}
-        />
-      );
+      const { container } = renderWithProviders(<PaymentDrawer {...defaultProps} invoice={null} />);
 
       expect(container).toBeInTheDocument();
     });
