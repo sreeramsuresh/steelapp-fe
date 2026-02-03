@@ -7,7 +7,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import { createMockArray, createMockAllocation } from "../../../test/mock-factories";
+import { createMockAllocation, createMockArray } from "../../../test/mock-factories";
 import AllocationPanel from "../AllocationPanel";
 
 // Mock the auth service
@@ -19,7 +19,7 @@ vi.mock("../../../services/axiosAuthService", () => ({
 
 // Mock the reallocation modal
 vi.mock("../ReallocationModal", () => ({
-  default: ({ isOpen, onClose }) => (isOpen ? <div>Reallocation Modal</div> : null),
+  default: ({ isOpen }) => (isOpen ? <div>Reallocation Modal</div> : null),
 }));
 
 import { authService } from "../../../services/axiosAuthService";
@@ -154,9 +154,7 @@ describe("AllocationPanel", () => {
     });
 
     it("should not show Fully Allocated when total < required", () => {
-      const shortfallAllocations = [
-        { ...mockAllocations[0], quantity: 30 },
-      ];
+      const shortfallAllocations = [{ ...mockAllocations[0], quantity: 30 }];
 
       const { container } = renderWithProviders(
         <AllocationPanel {...defaultProps} allocations={shortfallAllocations} requiredQty={100} />
@@ -175,9 +173,7 @@ describe("AllocationPanel", () => {
 
   describe("Lock Status", () => {
     it("should show lock banner when locked", () => {
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} isLocked={true} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} isLocked={true} />);
 
       expect(container.textContent).toContain("Batches locked");
     });
@@ -191,9 +187,7 @@ describe("AllocationPanel", () => {
     });
 
     it("should not show lock banner when not locked", () => {
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} isLocked={false} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} isLocked={false} />);
 
       expect(container.textContent).not.toContain("Batches locked");
     });
@@ -201,9 +195,7 @@ describe("AllocationPanel", () => {
     it("should hide reallocation button when locked", () => {
       authService.getUserRole.mockReturnValue("supervisor");
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} isLocked={true} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} isLocked={true} />);
 
       expect(container.textContent).not.toContain("Change Batches");
     });
@@ -245,9 +237,7 @@ describe("AllocationPanel", () => {
     it("should not show Change Batches button when disabled", () => {
       authService.getUserRole.mockReturnValue("admin");
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} disabled={true} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} disabled={true} />);
 
       expect(container.textContent).not.toContain("Change Batches");
     });
@@ -290,9 +280,7 @@ describe("AllocationPanel", () => {
     it("should hide Change Batches for new invoices", () => {
       authService.getUserRole.mockReturnValue("admin");
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} isNewInvoice={true} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} isNewInvoice={true} />);
 
       expect(container.textContent).not.toContain("Change Batches");
     });
@@ -310,9 +298,7 @@ describe("AllocationPanel", () => {
     it("should handle many allocations", () => {
       const manyAllocations = createMockArray(createMockAllocation, 10);
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} allocations={manyAllocations} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} allocations={manyAllocations} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -321,7 +307,13 @@ describe("AllocationPanel", () => {
       const allocations = [
         { ...mockAllocations[0], quantity: 30 },
         { ...mockAllocations[1], quantity: 40 },
-        { batchNumber: "BATCH-2024-003", quantity: 50, quantityAvailable: 100, unitCost: 100, procurementChannel: "LOCAL" },
+        {
+          batchNumber: "BATCH-2024-003",
+          quantity: 50,
+          quantityAvailable: 100,
+          unitCost: 100,
+          procurementChannel: "LOCAL",
+        },
       ];
 
       const { container } = renderWithProviders(
@@ -340,25 +332,17 @@ describe("AllocationPanel", () => {
     });
 
     it("should format quantities with proper decimals", () => {
-      const allocations = [
-        { ...mockAllocations[0], quantity: 50.5, quantityAvailable: 100.75 },
-      ];
+      const allocations = [{ ...mockAllocations[0], quantity: 50.5, quantityAvailable: 100.75 }];
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} allocations={allocations} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} allocations={allocations} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should display zero quantities correctly", () => {
-      const allocations = [
-        { ...mockAllocations[0], quantity: 0, quantityAvailable: 0 },
-      ];
+      const allocations = [{ ...mockAllocations[0], quantity: 0, quantityAvailable: 0 }];
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} allocations={allocations} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} allocations={allocations} />);
 
       expect(container.textContent).toContain("0");
     });
@@ -378,9 +362,7 @@ describe("AllocationPanel", () => {
     });
 
     it("should hide Editable badge for new invoices", () => {
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} isNewInvoice={true} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} isNewInvoice={true} />);
 
       expect(container.textContent).not.toContain("Editable");
     });
@@ -414,9 +396,7 @@ describe("AllocationPanel", () => {
     it("should require invoiceItemId for reallocation", () => {
       authService.getUserRole.mockReturnValue("admin");
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} invoiceItemId={null} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} invoiceItemId={null} />);
 
       expect(container.textContent).not.toContain("Change Batches");
     });
@@ -424,9 +404,7 @@ describe("AllocationPanel", () => {
 
   describe("Edge Cases", () => {
     it("should handle large quantities", () => {
-      const allocations = [
-        { ...mockAllocations[0], quantity: 999999.99, quantityAvailable: 1000000 },
-      ];
+      const allocations = [{ ...mockAllocations[0], quantity: 999999.99, quantityAvailable: 1000000 }];
 
       const { container } = renderWithProviders(
         <AllocationPanel {...defaultProps} allocations={allocations} requiredQty={999999.99} />
@@ -436,21 +414,15 @@ describe("AllocationPanel", () => {
     });
 
     it("should handle very small quantities", () => {
-      const allocations = [
-        { ...mockAllocations[0], quantity: 0.01, quantityAvailable: 0.05 },
-      ];
+      const allocations = [{ ...mockAllocations[0], quantity: 0.01, quantityAvailable: 0.05 }];
 
-      const { container } = renderWithProviders(
-        <AllocationPanel {...defaultProps} allocations={allocations} />
-      );
+      const { container } = renderWithProviders(<AllocationPanel {...defaultProps} allocations={allocations} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle missing allocation fields", () => {
-      const incompleteAllocations = [
-        { batchNumber: "BATCH-001" },
-      ];
+      const incompleteAllocations = [{ batchNumber: "BATCH-001" }];
 
       const { container } = renderWithProviders(
         <AllocationPanel {...defaultProps} allocations={incompleteAllocations} />
