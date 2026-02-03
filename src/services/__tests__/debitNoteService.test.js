@@ -22,8 +22,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import debitNoteService from "../debitNoteService";
+import { apiClient } from "../api.js";
+import debitNoteService from "../debitNoteService.js";
 
 describe("debitNoteService", () => {
   beforeEach(() => {

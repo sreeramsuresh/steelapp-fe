@@ -1,5 +1,5 @@
-import FormError from './FormError';
-import RequiredIndicator from './RequiredIndicator';
+import FormError from "./FormError";
+import RequiredIndicator from "./RequiredIndicator";
 
 /**
  * Accessible select dropdown with label, error handling, and required indicator
@@ -26,12 +26,12 @@ const Select = ({
   error,
   required = false,
   disabled = false,
-  className = '',
+  className = "",
   helpText,
   name,
   id,
   options = [],
-  placeholder = 'Select an option...',
+  placeholder = "Select an option...",
   ...props
 }) => {
   const selectId = id || name;
@@ -39,10 +39,7 @@ const Select = ({
   return (
     <div className="space-y-1">
       {label && (
-        <label
-          htmlFor={selectId}
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor={selectId} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
           {required && <RequiredIndicator />}
         </label>
@@ -54,13 +51,9 @@ const Select = ({
         onChange={onChange}
         disabled={disabled}
         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors appearance-none ${
-          error
-            ? 'border-red-500 dark:border-red-500'
-            : 'border-gray-300 dark:border-gray-600'
+          error ? "border-red-500 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
         } ${
-          disabled
-            ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed'
-            : 'bg-white dark:bg-gray-800'
+          disabled ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : "bg-white dark:bg-gray-800"
         } text-gray-900 dark:text-white ${className}`}
         {...props}
       >
@@ -72,11 +65,7 @@ const Select = ({
         ))}
       </select>
       {error && <FormError message={error} />}
-      {helpText && !error && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {helpText}
-        </p>
-      )}
+      {helpText && !error && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{helpText}</p>}
     </div>
   );
 };

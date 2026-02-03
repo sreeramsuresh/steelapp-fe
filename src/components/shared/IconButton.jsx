@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 /**
  * Accessible icon button with automatic tooltip and focus management
@@ -12,9 +12,9 @@ const IconButton = ({
   icon,
   title,
   onClick,
-  className = '',
-  variant = 'default', // 'default', 'danger', 'success', 'info'
-  size = 'md', // 'sm', 'md', 'lg'
+  className = "",
+  variant = "default", // 'default', 'danger', 'success', 'info'
+  size = "md", // 'sm', 'md', 'lg'
   disabled = false,
   ariaLabel,
   ...props
@@ -23,22 +23,22 @@ const IconButton = ({
 
   const variantClasses = {
     default:
-      'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700',
+      "text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700",
     danger:
-      'text-red-600 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30',
+      "text-red-600 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30",
     success:
-      'text-green-600 hover:text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30',
-    info: 'text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30',
+      "text-green-600 hover:text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30",
+    info: "text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30",
   };
 
   const sizeClasses = {
-    sm: 'p-1',
-    md: 'p-2',
-    lg: 'p-3',
+    sm: "p-1",
+    md: "p-2",
+    lg: "p-3",
   };
 
   const baseClasses =
-    'relative inline-flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed';
+    "relative inline-flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
     <div className="relative inline-block">

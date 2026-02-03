@@ -1,6 +1,6 @@
 // React import removed (unused)
-import { Construction, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft, Construction } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ComingSoon = ({ title }) => {
   return (
@@ -9,13 +9,12 @@ const ComingSoon = ({ title }) => {
         <Construction size={64} className="coming-soon-icon" />
         <h1>{title}</h1>
         <p>
-          This feature is coming soon! We&apos;re working hard to bring you the
-          best steel business management tools.
+          This feature is coming soon! We&apos;re working hard to bring you the best steel business management tools.
         </p>
         <div className="coming-soon-features">
           <h3>What&apos;s planned:</h3>
           <ul>
-            {title === 'Customer Management' && (
+            {title === "Customer Management" && (
               <>
                 <li>Add and manage customer profiles</li>
                 <li>Customer contact history</li>
@@ -23,7 +22,7 @@ const ComingSoon = ({ title }) => {
                 <li>Customer analytics</li>
               </>
             )}
-            {title === 'Steel Products' && (
+            {title === "Steel Products" && (
               <>
                 <li>Product catalog management</li>
                 <li>Inventory tracking</li>
@@ -31,7 +30,7 @@ const ComingSoon = ({ title }) => {
                 <li>Product specifications</li>
               </>
             )}
-            {title === 'Price Calculator' && (
+            {title === "Price Calculator" && (
               <>
                 <li>Real-time steel price calculation</li>
                 <li>Weight and dimension calculator</li>
@@ -39,7 +38,7 @@ const ComingSoon = ({ title }) => {
                 <li>Bulk quantity discounts</li>
               </>
             )}
-            {title === 'Sales Analytics' && (
+            {title === "Sales Analytics" && (
               <>
                 <li>Revenue reports and charts</li>
                 <li>Customer sales analysis</li>
@@ -47,7 +46,7 @@ const ComingSoon = ({ title }) => {
                 <li>Monthly/quarterly reports</li>
               </>
             )}
-            {title === 'Revenue Trends' && (
+            {title === "Revenue Trends" && (
               <>
                 <li>Revenue trend visualization</li>
                 <li>Forecasting and predictions</li>
@@ -55,7 +54,7 @@ const ComingSoon = ({ title }) => {
                 <li>Growth metrics</li>
               </>
             )}
-            {title === 'Company Settings' && (
+            {title === "Company Settings" && (
               <>
                 <li>Company profile management</li>
                 <li>Invoice templates customization</li>

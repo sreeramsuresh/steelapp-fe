@@ -15,8 +15,8 @@
  * Procurement channels
  */
 export const PROCUREMENT_CHANNELS = {
-  LOCAL: 'LOCAL',
-  IMPORTED: 'IMPORTED',
+  LOCAL: "LOCAL",
+  IMPORTED: "IMPORTED",
 };
 
 /**
@@ -43,10 +43,7 @@ export const MARGIN_THRESHOLDS = {
  */
 export function getMarginThresholds(channel) {
   const upperChannel = channel?.toUpperCase();
-  return (
-    MARGIN_THRESHOLDS[upperChannel] ||
-    MARGIN_THRESHOLDS[PROCUREMENT_CHANNELS.LOCAL]
-  );
+  return MARGIN_THRESHOLDS[upperChannel] || MARGIN_THRESHOLDS[PROCUREMENT_CHANNELS.LOCAL];
 }
 
 /**
@@ -60,12 +57,12 @@ export function getMarginColor(margin, channel = PROCUREMENT_CHANNELS.LOCAL) {
   const marginValue = parseFloat(margin) || 0;
 
   if (marginValue < thresholds.minimum) {
-    return 'red';
+    return "red";
   }
   if (marginValue < thresholds.warning) {
-    return 'amber';
+    return "amber";
   }
-  return 'green';
+  return "green";
 }
 
 /**
@@ -74,17 +71,14 @@ export function getMarginColor(margin, channel = PROCUREMENT_CHANNELS.LOCAL) {
  * @param {string} channel - Procurement channel
  * @returns {string} Status message
  */
-export function getMarginStatusMessage(
-  margin,
-  channel = PROCUREMENT_CHANNELS.LOCAL,
-) {
+export function getMarginStatusMessage(margin, channel = PROCUREMENT_CHANNELS.LOCAL) {
   const thresholds = getMarginThresholds(channel);
   const color = getMarginColor(margin, channel);
 
-  if (color === 'red') {
+  if (color === "red") {
     return `Below ${thresholds.minimum}% minimum for ${channel} products`;
   }
-  if (color === 'amber') {
+  if (color === "amber") {
     return `Below ${thresholds.warning}% recommended for ${channel} products`;
   }
   return `Good margin for ${channel} products`;
@@ -99,27 +93,27 @@ export function getMarginStatusMessage(
  * @deprecated Use usePricingPolicy hook instead. Will be removed in Phase 1.
  */
 export const PRODUCT_CATEGORIES = {
-  COILS: 'COILS',
-  SHEETS: 'SHEETS',
-  PIPES: 'PIPES',
-  TUBES: 'TUBES',
-  FITTINGS: 'FITTINGS',
-  RODS: 'RODS',
-  BARS: 'BARS',
-  FASTENERS: 'FASTENERS',
-  ANGLES: 'ANGLES',
-  CHANNELS: 'CHANNELS',
-  BEAMS: 'BEAMS',
+  COILS: "COILS",
+  SHEETS: "SHEETS",
+  PIPES: "PIPES",
+  TUBES: "TUBES",
+  FITTINGS: "FITTINGS",
+  RODS: "RODS",
+  BARS: "BARS",
+  FASTENERS: "FASTENERS",
+  ANGLES: "ANGLES",
+  CHANNELS: "CHANNELS",
+  BEAMS: "BEAMS",
 };
 
 /**
  * @deprecated Use usePricingPolicy hook instead. Will be removed in Phase 1.
  */
 export const PRICING_UNITS = {
-  WEIGHT: 'WEIGHT',
-  AREA: 'AREA',
-  PIECE: 'PIECE',
-  LENGTH: 'LENGTH',
+  WEIGHT: "WEIGHT",
+  AREA: "AREA",
+  PIECE: "PIECE",
+  LENGTH: "LENGTH",
 };
 
 /**
@@ -143,10 +137,10 @@ export const CATEGORY_PRICING_MATRIX = {
  * @deprecated Use usePricingPolicy hook instead. Will be removed in Phase 1.
  */
 export const PRICING_UNIT_LABELS = {
-  [PRICING_UNITS.WEIGHT]: 'Per Kilogram (KG)',
-  [PRICING_UNITS.AREA]: 'Per Square Meter (m2)',
-  [PRICING_UNITS.PIECE]: 'Per Piece/Unit',
-  [PRICING_UNITS.LENGTH]: 'Per Meter',
+  [PRICING_UNITS.WEIGHT]: "Per Kilogram (KG)",
+  [PRICING_UNITS.AREA]: "Per Square Meter (m2)",
+  [PRICING_UNITS.PIECE]: "Per Piece/Unit",
+  [PRICING_UNITS.LENGTH]: "Per Meter",
 };
 
 /**
@@ -154,7 +148,7 @@ export const PRICING_UNIT_LABELS = {
  */
 export function getPricingUnitForCategory(category) {
   console.warn(
-    '[DEPRECATED] getPricingUnitForCategory from pricingStrategyMatrix.js is deprecated. Use usePricingPolicy hook instead.',
+    "[DEPRECATED] getPricingUnitForCategory from pricingStrategyMatrix.js is deprecated. Use usePricingPolicy hook instead."
   );
   if (!category) return null;
   const upperCategory = category.toUpperCase();
@@ -166,13 +160,13 @@ export function getPricingUnitForCategory(category) {
  */
 export function validateCategoryPricingUnit(category, pricingUnit) {
   console.warn(
-    '[DEPRECATED] validateCategoryPricingUnit from pricingStrategyMatrix.js is deprecated. Use usePricingPolicy hook instead.',
+    "[DEPRECATED] validateCategoryPricingUnit from pricingStrategyMatrix.js is deprecated. Use usePricingPolicy hook instead."
   );
   if (!category) {
-    return { isValid: false, error: 'Product category is required' };
+    return { isValid: false, error: "Product category is required" };
   }
   if (!pricingUnit) {
-    return { isValid: false, error: 'Pricing unit is required' };
+    return { isValid: false, error: "Pricing unit is required" };
   }
   const expectedUnit = CATEGORY_PRICING_MATRIX[category.toUpperCase()];
   if (!expectedUnit) {

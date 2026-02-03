@@ -45,10 +45,7 @@ describe("operatingExpenseService", () => {
 
       expect(result.data).toHaveLength(2);
       expect(result.pagination.total).toBe(2);
-      expect(api.get).toHaveBeenCalledWith(
-        "/operating-expenses",
-        expect.any(Object)
-      );
+      expect(api.get).toHaveBeenCalledWith("/operating-expenses", expect.any(Object));
     });
 
     it("should filter by expense type", async () => {
@@ -111,10 +108,7 @@ describe("operatingExpenseService", () => {
       const result = await operatingExpenseService.createExpense(payload);
 
       expect(result.id).toBe(1);
-      expect(api.post).toHaveBeenCalledWith(
-        "/operating-expenses",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/operating-expenses", payload);
     });
   });
 
@@ -129,10 +123,7 @@ describe("operatingExpenseService", () => {
       const result = await operatingExpenseService.updateExpense(1, payload);
 
       expect(result.amount).toBe(5500);
-      expect(api.put).toHaveBeenCalledWith(
-        "/operating-expenses/1",
-        payload
-      );
+      expect(api.put).toHaveBeenCalledWith("/operating-expenses/1", payload);
     });
   });
 
@@ -163,10 +154,7 @@ describe("operatingExpenseService", () => {
       });
 
       expect(result.status).toBe("approved");
-      expect(api.put).toHaveBeenCalledWith(
-        "/operating-expenses/1/approve",
-        expect.any(Object)
-      );
+      expect(api.put).toHaveBeenCalledWith("/operating-expenses/1/approve", expect.any(Object));
     });
   });
 

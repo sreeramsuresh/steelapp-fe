@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { userPreferencesService } from '../services/userPreferencesService';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { userPreferencesService } from "../services/userPreferencesService";
 
-const DEFAULT_ORDER = ['quickAccess', 'createNew', 'recentItems'];
+const DEFAULT_ORDER = ["quickAccess", "createNew", "recentItems"];
 const VALID_SECTIONS = new Set(DEFAULT_ORDER);
 
 const validateSectionOrder = (order) => {
   if (!Array.isArray(order)) return DEFAULT_ORDER;
 
-  const valid = order.filter(id => VALID_SECTIONS.has(id));
-  const missing = DEFAULT_ORDER.filter(id => !valid.includes(id));
+  const valid = order.filter((id) => VALID_SECTIONS.has(id));
+  const missing = DEFAULT_ORDER.filter((id) => !valid.includes(id));
 
   return [...valid, ...missing];
 };
@@ -49,7 +49,7 @@ const useHomeSectionOrder = () => {
   const syncToBackend = useCallback(async (order) => {
     const user = userPreferencesService.getCurrentUser();
     if (!user || !user.id) {
-      console.warn('Not logged in - section order saved locally only');
+      console.warn("Not logged in - section order saved locally only");
       return;
     }
 
@@ -66,7 +66,7 @@ const useHomeSectionOrder = () => {
 
       await userPreferencesService.updatePermissions(user.id, updatedPermissions);
     } catch (error) {
-      console.warn('Failed to sync section order to backend:', error);
+      console.warn("Failed to sync section order to backend:", error);
       // Don't throw - localStorage is already saved
     } finally {
       setIsSaving(false);

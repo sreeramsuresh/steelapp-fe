@@ -1,6 +1,6 @@
-import { ChevronRight, Home } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useTheme } from '../../contexts/ThemeContext';
+import { ChevronRight, Home } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useTheme } from "../../contexts/ThemeContext";
 
 /**
  * Breadcrumb navigation component
@@ -22,14 +22,12 @@ const Breadcrumb = ({ items = [] }) => {
 
   return (
     <nav
-      className={`flex items-center gap-2 text-sm mb-6 ${
-        isDarkMode ? 'text-gray-400' : 'text-gray-600'
-      }`}
+      className={`flex items-center gap-2 text-sm mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
       aria-label="Breadcrumb"
     >
       <Link
         to="/"
-        className={`flex items-center gap-1 hover:${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors`}
+        className={`flex items-center gap-1 hover:${isDarkMode ? "text-white" : "text-gray-900"} transition-colors`}
       >
         <Home size={16} />
         <span className="sr-only">Home</span>
@@ -39,19 +37,11 @@ const Breadcrumb = ({ items = [] }) => {
         <div key={index} className="flex items-center gap-2">
           <ChevronRight size={16} className="opacity-50" />
           {item.current ? (
-            <span
-              className={`font-medium ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}
-              aria-current="page"
-            >
+            <span className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`} aria-current="page">
               {item.label}
             </span>
           ) : (
-            <Link
-              to={item.href}
-              className={`hover:${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors`}
-            >
+            <Link to={item.href} className={`hover:${isDarkMode ? "text-white" : "text-gray-900"} transition-colors`}>
               {item.label}
             </Link>
           )}

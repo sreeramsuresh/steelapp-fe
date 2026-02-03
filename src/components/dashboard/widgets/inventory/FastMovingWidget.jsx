@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '../../../../contexts/ThemeContext';
-import { Zap, TrendingUp, Package } from 'lucide-react';
+import { Package, TrendingUp, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTheme } from "../../../../contexts/ThemeContext";
 
 const MiniTrendLine = ({ data, width = 50, height = 20 }) => {
   const max = Math.max(...data);
@@ -13,7 +13,7 @@ const MiniTrendLine = ({ data, width = 50, height = 20 }) => {
       const y = height - ((value - min) / range) * height;
       return `${x},${y}`;
     })
-    .join(' ');
+    .join(" ");
 
   return (
     <svg width={width} height={height}>
@@ -56,9 +56,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
     return (
       <div
         className={`rounded-xl border p-4 ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
         {/* Header */}
@@ -68,21 +66,17 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
               <Zap size={16} className="text-white" />
             </div>
             <div>
-              <h3
-                className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
+              <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 Fast Moving Items
               </h3>
-              <p
-                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Turnover ratio &gt; 4x/quarter
               </p>
             </div>
           </div>
         </div>
         <div
-          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
           <span className="text-sm">No data available</span>
         </div>
@@ -92,23 +86,23 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'optimal':
+      case "optimal":
         return {
-          bg: isDarkMode ? 'bg-green-500/20' : 'bg-green-100',
-          text: isDarkMode ? 'text-green-400' : 'text-green-700',
-          label: 'Optimal',
+          bg: isDarkMode ? "bg-green-500/20" : "bg-green-100",
+          text: isDarkMode ? "text-green-400" : "text-green-700",
+          label: "Optimal",
         };
-      case 'watch':
+      case "watch":
         return {
-          bg: isDarkMode ? 'bg-yellow-500/20' : 'bg-yellow-100',
-          text: isDarkMode ? 'text-yellow-400' : 'text-yellow-700',
-          label: 'Watch',
+          bg: isDarkMode ? "bg-yellow-500/20" : "bg-yellow-100",
+          text: isDarkMode ? "text-yellow-400" : "text-yellow-700",
+          label: "Watch",
         };
       default:
         return {
-          bg: isDarkMode ? 'bg-gray-500/20' : 'bg-gray-100',
-          text: isDarkMode ? 'text-gray-400' : 'text-gray-600',
-          label: 'Normal',
+          bg: isDarkMode ? "bg-gray-500/20" : "bg-gray-100",
+          text: isDarkMode ? "text-gray-400" : "text-gray-600",
+          label: "Normal",
         };
     }
   };
@@ -117,18 +111,14 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
     return `${diffDays}d ago`;
   };
 
   return (
     <div
-      className={`rounded-xl border p-4 ${
-        isDarkMode
-          ? 'bg-[#1E2328] border-[#37474F]'
-          : 'bg-white border-[#E0E0E0]'
-      }`}
+      className={`rounded-xl border p-4 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -137,26 +127,18 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
             <Zap size={16} className="text-white" />
           </div>
           <div>
-            <h3
-              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
+            <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Fast Moving Items
             </h3>
-            <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               Turnover ratio &gt; 4x/quarter
             </p>
           </div>
         </div>
 
         {summary && (
-          <div
-            className={`px-2 py-1 rounded-lg ${isDarkMode ? 'bg-green-500/10' : 'bg-green-50'}`}
-          >
-            <span
-              className={`text-xs font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
-            >
+          <div className={`px-2 py-1 rounded-lg ${isDarkMode ? "bg-green-500/10" : "bg-green-50"}`}>
+            <span className={`text-xs font-medium ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
               {summary.totalFastMoving} items
             </span>
           </div>
@@ -167,20 +149,19 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
       <div className="space-y-2">
         {products.slice(0, 6).map((product, index) => {
           const status = getStatusBadge(product.status);
-          const stockPercent =
-            (product.currentStock / (product.reorderPoint * 3)) * 100;
+          const stockPercent = (product.currentStock / (product.reorderPoint * 3)) * 100;
 
           return (
             <div
               key={product.id}
               className={`p-3 rounded-lg cursor-pointer transition-all ${
-                isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'
+                isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"
               }`}
               onClick={() => onProductClick?.(product)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   onProductClick?.(product);
                 }
@@ -189,26 +170,16 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs font-medium w-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                    >
+                    <span className={`text-xs font-medium w-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                       {index + 1}
                     </span>
-                    <p
-                      className={`text-sm font-medium truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                    >
-                      {product.displayName || product.display_name || 'N/A'}
+                    <p className={`text-sm font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      {product.displayName || product.display_name || "N/A"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 mt-1 ml-6">
-                    <span
-                      className={`text-xs px-1.5 py-0.5 rounded ${status.bg} ${status.text}`}
-                    >
-                      {status.label}
-                    </span>
-                    <span
-                      className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${status.bg} ${status.text}`}>{status.label}</span>
+                    <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       {product.category}
                     </span>
                   </div>
@@ -217,15 +188,11 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
                 <div className="text-right ml-2">
                   <div className="flex items-center gap-1">
                     <TrendingUp size={12} className="text-green-500" />
-                    <span
-                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                    >
+                    <span className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {product.turnoverRatio}x
                     </span>
                   </div>
-                  <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     {product.daysToSell}d avg
                   </p>
                 </div>
@@ -234,25 +201,16 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
               {/* Stock Level & Trend */}
               <div className="flex items-center justify-between ml-6">
                 <div className="flex items-center gap-2">
-                  <Package
-                    size={12}
-                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-                  />
-                  <span
-                    className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-                  >
+                  <Package size={12} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
+                  <span className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                     {product.currentStock.toFixed(1)} MT
                   </span>
                   <div
-                    className={`w-16 h-1.5 rounded-full overflow-hidden ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}
+                    className={`w-16 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
                   >
                     <div
                       className={`h-full rounded-full ${
-                        stockPercent > 60
-                          ? 'bg-green-500'
-                          : stockPercent > 30
-                            ? 'bg-yellow-500'
-                            : 'bg-red-500'
+                        stockPercent > 60 ? "bg-green-500" : stockPercent > 30 ? "bg-yellow-500" : "bg-red-500"
                       }`}
                       style={{ width: `${Math.min(stockPercent, 100)}%` }}
                     />
@@ -261,9 +219,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
 
                 <div className="flex items-center gap-2">
                   <MiniTrendLine data={product.trend} isDarkMode={isDarkMode} />
-                  <span
-                    className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                  >
+                  <span className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                     {formatDate(product.lastSaleDate)}
                   </span>
                 </div>
@@ -276,31 +232,17 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
       {/* Summary Footer */}
       {summary && (
         <div
-          className={`mt-4 pt-3 border-t grid grid-cols-2 gap-4 ${
-            isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
-          }`}
+          className={`mt-4 pt-3 border-t grid grid-cols-2 gap-4 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
         >
           <div>
-            <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Avg Turnover
-            </p>
-            <p
-              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Avg Turnover</p>
+            <p className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               {summary.avgTurnover}x / quarter
             </p>
           </div>
           <div className="text-right">
-            <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Total Value
-            </p>
-            <p
-              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Value</p>
+            <p className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               AED {(summary.totalValue / 1000000).toFixed(2)}M
             </p>
           </div>
@@ -310,11 +252,9 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
       {/* View All Link */}
       <div className="mt-3 text-center">
         <button
-          onClick={() => onNavigate?.('/inventory?filter=fast-moving')}
+          onClick={() => onNavigate?.("/inventory?filter=fast-moving")}
           className={`text-xs font-medium ${
-            isDarkMode
-              ? 'text-teal-400 hover:text-teal-300'
-              : 'text-teal-600 hover:text-teal-700'
+            isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
           }`}
         >
           View All Fast Moving

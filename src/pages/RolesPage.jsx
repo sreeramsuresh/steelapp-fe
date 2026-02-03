@@ -1,18 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Users, Lock, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from '@/components/ui/table';
-import { roleService } from '../services/roleService';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
-import EmptyState from '../components/shared/EmptyState';
-import ConfirmDialog from '../components/ConfirmDialog';
+import { ArrowLeft, Lock, Pencil, Plus, Trash2, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table";
+import ConfirmDialog from "../components/ConfirmDialog";
+import EmptyState from "../components/shared/EmptyState";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
+import { roleService } from "../services/roleService";
 
 export default function RolesPage() {
   const navigate = useNavigate();
@@ -21,12 +15,12 @@ export default function RolesPage() {
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
-  const [sortField, setSortField] = useState('displayName');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState("displayName");
+  const [sortDirection, setSortDirection] = useState("asc");
   const [formData, setFormData] = useState({
-    name: '',
-    displayName: '',
-    description: '',
+    name: "",
+    displayName: "",
+    description: "",
     isDirector: false,
   });
   const [deleteConfirm, setDeleteConfirm] = useState({
@@ -56,17 +50,17 @@ export default function RolesPage() {
     if (role) {
       setEditingRole(role);
       setFormData({
-        name: role.name || '',
-        displayName: role.display_name || '',
-        description: role.description || '',
+        name: role.name || "",
+        displayName: role.display_name || "",
+        description: role.description || "",
         isDirector: role.is_director || false,
       });
     } else {
       setEditingRole(null);
       setFormData({
-        name: '',
-        displayName: '',
-        description: '',
+        name: "",
+        displayName: "",
+        description: "",
         isDirector: false,
       });
     }
@@ -77,9 +71,9 @@ export default function RolesPage() {
     setOpenDialog(false);
     setEditingRole(null);
     setFormData({
-      name: '',
-      displayName: '',
-      description: '',
+      name: "",
+      displayName: "",
+      description: "",
       isDirector: false,
     });
   };
@@ -111,7 +105,7 @@ export default function RolesPage() {
     setDeleteConfirm({
       open: true,
       roleId,
-      roleName: role ? role.display_name : 'role',
+      roleName: role ? role.display_name : "role",
     });
   };
 
@@ -129,25 +123,25 @@ export default function RolesPage() {
 
   const handleSort = (field) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
   const getSortedRoles = () => {
     const sorted = [...roles].sort((a, b) => {
-      let aVal = a[sortField === 'displayName' ? 'display_name' : sortField];
-      let bVal = b[sortField === 'displayName' ? 'display_name' : sortField];
+      let aVal = a[sortField === "displayName" ? "display_name" : sortField];
+      let bVal = b[sortField === "displayName" ? "display_name" : sortField];
 
-      if (typeof aVal === 'string') {
+      if (typeof aVal === "string") {
         aVal = aVal.toLowerCase();
         bVal = bVal.toLowerCase();
       }
 
-      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
     return sorted;
@@ -161,7 +155,7 @@ export default function RolesPage() {
     <div className="p-6">
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => navigate('/settings')}
+          onClick={() => navigate("/settings")}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           aria-label="Back to settings"
           title="Back to settings"
@@ -178,20 +172,18 @@ export default function RolesPage() {
         </Button>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">{error}</div>}
 
       {roles.length === 0 ? (
         <EmptyState
           icon={Lock}
           title="No Roles Created"
           description="Create your first role to get started managing user permissions."
-          action={<Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Plus className="w-4 h-4" /> Create Role
-          </Button>}
+          action={
+            <Button onClick={() => handleOpenDialog()} className="gap-2">
+              <Plus className="w-4 h-4" /> Create Role
+            </Button>
+          }
         />
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -200,15 +192,15 @@ export default function RolesPage() {
               <TableRow>
                 <TableCell
                   className="cursor-pointer hover:bg-gray-50 select-none"
-                  onClick={() => handleSort('displayName')}
+                  onClick={() => handleSort("displayName")}
                 >
-                  Name {sortField === 'displayName' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  Name {sortField === "displayName" && (sortDirection === "asc" ? "↑" : "↓")}
                 </TableCell>
                 <TableCell
                   className="cursor-pointer hover:bg-gray-50 select-none"
-                  onClick={() => handleSort('description')}
+                  onClick={() => handleSort("description")}
                 >
-                  Description {sortField === 'description' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  Description {sortField === "description" && (sortDirection === "asc" ? "↑" : "↓")}
                 </TableCell>
                 <TableCell>Users</TableCell>
                 <TableCell>Permissions</TableCell>
@@ -223,7 +215,7 @@ export default function RolesPage() {
                     <div className="font-semibold">{role.display_name}</div>
                     <div className="text-xs text-gray-500">{role.name}</div>
                   </TableCell>
-                  <TableCell>{role.description || '-'}</TableCell>
+                  <TableCell>{role.description || "-"}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
                       <Users className="w-3 h-3" /> {role.user_count || 0}
@@ -237,14 +229,10 @@ export default function RolesPage() {
                   <TableCell>
                     <div className="flex gap-1">
                       {role.is_director && (
-                        <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-sm font-medium">
-                          Director
-                        </span>
+                        <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-sm font-medium">Director</span>
                       )}
                       {role.is_system && (
-                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm font-medium">
-                          System
-                        </span>
+                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm font-medium">System</span>
                       )}
                     </div>
                   </TableCell>
@@ -277,83 +265,58 @@ export default function RolesPage() {
       {openDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
-            <h2 className="text-lg font-semibold mb-4">
-              {editingRole ? 'Edit Role' : 'Create New Role'}
-            </h2>
+            <h2 className="text-lg font-semibold mb-4">{editingRole ? "Edit Role" : "Create New Role"}</h2>
             <div className="space-y-4 mb-6">
               <div>
-                <label
-                  htmlFor="role-name"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="role-name" className="block text-sm font-medium mb-1">
                   Role Name
                 </label>
                 <input
                   id="role-name"
                   type="text"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., sales_manager"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Unique identifier (e.g., sales_manager)
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Unique identifier (e.g., sales_manager)</p>
               </div>
               <div>
-                <label
-                  htmlFor="role-display-name"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="role-display-name" className="block text-sm font-medium mb-1">
                   Display Name
                 </label>
                 <input
                   id="role-display-name"
                   type="text"
                   value={formData.displayName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, displayName: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., Sales Manager"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Friendly name (e.g., Sales Manager)
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Friendly name (e.g., Sales Manager)</p>
               </div>
               <div>
-                <label
-                  htmlFor="role-description"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="role-description" className="block text-sm font-medium mb-1">
                   Description
                 </label>
                 <textarea
                   id="role-description"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Brief description of this role's purpose"
                   rows={3}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Brief description of this role&apos;s purpose
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Brief description of this role&apos;s purpose</p>
               </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="isDirector"
                   checked={formData.isDirector}
-                  onChange={(e) =>
-                    setFormData({ ...formData, isDirector: e.target.checked })
-                  }
+                  onChange={(e) => setFormData({ ...formData, isDirector: e.target.checked })}
                   className="w-4 h-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <label htmlFor="isDirector" className="text-sm font-medium">
@@ -365,9 +328,7 @@ export default function RolesPage() {
               <Button variant="outline" onClick={handleCloseDialog}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>
-                {editingRole ? 'Update' : 'Create'}
-              </Button>
+              <Button onClick={handleSave}>{editingRole ? "Update" : "Create"}</Button>
             </div>
           </div>
         </div>
@@ -380,13 +341,9 @@ export default function RolesPage() {
           message={`Are you sure you want to delete the role "${deleteConfirm.roleName}"? This action cannot be undone.`}
           variant="danger"
           onConfirm={() => {
-            confirmDelete().finally(() =>
-              setDeleteConfirm({ open: false, roleId: null, roleName: null }),
-            );
+            confirmDelete().finally(() => setDeleteConfirm({ open: false, roleId: null, roleName: null }));
           }}
-          onCancel={() =>
-            setDeleteConfirm({ open: false, roleId: null, roleName: null })
-          }
+          onCancel={() => setDeleteConfirm({ open: false, roleId: null, roleName: null })}
         />
       )}
     </div>

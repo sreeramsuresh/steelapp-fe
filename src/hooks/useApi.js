@@ -1,11 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  getErrorMessage,
-  ErrorTypes,
-  DisplayTypes,
-} from '../utils/errorHandler';
-import notificationService from '../services/notificationService';
-import { reportApiUnhealthy } from '../contexts/ApiHealthContext';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { reportApiUnhealthy } from "../contexts/ApiHealthContext";
+import notificationService from "../services/notificationService";
+import { DisplayTypes, ErrorTypes, getErrorMessage } from "../utils/errorHandler";
 
 /**
  * useApi - Hook for API calls with centralized error handling
@@ -69,10 +65,10 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
             // Set appError for full-page display
             setAppError(errorInfo);
             // Optionally redirect to login
-            if (errorInfo.action === 'LOGIN') {
+            if (errorInfo.action === "LOGIN") {
               // Give time for the user to see the error before redirect
               setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = "/login";
               }, 2000);
             }
             break;
@@ -98,7 +94,7 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showToasts],
+    [showToasts]
   );
 
   const reset = useCallback(() => {
@@ -149,15 +145,9 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
  */
 export const useApiData = (apiFunction, dependencies = [], options = true) => {
   // Support backward compatibility: options can be boolean (immediate) or object
-  const normalizedOptions =
-    typeof options === 'boolean' ? { immediate: options } : options;
+  const normalizedOptions = typeof options === "boolean" ? { immediate: options } : options;
 
-  const {
-    immediate = true,
-    initialData = null,
-    skipInitialLoading = false,
-    showToasts = true,
-  } = normalizedOptions;
+  const { immediate = true, initialData = null, skipInitialLoading = false, showToasts = true } = normalizedOptions;
 
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(!skipInitialLoading);
@@ -203,9 +193,9 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
 
           case ErrorTypes.AUTH:
             setAppError(errorInfo);
-            if (errorInfo.action === 'LOGIN') {
+            if (errorInfo.action === "LOGIN") {
               setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = "/login";
               }, 2000);
             }
             break;
@@ -229,7 +219,7 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [apiFunction, skipInitialLoading, showToasts],
+    [apiFunction, skipInitialLoading, showToasts]
   );
 
   useEffect(() => {

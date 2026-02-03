@@ -11,15 +11,9 @@
  * @param source - Source of the data for debugging
  * @returns Normalized DeliveryNote with camelCase fields
  */
-export function normalizeDeliveryNote(
-  rawDN: any,
-  source = 'unknown',
-): any | null {
-  if (!rawDN || typeof rawDN !== 'object') {
-    console.error(
-      `❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`,
-      rawDN,
-    );
+export function normalizeDeliveryNote(rawDN: any, source = "unknown"): any | null {
+  if (!rawDN || typeof rawDN !== "object") {
+    console.error(`❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`, rawDN);
     return null;
   }
 
@@ -34,7 +28,7 @@ export function normalizeDeliveryNote(
       }
 
       // Handle string dates
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
           return parsed.toISOString();
@@ -49,24 +43,20 @@ export function normalizeDeliveryNote(
       // Core identifiers
       id: rawDN.id || 0,
       companyId: rawDN.company_id || rawDN.companyId,
-      deliveryNoteNumber:
-        rawDN.deliveryNoteNumber || rawDN.delivery_note_number || '',
+      deliveryNoteNumber: rawDN.deliveryNoteNumber || rawDN.delivery_note_number || "",
       deliveryDate: parseDate(rawDN.deliveryDate || rawDN.delivery_date),
 
       // Related documents
       invoiceId: rawDN.invoiceId || rawDN.invoice_id || undefined,
       invoiceNumber: rawDN.invoiceNumber || rawDN.invoice_number || undefined,
-      purchaseOrderId:
-        rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
+      purchaseOrderId: rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
 
       // Customer linkage
       customerId: rawDN.customer_id || rawDN.customerId || undefined,
 
       // Customer & Delivery
-      customerDetails:
-        rawDN.customerDetails || rawDN.customer_details || undefined,
-      deliveryAddress:
-        rawDN.deliveryAddress || rawDN.delivery_address || undefined,
+      customerDetails: rawDN.customerDetails || rawDN.customer_details || undefined,
+      deliveryAddress: rawDN.deliveryAddress || rawDN.delivery_address || undefined,
 
       // Driver & Vehicle
       driverName: rawDN.driverName || rawDN.driver_name || undefined,
@@ -97,11 +87,8 @@ export function normalizeDeliveryNote(
 
     return normalized;
   } catch (error) {
-    console.error(
-      `❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`,
-      error,
-    );
-    console.error('   Raw data:', rawDN);
+    console.error(`❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`, error);
+    console.error("   Raw data:", rawDN);
     return null;
   }
 }
@@ -112,11 +99,9 @@ export function normalizeDeliveryNote(
  * @param source - Source identifier for debugging
  * @returns Array of normalized DeliveryNote objects
  */
-export function normalizeDeliveryNotes(rawDNs: any[], source = 'list'): any[] {
+export function normalizeDeliveryNotes(rawDNs: any[], source = "list"): any[] {
   if (!Array.isArray(rawDNs)) {
-    console.error(
-      `❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`,
-    );
+    console.error(`❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`);
     return [];
   }
 

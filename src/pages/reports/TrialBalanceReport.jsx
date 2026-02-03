@@ -4,9 +4,9 @@
  * Validates that Total Debit = Total Credit
  */
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import financialReportsService from '../../services/financialReportsService';
+import { useEffect, useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import financialReportsService from "../../services/financialReportsService";
 
 export default function TrialBalanceReport() {
   const { user: _user } = useAuth();
@@ -23,12 +23,12 @@ export default function TrialBalanceReport() {
       try {
         // TODO: Replace with actual API call to get accounting periods
         setPeriods([
-          { id: 1, label: 'January 2025', year: 2025, month: 1 },
-          { id: 2, label: 'December 2024', year: 2024, month: 12 },
-          { id: 3, label: 'November 2024', year: 2024, month: 11 },
+          { id: 1, label: "January 2025", year: 2025, month: 1 },
+          { id: 2, label: "December 2024", year: 2024, month: 12 },
+          { id: 3, label: "November 2024", year: 2024, month: 11 },
         ]);
       } catch (err) {
-        console.error('Error fetching periods:', err);
+        console.error("Error fetching periods:", err);
       }
     };
 
@@ -37,7 +37,7 @@ export default function TrialBalanceReport() {
 
   const handleGenerateReport = async () => {
     if (!periodId) {
-      setError('Please select an accounting period');
+      setError("Please select an accounting period");
       return;
     }
 
@@ -50,14 +50,14 @@ export default function TrialBalanceReport() {
       });
 
       if (!result.success) {
-        setError(result.error || 'Failed to generate report');
+        setError(result.error || "Failed to generate report");
         return;
       }
 
       setData(result);
     } catch (err) {
-      console.error('Error generating Trial Balance:', err);
-      setError(err.message || 'An error occurred');
+      console.error("Error generating Trial Balance:", err);
+      setError(err.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -72,12 +72,8 @@ export default function TrialBalanceReport() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Trial Balance Report
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Verify that Total Debits = Total Credits for audit purposes
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">Trial Balance Report</h1>
+        <p className="text-gray-600 mt-2">Verify that Total Debits = Total Credits for audit purposes</p>
       </div>
 
       {/* Filters */}
@@ -90,10 +86,8 @@ export default function TrialBalanceReport() {
             </label>
             <select
               id="trial-balance-period"
-              value={periodId || ''}
-              onChange={(e) =>
-                setPeriodId(e.target.value ? parseInt(e.target.value) : null)
-              }
+              value={periodId || ""}
+              onChange={(e) => setPeriodId(e.target.value ? parseInt(e.target.value) : null)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Period...</option>
@@ -114,9 +108,7 @@ export default function TrialBalanceReport() {
                 onChange={(e) => setIncludeZeroBalances(e.target.checked)}
                 className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">
-                Include Zero Balances
-              </span>
+              <span className="ml-2 text-sm text-gray-700">Include Zero Balances</span>
             </label>
           </div>
 
@@ -127,7 +119,7 @@ export default function TrialBalanceReport() {
               disabled={loading || !periodId}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
             >
-              {loading ? 'Generating...' : 'Generate Report'}
+              {loading ? "Generating..." : "Generate Report"}
             </button>
           </div>
         </div>
@@ -144,32 +136,17 @@ export default function TrialBalanceReport() {
       {data && (
         <div
           className={`rounded-lg p-4 ${
-            data.totals.balanced
-              ? 'bg-green-50 border border-green-200'
-              : 'bg-red-50 border border-red-200'
+            data.totals.balanced ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
           }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3
-                className={`font-bold text-lg ${
-                  data.totals.balanced ? 'text-green-800' : 'text-red-800'
-                }`}
-              >
-                {data.totals.balanced
-                  ? '✓ Trial Balance is Balanced'
-                  : '✗ Trial Balance is NOT Balanced'}
+              <h3 className={`font-bold text-lg ${data.totals.balanced ? "text-green-800" : "text-red-800"}`}>
+                {data.totals.balanced ? "✓ Trial Balance is Balanced" : "✗ Trial Balance is NOT Balanced"}
               </h3>
-              <p
-                className={`text-sm mt-1 ${
-                  data.totals.balanced ? 'text-green-700' : 'text-red-700'
-                }`}
-              >
-                Total Debit:{' '}
-                {financialReportsService.formatCurrency(data.totals.debit)} |
-                Total Credit:{' '}
-                {financialReportsService.formatCurrency(data.totals.credit)} |
-                Variance:{' '}
+              <p className={`text-sm mt-1 ${data.totals.balanced ? "text-green-700" : "text-red-700"}`}>
+                Total Debit: {financialReportsService.formatCurrency(data.totals.debit)} | Total Credit:{" "}
+                {financialReportsService.formatCurrency(data.totals.credit)} | Variance:{" "}
                 {financialReportsService.formatCurrency(data.totals.variance)}
               </p>
             </div>
@@ -206,28 +183,14 @@ export default function TrialBalanceReport() {
             <tbody className="bg-white divide-y divide-gray-200">
               {data.accounts.map((account, idx) => (
                 <tr key={idx} className="hover:bg-gray-50 cursor-pointer">
-                  <td className="px-6 py-3 text-sm font-medium text-gray-900">
-                    {account.account_code}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-gray-700">
-                    {account.account_name}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-gray-600">
-                    {account.account_category}
+                  <td className="px-6 py-3 text-sm font-medium text-gray-900">{account.account_code}</td>
+                  <td className="px-6 py-3 text-sm text-gray-700">{account.account_name}</td>
+                  <td className="px-6 py-3 text-sm text-gray-600">{account.account_category}</td>
+                  <td className="px-6 py-3 text-sm text-right font-mono">
+                    {account.closing_debit > 0 ? financialReportsService.formatCurrency(account.closing_debit) : "-"}
                   </td>
                   <td className="px-6 py-3 text-sm text-right font-mono">
-                    {account.closing_debit > 0
-                      ? financialReportsService.formatCurrency(
-                          account.closing_debit,
-                        )
-                      : '-'}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-right font-mono">
-                    {account.closing_credit > 0
-                      ? financialReportsService.formatCurrency(
-                          account.closing_credit,
-                        )
-                      : '-'}
+                    {account.closing_credit > 0 ? financialReportsService.formatCurrency(account.closing_credit) : "-"}
                   </td>
                   <td className="px-6 py-3 text-sm text-center">
                     <button
@@ -251,12 +214,8 @@ export default function TrialBalanceReport() {
                   {financialReportsService.formatCurrency(data.totals.credit)}
                 </td>
                 <td className="px-6 py-3 text-sm text-center">
-                  <span
-                    className={`font-bold ${
-                      data.totals.balanced ? 'text-green-700' : 'text-red-700'
-                    }`}
-                  >
-                    {data.totals.balanced ? '✓' : '✗'}
+                  <span className={`font-bold ${data.totals.balanced ? "text-green-700" : "text-red-700"}`}>
+                    {data.totals.balanced ? "✓" : "✗"}
                   </span>
                 </td>
               </tr>
@@ -268,18 +227,14 @@ export default function TrialBalanceReport() {
       {/* Empty State */}
       {!loading && !data && !error && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600">
-            Select an accounting period and click &quot;Generate Report&quot;
-          </p>
+          <p className="text-gray-600">Select an accounting period and click &quot;Generate Report&quot;</p>
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600 animate-pulse">
-            Generating Trial Balance...
-          </p>
+          <p className="text-gray-600 animate-pulse">Generating Trial Balance...</p>
         </div>
       )}
     </div>

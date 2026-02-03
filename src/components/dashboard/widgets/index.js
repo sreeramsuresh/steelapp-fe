@@ -9,83 +9,78 @@
  */
 
 // ============================================================================
-// PRODUCT ANALYTICS WIDGETS
+// BASE WIDGET
+// ============================================================================
+export { default as BaseWidget } from "./BaseWidget";
+// ============================================================================
+// CUSTOMER WIDGETS
 // ============================================================================
 export {
-  TopProductsWidget,
-  CategoryPerformanceWidget,
-  GradeAnalysisWidget,
-  ProductMarginWidget,
-  PriceTrendWidget,
-} from './product';
-
-// ============================================================================
-// INVENTORY MANAGEMENT WIDGETS
-// ============================================================================
-export {
-  InventoryHealthWidget,
-  FastMovingWidget,
-  SlowMovingWidget,
-  ReorderAlertsWidget,
-  StockTurnoverWidget,
-  WarehouseUtilizationWidget,
-} from './inventory';
+  AtRiskCustomersWidget,
+  CustomerCLVWidget,
+  CustomerSegmentsWidget,
+  NewCustomerWidget,
+} from "./customer";
 
 // ============================================================================
 // FINANCIAL WIDGETS
 // ============================================================================
 export {
-  RevenueKPIWidget,
-  ARAgingWidget,
-  GrossMarginWidget,
-  DSOWidget,
-  CreditUtilizationWidget,
   APAgingWidget,
+  ARAgingWidget,
   CashFlowWidget,
-  ProfitSummaryWidget,
-  FinancialKPICards,
-  RevenueAnalyticsWidget,
   CreditManagementWidget,
-} from './financial';
-
+  CreditUtilizationWidget,
+  DSOWidget,
+  FinancialKPICards,
+  GrossMarginWidget,
+  ProfitSummaryWidget,
+  RevenueAnalyticsWidget,
+  RevenueKPIWidget,
+} from "./financial";
 // ============================================================================
-// CUSTOMER WIDGETS
+// INVENTORY MANAGEMENT WIDGETS
 // ============================================================================
 export {
-  NewCustomerWidget,
-  CustomerSegmentsWidget,
-  CustomerCLVWidget,
-  AtRiskCustomersWidget,
-} from './customer';
-
+  FastMovingWidget,
+  InventoryHealthWidget,
+  ReorderAlertsWidget,
+  SlowMovingWidget,
+  StockTurnoverWidget,
+  WarehouseUtilizationWidget,
+} from "./inventory";
+// ============================================================================
+// PRODUCT ANALYTICS WIDGETS
+// ============================================================================
+export {
+  CategoryPerformanceWidget,
+  GradeAnalysisWidget,
+  PriceTrendWidget,
+  ProductMarginWidget,
+  TopProductsWidget,
+} from "./product";
 // ============================================================================
 // SALES AGENT WIDGETS
 // ============================================================================
 export {
-  LeaderboardWidget,
-  CommissionTrackerWidget,
-  CommissionForecastWidget,
-  ConversionFunnelWidget,
-  CustomerPortfolioWidget,
   AgentScorecardWidget,
   CollectionPerformanceWidget,
-} from './sales-agent';
-
+  CommissionForecastWidget,
+  CommissionTrackerWidget,
+  ConversionFunnelWidget,
+  CustomerPortfolioWidget,
+  LeaderboardWidget,
+} from "./sales-agent";
 // ============================================================================
 // VAT WIDGETS
 // ============================================================================
 export {
-  VATCollectionWidget,
-  VATReturnStatusWidget,
-  VATReconciliationWidget,
-  VATComplianceAlertsWidget,
-  TRNValidationWidget,
-  ZeroRatedExportsWidget,
-  ReverseChargeWidget,
   DesignatedZoneWidget,
-} from './vat';
-
-// ============================================================================
-// BASE WIDGET
-// ============================================================================
-export { default as BaseWidget } from './BaseWidget';
+  ReverseChargeWidget,
+  TRNValidationWidget,
+  VATCollectionWidget,
+  VATComplianceAlertsWidget,
+  VATReconciliationWidget,
+  VATReturnStatusWidget,
+  ZeroRatedExportsWidget,
+} from "./vat";

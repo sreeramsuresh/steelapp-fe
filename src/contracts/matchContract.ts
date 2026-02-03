@@ -1,4 +1,4 @@
-import { contractRegistry, ContractDefinition } from './contractRegistry';
+import { type ContractDefinition, contractRegistry } from "./contractRegistry";
 
 /**
  * Pattern Matching for API Contracts
@@ -36,31 +36,31 @@ function normalizeUrl(url: string): string {
   ];
 
   for (const pattern of baseUrlPatterns) {
-    normalized = normalized.replace(pattern, '');
+    normalized = normalized.replace(pattern, "");
   }
 
   // Strip query string
-  const queryIndex = normalized.indexOf('?');
+  const queryIndex = normalized.indexOf("?");
   if (queryIndex !== -1) {
     normalized = normalized.substring(0, queryIndex);
   }
 
   // Strip hash
-  const hashIndex = normalized.indexOf('#');
+  const hashIndex = normalized.indexOf("#");
   if (hashIndex !== -1) {
     normalized = normalized.substring(0, hashIndex);
   }
 
   // Normalize multiple slashes
-  normalized = normalized.replace(/\/+/g, '/');
+  normalized = normalized.replace(/\/+/g, "/");
 
   // Remove trailing slash (but keep '/')
-  if (normalized.length > 1 && normalized.endsWith('/')) {
+  if (normalized.length > 1 && normalized.endsWith("/")) {
     normalized = normalized.slice(0, -1);
   }
 
   // Ensure leading slash
-  if (!normalized.startsWith('/')) {
+  if (!normalized.startsWith("/")) {
     normalized = `/${normalized}`;
   }
 
@@ -80,8 +80,8 @@ function normalizeUrl(url: string): string {
  * @returns true if URL matches pattern
  */
 function matchesPattern(url: string, pattern: string): boolean {
-  const urlParts = url.split('/').filter(Boolean);
-  const patternParts = pattern.split('/').filter(Boolean);
+  const urlParts = url.split("/").filter(Boolean);
+  const patternParts = pattern.split("/").filter(Boolean);
 
   // Must have same number of segments
   if (urlParts.length !== patternParts.length) {
@@ -94,7 +94,7 @@ function matchesPattern(url: string, pattern: string): boolean {
     const urlPart = urlParts[i];
 
     // If pattern part starts with ':', it's a parameter - always matches
-    if (patternPart.startsWith(':')) {
+    if (patternPart.startsWith(":")) {
       continue;
     }
 
@@ -124,10 +124,7 @@ function matchesPattern(url: string, pattern: string): boolean {
  * matchContract({ method: 'GET', url: '/unknown/endpoint' })
  * // Returns: null
  */
-export function matchContract(params: {
-  method: string;
-  url: string;
-}): ContractDefinition | null {
+export function matchContract(params: { method: string; url: string }): ContractDefinition | null {
   const { method, url } = params;
 
   // Normalize method to uppercase
@@ -146,7 +143,7 @@ export function matchContract(params: {
 
   // Then, try pattern matching (for endpoints with :params)
   for (const [key, contract] of Object.entries(contractRegistry)) {
-    const [registryMethod, registryPattern] = key.split(' ', 2);
+    const [registryMethod, registryPattern] = key.split(" ", 2);
 
     // Method must match
     if (registryMethod !== normalizedMethod) {
@@ -177,14 +174,11 @@ export function matchContract(params: {
  * extractParams('/invoices/123/items/456', '/invoices/:id/items/:itemId')
  * // Returns: { id: '123', itemId: '456' }
  */
-export function extractParams(
-  url: string,
-  pattern: string,
-): Record<string, string> {
+export function extractParams(url: string, pattern: string): Record<string, string> {
   const params: Record<string, string> = {};
 
-  const urlParts = url.split('/').filter(Boolean);
-  const patternParts = pattern.split('/').filter(Boolean);
+  const urlParts = url.split("/").filter(Boolean);
+  const patternParts = pattern.split("/").filter(Boolean);
 
   if (urlParts.length !== patternParts.length) {
     return params;
@@ -194,7 +188,7 @@ export function extractParams(
     const patternPart = patternParts[i];
     const urlPart = urlParts[i];
 
-    if (patternPart.startsWith(':')) {
+    if (patternPart.startsWith(":")) {
       const paramName = patternPart.substring(1);
       params[paramName] = urlPart;
     }

@@ -1,43 +1,37 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { format } from "date-fns";
 import {
-  getSupplierQuotation,
+  AlertTriangle,
+  ArrowLeft,
+  Building2,
+  Calendar,
+  CheckCircle,
+  DollarSign,
+  Edit,
+  ExternalLink,
+  FileText,
+  Loader2,
+  ShoppingCart,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import ConfirmDialog from "../components/ConfirmDialog";
+import {
   approveSupplierQuotation,
-  rejectSupplierQuotation,
   convertToPurchaseOrder,
+  getConfidenceColor,
   getStatusColor,
   getStatusText,
-  getConfidenceColor,
-} from '../services/supplierQuotationService';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import ConfirmDialog from '../components/ConfirmDialog';
-import {
-  Loader2,
-  ArrowLeft,
-  Edit,
-  CheckCircle,
-  XCircle,
-  ShoppingCart,
-  FileText,
-  Calendar,
-  Building2,
-  DollarSign,
-  AlertTriangle,
-  ExternalLink,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import toast from 'react-hot-toast';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+  getSupplierQuotation,
+  rejectSupplierQuotation,
+} from "../services/supplierQuotationService";
 
 /**
  * Supplier Quotation Detail Page
@@ -54,9 +48,9 @@ export function SupplierQuotationDetail() {
 
   // Dialog states
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
+  const [rejectReason, setRejectReason] = useState("");
   const [showConvertDialog, setShowConvertDialog] = useState(false);
-  const [convertNotes, setConvertNotes] = useState('');
+  const [convertNotes, setConvertNotes] = useState("");
   const [approveConfirm, setApproveConfirm] = useState({
     open: false,
   });
@@ -73,8 +67,8 @@ export function SupplierQuotationDetail() {
       const data = await getSupplierQuotation(id);
       setQuotation(data);
     } catch (err) {
-      console.error('Failed to load quotation:', err);
-      setError(err.message || 'Failed to load quotation');
+      console.error("Failed to load quotation:", err);
+      setError(err.message || "Failed to load quotation");
     } finally {
       setLoading(false);
     }
@@ -88,10 +82,10 @@ export function SupplierQuotationDetail() {
     try {
       setProcessing(true);
       await approveSupplierQuotation(id);
-      toast.success('Quotation approved');
+      toast.success("Quotation approved");
       loadQuotation();
     } catch (_err) {
-      toast.error('Failed to approve quotation');
+      toast.error("Failed to approve quotation");
     } finally {
       setProcessing(false);
     }
@@ -99,19 +93,19 @@ export function SupplierQuotationDetail() {
 
   const handleReject = async () => {
     if (!rejectReason.trim()) {
-      toast.error('Please provide a rejection reason');
+      toast.error("Please provide a rejection reason");
       return;
     }
 
     try {
       setProcessing(true);
       await rejectSupplierQuotation(id, rejectReason);
-      toast.success('Quotation rejected');
+      toast.success("Quotation rejected");
       setShowRejectDialog(false);
-      setRejectReason('');
+      setRejectReason("");
       loadQuotation();
     } catch (_err) {
-      toast.error('Failed to reject quotation');
+      toast.error("Failed to reject quotation");
     } finally {
       setProcessing(false);
     }
@@ -121,7 +115,7 @@ export function SupplierQuotationDetail() {
     try {
       setProcessing(true);
       const result = await convertToPurchaseOrder(id, { notes: convertNotes });
-      toast.success('Purchase order created');
+      toast.success("Purchase order created");
       setShowConvertDialog(false);
       if (result.purchaseOrder?.id) {
         navigate(`/purchase-orders/${result.purchaseOrder.id}`);
@@ -129,24 +123,24 @@ export function SupplierQuotationDetail() {
         loadQuotation();
       }
     } catch (_err) {
-      toast.error('Failed to convert to purchase order');
+      toast.error("Failed to convert to purchase order");
     } finally {
       setProcessing(false);
     }
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
+    if (!dateStr) return "-";
     try {
-      return format(new Date(dateStr), 'dd MMM yyyy');
+      return format(new Date(dateStr), "dd MMM yyyy");
     } catch {
       return dateStr;
     }
   };
 
-  const formatCurrency = (amount, currency = 'AED') => {
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
+  const formatCurrency = (amount, currency = "AED") => {
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
       currency,
       minimumFractionDigits: 2,
     }).format(amount || 0);
@@ -183,23 +177,17 @@ export function SupplierQuotationDetail() {
     );
   }
 
-  const canEdit = quotation.status === 'draft';
-  const canApprove =
-    quotation.status === 'draft' || quotation.status === 'pending_review';
-  const canReject =
-    quotation.status === 'draft' || quotation.status === 'pending_review';
-  const canConvert = quotation.status === 'approved';
+  const canEdit = quotation.status === "draft";
+  const canApprove = quotation.status === "draft" || quotation.status === "pending_review";
+  const canReject = quotation.status === "draft" || quotation.status === "pending_review";
+  const canConvert = quotation.status === "approved";
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/app/supplier-quotations')}
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate("/app/supplier-quotations")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
@@ -209,43 +197,28 @@ export function SupplierQuotationDetail() {
               {quotation.internalReference}
             </h1>
             <p className="text-sm text-gray-500">
-              {quotation.supplierReference && (
-                <>Supplier Ref: {quotation.supplierReference}</>
-              )}
+              {quotation.supplierReference && <>Supplier Ref: {quotation.supplierReference}</>}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge
-            className={`bg-${getStatusColor(quotation.status)}-100 text-${getStatusColor(quotation.status)}-800`}
-          >
+          <Badge className={`bg-${getStatusColor(quotation.status)}-100 text-${getStatusColor(quotation.status)}-800`}>
             {getStatusText(quotation.status)}
           </Badge>
           {canEdit && (
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/app/supplier-quotations/${id}/edit`)}
-            >
+            <Button variant="outline" onClick={() => navigate(`/app/supplier-quotations/${id}/edit`)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
           )}
           {canApprove && (
-            <Button
-              onClick={handleApprove}
-              disabled={processing}
-              className="bg-green-600 hover:bg-green-700"
-            >
+            <Button onClick={handleApprove} disabled={processing} className="bg-green-600 hover:bg-green-700">
               <CheckCircle className="h-4 w-4 mr-2" />
               Approve
             </Button>
           )}
           {canReject && (
-            <Button
-              variant="destructive"
-              onClick={() => setShowRejectDialog(true)}
-              disabled={processing}
-            >
+            <Button variant="destructive" onClick={() => setShowRejectDialog(true)} disabled={processing}>
               <XCircle className="h-4 w-4 mr-2" />
               Reject
             </Button>
@@ -271,7 +244,7 @@ export function SupplierQuotationDetail() {
               <Building2 className="h-8 w-8 text-blue-600" />
               <div>
                 <p className="text-sm text-gray-500">Supplier</p>
-                <p className="font-medium">{quotation.supplierName || '-'}</p>
+                <p className="font-medium">{quotation.supplierName || "-"}</p>
               </div>
             </div>
           </CardContent>
@@ -293,9 +266,7 @@ export function SupplierQuotationDetail() {
               <Calendar className="h-8 w-8 text-orange-600" />
               <div>
                 <p className="text-sm text-gray-500">Valid Until</p>
-                <p className="font-medium">
-                  {formatDate(quotation.validityDate)}
-                </p>
+                <p className="font-medium">{formatDate(quotation.validityDate)}</p>
               </div>
             </div>
           </CardContent>
@@ -306,9 +277,7 @@ export function SupplierQuotationDetail() {
               <DollarSign className="h-8 w-8 text-purple-600" />
               <div>
                 <p className="text-sm text-gray-500">Total Amount</p>
-                <p className="font-medium text-lg">
-                  {formatCurrency(quotation.total, quotation.currency)}
-                </p>
+                <p className="font-medium text-lg">{formatCurrency(quotation.total, quotation.currency)}</p>
               </div>
             </div>
           </CardContent>
@@ -324,20 +293,14 @@ export function SupplierQuotationDetail() {
           <CardContent>
             <div className="flex items-center gap-6 text-sm">
               <div className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full bg-${getConfidenceColor(quotation.extractionConfidence)}-500`}
-                />
-                <span>
-                  Confidence: {Math.round(quotation.extractionConfidence)}%
-                </span>
+                <div className={`w-3 h-3 rounded-full bg-${getConfidenceColor(quotation.extractionConfidence)}-500`} />
+                <span>Confidence: {Math.round(quotation.extractionConfidence)}%</span>
               </div>
-              <span>
-                Method: {quotation.extractionMethod?.replace('_', ' ')}
-              </span>
+              <span>Method: {quotation.extractionMethod?.replace("_", " ")}</span>
               <span>PDF Type: {quotation.pdfType}</span>
               {quotation.pdfFilePath && (
                 <a
-                  href={`/uploads${quotation.pdfFilePath.split('uploads')[1]}`}
+                  href={`/uploads${quotation.pdfFilePath.split("uploads")[1]}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 text-blue-600 hover:underline"
@@ -373,15 +336,15 @@ export function SupplierQuotationDetail() {
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-500">Delivery Terms</span>
-              <span>{quotation.deliveryTerms || '-'}</span>
+              <span>{quotation.deliveryTerms || "-"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Payment Terms</span>
-              <span>{quotation.paymentTerms || '-'}</span>
+              <span>{quotation.paymentTerms || "-"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Incoterms</span>
-              <span>{quotation.incoterms || '-'}</span>
+              <span>{quotation.incoterms || "-"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Currency</span>
@@ -404,9 +367,7 @@ export function SupplierQuotationDetail() {
       {/* Line Items */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
-            Line Items ({quotation.items?.length || 0})
-          </CardTitle>
+          <CardTitle className="text-base">Line Items ({quotation.items?.length || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
@@ -424,35 +385,21 @@ export function SupplierQuotationDetail() {
               <tbody>
                 {(quotation.items || []).map((item, idx) => (
                   <tr key={item.id || idx} className="border-t">
-                    <td className="px-4 py-3 text-gray-500">
-                      {item.lineNumber}
-                    </td>
+                    <td className="px-4 py-3 text-gray-500">{item.lineNumber}</td>
                     <td className="px-4 py-3">
                       <div>
-                        <p>{item.description || '-'}</p>
-                        {item.dimensions && (
-                          <p className="text-xs text-gray-500">
-                            {item.dimensions}
-                          </p>
-                        )}
+                        <p>{item.description || "-"}</p>
+                        {item.dimensions && <p className="text-xs text-gray-500">{item.dimensions}</p>}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      {item.grade && (
-                        <span className="font-medium">{item.grade}</span>
-                      )}
-                      {item.finish && (
-                        <span className="text-gray-500 ml-2">
-                          {item.finish}
-                        </span>
-                      )}
+                      {item.grade && <span className="font-medium">{item.grade}</span>}
+                      {item.finish && <span className="text-gray-500 ml-2">{item.finish}</span>}
                     </td>
                     <td className="px-4 py-3 text-right">
                       {item.quantity} {item.unit}
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      {formatCurrency(item.unitPrice, quotation.currency)}
-                    </td>
+                    <td className="px-4 py-3 text-right">{formatCurrency(item.unitPrice, quotation.currency)}</td>
                     <td className="px-4 py-3 text-right font-medium">
                       {formatCurrency(item.amount, quotation.currency)}
                     </td>
@@ -467,55 +414,33 @@ export function SupplierQuotationDetail() {
             <div className="w-64 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal</span>
-                <span>
-                  {formatCurrency(quotation.subtotal, quotation.currency)}
-                </span>
+                <span>{formatCurrency(quotation.subtotal, quotation.currency)}</span>
               </div>
               {quotation.discountAmount > 0 && (
                 <div className="flex justify-between text-red-600">
                   <span>Discount</span>
-                  <span>
-                    -
-                    {formatCurrency(
-                      quotation.discountAmount,
-                      quotation.currency,
-                    )}
-                  </span>
+                  <span>-{formatCurrency(quotation.discountAmount, quotation.currency)}</span>
                 </div>
               )}
               {quotation.shippingCharges > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-500">Shipping</span>
-                  <span>
-                    {formatCurrency(
-                      quotation.shippingCharges,
-                      quotation.currency,
-                    )}
-                  </span>
+                  <span>{formatCurrency(quotation.shippingCharges, quotation.currency)}</span>
                 </div>
               )}
               {quotation.freightCharges > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-500">Freight</span>
-                  <span>
-                    {formatCurrency(
-                      quotation.freightCharges,
-                      quotation.currency,
-                    )}
-                  </span>
+                  <span>{formatCurrency(quotation.freightCharges, quotation.currency)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-gray-500">VAT</span>
-                <span>
-                  {formatCurrency(quotation.vatAmount, quotation.currency)}
-                </span>
+                <span>{formatCurrency(quotation.vatAmount, quotation.currency)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
                 <span>Total</span>
-                <span>
-                  {formatCurrency(quotation.total, quotation.currency)}
-                </span>
+                <span>{formatCurrency(quotation.total, quotation.currency)}</span>
               </div>
             </div>
           </div>
@@ -540,20 +465,11 @@ export function SupplierQuotationDetail() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowRejectDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleReject}
-              disabled={processing || !rejectReason.trim()}
-            >
-              {processing ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
+            <Button variant="destructive" onClick={handleReject} disabled={processing || !rejectReason.trim()}>
+              {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Reject
             </Button>
           </DialogFooter>
@@ -568,8 +484,7 @@ export function SupplierQuotationDetail() {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
-              This will create a new Purchase Order based on this quotation. The
-              quotation will be marked as converted.
+              This will create a new Purchase Order based on this quotation. The quotation will be marked as converted.
             </p>
             <div>
               <Label>Notes (Optional)</Label>
@@ -582,16 +497,11 @@ export function SupplierQuotationDetail() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowConvertDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowConvertDialog(false)}>
               Cancel
             </Button>
             <Button onClick={handleConvert} disabled={processing}>
-              {processing ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
+              {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Create Purchase Order
             </Button>
           </DialogFooter>

@@ -10,14 +10,14 @@
  * - System role name immutability
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 // Mock role data for testing
 const createMockRole = (overrides = {}) => ({
   id: 1,
-  name: 'Test Role',
-  displayName: 'Test Role',
-  description: 'Test description',
+  name: "Test Role",
+  displayName: "Test Role",
+  description: "Test description",
   isDirector: false,
   isSystemRole: false,
   companyId: 1,
@@ -31,50 +31,41 @@ const validateRoleForm = (formData, existingRoles = [], editingRole = null) => {
   if (!editingRole) {
     // Creating new role
     if (!formData.displayName || formData.displayName.trim().length < 3) {
-      errors.displayName = 'Display name must be at least 3 characters';
+      errors.displayName = "Display name must be at least 3 characters";
     } else if (formData.displayName.trim().length > 50) {
-      errors.displayName = 'Display name must be less than 50 characters';
+      errors.displayName = "Display name must be less than 50 characters";
     }
 
     // Check for reserved names
-    const reservedNames = ['admin', 'superuser', 'root', 'super_user'];
+    const reservedNames = ["admin", "superuser", "root", "super_user"];
     // Normalize: lowercase and replace special chars with underscore
-    const normalized = formData.displayName
-      .toLowerCase()
-      .replace(/[^a-z0-9_]/g, '_');
+    const normalized = formData.displayName.toLowerCase().replace(/[^a-z0-9_]/g, "_");
     // Also check without underscores to catch variations like "Super-User" -> "superuser"
-    const normalizedNoUnderscore = normalized.replace(/_/g, '');
-    if (
-      reservedNames.includes(normalized) ||
-      reservedNames.includes(normalizedNoUnderscore)
-    ) {
+    const normalizedNoUnderscore = normalized.replace(/_/g, "");
+    if (reservedNames.includes(normalized) || reservedNames.includes(normalizedNoUnderscore)) {
       errors.displayName = `"${formData.displayName}" is a reserved name and cannot be used`;
     }
 
     // Check for duplicate names
-    const exists = existingRoles.some(
-      (r) => r.name?.toLowerCase() === formData.displayName.toLowerCase(),
-    );
+    const exists = existingRoles.some((r) => r.name?.toLowerCase() === formData.displayName.toLowerCase());
     if (exists) {
-      errors.displayName = 'A role with this name already exists';
+      errors.displayName = "A role with this name already exists";
     }
   } else {
     // Editing existing role
     if (!formData.displayName || formData.displayName.trim().length < 3) {
-      errors.displayName = 'Display name must be at least 3 characters';
+      errors.displayName = "Display name must be at least 3 characters";
     } else if (formData.displayName.trim().length > 50) {
-      errors.displayName = 'Display name must be less than 50 characters';
+      errors.displayName = "Display name must be less than 50 characters";
     }
 
     // For custom roles, check for duplicates (excluding current role)
     if (!editingRole.isSystemRole) {
       const exists = existingRoles.some(
-        (r) =>
-          r.id !== editingRole.id &&
-          r.name?.toLowerCase() === formData.displayName.toLowerCase(),
+        (r) => r.id !== editingRole.id && r.name?.toLowerCase() === formData.displayName.toLowerCase()
       );
       if (exists) {
-        errors.displayName = 'A role with this name already exists';
+        errors.displayName = "A role with this name already exists";
       }
     }
   }
@@ -82,49 +73,43 @@ const validateRoleForm = (formData, existingRoles = [], editingRole = null) => {
   return { errors, isValid: Object.keys(errors).length === 0 };
 };
 
-describe('Role Validation - Display Name Length', () => {
-  test('should reject display name with less than 3 characters', () => {
-    const formData = { displayName: 'AB', description: '', isDirector: false };
+describe("Role Validation - Display Name Length", () => {
+  test("should reject display name with less than 3 characters", () => {
+    const formData = { displayName: "AB", description: "", isDirector: false };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe(
-      'Display name must be at least 3 characters',
-    );
+    expect(errors.displayName).toBe("Display name must be at least 3 characters");
   });
 
-  test('should reject empty display name', () => {
-    const formData = { displayName: '', description: '', isDirector: false };
+  test("should reject empty display name", () => {
+    const formData = { displayName: "", description: "", isDirector: false };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe(
-      'Display name must be at least 3 characters',
-    );
+    expect(errors.displayName).toBe("Display name must be at least 3 characters");
   });
 
-  test('should reject display name with only whitespace', () => {
-    const formData = { displayName: '  ', description: '', isDirector: false };
+  test("should reject display name with only whitespace", () => {
+    const formData = { displayName: "  ", description: "", isDirector: false };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe(
-      'Display name must be at least 3 characters',
-    );
+    expect(errors.displayName).toBe("Display name must be at least 3 characters");
   });
 
-  test('should accept display name with exactly 3 characters', () => {
-    const formData = { displayName: 'ABC', description: '', isDirector: false };
+  test("should accept display name with exactly 3 characters", () => {
+    const formData = { displayName: "ABC", description: "", isDirector: false };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should accept display name with 50 characters', () => {
+  test("should accept display name with 50 characters", () => {
     const formData = {
-      displayName: 'A'.repeat(50),
-      description: '',
+      displayName: "A".repeat(50),
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -133,24 +118,22 @@ describe('Role Validation - Display Name Length', () => {
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should reject display name with more than 50 characters', () => {
+  test("should reject display name with more than 50 characters", () => {
     const formData = {
-      displayName: 'A'.repeat(51),
-      description: '',
+      displayName: "A".repeat(51),
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe(
-      'Display name must be less than 50 characters',
-    );
+    expect(errors.displayName).toBe("Display name must be less than 50 characters");
   });
 
-  test('should accept valid display name between 3-50 characters', () => {
+  test("should accept valid display name between 3-50 characters", () => {
     const formData = {
-      displayName: 'Quality Inspector',
-      description: '',
+      displayName: "Quality Inspector",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -160,71 +143,71 @@ describe('Role Validation - Display Name Length', () => {
   });
 });
 
-describe('Role Validation - Reserved Names', () => {
+describe("Role Validation - Reserved Names", () => {
   test('should reject reserved name "admin"', () => {
     const formData = {
-      displayName: 'admin',
-      description: '',
+      displayName: "admin",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toContain('reserved name');
+    expect(errors.displayName).toContain("reserved name");
   });
 
   test('should reject reserved name "Admin" (case insensitive)', () => {
     const formData = {
-      displayName: 'Admin',
-      description: '',
+      displayName: "Admin",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toContain('reserved name');
+    expect(errors.displayName).toContain("reserved name");
   });
 
   test('should reject reserved name "superuser"', () => {
     const formData = {
-      displayName: 'superuser',
-      description: '',
+      displayName: "superuser",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toContain('reserved name');
+    expect(errors.displayName).toContain("reserved name");
   });
 
   test('should reject reserved name "root"', () => {
     const formData = {
-      displayName: 'root',
-      description: '',
+      displayName: "root",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toContain('reserved name');
+    expect(errors.displayName).toContain("reserved name");
   });
 
   test('should reject reserved name with special characters "Super-User"', () => {
     const formData = {
-      displayName: 'Super-User',
-      description: '',
+      displayName: "Super-User",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toContain('reserved name');
+    expect(errors.displayName).toContain("reserved name");
   });
 
-  test('should accept non-reserved name', () => {
+  test("should accept non-reserved name", () => {
     const formData = {
-      displayName: 'Quality Manager',
-      description: '',
+      displayName: "Quality Manager",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -234,41 +217,41 @@ describe('Role Validation - Reserved Names', () => {
   });
 });
 
-describe('Role Validation - Duplicate Names', () => {
+describe("Role Validation - Duplicate Names", () => {
   const existingRoles = [
-    createMockRole({ id: 1, name: 'Sales Manager' }),
-    createMockRole({ id: 2, name: 'Quality Inspector' }),
-    createMockRole({ id: 3, name: 'Warehouse Manager' }),
+    createMockRole({ id: 1, name: "Sales Manager" }),
+    createMockRole({ id: 2, name: "Quality Inspector" }),
+    createMockRole({ id: 3, name: "Warehouse Manager" }),
   ];
 
-  test('should reject duplicate name (exact match)', () => {
+  test("should reject duplicate name (exact match)", () => {
     const formData = {
-      displayName: 'Sales Manager',
-      description: '',
+      displayName: "Sales Manager",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, existingRoles);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe('A role with this name already exists');
+    expect(errors.displayName).toBe("A role with this name already exists");
   });
 
-  test('should reject duplicate name (case insensitive)', () => {
+  test("should reject duplicate name (case insensitive)", () => {
     const formData = {
-      displayName: 'sales manager',
-      description: '',
+      displayName: "sales manager",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, existingRoles);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe('A role with this name already exists');
+    expect(errors.displayName).toBe("A role with this name already exists");
   });
 
-  test('should accept unique name', () => {
+  test("should accept unique name", () => {
     const formData = {
-      displayName: 'HR Manager',
-      description: '',
+      displayName: "HR Manager",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, existingRoles);
@@ -277,95 +260,79 @@ describe('Role Validation - Duplicate Names', () => {
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should allow editing role with same name (not duplicate of self)', () => {
+  test("should allow editing role with same name (not duplicate of self)", () => {
     const editingRole = existingRoles[0]; // Sales Manager
     const formData = {
-      displayName: 'Sales Manager',
-      description: 'Updated description',
+      displayName: "Sales Manager",
+      description: "Updated description",
       isDirector: false,
     };
-    const { errors, isValid } = validateRoleForm(
-      formData,
-      existingRoles,
-      editingRole,
-    );
+    const { errors, isValid } = validateRoleForm(formData, existingRoles, editingRole);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should reject editing role with name of another existing role', () => {
+  test("should reject editing role with name of another existing role", () => {
     const editingRole = existingRoles[0]; // Sales Manager
     const formData = {
-      displayName: 'Quality Inspector',
-      description: '',
+      displayName: "Quality Inspector",
+      description: "",
       isDirector: false,
     };
-    const { errors, isValid } = validateRoleForm(
-      formData,
-      existingRoles,
-      editingRole,
-    );
+    const { errors, isValid } = validateRoleForm(formData, existingRoles, editingRole);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe('A role with this name already exists');
+    expect(errors.displayName).toBe("A role with this name already exists");
   });
 });
 
-describe('Role Validation - System Role Constraints', () => {
-  test('system role name should be immutable during edit', () => {
+describe("Role Validation - System Role Constraints", () => {
+  test("system role name should be immutable during edit", () => {
     const systemRole = createMockRole({
       id: 1,
-      name: 'Managing Director',
+      name: "Managing Director",
       isSystemRole: true,
     });
 
     // When editing system role, displayName validation still applies but name shouldn't change
     const formData = {
-      displayName: 'Managing Director',
-      description: 'Updated',
+      displayName: "Managing Director",
+      description: "Updated",
       isDirector: true,
     };
-    const { errors, isValid } = validateRoleForm(
-      formData,
-      [systemRole],
-      systemRole,
-    );
+    const { errors, isValid } = validateRoleForm(formData, [systemRole], systemRole);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should allow description update on system role', () => {
+  test("should allow description update on system role", () => {
     const systemRole = createMockRole({
       id: 1,
-      name: 'Finance Manager',
+      name: "Finance Manager",
       isSystemRole: true,
-      description: 'Original description',
+      description: "Original description",
     });
 
     const formData = {
-      displayName: 'Finance Manager',
-      description: 'Updated responsibilities',
+      displayName: "Finance Manager",
+      description: "Updated responsibilities",
       isDirector: true,
     };
 
-    const { errors, isValid } = validateRoleForm(
-      formData,
-      [systemRole],
-      systemRole,
-    );
+    const { errors, isValid } = validateRoleForm(formData, [systemRole], systemRole);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
   });
 });
 
-describe('Role Validation - Optional Fields', () => {
-  test('should accept empty description', () => {
+describe("Role Validation - Optional Fields", () => {
+  test("should accept empty description", () => {
     const formData = {
-      displayName: 'Quality Inspector',
-      description: '',
+      displayName: "Quality Inspector",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -374,18 +341,18 @@ describe('Role Validation - Optional Fields', () => {
     expect(errors.description).toBeUndefined();
   });
 
-  test('should accept undefined description', () => {
-    const formData = { displayName: 'Quality Inspector', isDirector: false };
+  test("should accept undefined description", () => {
+    const formData = { displayName: "Quality Inspector", isDirector: false };
     const { errors, isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.description).toBeUndefined();
   });
 
-  test('should accept description with content', () => {
+  test("should accept description with content", () => {
     const formData = {
-      displayName: 'Quality Inspector',
-      description: 'Responsible for quality control and inspections',
+      displayName: "Quality Inspector",
+      description: "Responsible for quality control and inspections",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -395,9 +362,9 @@ describe('Role Validation - Optional Fields', () => {
   });
 });
 
-describe('Role Validation - Default Values', () => {
-  test('isDirector should default to false', () => {
-    const formData = { displayName: 'Quality Inspector', description: '' };
+describe("Role Validation - Default Values", () => {
+  test("isDirector should default to false", () => {
+    const formData = { displayName: "Quality Inspector", description: "" };
     // isDirector not specified, should default to false
     expect(formData.isDirector).toBeUndefined();
 
@@ -409,10 +376,10 @@ describe('Role Validation - Default Values', () => {
     expect(formDataWithDefault.isDirector).toBe(false);
   });
 
-  test('should handle isDirector true', () => {
+  test("should handle isDirector true", () => {
     const formData = {
-      displayName: 'Quality Director',
-      description: '',
+      displayName: "Quality Director",
+      description: "",
       isDirector: true,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -421,10 +388,10 @@ describe('Role Validation - Default Values', () => {
     expect(formData.isDirector).toBe(true);
   });
 
-  test('should handle isDirector false', () => {
+  test("should handle isDirector false", () => {
     const formData = {
-      displayName: 'Quality Inspector',
-      description: '',
+      displayName: "Quality Inspector",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -434,11 +401,11 @@ describe('Role Validation - Default Values', () => {
   });
 });
 
-describe('Role Validation - Edge Cases', () => {
-  test('should handle name with special characters', () => {
+describe("Role Validation - Edge Cases", () => {
+  test("should handle name with special characters", () => {
     const formData = {
-      displayName: 'Quality Inspector (QC)',
-      description: '',
+      displayName: "Quality Inspector (QC)",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -447,10 +414,10 @@ describe('Role Validation - Edge Cases', () => {
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should handle name with numbers', () => {
+  test("should handle name with numbers", () => {
     const formData = {
-      displayName: 'Level 2 Manager',
-      description: '',
+      displayName: "Level 2 Manager",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -459,10 +426,10 @@ describe('Role Validation - Edge Cases', () => {
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should trim whitespace when validating length', () => {
+  test("should trim whitespace when validating length", () => {
     const formData = {
-      displayName: '  ABC  ',
-      description: '',
+      displayName: "  ABC  ",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -472,10 +439,10 @@ describe('Role Validation - Edge Cases', () => {
     expect(errors.displayName).toBeUndefined();
   });
 
-  test('should handle multi-word names', () => {
+  test("should handle multi-word names", () => {
     const formData = {
-      displayName: 'Senior Quality Assurance Manager',
-      description: '',
+      displayName: "Senior Quality Assurance Manager",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, []);
@@ -485,21 +452,17 @@ describe('Role Validation - Edge Cases', () => {
   });
 });
 
-describe('Role Validation - Company Scoping', () => {
-  test('should allow same role name in different companies', () => {
+describe("Role Validation - Company Scoping", () => {
+  test("should allow same role name in different companies", () => {
     // This test validates the concept that role names are scoped per company
-    const company1Roles = [
-      createMockRole({ id: 1, name: 'Sales Manager', companyId: 1 }),
-    ];
+    const company1Roles = [createMockRole({ id: 1, name: "Sales Manager", companyId: 1 })];
 
-    const company2Roles = [
-      createMockRole({ id: 2, name: 'Sales Manager', companyId: 2 }),
-    ];
+    const company2Roles = [createMockRole({ id: 2, name: "Sales Manager", companyId: 2 })];
 
     // Creating a new role in company 1 with same name as company 2
     const formData = {
-      displayName: 'Sales Manager',
-      description: '',
+      displayName: "Sales Manager",
+      description: "",
       isDirector: false,
     };
 
@@ -507,23 +470,21 @@ describe('Role Validation - Company Scoping', () => {
     const { errors, isValid } = validateRoleForm(formData, company1Roles);
 
     expect(isValid).toBe(false); // False because it already exists in company 1
-    expect(errors.displayName).toBe('A role with this name already exists');
+    expect(errors.displayName).toBe("A role with this name already exists");
   });
 
-  test('should validate uniqueness within same company only', () => {
-    const companyRoles = [
-      createMockRole({ id: 1, name: 'Manager', companyId: 1 }),
-    ];
+  test("should validate uniqueness within same company only", () => {
+    const companyRoles = [createMockRole({ id: 1, name: "Manager", companyId: 1 })];
 
     // Try to create duplicate in same company
     const formData = {
-      displayName: 'Manager',
-      description: '',
+      displayName: "Manager",
+      description: "",
       isDirector: false,
     };
     const { errors, isValid } = validateRoleForm(formData, companyRoles);
 
     expect(isValid).toBe(false);
-    expect(errors.displayName).toBe('A role with this name already exists');
+    expect(errors.displayName).toBe("A role with this name already exists");
   });
 });

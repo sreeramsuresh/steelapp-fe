@@ -2,27 +2,26 @@
 // CHART WRAPPERS INDEX
 // ============================================================================
 
-// Recharts wrappers - for common chart types
-export {
-  BarChartWrapper,
-  LineChartWrapper,
-  AreaChartWrapper,
-  PieChartWrapper,
-  RadarChartWrapper,
-  DonutChartWrapper,
-  getThemeColors as getRechartsThemeColors,
-} from './RechartsWrapper';
-
 // ECharts wrappers - for specialized chart types
 export {
   EChartsWrapper,
+  FunnelChartWrapper,
   GaugeChartWrapper,
+  getThemeColors as getEChartsThemeColors,
+  HeatmapChartWrapper,
   TreemapChartWrapper,
   WaterfallChartWrapper,
-  FunnelChartWrapper,
-  HeatmapChartWrapper,
-  getThemeColors as getEChartsThemeColors,
-} from './EChartsWrapper';
+} from "./EChartsWrapper";
+// Recharts wrappers - for common chart types
+export {
+  AreaChartWrapper,
+  BarChartWrapper,
+  DonutChartWrapper,
+  getThemeColors as getRechartsThemeColors,
+  LineChartWrapper,
+  PieChartWrapper,
+  RadarChartWrapper,
+} from "./RechartsWrapper";
 
 // ============================================================================
 // CHART TYPE MAPPING

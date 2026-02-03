@@ -1,203 +1,164 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Layout Components
-import { CoreERPLayout } from '../layouts';
-const AnalyticsLayout = lazy(() => import('../layouts/AnalyticsLayout'));
+import { CoreERPLayout } from "../layouts";
+
+const AnalyticsLayout = lazy(() => import("../layouts/AnalyticsLayout"));
 
 // Loading Screen for Analytics
-import AnalyticsLoadingScreen from './AnalyticsLoadingScreen';
+import AnalyticsLoadingScreen from "./AnalyticsLoadingScreen";
 
 // Legacy Redirect Component
-import LegacyRedirect from './LegacyRedirect';
+import LegacyRedirect from "./LegacyRedirect";
 
 // Lazy loaded components
-const CustomerDetail = lazy(() => import('../pages/CustomerDetail'));
+const CustomerDetail = lazy(() => import("../pages/CustomerDetail"));
 
 // Core Components (converted to lazy loading)
-const Dashboard = lazy(() => import('./DashboardV2'));
-const HomePage = lazy(() => import('../pages/HomePage'));
-const InvoiceForm = lazy(() => import('../pages/InvoiceForm'));
-const InvoiceAllocationConfirmation = lazy(
-  () => import('./InvoiceAllocationConfirmation'),
-);
-const InvoiceList = lazy(() => import('../pages/InvoiceList'));
-const CustomerManagement = lazy(() => import('./CustomerManagement'));
-const CustomerForm = lazy(() => import('../pages/CustomerForm'));
-const SteelProducts = lazy(() => import('./SteelProducts'));
-const CompanySettings = lazy(() => import('./CompanySettings'));
-const SearchResults = lazy(() => import('./SearchResults'));
-const InventoryList = lazy(() => import('./InventoryList'));
-const DeliveryNoteList = lazy(() => import('../pages/DeliveryNoteList'));
-const DeliveryNoteForm = lazy(() => import('../pages/DeliveryNoteForm'));
-const DeliveryNoteDetails = lazy(() => import('../pages/DeliveryNoteDetails'));
-const PurchaseOrderForm = lazy(() => import('../pages/PurchaseOrderForm'));
-const Login = lazy(() => import('./Login'));
-const MarketingHome = lazy(() => import('../marketing/MarketingHome'));
-const MarketingProducts = lazy(() => import('../marketing/MarketingProducts'));
-const MarketingAbout = lazy(() => import('../marketing/MarketingAbout'));
-const MarketingContact = lazy(() => import('../marketing/MarketingContact'));
-const AccountStatementList = lazy(
-  () => import('../pages/AccountStatementList'),
-);
-const AccountStatementForm = lazy(
-  () => import('../pages/AccountStatementForm'),
-);
-const AccountStatementDetails = lazy(
-  () => import('../pages/AccountStatementDetails'),
-);
-const QuotationList = lazy(() => import('../pages/QuotationList'));
-const QuotationForm = lazy(() => import('../pages/QuotationForm'));
-const CreditNoteList = lazy(() => import('../pages/CreditNoteList'));
-const CreditNoteForm = lazy(() => import('../pages/CreditNoteForm'));
-const CustomerPerspective = lazy(() => import('../pages/CustomerPerspective'));
-const ProtectedRoute = lazy(() => import('./ProtectedRoute'));
+const Dashboard = lazy(() => import("./DashboardV2"));
+const HomePage = lazy(() => import("../pages/HomePage"));
+const InvoiceForm = lazy(() => import("../pages/InvoiceForm"));
+const InvoiceAllocationConfirmation = lazy(() => import("./InvoiceAllocationConfirmation"));
+const InvoiceList = lazy(() => import("../pages/InvoiceList"));
+const CustomerManagement = lazy(() => import("./CustomerManagement"));
+const CustomerForm = lazy(() => import("../pages/CustomerForm"));
+const SteelProducts = lazy(() => import("./SteelProducts"));
+const CompanySettings = lazy(() => import("./CompanySettings"));
+const SearchResults = lazy(() => import("./SearchResults"));
+const InventoryList = lazy(() => import("./InventoryList"));
+const DeliveryNoteList = lazy(() => import("../pages/DeliveryNoteList"));
+const DeliveryNoteForm = lazy(() => import("../pages/DeliveryNoteForm"));
+const DeliveryNoteDetails = lazy(() => import("../pages/DeliveryNoteDetails"));
+const PurchaseOrderForm = lazy(() => import("../pages/PurchaseOrderForm"));
+const Login = lazy(() => import("./Login"));
+const MarketingHome = lazy(() => import("../marketing/MarketingHome"));
+const MarketingProducts = lazy(() => import("../marketing/MarketingProducts"));
+const MarketingAbout = lazy(() => import("../marketing/MarketingAbout"));
+const MarketingContact = lazy(() => import("../marketing/MarketingContact"));
+const AccountStatementList = lazy(() => import("../pages/AccountStatementList"));
+const AccountStatementForm = lazy(() => import("../pages/AccountStatementForm"));
+const AccountStatementDetails = lazy(() => import("../pages/AccountStatementDetails"));
+const QuotationList = lazy(() => import("../pages/QuotationList"));
+const QuotationForm = lazy(() => import("../pages/QuotationForm"));
+const CreditNoteList = lazy(() => import("../pages/CreditNoteList"));
+const CreditNoteForm = lazy(() => import("../pages/CreditNoteForm"));
+const CustomerPerspective = lazy(() => import("../pages/CustomerPerspective"));
+const ProtectedRoute = lazy(() => import("./ProtectedRoute"));
 
 // Import/Export Components
-const ImportExportDashboard = lazy(
-  () => import('../pages/ImportExportDashboard'),
-);
-const ImportOrderForm = lazy(() => import('../pages/ImportOrderForm'));
-const ImportOrderDetails = lazy(() => import('../pages/ImportOrderDetails'));
-const ExportOrderForm = lazy(() => import('../pages/ExportOrderForm'));
-const ExportOrderDetails = lazy(() => import('../pages/ExportOrderDetails'));
-const TransitList = lazy(() => import('../pages/TransitList'));
+const ImportExportDashboard = lazy(() => import("../pages/ImportExportDashboard"));
+const ImportOrderForm = lazy(() => import("../pages/ImportOrderForm"));
+const ImportOrderDetails = lazy(() => import("../pages/ImportOrderDetails"));
+const ExportOrderForm = lazy(() => import("../pages/ExportOrderForm"));
+const ExportOrderDetails = lazy(() => import("../pages/ExportOrderDetails"));
+const TransitList = lazy(() => import("../pages/TransitList"));
 
 // Container Management Components
-const ContainerList = lazy(() =>
-  import('../pages/containers').then((m) => ({ default: m.ContainerList })),
-);
-const ContainerForm = lazy(() =>
-  import('../pages/containers').then((m) => ({ default: m.ContainerForm })),
-);
+const ContainerList = lazy(() => import("../pages/containers").then((m) => ({ default: m.ContainerList })));
+const ContainerForm = lazy(() => import("../pages/containers").then((m) => ({ default: m.ContainerForm })));
 
 // Finance Components
-const FinanceDashboard = lazy(() => import('../pages/FinanceDashboard'));
-const Receivables = lazy(() => import('../pages/Receivables'));
-const Payables = lazy(() => import('../pages/Payables'));
+const FinanceDashboard = lazy(() => import("../pages/FinanceDashboard"));
+const Receivables = lazy(() => import("../pages/Receivables"));
+const Payables = lazy(() => import("../pages/Payables"));
 
 // Purchases Dashboard
-const PurchasesDashboard = lazy(() => import('../pages/PurchasesDashboard'));
+const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
 
 // Admin Components
-const AuditLogs = lazy(() => import('../pages/AuditLogs'));
+const AuditLogs = lazy(() => import("../pages/AuditLogs"));
 
 // Stock Movement Components
-const StockMovementPage = lazy(() => import('../pages/StockMovementPage'));
+const StockMovementPage = lazy(() => import("../pages/StockMovementPage"));
 
 // Warehouse Components
-const WarehouseList = lazy(() => import('../pages/warehouses/WarehouseList'));
-const WarehouseDetail = lazy(
-  () => import('../pages/warehouses/WarehouseDetail'),
-);
+const WarehouseList = lazy(() => import("../pages/warehouses/WarehouseList"));
+const WarehouseDetail = lazy(() => import("../pages/warehouses/WarehouseDetail"));
 
 // Batch Analytics
-const BatchAnalyticsPage = lazy(() => import('../pages/BatchAnalyticsPage'));
+const BatchAnalyticsPage = lazy(() => import("../pages/BatchAnalyticsPage"));
 
 // User Profile
-const UserProfile = lazy(() => import('../pages/UserProfile'));
+const UserProfile = lazy(() => import("../pages/UserProfile"));
 
 // Reports Components
-const ReportsDashboard = lazy(() => import('../pages/ReportsDashboard'));
-const ProfitAnalysisReport = lazy(
-  () => import('../pages/ProfitAnalysisReport'),
-);
-const PriceHistoryReport = lazy(() => import('../pages/PriceHistoryReport'));
-const StockMovementReport = lazy(() => import('../pages/StockMovementReport'));
-const VATReturnReport = lazy(() => import('./VATReturnReport'));
+const ReportsDashboard = lazy(() => import("../pages/ReportsDashboard"));
+const ProfitAnalysisReport = lazy(() => import("../pages/ProfitAnalysisReport"));
+const PriceHistoryReport = lazy(() => import("../pages/PriceHistoryReport"));
+const StockMovementReport = lazy(() => import("../pages/StockMovementReport"));
+const VATReturnReport = lazy(() => import("./VATReturnReport"));
 
 // Admin Components - Roles & Permissions
-const RolesPage = lazy(() => import('../pages/RolesPage'));
+const RolesPage = lazy(() => import("../pages/RolesPage"));
 
 // Audit Hub Components
 const AuditHubDashboard = lazy(() =>
-  import('../pages/AuditHub/AuditHubDashboard').then((m) => ({
+  import("../pages/AuditHub/AuditHubDashboard").then((m) => ({
     default: m.default,
-  })),
+  }))
 );
 const DatasetExplorer = lazy(() =>
-  import('../pages/AuditHub/DatasetExplorer').then((m) => ({
+  import("../pages/AuditHub/DatasetExplorer").then((m) => ({
     default: m.default,
-  })),
+  }))
 );
 const SignOffWorkflow = lazy(() =>
-  import('../pages/AuditHub/SignOffWorkflow').then((m) => ({
+  import("../pages/AuditHub/SignOffWorkflow").then((m) => ({
     default: m.default,
-  })),
+  }))
 );
 
 // Purchases Components
-const SupplierBillList = lazy(() =>
-  import('../pages/purchases').then((m) => ({ default: m.SupplierBillList })),
-);
-const SupplierBillForm = lazy(() =>
-  import('../pages/purchases').then((m) => ({ default: m.SupplierBillForm })),
-);
-const DebitNoteList = lazy(() =>
-  import('../pages/purchases').then((m) => ({ default: m.DebitNoteList })),
-);
-const DebitNoteForm = lazy(() =>
-  import('../pages/purchases').then((m) => ({ default: m.DebitNoteForm })),
-);
+const SupplierBillList = lazy(() => import("../pages/purchases").then((m) => ({ default: m.SupplierBillList })));
+const SupplierBillForm = lazy(() => import("../pages/purchases").then((m) => ({ default: m.SupplierBillForm })));
+const DebitNoteList = lazy(() => import("../pages/purchases").then((m) => ({ default: m.DebitNoteList })));
+const DebitNoteForm = lazy(() => import("../pages/purchases").then((m) => ({ default: m.DebitNoteForm })));
 
 // Payments Components
-const AdvancePaymentList = lazy(() =>
-  import('../pages/payments').then((m) => ({ default: m.AdvancePaymentList })),
-);
-const AdvancePaymentForm = lazy(() =>
-  import('../pages/payments').then((m) => ({ default: m.AdvancePaymentForm })),
-);
+const AdvancePaymentList = lazy(() => import("../pages/payments").then((m) => ({ default: m.AdvancePaymentList })));
+const AdvancePaymentForm = lazy(() => import("../pages/payments").then((m) => ({ default: m.AdvancePaymentForm })));
 
 // Price List Components
-const PriceListList = lazy(() => import('../pages/PriceListList'));
-const PriceListForm = lazy(() => import('../pages/PriceListForm'));
+const PriceListList = lazy(() => import("../pages/PriceListList"));
+const PriceListForm = lazy(() => import("../pages/PriceListForm"));
 
 // Commission Components
-const AgentCommissionDashboard = lazy(
-  () => import('../pages/AgentCommissionDashboard'),
-);
+const AgentCommissionDashboard = lazy(() => import("../pages/AgentCommissionDashboard"));
 // Phase 4 & 5 Dashboard Components
-const DeliveryVarianceDashboard = lazy(
-  () => import('../pages/DeliveryVarianceDashboard'),
-);
-const SupplierPerformanceDashboard = lazy(
-  () => import('../pages/SupplierPerformanceDashboard'),
-);
-const ARAgingReport = lazy(() => import('../pages/ARAgingReport'));
+const DeliveryVarianceDashboard = lazy(() => import("../pages/DeliveryVarianceDashboard"));
+const SupplierPerformanceDashboard = lazy(() => import("../pages/SupplierPerformanceDashboard"));
+const ARAgingReport = lazy(() => import("../pages/ARAgingReport"));
 
 // Masters Components
-const CountriesList = lazy(() => import('../pages/CountriesList'));
-const ExchangeRateList = lazy(() => import('../pages/ExchangeRateList'));
+const CountriesList = lazy(() => import("../pages/CountriesList"));
+const ExchangeRateList = lazy(() => import("../pages/ExchangeRateList"));
 
 // Supplier Components (Phase 4 Procurement)
-const SupplierList = lazy(() =>
-  import('../pages/SupplierList').then((m) => ({ default: m.SupplierList })),
-);
-const SupplierForm = lazy(() =>
-  import('../pages/SupplierForm').then((m) => ({ default: m.SupplierForm })),
-);
+const SupplierList = lazy(() => import("../pages/SupplierList").then((m) => ({ default: m.SupplierList })));
+const SupplierForm = lazy(() => import("../pages/SupplierForm").then((m) => ({ default: m.SupplierForm })));
 
 // Supplier Quotation Components (PDF Upload Module)
 const SupplierQuotationList = lazy(() =>
-  import('../pages/SupplierQuotationList').then((m) => ({
+  import("../pages/SupplierQuotationList").then((m) => ({
     default: m.SupplierQuotationList,
-  })),
+  }))
 );
 const SupplierQuotationForm = lazy(() =>
-  import('../pages/SupplierQuotationForm').then((m) => ({
+  import("../pages/SupplierQuotationForm").then((m) => ({
     default: m.SupplierQuotationForm,
-  })),
+  }))
 );
 const SupplierQuotationDetail = lazy(() =>
-  import('../pages/SupplierQuotationDetail').then((m) => ({
+  import("../pages/SupplierQuotationDetail").then((m) => ({
     default: m.SupplierQuotationDetail,
-  })),
+  }))
 );
 const SupplierQuotationUpload = lazy(() =>
-  import('../pages/SupplierQuotationUpload').then((m) => ({
+  import("../pages/SupplierQuotationUpload").then((m) => ({
     default: m.SupplierQuotationUpload,
-  })),
+  }))
 );
 
 // AnalyticsDashboard removed - /analytics now redirects to /analytics/dashboard
@@ -207,12 +168,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const { isDarkMode } = useTheme();
 
   // Allow public marketing pages and login without auth
-  const isMarketing =
-    location.pathname === '/' || location.pathname.startsWith('/marketing');
-  const isLoginPage = location.pathname === '/login';
-  const isAppRoute =
-    location.pathname.startsWith('/app') ||
-    location.pathname.startsWith('/analytics');
+  const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
+  const isLoginPage = location.pathname === "/login";
+  const isAppRoute = location.pathname.startsWith("/app") || location.pathname.startsWith("/analytics");
 
   // Check if we need to redirect to login
   const needsAuth = !user && !isLoginPage && !isMarketing;
@@ -230,7 +188,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
   return (
     <div
-      className={`w-full ${isMarketing || isAppRoute ? '' : 'p-2 sm:p-1 min-h-[calc(100vh-64px)]'} ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+      className={`w-full ${isMarketing || isAppRoute ? "" : "p-2 sm:p-1 min-h-[calc(100vh-64px)]"} ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
     >
       <Suspense
         fallback={
@@ -248,10 +206,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           {/* ========================================== */}
 
           {/* Root - redirect to app or login */}
-          <Route
-            path="/"
-            element={<Navigate to={user ? '/app' : '/login'} replace />}
-          />
+          <Route path="/" element={<Navigate to={user ? "/app" : "/login"} replace />} />
 
           {/* Marketing Pages */}
           <Route path="/marketing" element={<MarketingHome />} />
@@ -260,10 +215,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           <Route path="/marketing/contact" element={<MarketingContact />} />
 
           {/* Login */}
-          <Route
-            path="/login"
-            element={<Login onLoginSuccess={onLoginSuccess} />}
-          />
+          <Route path="/login" element={<Login onLoginSuccess={onLoginSuccess} />} />
 
           {/* ========================================== */}
           {/* LEGACY REDIRECTS (Old URLs → New URLs)    */}
@@ -345,10 +297,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="quotations.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="quotations.read">
                   <QuotationList />
                 </ProtectedRoute>
               }
@@ -356,10 +305,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="quotations.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="quotations.create">
                   <QuotationForm />
                 </ProtectedRoute>
               }
@@ -367,10 +313,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="quotations.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="quotations.read">
                   <QuotationForm />
                 </ProtectedRoute>
               }
@@ -378,10 +321,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="quotations.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="quotations.update">
                   <QuotationForm />
                 </ProtectedRoute>
               }
@@ -390,10 +330,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="invoices"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="invoices_all.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="invoices_all.read">
                   <InvoiceList />
                 </ProtectedRoute>
               }
@@ -401,10 +338,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="invoices/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="invoices.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="invoices.create">
                   <InvoiceForm onSave={handleSaveInvoice} />
                 </ProtectedRoute>
               }
@@ -412,10 +346,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="invoices/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="invoices.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="invoices.update">
                   <InvoiceForm onSave={handleSaveInvoice} />
                 </ProtectedRoute>
               }
@@ -432,10 +363,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="delivery_notes.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
                   <DeliveryNoteList />
                 </ProtectedRoute>
               }
@@ -443,10 +371,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="delivery_notes.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="delivery_notes.create">
                   <DeliveryNoteForm />
                 </ProtectedRoute>
               }
@@ -454,10 +379,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="delivery_notes.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
                   <DeliveryNoteDetails />
                 </ProtectedRoute>
               }
@@ -465,10 +387,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="delivery_notes.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="delivery_notes.update">
                   <DeliveryNoteForm />
                 </ProtectedRoute>
               }
@@ -485,10 +404,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="credit-notes/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="invoices.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="invoices.create">
                   <CreditNoteForm />
                 </ProtectedRoute>
               }
@@ -496,10 +412,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="credit-notes/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="invoices.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="invoices.update">
                   <CreditNoteForm />
                 </ProtectedRoute>
               }
@@ -509,10 +422,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchases"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="purchase_orders.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="purchase_orders.read">
                   <PurchasesDashboard />
                 </ProtectedRoute>
               }
@@ -520,10 +430,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchase-orders/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="purchase_orders.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="purchase_orders.create">
                   <PurchaseOrderForm />
                 </ProtectedRoute>
               }
@@ -531,10 +438,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchase-orders/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="purchase_orders.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="purchase_orders.update">
                   <PurchaseOrderForm />
                 </ProtectedRoute>
               }
@@ -551,10 +455,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-bills/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="payables.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="payables.create">
                   <SupplierBillForm />
                 </ProtectedRoute>
               }
@@ -570,10 +471,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-bills/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="payables.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="payables.update">
                   <SupplierBillForm />
                 </ProtectedRoute>
               }
@@ -590,10 +488,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="debit-notes/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="payables.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="payables.create">
                   <DebitNoteForm />
                 </ProtectedRoute>
               }
@@ -609,10 +504,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="debit-notes/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="payables.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="payables.update">
                   <DebitNoteForm />
                 </ProtectedRoute>
               }
@@ -629,10 +521,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="advance-payments/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="payables.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="payables.create">
                   <AdvancePaymentForm />
                 </ProtectedRoute>
               }
@@ -658,10 +547,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="receivables"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="receivables.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="receivables.read">
                   <Receivables />
                 </ProtectedRoute>
               }
@@ -693,10 +579,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="account-statements"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="account_statements.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="account_statements.read">
                   <AccountStatementList />
                 </ProtectedRoute>
               }
@@ -704,10 +587,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="account-statements/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="account_statements.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="account_statements.create">
                   <AccountStatementForm />
                 </ProtectedRoute>
               }
@@ -715,10 +595,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="account-statements/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="account_statements.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="account_statements.read">
                   <AccountStatementDetails />
                 </ProtectedRoute>
               }
@@ -762,10 +639,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-export"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.read">
                   <ImportExportDashboard />
                 </ProtectedRoute>
               }
@@ -773,10 +647,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-orders/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.create">
                   <ImportOrderForm />
                 </ProtectedRoute>
               }
@@ -784,10 +655,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-orders/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.read">
                   <ImportOrderDetails />
                 </ProtectedRoute>
               }
@@ -795,10 +663,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-orders/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.update">
                   <ImportOrderForm />
                 </ProtectedRoute>
               }
@@ -806,10 +671,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="export-orders/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="export_orders.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="export_orders.create">
                   <ExportOrderForm />
                 </ProtectedRoute>
               }
@@ -817,10 +679,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="export-orders/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="export_orders.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="export_orders.read">
                   <ExportOrderDetails />
                 </ProtectedRoute>
               }
@@ -828,10 +687,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="export-orders/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="export_orders.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="export_orders.update">
                   <ExportOrderForm />
                 </ProtectedRoute>
               }
@@ -839,10 +695,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="transit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.read">
                   <TransitList />
                 </ProtectedRoute>
               }
@@ -850,10 +703,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.read">
                   <ContainerList />
                 </ProtectedRoute>
               }
@@ -861,10 +711,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.create">
                   <ContainerForm />
                 </ProtectedRoute>
               }
@@ -872,10 +719,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers/:id"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.read"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.read">
                   <ContainerForm />
                 </ProtectedRoute>
               }
@@ -883,10 +727,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="import_orders.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="import_orders.update">
                   <ContainerForm />
                 </ProtectedRoute>
               }
@@ -904,10 +745,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customers/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="customers.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="customers.create">
                   <CustomerForm />
                 </ProtectedRoute>
               }
@@ -939,10 +777,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="products.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="products.create">
                   <PriceListForm />
                 </ProtectedRoute>
               }
@@ -958,10 +793,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="products.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="products.update">
                   <PriceListForm />
                 </ProtectedRoute>
               }
@@ -977,10 +809,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="suppliers/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="suppliers.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="suppliers.create">
                   <SupplierForm />
                 </ProtectedRoute>
               }
@@ -988,10 +817,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="suppliers/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="suppliers.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="suppliers.update">
                   <SupplierForm />
                 </ProtectedRoute>
               }
@@ -1009,10 +835,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations/upload"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="suppliers.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="suppliers.create">
                   <SupplierQuotationUpload />
                 </ProtectedRoute>
               }
@@ -1020,10 +843,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations/new"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="suppliers.create"
-                >
+                <ProtectedRoute user={user} requiredPermission="suppliers.create">
                   <SupplierQuotationForm />
                 </ProtectedRoute>
               }
@@ -1039,10 +859,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations/:id/edit"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="suppliers.update"
-                >
+                <ProtectedRoute user={user} requiredPermission="suppliers.update">
                   <SupplierQuotationForm />
                 </ProtectedRoute>
               }
@@ -1115,10 +932,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="audit-hub/datasets/:periodId/:datasetId/sign-off"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredPermission="audit_hub.sign_off"
-                >
+                <ProtectedRoute user={user} requiredPermission="audit_hub.sign_off">
                   <Suspense fallback={<div>Loading...</div>}>
                     <SignOffWorkflow />
                   </Suspense>
@@ -1153,10 +967,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             }
           >
             {/* Redirect /analytics to /analytics/dashboard */}
-            <Route
-              index
-              element={<Navigate to="/analytics/dashboard" replace />}
-            />
+            <Route index element={<Navigate to="/analytics/dashboard" replace />} />
 
             {/* Executive Dashboard */}
             <Route
@@ -1211,13 +1022,13 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 <ProtectedRoute
                   user={user}
                   requiredRoles={[
-                    'accountant',
-                    'senior_accountant',
-                    'finance_manager',
-                    'manager',
-                    'admin',
-                    'super_admin',
-                    'director',
+                    "accountant",
+                    "senior_accountant",
+                    "finance_manager",
+                    "manager",
+                    "admin",
+                    "super_admin",
+                    "director",
                   ]}
                 >
                   <AuditHubDashboard />
@@ -1232,15 +1043,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 <ProtectedRoute
                   user={user}
                   requiredRoles={[
-                    'warehouse_manager',
-                    'inventory_controller',
-                    'supervisor',
-                    'manager',
-                    'admin',
-                    'super_admin',
-                    'finance_manager',
-                    'accountant',
-                    'director',
+                    "warehouse_manager",
+                    "inventory_controller",
+                    "supervisor",
+                    "manager",
+                    "admin",
+                    "super_admin",
+                    "finance_manager",
+                    "accountant",
+                    "director",
                   ]}
                 >
                   <BatchAnalyticsPage />

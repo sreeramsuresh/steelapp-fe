@@ -1,10 +1,10 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { vi, describe, beforeEach, test, expect } from 'vitest';
-import useHomeSectionOrder from '../useHomeSectionOrder';
-import { userPreferencesService } from '../../services/userPreferencesService';
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { userPreferencesService } from "../../services/userPreferencesService";
+import useHomeSectionOrder from "../useHomeSectionOrder";
 
 // Mock the userPreferencesService
-vi.mock('../../services/userPreferencesService', () => ({
+vi.mock("../../services/userPreferencesService", () => ({
   userPreferencesService: {
     getHomeSectionOrder: vi.fn(),
     setHomeSectionOrder: vi.fn(),
@@ -13,23 +13,23 @@ vi.mock('../../services/userPreferencesService', () => ({
   },
 }));
 
-describe('useHomeSectionOrder', () => {
+describe("useHomeSectionOrder", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
   });
 
-  describe('Initial state', () => {
-    test('should return default order when no saved preferences', () => {
+  describe("Initial state", () => {
+    test("should return default order when no saved preferences", () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      expect(result.current.sectionOrder).toEqual(['quickAccess', 'createNew', 'recentItems']);
+      expect(result.current.sectionOrder).toEqual(["quickAccess", "createNew", "recentItems"]);
       expect(result.current.isSaving).toBe(false);
     });
 
-    test('should load saved order from localStorage', () => {
-      const savedOrder = ['recentItems', 'quickAccess', 'createNew'];
+    test("should load saved order from localStorage", () => {
+      const savedOrder = ["recentItems", "quickAccess", "createNew"];
       userPreferencesService.getHomeSectionOrder.mockReturnValue(savedOrder);
 
       const { result } = renderHook(() => useHomeSectionOrder());
@@ -37,31 +37,31 @@ describe('useHomeSectionOrder', () => {
       expect(result.current.sectionOrder).toEqual(savedOrder);
     });
 
-    test('should validate and fix invalid sections', () => {
-      const invalidOrder = ['quickAccess', 'invalid', 'createNew'];
+    test("should validate and fix invalid sections", () => {
+      const invalidOrder = ["quickAccess", "invalid", "createNew"];
       userPreferencesService.getHomeSectionOrder.mockReturnValue(invalidOrder);
 
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      expect(result.current.sectionOrder).toEqual(['quickAccess', 'createNew', 'recentItems']);
+      expect(result.current.sectionOrder).toEqual(["quickAccess", "createNew", "recentItems"]);
     });
 
-    test('should add missing sections to the end', () => {
-      const partialOrder = ['createNew'];
+    test("should add missing sections to the end", () => {
+      const partialOrder = ["createNew"];
       userPreferencesService.getHomeSectionOrder.mockReturnValue(partialOrder);
 
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      expect(result.current.sectionOrder).toEqual(['createNew', 'quickAccess', 'recentItems']);
+      expect(result.current.sectionOrder).toEqual(["createNew", "quickAccess", "recentItems"]);
     });
   });
 
-  describe('Reordering', () => {
-    test('should update section order', () => {
+  describe("Reordering", () => {
+    test("should update section order", () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      const newOrder = ['recentItems', 'quickAccess', 'createNew'];
+      const newOrder = ["recentItems", "quickAccess", "createNew"];
 
       act(() => {
         result.current.reorderSections(newOrder);
@@ -70,11 +70,11 @@ describe('useHomeSectionOrder', () => {
       expect(result.current.sectionOrder).toEqual(newOrder);
     });
 
-    test('should save to localStorage immediately', () => {
+    test("should save to localStorage immediately", () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      const newOrder = ['createNew', 'recentItems', 'quickAccess'];
+      const newOrder = ["createNew", "recentItems", "quickAccess"];
 
       act(() => {
         result.current.reorderSections(newOrder);
@@ -83,30 +83,32 @@ describe('useHomeSectionOrder', () => {
       expect(userPreferencesService.setHomeSectionOrder).toHaveBeenCalledWith(newOrder);
     });
 
-    test('should validate order before saving', () => {
+    test("should validate order before saving", () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      const invalidOrder = ['quickAccess', 'invalid', 'createNew'];
+      const invalidOrder = ["quickAccess", "invalid", "createNew"];
 
       act(() => {
         result.current.reorderSections(invalidOrder);
       });
 
-      expect(result.current.sectionOrder).toEqual(['quickAccess', 'createNew', 'recentItems']);
-      expect(userPreferencesService.setHomeSectionOrder).toHaveBeenCalledWith(
-        ['quickAccess', 'createNew', 'recentItems'],
-      );
+      expect(result.current.sectionOrder).toEqual(["quickAccess", "createNew", "recentItems"]);
+      expect(userPreferencesService.setHomeSectionOrder).toHaveBeenCalledWith([
+        "quickAccess",
+        "createNew",
+        "recentItems",
+      ]);
     });
 
-    test('should debounce backend save to 300ms', async () => {
+    test("should debounce backend save to 300ms", async () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       userPreferencesService.getCurrentUser.mockReturnValue({ id: 1, permissions: {} });
       userPreferencesService.updatePermissions.mockResolvedValue({ permissions: {} });
 
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      const newOrder = ['createNew', 'quickAccess', 'recentItems'];
+      const newOrder = ["createNew", "quickAccess", "recentItems"];
 
       act(() => {
         result.current.reorderSections(newOrder);
@@ -121,17 +123,17 @@ describe('useHomeSectionOrder', () => {
       });
     });
 
-    test('should call updatePermissions with correct structure', async () => {
+    test("should call updatePermissions with correct structure", async () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       userPreferencesService.getCurrentUser.mockReturnValue({
         id: 1,
-        permissions: { role: 'admin' },
+        permissions: { role: "admin" },
       });
       userPreferencesService.updatePermissions.mockResolvedValue({ permissions: {} });
 
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      const newOrder = ['recentItems', 'createNew', 'quickAccess'];
+      const newOrder = ["recentItems", "createNew", "quickAccess"];
 
       act(() => {
         result.current.reorderSections(newOrder);
@@ -139,7 +141,7 @@ describe('useHomeSectionOrder', () => {
 
       await waitFor(() => {
         expect(userPreferencesService.updatePermissions).toHaveBeenCalledWith(1, {
-          role: 'admin',
+          role: "admin",
           ui: {
             homeSectionOrder: newOrder,
           },
@@ -147,14 +149,14 @@ describe('useHomeSectionOrder', () => {
       });
     });
 
-    test('should handle backend sync failure gracefully', async () => {
+    test("should handle backend sync failure gracefully", async () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       userPreferencesService.getCurrentUser.mockReturnValue({ id: 1, permissions: {} });
-      userPreferencesService.updatePermissions.mockRejectedValue(new Error('Network error'));
+      userPreferencesService.updatePermissions.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      const newOrder = ['createNew', 'recentItems', 'quickAccess'];
+      const newOrder = ["createNew", "recentItems", "quickAccess"];
 
       act(() => {
         result.current.reorderSections(newOrder);
@@ -168,13 +170,13 @@ describe('useHomeSectionOrder', () => {
       });
     });
 
-    test('should not sync to backend if user is not logged in', async () => {
+    test("should not sync to backend if user is not logged in", async () => {
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       userPreferencesService.getCurrentUser.mockReturnValue(null);
 
       const { result } = renderHook(() => useHomeSectionOrder());
 
-      const newOrder = ['recentItems', 'quickAccess', 'createNew'];
+      const newOrder = ["recentItems", "quickAccess", "createNew"];
 
       act(() => {
         result.current.reorderSections(newOrder);
@@ -189,8 +191,8 @@ describe('useHomeSectionOrder', () => {
     });
   });
 
-  describe('Cleanup', () => {
-    test('should clear debounce timer on unmount', () => {
+  describe("Cleanup", () => {
+    test("should clear debounce timer on unmount", () => {
       vi.useFakeTimers();
       userPreferencesService.getHomeSectionOrder.mockReturnValue(null);
       userPreferencesService.getCurrentUser.mockReturnValue({ id: 1, permissions: {} });
@@ -198,7 +200,7 @@ describe('useHomeSectionOrder', () => {
       const { unmount, result } = renderHook(() => useHomeSectionOrder());
 
       act(() => {
-        result.current.reorderSections(['createNew', 'quickAccess', 'recentItems']);
+        result.current.reorderSections(["createNew", "quickAccess", "recentItems"]);
       });
 
       unmount();

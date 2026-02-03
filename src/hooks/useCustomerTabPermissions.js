@@ -26,14 +26,14 @@ const useMockAuth = () => {
   return {
     user: {
       id: 1,
-      name: 'Developer',
+      name: "Developer",
       permissions: [
-        'customers.read',
-        'finance.view',
-        'invoices.read',
-        'payments.read',
-        'credit_notes.read',
-        'activity.read',
+        "customers.read",
+        "finance.view",
+        "invoices.read",
+        "payments.read",
+        "credit_notes.read",
+        "activity.read",
       ],
     },
   };
@@ -57,13 +57,12 @@ export function useCustomerTabPermissions() {
    * Tabs are only visible if ALL required permissions are present
    */
   const tabPermissions = {
-    overview: hasPermission('customers.read'), // Always visible if can read customers
-    'ar-aging':
-      hasPermission('customers.read') && hasPermission('finance.view'), // Finance only
-    invoices: hasPermission('invoices.read'),
-    payments: hasPermission('payments.read'),
-    'credit-notes': hasPermission('credit_notes.read'),
-    activity: hasPermission('customers.read'), // All customer viewers can see activity
+    overview: hasPermission("customers.read"), // Always visible if can read customers
+    "ar-aging": hasPermission("customers.read") && hasPermission("finance.view"), // Finance only
+    invoices: hasPermission("invoices.read"),
+    payments: hasPermission("payments.read"),
+    "credit-notes": hasPermission("credit_notes.read"),
+    activity: hasPermission("customers.read"), // All customer viewers can see activity
   };
 
   /**
@@ -83,9 +82,7 @@ export function useCustomerTabPermissions() {
    * Check if user has access to at least one tab
    * Used to show "Access Denied" message if no tabs are available
    */
-  const hasAnyTabAccess = Object.values(tabPermissions).some(
-    (allowed) => allowed,
-  );
+  const hasAnyTabAccess = Object.values(tabPermissions).some((allowed) => allowed);
 
   return {
     tabPermissions,

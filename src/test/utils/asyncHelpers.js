@@ -13,13 +13,9 @@
  * ```
  */
 
-import { waitFor } from '@testing-library/react';
-import { expect } from 'vitest';
-import {
-  clickButton,
-  waitForButtonDisabled,
-  waitForButtonEnabled,
-} from './buttonTestUtils';
+import { waitFor } from "@testing-library/react";
+import { expect } from "vitest";
+import { clickButton, waitForButtonDisabled, waitForButtonEnabled } from "./buttonTestUtils";
 
 /**
  * Click button and wait for mock API function to be called
@@ -44,11 +40,11 @@ export async function clickAndWaitForApi(button, mockFn, options = {}) {
   const { timeout = 5000, expectedArgs = null } = options;
 
   if (!button) {
-    throw new Error('clickAndWaitForApi: button element is required');
+    throw new Error("clickAndWaitForApi: button element is required");
   }
 
   if (!mockFn) {
-    throw new Error('clickAndWaitForApi: mockFn is required');
+    throw new Error("clickAndWaitForApi: mockFn is required");
   }
 
   const mockFns = Array.isArray(mockFn) ? mockFn : [mockFn];
@@ -71,7 +67,7 @@ export async function clickAndWaitForApi(button, mockFn, options = {}) {
         }
       });
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -96,7 +92,7 @@ export async function waitForApiCall(mockFn, options = {}) {
   const { timeout = 5000, times = null } = options;
 
   if (!mockFn) {
-    throw new Error('waitForApiCall: mockFn is required');
+    throw new Error("waitForApiCall: mockFn is required");
   }
 
   const mockFns = Array.isArray(mockFn) ? mockFn : [mockFn];
@@ -111,7 +107,7 @@ export async function waitForApiCall(mockFn, options = {}) {
         }
       });
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -155,15 +151,11 @@ export async function waitForDebounce(delayMs, options = {}) {
  *   expect(await assertTableRowCountChanges(5));
  * });
  */
-export async function performAsyncButtonClick(
-  button,
-  stateChecker = null,
-  options = {},
-) {
+export async function performAsyncButtonClick(button, stateChecker = null, options = {}) {
   const { timeout = 10000 } = options;
 
   if (!button) {
-    throw new Error('performAsyncButtonClick: button element is required');
+    throw new Error("performAsyncButtonClick: button element is required");
   }
 
   // Click to start operation
@@ -173,7 +165,7 @@ export async function performAsyncButtonClick(
   await waitForButtonDisabled(button, timeout);
 
   // Run optional state checks during loading
-  if (stateChecker && typeof stateChecker === 'function') {
+  if (stateChecker && typeof stateChecker === "function") {
     await stateChecker();
   }
 
@@ -191,16 +183,10 @@ export async function performAsyncButtonClick(
  * const spinner = await waitForLoadingStart('[class*="spinner"]');
  * expect(spinner).toBeInTheDocument();
  */
-export async function waitForLoadingStart(
-  loadingSelector = '[class*="spinner"], [class*="loading"]',
-  timeout = 5000,
-) {
+export async function waitForLoadingStart(loadingSelector = '[class*="spinner"], [class*="loading"]', timeout = 5000) {
   return new Promise((resolve, reject) => {
     const checkInterval = setInterval(() => {
-      const element =
-        typeof loadingSelector === 'string'
-          ? document.querySelector(loadingSelector)
-          : null;
+      const element = typeof loadingSelector === "string" ? document.querySelector(loadingSelector) : null;
 
       if (element) {
         clearInterval(checkInterval);
@@ -226,16 +212,10 @@ export async function waitForLoadingStart(
  * await userEvent.click(button);
  * await waitForLoadingEnd('[class*="spinner"]');
  */
-export async function waitForLoadingEnd(
-  loadingSelector = '[class*="spinner"], [class*="loading"]',
-  timeout = 10000,
-) {
+export async function waitForLoadingEnd(loadingSelector = '[class*="spinner"], [class*="loading"]', timeout = 10000) {
   return new Promise((resolve, reject) => {
     const checkInterval = setInterval(() => {
-      const element =
-        typeof loadingSelector === 'string'
-          ? document.querySelector(loadingSelector)
-          : null;
+      const element = typeof loadingSelector === "string" ? document.querySelector(loadingSelector) : null;
 
       if (!element) {
         clearInterval(checkInterval);
@@ -246,9 +226,7 @@ export async function waitForLoadingEnd(
 
     const timeoutId = setTimeout(() => {
       clearInterval(checkInterval);
-      reject(
-        new Error(`Loading indicator did not disappear: ${loadingSelector}`),
-      );
+      reject(new Error(`Loading indicator did not disappear: ${loadingSelector}`));
     }, timeout);
   });
 }
@@ -267,8 +245,8 @@ export async function waitForLoadingEnd(
 export async function retryUntil(condition, options = {}) {
   const { maxRetries = 5, delayMs = 100 } = options;
 
-  if (typeof condition !== 'function') {
-    throw new Error('retryUntil: condition must be a function');
+  if (typeof condition !== "function") {
+    throw new Error("retryUntil: condition must be a function");
   }
 
   let lastError;
@@ -277,7 +255,7 @@ export async function retryUntil(condition, options = {}) {
       const result = condition();
 
       // Handle async conditions
-      if (result && typeof result.then === 'function') {
+      if (result && typeof result.then === "function") {
         try {
           const resolvedValue = await result;
           if (resolvedValue) {
@@ -315,8 +293,8 @@ export async function retryUntil(condition, options = {}) {
 export async function pollForCondition(condition, options = {}) {
   const { intervalMs = 100, timeoutMs = 5000 } = options;
 
-  if (typeof condition !== 'function') {
-    throw new Error('pollForCondition: condition must be a function');
+  if (typeof condition !== "function") {
+    throw new Error("pollForCondition: condition must be a function");
   }
 
   return new Promise((resolve, reject) => {
@@ -362,8 +340,8 @@ export async function pollForCondition(condition, options = {}) {
 export async function waitForCallback(callback, options = {}) {
   const { timeout = 5000, expectedArgs = null } = options;
 
-  if (typeof callback !== 'function') {
-    throw new Error('waitForCallback: callback must be a function');
+  if (typeof callback !== "function") {
+    throw new Error("waitForCallback: callback must be a function");
   }
 
   const initialCalls = callback.mock?.calls?.length || 0;
@@ -374,12 +352,10 @@ export async function waitForCallback(callback, options = {}) {
       expect(called).toBe(true);
 
       if (expectedArgs) {
-        expect(callback).toHaveBeenCalledWith(
-          expect.objectContaining(expectedArgs),
-        );
+        expect(callback).toHaveBeenCalledWith(expect.objectContaining(expectedArgs));
       }
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -396,27 +372,20 @@ export async function waitForCallback(callback, options = {}) {
  * await userEvent.click(button);
  * await waitForAttributeChange(button, 'disabled', 'true');
  */
-export async function waitForAttributeChange(
-  element,
-  attributeName,
-  expectedValue,
-  timeout = 5000,
-) {
+export async function waitForAttributeChange(element, attributeName, expectedValue, timeout = 5000) {
   if (!element) {
-    throw new Error('waitForAttributeChange: element is required');
+    throw new Error("waitForAttributeChange: element is required");
   }
 
   await waitFor(
     () => {
       const currentValue = element.getAttribute(attributeName);
       const expected =
-        expectedValue instanceof RegExp
-          ? expectedValue.test(currentValue)
-          : currentValue === expectedValue;
+        expectedValue instanceof RegExp ? expectedValue.test(currentValue) : currentValue === expectedValue;
 
       expect(expected).toBe(true);
     },
-    { timeout },
+    { timeout }
   );
 }
 

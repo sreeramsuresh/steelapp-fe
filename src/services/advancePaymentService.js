@@ -14,7 +14,7 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 // ============================================================================
 // DATA TRANSFORMERS
@@ -26,9 +26,8 @@ import { apiClient } from './api';
 const transformAdvancePaymentForServer = (paymentData) => {
   return {
     customerId: paymentData.customerId || paymentData.customer?.id || null,
-    customerDetails:
-      paymentData.customerDetails || paymentData.customer || null,
-    receiptNumber: paymentData.receiptNumber || '',
+    customerDetails: paymentData.customerDetails || paymentData.customer || null,
+    receiptNumber: paymentData.receiptNumber || "",
     paymentDate: paymentData.paymentDate || null,
     // Amount fields
     amount: parseFloat(paymentData.amount || 0),
@@ -37,24 +36,24 @@ const transformAdvancePaymentForServer = (paymentData) => {
     totalAmount: parseFloat(paymentData.totalAmount || 0),
     totalReceived: parseFloat(paymentData.totalReceived || 0),
     // VAT tracking
-    vatCategory: paymentData.vatCategory || 'STANDARD',
+    vatCategory: paymentData.vatCategory || "STANDARD",
     isVatInclusive: paymentData.isVatInclusive !== false, // Default true
     // Application tracking
     amountApplied: parseFloat(paymentData.amountApplied || 0),
     amountAvailable: parseFloat(paymentData.amountAvailable || 0),
     // Payment details
-    paymentMethod: paymentData.paymentMethod || 'bank_transfer',
-    referenceNumber: paymentData.referenceNumber || '',
-    bankAccount: paymentData.bankAccount || '',
+    paymentMethod: paymentData.paymentMethod || "bank_transfer",
+    referenceNumber: paymentData.referenceNumber || "",
+    bankAccount: paymentData.bankAccount || "",
     // Multi-currency support
-    currency: paymentData.currency || 'AED',
+    currency: paymentData.currency || "AED",
     exchangeRate: parseFloat(paymentData.exchangeRate || 1),
     amountInBaseCurrency: parseFloat(paymentData.amountInBaseCurrency || 0),
     // Status
-    status: paymentData.status || 'received',
+    status: paymentData.status || "received",
     // Metadata
-    purpose: paymentData.purpose || '',
-    notes: paymentData.notes || '',
+    purpose: paymentData.purpose || "",
+    notes: paymentData.notes || "",
     attachmentUrls: paymentData.attachmentUrls || [],
     // Related entities
     quotationId: paymentData.quotationId || null,
@@ -74,26 +73,25 @@ const transformAdvancePaymentFromServer = (serverData) => {
     id: serverData.id,
     companyId: serverData.company_id || serverData.companyId,
     customerId: serverData.customer_id || serverData.customerId,
-    customerDetails:
-      serverData.customer_details || serverData.customerDetails || {},
+    customerDetails: serverData.customer_details || serverData.customerDetails || {},
     customerName:
       serverData.customer_name ||
       serverData.customerName ||
       serverData.customer_details?.name ||
       serverData.customerDetails?.name ||
-      '',
+      "",
     customerTrn:
       serverData.customer_trn ||
       serverData.customerTrn ||
       serverData.customer_details?.trn ||
       serverData.customerDetails?.trn ||
-      '',
+      "",
     receiptNumber:
       serverData.receipt_number ||
       serverData.receiptNumber ||
       serverData.advance_number ||
       serverData.advanceNumber ||
-      '',
+      "",
     // payment_date comes as proto Timestamp { seconds, nanos }
     paymentDate: serverData.payment_date || serverData.paymentDate || null,
     // Amount fields
@@ -101,44 +99,30 @@ const transformAdvancePaymentFromServer = (serverData) => {
     vatRate: parseFloat(serverData.vat_rate || serverData.vatRate || 5),
     vatAmount: parseFloat(serverData.vat_amount || serverData.vatAmount || 0),
     totalAmount: parseFloat(
-      serverData.total_amount ||
-        serverData.totalAmount ||
-        serverData.total_received ||
-        serverData.totalReceived ||
-        0,
+      serverData.total_amount || serverData.totalAmount || serverData.total_received || serverData.totalReceived || 0
     ),
     // VAT tracking
-    vatCategory:
-      serverData.vat_category || serverData.vatCategory || 'STANDARD',
-    isVatInclusive:
-      (serverData.is_vat_inclusive ?? serverData.isVatInclusive) !== false,
+    vatCategory: serverData.vat_category || serverData.vatCategory || "STANDARD",
+    isVatInclusive: (serverData.is_vat_inclusive ?? serverData.isVatInclusive) !== false,
     // Application tracking
-    amountApplied: parseFloat(
-      serverData.amount_applied || serverData.amountApplied || 0,
-    ),
-    amountAvailable: parseFloat(
-      serverData.amount_available || serverData.amountAvailable || 0,
-    ),
-    amountRefunded: parseFloat(
-      serverData.amount_refunded || serverData.amountRefunded || 0,
-    ),
+    amountApplied: parseFloat(serverData.amount_applied || serverData.amountApplied || 0),
+    amountAvailable: parseFloat(serverData.amount_available || serverData.amountAvailable || 0),
+    amountRefunded: parseFloat(serverData.amount_refunded || serverData.amountRefunded || 0),
     // Payment details
-    paymentMethod:
-      serverData.payment_method || serverData.paymentMethod || 'bank_transfer',
+    paymentMethod: serverData.payment_method || serverData.paymentMethod || "bank_transfer",
     referenceNumber:
       serverData.reference_number ||
       serverData.referenceNumber ||
       serverData.payment_reference ||
       serverData.paymentReference ||
-      '',
-    bankAccount: serverData.bank_account || serverData.bankAccount || '',
+      "",
+    bankAccount: serverData.bank_account || serverData.bankAccount || "",
     // Status
-    status: serverData.status || 'received',
+    status: serverData.status || "received",
     // Metadata
-    purpose: serverData.purpose || '',
-    notes: serverData.notes || '',
-    attachmentUrls:
-      serverData.attachment_urls || serverData.attachmentUrls || [],
+    purpose: serverData.purpose || "",
+    notes: serverData.notes || "",
+    attachmentUrls: serverData.attachment_urls || serverData.attachmentUrls || [],
     // Related entities
     quotationId: serverData.quotation_id || serverData.quotationId || null,
     salesOrderId: serverData.sales_order_id || serverData.salesOrderId || null,
@@ -147,14 +131,11 @@ const transformAdvancePaymentFromServer = (serverData) => {
     applications: (serverData.applications || []).map((app) => ({
       id: app.id,
       invoiceId: app.invoice_id || app.invoiceId,
-      invoiceNumber: app.invoice_number || app.invoiceNumber || '',
+      invoiceNumber: app.invoice_number || app.invoiceNumber || "",
       amountApplied: parseFloat(app.amount_applied || app.amountApplied || 0),
-      vatAmountApplied: parseFloat(
-        app.vat_amount_applied || app.vatAmountApplied || 0,
-      ),
-      appliedAt:
-        app.applied_at || app.appliedAt || app.created_at || app.createdAt,
-      notes: app.notes || '',
+      vatAmountApplied: parseFloat(app.vat_amount_applied || app.vatAmountApplied || 0),
+      appliedAt: app.applied_at || app.appliedAt || app.created_at || app.createdAt,
+      notes: app.notes || "",
     })),
     // Refunds
     refunds: serverData.refunds || [],
@@ -211,16 +192,14 @@ const advancePaymentService = {
         search: params.search || undefined,
       };
 
-      Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key],
-      );
+      Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
 
       const axiosConfig = { ...queryParams };
       if (signal) {
         axiosConfig.signal = signal;
       }
 
-      const response = await apiClient.get('/advance-payments', axiosConfig);
+      const response = await apiClient.get("/advance-payments", axiosConfig);
 
       // Handle paginated response
       if (response.data && Array.isArray(response.data)) {
@@ -248,7 +227,7 @@ const advancePaymentService = {
 
       return { data: [], pagination: null };
     } catch (error) {
-      console.error('[AdvancePaymentService] getAll failed:', error);
+      console.error("[AdvancePaymentService] getAll failed:", error);
       throw error;
     }
   },
@@ -263,7 +242,7 @@ const advancePaymentService = {
       const response = await apiClient.get(`/advance-payments/${id}`);
       return transformAdvancePaymentFromServer(response);
     } catch (error) {
-      console.error('[AdvancePaymentService] getById failed:', error);
+      console.error("[AdvancePaymentService] getById failed:", error);
       throw error;
     }
   },
@@ -277,14 +256,11 @@ const advancePaymentService = {
   async getByCustomer(customerId, onlyAvailable = false) {
     try {
       const params = onlyAvailable ? { hasAvailableBalance: true } : {};
-      const response = await apiClient.get(
-        `/advance-payments/by-customer/${customerId}`,
-        params,
-      );
+      const response = await apiClient.get(`/advance-payments/by-customer/${customerId}`, params);
       const payments = Array.isArray(response) ? response : response.data || [];
       return payments.map(transformAdvancePaymentFromServer);
     } catch (error) {
-      console.error('[AdvancePaymentService] getByCustomer failed:', error);
+      console.error("[AdvancePaymentService] getByCustomer failed:", error);
       throw error;
     }
   },
@@ -297,16 +273,11 @@ const advancePaymentService = {
    */
   async getAvailableForCustomer(customerId) {
     try {
-      const response = await apiClient.get(
-        `/advance-payments/available/${customerId}`,
-      );
+      const response = await apiClient.get(`/advance-payments/available/${customerId}`);
       const payments = Array.isArray(response) ? response : response.data || [];
       return payments.map(transformAdvancePaymentFromServer);
     } catch (error) {
-      console.error(
-        '[AdvancePaymentService] getAvailableForCustomer failed:',
-        error,
-      );
+      console.error("[AdvancePaymentService] getAvailableForCustomer failed:", error);
       throw error;
     }
   },
@@ -319,13 +290,10 @@ const advancePaymentService = {
   async create(paymentData) {
     try {
       const transformedData = transformAdvancePaymentForServer(paymentData);
-      const response = await apiClient.post(
-        '/advance-payments',
-        transformedData,
-      );
+      const response = await apiClient.post("/advance-payments", transformedData);
       return transformAdvancePaymentFromServer(response);
     } catch (error) {
-      console.error('[AdvancePaymentService] create failed:', error);
+      console.error("[AdvancePaymentService] create failed:", error);
       throw error;
     }
   },
@@ -339,13 +307,10 @@ const advancePaymentService = {
   async update(id, paymentData) {
     try {
       const transformedData = transformAdvancePaymentForServer(paymentData);
-      const response = await apiClient.put(
-        `/advance-payments/${id}`,
-        transformedData,
-      );
+      const response = await apiClient.put(`/advance-payments/${id}`, transformedData);
       return transformAdvancePaymentFromServer(response);
     } catch (error) {
-      console.error('[AdvancePaymentService] update failed:', error);
+      console.error("[AdvancePaymentService] update failed:", error);
       throw error;
     }
   },
@@ -359,7 +324,7 @@ const advancePaymentService = {
    * @param {string} notes - Application notes
    * @returns {Promise<Object>}
    */
-  async applyToInvoice(id, invoiceId, amount = null, notes = '') {
+  async applyToInvoice(id, invoiceId, amount = null, notes = "") {
     try {
       const payload = {
         invoiceId,
@@ -368,13 +333,10 @@ const advancePaymentService = {
       if (amount !== null) {
         payload.amount = parseFloat(amount);
       }
-      const response = await apiClient.post(
-        `/advance-payments/${id}/apply`,
-        payload,
-      );
+      const response = await apiClient.post(`/advance-payments/${id}/apply`, payload);
       return transformAdvancePaymentFromServer(response);
     } catch (error) {
-      console.error('[AdvancePaymentService] applyToInvoice failed:', error);
+      console.error("[AdvancePaymentService] applyToInvoice failed:", error);
       throw error;
     }
   },
@@ -386,18 +348,15 @@ const advancePaymentService = {
    * @param {string} reason - Reason for removal
    * @returns {Promise<Object>}
    */
-  async removeApplication(id, applicationId, reason = '') {
+  async removeApplication(id, applicationId, reason = "") {
     try {
-      const response = await apiClient.post(
-        `/advance-payments/${id}/remove-application`,
-        {
-          applicationId,
-          reason,
-        },
-      );
+      const response = await apiClient.post(`/advance-payments/${id}/remove-application`, {
+        applicationId,
+        reason,
+      });
       return transformAdvancePaymentFromServer(response);
     } catch (error) {
-      console.error('[AdvancePaymentService] removeApplication failed:', error);
+      console.error("[AdvancePaymentService] removeApplication failed:", error);
       throw error;
     }
   },
@@ -419,18 +378,15 @@ const advancePaymentService = {
       const payload = {
         amount: parseFloat(refundData.amount || 0),
         refundDate: refundData.refundDate,
-        refundMethod: refundData.refundMethod || 'bank_transfer',
-        referenceNumber: refundData.referenceNumber || '',
-        reason: refundData.reason || '',
-        notes: refundData.notes || '',
+        refundMethod: refundData.refundMethod || "bank_transfer",
+        referenceNumber: refundData.referenceNumber || "",
+        reason: refundData.reason || "",
+        notes: refundData.notes || "",
       };
-      const response = await apiClient.post(
-        `/advance-payments/${id}/refund`,
-        payload,
-      );
+      const response = await apiClient.post(`/advance-payments/${id}/refund`, payload);
       return transformAdvancePaymentFromServer(response);
     } catch (error) {
-      console.error('[AdvancePaymentService] refund failed:', error);
+      console.error("[AdvancePaymentService] refund failed:", error);
       throw error;
     }
   },
@@ -441,14 +397,14 @@ const advancePaymentService = {
    * @param {string} reason - Cancellation reason
    * @returns {Promise<Object>}
    */
-  async cancel(id, reason = '') {
+  async cancel(id, reason = "") {
     try {
       const response = await apiClient.post(`/advance-payments/${id}/cancel`, {
         cancellationReason: reason,
       });
       return transformAdvancePaymentFromServer(response);
     } catch (error) {
-      console.error('[AdvancePaymentService] cancel failed:', error);
+      console.error("[AdvancePaymentService] cancel failed:", error);
       throw error;
     }
   },
@@ -459,10 +415,10 @@ const advancePaymentService = {
    */
   async getNextNumber() {
     try {
-      const response = await apiClient.get('/advance-payments/number/next');
+      const response = await apiClient.get("/advance-payments/number/next");
       return response;
     } catch (error) {
-      console.error('[AdvancePaymentService] getNextNumber failed:', error);
+      console.error("[AdvancePaymentService] getNextNumber failed:", error);
       throw error;
     }
   },
@@ -477,13 +433,10 @@ const advancePaymentService = {
    */
   async getVATSummary(params = {}) {
     try {
-      const response = await apiClient.get(
-        '/advance-payments/vat-summary',
-        params,
-      );
+      const response = await apiClient.get("/advance-payments/vat-summary", params);
       return response;
     } catch (error) {
-      console.error('[AdvancePaymentService] getVATSummary failed:', error);
+      console.error("[AdvancePaymentService] getVATSummary failed:", error);
       throw error;
     }
   },
@@ -495,13 +448,10 @@ const advancePaymentService = {
    */
   async getAnalytics(params = {}) {
     try {
-      const response = await apiClient.get(
-        '/advance-payments/analytics',
-        params,
-      );
+      const response = await apiClient.get("/advance-payments/analytics", params);
       return response;
     } catch (error) {
-      console.error('[AdvancePaymentService] getAnalytics failed:', error);
+      console.error("[AdvancePaymentService] getAnalytics failed:", error);
       throw error;
     }
   },
@@ -514,16 +464,14 @@ const advancePaymentService = {
    */
   async search(searchTerm, filters = {}) {
     try {
-      const response = await apiClient.get('/advance-payments', {
+      const response = await apiClient.get("/advance-payments", {
         search: searchTerm,
         ...filters,
       });
       const payments = response.data || response.items || response;
-      return Array.isArray(payments)
-        ? payments.map(transformAdvancePaymentFromServer)
-        : [];
+      return Array.isArray(payments) ? payments.map(transformAdvancePaymentFromServer) : [];
     } catch (error) {
-      console.error('[AdvancePaymentService] search failed:', error);
+      console.error("[AdvancePaymentService] search failed:", error);
       throw error;
     }
   },
@@ -537,12 +485,12 @@ const advancePaymentService = {
   async downloadReceipt(id, receiptNumber = null) {
     try {
       const response = await apiClient.get(`/advance-payments/${id}/receipt`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `advance-receipt-${receiptNumber || id}.pdf`;
       document.body.appendChild(link);
@@ -552,7 +500,7 @@ const advancePaymentService = {
 
       return true;
     } catch (error) {
-      console.error('[AdvancePaymentService] downloadReceipt failed:', error);
+      console.error("[AdvancePaymentService] downloadReceipt failed:", error);
       throw error;
     }
   },
@@ -564,15 +512,10 @@ const advancePaymentService = {
    */
   async getApplicationHistory(id) {
     try {
-      const response = await apiClient.get(
-        `/advance-payments/${id}/applications`,
-      );
+      const response = await apiClient.get(`/advance-payments/${id}/applications`);
       return response.data || response || [];
     } catch (error) {
-      console.error(
-        '[AdvancePaymentService] getApplicationHistory failed:',
-        error,
-      );
+      console.error("[AdvancePaymentService] getApplicationHistory failed:", error);
       throw error;
     }
   },

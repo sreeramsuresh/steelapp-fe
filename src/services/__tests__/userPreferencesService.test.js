@@ -1,93 +1,93 @@
-import { userPreferencesService } from '../userPreferencesService';
-import { userAdminAPI } from '../userAdminApi';
+import { userAdminAPI } from "../userAdminApi";
+import { userPreferencesService } from "../userPreferencesService";
 
 // Mock userAdminAPI
-jest.mock('../userAdminApi', () => ({
+jest.mock("../userAdminApi", () => ({
   userAdminAPI: {
     update: jest.fn(),
   },
 }));
 
-describe('userPreferencesService', () => {
+describe("userPreferencesService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
   });
 
-  describe('getCurrentUser', () => {
-    test('should return null when no user in localStorage', () => {
+  describe("getCurrentUser", () => {
+    test("should return null when no user in localStorage", () => {
       const user = userPreferencesService.getCurrentUser();
       expect(user).toBeNull();
     });
 
-    test('should return parsed user from localStorage', () => {
-      const mockUser = { id: 1, name: 'Test User', email: 'test@example.com' };
-      localStorage.setItem('currentUser', JSON.stringify(mockUser));
+    test("should return parsed user from localStorage", () => {
+      const mockUser = { id: 1, name: "Test User", email: "test@example.com" };
+      localStorage.setItem("currentUser", JSON.stringify(mockUser));
 
       const user = userPreferencesService.getCurrentUser();
       expect(user).toEqual(mockUser);
     });
 
-    test('should handle invalid JSON in localStorage', () => {
-      localStorage.setItem('currentUser', 'invalid-json');
+    test("should handle invalid JSON in localStorage", () => {
+      localStorage.setItem("currentUser", "invalid-json");
 
       const user = userPreferencesService.getCurrentUser();
       expect(user).toBeNull();
     });
   });
 
-  describe('updatePermissions', () => {
-    test('should call userAdminAPI.update with correct payload', async () => {
+  describe("updatePermissions", () => {
+    test("should call userAdminAPI.update with correct payload", async () => {
       const mockUpdatedUser = {
         id: 1,
-        permissions: { ui: { homeSectionOrder: ['a', 'b', 'c'] } },
+        permissions: { ui: { homeSectionOrder: ["a", "b", "c"] } },
       };
       userAdminAPI.update.mockResolvedValue(mockUpdatedUser);
 
       const result = await userPreferencesService.updatePermissions(1, {
-        ui: { homeSectionOrder: ['a', 'b', 'c'] },
+        ui: { homeSectionOrder: ["a", "b", "c"] },
       });
 
       expect(userAdminAPI.update).toHaveBeenCalledWith(1, {
-        permissions: { ui: { homeSectionOrder: ['a', 'b', 'c'] } },
+        permissions: { ui: { homeSectionOrder: ["a", "b", "c"] } },
       });
       expect(result).toEqual(mockUpdatedUser);
     });
 
-    test('should update currentUser in localStorage when user is logged in', async () => {
+    test("should update currentUser in localStorage when user is logged in", async () => {
       const mockCurrentUser = {
         id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
+        name: "Test User",
+        email: "test@example.com",
         permissions: {},
       };
-      localStorage.setItem('currentUser', JSON.stringify(mockCurrentUser));
+      localStorage.setItem("currentUser", JSON.stringify(mockCurrentUser));
 
-      const newPermissions = { ui: { homeSectionOrder: ['a', 'b'] } };
+      const newPermissions = { ui: { homeSectionOrder: ["a", "b"] } };
       const mockUpdatedUser = {
         id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
+        name: "Test User",
+        email: "test@example.com",
         permissions: newPermissions,
       };
       userAdminAPI.update.mockResolvedValue(mockUpdatedUser);
 
       await userPreferencesService.updatePermissions(1, newPermissions);
 
-      const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+      const savedUser = JSON.parse(localStorage.getItem("currentUser"));
       expect(savedUser.permissions).toEqual(newPermissions);
     });
 
-    test('should not update localStorage if different user is logged in', async () => {
+    test("should not update localStorage if different user is logged in", async () => {
       const mockCurrentUser = {
         id: 2,
-        name: 'Other User',
-        email: 'other@example.com',
+        name: "Other User",
+        email: "other@example.com",
         permissions: {},
       };
-      localStorage.setItem('currentUser', JSON.stringify(mockCurrentUser));
+      localStorage.setItem("currentUser", JSON.stringify(mockCurrentUser));
 
-      const newPermissions = { ui: { homeSectionOrder: ['a', 'b'] } };
+      const newPermissions = { ui: { homeSectionOrder: ["a", "b"] } };
       const mockUpdatedUser = {
         id: 1,
         permissions: newPermissions,
@@ -96,71 +96,68 @@ describe('userPreferencesService', () => {
 
       await userPreferencesService.updatePermissions(1, newPermissions);
 
-      const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+      const savedUser = JSON.parse(localStorage.getItem("currentUser"));
       expect(savedUser.id).toBe(2);
       expect(savedUser.permissions).toEqual({});
     });
   });
 
-  describe('getHomeSectionOrder', () => {
-    test('should return null when no saved order', () => {
+  describe("getHomeSectionOrder", () => {
+    test("should return null when no saved order", () => {
       const order = userPreferencesService.getHomeSectionOrder();
       expect(order).toBeNull();
     });
 
-    test('should return parsed order from localStorage', () => {
-      const mockOrder = ['createNew', 'quickAccess', 'recentItems'];
-      localStorage.setItem('steelapp_home_section_order', JSON.stringify(mockOrder));
+    test("should return parsed order from localStorage", () => {
+      const mockOrder = ["createNew", "quickAccess", "recentItems"];
+      localStorage.setItem("steelapp_home_section_order", JSON.stringify(mockOrder));
 
       const order = userPreferencesService.getHomeSectionOrder();
       expect(order).toEqual(mockOrder);
     });
 
-    test('should return null for invalid JSON', () => {
-      localStorage.setItem('steelapp_home_section_order', 'invalid-json');
+    test("should return null for invalid JSON", () => {
+      localStorage.setItem("steelapp_home_section_order", "invalid-json");
 
       const order = userPreferencesService.getHomeSectionOrder();
       expect(order).toBeNull();
     });
   });
 
-  describe('setHomeSectionOrder', () => {
-    test('should save order to localStorage', () => {
-      const mockOrder = ['recentItems', 'createNew', 'quickAccess'];
+  describe("setHomeSectionOrder", () => {
+    test("should save order to localStorage", () => {
+      const mockOrder = ["recentItems", "createNew", "quickAccess"];
 
       userPreferencesService.setHomeSectionOrder(mockOrder);
 
-      const saved = JSON.parse(localStorage.getItem('steelapp_home_section_order'));
+      const saved = JSON.parse(localStorage.getItem("steelapp_home_section_order"));
       expect(saved).toEqual(mockOrder);
     });
 
-    test('should handle localStorage errors gracefully', () => {
-      const mockOrder = ['a', 'b', 'c'];
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    test("should handle localStorage errors gracefully", () => {
+      const mockOrder = ["a", "b", "c"];
+      const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
       // Mock localStorage.setItem to throw
       Storage.prototype.setItem = jest.fn(() => {
-        throw new Error('QuotaExceededError');
+        throw new Error("QuotaExceededError");
       });
 
       userPreferencesService.setHomeSectionOrder(mockOrder);
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Failed to save section order to localStorage:',
-        expect.any(Error),
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith("Failed to save section order to localStorage:", expect.any(Error));
 
       consoleWarnSpy.mockRestore();
     });
   });
 
-  describe('Integration', () => {
-    test('should work with full flow: set, get, update permissions', async () => {
-      const mockUser = { id: 1, name: 'User', email: 'user@test.com', permissions: {} };
-      localStorage.setItem('currentUser', JSON.stringify(mockUser));
+  describe("Integration", () => {
+    test("should work with full flow: set, get, update permissions", async () => {
+      const mockUser = { id: 1, name: "User", email: "user@test.com", permissions: {} };
+      localStorage.setItem("currentUser", JSON.stringify(mockUser));
 
       // Set order
-      const order = ['createNew', 'recentItems', 'quickAccess'];
+      const order = ["createNew", "recentItems", "quickAccess"];
       userPreferencesService.setHomeSectionOrder(order);
 
       // Get order

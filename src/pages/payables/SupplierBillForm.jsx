@@ -1,114 +1,103 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { useParams, useNavigate } from 'react-router-dom';
-import { X, Loader2, Save, ChevronDown, Plus, Trash2 } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useAuth } from '../../contexts/AuthContext';
-import supplierBillService from '../../services/supplierBillService';
-import { suppliersAPI, purchaseOrderService } from '../../services/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { normalizeUom } from '../../utils/fieldAccessors';
+import { ChevronDown, Loader2, Plus, Save, Trash2, X } from "lucide-react";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
+import { purchaseOrderService, suppliersAPI } from "../../services/api";
+import supplierBillService from "../../services/supplierBillService";
+import { normalizeUom } from "../../utils/fieldAccessors";
 
 // UAE Emirates for place of supply
 const EMIRATES = [
-  { value: 'AE-AZ', label: 'Abu Dhabi' },
-  { value: 'AE-DU', label: 'Dubai' },
-  { value: 'AE-SH', label: 'Sharjah' },
-  { value: 'AE-AJ', label: 'Ajman' },
-  { value: 'AE-UQ', label: 'Umm Al Quwain' },
-  { value: 'AE-RK', label: 'Ras Al Khaimah' },
-  { value: 'AE-FU', label: 'Fujairah' },
+  { value: "AE-AZ", label: "Abu Dhabi" },
+  { value: "AE-DU", label: "Dubai" },
+  { value: "AE-SH", label: "Sharjah" },
+  { value: "AE-AJ", label: "Ajman" },
+  { value: "AE-UQ", label: "Umm Al Quwain" },
+  { value: "AE-RK", label: "Ras Al Khaimah" },
+  { value: "AE-FU", label: "Fujairah" },
 ];
 
 // VAT Categories (from proto)
 const VAT_CATEGORIES = [
-  { value: 'STANDARD_RATED', label: 'Standard Rated (5%)', rate: 5 },
-  { value: 'ZERO_RATED', label: 'Zero Rated (0%)', rate: 0 },
-  { value: 'EXEMPT', label: 'Exempt', rate: 0 },
-  { value: 'OUT_OF_SCOPE', label: 'Out of Scope', rate: 0 },
-  { value: 'REVERSE_CHARGE', label: 'Reverse Charge', rate: 5 },
-  { value: 'BLOCKED', label: 'Blocked (Non-Recoverable)', rate: 5 },
+  { value: "STANDARD_RATED", label: "Standard Rated (5%)", rate: 5 },
+  { value: "ZERO_RATED", label: "Zero Rated (0%)", rate: 0 },
+  { value: "EXEMPT", label: "Exempt", rate: 0 },
+  { value: "OUT_OF_SCOPE", label: "Out of Scope", rate: 0 },
+  { value: "REVERSE_CHARGE", label: "Reverse Charge", rate: 5 },
+  { value: "BLOCKED", label: "Blocked (Non-Recoverable)", rate: 5 },
 ];
 
 // Supplier Bill Status (from proto)
 const SUPPLIER_BILL_STATUSES = [
-  { value: 'DRAFT', label: 'Draft' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'APPROVED', label: 'Approved' },
-  { value: 'PAID', label: 'Paid' },
-  { value: 'PARTIALLY_PAID', label: 'Partially Paid' },
-  { value: 'CANCELLED', label: 'Cancelled' },
-  { value: 'DISPUTED', label: 'Disputed' },
+  { value: "DRAFT", label: "Draft" },
+  { value: "PENDING", label: "Pending" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "PAID", label: "Paid" },
+  { value: "PARTIALLY_PAID", label: "Partially Paid" },
+  { value: "CANCELLED", label: "Cancelled" },
+  { value: "DISPUTED", label: "Disputed" },
 ];
 
 // Currencies
 const CURRENCIES = [
-  { value: 'AED', label: 'AED' },
-  { value: 'USD', label: 'USD' },
-  { value: 'EUR', label: 'EUR' },
-  { value: 'GBP', label: 'GBP' },
-  { value: 'INR', label: 'INR' },
+  { value: "AED", label: "AED" },
+  { value: "USD", label: "USD" },
+  { value: "EUR", label: "EUR" },
+  { value: "GBP", label: "GBP" },
+  { value: "INR", label: "INR" },
 ];
 
 // Units of measure
 const UNITS = [
-  { value: 'PCS', label: 'PCS' },
-  { value: 'MT', label: 'MT' },
-  { value: 'KG', label: 'KG' },
-  { value: 'M', label: 'M' },
-  { value: 'SQM', label: 'SQM' },
-  { value: 'BOX', label: 'BOX' },
+  { value: "PCS", label: "PCS" },
+  { value: "MT", label: "MT" },
+  { value: "KG", label: "KG" },
+  { value: "M", label: "M" },
+  { value: "SQM", label: "SQM" },
+  { value: "BOX", label: "BOX" },
 ];
 
 // Blocked VAT Reasons (from proto)
 const BLOCKED_VAT_REASONS = [
-  { value: 'ENTERTAINMENT', label: 'Entertainment' },
-  { value: 'EMPLOYEE_BENEFITS', label: 'Employee Benefits' },
-  { value: 'MOTOR_VEHICLE', label: 'Motor Vehicle' },
-  { value: 'NON_BUSINESS', label: 'Non-Business' },
-  { value: 'MISSING_DOCUMENTATION', label: 'Missing Documentation' },
-  { value: 'OTHER_BLOCKED', label: 'Other' },
+  { value: "ENTERTAINMENT", label: "Entertainment" },
+  { value: "EMPLOYEE_BENEFITS", label: "Employee Benefits" },
+  { value: "MOTOR_VEHICLE", label: "Motor Vehicle" },
+  { value: "NON_BUSINESS", label: "Non-Business" },
+  { value: "MISSING_DOCUMENTATION", label: "Missing Documentation" },
+  { value: "OTHER_BLOCKED", label: "Other" },
 ];
 
 // Empty item template
 const createEmptyItem = () => ({
   id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   productId: null,
-  productName: '',
-  description: '',
+  productName: "",
+  description: "",
   quantity: 1,
-  unit: 'PCS',
+  unit: "PCS",
   unitPrice: 0,
   amount: 0,
   vatRate: 5,
   vatAmount: 0,
-  vatCategory: 'STANDARD_RATED',
+  vatCategory: "STANDARD_RATED",
   isBlockedVat: false,
-  blockedReason: '',
-  costCenter: '',
-  glAccount: '',
+  blockedReason: "",
+  costCenter: "",
+  glAccount: "",
 });
 
 /**
  * SupplierBillForm - Form for create/edit supplier bills (Phase 2c)
  * Supports both modal mode (with props) and standalone page mode (via URL routing)
  */
-export function SupplierBillForm({
-  supplierBill: supplierBillProp,
-  companyId: companyIdProp,
-  onSave,
-  onClose,
-}) {
+export function SupplierBillForm({ supplierBill: supplierBillProp, companyId: companyIdProp, onSave, onClose }) {
   const { isDarkMode } = useTheme();
   const { user } = useAuth();
   const { id: routeId } = useParams();
@@ -116,8 +105,7 @@ export function SupplierBillForm({
 
   // Determine mode: standalone (via URL) or modal (via props)
   const isStandaloneMode = !onClose; // If no onClose prop, we're in standalone mode
-  const effectiveCompanyId =
-    companyIdProp || user?.company_id || user?.companyId;
+  const effectiveCompanyId = companyIdProp || user?.company_id || user?.companyId;
 
   // Track bill loaded from API for standalone edit mode
   const [loadedBill, setLoadedBill] = useState(null);
@@ -125,23 +113,23 @@ export function SupplierBillForm({
   const isEditing = Boolean(supplierBill?.id) || Boolean(routeId);
 
   const [formData, setFormData] = useState({
-    billNumber: '',
-    supplierInvoiceNumber: '',
-    receivedDate: new Date().toISOString().split('T')[0],
-    supplierId: '',
-    supplierName: '',
-    supplierTrn: '',
-    supplierAddress: '',
-    billDate: new Date().toISOString().split('T')[0],
-    dueDate: '',
-    purchaseOrderNumber: '',
-    purchaseOrderId: '',
-    importOrderId: '',
-    placeOfSupply: 'AE-DU',
+    billNumber: "",
+    supplierInvoiceNumber: "",
+    receivedDate: new Date().toISOString().split("T")[0],
+    supplierId: "",
+    supplierName: "",
+    supplierTrn: "",
+    supplierAddress: "",
+    billDate: new Date().toISOString().split("T")[0],
+    dueDate: "",
+    purchaseOrderNumber: "",
+    purchaseOrderId: "",
+    importOrderId: "",
+    placeOfSupply: "AE-DU",
     subtotal: 0,
     vatAmount: 0,
     total: 0,
-    primaryVatCategory: 'STANDARD_RATED',
+    primaryVatCategory: "STANDARD_RATED",
     standardRatedAmount: 0,
     standardRatedVat: 0,
     zeroRatedAmount: 0,
@@ -150,14 +138,14 @@ export function SupplierBillForm({
     recoverableVat: 0,
     isReverseCharge: false,
     reverseChargeVat: 0,
-    currency: 'AED',
+    currency: "AED",
     exchangeRate: 1,
     totalAed: 0,
-    attachmentUrl: '',
-    status: 'DRAFT',
-    approvalNotes: '',
-    notes: '',
-    internalNotes: '',
+    attachmentUrl: "",
+    status: "DRAFT",
+    approvalNotes: "",
+    notes: "",
+    internalNotes: "",
     items: [createEmptyItem()],
   });
 
@@ -177,8 +165,8 @@ export function SupplierBillForm({
           const bill = await supplierBillService.getById(routeId);
           setLoadedBill(bill);
         } catch (err) {
-          console.error('Failed to load supplier bill:', err);
-          setError('Failed to load supplier bill');
+          console.error("Failed to load supplier bill:", err);
+          setError("Failed to load supplier bill");
         } finally {
           setLoading(false);
         }
@@ -192,113 +180,57 @@ export function SupplierBillForm({
     if (supplierBill && supplierBill.id) {
       // Map supplier bill data to form fields
       setFormData({
-        billNumber: supplierBill.billNumber || supplierBill.bill_number || '',
-        supplierInvoiceNumber:
-          supplierBill.supplierInvoiceNumber ||
-          supplierBill.supplier_invoice_number ||
-          '',
-        receivedDate:
-          supplierBill.receivedDate ||
-          supplierBill.received_date ||
-          new Date().toISOString().split('T')[0],
-        supplierId: String(
-          supplierBill.supplierId || supplierBill.supplier_id || '',
-        ),
-        supplierName:
-          supplierBill.supplierName || supplierBill.supplier_name || '',
-        supplierTrn:
-          supplierBill.supplierTrn || supplierBill.supplier_trn || '',
-        supplierAddress:
-          supplierBill.supplierAddress || supplierBill.supplier_address || '',
-        billDate:
-          supplierBill.billDate ||
-          supplierBill.bill_date ||
-          new Date().toISOString().split('T')[0],
-        dueDate: supplierBill.dueDate || supplierBill.due_date || '',
-        purchaseOrderNumber:
-          supplierBill.purchaseOrderNumber ||
-          supplierBill.purchase_order_number ||
-          '',
-        purchaseOrderId: String(
-          supplierBill.purchaseOrderId || supplierBill.purchase_order_id || '',
-        ),
-        importOrderId: String(
-          supplierBill.importOrderId || supplierBill.import_order_id || '',
-        ),
-        placeOfSupply:
-          supplierBill.placeOfSupply || supplierBill.place_of_supply || 'AE-DU',
+        billNumber: supplierBill.billNumber || supplierBill.bill_number || "",
+        supplierInvoiceNumber: supplierBill.supplierInvoiceNumber || supplierBill.supplier_invoice_number || "",
+        receivedDate: supplierBill.receivedDate || supplierBill.received_date || new Date().toISOString().split("T")[0],
+        supplierId: String(supplierBill.supplierId || supplierBill.supplier_id || ""),
+        supplierName: supplierBill.supplierName || supplierBill.supplier_name || "",
+        supplierTrn: supplierBill.supplierTrn || supplierBill.supplier_trn || "",
+        supplierAddress: supplierBill.supplierAddress || supplierBill.supplier_address || "",
+        billDate: supplierBill.billDate || supplierBill.bill_date || new Date().toISOString().split("T")[0],
+        dueDate: supplierBill.dueDate || supplierBill.due_date || "",
+        purchaseOrderNumber: supplierBill.purchaseOrderNumber || supplierBill.purchase_order_number || "",
+        purchaseOrderId: String(supplierBill.purchaseOrderId || supplierBill.purchase_order_id || ""),
+        importOrderId: String(supplierBill.importOrderId || supplierBill.import_order_id || ""),
+        placeOfSupply: supplierBill.placeOfSupply || supplierBill.place_of_supply || "AE-DU",
         subtotal: parseFloat(supplierBill.subtotal || 0),
-        vatAmount: parseFloat(
-          supplierBill.vatAmount || supplierBill.vat_amount || 0,
-        ),
+        vatAmount: parseFloat(supplierBill.vatAmount || supplierBill.vat_amount || 0),
         total: parseFloat(supplierBill.total || 0),
-        primaryVatCategory:
-          supplierBill.primaryVatCategory ||
-          supplierBill.primary_vat_category ||
-          'STANDARD_RATED',
-        standardRatedAmount: parseFloat(
-          supplierBill.standardRatedAmount ||
-            supplierBill.standard_rated_amount ||
-            0,
-        ),
-        standardRatedVat: parseFloat(
-          supplierBill.standardRatedVat || supplierBill.standard_rated_vat || 0,
-        ),
-        zeroRatedAmount: parseFloat(
-          supplierBill.zeroRatedAmount || supplierBill.zero_rated_amount || 0,
-        ),
-        exemptAmount: parseFloat(
-          supplierBill.exemptAmount || supplierBill.exempt_amount || 0,
-        ),
-        blockedVatAmount: parseFloat(
-          supplierBill.blockedVatAmount || supplierBill.blocked_vat_amount || 0,
-        ),
-        recoverableVat: parseFloat(
-          supplierBill.recoverableVat || supplierBill.recoverable_vat || 0,
-        ),
-        isReverseCharge:
-          supplierBill.isReverseCharge ||
-          supplierBill.is_reverse_charge ||
-          false,
-        reverseChargeVat: parseFloat(
-          supplierBill.reverseChargeVat || supplierBill.reverse_charge_vat || 0,
-        ),
-        currency: supplierBill.currency || 'AED',
-        exchangeRate: parseFloat(
-          supplierBill.exchangeRate || supplierBill.exchange_rate || 1,
-        ),
-        totalAed: parseFloat(
-          supplierBill.totalAed || supplierBill.total_aed || 0,
-        ),
-        attachmentUrl:
-          supplierBill.attachmentUrl || supplierBill.attachment_url || '',
-        status: supplierBill.status || 'DRAFT',
-        approvalNotes:
-          supplierBill.approvalNotes || supplierBill.approval_notes || '',
-        notes: supplierBill.notes || '',
-        internalNotes:
-          supplierBill.internalNotes || supplierBill.internal_notes || '',
+        primaryVatCategory: supplierBill.primaryVatCategory || supplierBill.primary_vat_category || "STANDARD_RATED",
+        standardRatedAmount: parseFloat(supplierBill.standardRatedAmount || supplierBill.standard_rated_amount || 0),
+        standardRatedVat: parseFloat(supplierBill.standardRatedVat || supplierBill.standard_rated_vat || 0),
+        zeroRatedAmount: parseFloat(supplierBill.zeroRatedAmount || supplierBill.zero_rated_amount || 0),
+        exemptAmount: parseFloat(supplierBill.exemptAmount || supplierBill.exempt_amount || 0),
+        blockedVatAmount: parseFloat(supplierBill.blockedVatAmount || supplierBill.blocked_vat_amount || 0),
+        recoverableVat: parseFloat(supplierBill.recoverableVat || supplierBill.recoverable_vat || 0),
+        isReverseCharge: supplierBill.isReverseCharge || supplierBill.is_reverse_charge || false,
+        reverseChargeVat: parseFloat(supplierBill.reverseChargeVat || supplierBill.reverse_charge_vat || 0),
+        currency: supplierBill.currency || "AED",
+        exchangeRate: parseFloat(supplierBill.exchangeRate || supplierBill.exchange_rate || 1),
+        totalAed: parseFloat(supplierBill.totalAed || supplierBill.total_aed || 0),
+        attachmentUrl: supplierBill.attachmentUrl || supplierBill.attachment_url || "",
+        status: supplierBill.status || "DRAFT",
+        approvalNotes: supplierBill.approvalNotes || supplierBill.approval_notes || "",
+        notes: supplierBill.notes || "",
+        internalNotes: supplierBill.internalNotes || supplierBill.internal_notes || "",
         items:
           Array.isArray(supplierBill.items) && supplierBill.items.length > 0
             ? supplierBill.items.map((item) => ({
-                id:
-                  item.id ||
-                  `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                id: item.id || `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 productId: item.productId || item.product_id || null,
-                productName: item.productName || item.product_name || '',
-                description: item.description || '',
+                productName: item.productName || item.product_name || "",
+                description: item.description || "",
                 quantity: parseFloat(item.quantity || 1),
                 unit: normalizeUom(item),
                 unitPrice: parseFloat(item.unitPrice || item.unit_price || 0),
                 amount: parseFloat(item.amount || 0),
                 vatRate: parseFloat(item.vatRate || item.vat_rate || 5),
                 vatAmount: parseFloat(item.vatAmount || item.vat_amount || 0),
-                vatCategory:
-                  item.vatCategory || item.vat_category || 'STANDARD_RATED',
+                vatCategory: item.vatCategory || item.vat_category || "STANDARD_RATED",
                 isBlockedVat: item.isBlockedVat || item.is_blocked_vat || false,
-                blockedReason: item.blockedReason || item.blocked_reason || '',
-                costCenter: item.costCenter || item.cost_center || '',
-                glAccount: item.glAccount || item.gl_account || '',
+                blockedReason: item.blockedReason || item.blocked_reason || "",
+                costCenter: item.costCenter || item.cost_center || "",
+                glAccount: item.glAccount || item.gl_account || "",
               }))
             : [createEmptyItem()],
       });
@@ -319,7 +251,7 @@ export function SupplierBillForm({
         const poArray = posRes?.purchaseOrders || posRes;
         setPurchaseOrders(Array.isArray(poArray) ? poArray : []);
       } catch (err) {
-        console.error('Failed to load form data:', err);
+        console.error("Failed to load form data:", err);
         setSuppliers([]);
         setPurchaseOrders([]);
       } finally {
@@ -337,7 +269,7 @@ export function SupplierBillForm({
       dueDate.setDate(dueDate.getDate() + 30);
       setFormData((prev) => ({
         ...prev,
-        dueDate: dueDate.toISOString().split('T')[0],
+        dueDate: dueDate.toISOString().split("T")[0],
       }));
     }
   }, [formData.billDate, isEditing]);
@@ -359,12 +291,12 @@ export function SupplierBillForm({
       totalVatAmount += vatAmount;
 
       // Categorize by VAT type
-      if (item.vatCategory === 'STANDARD_RATED') {
+      if (item.vatCategory === "STANDARD_RATED") {
         standardRatedAmount += amount;
         standardRatedVat += vatAmount;
-      } else if (item.vatCategory === 'ZERO_RATED') {
+      } else if (item.vatCategory === "ZERO_RATED") {
         zeroRatedAmount += amount;
-      } else if (item.vatCategory === 'EXEMPT') {
+      } else if (item.vatCategory === "EXEMPT") {
         exemptAmount += amount;
       }
 
@@ -376,8 +308,7 @@ export function SupplierBillForm({
     const recoverableVat = totalVatAmount - blockedVatAmount;
     const reverseChargeVat = formData.isReverseCharge ? totalVatAmount : 0;
     const total = subtotal + totalVatAmount;
-    const totalAed =
-      formData.currency === 'AED' ? total : total * formData.exchangeRate;
+    const totalAed = formData.currency === "AED" ? total : total * formData.exchangeRate;
 
     setFormData((prev) => ({
       ...prev,
@@ -393,34 +324,29 @@ export function SupplierBillForm({
       reverseChargeVat: parseFloat(reverseChargeVat.toFixed(2)),
       totalAed: parseFloat(totalAed.toFixed(2)),
     }));
-  }, [
-    formData.items,
-    formData.isReverseCharge,
-    formData.currency,
-    formData.exchangeRate,
-  ]);
+  }, [formData.items, formData.isReverseCharge, formData.currency, formData.exchangeRate]);
 
   // Populate form when editing
   useEffect(() => {
     if (supplierBill) {
       setFormData({
-        billNumber: supplierBill.billNumber || '',
-        supplierInvoiceNumber: supplierBill.supplierInvoiceNumber || '',
-        receivedDate: supplierBill.receivedDate?.split('T')[0] || '',
-        supplierId: supplierBill.supplierId?.toString() || '',
-        supplierName: supplierBill.supplierName || '',
-        supplierTrn: supplierBill.supplierTrn || '',
-        supplierAddress: supplierBill.supplierAddress || '',
-        billDate: supplierBill.billDate?.split('T')[0] || '',
-        dueDate: supplierBill.dueDate?.split('T')[0] || '',
-        purchaseOrderNumber: supplierBill.purchaseOrderNumber || '',
-        purchaseOrderId: supplierBill.purchaseOrderId?.toString() || '',
-        importOrderId: supplierBill.importOrderId?.toString() || '',
-        placeOfSupply: supplierBill.placeOfSupply || 'AE-DU',
+        billNumber: supplierBill.billNumber || "",
+        supplierInvoiceNumber: supplierBill.supplierInvoiceNumber || "",
+        receivedDate: supplierBill.receivedDate?.split("T")[0] || "",
+        supplierId: supplierBill.supplierId?.toString() || "",
+        supplierName: supplierBill.supplierName || "",
+        supplierTrn: supplierBill.supplierTrn || "",
+        supplierAddress: supplierBill.supplierAddress || "",
+        billDate: supplierBill.billDate?.split("T")[0] || "",
+        dueDate: supplierBill.dueDate?.split("T")[0] || "",
+        purchaseOrderNumber: supplierBill.purchaseOrderNumber || "",
+        purchaseOrderId: supplierBill.purchaseOrderId?.toString() || "",
+        importOrderId: supplierBill.importOrderId?.toString() || "",
+        placeOfSupply: supplierBill.placeOfSupply || "AE-DU",
         subtotal: supplierBill.subtotal || 0,
         vatAmount: supplierBill.vatAmount || 0,
         total: supplierBill.total || 0,
-        primaryVatCategory: supplierBill.primaryVatCategory || 'STANDARD_RATED',
+        primaryVatCategory: supplierBill.primaryVatCategory || "STANDARD_RATED",
         standardRatedAmount: supplierBill.standardRatedAmount || 0,
         standardRatedVat: supplierBill.standardRatedVat || 0,
         zeroRatedAmount: supplierBill.zeroRatedAmount || 0,
@@ -429,18 +355,15 @@ export function SupplierBillForm({
         recoverableVat: supplierBill.recoverableVat || 0,
         isReverseCharge: supplierBill.isReverseCharge || false,
         reverseChargeVat: supplierBill.reverseChargeVat || 0,
-        currency: supplierBill.currency || 'AED',
+        currency: supplierBill.currency || "AED",
         exchangeRate: supplierBill.exchangeRate || 1,
         totalAed: supplierBill.totalAed || 0,
-        attachmentUrl: supplierBill.attachmentUrl || '',
-        status: supplierBill.status || 'DRAFT',
-        approvalNotes: supplierBill.approvalNotes || '',
-        notes: supplierBill.notes || '',
-        internalNotes: supplierBill.internalNotes || '',
-        items:
-          supplierBill.items && supplierBill.items.length > 0
-            ? supplierBill.items
-            : [createEmptyItem()],
+        attachmentUrl: supplierBill.attachmentUrl || "",
+        status: supplierBill.status || "DRAFT",
+        approvalNotes: supplierBill.approvalNotes || "",
+        notes: supplierBill.notes || "",
+        internalNotes: supplierBill.internalNotes || "",
+        items: supplierBill.items && supplierBill.items.length > 0 ? supplierBill.items : [createEmptyItem()],
       });
     }
   }, [supplierBill]);
@@ -459,9 +382,9 @@ export function SupplierBillForm({
       setFormData((prev) => ({
         ...prev,
         supplierId,
-        supplierName: supplier.name || '',
-        supplierTrn: supplier.trnNumber || '',
-        supplierAddress: supplier.address || '',
+        supplierName: supplier.name || "",
+        supplierTrn: supplier.trnNumber || "",
+        supplierAddress: supplier.address || "",
       }));
     }
   };
@@ -473,25 +396,22 @@ export function SupplierBillForm({
       newItems[index] = { ...newItems[index], [field]: value };
 
       // Auto-calculate amount and VAT
-      if (field === 'quantity' || field === 'unitPrice') {
+      if (field === "quantity" || field === "unitPrice") {
         const quantity = parseFloat(newItems[index].quantity) || 0;
         const unitPrice = parseFloat(newItems[index].unitPrice) || 0;
         newItems[index].amount = quantity * unitPrice;
-        newItems[index].vatAmount =
-          (newItems[index].amount * newItems[index].vatRate) / 100;
+        newItems[index].vatAmount = (newItems[index].amount * newItems[index].vatRate) / 100;
       }
 
-      if (field === 'vatRate') {
-        newItems[index].vatAmount =
-          (newItems[index].amount * parseFloat(value)) / 100;
+      if (field === "vatRate") {
+        newItems[index].vatAmount = (newItems[index].amount * parseFloat(value)) / 100;
       }
 
-      if (field === 'vatCategory') {
+      if (field === "vatCategory") {
         const category = VAT_CATEGORIES.find((c) => c.value === value);
         if (category) {
           newItems[index].vatRate = category.rate;
-          newItems[index].vatAmount =
-            (newItems[index].amount * category.rate) / 100;
+          newItems[index].vatAmount = (newItems[index].amount * category.rate) / 100;
         }
       }
 
@@ -508,7 +428,7 @@ export function SupplierBillForm({
 
   const handleRemoveItem = (index) => {
     if (formData.items.length === 1) {
-      setError('At least one item is required');
+      setError("At least one item is required");
       return;
     }
     setFormData((prev) => ({
@@ -520,22 +440,22 @@ export function SupplierBillForm({
   const validate = () => {
     const errors = {};
     if (!formData.supplierInvoiceNumber.trim()) {
-      errors.supplierInvoiceNumber = 'Supplier invoice number is required';
+      errors.supplierInvoiceNumber = "Supplier invoice number is required";
     }
     if (!formData.supplierId) {
-      errors.supplierId = 'Supplier is required';
+      errors.supplierId = "Supplier is required";
     }
     if (!formData.billDate) {
-      errors.billDate = 'Bill date is required';
+      errors.billDate = "Bill date is required";
     }
     if (!formData.dueDate) {
-      errors.dueDate = 'Due date is required';
+      errors.dueDate = "Due date is required";
     }
     if (formData.items.length === 0) {
-      errors.items = 'At least one item is required';
+      errors.items = "At least one item is required";
     }
     if (formData.total <= 0) {
-      errors.total = 'Total must be greater than zero';
+      errors.total = "Total must be greater than zero";
     }
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -544,7 +464,7 @@ export function SupplierBillForm({
   // Handle close action (navigate in standalone mode, call prop in modal mode)
   const handleClose = () => {
     if (isStandaloneMode) {
-      navigate('/app/supplier-bills');
+      navigate("/app/supplier-bills");
     } else if (onClose) {
       onClose();
     }
@@ -566,12 +486,8 @@ export function SupplierBillForm({
         billDate: formData.billDate || null,
         dueDate: formData.dueDate || null,
         purchaseOrderNumber: formData.purchaseOrderNumber.trim(),
-        purchaseOrderId: formData.purchaseOrderId
-          ? parseInt(formData.purchaseOrderId)
-          : null,
-        importOrderId: formData.importOrderId
-          ? parseInt(formData.importOrderId)
-          : null,
+        purchaseOrderId: formData.purchaseOrderId ? parseInt(formData.purchaseOrderId) : null,
+        importOrderId: formData.importOrderId ? parseInt(formData.importOrderId) : null,
         placeOfSupply: formData.placeOfSupply,
         primaryVatCategory: formData.primaryVatCategory,
         isReverseCharge: formData.isReverseCharge,
@@ -608,28 +524,26 @@ export function SupplierBillForm({
 
       // In standalone mode, navigate to list after save
       if (isStandaloneMode) {
-        navigate('/app/supplier-bills');
+        navigate("/app/supplier-bills");
       } else if (onSave) {
         onSave(result);
       }
     } catch (err) {
-      console.error('Failed to save supplier bill:', err);
-      setError(err.message || 'Failed to save supplier bill');
+      console.error("Failed to save supplier bill:", err);
+      setError(err.message || "Failed to save supplier bill");
     } finally {
       setSaving(false);
     }
   };
 
   // CSS classes for consistent styling
-  const labelClass = `text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`;
-  const inputClass = `${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`;
+  const labelClass = `text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
+  const inputClass = `${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`;
 
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div
-          className={`p-8 rounded-xl ${isDarkMode ? 'bg-[#1E2328]' : 'bg-white'}`}
-        >
+        <div className={`p-8 rounded-xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}>
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       </div>
@@ -640,62 +554,42 @@ export function SupplierBillForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div
         className={`w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
-          isDarkMode ? 'bg-[#1E2328] text-white' : 'bg-white text-gray-900'
+          isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
         }`}
       >
         {/* Header */}
         <div
           className={`sticky top-0 flex items-center justify-between p-4 border-b ${
-            isDarkMode
-              ? 'bg-[#1E2328] border-gray-700'
-              : 'bg-white border-gray-200'
+            isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"
           }`}
         >
-          <h2 className="text-xl font-semibold">
-            {isEditing ? 'Edit Supplier Bill' : 'Create Supplier Bill'}
-          </h2>
+          <h2 className="text-xl font-semibold">{isEditing ? "Edit Supplier Bill" : "Create Supplier Bill"}</h2>
           <button
             onClick={handleClose}
-            className={`p-2 rounded-lg hover:bg-gray-100 ${
-              isDarkMode ? 'hover:bg-gray-700' : ''
-            }`}
+            className={`p-2 rounded-lg hover:bg-gray-100 ${isDarkMode ? "hover:bg-gray-700" : ""}`}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 space-y-6"
-          data-testid="supplier-bill-form"
-        >
-          {error && (
-            <div className="p-4 bg-red-50 text-red-800 rounded-lg border border-red-200">
-              {error}
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6" data-testid="supplier-bill-form">
+          {error && <div className="p-4 bg-red-50 text-red-800 rounded-lg border border-red-200">{error}</div>}
 
           {/* Bill Identification - Collapsed */}
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Bill Identification
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Bill Identification</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className={labelClass}>
-                    Bill Number {isEditing && '(readonly)'}
-                  </Label>
+                  <Label className={labelClass}>Bill Number {isEditing && "(readonly)"}</Label>
                   <Input
                     value={formData.billNumber}
                     disabled={true}
@@ -705,23 +599,18 @@ export function SupplierBillForm({
                 </div>
                 <div>
                   <Label className={labelClass}>
-                    Vendor Invoice Number{' '}
-                    <span className="text-red-500">*</span>
+                    Vendor Invoice Number <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     name="supplierInvoiceNumber"
                     data-testid="supplier-invoice-number"
                     value={formData.supplierInvoiceNumber}
-                    onChange={(e) =>
-                      handleChange('supplierInvoiceNumber', e.target.value)
-                    }
+                    onChange={(e) => handleChange("supplierInvoiceNumber", e.target.value)}
                     placeholder="Supplier's invoice number"
                     className={inputClass}
                   />
                   {validationErrors.supplierInvoiceNumber && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {validationErrors.supplierInvoiceNumber}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.supplierInvoiceNumber}</p>
                   )}
                 </div>
                 <div>
@@ -729,9 +618,7 @@ export function SupplierBillForm({
                   <Input
                     type="date"
                     value={formData.receivedDate}
-                    onChange={(e) =>
-                      handleChange('receivedDate', e.target.value)
-                    }
+                    onChange={(e) => handleChange("receivedDate", e.target.value)}
                     className={inputClass}
                   />
                 </div>
@@ -743,14 +630,10 @@ export function SupplierBillForm({
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Supplier Details
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Supplier Details</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
@@ -759,64 +642,39 @@ export function SupplierBillForm({
                   <Label className={labelClass}>
                     Supplier <span className="text-red-500">*</span>
                   </Label>
-                  <Select
-                    value={formData.supplierId}
-                    onValueChange={handleSupplierChange}
-                  >
-                    <SelectTrigger
-                      className={inputClass}
-                      data-testid="supplier-select"
-                    >
+                  <Select value={formData.supplierId} onValueChange={handleSupplierChange}>
+                    <SelectTrigger className={inputClass} data-testid="supplier-select">
                       <SelectValue placeholder="Select supplier" />
                     </SelectTrigger>
                     <SelectContent>
                       {suppliers.map((supplier) => (
-                        <SelectItem
-                          key={supplier.id}
-                          value={supplier.id.toString()}
-                        >
+                        <SelectItem key={supplier.id} value={supplier.id.toString()}>
                           {supplier.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   {validationErrors.supplierId && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {validationErrors.supplierId}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.supplierId}</p>
                   )}
                 </div>
                 <div>
                   <Label className={labelClass}>Supplier Name</Label>
-                  <Input
-                    value={formData.supplierName}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Input value={formData.supplierName} disabled className={inputClass} />
                 </div>
                 <div>
                   <Label className={labelClass}>Supplier TRN</Label>
-                  <Input
-                    value={formData.supplierTrn}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Input value={formData.supplierTrn} disabled className={inputClass} />
                 </div>
                 <div className="md:col-span-2">
                   <Label className={labelClass}>Supplier Address</Label>
-                  <Input
-                    value={formData.supplierAddress}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Input value={formData.supplierAddress} disabled className={inputClass} />
                 </div>
                 <div>
                   <Label className={labelClass}>Purchase Order</Label>
                   <Select
                     value={formData.purchaseOrderId}
-                    onValueChange={(value) =>
-                      handleChange('purchaseOrderId', value)
-                    }
+                    onValueChange={(value) => handleChange("purchaseOrderId", value)}
                   >
                     <SelectTrigger className={inputClass}>
                       <SelectValue placeholder="Select PO (optional)" />
@@ -838,14 +696,10 @@ export function SupplierBillForm({
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Dates & References
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Dates & References</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
@@ -859,13 +713,11 @@ export function SupplierBillForm({
                     data-testid="bill-date"
                     type="date"
                     value={formData.billDate}
-                    onChange={(e) => handleChange('billDate', e.target.value)}
+                    onChange={(e) => handleChange("billDate", e.target.value)}
                     className={inputClass}
                   />
                   {validationErrors.billDate && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {validationErrors.billDate}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.billDate}</p>
                   )}
                 </div>
                 <div>
@@ -877,22 +729,16 @@ export function SupplierBillForm({
                     data-testid="due-date"
                     type="date"
                     value={formData.dueDate}
-                    onChange={(e) => handleChange('dueDate', e.target.value)}
+                    onChange={(e) => handleChange("dueDate", e.target.value)}
                     className={inputClass}
                   />
-                  {validationErrors.dueDate && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {validationErrors.dueDate}
-                    </p>
-                  )}
+                  {validationErrors.dueDate && <p className="text-red-500 text-sm mt-1">{validationErrors.dueDate}</p>}
                 </div>
                 <div>
                   <Label className={labelClass}>Purchase Order Number</Label>
                   <Input
                     value={formData.purchaseOrderNumber}
-                    onChange={(e) =>
-                      handleChange('purchaseOrderNumber', e.target.value)
-                    }
+                    onChange={(e) => handleChange("purchaseOrderNumber", e.target.value)}
                     className={inputClass}
                   />
                 </div>
@@ -901,9 +747,7 @@ export function SupplierBillForm({
                   <Input
                     type="number"
                     value={formData.importOrderId}
-                    onChange={(e) =>
-                      handleChange('importOrderId', e.target.value)
-                    }
+                    onChange={(e) => handleChange("importOrderId", e.target.value)}
                     placeholder="Optional"
                     className={inputClass}
                   />
@@ -912,9 +756,7 @@ export function SupplierBillForm({
                   <Label className={labelClass}>Place of Supply</Label>
                   <Select
                     value={formData.placeOfSupply}
-                    onValueChange={(value) =>
-                      handleChange('placeOfSupply', value)
-                    }
+                    onValueChange={(value) => handleChange("placeOfSupply", value)}
                   >
                     <SelectTrigger className={inputClass}>
                       <SelectValue />
@@ -936,14 +778,10 @@ export function SupplierBillForm({
           <details open className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Bill Items
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Bill Items</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
@@ -951,9 +789,7 @@ export function SupplierBillForm({
                 <div
                   key={item.id}
                   className={`p-4 rounded-lg border ${
-                    isDarkMode
-                      ? 'border-gray-700 bg-gray-800'
-                      : 'border-gray-200 bg-gray-50'
+                    isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"
                   }`}
                 >
                   <div className="flex justify-between items-start mb-4">
@@ -972,9 +808,7 @@ export function SupplierBillForm({
                       <Label className={labelClass}>Product Name</Label>
                       <Input
                         value={item.productName}
-                        onChange={(e) =>
-                          handleItemChange(index, 'productName', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "productName", e.target.value)}
                         className={inputClass}
                         data-testid={`item-product-${index}`}
                       />
@@ -983,9 +817,7 @@ export function SupplierBillForm({
                       <Label className={labelClass}>Description</Label>
                       <Input
                         value={item.description}
-                        onChange={(e) =>
-                          handleItemChange(index, 'description', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "description", e.target.value)}
                         className={inputClass}
                         data-testid={`item-description-${index}`}
                       />
@@ -996,21 +828,14 @@ export function SupplierBillForm({
                         type="number"
                         step="0.01"
                         value={item.quantity}
-                        onChange={(e) =>
-                          handleItemChange(index, 'quantity', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
                         className={inputClass}
                         data-testid={`item-quantity-${index}`}
                       />
                     </div>
                     <div>
                       <Label className={labelClass}>Unit</Label>
-                      <Select
-                        value={item.unit}
-                        onValueChange={(value) =>
-                          handleItemChange(index, 'unit', value)
-                        }
-                      >
+                      <Select value={item.unit} onValueChange={(value) => handleItemChange(index, "unit", value)}>
                         <SelectTrigger className={inputClass}>
                           <SelectValue />
                         </SelectTrigger>
@@ -1029,9 +854,7 @@ export function SupplierBillForm({
                         type="number"
                         step="0.01"
                         value={item.unitPrice}
-                        onChange={(e) =>
-                          handleItemChange(index, 'unitPrice', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "unitPrice", e.target.value)}
                         className={inputClass}
                         data-testid={`item-unit-price-${index}`}
                       />
@@ -1040,9 +863,7 @@ export function SupplierBillForm({
                       <Label className={labelClass}>VAT Category</Label>
                       <Select
                         value={item.vatCategory}
-                        onValueChange={(value) =>
-                          handleItemChange(index, 'vatCategory', value)
-                        }
+                        onValueChange={(value) => handleItemChange(index, "vatCategory", value)}
                       >
                         <SelectTrigger className={inputClass}>
                           <SelectValue />
@@ -1062,41 +883,23 @@ export function SupplierBillForm({
                         type="number"
                         step="0.01"
                         value={item.vatRate}
-                        onChange={(e) =>
-                          handleItemChange(index, 'vatRate', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "vatRate", e.target.value)}
                         className={inputClass}
                       />
                     </div>
                     <div>
                       <Label className={labelClass}>Amount (readonly)</Label>
-                      <Input
-                        value={item.amount.toFixed(2)}
-                        disabled
-                        className={inputClass}
-                      />
+                      <Input value={item.amount.toFixed(2)} disabled className={inputClass} />
                     </div>
                     <div>
-                      <Label className={labelClass}>
-                        VAT Amount (readonly)
-                      </Label>
-                      <Input
-                        value={item.vatAmount.toFixed(2)}
-                        disabled
-                        className={inputClass}
-                      />
+                      <Label className={labelClass}>VAT Amount (readonly)</Label>
+                      <Input value={item.vatAmount.toFixed(2)} disabled className={inputClass} />
                     </div>
                     <div className="flex items-center gap-2 pt-6">
                       <input
                         type="checkbox"
                         checked={item.isBlockedVat}
-                        onChange={(e) =>
-                          handleItemChange(
-                            index,
-                            'isBlockedVat',
-                            e.target.checked,
-                          )
-                        }
+                        onChange={(e) => handleItemChange(index, "isBlockedVat", e.target.checked)}
                       />
                       <span className="text-sm">Blocked VAT</span>
                     </div>
@@ -1105,19 +908,14 @@ export function SupplierBillForm({
                         <Label className={labelClass}>Blocked Reason</Label>
                         <Select
                           value={item.blockedReason}
-                          onValueChange={(value) =>
-                            handleItemChange(index, 'blockedReason', value)
-                          }
+                          onValueChange={(value) => handleItemChange(index, "blockedReason", value)}
                         >
                           <SelectTrigger className={inputClass}>
                             <SelectValue placeholder="Select reason" />
                           </SelectTrigger>
                           <SelectContent>
                             {BLOCKED_VAT_REASONS.map((reason) => (
-                              <SelectItem
-                                key={reason.value}
-                                value={reason.value}
-                              >
+                              <SelectItem key={reason.value} value={reason.value}>
                                 {reason.label}
                               </SelectItem>
                             ))}
@@ -1129,9 +927,7 @@ export function SupplierBillForm({
                       <Label className={labelClass}>Cost Center</Label>
                       <Input
                         value={item.costCenter}
-                        onChange={(e) =>
-                          handleItemChange(index, 'costCenter', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "costCenter", e.target.value)}
                         className={inputClass}
                       />
                     </div>
@@ -1139,22 +935,14 @@ export function SupplierBillForm({
                       <Label className={labelClass}>GL Account</Label>
                       <Input
                         value={item.glAccount}
-                        onChange={(e) =>
-                          handleItemChange(index, 'glAccount', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "glAccount", e.target.value)}
                         className={inputClass}
                       />
                     </div>
                   </div>
                 </div>
               ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddItem}
-                className="w-full"
-                data-testid="add-item"
-              >
+              <Button type="button" variant="outline" onClick={handleAddItem} className="w-full" data-testid="add-item">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Item
               </Button>
@@ -1165,14 +953,10 @@ export function SupplierBillForm({
           <details open className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                VAT Breakdown
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>VAT Breakdown</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
@@ -1181,14 +965,9 @@ export function SupplierBillForm({
                   <Label className={labelClass}>Primary VAT Category</Label>
                   <Select
                     value={formData.primaryVatCategory}
-                    onValueChange={(value) =>
-                      handleChange('primaryVatCategory', value)
-                    }
+                    onValueChange={(value) => handleChange("primaryVatCategory", value)}
                   >
-                    <SelectTrigger
-                      className={inputClass}
-                      data-testid="vat-category"
-                    >
+                    <SelectTrigger className={inputClass} data-testid="vat-category">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1201,62 +980,28 @@ export function SupplierBillForm({
                   </Select>
                 </div>
                 <div>
-                  <Label className={labelClass}>
-                    Standard Rated Amount (readonly)
-                  </Label>
-                  <Input
-                    value={formData.standardRatedAmount.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Label className={labelClass}>Standard Rated Amount (readonly)</Label>
+                  <Input value={formData.standardRatedAmount.toFixed(2)} disabled className={inputClass} />
                 </div>
                 <div>
-                  <Label className={labelClass}>
-                    Standard Rated VAT (readonly)
-                  </Label>
-                  <Input
-                    value={formData.standardRatedVat.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Label className={labelClass}>Standard Rated VAT (readonly)</Label>
+                  <Input value={formData.standardRatedVat.toFixed(2)} disabled className={inputClass} />
                 </div>
                 <div>
-                  <Label className={labelClass}>
-                    Zero Rated Amount (readonly)
-                  </Label>
-                  <Input
-                    value={formData.zeroRatedAmount.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Label className={labelClass}>Zero Rated Amount (readonly)</Label>
+                  <Input value={formData.zeroRatedAmount.toFixed(2)} disabled className={inputClass} />
                 </div>
                 <div>
                   <Label className={labelClass}>Exempt Amount (readonly)</Label>
-                  <Input
-                    value={formData.exemptAmount.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Input value={formData.exemptAmount.toFixed(2)} disabled className={inputClass} />
                 </div>
                 <div>
-                  <Label className={labelClass}>
-                    Blocked VAT Amount (readonly)
-                  </Label>
-                  <Input
-                    value={formData.blockedVatAmount.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Label className={labelClass}>Blocked VAT Amount (readonly)</Label>
+                  <Input value={formData.blockedVatAmount.toFixed(2)} disabled className={inputClass} />
                 </div>
                 <div>
-                  <Label className={labelClass}>
-                    Recoverable VAT (readonly)
-                  </Label>
-                  <Input
-                    value={formData.recoverableVat.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Label className={labelClass}>Recoverable VAT (readonly)</Label>
+                  <Input value={formData.recoverableVat.toFixed(2)} disabled className={inputClass} />
                 </div>
               </div>
             </div>
@@ -1266,26 +1011,17 @@ export function SupplierBillForm({
           <details open className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Financial Summary
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Financial Summary</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className={labelClass}>Subtotal (readonly)</Label>
-                  <Input
-                    data-testid="subtotal"
-                    value={formData.subtotal.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Input data-testid="subtotal" value={formData.subtotal.toFixed(2)} disabled className={inputClass} />
                 </div>
                 <div>
                   <Label className={labelClass}>Total VAT (readonly)</Label>
@@ -1298,12 +1034,7 @@ export function SupplierBillForm({
                 </div>
                 <div>
                   <Label className={labelClass}>Total (readonly)</Label>
-                  <Input
-                    data-testid="total"
-                    value={formData.total.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Input data-testid="total" value={formData.total.toFixed(2)} disabled className={inputClass} />
                 </div>
               </div>
               <div className="pt-4 border-t">
@@ -1311,35 +1042,21 @@ export function SupplierBillForm({
                   <input
                     type="checkbox"
                     checked={formData.isReverseCharge}
-                    onChange={(e) =>
-                      handleChange('isReverseCharge', e.target.checked)
-                    }
+                    onChange={(e) => handleChange("isReverseCharge", e.target.checked)}
                   />
-                  <span className="text-sm font-medium">
-                    Reverse Charge (Import)
-                  </span>
+                  <span className="text-sm font-medium">Reverse Charge (Import)</span>
                 </div>
                 {formData.isReverseCharge && (
                   <div>
-                    <Label className={labelClass}>
-                      Reverse Charge VAT (readonly)
-                    </Label>
-                    <Input
-                      value={formData.reverseChargeVat.toFixed(2)}
-                      disabled
-                      className={inputClass}
-                    />
+                    <Label className={labelClass}>Reverse Charge VAT (readonly)</Label>
+                    <Input value={formData.reverseChargeVat.toFixed(2)} disabled className={inputClass} />
                   </div>
                 )}
               </div>
-              {formData.currency !== 'AED' && (
+              {formData.currency !== "AED" && (
                 <div>
                   <Label className={labelClass}>Total AED (readonly)</Label>
-                  <Input
-                    value={formData.totalAed.toFixed(2)}
-                    disabled
-                    className={inputClass}
-                  />
+                  <Input value={formData.totalAed.toFixed(2)} disabled className={inputClass} />
                 </div>
               )}
             </div>
@@ -1349,24 +1066,17 @@ export function SupplierBillForm({
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Currency & Exchange
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Currency & Exchange</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className={labelClass}>Currency</Label>
-                  <Select
-                    value={formData.currency}
-                    onValueChange={(value) => handleChange('currency', value)}
-                  >
+                  <Select value={formData.currency} onValueChange={(value) => handleChange("currency", value)}>
                     <SelectTrigger className={inputClass}>
                       <SelectValue />
                     </SelectTrigger>
@@ -1385,9 +1095,7 @@ export function SupplierBillForm({
                     type="number"
                     step="0.0001"
                     value={formData.exchangeRate}
-                    onChange={(e) =>
-                      handleChange('exchangeRate', e.target.value)
-                    }
+                    onChange={(e) => handleChange("exchangeRate", e.target.value)}
                     className={inputClass}
                   />
                 </div>
@@ -1399,14 +1107,10 @@ export function SupplierBillForm({
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Attachments
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Attachments</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
@@ -1414,9 +1118,7 @@ export function SupplierBillForm({
                 <Label className={labelClass}>Attachment URL</Label>
                 <Input
                   value={formData.attachmentUrl}
-                  onChange={(e) =>
-                    handleChange('attachmentUrl', e.target.value)
-                  }
+                  onChange={(e) => handleChange("attachmentUrl", e.target.value)}
                   placeholder="URL or file path"
                   className={inputClass}
                 />
@@ -1428,24 +1130,17 @@ export function SupplierBillForm({
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Approval & Status
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Approval & Status</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className={labelClass}>Status</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(value) => handleChange('status', value)}
-                  >
+                  <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
                     <SelectTrigger className={inputClass}>
                       <SelectValue />
                     </SelectTrigger>
@@ -1462,9 +1157,7 @@ export function SupplierBillForm({
                   <Label className={labelClass}>Approval Notes</Label>
                   <Textarea
                     value={formData.approvalNotes}
-                    onChange={(e) =>
-                      handleChange('approvalNotes', e.target.value)
-                    }
+                    onChange={(e) => handleChange("approvalNotes", e.target.value)}
                     className={inputClass}
                     rows={3}
                   />
@@ -1477,14 +1170,10 @@ export function SupplierBillForm({
           <details className="border rounded-lg overflow-hidden">
             <summary
               className={`cursor-pointer p-4 flex justify-between items-center ${
-                isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                isDarkMode ? "bg-gray-800" : "bg-gray-50"
               }`}
             >
-              <h3
-                className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
-              >
-                Notes
-              </h3>
+              <h3 className={`font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Notes</h3>
               <ChevronDown className="w-5 h-5" />
             </summary>
             <div className="p-4 space-y-4">
@@ -1492,7 +1181,7 @@ export function SupplierBillForm({
                 <Label className={labelClass}>Notes</Label>
                 <Textarea
                   value={formData.notes}
-                  onChange={(e) => handleChange('notes', e.target.value)}
+                  onChange={(e) => handleChange("notes", e.target.value)}
                   placeholder="Public notes"
                   className={inputClass}
                   rows={3}
@@ -1502,9 +1191,7 @@ export function SupplierBillForm({
                 <Label className={labelClass}>Internal Notes</Label>
                 <Textarea
                   value={formData.internalNotes}
-                  onChange={(e) =>
-                    handleChange('internalNotes', e.target.value)
-                  }
+                  onChange={(e) => handleChange("internalNotes", e.target.value)}
                   placeholder="Internal notes (not visible to vendor)"
                   className={inputClass}
                   rows={3}

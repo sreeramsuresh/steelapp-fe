@@ -51,10 +51,7 @@ describe("trnService", () => {
 
       expect(result.is_valid).toBe(true);
       expect(result.is_active).toBe(true);
-      expect(api.post).toHaveBeenCalledWith(
-        "/trn/validate",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/trn/validate", expect.any(Object));
     });
 
     it("should reject invalid TRN format", async () => {

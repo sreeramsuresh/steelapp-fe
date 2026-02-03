@@ -17,7 +17,7 @@
  * }, { enabled: true });
  */
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from "react";
 
 /**
  * Parse a shortcut string into its components
@@ -25,15 +25,15 @@ import { useEffect, useCallback, useRef } from 'react';
  * @returns {Object} { key, ctrl, shift, alt, meta }
  */
 const parseShortcut = (shortcut) => {
-  const parts = shortcut.toLowerCase().split('+');
+  const parts = shortcut.toLowerCase().split("+");
   const key = parts[parts.length - 1];
 
   return {
     key,
-    ctrl: parts.includes('ctrl') || parts.includes('control'),
-    shift: parts.includes('shift'),
-    alt: parts.includes('alt'),
-    meta: parts.includes('meta') || parts.includes('cmd'),
+    ctrl: parts.includes("ctrl") || parts.includes("control"),
+    shift: parts.includes("shift"),
+    alt: parts.includes("alt"),
+    meta: parts.includes("meta") || parts.includes("cmd"),
   };
 };
 
@@ -52,10 +52,10 @@ const matchesShortcut = (event, parsedShortcut) => {
   // Handle special keys
   const keyMatches =
     eventKey === parsedShortcut.key ||
-    (parsedShortcut.key === 'escape' && eventKey === 'escape') ||
-    (parsedShortcut.key === 'esc' && eventKey === 'escape') ||
-    (parsedShortcut.key === 'enter' && eventKey === 'enter') ||
-    (parsedShortcut.key === 'tab' && eventKey === 'tab');
+    (parsedShortcut.key === "escape" && eventKey === "escape") ||
+    (parsedShortcut.key === "esc" && eventKey === "escape") ||
+    (parsedShortcut.key === "enter" && eventKey === "enter") ||
+    (parsedShortcut.key === "tab" && eventKey === "tab");
 
   return (
     keyMatches &&
@@ -75,11 +75,7 @@ const isEditableElement = (target) => {
   if (!target || !target.tagName) return false;
 
   const tagName = target.tagName.toLowerCase();
-  const isEditable =
-    tagName === 'input' ||
-    tagName === 'textarea' ||
-    tagName === 'select' ||
-    target.isContentEditable;
+  const isEditable = tagName === "input" || tagName === "textarea" || tagName === "select" || target.isContentEditable;
 
   return isEditable;
 };
@@ -95,11 +91,7 @@ const isEditableElement = (target) => {
  */
 const useKeyboardShortcuts = (
   shortcuts = {},
-  {
-    enabled = true,
-    enableInInputs = false,
-    allowInInputs = ['escape', 'esc'],
-  } = {},
+  { enabled = true, enableInInputs = false, allowInInputs = ["escape", "esc"] } = {}
 ) => {
   // Store shortcuts in ref to avoid re-registering on every render
   const shortcutsRef = useRef(shortcuts);
@@ -114,7 +106,7 @@ const useKeyboardShortcuts = (
       parsedShortcutsRef.current.set(shortcut, parseShortcut(shortcut));
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Object.keys(shortcuts).join(',')]); // parseShortcut is stable
+  }, [Object.keys(shortcuts).join(",")]); // parseShortcut is stable
 
   const handleKeyDown = useCallback(
     (event) => {
@@ -130,9 +122,7 @@ const useKeyboardShortcuts = (
           // 2. This specific shortcut is in allowInInputs
           if (isEditable && !enableInInputs) {
             const shortcutLower = shortcutKey.toLowerCase();
-            const isAllowed = allowInInputs.some((allowed) =>
-              shortcutLower.includes(allowed.toLowerCase()),
-            );
+            const isAllowed = allowInInputs.some((allowed) => shortcutLower.includes(allowed.toLowerCase()));
             if (!isAllowed) continue;
           }
 
@@ -142,7 +132,7 @@ const useKeyboardShortcuts = (
 
           // Execute the callback
           const callback = shortcutsRef.current[shortcutKey];
-          if (typeof callback === 'function') {
+          if (typeof callback === "function") {
             callback(event);
           }
 
@@ -150,18 +140,18 @@ const useKeyboardShortcuts = (
         }
       }
     },
-    [enabled, enableInInputs, allowInInputs],
+    [enabled, enableInInputs, allowInInputs]
   );
 
   useEffect(() => {
     if (!enabled) return;
 
     // Add listener to document for global capture within the component
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     // Cleanup on unmount or when disabled
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [enabled, handleKeyDown]);
 };
@@ -172,46 +162,44 @@ const useKeyboardShortcuts = (
  * @returns {string} - e.g., 'Ctrl+S' or '⌘S' on Mac
  */
 export const getShortcutDisplayString = (shortcut) => {
-  const isMac =
-    typeof navigator !== 'undefined' &&
-    /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
-  const parts = shortcut.toLowerCase().split('+');
+  const parts = shortcut.toLowerCase().split("+");
   const displayParts = parts.map((part) => {
     switch (part) {
-      case 'ctrl':
-      case 'control':
-        return isMac ? '⌘' : 'Ctrl';
-      case 'shift':
-        return isMac ? '⇧' : 'Shift';
-      case 'alt':
-        return isMac ? '⌥' : 'Alt';
-      case 'meta':
-      case 'cmd':
-        return isMac ? '⌘' : 'Win';
-      case 'escape':
-      case 'esc':
-        return 'Esc';
-      case 'enter':
-        return '↵';
+      case "ctrl":
+      case "control":
+        return isMac ? "⌘" : "Ctrl";
+      case "shift":
+        return isMac ? "⇧" : "Shift";
+      case "alt":
+        return isMac ? "⌥" : "Alt";
+      case "meta":
+      case "cmd":
+        return isMac ? "⌘" : "Win";
+      case "escape":
+      case "esc":
+        return "Esc";
+      case "enter":
+        return "↵";
       default:
         return part.toUpperCase();
     }
   });
 
-  return isMac ? displayParts.join('') : displayParts.join('+');
+  return isMac ? displayParts.join("") : displayParts.join("+");
 };
 
 /**
  * Predefined shortcut sets for common use cases
  */
 export const INVOICE_SHORTCUTS = {
-  SAVE: 'ctrl+s',
-  PREVIEW: 'ctrl+p',
-  NEW_ITEM: 'ctrl+n',
-  DUPLICATE_ITEM: 'ctrl+d',
-  CLOSE: 'escape',
-  HELP: 'ctrl+/',
+  SAVE: "ctrl+s",
+  PREVIEW: "ctrl+p",
+  NEW_ITEM: "ctrl+n",
+  DUPLICATE_ITEM: "ctrl+d",
+  CLOSE: "escape",
+  HELP: "ctrl+/",
 };
 
 export default useKeyboardShortcuts;

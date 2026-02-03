@@ -3,28 +3,24 @@
  * Tests payment recording, allocation, reconciliation, and balance updates
  */
 
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import React from 'react';
-import {
-  findButtonByRole,
-  assertSuccessToast,
-  assertFormErrorAppears,
-} from '../../test/utils';
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { describe, expect, it } from "vitest";
+import { assertFormErrorAppears, assertSuccessToast, findButtonByRole } from "../../test/utils";
 
-describe('Payment Processing Feature', () => {
-  describe('Recording Payments', () => {
-    it('should record full payment against invoice', async () => {
+describe("Payment Processing Feature", () => {
+  describe("Recording Payments", () => {
+    it("should record full payment against invoice", async () => {
       const MockPaymentForm = () => {
         const [invoiceAmount] = React.useState(5000);
         const [paymentAmount, setPaymentAmount] = React.useState(0);
-        const [status, setStatus] = React.useState('unpaid');
+        const [status, setStatus] = React.useState("unpaid");
         const [saved, setSaved] = React.useState(false);
 
         const handleRecordPayment = () => {
           if (paymentAmount === invoiceAmount) {
-            setStatus('paid');
+            setStatus("paid");
             setSaved(true);
           }
         };
@@ -40,26 +36,24 @@ describe('Payment Processing Feature', () => {
             />
             <div>Status: {status}</div>
             <button onClick={handleRecordPayment}>Record Payment</button>
-            {saved && (
-              <div className="alert-success">Payment recorded successfully</div>
-            )}
+            {saved && <div className="alert-success">Payment recorded successfully</div>}
           </>
         );
       };
 
       render(<MockPaymentForm />);
 
-      const input = screen.getByPlaceholderText('Payment Amount');
-      await userEvent.type(input, '5000');
+      const input = screen.getByPlaceholderText("Payment Amount");
+      await userEvent.type(input, "5000");
 
-      const recordBtn = findButtonByRole('Record Payment');
+      const recordBtn = findButtonByRole("Record Payment");
       await userEvent.click(recordBtn);
 
       await assertSuccessToast(/Payment recorded/i);
-      expect(screen.getByText('Status: paid')).toBeInTheDocument();
+      expect(screen.getByText("Status: paid")).toBeInTheDocument();
     });
 
-    it('should record partial payment against invoice', async () => {
+    it("should record partial payment against invoice", async () => {
       const MockPartialPayment = () => {
         const [invoiceAmount] = React.useState(5000);
         const [paidAmount, setPaidAmount] = React.useState(0);
@@ -73,12 +67,7 @@ describe('Payment Processing Feature', () => {
         };
 
         const remainingAmount = invoiceAmount - paidAmount;
-        const status =
-          remainingAmount === 0
-            ? 'paid'
-            : remainingAmount < invoiceAmount
-              ? 'partially paid'
-              : 'unpaid';
+        const status = remainingAmount === 0 ? "paid" : remainingAmount < invoiceAmount ? "partially paid" : "unpaid";
 
         return (
           <>
@@ -93,40 +82,36 @@ describe('Payment Processing Feature', () => {
               placeholder="Payment Amount"
             />
             <button onClick={handleRecordPayment}>Record Payment</button>
-            {saved && (
-              <div className="alert-success">Partial payment recorded</div>
-            )}
+            {saved && <div className="alert-success">Partial payment recorded</div>}
           </>
         );
       };
 
       render(<MockPartialPayment />);
 
-      expect(screen.getByText('Status: unpaid')).toBeInTheDocument();
+      expect(screen.getByText("Status: unpaid")).toBeInTheDocument();
 
       // First partial payment
-      const input = screen.getByPlaceholderText('Payment Amount');
-      await userEvent.type(input, '2000');
+      const input = screen.getByPlaceholderText("Payment Amount");
+      await userEvent.type(input, "2000");
 
-      const recordBtn = findButtonByRole('Record Payment');
+      const recordBtn = findButtonByRole("Record Payment");
       await userEvent.click(recordBtn);
 
-      expect(screen.getByText('Paid: 2000')).toBeInTheDocument();
-      expect(screen.getByText('Remaining: 3000')).toBeInTheDocument();
-      expect(screen.getByText('Status: partially paid')).toBeInTheDocument();
+      expect(screen.getByText("Paid: 2000")).toBeInTheDocument();
+      expect(screen.getByText("Remaining: 3000")).toBeInTheDocument();
+      expect(screen.getByText("Status: partially paid")).toBeInTheDocument();
     });
 
-    it('should prevent overpayment against invoice', async () => {
+    it("should prevent overpayment against invoice", async () => {
       const MockOverpaymentCheck = () => {
         const [invoiceAmount] = React.useState(5000);
         const [paymentAmount, setPaymentAmount] = React.useState(0);
-        const [error, setError] = React.useState('');
+        const [error, setError] = React.useState("");
 
         const handleRecordPayment = () => {
           if (paymentAmount > invoiceAmount) {
-            setError(
-              `Cannot record payment of ${paymentAmount} against invoice of ${invoiceAmount}`,
-            );
+            setError(`Cannot record payment of ${paymentAmount} against invoice of ${invoiceAmount}`);
           }
         };
 
@@ -147,18 +132,18 @@ describe('Payment Processing Feature', () => {
 
       render(<MockOverpaymentCheck />);
 
-      const input = screen.getByPlaceholderText('Payment Amount');
-      await userEvent.type(input, '6000');
+      const input = screen.getByPlaceholderText("Payment Amount");
+      await userEvent.type(input, "6000");
 
-      const recordBtn = findButtonByRole('Record Payment');
+      const recordBtn = findButtonByRole("Record Payment");
       await userEvent.click(recordBtn);
 
       expect(screen.getByText(/Cannot record payment/)).toBeInTheDocument();
     });
   });
 
-  describe('Payment Allocation', () => {
-    it('should allocate payment to oldest invoices first (FIFO)', async () => {
+  describe("Payment Allocation", () => {
+    it("should allocate payment to oldest invoices first (FIFO)", async () => {
       const MockPaymentAllocation = () => {
         const [invoices] = React.useState([
           { id: 1, amount: 1000, daysOverdue: 30 },
@@ -169,9 +154,7 @@ describe('Payment Processing Feature', () => {
         const [allocation, setAllocation] = React.useState([]);
 
         const handleAllocate = () => {
-          const sorted = [...invoices].sort(
-            (a, b) => b.daysOverdue - a.daysOverdue,
-          );
+          const sorted = [...invoices].sort((a, b) => b.daysOverdue - a.daysOverdue);
           const alloc = [];
           let remaining = paymentAmount;
 
@@ -203,17 +186,17 @@ describe('Payment Processing Feature', () => {
 
       render(<MockPaymentAllocation />);
 
-      const allocBtn = findButtonByRole('Auto-Allocate Payment');
+      const allocBtn = findButtonByRole("Auto-Allocate Payment");
       await userEvent.click(allocBtn);
 
       // Should allocate 1000 to oldest, then 1200 to second oldest
-      expect(screen.getByText('Invoice 1: 1000')).toBeInTheDocument();
-      expect(screen.getByText('Invoice 2: 1200')).toBeInTheDocument();
+      expect(screen.getByText("Invoice 1: 1000")).toBeInTheDocument();
+      expect(screen.getByText("Invoice 2: 1200")).toBeInTheDocument();
     });
   });
 
-  describe('Customer Balance Updates', () => {
-    it('should update customer balance after payment', async () => {
+  describe("Customer Balance Updates", () => {
+    it("should update customer balance after payment", async () => {
       const MockCustomerBalance = () => {
         const [balance, setBalance] = React.useState(5000);
 
@@ -231,30 +214,28 @@ describe('Payment Processing Feature', () => {
 
       render(<MockCustomerBalance />);
 
-      expect(screen.getByText('Customer Balance: 5000')).toBeInTheDocument();
+      expect(screen.getByText("Customer Balance: 5000")).toBeInTheDocument();
 
-      const paymentBtn = findButtonByRole('Process Payment');
+      const paymentBtn = findButtonByRole("Process Payment");
       await userEvent.click(paymentBtn);
 
-      expect(screen.getByText('Customer Balance: 3000')).toBeInTheDocument();
+      expect(screen.getByText("Customer Balance: 3000")).toBeInTheDocument();
     });
 
-    it('should prevent payment if customer is on credit hold', async () => {
+    it("should prevent payment if customer is on credit hold", async () => {
       const MockCreditHold = () => {
         const [onCreditHold] = React.useState(true);
-        const [error, setError] = React.useState('');
+        const [error, setError] = React.useState("");
 
         const handlePayment = () => {
           if (onCreditHold) {
-            setError(
-              'Customer is on credit hold. Payment cannot be processed.',
-            );
+            setError("Customer is on credit hold. Payment cannot be processed.");
           }
         };
 
         return (
           <>
-            <div>Credit Hold: {onCreditHold ? 'Yes' : 'No'}</div>
+            <div>Credit Hold: {onCreditHold ? "Yes" : "No"}</div>
             {error && <div className="alert-error">{error}</div>}
             <button onClick={handlePayment}>Process Payment</button>
           </>
@@ -263,17 +244,15 @@ describe('Payment Processing Feature', () => {
 
       render(<MockCreditHold />);
 
-      const paymentBtn = findButtonByRole('Process Payment');
+      const paymentBtn = findButtonByRole("Process Payment");
       await userEvent.click(paymentBtn);
 
-      expect(
-        screen.getByText(/Payment cannot be processed/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Payment cannot be processed/)).toBeInTheDocument();
     });
   });
 
-  describe('Payment Reconciliation', () => {
-    it('should reconcile bank statement with recorded payments', async () => {
+  describe("Payment Reconciliation", () => {
+    it("should reconcile bank statement with recorded payments", async () => {
       const MockReconciliation = () => {
         const [bankAmount] = React.useState(5000);
         const [recordedAmount] = React.useState(5000);
@@ -283,8 +262,8 @@ describe('Payment Processing Feature', () => {
           <>
             <div>Bank Statement: {bankAmount}</div>
             <div>Recorded Payments: {recordedAmount}</div>
-            <div className={isReconciled ? 'alert-success' : 'alert-error'}>
-              {isReconciled ? 'Reconciled' : 'Reconciliation mismatch'}
+            <div className={isReconciled ? "alert-success" : "alert-error"}>
+              {isReconciled ? "Reconciled" : "Reconciliation mismatch"}
             </div>
           </>
         );
@@ -295,7 +274,7 @@ describe('Payment Processing Feature', () => {
       expect(screen.getByText(/Reconciled/)).toBeInTheDocument();
     });
 
-    it('should flag unreconciled items', async () => {
+    it("should flag unreconciled items", async () => {
       const MockUnreconciled = () => {
         const [bankAmount] = React.useState(5000);
         const [recordedAmount] = React.useState(4800);
@@ -305,24 +284,22 @@ describe('Payment Processing Feature', () => {
           <>
             <div>Bank: {bankAmount}</div>
             <div>Recorded: {recordedAmount}</div>
-            {difference !== 0 && (
-              <div className="alert-error">Unreconciled: {difference}</div>
-            )}
+            {difference !== 0 && <div className="alert-error">Unreconciled: {difference}</div>}
           </>
         );
       };
 
       render(<MockUnreconciled />);
 
-      expect(screen.getByText('Unreconciled: 200')).toBeInTheDocument();
+      expect(screen.getByText("Unreconciled: 200")).toBeInTheDocument();
     });
   });
 
-  describe('Payment Methods', () => {
-    it('should support multiple payment methods', async () => {
+  describe("Payment Methods", () => {
+    it("should support multiple payment methods", async () => {
       const MockPaymentMethods = () => {
-        const [method, setMethod] = React.useState('');
-        const [reference, setReference] = React.useState('');
+        const [method, setMethod] = React.useState("");
+        const [reference, setReference] = React.useState("");
 
         return (
           <>
@@ -346,14 +323,14 @@ describe('Payment Processing Feature', () => {
 
       render(<MockPaymentMethods />);
 
-      const select = screen.getByDisplayValue('Select Method');
-      await userEvent.selectOptions(select, 'bank_transfer');
+      const select = screen.getByDisplayValue("Select Method");
+      await userEvent.selectOptions(select, "bank_transfer");
 
       const refInput = screen.getByPlaceholderText(/Reference/);
-      await userEvent.type(refInput, 'SWIFT: ABC123XYZ');
+      await userEvent.type(refInput, "SWIFT: ABC123XYZ");
 
-      expect(select.value).toBe('bank_transfer');
-      expect(refInput.value).toBe('SWIFT: ABC123XYZ');
+      expect(select.value).toBe("bank_transfer");
+      expect(refInput.value).toBe("SWIFT: ABC123XYZ");
     });
   });
 });

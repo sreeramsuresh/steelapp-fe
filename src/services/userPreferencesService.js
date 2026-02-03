@@ -1,16 +1,16 @@
-import { userAdminAPI } from './userAdminApi';
+import { userAdminAPI } from "./userAdminApi";
 
 const STORAGE_KEYS = {
-  HOME_SECTION_ORDER: 'steelapp_home_section_order',
+  HOME_SECTION_ORDER: "steelapp_home_section_order",
 };
 
 export const userPreferencesService = {
   getCurrentUser() {
     try {
-      const currentUser = localStorage.getItem('currentUser');
+      const currentUser = localStorage.getItem("currentUser");
       return currentUser ? JSON.parse(currentUser) : null;
     } catch (error) {
-      console.error('Failed to get current user:', error);
+      console.error("Failed to get current user:", error);
       return null;
     }
   },
@@ -23,7 +23,7 @@ export const userPreferencesService = {
     const currentUser = this.getCurrentUser();
     if (currentUser && currentUser.id === userId) {
       const updatedUser = { ...currentUser, permissions: user.permissions };
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
     }
 
     return user;
@@ -34,7 +34,7 @@ export const userPreferencesService = {
       const saved = localStorage.getItem(STORAGE_KEYS.HOME_SECTION_ORDER);
       return saved ? JSON.parse(saved) : null;
     } catch (error) {
-      console.warn('Failed to load section order from localStorage:', error);
+      console.warn("Failed to load section order from localStorage:", error);
       return null;
     }
   },
@@ -43,7 +43,7 @@ export const userPreferencesService = {
     try {
       localStorage.setItem(STORAGE_KEYS.HOME_SECTION_ORDER, JSON.stringify(order));
     } catch (error) {
-      console.warn('Failed to save section order to localStorage:', error);
+      console.warn("Failed to save section order to localStorage:", error);
     }
   },
 };

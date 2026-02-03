@@ -9,7 +9,7 @@
  *   const name = getProductDisplayName(product);
  */
 
-import { assertProductDomain } from './productContract.js';
+import { assertProductDomain } from "./productContract.js";
 
 /**
  * Convert camelCase to snake_case
@@ -27,7 +27,7 @@ export const toSnakeCase = (str) => {
  * @returns {any} Field value or undefined
  */
 export const safeField = (obj, camelCase) => {
-  if (!obj || typeof obj !== 'object') return undefined;
+  if (!obj || typeof obj !== "object") return undefined;
   if (obj[camelCase] !== undefined) return obj[camelCase];
   const snakeCase = toSnakeCase(camelCase);
   return obj[snakeCase];
@@ -40,15 +40,8 @@ export const safeField = (obj, camelCase) => {
  * @returns {string} Display name or empty string
  */
 export const getProductDisplayName = (product) => {
-  if (!product) return '';
-  return (
-    product.displayName ||
-    product.display_name ||
-    product.fullName ||
-    product.full_name ||
-    product.name ||
-    ''
-  );
+  if (!product) return "";
+  return product.displayName || product.display_name || product.fullName || product.full_name || product.name || "";
 };
 
 /**
@@ -58,15 +51,8 @@ export const getProductDisplayName = (product) => {
  * @returns {string} Full name or empty string
  */
 export const getProductFullName = (product) => {
-  if (!product) return '';
-  return (
-    product.fullName ||
-    product.full_name ||
-    product.displayName ||
-    product.display_name ||
-    product.name ||
-    ''
-  );
+  if (!product) return "";
+  return product.fullName || product.full_name || product.displayName || product.display_name || product.name || "";
 };
 
 /**
@@ -75,18 +61,12 @@ export const getProductFullName = (product) => {
  * @param {'selling' | 'cost'} type - Price type (default: 'selling')
  * @returns {number} Price value or 0
  */
-export const getPrice = (product, type = 'selling') => {
+export const getPrice = (product, type = "selling") => {
   if (!product) return 0;
-  if (type === 'selling') {
+  if (type === "selling") {
     return product.sellingPrice ?? product.selling_price ?? product.price ?? 0;
   }
-  return (
-    product.costPrice ??
-    product.cost_price ??
-    product.purchasePrice ??
-    product.purchase_price ??
-    0
-  );
+  return product.costPrice ?? product.cost_price ?? product.purchasePrice ?? product.purchase_price ?? 0;
 };
 
 /**
@@ -97,14 +77,8 @@ export const getPrice = (product, type = 'selling') => {
 export const getStock = (product) => {
   if (!product) return { current: 0, min: 0, max: 0 };
   return {
-    current:
-      product.currentStock ?? product.current_stock ?? product.quantity ?? 0,
-    min:
-      product.minStock ??
-      product.min_stock ??
-      product.reorderLevel ??
-      product.reorder_level ??
-      0,
+    current: product.currentStock ?? product.current_stock ?? product.quantity ?? 0,
+    min: product.minStock ?? product.min_stock ?? product.reorderLevel ?? product.reorder_level ?? 0,
     max: product.maxStock ?? product.max_stock ?? 0,
   };
 };
@@ -115,7 +89,7 @@ export const getStock = (product) => {
  * @param {'createdAt' | 'updatedAt' | 'deletedAt'} field - Timestamp field name
  * @returns {string | null} ISO timestamp string or null
  */
-export const getTimestamp = (obj, field = 'createdAt') => {
+export const getTimestamp = (obj, field = "createdAt") => {
   if (!obj) return null;
   const snakeCase = toSnakeCase(field);
   return obj[field] || obj[snakeCase] || null;
@@ -130,14 +104,13 @@ export const getCustomerFields = (customer) => {
   if (!customer) return {};
   return {
     id: customer.id,
-    name: customer.name || customer.companyName || customer.company_name || '',
-    email: customer.email || '',
-    phone:
-      customer.phone || customer.phoneNumber || customer.phone_number || '',
+    name: customer.name || customer.companyName || customer.company_name || "",
+    email: customer.email || "",
+    phone: customer.phone || customer.phoneNumber || customer.phone_number || "",
     creditLimit: customer.creditLimit ?? customer.credit_limit ?? 0,
     currentCredit: customer.currentCredit ?? customer.current_credit ?? 0,
-    paymentTerms: customer.paymentTerms || customer.payment_terms || '',
-    trnNumber: customer.trnNumber || customer.trn_number || '',
+    paymentTerms: customer.paymentTerms || customer.payment_terms || "",
+    trnNumber: customer.trnNumber || customer.trn_number || "",
   };
 };
 
@@ -150,10 +123,10 @@ export const getInvoiceFields = (invoice) => {
   if (!invoice) return {};
   return {
     id: invoice.id,
-    invoiceNumber: invoice.invoiceNumber || invoice.invoice_number || '',
+    invoiceNumber: invoice.invoiceNumber || invoice.invoice_number || "",
     customerId: invoice.customerId ?? invoice.customer_id,
-    status: invoice.status || '',
-    paymentStatus: invoice.paymentStatus || invoice.payment_status || '',
+    status: invoice.status || "",
+    paymentStatus: invoice.paymentStatus || invoice.payment_status || "",
     deliveryStatus: invoice.deliveryStatus || invoice.delivery_status || null,
     subtotal: invoice.subtotal ?? 0,
     vatAmount: invoice.vatAmount ?? invoice.vat_amount ?? 0,
@@ -175,9 +148,9 @@ export const normalizeProduct = (product) => {
   if (!product) return null;
 
   // Extract display/full/unique name with fallback chain
-  const displayName = product.displayName || product.display_name || '';
-  const fullName = product.fullName || product.full_name || '';
-  const uniqueName = product.uniqueName || product.unique_name || '';
+  const displayName = product.displayName || product.display_name || "";
+  const fullName = product.fullName || product.full_name || "";
+  const uniqueName = product.uniqueName || product.unique_name || "";
 
   // Step 1: Normalize snake_case → camelCase
   const normalized = {
@@ -187,7 +160,7 @@ export const normalizeProduct = (product) => {
     fullName,
     uniqueName,
     // Provide a default name for the contract guard
-    name: product.name || displayName || fullName || uniqueName || '',
+    name: product.name || displayName || fullName || uniqueName || "",
     // Price fields
     sellingPrice: product.sellingPrice ?? product.selling_price ?? 0,
     costPrice: product.costPrice ?? product.cost_price ?? 0,
@@ -196,21 +169,21 @@ export const normalizeProduct = (product) => {
     minStock: product.minStock ?? product.min_stock ?? 0,
     maxStock: product.maxStock ?? product.max_stock ?? 0,
     // Size fields
-    sizeInch: product.sizeInch || product.size_inch || '',
+    sizeInch: product.sizeInch || product.size_inch || "",
     // Origin
-    origin: product.origin || 'UAE',
+    origin: product.origin || "UAE",
     // BUGFIX: Critical fields for unit conversion & auto-pricing
     unitWeightKg: product.unitWeightKg ?? product.unit_weight_kg ?? null,
     piecesPerMt: product.piecesPerMt ?? product.pieces_per_mt ?? null,
-    productCategory: product.productCategory || product.product_category || '',
+    productCategory: product.productCategory || product.product_category || "",
     pricingBasis: product.pricingBasis ?? product.pricing_basis ?? null,
     primaryUom: product.primaryUom ?? product.primary_uom ?? null,
-    form: product.form || '',
+    form: product.form || "",
     // Additional dimension fields
-    thickness: product.thickness || '',
-    width: product.width || '',
-    length: product.length || '',
-    diameter: product.diameter || '',
+    thickness: product.thickness || "",
+    width: product.width || "",
+    length: product.length || "",
+    diameter: product.diameter || "",
   };
 
   // Step 2: Remove snake_case keys to prevent normalization leaks
@@ -245,24 +218,24 @@ export const normalizeProduct = (product) => {
  */
 export const normalizeUom = (itemOrUnit) => {
   let rawUom;
-  if (typeof itemOrUnit === 'string') {
+  if (typeof itemOrUnit === "string") {
     rawUom = itemOrUnit;
-  } else if (itemOrUnit && typeof itemOrUnit === 'object') {
+  } else if (itemOrUnit && typeof itemOrUnit === "object") {
     rawUom =
       itemOrUnit.unit ||
       itemOrUnit.unit_of_measure ||
       itemOrUnit.unitOfMeasure ||
       itemOrUnit.quantity_uom ||
       itemOrUnit.quantityUom ||
-      '';
+      "";
   } else {
-    rawUom = '';
+    rawUom = "";
   }
 
-  if (rawUom.startsWith('UNIT_OF_MEASURE_')) {
-    return rawUom.replace('UNIT_OF_MEASURE_', '');
+  if (rawUom.startsWith("UNIT_OF_MEASURE_")) {
+    return rawUom.replace("UNIT_OF_MEASURE_", "");
   }
-  return rawUom || 'PCS';
+  return rawUom || "PCS";
 };
 
 export default {

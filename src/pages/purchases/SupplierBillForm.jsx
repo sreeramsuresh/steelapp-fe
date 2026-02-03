@@ -5,143 +5,139 @@
  * Supports VAT categories, reverse charge, blocked VAT, and line items.
  */
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft,
-  Save,
-  Plus,
-  Trash2,
   AlertTriangle,
-  Loader2,
+  ArrowLeft,
   Building2,
   FileText,
-  Package,
-  Settings,
-  X,
-  Pin,
-  Ship,
-  Scale,
   Layers,
   Link2,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import supplierBillService from '../../services/supplierBillService';
-import { supplierService } from '../../services/supplierService';
-import { productService } from '../../services/productService';
-import { notificationService } from '../../services/notificationService';
-import { pinnedProductsService } from '../../services/pinnedProductsService';
-import { grnService } from '../../services/grnService';
-import { importContainerService } from '../../services/importContainerService';
-import {
-  formatCurrency,
-  formatDateForInput,
-  calculateItemAmount,
-} from '../../utils/invoiceUtils';
-import { FormSelect } from '../../components/ui/form-select';
-import { SelectItem } from '../../components/ui/select';
+  Loader2,
+  Package,
+  Pin,
+  Plus,
+  Save,
+  Scale,
+  Settings,
+  Ship,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { FormSelect } from "../../components/ui/form-select";
+import { SelectItem } from "../../components/ui/select";
+import { useTheme } from "../../contexts/ThemeContext";
+import { grnService } from "../../services/grnService";
+import { importContainerService } from "../../services/importContainerService";
+import { notificationService } from "../../services/notificationService";
+import { pinnedProductsService } from "../../services/pinnedProductsService";
+import { productService } from "../../services/productService";
+import supplierBillService from "../../services/supplierBillService";
+import { supplierService } from "../../services/supplierService";
+import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
 
 // Procurement channels
 const PROCUREMENT_CHANNELS = [
-  { value: 'LOCAL', label: 'Local Purchase' },
-  { value: 'IMPORTED', label: 'Import Purchase' },
+  { value: "LOCAL", label: "Local Purchase" },
+  { value: "IMPORTED", label: "Import Purchase" },
 ];
 
 // UAE Emirates for place of supply
 const EMIRATES = [
-  { value: 'AE-AZ', label: 'Abu Dhabi' },
-  { value: 'AE-DU', label: 'Dubai' },
-  { value: 'AE-SH', label: 'Sharjah' },
-  { value: 'AE-AJ', label: 'Ajman' },
-  { value: 'AE-UQ', label: 'Umm Al Quwain' },
-  { value: 'AE-RK', label: 'Ras Al Khaimah' },
-  { value: 'AE-FU', label: 'Fujairah' },
+  { value: "AE-AZ", label: "Abu Dhabi" },
+  { value: "AE-DU", label: "Dubai" },
+  { value: "AE-SH", label: "Sharjah" },
+  { value: "AE-AJ", label: "Ajman" },
+  { value: "AE-UQ", label: "Umm Al Quwain" },
+  { value: "AE-RK", label: "Ras Al Khaimah" },
+  { value: "AE-FU", label: "Fujairah" },
 ];
 
 // VAT categories
 const VAT_CATEGORIES = [
-  { value: 'STANDARD', label: 'Standard Rate (5%)', rate: 5 },
-  { value: 'ZERO_RATED', label: 'Zero Rated (0%)', rate: 0 },
-  { value: 'EXEMPT', label: 'Exempt', rate: 0 },
-  { value: 'REVERSE_CHARGE', label: 'Reverse Charge', rate: 5 },
-  { value: 'BLOCKED', label: 'Blocked (Non-Recoverable)', rate: 5 },
+  { value: "STANDARD", label: "Standard Rate (5%)", rate: 5 },
+  { value: "ZERO_RATED", label: "Zero Rated (0%)", rate: 0 },
+  { value: "EXEMPT", label: "Exempt", rate: 0 },
+  { value: "REVERSE_CHARGE", label: "Reverse Charge", rate: 5 },
+  { value: "BLOCKED", label: "Blocked (Non-Recoverable)", rate: 5 },
 ];
 
 // Payment terms
 const PAYMENT_TERMS = [
-  { value: 'immediate', label: 'Immediate' },
-  { value: 'net_7', label: 'Net 7 Days' },
-  { value: 'net_15', label: 'Net 15 Days' },
-  { value: 'net_30', label: 'Net 30 Days' },
-  { value: 'net_45', label: 'Net 45 Days' },
-  { value: 'net_60', label: 'Net 60 Days' },
-  { value: 'net_90', label: 'Net 90 Days' },
+  { value: "immediate", label: "Immediate" },
+  { value: "net_7", label: "Net 7 Days" },
+  { value: "net_15", label: "Net 15 Days" },
+  { value: "net_30", label: "Net 30 Days" },
+  { value: "net_45", label: "Net 45 Days" },
+  { value: "net_60", label: "Net 60 Days" },
+  { value: "net_90", label: "Net 90 Days" },
 ];
 
 // Supported currencies for multi-currency bills
 const CURRENCIES = [
-  { value: 'AED', label: 'AED - UAE Dirham', rate: 1 },
-  { value: 'USD', label: 'USD - US Dollar', rate: 3.6725 },
-  { value: 'EUR', label: 'EUR - Euro', rate: 4.02 },
-  { value: 'GBP', label: 'GBP - British Pound', rate: 4.65 },
-  { value: 'SAR', label: 'SAR - Saudi Riyal', rate: 0.98 },
-  { value: 'CNY', label: 'CNY - Chinese Yuan', rate: 0.51 },
-  { value: 'INR', label: 'INR - Indian Rupee', rate: 0.044 },
+  { value: "AED", label: "AED - UAE Dirham", rate: 1 },
+  { value: "USD", label: "USD - US Dollar", rate: 3.6725 },
+  { value: "EUR", label: "EUR - Euro", rate: 4.02 },
+  { value: "GBP", label: "GBP - British Pound", rate: 4.65 },
+  { value: "SAR", label: "SAR - Saudi Riyal", rate: 0.98 },
+  { value: "CNY", label: "CNY - Chinese Yuan", rate: 0.51 },
+  { value: "INR", label: "INR - Indian Rupee", rate: 0.044 },
 ];
 
 // Blocked VAT reasons (per UAE FTA Article 53)
 const BLOCKED_VAT_REASONS = [
-  { value: 'entertainment', label: 'Entertainment expenses' },
-  { value: 'motor_vehicle', label: 'Motor vehicles (not for business use)' },
-  { value: 'personal_use', label: 'Personal use goods/services' },
-  { value: 'no_tax_invoice', label: 'No valid tax invoice' },
-  { value: 'expired_period', label: 'Claim period expired' },
-  { value: 'other', label: 'Other (specify in notes)' },
+  { value: "entertainment", label: "Entertainment expenses" },
+  { value: "motor_vehicle", label: "Motor vehicles (not for business use)" },
+  { value: "personal_use", label: "Personal use goods/services" },
+  { value: "no_tax_invoice", label: "No valid tax invoice" },
+  { value: "expired_period", label: "Claim period expired" },
+  { value: "other", label: "Other (specify in notes)" },
 ];
 
 // Document types (Phase 2c)
 const DOCUMENT_TYPES = [
-  { value: 'INVOICE', label: 'Invoice' },
-  { value: 'CREDIT_NOTE', label: 'Credit Note' },
-  { value: 'DEBIT_NOTE', label: 'Debit Note' },
-  { value: 'PROFORMA', label: 'Proforma Invoice' },
+  { value: "INVOICE", label: "Invoice" },
+  { value: "CREDIT_NOTE", label: "Credit Note" },
+  { value: "DEBIT_NOTE", label: "Debit Note" },
+  { value: "PROFORMA", label: "Proforma Invoice" },
 ];
 
 // Approval statuses (Phase 2c)
 const APPROVAL_STATUSES = [
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'APPROVED', label: 'Approved' },
-  { value: 'REJECTED', label: 'Rejected' },
+  { value: "PENDING", label: "Pending" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
 ];
 
 // Inspection statuses (Phase 2c)
 const INSPECTION_STATUSES = [
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'PASSED', label: 'Passed' },
-  { value: 'FAILED', label: 'Failed' },
-  { value: 'WAIVED', label: 'Waived' },
+  { value: "PENDING", label: "Pending" },
+  { value: "PASSED", label: "Passed" },
+  { value: "FAILED", label: "Failed" },
+  { value: "WAIVED", label: "Waived" },
 ];
 
 // Empty line item template
 const createEmptyItem = () => ({
   id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   productId: null,
-  description: '',
+  description: "",
   quantity: 1,
   unitPrice: 0,
   amount: 0,
   vatRate: 5,
   vatAmount: 0,
-  vatCategory: 'STANDARD',
-  expenseCategory: '',
+  vatCategory: "STANDARD",
+  expenseCategory: "",
   // Pricing & Commercial Fields
-  pricingBasis: 'PER_MT',
+  pricingBasis: "PER_MT",
   unitWeightKg: null,
-  quantityUom: 'PCS',
+  quantityUom: "PCS",
   theoreticalWeightKg: null,
   missingWeightWarning: false,
   // Stock-In Fields (Phase 5)
-  procurementChannel: 'LOCAL', // LOCAL or IMPORTED
+  procurementChannel: "LOCAL", // LOCAL or IMPORTED
   importContainerId: null, // Link to import container for imported items
   // Weight Variance Fields
   poWeightKg: null, // Weight from PO
@@ -152,63 +148,57 @@ const createEmptyItem = () => ({
   grnLineId: null, // Link to specific GRN line item
   // Batch Creation
   createBatch: true, // Flag to trigger batch creation on approval
-  batchNumber: '', // Pre-assigned batch number if any
+  batchNumber: "", // Pre-assigned batch number if any
 });
 
 // Custom Tailwind Components
 const Button = ({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   disabled = false,
   onClick,
-  className = '',
+  className = "",
   ...props
 }) => {
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
-    if (variant === 'primary') {
+    if (variant === "primary") {
       return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${
-        isDarkMode ? 'bg-gray-600' : 'bg-gray-400'
-      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${
-        isDarkMode ? 'gray-800' : 'white'
-      }`;
-    } else if (variant === 'secondary') {
+        isDarkMode ? "bg-gray-600" : "bg-gray-400"
+      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+    } else if (variant === "secondary") {
       return `${
-        isDarkMode
-          ? 'bg-gray-700 hover:bg-gray-600'
-          : 'bg-gray-200 hover:bg-gray-300'
-      } ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-${
-        isDarkMode ? 'gray-500' : 'gray-400'
-      } disabled:${
-        isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
-      } focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+        isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
+      } ${isDarkMode ? "text-white" : "text-gray-800"} focus:ring-${isDarkMode ? "gray-500" : "gray-400"} disabled:${
+        isDarkMode ? "bg-gray-800" : "bg-gray-100"
+      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
     } else {
       // outline
       return `border ${
         isDarkMode
-          ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-          : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+          : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
       } focus:ring-teal-500 disabled:${
-        isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
-      } focus:ring-offset-${isDarkMode ? 'gray-800' : 'white'}`;
+        isDarkMode ? "bg-gray-800" : "bg-gray-50"
+      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
     }
   };
 
   const sizes = {
-    sm: 'px-2.5 py-1 text-xs',
-    md: 'px-3 py-1.5 text-sm',
-    lg: 'px-4 py-2 text-sm',
+    sm: "px-2.5 py-1 text-xs",
+    md: "px-3 py-1.5 text-sm",
+    lg: "px-4 py-2 text-sm",
   };
 
   return (
     <button
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
-        disabled ? 'cursor-not-allowed' : ''
+        disabled ? "cursor-not-allowed" : ""
       } ${className}`}
       disabled={disabled}
       onClick={onClick}
@@ -222,7 +212,7 @@ const Button = ({
 const Input = ({
   label,
   error,
-  className = '',
+  className = "",
   required = false,
   validationState = null,
   showValidation = true,
@@ -234,29 +224,19 @@ const Input = ({
 
   const getValidationClasses = () => {
     if (!showValidation) {
-      return isDarkMode
-        ? 'border-gray-600 bg-gray-800'
-        : 'border-gray-300 bg-white';
+      return isDarkMode ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white";
     }
 
-    if (error || validationState === 'invalid') {
-      return isDarkMode
-        ? 'border-red-500 bg-red-900/10'
-        : 'border-red-500 bg-red-50';
+    if (error || validationState === "invalid") {
+      return isDarkMode ? "border-red-500 bg-red-900/10" : "border-red-500 bg-red-50";
     }
-    if (validationState === 'valid') {
-      return isDarkMode
-        ? 'border-green-500 bg-green-900/10'
-        : 'border-green-500 bg-green-50';
+    if (validationState === "valid") {
+      return isDarkMode ? "border-green-500 bg-green-900/10" : "border-green-500 bg-green-50";
     }
     if (required && validationState === null) {
-      return isDarkMode
-        ? 'border-yellow-600/50 bg-yellow-900/5'
-        : 'border-yellow-400/50 bg-yellow-50/30';
+      return isDarkMode ? "border-yellow-600/50 bg-yellow-900/5" : "border-yellow-400/50 bg-yellow-50/30";
     }
-    return isDarkMode
-      ? 'border-gray-600 bg-gray-800'
-      : 'border-gray-300 bg-white';
+    return isDarkMode ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white";
   };
 
   return (
@@ -265,8 +245,8 @@ const Input = ({
         <label
           htmlFor={inputId}
           className={`block text-xs font-medium ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-700'
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ''}`}
+            isDarkMode ? "text-gray-400" : "text-gray-700"
+          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
         >
           {label}
         </label>
@@ -275,31 +255,23 @@ const Input = ({
         id={inputId}
         className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
           isDarkMode
-            ? 'text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500'
-            : 'text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400'
+            ? "text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
+            : "text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
         } ${getValidationClasses()} ${className}`}
         {...props}
       />
-      {error && (
-        <p
-          className={`text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
-        >
-          {error}
-        </p>
-      )}
+      {error && <p className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}>{error}</p>}
     </div>
   );
 };
 
-const Card = ({ children, className = '' }) => {
+const Card = ({ children, className = "" }) => {
   const { isDarkMode } = useTheme();
 
   return (
     <div
       className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${
-        isDarkMode
-          ? 'bg-gray-800 border border-gray-600'
-          : 'bg-white border border-gray-200'
+        isDarkMode ? "bg-gray-800 border border-gray-600" : "bg-white border border-gray-200"
       } ${className}`}
     >
       {children}
@@ -310,40 +282,27 @@ const Card = ({ children, className = '' }) => {
 // Toggle Switch Component (extracted to avoid creating components during render)
 const ToggleSwitch = ({ enabled, onChange, label, description, isDarkMode }) => (
   <div className="flex items-start justify-between py-3">
-      <div className="flex-1 pr-4">
-        <p
-          className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
-        >
-          {label}
-        </p>
-        <p
-          className={`text-xs mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-        >
-          {description}
-        </p>
-      </div>
-      <button
-        onClick={onChange}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-          enabled ? 'bg-teal-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
-        }`}
-      >
-        <span
-          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-            enabled ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
+    <div className="flex-1 pr-4">
+      <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{label}</p>
+      <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
     </div>
+    <button
+      onClick={onChange}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+        enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
+      }`}
+    >
+      <span
+        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          enabled ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+  </div>
 );
 
 // Form Settings Panel Component
-const FormSettingsPanel = ({
-  isOpen,
-  onClose,
-  preferences,
-  onPreferenceChange,
-}) => {
+const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange }) => {
   const { isDarkMode } = useTheme();
   const panelRef = useRef(null);
 
@@ -353,22 +312,16 @@ const FormSettingsPanel = ({
     <div
       ref={panelRef}
       className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
-        isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
+        isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"
       }`}
     >
-      <div
-        className={`px-4 py-3 border-b ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
-      >
+      <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
-          <h3
-            className={`text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
-          >
-            Form Settings
-          </h3>
+          <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
           <button
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              isDarkMode ? "text-gray-400" : "text-gray-500"
             }`}
           >
             <X className="h-4 w-4" />
@@ -379,24 +332,14 @@ const FormSettingsPanel = ({
       <div className="px-4 py-2 divide-y divide-gray-200 dark:divide-gray-700">
         <ToggleSwitch
           enabled={preferences.showValidationHighlighting}
-          onChange={() =>
-            onPreferenceChange(
-              'showValidationHighlighting',
-              !preferences.showValidationHighlighting,
-            )
-          }
+          onChange={() => onPreferenceChange("showValidationHighlighting", !preferences.showValidationHighlighting)}
           label="Field Validation Highlighting"
           description="Show red/green borders for invalid/valid fields"
           isDarkMode={isDarkMode}
         />
         <ToggleSwitch
           enabled={preferences.showSpeedButtons}
-          onChange={() =>
-            onPreferenceChange(
-              'showSpeedButtons',
-              !preferences.showSpeedButtons,
-            )
-          }
+          onChange={() => onPreferenceChange("showSpeedButtons", !preferences.showSpeedButtons)}
           label="Quick Add Speed Buttons"
           description="Show pinned & top products for quick adding"
           isDarkMode={isDarkMode}
@@ -404,7 +347,7 @@ const FormSettingsPanel = ({
       </div>
 
       <div
-        className={`px-4 py-2 text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}
+        className={`px-4 py-2 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"} border-t ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}
       >
         Settings are saved automatically
       </div>
@@ -428,22 +371,14 @@ const FormSettingsPanel = ({
 // };
 
 // Drawer Component for secondary content
-const Drawer = ({
-  isOpen,
-  onClose,
-  title,
-  subtitle,
-  children,
-  isDarkMode,
-  width = 'w-[min(620px,92vw)]',
-}) => {
+const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width = "w-[min(620px,92vw)]" }) => {
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) onClose();
+      if (e.key === "Escape" && isOpen) onClose();
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
   return (
@@ -451,11 +386,11 @@ const Drawer = ({
       {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             onClose();
           }
@@ -467,31 +402,25 @@ const Drawer = ({
       {/* Drawer Panel */}
       <div
         className={`fixed top-0 right-0 h-full ${width} z-[31]
-          ${isDarkMode ? 'bg-[#141a20] border-l border-[#2a3640]' : 'bg-white border-l border-gray-200'}
-          overflow-auto transition-transform duration-300 ${
-            isOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
+          ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"}
+          overflow-auto transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4">
           {/* Header */}
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
-            ${isDarkMode ? 'bg-[#141a20] border-b border-[#2a3640]' : 'bg-white border-b border-gray-200'}
+            ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"}
             z-[1]`}
           >
             <div>
               <div className="text-sm font-extrabold">{title}</div>
               {subtitle && (
-                <div
-                  className={`text-xs ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
-                >
-                  {subtitle}
-                </div>
+                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>{subtitle}</div>
               )}
             </div>
             <button
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#2a3640]' : 'hover:bg-gray-100'}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
             >
               <X className="h-4 w-4" />
             </button>
@@ -518,7 +447,7 @@ const SupplierBillForm = () => {
   const [validationErrors, setValidationErrors] = useState([]);
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [pinnedProductIds, setPinnedProductIds] = useState(() => {
-    const saved = localStorage.getItem('supplierBillPinnedProducts');
+    const saved = localStorage.getItem("supplierBillPinnedProducts");
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -528,7 +457,7 @@ const SupplierBillForm = () => {
 
   // Form preferences
   const [formPreferences, setFormPreferences] = useState(() => {
-    const saved = localStorage.getItem('supplierBillFormPreferences');
+    const saved = localStorage.getItem("supplierBillFormPreferences");
     return saved
       ? JSON.parse(saved)
       : {
@@ -541,27 +470,27 @@ const SupplierBillForm = () => {
   const [bill, setBill] = useState({
     supplierId: null,
     supplier: null,
-    billNumber: '',
-    supplierInvoiceNumber: '',
+    billNumber: "",
+    supplierInvoiceNumber: "",
     billDate: formatDateForInput(new Date()),
-    dueDate: '',
+    dueDate: "",
     receivedDate: formatDateForInput(new Date()),
-    vatCategory: 'STANDARD',
-    placeOfSupply: 'AE-DU',
+    vatCategory: "STANDARD",
+    placeOfSupply: "AE-DU",
     isReverseCharge: false,
     reverseChargeAmount: 0,
-    blockedVatReason: '',
-    paymentTerms: 'net_30',
+    blockedVatReason: "",
+    paymentTerms: "net_30",
     subtotal: 0,
     vatAmount: 0,
     total: 0,
     // Multi-currency support
-    currency: 'AED',
+    currency: "AED",
     exchangeRate: 1,
     totalAed: 0, // Total in base currency (AED)
-    status: 'draft',
-    notes: '',
-    terms: '',
+    status: "draft",
+    notes: "",
+    terms: "",
     items: [createEmptyItem()],
     // Additional charges (Landed Cost Components)
     freightCharges: 0,
@@ -571,40 +500,40 @@ const SupplierBillForm = () => {
     otherCharges: 0,
     // GRN Matching (3-way match: PO -> GRN -> Bill)
     grnId: null,
-    grnNumber: '',
+    grnNumber: "",
     purchaseOrderId: null,
-    poNumber: '',
+    poNumber: "",
     // Procurement Channel (affects VAT treatment)
-    procurementChannel: 'LOCAL', // LOCAL = input VAT, IMPORTED = reverse charge
+    procurementChannel: "LOCAL", // LOCAL = input VAT, IMPORTED = reverse charge
     // Import Reference
     importContainerId: null,
-    importContainerNumber: '',
+    importContainerNumber: "",
     // Landed Cost Calculation
     totalLandedCost: 0, // subtotal + all charges
     landedCostPerUnit: 0, // For allocation to inventory
     // Batch Creation Control
     triggerBatchCreation: true, // On approval, create/update stock batches
     // Phase 2c: Document Management
-    supplierInvoiceDate: '',
+    supplierInvoiceDate: "",
     attachmentUrls: [],
-    documentType: 'INVOICE',
+    documentType: "INVOICE",
     // Phase 2c: Approval Workflow
-    approvalStatus: 'PENDING',
+    approvalStatus: "PENDING",
     approvedBy: null,
     approvedAt: null,
-    rejectionReason: '',
+    rejectionReason: "",
     // Phase 2c: Payment Tracking (auto-calculated by triggers)
-    paymentStatus: 'UNPAID',
+    paymentStatus: "UNPAID",
     lastPaymentDate: null,
     paymentCount: 0,
     // Phase 2c: Accounting
-    costCenter: '',
-    department: '',
-    projectCode: '',
+    costCenter: "",
+    department: "",
+    projectCode: "",
     // Phase 2c: Import Details
-    portOfEntry: '',
+    portOfEntry: "",
     arrivalDate: null,
-    billOfLading: '',
+    billOfLading: "",
     // Phase 2c: Quality Inspection
     inspectionRequired: false,
     inspectionDate: null,
@@ -639,22 +568,22 @@ const SupplierBillForm = () => {
       const billDate = new Date(bill.billDate);
       let daysToAdd = 0;
       switch (bill.paymentTerms) {
-        case 'net_7':
+        case "net_7":
           daysToAdd = 7;
           break;
-        case 'net_15':
+        case "net_15":
           daysToAdd = 15;
           break;
-        case 'net_30':
+        case "net_30":
           daysToAdd = 30;
           break;
-        case 'net_45':
+        case "net_45":
           daysToAdd = 45;
           break;
-        case 'net_60':
+        case "net_60":
           daysToAdd = 60;
           break;
-        case 'net_90':
+        case "net_90":
           daysToAdd = 90;
           break;
         default:
@@ -668,10 +597,7 @@ const SupplierBillForm = () => {
 
   // Save form preferences to localStorage
   useEffect(() => {
-    localStorage.setItem(
-      'supplierBillFormPreferences',
-      JSON.stringify(formPreferences),
-    );
+    localStorage.setItem("supplierBillFormPreferences", JSON.stringify(formPreferences));
   }, [formPreferences]);
 
   const loadVendors = async () => {
@@ -679,7 +605,7 @@ const SupplierBillForm = () => {
       const response = await supplierService.getSuppliers();
       setVendors(response.suppliers || []);
     } catch (error) {
-      console.error('Failed to load vendors:', error);
+      console.error("Failed to load vendors:", error);
     }
   };
 
@@ -688,7 +614,7 @@ const SupplierBillForm = () => {
       const response = await productService.getProducts();
       setProducts(response.products || response || []);
     } catch (error) {
-      console.error('Failed to load products:', error);
+      console.error("Failed to load products:", error);
     }
   };
 
@@ -701,9 +627,9 @@ const SupplierBillForm = () => {
         items: data.items?.length > 0 ? data.items : [createEmptyItem()],
       });
     } catch (error) {
-      console.error('Error loading supplier bill:', error);
-      notificationService.error('Failed to load supplier bill');
-      navigate('/app/supplier-bills');
+      console.error("Error loading supplier bill:", error);
+      notificationService.error("Failed to load supplier bill");
+      navigate("/app/supplier-bills");
     } finally {
       setLoading(false);
     }
@@ -714,10 +640,10 @@ const SupplierBillForm = () => {
       const response = await supplierBillService.getNextNumber();
       setBill((prev) => ({
         ...prev,
-        billNumber: response.billNumber || 'VB-0001',
+        billNumber: response.billNumber || "VB-0001",
       }));
     } catch (error) {
-      console.error('Error loading next bill number:', error);
+      console.error("Error loading next bill number:", error);
     }
   };
 
@@ -732,7 +658,7 @@ const SupplierBillForm = () => {
       const grns = await grnService.getUnbilled({ supplierId });
       setAvailableGRNs(grns || []);
     } catch (error) {
-      console.error('Failed to load unbilled GRNs:', error);
+      console.error("Failed to load unbilled GRNs:", error);
       setAvailableGRNs([]);
     } finally {
       setLoadingGRNs(false);
@@ -750,7 +676,7 @@ const SupplierBillForm = () => {
       const containers = response.data || response.containers || response || [];
       setAvailableContainers(Array.isArray(containers) ? containers : []);
     } catch (error) {
-      console.error('Failed to load import containers:', error);
+      console.error("Failed to load import containers:", error);
       setAvailableContainers([]);
     }
   };
@@ -762,9 +688,9 @@ const SupplierBillForm = () => {
       setBill((prev) => ({
         ...prev,
         grnId: null,
-        grnNumber: '',
+        grnNumber: "",
         purchaseOrderId: null,
-        poNumber: '',
+        poNumber: "",
       }));
       return;
     }
@@ -773,37 +699,36 @@ const SupplierBillForm = () => {
     const grnItems = (grn.items || []).map((grnItem) => ({
       ...createEmptyItem(),
       productId: grnItem.productId,
-      description: grnItem.description || grnItem.productName || '',
+      description: grnItem.description || grnItem.productName || "",
       quantity: grnItem.acceptedQuantity || grnItem.receivedQuantity || 0,
       unitPrice: grnItem.unitPrice || 0,
-      pricingBasis: grnItem.pricingBasis || 'PER_MT',
+      pricingBasis: grnItem.pricingBasis || "PER_MT",
       unitWeightKg: grnItem.unitWeightKg || null,
-      quantityUom: grnItem.quantityUom || 'PCS',
+      quantityUom: grnItem.quantityUom || "PCS",
       // Stock-in fields from GRN
       poWeightKg: grnItem.poWeightKg || null,
       receivedWeightKg: grnItem.receivedWeightKg || null,
       weightVarianceKg: grnItem.weightVarianceKg || null,
       weightVariancePercent: grnItem.weightVariancePercent || null,
       grnLineId: grnItem.id,
-      procurementChannel: grn.procurementChannel || 'LOCAL',
+      procurementChannel: grn.procurementChannel || "LOCAL",
       importContainerId: grn.importContainerId || null,
-      batchNumber: grnItem.batchNumber || '',
+      batchNumber: grnItem.batchNumber || "",
     }));
 
     // Determine procurement channel and VAT category
-    const isImported =
-      grn.procurementChannel === 'IMPORTED' || grn.importContainerId;
-    const vatCategory = isImported ? 'REVERSE_CHARGE' : 'STANDARD';
+    const isImported = grn.procurementChannel === "IMPORTED" || grn.importContainerId;
+    const vatCategory = isImported ? "REVERSE_CHARGE" : "STANDARD";
 
     setBill((prev) => ({
       ...prev,
       grnId: grn.id,
       grnNumber: grn.grnNumber,
       purchaseOrderId: grn.purchaseOrderId,
-      poNumber: grn.poNumber || '',
-      procurementChannel: grn.procurementChannel || 'LOCAL',
+      poNumber: grn.poNumber || "",
+      procurementChannel: grn.procurementChannel || "LOCAL",
       importContainerId: grn.importContainerId || null,
-      importContainerNumber: grn.containerNumber || '',
+      importContainerNumber: grn.containerNumber || "",
       vatCategory,
       isReverseCharge: isImported,
       items: grnItems.length > 0 ? grnItems : prev.items,
@@ -820,8 +745,8 @@ const SupplierBillForm = () => {
 
   // Handle procurement channel change (affects VAT treatment)
   const handleProcurementChannelChange = (channel) => {
-    const isImported = channel === 'IMPORTED';
-    const vatCategory = isImported ? 'REVERSE_CHARGE' : 'STANDARD';
+    const isImported = channel === "IMPORTED";
+    const vatCategory = isImported ? "REVERSE_CHARGE" : "STANDARD";
 
     setBill((prev) => ({
       ...prev,
@@ -850,8 +775,8 @@ const SupplierBillForm = () => {
     const totalUnits = bill.items.reduce((sum, item) => {
       const qty = parseFloat(item.quantity) || 0;
       // For weight-based items, use theoretical weight
-      if (item.quantityUom === 'MT') return sum + qty * 1000;
-      if (item.quantityUom === 'KG') return sum + qty;
+      if (item.quantityUom === "MT") return sum + qty * 1000;
+      if (item.quantityUom === "KG") return sum + qty;
       if (item.unitWeightKg) return sum + qty * item.unitWeightKg;
       return sum + qty;
     }, 0);
@@ -881,20 +806,18 @@ const SupplierBillForm = () => {
 
   // Handle supplier selection
   const handleSupplierChange = (supplierId) => {
-    const supplier = vendors.find(
-      (v) => v.id === supplierId || v.id === parseInt(supplierId),
-    );
+    const supplier = vendors.find((v) => v.id === supplierId || v.id === parseInt(supplierId));
     setBill((prev) => ({
       ...prev,
       supplierId: supplierId || null,
       supplier: supplier || null,
       // Clear GRN linkage when supplier changes
       grnId: null,
-      grnNumber: '',
+      grnNumber: "",
       purchaseOrderId: null,
-      poNumber: '',
+      poNumber: "",
       importContainerId: null,
-      importContainerNumber: '',
+      importContainerNumber: "",
     }));
 
     // Load unbilled GRNs and import containers for this supplier
@@ -910,12 +833,12 @@ const SupplierBillForm = () => {
   // Handle VAT category change
   const handleVatCategoryChange = (category) => {
     const vatConfig = VAT_CATEGORIES.find((c) => c.value === category);
-    const isReverseCharge = category === 'REVERSE_CHARGE';
+    const isReverseCharge = category === "REVERSE_CHARGE";
     setBill((prev) => ({
       ...prev,
       vatCategory: category,
       isReverseCharge,
-      blockedVatReason: category === 'BLOCKED' ? prev.blockedVatReason : '',
+      blockedVatReason: category === "BLOCKED" ? prev.blockedVatReason : "",
     }));
     // Update all items with new VAT rate
     recalculateAllItems(vatConfig?.rate || 5);
@@ -932,7 +855,7 @@ const SupplierBillForm = () => {
   // Remove line item
   const handleRemoveItem = (index) => {
     if (bill.items.length <= 1) {
-      notificationService.warning('At least one item is required');
+      notificationService.warning("At least one item is required");
       return;
     }
     const updatedItems = bill.items.filter((_, i) => i !== index);
@@ -945,10 +868,8 @@ const SupplierBillForm = () => {
     const updatedItems = [...bill.items];
     const item = { ...updatedItems[index] };
 
-    if (field === 'productId' && value) {
-      const product = products.find(
-        (p) => p.id === value || p.id === parseInt(value),
-      );
+    if (field === "productId" && value) {
+      const product = products.find((p) => p.id === value || p.id === parseInt(value));
       if (product) {
         item.productId = product.id;
         item.description =
@@ -957,36 +878,29 @@ const SupplierBillForm = () => {
           product.uniqueName ||
           product.unique_name ||
           product.description ||
-          '';
-        item.unitPrice =
-          product.purchasePrice || product.cost || product.price || 0;
+          "";
+        item.unitPrice = product.purchasePrice || product.cost || product.price || 0;
 
         // Determine quantityUom from product's primary_uom or fallback to category detection
-        const primaryUom = (
-          product.primaryUom ||
-          product.primary_uom ||
-          ''
-        ).toUpperCase();
+        const primaryUom = (product.primaryUom || product.primary_uom || "").toUpperCase();
         let quantityUom;
-        if (primaryUom === 'MT' || primaryUom === 'KG') {
+        if (primaryUom === "MT" || primaryUom === "KG") {
           quantityUom = primaryUom;
         } else {
-          const category = (product.category || '').toLowerCase();
-          const isCoil = category.includes('coil');
-          quantityUom = isCoil ? 'MT' : 'PCS';
+          const category = (product.category || "").toLowerCase();
+          const isCoil = category.includes("coil");
+          quantityUom = isCoil ? "MT" : "PCS";
         }
 
         // Get pricing basis and unit weight from product
-        item.pricingBasis =
-          product.pricingBasis || product.pricing_basis || 'PER_MT';
-        item.unitWeightKg =
-          product.unitWeightKg || product.unit_weight_kg || null;
+        item.pricingBasis = product.pricingBasis || product.pricing_basis || "PER_MT";
+        item.unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
         item.quantityUom = quantityUom;
 
         // Flag if weight is missing for weight-based pricing
         item.missingWeightWarning =
-          (item.pricingBasis === 'PER_MT' || item.pricingBasis === 'PER_KG') &&
-          quantityUom === 'PCS' &&
+          (item.pricingBasis === "PER_MT" || item.pricingBasis === "PER_KG") &&
+          quantityUom === "PCS" &&
           !item.unitWeightKg;
       }
     } else {
@@ -994,42 +908,23 @@ const SupplierBillForm = () => {
     }
 
     // Recalculate item amounts when pricing fields change
-    if (
-      [
-        'quantity',
-        'unitPrice',
-        'vatRate',
-        'unitWeightKg',
-        'pricingBasis',
-      ].includes(field) ||
-      field === 'productId'
-    ) {
+    if (["quantity", "unitPrice", "vatRate", "unitWeightKg", "pricingBasis"].includes(field) || field === "productId") {
       const qty = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.unitPrice) || 0;
       const vatRate = parseFloat(item.vatRate) || 0;
-      const pricingBasis = item.pricingBasis || 'PER_MT';
+      const pricingBasis = item.pricingBasis || "PER_MT";
       const unitWeightKg = item.unitWeightKg;
-      const quantityUom = item.quantityUom || 'PCS';
+      const quantityUom = item.quantityUom || "PCS";
 
       // Use calculateItemAmount for proper pricing calculation
-      item.amount = calculateItemAmount(
-        qty,
-        price,
-        pricingBasis,
-        unitWeightKg,
-        quantityUom,
-      );
+      item.amount = calculateItemAmount(qty, price, pricingBasis, unitWeightKg, quantityUom);
       item.vatAmount = (item.amount * vatRate) / 100;
 
       // Update theoretical weight when quantity or unitWeightKg changes
-      if (
-        field === 'quantity' ||
-        field === 'unitWeightKg' ||
-        field === 'productId'
-      ) {
-        if (quantityUom === 'MT') {
+      if (field === "quantity" || field === "unitWeightKg" || field === "productId") {
+        if (quantityUom === "MT") {
           item.theoreticalWeightKg = qty * 1000;
-        } else if (quantityUom === 'KG') {
+        } else if (quantityUom === "KG") {
           item.theoreticalWeightKg = qty;
         } else if (unitWeightKg) {
           item.theoreticalWeightKg = qty * unitWeightKg;
@@ -1037,11 +932,9 @@ const SupplierBillForm = () => {
       }
 
       // Update missing weight warning
-      if (field === 'unitWeightKg' || field === 'pricingBasis') {
+      if (field === "unitWeightKg" || field === "pricingBasis") {
         item.missingWeightWarning =
-          (pricingBasis === 'PER_MT' || pricingBasis === 'PER_KG') &&
-          quantityUom === 'PCS' &&
-          !unitWeightKg;
+          (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") && quantityUom === "PCS" && !unitWeightKg;
       }
     }
 
@@ -1055,17 +948,11 @@ const SupplierBillForm = () => {
     const updatedItems = bill.items.map((item) => {
       const qty = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.unitPrice) || 0;
-      const pricingBasis = item.pricingBasis || 'PER_MT';
+      const pricingBasis = item.pricingBasis || "PER_MT";
       const unitWeightKg = item.unitWeightKg;
-      const quantityUom = item.quantityUom || 'PCS';
+      const quantityUom = item.quantityUom || "PCS";
 
-      const amount = calculateItemAmount(
-        qty,
-        price,
-        pricingBasis,
-        unitWeightKg,
-        quantityUom,
-      );
+      const amount = calculateItemAmount(qty, price, pricingBasis, unitWeightKg, quantityUom);
       const vatAmount = (amount * newVatRate) / 100;
       return { ...item, vatRate: newVatRate, amount, vatAmount };
     });
@@ -1075,14 +962,8 @@ const SupplierBillForm = () => {
 
   // Recalculate totals
   const recalculateTotals = (items) => {
-    const subtotal = items.reduce(
-      (sum, item) => sum + (parseFloat(item.amount) || 0),
-      0,
-    );
-    const vatAmount = items.reduce(
-      (sum, item) => sum + (parseFloat(item.vatAmount) || 0),
-      0,
-    );
+    const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    const vatAmount = items.reduce((sum, item) => sum + (parseFloat(item.vatAmount) || 0), 0);
 
     setBill((prev) => {
       const allCharges =
@@ -1116,23 +997,17 @@ const SupplierBillForm = () => {
           product.uniqueName ||
           product.unique_name ||
           product.description ||
-          '',
+          "",
         unitPrice: product.purchasePrice || product.cost || product.price || 0,
-        pricingBasis: product.pricingBasis || product.pricing_basis || 'PER_MT',
+        pricingBasis: product.pricingBasis || product.pricing_basis || "PER_MT",
         unitWeightKg: product.unitWeightKg || product.unit_weight_kg || null,
-        quantityUom: product.primaryUom || product.primary_uom || 'PCS',
+        quantityUom: product.primaryUom || product.primary_uom || "PCS",
       };
 
       // Calculate amount and VAT
       const qty = 1;
       const price = newItem.unitPrice;
-      newItem.amount = calculateItemAmount(
-        qty,
-        price,
-        newItem.pricingBasis,
-        newItem.unitWeightKg,
-        newItem.quantityUom,
-      );
+      newItem.amount = calculateItemAmount(qty, price, newItem.pricingBasis, newItem.unitWeightKg, newItem.quantityUom);
       newItem.vatAmount = (newItem.amount * 5) / 100;
 
       setBill((prev) => ({
@@ -1141,7 +1016,7 @@ const SupplierBillForm = () => {
       }));
       recalculateTotals([...bill.items, newItem]);
     },
-    [bill.items],
+    [bill.items]
   );
 
   // Toggle pin product
@@ -1152,24 +1027,21 @@ const SupplierBillForm = () => {
         await pinnedProductsService.unpinProduct(productId);
         setPinnedProductIds((prev) => prev.filter((pid) => pid !== productId));
         localStorage.setItem(
-          'supplierBillPinnedProducts',
-          JSON.stringify(pinnedProductIds.filter((pid) => pid !== productId)),
+          "supplierBillPinnedProducts",
+          JSON.stringify(pinnedProductIds.filter((pid) => pid !== productId))
         );
       } else {
         if (pinnedProductIds.length >= 10) {
-          notificationService.error('Maximum 10 pinned products allowed');
+          notificationService.error("Maximum 10 pinned products allowed");
           return;
         }
         await pinnedProductsService.pinProduct(productId);
         const newPinned = [...pinnedProductIds, productId];
         setPinnedProductIds(newPinned);
-        localStorage.setItem(
-          'supplierBillPinnedProducts',
-          JSON.stringify(newPinned),
-        );
+        localStorage.setItem("supplierBillPinnedProducts", JSON.stringify(newPinned));
       }
     } catch (error) {
-      console.error('Error toggling pin:', error);
+      console.error("Error toggling pin:", error);
     }
   };
 
@@ -1187,34 +1059,31 @@ const SupplierBillForm = () => {
     const errors = [];
 
     if (!bill.supplierId) {
-      errors.push('Please select a vendor');
+      errors.push("Please select a vendor");
     }
     if (!bill.billNumber) {
-      errors.push('Bill number is required');
+      errors.push("Bill number is required");
     }
     if (!bill.billDate) {
-      errors.push('Bill date is required');
+      errors.push("Bill date is required");
     }
-    if (bill.vatCategory === 'BLOCKED' && !bill.blockedVatReason) {
-      errors.push('Blocked VAT reason is required');
+    if (bill.vatCategory === "BLOCKED" && !bill.blockedVatReason) {
+      errors.push("Blocked VAT reason is required");
     }
 
     // Match the same logic as handleSave - accept description, productName, or product_name
     const validItems = bill.items.filter(
-      (item) =>
-        (item.description || item.productName || item.product_name) &&
-        item.quantity > 0 &&
-        item.unitPrice > 0,
+      (item) => (item.description || item.productName || item.product_name) && item.quantity > 0 && item.unitPrice > 0
     );
     if (validItems.length === 0) {
-      errors.push('At least one valid line item is required');
+      errors.push("At least one valid line item is required");
     }
 
     // CRITICAL: Block save when unit weight is missing for weight-based pricing
     bill.items.forEach((item, index) => {
       if (item.missingWeightWarning) {
         errors.push(
-          `Item ${index + 1}: Unit weight is missing for "${item.description}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`,
+          `Item ${index + 1}: Unit weight is missing for "${item.description}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`
         );
       }
     });
@@ -1224,9 +1093,9 @@ const SupplierBillForm = () => {
   };
 
   // Handle save
-  const handleSave = async (status = 'draft') => {
+  const handleSave = async (status = "draft") => {
     if (!validateForm()) {
-      notificationService.error('Please fix the validation errors');
+      notificationService.error("Please fix the validation errors");
       return;
     }
 
@@ -1236,10 +1105,7 @@ const SupplierBillForm = () => {
       // Filter valid items only (require productName OR description, plus quantity/price > 0)
       // Handle both camelCase (form state) and snake_case (API response) field names
       const validItems = bill.items.filter(
-        (item) =>
-          (item.description || item.productName || item.product_name) &&
-          item.quantity > 0 &&
-          item.unitPrice > 0,
+        (item) => (item.description || item.productName || item.product_name) && item.quantity > 0 && item.unitPrice > 0
       );
 
       const billData = {
@@ -1250,18 +1116,16 @@ const SupplierBillForm = () => {
 
       if (isEditMode) {
         await supplierBillService.update(id, billData);
-        notificationService.success('Supplier bill updated successfully');
+        notificationService.success("Supplier bill updated successfully");
       } else {
         await supplierBillService.create(billData);
-        notificationService.success('Supplier bill created successfully');
+        notificationService.success("Supplier bill created successfully");
       }
 
-      navigate('/app/supplier-bills');
+      navigate("/app/supplier-bills");
     } catch (error) {
-      console.error('Error saving supplier bill:', error);
-      notificationService.error(
-        error.message || 'Failed to save supplier bill',
-      );
+      console.error("Error saving supplier bill:", error);
+      notificationService.error(error.message || "Failed to save supplier bill");
     } finally {
       setSaving(false);
     }
@@ -1270,14 +1134,10 @@ const SupplierBillForm = () => {
   // Loading state
   if (loading) {
     return (
-      <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-      >
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-            Loading supplier bill...
-          </p>
+          <p className={isDarkMode ? "text-gray-300" : "text-gray-600"}>Loading supplier bill...</p>
         </div>
       </div>
     );
@@ -1286,40 +1146,32 @@ const SupplierBillForm = () => {
   return (
     <div
       data-testid="supplier-bill-form"
-      className={`h-full overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+      className={`h-full overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
     >
       {/* Sticky Header */}
       <header
         className={`sticky top-0 z-20 border-b shadow-sm ${
-          isDarkMode
-            ? 'bg-gray-800 border-gray-700'
-            : 'bg-white border-gray-200'
+          isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         }`}
       >
         <div className="max-w-[1600px] mx-auto px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate('/app/supplier-bills')}
+                onClick={() => navigate("/app/supplier-bills")}
                 className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
-                  isDarkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
                 }`}
                 aria-label="Back to supplier bills"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div>
-                <h1
-                  className={`text-lg md:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
-                  {isEditMode ? 'Edit Supplier Bill' : 'New Supplier Bill'}
+                <h1 className={`text-lg md:text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  {isEditMode ? "Edit Supplier Bill" : "New Supplier Bill"}
                 </h1>
-                <p
-                  className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  {bill.billNumber || 'Bill #'}
+                <p className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  {bill.billNumber || "Bill #"}
                 </p>
               </div>
             </div>
@@ -1333,11 +1185,7 @@ const SupplierBillForm = () => {
                   disabled={loadingGRNs || !bill.supplierId}
                   title="Link this bill to a Goods Receipt Note for 3-way matching"
                 >
-                  {loadingGRNs ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Link2 className="h-4 w-4" />
-                  )}
+                  {loadingGRNs ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
                   Match to GRN
                 </Button>
               )}
@@ -1347,17 +1195,13 @@ const SupplierBillForm = () => {
                 <div
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${
                     isDarkMode
-                      ? 'bg-teal-900/30 text-teal-300 border border-teal-700'
-                      : 'bg-teal-50 text-teal-700 border border-teal-200'
+                      ? "bg-teal-900/30 text-teal-300 border border-teal-700"
+                      : "bg-teal-50 text-teal-700 border border-teal-200"
                   }`}
                 >
                   <Link2 className="h-4 w-4" />
                   <span>GRN: {bill.grnNumber}</span>
-                  {bill.poNumber && (
-                    <span className="text-xs opacity-75">
-                      | PO: {bill.poNumber}
-                    </span>
-                  )}
+                  {bill.poNumber && <span className="text-xs opacity-75">| PO: {bill.poNumber}</span>}
                   <button
                     onClick={() => handleGRNSelect(null)}
                     className="ml-1 p-0.5 hover:bg-teal-600/20 rounded"
@@ -1371,9 +1215,7 @@ const SupplierBillForm = () => {
               <button
                 onClick={() => setShowFormSettings(!showFormSettings)}
                 className={`p-2 rounded-lg transition-colors ${
-                  isDarkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
                 }`}
                 aria-label="Form settings"
                 title="Form Settings"
@@ -1393,27 +1235,15 @@ const SupplierBillForm = () => {
               <Button
                 variant="secondary"
                 data-testid="save-draft"
-                onClick={() => handleSave('draft')}
+                onClick={() => handleSave("draft")}
                 disabled={saving}
               >
-                {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save Draft
               </Button>
 
-              <Button
-                data-testid="save-approve"
-                onClick={() => handleSave('approved')}
-                disabled={saving}
-              >
-                {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
+              <Button data-testid="save-approve" onClick={() => handleSave("approved")} disabled={saving}>
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save & Approve
               </Button>
             </div>
@@ -1426,20 +1256,13 @@ const SupplierBillForm = () => {
         {validationErrors.length > 0 && (
           <div
             className={`mb-6 p-4 rounded-lg border-2 ${
-              isDarkMode
-                ? 'bg-red-900/20 border-red-600 text-red-200'
-                : 'bg-red-50 border-red-500 text-red-800'
+              isDarkMode ? "bg-red-900/20 border-red-600 text-red-200" : "bg-red-50 border-red-500 text-red-800"
             }`}
           >
             <div className="flex items-start gap-3">
-              <AlertTriangle
-                className={isDarkMode ? 'text-red-400' : 'text-red-600'}
-                size={24}
-              />
+              <AlertTriangle className={isDarkMode ? "text-red-400" : "text-red-600"} size={24} />
               <div>
-                <h4 className="font-bold mb-2">
-                  Please fix the following errors:
-                </h4>
+                <h4 className="font-bold mb-2">Please fix the following errors:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   {validationErrors.map((error, index) => (
                     <li key={index}>{error}</li>
@@ -1454,11 +1277,9 @@ const SupplierBillForm = () => {
           {/* Main Content - 8 columns */}
           <div className="col-span-12 lg:col-span-8 space-y-4">
             {/* Vendor & Bill Info */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <Building2 className="h-5 w-5" />
                 Supplier Information
@@ -1469,10 +1290,8 @@ const SupplierBillForm = () => {
                   <FormSelect
                     label="Supplier"
                     data-testid="supplier-select"
-                    value={bill.supplierId || 'none'}
-                    onValueChange={(value) =>
-                      handleSupplierChange(value === 'none' ? '' : value)
-                    }
+                    value={bill.supplierId || "none"}
+                    onValueChange={(value) => handleSupplierChange(value === "none" ? "" : value)}
                     required={true}
                     showValidation={false}
                     placeholder="Select Supplier..."
@@ -1490,7 +1309,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="bill-number"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Bill Number <span className="text-red-500">*</span>
                   </label>
@@ -1505,9 +1324,7 @@ const SupplierBillForm = () => {
                       }))
                     }
                     className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -1516,7 +1333,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="supplier-invoice-number"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Supplier Invoice # (Reference)
                   </label>
@@ -1534,8 +1351,8 @@ const SupplierBillForm = () => {
                     placeholder="Supplier's invoice number"
                     className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -1544,7 +1361,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="bill-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Bill Date <span className="text-red-500">*</span>
                   </label>
@@ -1553,13 +1370,9 @@ const SupplierBillForm = () => {
                     data-testid="bill-date"
                     type="date"
                     value={bill.billDate}
-                    onChange={(e) =>
-                      setBill((prev) => ({ ...prev, billDate: e.target.value }))
-                    }
+                    onChange={(e) => setBill((prev) => ({ ...prev, billDate: e.target.value }))}
                     className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -1591,9 +1404,7 @@ const SupplierBillForm = () => {
                     label="Currency"
                     value={bill.currency}
                     onValueChange={(value) => {
-                      const selectedCurrency = CURRENCIES.find(
-                        (c) => c.value === value,
-                      );
+                      const selectedCurrency = CURRENCIES.find((c) => c.value === value);
                       setBill((prev) => ({
                         ...prev,
                         currency: value,
@@ -1612,11 +1423,11 @@ const SupplierBillForm = () => {
                 </div>
 
                 {/* Exchange Rate (editable for manual override) */}
-                {bill.currency !== 'AED' && (
+                {bill.currency !== "AED" && (
                   <div>
                     <label
                       htmlFor="exchange-rate"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Exchange Rate (1 {bill.currency} = X AED)
                     </label>
@@ -1636,16 +1447,11 @@ const SupplierBillForm = () => {
                         }));
                       }}
                       className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white'
-                          : 'border-gray-300 bg-white text-gray-900'
+                        isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
-                    <p
-                      className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
-                      Total in AED:{' '}
-                      {formatCurrency(bill.total * bill.exchangeRate)}
+                    <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      Total in AED: {formatCurrency(bill.total * bill.exchangeRate)}
                     </p>
                   </div>
                 )}
@@ -1654,7 +1460,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="due-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Due Date
                   </label>
@@ -1663,13 +1469,9 @@ const SupplierBillForm = () => {
                     data-testid="due-date"
                     type="date"
                     value={bill.dueDate}
-                    onChange={(e) =>
-                      setBill((prev) => ({ ...prev, dueDate: e.target.value }))
-                    }
+                    onChange={(e) => setBill((prev) => ({ ...prev, dueDate: e.target.value }))}
                     className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -1679,9 +1481,7 @@ const SupplierBillForm = () => {
                   <FormSelect
                     label="Procurement Channel"
                     value={bill.procurementChannel}
-                    onValueChange={(value) =>
-                      handleProcurementChannelChange(value)
-                    }
+                    onValueChange={(value) => handleProcurementChannelChange(value)}
                     showValidation={false}
                   >
                     {PROCUREMENT_CHANNELS.map((channel) => (
@@ -1690,36 +1490,24 @@ const SupplierBillForm = () => {
                       </SelectItem>
                     ))}
                   </FormSelect>
-                  <p
-                    className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
-                    {bill.procurementChannel === 'IMPORTED'
-                      ? 'Reverse charge VAT applies'
-                      : 'Standard input VAT'}
+                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    {bill.procurementChannel === "IMPORTED" ? "Reverse charge VAT applies" : "Standard input VAT"}
                   </p>
                 </div>
 
                 {/* Import Container (shown for import purchases) */}
-                {bill.procurementChannel === 'IMPORTED' && (
+                {bill.procurementChannel === "IMPORTED" && (
                   <div>
                     <FormSelect
                       label="Import Container"
-                      value={
-                        bill.importContainerId
-                          ? String(bill.importContainerId)
-                          : 'none'
-                      }
+                      value={bill.importContainerId ? String(bill.importContainerId) : "none"}
                       onValueChange={(value) => {
-                        const parsedValue =
-                          value === 'none' ? null : parseInt(value);
-                        const container = availableContainers.find(
-                          (c) => c.id === parsedValue,
-                        );
+                        const parsedValue = value === "none" ? null : parseInt(value);
+                        const container = availableContainers.find((c) => c.id === parsedValue);
                         setBill((prev) => ({
                           ...prev,
                           importContainerId: parsedValue,
-                          importContainerNumber:
-                            container?.containerNumber || '',
+                          importContainerNumber: container?.containerNumber || "",
                         }));
                       }}
                       showValidation={false}
@@ -1727,10 +1515,7 @@ const SupplierBillForm = () => {
                     >
                       <SelectItem value="none">Select Container...</SelectItem>
                       {availableContainers.map((container) => (
-                        <SelectItem
-                          key={container.id}
-                          value={String(container.id)}
-                        >
+                        <SelectItem key={container.id} value={String(container.id)}>
                           {container.containerNumber} - {container.status}
                         </SelectItem>
                       ))}
@@ -1741,11 +1526,9 @@ const SupplierBillForm = () => {
             </div>
 
             {/* VAT Details */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <FileText className="h-5 w-5" />
                 VAT Details
@@ -1791,15 +1574,15 @@ const SupplierBillForm = () => {
                 </div>
 
                 {/* Blocked VAT Reason - only shown for BLOCKED category */}
-                {bill.vatCategory === 'BLOCKED' && (
+                {bill.vatCategory === "BLOCKED" && (
                   <div className="md:col-span-2">
                     <FormSelect
                       label="Blocked VAT Reason"
-                      value={bill.blockedVatReason || 'none'}
+                      value={bill.blockedVatReason || "none"}
                       onValueChange={(value) =>
                         setBill((prev) => ({
                           ...prev,
-                          blockedVatReason: value === 'none' ? '' : value,
+                          blockedVatReason: value === "none" ? "" : value,
                         }))
                       }
                       required={true}
@@ -1814,9 +1597,7 @@ const SupplierBillForm = () => {
                         </SelectItem>
                       ))}
                     </FormSelect>
-                    <p
-                      className={`mt-1 text-xs ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
-                    >
+                    <p className={`mt-1 text-xs ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}>
                       Blocked VAT cannot be recovered per UAE FTA Article 53
                     </p>
                   </div>
@@ -1825,15 +1606,11 @@ const SupplierBillForm = () => {
                 {/* Reverse Charge Notice */}
                 {bill.isReverseCharge && (
                   <div
-                    className={`md:col-span-2 p-3 rounded-lg ${isDarkMode ? 'bg-blue-900/20 border border-blue-600' : 'bg-blue-50 border border-blue-200'}`}
+                    className={`md:col-span-2 p-3 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-600" : "bg-blue-50 border border-blue-200"}`}
                   >
-                    <p
-                      className={`text-sm ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}
-                    >
-                      <strong>Reverse Charge:</strong> You will account for VAT
-                      of {formatCurrency(bill.vatAmount)} on this purchase. This
-                      will be shown as both input and output VAT on your VAT
-                      return.
+                    <p className={`text-sm ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}>
+                      <strong>Reverse Charge:</strong> You will account for VAT of {formatCurrency(bill.vatAmount)} on
+                      this purchase. This will be shown as both input and output VAT on your VAT return.
                     </p>
                   </div>
                 )}
@@ -1841,11 +1618,9 @@ const SupplierBillForm = () => {
             </div>
 
             {/* Document Management (Phase 2c) */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <FileText className="h-5 w-5" />
                 Document Management
@@ -1876,7 +1651,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="supplier-invoice-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Supplier Invoice Date
                   </label>
@@ -1891,14 +1666,10 @@ const SupplierBillForm = () => {
                       }))
                     }
                     className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
-                  <p
-                    className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
+                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     Date on the supplier&apos;s original invoice
                   </p>
                 </div>
@@ -1907,19 +1678,19 @@ const SupplierBillForm = () => {
                 <div className="md:col-span-2">
                   <label
                     htmlFor="attachment-urls"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Attachment URLs
                   </label>
                   <input
                     id="attachment-urls"
                     type="text"
-                    value={bill.attachmentUrls.join(', ')}
+                    value={bill.attachmentUrls.join(", ")}
                     onChange={(e) =>
                       setBill((prev) => ({
                         ...prev,
                         attachmentUrls: e.target.value
-                          .split(',')
+                          .split(",")
                           .map((url) => url.trim())
                           .filter(Boolean),
                       }))
@@ -1927,13 +1698,11 @@ const SupplierBillForm = () => {
                     placeholder="Enter URLs separated by commas"
                     className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
-                  <p
-                    className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
+                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     Upload feature coming soon
                   </p>
                 </div>
@@ -1941,11 +1710,9 @@ const SupplierBillForm = () => {
             </div>
 
             {/* Approval Workflow (Phase 2c) */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <Settings className="h-5 w-5" />
                 Approval & Status
@@ -1973,11 +1740,11 @@ const SupplierBillForm = () => {
                 </div>
 
                 {/* Rejection Reason - shown when rejected */}
-                {bill.approvalStatus === 'REJECTED' && (
+                {bill.approvalStatus === "REJECTED" && (
                   <div className="md:col-span-2">
                     <label
                       htmlFor="rejection-reason"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Rejection Reason
                     </label>
@@ -1994,8 +1761,8 @@ const SupplierBillForm = () => {
                       placeholder="Enter reason for rejection..."
                       className={`w-full px-4 py-2 rounded-lg border ${
                         isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
                   </div>
@@ -2007,13 +1774,13 @@ const SupplierBillForm = () => {
                     <div>
                       <label
                         htmlFor="approved-by-display"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Approved By
                       </label>
                       <div
                         id="approved-by-display"
-                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-900 text-gray-400' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
                       >
                         User ID: {bill.approvedBy}
                       </div>
@@ -2021,17 +1788,15 @@ const SupplierBillForm = () => {
                     <div>
                       <label
                         htmlFor="approved-at-display"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Approved At
                       </label>
                       <div
                         id="approved-at-display"
-                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-900 text-gray-400' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
                       >
-                        {bill.approvedAt
-                          ? new Date(bill.approvedAt).toLocaleString()
-                          : '—'}
+                        {bill.approvedAt ? new Date(bill.approvedAt).toLocaleString() : "—"}
                       </div>
                     </div>
                   </>
@@ -2040,11 +1805,9 @@ const SupplierBillForm = () => {
             </div>
 
             {/* Accounting Details (Phase 2c) */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <Building2 className="h-5 w-5" />
                 Accounting
@@ -2054,7 +1817,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="cost-center"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Cost Center
                   </label>
@@ -2071,8 +1834,8 @@ const SupplierBillForm = () => {
                     placeholder="e.g., CC-001"
                     className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -2081,7 +1844,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="department"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Department
                   </label>
@@ -2098,8 +1861,8 @@ const SupplierBillForm = () => {
                     placeholder="e.g., Purchasing"
                     className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -2108,7 +1871,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="project-code"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Project Code
                   </label>
@@ -2125,8 +1888,8 @@ const SupplierBillForm = () => {
                     placeholder="e.g., PRJ-2024-001"
                     className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -2134,12 +1897,10 @@ const SupplierBillForm = () => {
             </div>
 
             {/* Import Details - shown only for imported goods (Phase 2c) */}
-            {bill.procurementChannel === 'IMPORTED' && (
-              <div
-                className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-              >
+            {bill.procurementChannel === "IMPORTED" && (
+              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
                 <h2
-                  className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <Ship className="h-5 w-5" />
                   Import Details
@@ -2149,7 +1910,7 @@ const SupplierBillForm = () => {
                   <div>
                     <label
                       htmlFor="port-of-entry"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Port of Entry
                     </label>
@@ -2166,8 +1927,8 @@ const SupplierBillForm = () => {
                       placeholder="e.g., Jebel Ali, Dubai"
                       className={`w-full px-4 py-2 rounded-lg border ${
                         isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
                   </div>
@@ -2176,14 +1937,14 @@ const SupplierBillForm = () => {
                   <div>
                     <label
                       htmlFor="arrival-date"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Arrival Date
                     </label>
                     <input
                       id="arrival-date"
                       type="date"
-                      value={bill.arrivalDate || ''}
+                      value={bill.arrivalDate || ""}
                       onChange={(e) =>
                         setBill((prev) => ({
                           ...prev,
@@ -2191,9 +1952,7 @@ const SupplierBillForm = () => {
                         }))
                       }
                       className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white'
-                          : 'border-gray-300 bg-white text-gray-900'
+                        isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
                   </div>
@@ -2202,7 +1961,7 @@ const SupplierBillForm = () => {
                   <div>
                     <label
                       htmlFor="bill-of-lading"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Bill of Lading
                     </label>
@@ -2219,8 +1978,8 @@ const SupplierBillForm = () => {
                       placeholder="B/L number"
                       className={`w-full px-4 py-2 rounded-lg border ${
                         isDarkMode
-                          ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                          : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                       } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     />
                   </div>
@@ -2229,11 +1988,9 @@ const SupplierBillForm = () => {
             )}
 
             {/* Quality Inspection (Phase 2c) */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <Package className="h-5 w-5" />
                 Quality Inspection
@@ -2253,13 +2010,13 @@ const SupplierBillForm = () => {
                     }
                     className={`w-5 h-5 rounded border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500'
-                        : 'border-gray-300 bg-white text-teal-600 focus:ring-teal-500'
+                        ? "border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500"
+                        : "border-gray-300 bg-white text-teal-600 focus:ring-teal-500"
                     } focus:ring-2`}
                   />
                   <label
                     htmlFor="inspection-required"
-                    className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Quality inspection required
                   </label>
@@ -2272,14 +2029,14 @@ const SupplierBillForm = () => {
                     <div>
                       <label
                         htmlFor="inspection-date"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         Inspection Date
                       </label>
                       <input
                         id="inspection-date"
                         type="date"
-                        value={bill.inspectionDate || ''}
+                        value={bill.inspectionDate || ""}
                         onChange={(e) =>
                           setBill((prev) => ({
                             ...prev,
@@ -2288,8 +2045,8 @@ const SupplierBillForm = () => {
                         }
                         className={`w-full px-4 py-2 rounded-lg border ${
                           isDarkMode
-                            ? 'border-gray-600 bg-gray-700 text-white'
-                            : 'border-gray-300 bg-white text-gray-900'
+                            ? "border-gray-600 bg-gray-700 text-white"
+                            : "border-gray-300 bg-white text-gray-900"
                         } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                       />
                     </div>
@@ -2298,11 +2055,11 @@ const SupplierBillForm = () => {
                     <div>
                       <FormSelect
                         label="Inspection Status"
-                        value={bill.inspectionStatus || 'none'}
+                        value={bill.inspectionStatus || "none"}
                         onValueChange={(value) =>
                           setBill((prev) => ({
                             ...prev,
-                            inspectionStatus: value === 'none' ? null : value,
+                            inspectionStatus: value === "none" ? null : value,
                           }))
                         }
                         showValidation={false}
@@ -2322,11 +2079,9 @@ const SupplierBillForm = () => {
             </div>
 
             {/* Retention (Phase 2c) */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <Scale className="h-5 w-5" />
                 Retention
@@ -2336,7 +2091,7 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="retention-percentage"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Retention %
                   </label>
@@ -2356,13 +2111,11 @@ const SupplierBillForm = () => {
                     placeholder="e.g., 5.00"
                     className={`w-full px-4 py-2 rounded-lg border ${
                       isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                        : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
-                  <p
-                    className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
+                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     Percentage withheld
                   </p>
                 </div>
@@ -2371,14 +2124,14 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="retention-release-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Release Date
                   </label>
                   <input
                     id="retention-release-date"
                     type="date"
-                    value={bill.retentionReleaseDate || ''}
+                    value={bill.retentionReleaseDate || ""}
                     onChange={(e) =>
                       setBill((prev) => ({
                         ...prev,
@@ -2386,9 +2139,7 @@ const SupplierBillForm = () => {
                       }))
                     }
                     className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -2397,21 +2148,17 @@ const SupplierBillForm = () => {
                 <div>
                   <label
                     htmlFor="retention-amount-display"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Retention Amount
                   </label>
                   <div
                     id="retention-amount-display"
-                    className={`px-4 py-2 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-900 text-gray-400' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                    className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
                   >
                     {formatCurrency(bill.retentionAmount)}
                   </div>
-                  <p
-                    className={`mt-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
-                    Auto-calculated
-                  </p>
+                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Auto-calculated</p>
                 </div>
               </div>
             </div>
@@ -2419,9 +2166,7 @@ const SupplierBillForm = () => {
             {/* Quick Add Speed Buttons */}
             {formPreferences.showSpeedButtons && sortedProducts.length > 0 && (
               <Card className="p-3 md:p-4 mb-6">
-                <p
-                  className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
+                <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                   Quick Add (Pinned & Top Products)
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -2434,8 +2179,8 @@ const SupplierBillForm = () => {
                           onClick={() => handleQuickAddProduct(product)}
                           className={`w-full text-left px-3 py-2 text-xs rounded-lg border transition-all ${
                             isDarkMode
-                              ? 'bg-gray-800 border-gray-600 hover:bg-gray-700 text-white'
-                              : 'bg-white border-gray-300 hover:bg-gray-50 text-gray-900'
+                              ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"
+                              : "bg-white border-gray-300 hover:bg-gray-50 text-gray-900"
                           }`}
                         >
                           <div className="font-medium truncate">
@@ -2445,32 +2190,19 @@ const SupplierBillForm = () => {
                               product.unique_name ||
                               product.name}
                           </div>
-                          <div
-                            className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                          >
-                            {formatCurrency(
-                              product.purchasePrice ||
-                                product.cost ||
-                                product.price ||
-                                0,
-                            )}
+                          <div className={`text-[10px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            {formatCurrency(product.purchasePrice || product.cost || product.price || 0)}
                           </div>
                         </button>
                         <button
                           type="button"
                           onClick={(e) => togglePinProduct(e, product.id)}
                           className={`absolute top-1 right-1 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${
-                            isPinned
-                              ? 'text-teal-500'
-                              : isDarkMode
-                                ? 'text-gray-400'
-                                : 'text-gray-500'
+                            isPinned ? "text-teal-500" : isDarkMode ? "text-gray-400" : "text-gray-500"
                           }`}
-                          title={isPinned ? 'Unpin' : 'Pin'}
+                          title={isPinned ? "Unpin" : "Pin"}
                         >
-                          <Pin
-                            className={`h-3 w-3 ${isPinned ? 'fill-current' : ''}`}
-                          />
+                          <Pin className={`h-3 w-3 ${isPinned ? "fill-current" : ""}`} />
                         </button>
                       </div>
                     );
@@ -2480,12 +2212,10 @@ const SupplierBillForm = () => {
             )}
 
             {/* Line Items */}
-            <div
-              className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-            >
+            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
               <div className="flex items-center justify-between mb-4">
                 <h2
-                  className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <Package className="h-5 w-5" />
                   Line Items
@@ -2504,46 +2234,33 @@ const SupplierBillForm = () => {
                 {bill.items.map((item, index) => (
                   <div
                     key={item.id}
-                    className={`p-4 rounded-lg border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+                    className={`p-4 rounded-lg border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
                   >
                     <div className="grid grid-cols-12 gap-4">
                       {/* Product/Description */}
                       <div className="col-span-12 md:col-span-4">
                         <label
                           htmlFor={`item-product-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
                           Product / Description
                         </label>
                         <FormSelect
                           id={`item-product-${index}`}
                           data-testid={`item-product-${index}`}
-                          value={
-                            item.productId ? String(item.productId) : 'none'
-                          }
-                          onValueChange={(value) =>
-                            handleItemChange(
-                              index,
-                              'productId',
-                              value === 'none' ? '' : value,
-                            )
-                          }
+                          value={item.productId ? String(item.productId) : "none"}
+                          onValueChange={(value) => handleItemChange(index, "productId", value === "none" ? "" : value)}
                           showValidation={false}
                           placeholder="Select or type description..."
                         >
-                          <SelectItem value="none">
-                            Select or type description...
-                          </SelectItem>
+                          <SelectItem value="none">Select or type description...</SelectItem>
                           {products.map((product) => (
-                            <SelectItem
-                              key={product.id}
-                              value={String(product.id)}
-                            >
+                            <SelectItem key={product.id} value={String(product.id)}>
                               {product.displayName ||
                                 product.display_name ||
                                 product.uniqueName ||
                                 product.unique_name ||
-                                'N/A'}
+                                "N/A"}
                             </SelectItem>
                           ))}
                         </FormSelect>
@@ -2551,18 +2268,12 @@ const SupplierBillForm = () => {
                           type="text"
                           data-testid={`item-description-${index}`}
                           value={item.description}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              'description',
-                              e.target.value,
-                            )
-                          }
+                          onChange={(e) => handleItemChange(index, "description", e.target.value)}
                           placeholder="Description"
                           className={`w-full mt-2 px-3 py-2 rounded border text-sm ${
                             isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                              : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                              ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                              : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                           } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                         />
                       </div>
@@ -2571,39 +2282,26 @@ const SupplierBillForm = () => {
                       <div className="col-span-3 md:col-span-1">
                         <label
                           htmlFor={`item-quantity-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
-                          Qty ({item.quantityUom || 'PCS'})
+                          Qty ({item.quantityUom || "PCS"})
                         </label>
                         <input
                           id={`item-quantity-${index}`}
                           data-testid={`item-quantity-${index}`}
                           type="number"
                           min="0"
-                          step={
-                            item.quantityUom === 'MT' ||
-                            item.quantityUom === 'KG'
-                              ? '0.001'
-                              : '1'
-                          }
+                          step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
                           value={item.quantity}
                           onChange={(e) => {
-                            const allowDecimal =
-                              item.quantityUom === 'MT' ||
-                              item.quantityUom === 'KG';
-                            const val = allowDecimal
-                              ? parseFloat(e.target.value)
-                              : parseInt(e.target.value, 10);
-                            handleItemChange(
-                              index,
-                              'quantity',
-                              isNaN(val) ? '' : val,
-                            );
+                            const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
+                            const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                            handleItemChange(index, "quantity", isNaN(val) ? "" : val);
                           }}
                           className={`w-full px-3 py-2 rounded border text-sm ${
                             isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-white'
-                              : 'border-gray-300 bg-white text-gray-900'
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
                           } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                         />
                       </div>
@@ -2612,7 +2310,7 @@ const SupplierBillForm = () => {
                       <div className="col-span-3 md:col-span-1">
                         <label
                           htmlFor={`item-unit-weight-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
                           Unit Wt (kg)
                         </label>
@@ -2622,43 +2320,37 @@ const SupplierBillForm = () => {
                           min="0"
                           step="0.01"
                           placeholder="0.00"
-                          value={item.unitWeightKg || ''}
+                          value={item.unitWeightKg || ""}
                           onChange={(e) =>
                             handleItemChange(
                               index,
-                              'unitWeightKg',
-                              e.target.value === ''
-                                ? null
-                                : parseFloat(e.target.value),
+                              "unitWeightKg",
+                              e.target.value === "" ? null : parseFloat(e.target.value)
                             )
                           }
                           className={`w-full px-3 py-2 rounded border text-sm ${
                             isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-white'
-                              : 'border-gray-300 bg-white text-gray-900'
-                          } ${item.missingWeightWarning ? 'border-red-500' : ''} focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                              ? "border-gray-600 bg-gray-700 text-white"
+                              : "border-gray-300 bg-white text-gray-900"
+                          } ${item.missingWeightWarning ? "border-red-500" : ""} focus:outline-none focus:ring-2 focus:ring-teal-500`}
                         />
                       </div>
 
                       {/* Total Weight */}
                       <div className="col-span-3 md:col-span-1">
-                        <div
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
+                        <div className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                           Total Wt
                         </div>
                         <div
                           className={`px-3 py-2 rounded border text-sm ${
                             isDarkMode
-                              ? 'border-gray-600 bg-gray-700/50 text-gray-300'
-                              : 'border-gray-300 bg-gray-100 text-gray-600'
+                              ? "border-gray-600 bg-gray-700/50 text-gray-300"
+                              : "border-gray-300 bg-gray-100 text-gray-600"
                           }`}
                         >
                           {(() => {
-                            const totalWt =
-                              item.theoreticalWeightKg ||
-                              item.quantity * (item.unitWeightKg || 0);
-                            return totalWt ? totalWt.toFixed(2) : '-';
+                            const totalWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
+                            return totalWt ? totalWt.toFixed(2) : "-";
                           })()}
                         </div>
                       </div>
@@ -2667,12 +2359,12 @@ const SupplierBillForm = () => {
                       <div className="col-span-3 md:col-span-2">
                         <label
                           htmlFor={`item-unit-price-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
                           Unit Price
                         </label>
                         <div
-                          className={`flex rounded overflow-hidden border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+                          className={`flex rounded overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
                         >
                           <input
                             id={`item-unit-price-${index}`}
@@ -2681,34 +2373,20 @@ const SupplierBillForm = () => {
                             min="0"
                             step="0.01"
                             value={item.unitPrice}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                'unitPrice',
-                                parseFloat(e.target.value) || 0,
-                              )
-                            }
+                            onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
                             className={`flex-1 px-3 py-2 text-sm border-0 outline-none ${
-                              isDarkMode
-                                ? 'bg-gray-700 text-white'
-                                : 'bg-white text-gray-900'
+                              isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
                             }`}
                           />
                           <select
-                            value={item.pricingBasis || 'PER_MT'}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                'pricingBasis',
-                                e.target.value,
-                              )
-                            }
+                            value={item.pricingBasis || "PER_MT"}
+                            onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
                             className={`text-xs font-bold px-1.5 border-l cursor-pointer outline-none ${
-                              item.pricingBasis === 'PER_KG'
-                                ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700'
-                                : item.pricingBasis === 'PER_PCS'
-                                  ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700'
-                                  : 'bg-gray-50 text-gray-600 border-gray-300'
+                              item.pricingBasis === "PER_KG"
+                                ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
+                                : item.pricingBasis === "PER_PCS"
+                                  ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
+                                  : "bg-gray-50 text-gray-600 border-gray-300"
                             }`}
                           >
                             <option value="PER_MT">/MT</option>
@@ -2722,7 +2400,7 @@ const SupplierBillForm = () => {
                       <div className="col-span-4 md:col-span-1">
                         <label
                           htmlFor={`item-vat-rate-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
                           VAT %
                         </label>
@@ -2733,8 +2411,8 @@ const SupplierBillForm = () => {
                           disabled
                           className={`w-full px-3 py-2 rounded border text-sm ${
                             isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-gray-500'
-                              : 'border-gray-300 bg-gray-100 text-gray-500'
+                              ? "border-gray-600 bg-gray-700 text-gray-500"
+                              : "border-gray-300 bg-gray-100 text-gray-500"
                           }`}
                         />
                       </div>
@@ -2743,7 +2421,7 @@ const SupplierBillForm = () => {
                       <div className="col-span-6 md:col-span-1">
                         <label
                           htmlFor={`item-vat-amount-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
                           VAT
                         </label>
@@ -2754,8 +2432,8 @@ const SupplierBillForm = () => {
                           disabled
                           className={`w-full px-3 py-2 rounded border text-sm ${
                             isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-gray-500'
-                              : 'border-gray-300 bg-gray-100 text-gray-500'
+                              ? "border-gray-600 bg-gray-700 text-gray-500"
+                              : "border-gray-300 bg-gray-100 text-gray-500"
                           }`}
                         />
                       </div>
@@ -2764,7 +2442,7 @@ const SupplierBillForm = () => {
                       <div className="col-span-6 md:col-span-1">
                         <label
                           htmlFor={`item-amount-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
                           Amount
                         </label>
@@ -2775,8 +2453,8 @@ const SupplierBillForm = () => {
                           disabled
                           className={`w-full px-3 py-2 rounded border text-sm ${
                             isDarkMode
-                              ? 'border-gray-600 bg-gray-700 text-gray-500'
-                              : 'border-gray-300 bg-gray-100 text-gray-500'
+                              ? "border-gray-600 bg-gray-700 text-gray-500"
+                              : "border-gray-300 bg-gray-100 text-gray-500"
                           }`}
                         />
                       </div>
@@ -2795,14 +2473,11 @@ const SupplierBillForm = () => {
                       {/* Missing Weight Warning */}
                       {item.missingWeightWarning && (
                         <div
-                          className={`col-span-12 p-2 rounded-md border ${isDarkMode ? 'bg-amber-900/30 border-amber-600' : 'bg-amber-50 border-amber-200'}`}
+                          className={`col-span-12 p-2 rounded-md border ${isDarkMode ? "bg-amber-900/30 border-amber-600" : "bg-amber-50 border-amber-200"}`}
                         >
-                          <p
-                            className={`text-xs ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}
-                          >
+                          <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
                             <AlertTriangle className="inline h-3 w-3 mr-1" />
-                            Unit weight missing for weight-based pricing (
-                            {item.pricingBasis}). Contact admin to update
+                            Unit weight missing for weight-based pricing ({item.pricingBasis}). Contact admin to update
                             product master.
                           </p>
                         </div>
@@ -2810,32 +2485,22 @@ const SupplierBillForm = () => {
 
                       {/* Stock-In Fields Row (Phase 5) */}
                       <div
-                        className={`col-span-12 mt-2 pt-2 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        className={`col-span-12 mt-2 pt-2 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                       >
                         <div className="grid grid-cols-12 gap-3">
                           {/* Line Procurement Channel */}
                           <div className="col-span-6 md:col-span-2">
                             <label
                               htmlFor={`item-procurement-channel-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
                             >
                               <Ship className="inline h-3 w-3 mr-1" />
                               Source
                             </label>
                             <FormSelect
                               id={`item-procurement-channel-${index}`}
-                              value={
-                                item.procurementChannel ||
-                                bill.procurementChannel ||
-                                'LOCAL'
-                              }
-                              onValueChange={(value) =>
-                                handleItemChange(
-                                  index,
-                                  'procurementChannel',
-                                  value,
-                                )
-                              }
+                              value={item.procurementChannel || bill.procurementChannel || "LOCAL"}
+                              onValueChange={(value) => handleItemChange(index, "procurementChannel", value)}
                               showValidation={false}
                             >
                               <SelectItem value="LOCAL">Local</SelectItem>
@@ -2847,7 +2512,7 @@ const SupplierBillForm = () => {
                           <div className="col-span-6 md:col-span-2">
                             <label
                               htmlFor={`item-po-weight-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
                             >
                               <Scale className="inline h-3 w-3 mr-1" />
                               PO Wt (kg)
@@ -2858,37 +2523,22 @@ const SupplierBillForm = () => {
                               min="0"
                               step="0.01"
                               placeholder="-"
-                              value={item.poWeightKg || ''}
+                              value={item.poWeightKg || ""}
                               onChange={(e) => {
-                                const poWt =
-                                  e.target.value === ''
-                                    ? null
-                                    : parseFloat(e.target.value);
+                                const poWt = e.target.value === "" ? null : parseFloat(e.target.value);
                                 const recvWt = item.receivedWeightKg || 0;
-                                const variance =
-                                  poWt && recvWt ? recvWt - poWt : null;
-                                const variancePercent =
-                                  poWt && variance
-                                    ? (variance / poWt) * 100
-                                    : null;
-                                handleItemChange(index, 'poWeightKg', poWt);
+                                const variance = poWt && recvWt ? recvWt - poWt : null;
+                                const variancePercent = poWt && variance ? (variance / poWt) * 100 : null;
+                                handleItemChange(index, "poWeightKg", poWt);
                                 if (variance !== null) {
-                                  handleItemChange(
-                                    index,
-                                    'weightVarianceKg',
-                                    variance,
-                                  );
-                                  handleItemChange(
-                                    index,
-                                    'weightVariancePercent',
-                                    variancePercent,
-                                  );
+                                  handleItemChange(index, "weightVarianceKg", variance);
+                                  handleItemChange(index, "weightVariancePercent", variancePercent);
                                 }
                               }}
                               className={`w-full px-2 py-1.5 rounded border text-xs ${
                                 isDarkMode
-                                  ? 'border-gray-600 bg-gray-700 text-white'
-                                  : 'border-gray-300 bg-white text-gray-900'
+                                  ? "border-gray-600 bg-gray-700 text-white"
+                                  : "border-gray-300 bg-white text-gray-900"
                               } focus:outline-none focus:ring-1 focus:ring-teal-500`}
                             />
                           </div>
@@ -2897,7 +2547,7 @@ const SupplierBillForm = () => {
                           <div className="col-span-6 md:col-span-2">
                             <label
                               htmlFor={`item-received-weight-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
                             >
                               Recv Wt (kg)
                             </label>
@@ -2907,50 +2557,29 @@ const SupplierBillForm = () => {
                               min="0"
                               step="0.01"
                               placeholder="-"
-                              value={item.receivedWeightKg || ''}
+                              value={item.receivedWeightKg || ""}
                               onChange={(e) => {
-                                const recvWt =
-                                  e.target.value === ''
-                                    ? null
-                                    : parseFloat(e.target.value);
+                                const recvWt = e.target.value === "" ? null : parseFloat(e.target.value);
                                 const poWt = item.poWeightKg || 0;
-                                const variance =
-                                  poWt && recvWt ? recvWt - poWt : null;
-                                const variancePercent =
-                                  poWt && variance
-                                    ? (variance / poWt) * 100
-                                    : null;
-                                handleItemChange(
-                                  index,
-                                  'receivedWeightKg',
-                                  recvWt,
-                                );
+                                const variance = poWt && recvWt ? recvWt - poWt : null;
+                                const variancePercent = poWt && variance ? (variance / poWt) * 100 : null;
+                                handleItemChange(index, "receivedWeightKg", recvWt);
                                 if (variance !== null) {
-                                  handleItemChange(
-                                    index,
-                                    'weightVarianceKg',
-                                    variance,
-                                  );
-                                  handleItemChange(
-                                    index,
-                                    'weightVariancePercent',
-                                    variancePercent,
-                                  );
+                                  handleItemChange(index, "weightVarianceKg", variance);
+                                  handleItemChange(index, "weightVariancePercent", variancePercent);
                                 }
                               }}
                               className={`w-full px-2 py-1.5 rounded border text-xs ${
                                 isDarkMode
-                                  ? 'border-gray-600 bg-gray-700 text-white'
-                                  : 'border-gray-300 bg-white text-gray-900'
+                                  ? "border-gray-600 bg-gray-700 text-white"
+                                  : "border-gray-300 bg-white text-gray-900"
                               } focus:outline-none focus:ring-1 focus:ring-teal-500`}
                             />
                           </div>
 
                           {/* Weight Variance */}
                           <div className="col-span-6 md:col-span-2">
-                            <div
-                              className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                            >
+                            <div className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
                               Variance
                             </div>
                             <div
@@ -2958,23 +2587,23 @@ const SupplierBillForm = () => {
                                 item.weightVarianceKg
                                   ? item.weightVarianceKg > 0
                                     ? isDarkMode
-                                      ? 'border-green-600 bg-green-900/20 text-green-400'
-                                      : 'border-green-300 bg-green-50 text-green-700'
+                                      ? "border-green-600 bg-green-900/20 text-green-400"
+                                      : "border-green-300 bg-green-50 text-green-700"
                                     : item.weightVarianceKg < 0
                                       ? isDarkMode
-                                        ? 'border-red-600 bg-red-900/20 text-red-400'
-                                        : 'border-red-300 bg-red-50 text-red-700'
+                                        ? "border-red-600 bg-red-900/20 text-red-400"
+                                        : "border-red-300 bg-red-50 text-red-700"
                                       : isDarkMode
-                                        ? 'border-gray-600 bg-gray-700/50 text-gray-400'
-                                        : 'border-gray-300 bg-gray-100 text-gray-500'
+                                        ? "border-gray-600 bg-gray-700/50 text-gray-400"
+                                        : "border-gray-300 bg-gray-100 text-gray-500"
                                   : isDarkMode
-                                    ? 'border-gray-600 bg-gray-700/50 text-gray-400'
-                                    : 'border-gray-300 bg-gray-100 text-gray-500'
+                                    ? "border-gray-600 bg-gray-700/50 text-gray-400"
+                                    : "border-gray-300 bg-gray-100 text-gray-500"
                               }`}
                             >
                               {item.weightVarianceKg
-                                ? `${item.weightVarianceKg > 0 ? '+' : ''}${item.weightVarianceKg.toFixed(2)} kg (${item.weightVariancePercent?.toFixed(1) || 0}%)`
-                                : '-'}
+                                ? `${item.weightVarianceKg > 0 ? "+" : ""}${item.weightVarianceKg.toFixed(2)} kg (${item.weightVariancePercent?.toFixed(1) || 0}%)`
+                                : "-"}
                             </div>
                           </div>
 
@@ -2982,7 +2611,7 @@ const SupplierBillForm = () => {
                           <div className="col-span-6 md:col-span-2">
                             <label
                               htmlFor={`item-batch-number-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
                             >
                               <Layers className="inline h-3 w-3 mr-1" />
                               Batch #
@@ -2991,18 +2620,12 @@ const SupplierBillForm = () => {
                               id={`item-batch-number-${index}`}
                               type="text"
                               placeholder="Auto"
-                              value={item.batchNumber || ''}
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  'batchNumber',
-                                  e.target.value,
-                                )
-                              }
+                              value={item.batchNumber || ""}
+                              onChange={(e) => handleItemChange(index, "batchNumber", e.target.value)}
                               className={`w-full px-2 py-1.5 rounded border text-xs ${
                                 isDarkMode
-                                  ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500'
-                                  : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                                  ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
+                                  : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
                               } focus:outline-none focus:ring-1 focus:ring-teal-500`}
                             />
                           </div>
@@ -3013,18 +2636,10 @@ const SupplierBillForm = () => {
                               <input
                                 type="checkbox"
                                 checked={item.createBatch !== false}
-                                onChange={(e) =>
-                                  handleItemChange(
-                                    index,
-                                    'createBatch',
-                                    e.target.checked,
-                                  )
-                                }
+                                onChange={(e) => handleItemChange(index, "createBatch", e.target.checked)}
                                 className="w-3.5 h-3.5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                               />
-                              <span
-                                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                              >
+                              <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                                 Create Batch
                               </span>
                             </label>
@@ -3042,40 +2657,26 @@ const SupplierBillForm = () => {
           <div className="col-span-12 lg:col-span-4">
             <div className="lg:sticky lg:top-24 space-y-4">
               {/* Totals */}
-              <div
-                className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-              >
-                <h2
-                  className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
-                  Summary
-                </h2>
+              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+                <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Summary</h2>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}
-                    >
-                      Subtotal:
-                    </span>
+                    <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>Subtotal:</span>
                     <span
                       data-testid="subtotal"
-                      className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {formatCurrency(bill.subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}
-                    >
-                      VAT (
-                      {VAT_CATEGORIES.find((c) => c.value === bill.vatCategory)
-                        ?.rate || 5}
+                    <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+                      VAT ({VAT_CATEGORIES.find((c) => c.value === bill.vatCategory)?.rate || 5}
                       %):
                     </span>
                     <span
                       data-testid="vat-amount"
-                      className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {formatCurrency(bill.vatAmount)}
                     </span>
@@ -3085,9 +2686,7 @@ const SupplierBillForm = () => {
                     bill.insuranceCharges > 0 ||
                     bill.handlingCharges > 0 ||
                     bill.otherCharges > 0) && (
-                    <div
-                      className={`flex justify-between text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                    >
+                    <div className={`flex justify-between text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                       <span>Additional Charges:</span>
                       <span>
                         {formatCurrency(
@@ -3095,77 +2694,55 @@ const SupplierBillForm = () => {
                             (parseFloat(bill.customsDuty) || 0) +
                             (parseFloat(bill.insuranceCharges) || 0) +
                             (parseFloat(bill.handlingCharges) || 0) +
-                            (parseFloat(bill.otherCharges) || 0),
+                            (parseFloat(bill.otherCharges) || 0)
                         )}
                       </span>
                     </div>
                   )}
                   {bill.isReverseCharge && (
-                    <div
-                      className={`flex justify-between text-sm ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
-                    >
+                    <div className={`flex justify-between text-sm ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}>
                       <span>Reverse Charge VAT:</span>
-                      <span data-testid="reverse-charge-amount">
-                        {formatCurrency(bill.reverseChargeAmount)}
-                      </span>
+                      <span data-testid="reverse-charge-amount">{formatCurrency(bill.reverseChargeAmount)}</span>
                     </div>
                   )}
                   <div
-                    className={`flex justify-between pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                    className={`flex justify-between pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                   >
-                    <span
-                      className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                    >
-                      Total:
-                    </span>
-                    <span
-                      data-testid="total"
-                      className="text-lg font-bold text-teal-600"
-                    >
+                    <span className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Total:</span>
+                    <span data-testid="total" className="text-lg font-bold text-teal-600">
                       {formatCurrency(bill.total)}
                     </span>
                   </div>
 
                   {/* Landed Cost Section */}
-                  {bill.totalLandedCost > 0 &&
-                    bill.totalLandedCost !== bill.total && (
-                      <div
-                        className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                      >
-                        <div className="flex justify-between">
-                          <span
-                            className={`text-sm font-medium ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
-                          >
-                            Total Landed Cost:
-                          </span>
-                          <span
-                            className={`text-sm font-bold ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
-                          >
-                            {formatCurrency(bill.totalLandedCost)}
-                          </span>
-                        </div>
-                        {bill.landedCostPerUnit > 0 && (
-                          <div
-                            className={`flex justify-between text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                          >
-                            <span>Landed Cost / KG:</span>
-                            <span>
-                              {formatCurrency(bill.landedCostPerUnit)}
-                            </span>
-                          </div>
-                        )}
+                  {bill.totalLandedCost > 0 && bill.totalLandedCost !== bill.total && (
+                    <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                      <div className="flex justify-between">
+                        <span className={`text-sm font-medium ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}>
+                          Total Landed Cost:
+                        </span>
+                        <span className={`text-sm font-bold ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}>
+                          {formatCurrency(bill.totalLandedCost)}
+                        </span>
                       </div>
-                    )}
+                      {bill.landedCostPerUnit > 0 && (
+                        <div
+                          className={`flex justify-between text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                        >
+                          <span>Landed Cost / KG:</span>
+                          <span>{formatCurrency(bill.landedCostPerUnit)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Quick Actions */}
               <div
-                className={`p-4 rounded-2xl ${isDarkMode ? 'bg-[#141a20] border border-[#2a3640]' : 'bg-white border border-gray-200'}`}
+                className={`p-4 rounded-2xl ${isDarkMode ? "bg-[#141a20] border border-[#2a3640]" : "bg-white border border-gray-200"}`}
               >
-                <div
-                  className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
-                >
+                <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                   Quick Actions
                 </div>
                 <div className="space-y-1.5">
@@ -3174,8 +2751,8 @@ const SupplierBillForm = () => {
                     onClick={() => setChargesDrawerOpen(true)}
                     className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
                       isDarkMode
-                        ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
-                        : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
+                        ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
+                        : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
                     }`}
                   >
                     <Scale className="h-4 w-4 opacity-60" />
@@ -3186,14 +2763,14 @@ const SupplierBillForm = () => {
                       bill.handlingCharges > 0 ||
                       bill.otherCharges > 0) && (
                       <span
-                        className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'}`}
+                        className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
                       >
                         {formatCurrency(
                           (parseFloat(bill.freightCharges) || 0) +
                             (parseFloat(bill.customsDuty) || 0) +
                             (parseFloat(bill.insuranceCharges) || 0) +
                             (parseFloat(bill.handlingCharges) || 0) +
-                            (parseFloat(bill.otherCharges) || 0),
+                            (parseFloat(bill.otherCharges) || 0)
                         )}
                       </span>
                     )}
@@ -3203,51 +2780,43 @@ const SupplierBillForm = () => {
                     onClick={() => setNotesDrawerOpen(true)}
                     className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
                       isDarkMode
-                        ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]'
-                        : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600'
+                        ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
+                        : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
                     }`}
                   >
                     <FileText className="h-4 w-4 opacity-60" />
                     Notes & Terms
                     {(bill.notes || bill.terms) && (
-                      <span
-                        className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? 'bg-teal-400' : 'bg-teal-500'}`}
-                      />
+                      <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
                     )}
                   </button>
                 </div>
               </div>
 
               {/* Stock-In Information */}
-              <div
-                className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-              >
+              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
                 <h2
-                  className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
                   <Layers className="h-5 w-5" />
                   Stock-In Details
                 </h2>
-                <div
-                  className={`space-y-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                >
+                <div className={`space-y-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   {/* Procurement Channel */}
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Procurement:</span>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        bill.procurementChannel === 'IMPORTED'
+                        bill.procurementChannel === "IMPORTED"
                           ? isDarkMode
-                            ? 'bg-blue-900/50 text-blue-300'
-                            : 'bg-blue-100 text-blue-700'
+                            ? "bg-blue-900/50 text-blue-300"
+                            : "bg-blue-100 text-blue-700"
                           : isDarkMode
-                            ? 'bg-green-900/50 text-green-300'
-                            : 'bg-green-100 text-green-700'
+                            ? "bg-green-900/50 text-green-300"
+                            : "bg-green-100 text-green-700"
                       }`}
                     >
-                      {bill.procurementChannel === 'IMPORTED'
-                        ? 'Import'
-                        : 'Local'}
+                      {bill.procurementChannel === "IMPORTED" ? "Import" : "Local"}
                     </span>
                   </div>
 
@@ -3279,12 +2848,10 @@ const SupplierBillForm = () => {
                   {bill.totalLandedCost > 0 && (
                     <>
                       <div
-                        className={`flex justify-between pt-2 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                        className={`flex justify-between pt-2 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                       >
                         <span className="font-medium">Total Landed Cost:</span>
-                        <span className="font-bold text-teal-600">
-                          {formatCurrency(bill.totalLandedCost)}
-                        </span>
+                        <span className="font-bold text-teal-600">{formatCurrency(bill.totalLandedCost)}</span>
                       </div>
                       {bill.landedCostPerUnit > 0 && (
                         <div className="flex justify-between text-xs">
@@ -3313,16 +2880,12 @@ const SupplierBillForm = () => {
                       />
                       <div
                         className={`w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all ${
-                          isDarkMode
-                            ? 'bg-gray-600 peer-checked:bg-teal-600'
-                            : 'bg-gray-300 peer-checked:bg-teal-600'
+                          isDarkMode ? "bg-gray-600 peer-checked:bg-teal-600" : "bg-gray-300 peer-checked:bg-teal-600"
                         }`}
                       ></div>
                     </label>
                   </div>
-                  <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                  >
+                  <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                     When approved, creates inventory batches for each line item
                   </p>
                 </div>
@@ -3348,7 +2911,7 @@ const SupplierBillForm = () => {
             <div>
               <label
                 htmlFor="freight-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
               >
                 Freight Charges
               </label>
@@ -3358,7 +2921,7 @@ const SupplierBillForm = () => {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                value={bill.freightCharges || ''}
+                value={bill.freightCharges || ""}
                 onChange={(e) => {
                   const amount = parseFloat(e.target.value) || 0;
                   setBill((prev) => ({ ...prev, freightCharges: amount }));
@@ -3366,15 +2929,15 @@ const SupplierBillForm = () => {
                 }}
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div>
               <label
                 htmlFor="customs-duty"
-                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
               >
                 Customs Duty
               </label>
@@ -3384,7 +2947,7 @@ const SupplierBillForm = () => {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                value={bill.customsDuty || ''}
+                value={bill.customsDuty || ""}
                 onChange={(e) => {
                   const amount = parseFloat(e.target.value) || 0;
                   setBill((prev) => ({ ...prev, customsDuty: amount }));
@@ -3392,15 +2955,15 @@ const SupplierBillForm = () => {
                 }}
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div>
               <label
                 htmlFor="insurance-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
               >
                 Insurance Charges
               </label>
@@ -3410,7 +2973,7 @@ const SupplierBillForm = () => {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                value={bill.insuranceCharges || ''}
+                value={bill.insuranceCharges || ""}
                 onChange={(e) => {
                   const amount = parseFloat(e.target.value) || 0;
                   setBill((prev) => ({ ...prev, insuranceCharges: amount }));
@@ -3418,15 +2981,15 @@ const SupplierBillForm = () => {
                 }}
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div>
               <label
                 htmlFor="handling-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
               >
                 Handling Charges
               </label>
@@ -3436,7 +2999,7 @@ const SupplierBillForm = () => {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                value={bill.handlingCharges || ''}
+                value={bill.handlingCharges || ""}
                 onChange={(e) => {
                   const amount = parseFloat(e.target.value) || 0;
                   setBill((prev) => ({ ...prev, handlingCharges: amount }));
@@ -3444,15 +3007,15 @@ const SupplierBillForm = () => {
                 }}
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
             <div className="col-span-2">
               <label
                 htmlFor="other-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
               >
                 Other Charges
               </label>
@@ -3462,7 +3025,7 @@ const SupplierBillForm = () => {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                value={bill.otherCharges || ''}
+                value={bill.otherCharges || ""}
                 onChange={(e) => {
                   const amount = parseFloat(e.target.value) || 0;
                   setBill((prev) => ({ ...prev, otherCharges: amount }));
@@ -3470,8 +3033,8 @@ const SupplierBillForm = () => {
                 }}
                 className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                   isDarkMode
-                    ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]'
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
                 } focus:ring-2 focus:ring-[#4aa3ff]/20`}
               />
             </div>
@@ -3479,21 +3042,17 @@ const SupplierBillForm = () => {
 
           {/* Summary */}
           <div
-            className={`p-3 rounded-[14px] ${isDarkMode ? 'bg-[#0f151b] border border-[#2a3640]' : 'bg-gray-50 border border-gray-200'}`}
+            className={`p-3 rounded-[14px] ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
           >
             <div className="flex justify-between items-center">
-              <span
-                className={`text-sm ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
-              >
-                Total Charges
-              </span>
+              <span className={`text-sm ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Total Charges</span>
               <span className="text-sm font-bold font-mono">
                 {formatCurrency(
                   (parseFloat(bill.freightCharges) || 0) +
                     (parseFloat(bill.customsDuty) || 0) +
                     (parseFloat(bill.insuranceCharges) || 0) +
                     (parseFloat(bill.handlingCharges) || 0) +
-                    (parseFloat(bill.otherCharges) || 0),
+                    (parseFloat(bill.otherCharges) || 0)
                 )}
               </span>
             </div>
@@ -3505,8 +3064,8 @@ const SupplierBillForm = () => {
           className="sticky bottom-0 pt-4 mt-6"
           style={{
             background: isDarkMode
-              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
+              ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
           }}
         >
           <button
@@ -3531,44 +3090,40 @@ const SupplierBillForm = () => {
           <div>
             <label
               htmlFor="bill-notes"
-              className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+              className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
             >
               Bill Notes
             </label>
             <textarea
               id="bill-notes"
-              value={bill.notes || ''}
-              onChange={(e) =>
-                setBill((prev) => ({ ...prev, notes: e.target.value }))
-              }
+              value={bill.notes || ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, notes: e.target.value }))}
               placeholder="Add any notes about this supplier bill..."
               rows={4}
               className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
                 isDarkMode
-                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
               } focus:ring-2 focus:ring-[#4aa3ff]/20`}
             />
           </div>
           <div>
             <label
               htmlFor="payment-terms"
-              className={`block text-xs mb-1.5 ${isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500'}`}
+              className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
             >
               Payment Terms
             </label>
             <textarea
               id="payment-terms"
-              value={bill.terms || ''}
-              onChange={(e) =>
-                setBill((prev) => ({ ...prev, terms: e.target.value }))
-              }
+              value={bill.terms || ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, terms: e.target.value }))}
               placeholder="Enter payment terms..."
               rows={4}
               className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
                 isDarkMode
-                  ? 'bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
               } focus:ring-2 focus:ring-[#4aa3ff]/20`}
             />
           </div>
@@ -3579,8 +3134,8 @@ const SupplierBillForm = () => {
           className="sticky bottom-0 pt-4 mt-6"
           style={{
             background: isDarkMode
-              ? 'linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))'
-              : 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
+              ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
           }}
         >
           <button
@@ -3598,30 +3153,25 @@ const SupplierBillForm = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div
             className={`w-full max-w-2xl max-h-[80vh] overflow-auto rounded-xl shadow-2xl ${
-              isDarkMode ? 'bg-gray-800' : 'bg-white'
+              isDarkMode ? "bg-gray-800" : "bg-white"
             }`}
           >
             <div
-              className={`sticky top-0 px-6 py-4 border-b ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+              className={`sticky top-0 px-6 py-4 border-b ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
             >
               <div className="flex items-center justify-between">
-                <h3
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Select GRN to Match
                 </h3>
                 <button
                   onClick={() => setShowGRNMatchModal(false)}
-                  className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                  className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <p
-                className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-              >
-                Link this supplier bill to a Goods Receipt Note for 3-way
-                matching (PO - GRN - Bill)
+              <p className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                Link this supplier bill to a Goods Receipt Note for 3-way matching (PO - GRN - Bill)
               </p>
             </div>
 
@@ -3631,14 +3181,10 @@ const SupplierBillForm = () => {
                   <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
                 </div>
               ) : availableGRNs.length === 0 ? (
-                <div
-                  className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                >
+                <div className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
                   <p>No unbilled GRNs available for this vendor.</p>
-                  <p className="text-sm mt-1">
-                    Create a GRN first or select a different vendor.
-                  </p>
+                  <p className="text-sm mt-1">Create a GRN first or select a different vendor.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -3648,41 +3194,31 @@ const SupplierBillForm = () => {
                       onClick={() => handleGRNSelect(grn)}
                       className={`w-full text-left p-4 rounded-lg border transition-all ${
                         isDarkMode
-                          ? 'border-gray-600 hover:border-teal-500 hover:bg-gray-700/50'
-                          : 'border-gray-200 hover:border-teal-500 hover:bg-teal-50/50'
+                          ? "border-gray-600 hover:border-teal-500 hover:bg-gray-700/50"
+                          : "border-gray-200 hover:border-teal-500 hover:bg-teal-50/50"
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <div
-                            className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                          >
+                          <div className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                             {grn.grnNumber}
                           </div>
-                          <div
-                            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                          >
+                          <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                             {grn.poNumber && `PO: ${grn.poNumber}`}
-                            {grn.receivedDate &&
-                              ` | Received: ${grn.receivedDate}`}
+                            {grn.receivedDate && ` | Received: ${grn.receivedDate}`}
                           </div>
                           {grn.items && grn.items.length > 0 && (
-                            <div
-                              className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
-                            >
+                            <div className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                               {grn.items.length} item
-                              {grn.items.length !== 1 ? 's' : ''} | Total:{' '}
-                              {formatCurrency(grn.totalAmount || 0)}
+                              {grn.items.length !== 1 ? "s" : ""} | Total: {formatCurrency(grn.totalAmount || 0)}
                             </div>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {grn.procurementChannel === 'IMPORTED' && (
+                          {grn.procurementChannel === "IMPORTED" && (
                             <span
                               className={`px-2 py-0.5 rounded text-xs ${
-                                isDarkMode
-                                  ? 'bg-blue-900/50 text-blue-300'
-                                  : 'bg-blue-100 text-blue-700'
+                                isDarkMode ? "bg-blue-900/50 text-blue-300" : "bg-blue-100 text-blue-700"
                               }`}
                             >
                               <Ship className="h-3 w-3 inline mr-1" />
@@ -3691,12 +3227,10 @@ const SupplierBillForm = () => {
                           )}
                           <span
                             className={`px-2 py-0.5 rounded text-xs ${
-                              isDarkMode
-                                ? 'bg-green-900/50 text-green-300'
-                                : 'bg-green-100 text-green-700'
+                              isDarkMode ? "bg-green-900/50 text-green-300" : "bg-green-100 text-green-700"
                             }`}
                           >
-                            {grn.status || 'approved'}
+                            {grn.status || "approved"}
                           </span>
                         </div>
                       </div>
@@ -3706,12 +3240,10 @@ const SupplierBillForm = () => {
               )}
 
               {/* Skip GRN Matching Option */}
-              <div
-                className={`mt-6 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-              >
+              <div className={`mt-6 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <button
                   onClick={() => setShowGRNMatchModal(false)}
-                  className={`text-sm ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`text-sm ${isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"}`}
                 >
                   Skip - Create bill without GRN link
                 </button>

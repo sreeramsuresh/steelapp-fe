@@ -1,12 +1,6 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from 'react';
-import auditHubService from '../services/auditHubService';
-import { useAuth } from './AuthContext';
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import auditHubService from "../services/auditHubService";
+import { useAuth } from "./AuthContext";
 
 export const AuditHubContext = createContext();
 
@@ -42,7 +36,7 @@ export function AuditHubProvider({ children }) {
       const data = await auditHubService.getPeriods(user.companyId, filters);
       setPeriods(data);
     } catch (err) {
-      console.error('[AuditHub] Load periods error:', err);
+      console.error("[AuditHub] Load periods error:", err);
       setError(err.message);
       setPeriods([]);
     } finally {
@@ -53,7 +47,7 @@ export function AuditHubProvider({ children }) {
   // Guard: Redirect if no company context
   useEffect(() => {
     if (!user?.companyId) {
-      setError('No company context available');
+      setError("No company context available");
       setPeriods([]);
       setDatasets([]);
       return;
@@ -76,21 +70,18 @@ export function AuditHubProvider({ children }) {
       setLoading(true);
       setError(null);
       try {
-        const data = await auditHubService.getDatasets(
-          user.companyId,
-          period.id,
-        );
+        const data = await auditHubService.getDatasets(user.companyId, period.id);
         setDatasets(data);
         setSelectedDataset(null);
       } catch (err) {
-        console.error('[AuditHub] Select period error:', err);
+        console.error("[AuditHub] Select period error:", err);
         setError(err.message);
         setDatasets([]);
       } finally {
         setLoading(false);
       }
     },
-    [user?.companyId],
+    [user?.companyId]
   );
 
   // Select dataset
@@ -106,15 +97,10 @@ export function AuditHubProvider({ children }) {
       setLoading(true);
       setError(null);
       try {
-        const updatedPeriod = await auditHubService.closePeriod(
-          user.companyId,
-          periodId,
-        );
+        const updatedPeriod = await auditHubService.closePeriod(user.companyId, periodId);
 
         // Update periods list
-        setPeriods((prev) =>
-          prev.map((p) => (p.id === periodId ? updatedPeriod : p)),
-        );
+        setPeriods((prev) => prev.map((p) => (p.id === periodId ? updatedPeriod : p)));
 
         // Update selected period if it was the one closed
         if (selectedPeriod?.id === periodId) {
@@ -123,14 +109,14 @@ export function AuditHubProvider({ children }) {
 
         return updatedPeriod;
       } catch (err) {
-        console.error('[AuditHub] Close period error:', err);
+        console.error("[AuditHub] Close period error:", err);
         setError(err.message);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [user?.companyId, selectedPeriod],
+    [user?.companyId, selectedPeriod]
   );
 
   // Lock period
@@ -141,15 +127,10 @@ export function AuditHubProvider({ children }) {
       setLoading(true);
       setError(null);
       try {
-        const updatedPeriod = await auditHubService.lockPeriod(
-          user.companyId,
-          periodId,
-        );
+        const updatedPeriod = await auditHubService.lockPeriod(user.companyId, periodId);
 
         // Update periods list
-        setPeriods((prev) =>
-          prev.map((p) => (p.id === periodId ? updatedPeriod : p)),
-        );
+        setPeriods((prev) => prev.map((p) => (p.id === periodId ? updatedPeriod : p)));
 
         // Update selected period if it was the one locked
         if (selectedPeriod?.id === periodId) {
@@ -158,14 +139,14 @@ export function AuditHubProvider({ children }) {
 
         return updatedPeriod;
       } catch (err) {
-        console.error('[AuditHub] Lock period error:', err);
+        console.error("[AuditHub] Lock period error:", err);
         setError(err.message);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [user?.companyId, selectedPeriod],
+    [user?.companyId, selectedPeriod]
   );
 
   // Load reconciliations
@@ -176,20 +157,17 @@ export function AuditHubProvider({ children }) {
       setLoading(true);
       setError(null);
       try {
-        const data = await auditHubService.getReconciliations(
-          user.companyId,
-          fiscalPeriod,
-        );
+        const data = await auditHubService.getReconciliations(user.companyId, fiscalPeriod);
         setReconciliations(data);
       } catch (err) {
-        console.error('[AuditHub] Load reconciliations error:', err);
+        console.error("[AuditHub] Load reconciliations error:", err);
         setError(err.message);
         setReconciliations([]);
       } finally {
         setLoading(false);
       }
     },
-    [user?.companyId],
+    [user?.companyId]
   );
 
   // Create period
@@ -200,26 +178,21 @@ export function AuditHubProvider({ children }) {
       setLoading(true);
       setError(null);
       try {
-        const newPeriod = await auditHubService.createPeriod(
-          user.companyId,
-          periodType,
-          year,
-          month,
-        );
+        const newPeriod = await auditHubService.createPeriod(user.companyId, periodType, year, month);
 
         // Add new period to the list
         setPeriods((prev) => [newPeriod, ...prev]);
 
         return newPeriod;
       } catch (err) {
-        console.error('[AuditHub] Create period error:', err);
+        console.error("[AuditHub] Create period error:", err);
         setError(err.message);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [user?.companyId],
+    [user?.companyId]
   );
 
   // Update filters
@@ -251,18 +224,14 @@ export function AuditHubProvider({ children }) {
     updateFilters,
   };
 
-  return (
-    <AuditHubContext.Provider value={value}>
-      {children}
-    </AuditHubContext.Provider>
-  );
+  return <AuditHubContext.Provider value={value}>{children}</AuditHubContext.Provider>;
 }
 
 // Hook to use audit hub context
 export function useAuditHub() {
   const context = useContext(AuditHubContext);
   if (!context) {
-    throw new Error('useAuditHub must be used within AuditHubProvider');
+    throw new Error("useAuditHub must be used within AuditHubProvider");
   }
   return context;
 }

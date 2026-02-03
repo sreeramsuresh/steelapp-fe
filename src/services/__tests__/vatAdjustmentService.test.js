@@ -45,10 +45,7 @@ describe("vatAdjustmentService", () => {
 
       expect(result.data).toHaveLength(2);
       expect(result.pagination.total).toBe(2);
-      expect(api.get).toHaveBeenCalledWith(
-        "/vat-adjustments",
-        expect.any(Object)
-      );
+      expect(api.get).toHaveBeenCalledWith("/vat-adjustments", expect.any(Object));
     });
 
     it("should filter by adjustment type", async () => {
@@ -113,10 +110,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.createAdjustment(payload);
 
       expect(result.adjustment_number).toBe("VATA-2024-001");
-      expect(api.post).toHaveBeenCalledWith(
-        "/vat-adjustments",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/vat-adjustments", payload);
     });
   });
 
@@ -136,10 +130,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.updateAdjustment(1, payload);
 
       expect(result.amount).toBe(5500);
-      expect(api.put).toHaveBeenCalledWith(
-        "/vat-adjustments/1",
-        payload
-      );
+      expect(api.put).toHaveBeenCalledWith("/vat-adjustments/1", payload);
     });
   });
 

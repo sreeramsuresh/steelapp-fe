@@ -1,5 +1,4 @@
-
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle } from "lucide-react";
 
 /**
  * Sign-Off Button Component
@@ -28,9 +27,9 @@ export default function SignOffButton({
   }
 
   const colorClasses = {
-    PREPARED: 'bg-blue-600 hover:bg-blue-700 text-white',
-    REVIEWED: 'bg-amber-600 hover:bg-amber-700 text-white',
-    LOCKED: 'bg-green-600 hover:bg-green-700 text-white',
+    PREPARED: "bg-blue-600 hover:bg-blue-700 text-white",
+    REVIEWED: "bg-amber-600 hover:bg-amber-700 text-white",
+    LOCKED: "bg-green-600 hover:bg-green-700 text-white",
   };
 
   return (
@@ -38,11 +37,11 @@ export default function SignOffButton({
       onClick={onClick}
       disabled={disabled || loading}
       className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-        colorClasses[stage] || 'bg-blue-600 hover:bg-blue-700 text-white'
+        colorClasses[stage] || "bg-blue-600 hover:bg-blue-700 text-white"
       }`}
     >
-      <CheckCircle className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-      {loading ? 'Signing off...' : label}
+      <CheckCircle className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+      {loading ? "Signing off..." : label}
     </button>
   );
 }

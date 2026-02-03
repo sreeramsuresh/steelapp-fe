@@ -13,7 +13,7 @@
  * - Exchange rate tracking for FX payments
  */
 
-import { formatCurrency } from './invoiceUtils';
+import { formatCurrency } from "./invoiceUtils";
 
 /**
  * Generate FTA-compliant receipt HTML
@@ -24,110 +24,78 @@ import { formatCurrency } from './invoiceUtils';
  * @param {number} paymentIndex - Sequential index of this payment (1-based)
  * @returns {string} HTML content ready for printing/PDF
  */
-export const generateReceiptHTML = (
-  payment,
-  invoice,
-  company,
-  customer,
-  paymentIndex = 1,
-) => {
+export const generateReceiptHTML = (payment, invoice, company, customer, paymentIndex = 1) => {
   // Normalize field names (handle both camelCase and snake_case)
-  const companyName =
-    company?.legalName || company?.legal_name || 'Company Name';
-  const companyTRN = company?.trn || company?.TRN || '';
-  const companyAddress = company?.address || '';
-  const companyPhone = company?.phone || '';
-  const companyEmail = company?.email || '';
+  const companyName = company?.legalName || company?.legal_name || "Company Name";
+  const companyTRN = company?.trn || company?.TRN || "";
+  const companyAddress = company?.address || "";
+  const companyPhone = company?.phone || "";
+  const companyEmail = company?.email || "";
 
-  const customerName = customer?.name || customer?.customer_name || 'Customer';
-  const customerTRN = customer?.trn || customer?.TRN || '';
-  const customerAddress = customer?.address || '';
+  const customerName = customer?.name || customer?.customer_name || "Customer";
+  const customerTRN = customer?.trn || customer?.TRN || "";
+  const customerAddress = customer?.address || "";
 
-  const invoiceNumber =
-    invoice?.invoiceNumber || invoice?.invoice_number || 'N/A';
-  const invoiceDate = invoice?.invoiceDate || invoice?.invoice_date || '';
+  const invoiceNumber = invoice?.invoiceNumber || invoice?.invoice_number || "N/A";
+  const invoiceDate = invoice?.invoiceDate || invoice?.invoice_date || "";
   const invoiceTotal = invoice?.total || invoice?.total_amount || 0;
-  const invoiceExcludingVAT =
-    invoice?.amountExcludingVat ||
-    invoice?.amount_excluding_vat ||
-    invoiceTotal / 1.05;
-  const invoiceVAT =
-    invoice?.vat || invoice?.vat_amount || invoiceTotal - invoiceExcludingVAT;
+  const invoiceExcludingVAT = invoice?.amountExcludingVat || invoice?.amount_excluding_vat || invoiceTotal / 1.05;
+  const invoiceVAT = invoice?.vat || invoice?.vat_amount || invoiceTotal - invoiceExcludingVAT;
 
   const paymentAmount = payment?.amount || 0;
-  const paymentDate =
-    payment?.paymentDate || payment?.payment_date || new Date().toISOString();
-  const paymentMethod =
-    payment?.paymentMethod || payment?.payment_method || 'N/A';
-  const referenceNumber =
-    payment?.referenceNumber ||
-    payment?.reference_number ||
-    payment?.reference_no ||
-    '';
-  const receiptNumber =
-    payment?.receiptNumber || payment?.receipt_number || 'N/A';
-  const compositeReference =
-    payment?.compositeReference || payment?.composite_reference || '';
-  const isAdvancePayment =
-    payment?.isAdvancePayment || payment?.is_advance_payment || false;
-  const _remarks = payment?.remarks || '';
+  const paymentDate = payment?.paymentDate || payment?.payment_date || new Date().toISOString();
+  const paymentMethod = payment?.paymentMethod || payment?.payment_method || "N/A";
+  const referenceNumber = payment?.referenceNumber || payment?.reference_number || payment?.reference_no || "";
+  const receiptNumber = payment?.receiptNumber || payment?.receipt_number || "N/A";
+  const compositeReference = payment?.compositeReference || payment?.composite_reference || "";
+  const isAdvancePayment = payment?.isAdvancePayment || payment?.is_advance_payment || false;
+  const _remarks = payment?.remarks || "";
 
-  const currencyCode = payment?.currencyCode || payment?.currency_code || 'AED';
+  const currencyCode = payment?.currencyCode || payment?.currency_code || "AED";
   const exchangeRate = payment?.exchangeRate || payment?.exchange_rate || 1.0;
-  const amountInAED =
-    payment?.amountInAed || payment?.amount_in_aed || paymentAmount;
+  const amountInAED = payment?.amountInAed || payment?.amount_in_aed || paymentAmount;
 
-  const outstandingBalance =
-    invoice?.outstandingBalance || invoice?.outstanding || 0;
+  const outstandingBalance = invoice?.outstandingBalance || invoice?.outstanding || 0;
 
   // Format dates
-  const formattedPaymentDate = new Date(paymentDate).toLocaleDateString(
-    'en-US',
-    {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    },
-  );
+  const formattedPaymentDate = new Date(paymentDate).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 
   const formattedInvoiceDate = invoiceDate
-    ? new Date(invoiceDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
+    ? new Date(invoiceDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
       })
-    : 'N/A';
+    : "N/A";
 
   // Determine payment method display
   let paymentMethodDisplay = paymentMethod;
-  let additionalPaymentDetails = '';
+  let additionalPaymentDetails = "";
 
-  if (paymentMethod.toLowerCase() === 'cheque') {
-    paymentMethodDisplay = '☐ Cheque';
+  if (paymentMethod.toLowerCase() === "cheque") {
+    paymentMethodDisplay = "☐ Cheque";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
         <td><strong>Cheque Number:</strong></td>
         <td>${referenceNumber}</td>
       </tr>`;
     }
-  } else if (
-    paymentMethod.toLowerCase() === 'bank_transfer' ||
-    paymentMethod.toLowerCase() === 'bank transfer'
-  ) {
-    paymentMethodDisplay = '🏦 Bank Transfer';
+  } else if (paymentMethod.toLowerCase() === "bank_transfer" || paymentMethod.toLowerCase() === "bank transfer") {
+    paymentMethodDisplay = "🏦 Bank Transfer";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
         <td><strong>Bank Reference/Transaction ID:</strong></td>
         <td>${referenceNumber}</td>
       </tr>`;
     }
-  } else if (paymentMethod.toLowerCase() === 'cash') {
-    paymentMethodDisplay = '💵 Cash';
-  } else if (
-    paymentMethod.toLowerCase() === 'credit_card' ||
-    paymentMethod.toLowerCase() === 'credit card'
-  ) {
-    paymentMethodDisplay = '💳 Credit Card';
+  } else if (paymentMethod.toLowerCase() === "cash") {
+    paymentMethodDisplay = "💵 Cash";
+  } else if (paymentMethod.toLowerCase() === "credit_card" || paymentMethod.toLowerCase() === "credit card") {
+    paymentMethodDisplay = "💳 Credit Card";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
         <td><strong>Authorization Number:</strong></td>
@@ -324,8 +292,8 @@ export const generateReceiptHTML = (
         <p class="company-name">${companyName}</p>
         <p><span class="trn-label">Tax Registration Number (TRN):</span> ${companyTRN}</p>
         <p>${companyAddress}</p>
-        ${companyPhone ? `<p>Tel: ${companyPhone}</p>` : ''}
-        ${companyEmail ? `<p>Email: ${companyEmail}</p>` : ''}
+        ${companyPhone ? `<p>Tel: ${companyPhone}</p>` : ""}
+        ${companyEmail ? `<p>Email: ${companyEmail}</p>` : ""}
       </div>
     </div>
 
@@ -367,7 +335,7 @@ export const generateReceiptHTML = (
         <td><strong>Customer TRN:</strong></td>
         <td>${customerTRN}</td>
       </tr>`
-          : ''
+          : ""
       }
     </table>
 
@@ -393,7 +361,7 @@ export const generateReceiptHTML = (
       </p>
     </div>
     `
-        : ''
+        : ""
     }
 
     <!-- VAT SECTION (CRITICAL FOR FTA) -->
@@ -457,7 +425,7 @@ export const generateReceiptHTML = (
 
     <!-- MULTI-CURRENCY SECTION (if applicable) -->
     ${
-      currencyCode !== 'AED'
+      currencyCode !== "AED"
         ? `
     <div class="currency-section">
       <strong>Foreign Currency Payment Details</strong>
@@ -481,7 +449,7 @@ export const generateReceiptHTML = (
       </table>
     </div>
     `
-        : ''
+        : ""
     }
 
     <!-- AUDIT REFERENCE -->
@@ -496,7 +464,7 @@ export const generateReceiptHTML = (
     <!-- FOOTER -->
     <div class="footer">
       <p><strong>Payment Receipt #${paymentIndex}</strong> | Issued by Steel ERP System</p>
-      <p>Date/Time: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Dubai' })}</p>
+      <p>Date/Time: ${new Date().toLocaleString("en-US", { timeZone: "Asia/Dubai" })}</p>
       <div class="compliance-note">
         <p>
           This receipt is issued in compliance with UAE Federal Law No. 8 of 2017 (VAT Law) and Executive Regulations.

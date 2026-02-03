@@ -28,7 +28,7 @@ export const safeEntries = (obj) => {
   if (obj === null || obj === undefined) {
     return [];
   }
-  if (typeof obj !== 'object' || Array.isArray(obj)) {
+  if (typeof obj !== "object" || Array.isArray(obj)) {
     return [];
   }
   try {
@@ -54,7 +54,7 @@ export const safeKeys = (obj) => {
   if (obj === null || obj === undefined) {
     return [];
   }
-  if (typeof obj !== 'object' || Array.isArray(obj)) {
+  if (typeof obj !== "object" || Array.isArray(obj)) {
     return [];
   }
   try {
@@ -78,7 +78,7 @@ export const safeValues = (obj) => {
   if (obj === null || obj === undefined) {
     return [];
   }
-  if (typeof obj !== 'object' || Array.isArray(obj)) {
+  if (typeof obj !== "object" || Array.isArray(obj)) {
     return [];
   }
   try {
@@ -105,12 +105,12 @@ export const safeGet = (obj, path, defaultValue = undefined) => {
     return defaultValue;
   }
 
-  if (typeof path !== 'string' || path === '') {
+  if (typeof path !== "string" || path === "") {
     return defaultValue;
   }
 
   try {
-    const keys = path.split('.');
+    const keys = path.split(".");
     let result = obj;
 
     for (const key of keys) {
@@ -125,7 +125,7 @@ export const safeGet = (obj, path, defaultValue = undefined) => {
           return defaultValue;
         }
         result = result[index];
-      } else if (typeof result === 'object') {
+      } else if (typeof result === "object") {
         result = result[key];
       } else {
         return defaultValue;
@@ -167,7 +167,7 @@ export const safeArray = (arr) => {
  * const qty = safeNumber(item?.quantity, 1);
  */
 export const safeNumber = (val, defaultValue = 0) => {
-  if (val === null || val === undefined || val === '') {
+  if (val === null || val === undefined || val === "") {
     return defaultValue;
   }
 
@@ -191,12 +191,12 @@ export const safeNumber = (val, defaultValue = 0) => {
  * const customerName = safeString(customer?.name, 'Unknown Customer');
  * const status = safeString(invoice?.status, 'pending');
  */
-export const safeString = (val, defaultValue = '') => {
+export const safeString = (val, defaultValue = "") => {
   if (val === null || val === undefined) {
     return defaultValue;
   }
 
-  if (typeof val === 'string') {
+  if (typeof val === "string") {
     return val;
   }
 
@@ -220,11 +220,11 @@ export const safeString = (val, defaultValue = '') => {
  * }
  */
 export const safeHas = (obj, key) => {
-  if (obj === null || obj === undefined || typeof obj !== 'object') {
+  if (obj === null || obj === undefined || typeof obj !== "object") {
     return false;
   }
   try {
-    return Object.prototype.hasOwnProperty.call(obj, key);
+    return Object.hasOwn(obj, key);
   } catch {
     return false;
   }
@@ -249,7 +249,7 @@ export const safeLength = (value) => {
     return value.length;
   }
 
-  if (typeof value === 'object') {
+  if (typeof value === "object") {
     try {
       return Object.keys(value).length;
     } catch {

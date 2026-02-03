@@ -1,153 +1,124 @@
-import { Link } from 'react-router-dom';
-import MarketingLayout from './MarketingLayout';
+import { Link } from "react-router-dom";
+import MarketingLayout from "./MarketingLayout";
 
 const Products = () => {
   const metalSupplies = [
     {
-      title: 'Steel Coils',
-      description:
-        'High-quality coils for manufacturing and industrial applications.',
-      image:
-        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop',
+      title: "Steel Coils",
+      description: "High-quality coils for manufacturing and industrial applications.",
+      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop",
     },
     {
-      title: 'Steel Sheets',
-      description:
-        'Premium sheets for diverse construction and design purposes.',
-      image:
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
+      title: "Steel Sheets",
+      description: "Premium sheets for diverse construction and design purposes.",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
     },
     {
-      title: 'Stainless Steel Pipes',
-      description:
-        'Precision-made stainless steel pipes for superior durability.',
-      image:
-        'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=400&fit=crop',
+      title: "Stainless Steel Pipes",
+      description: "Precision-made stainless steel pipes for superior durability.",
+      image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=400&fit=crop",
     },
     {
-      title: 'Steel Bars',
-      description: 'Durable and versatile for structural applications.',
-      image:
-        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=400&h=400&fit=crop',
+      title: "Steel Bars",
+      description: "Durable and versatile for structural applications.",
+      image: "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=400&h=400&fit=crop",
     },
     {
-      title: 'Steel Rods',
-      description: 'Strong and reliable for various industrial uses.',
-      image:
-        'https://images.unsplash.com/photo-1599669237225-2a92d8aa5ec6?w=400&h=400&fit=crop',
+      title: "Steel Rods",
+      description: "Strong and reliable for various industrial uses.",
+      image: "https://images.unsplash.com/photo-1599669237225-2a92d8aa5ec6?w=400&h=400&fit=crop",
     },
     {
-      title: 'Steel Plates',
-      description: 'Robust and corrosion-resistant for multiple applications.',
-      image:
-        'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400&h=400&fit=crop',
+      title: "Steel Plates",
+      description: "Robust and corrosion-resistant for multiple applications.",
+      image: "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400&h=400&fit=crop",
     },
     {
-      title: 'Steel Angles',
-      description:
-        'Provides excellent support in framing and structural projects.',
-      image:
-        'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=400&h=400&fit=crop',
+      title: "Steel Angles",
+      description: "Provides excellent support in framing and structural projects.",
+      image: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=400&h=400&fit=crop",
     },
     {
-      title: 'Steel Channels',
-      description: 'Ideal for construction and fabrication needs.',
-      image:
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
+      title: "Steel Channels",
+      description: "Ideal for construction and fabrication needs.",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
     },
     {
-      title: 'Steel Beams',
-      description: 'Precision-engineered for strength and stability.',
-      image:
-        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop',
+      title: "Steel Beams",
+      description: "Precision-engineered for strength and stability.",
+      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop",
     },
   ];
 
   const decorativeProducts = [
     {
-      title: 'Gold Finish PVD',
-      image:
-        'https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop',
+      title: "Gold Finish PVD",
+      image: "https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop",
     },
     {
-      title: 'Rose Gold PVD',
-      image:
-        'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop',
+      title: "Rose Gold PVD",
+      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop",
     },
     {
-      title: 'Black Chrome PVD',
-      image:
-        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop',
+      title: "Black Chrome PVD",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
     },
     {
-      title: 'Bronze PVD',
-      image:
-        'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&h=300&fit=crop',
+      title: "Bronze PVD",
+      image: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&h=300&fit=crop",
     },
   ];
 
   const kitchenSolutions = [
     {
-      image:
-        'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop",
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=300&h=300&fit=crop",
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1556909055-6f35a1b7e96c?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1556909055-6f35a1b7e96c?w=300&h=300&fit=crop",
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
     },
   ];
 
   const elevationSolutions = [
     {
-      image:
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop",
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&h=300&fit=crop",
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=300&h=300&fit=crop",
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=300&h=300&fit=crop',
+      image: "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=300&h=300&fit=crop",
     },
   ];
 
   const industries = [
     {
-      title: 'Construction & Infrastructure',
-      icon: '🏗️',
-      image:
-        'https://images.unsplash.com/photo-1541976590-713941681591?w=150&h=150&fit=crop',
+      title: "Construction & Infrastructure",
+      icon: "🏗️",
+      image: "https://images.unsplash.com/photo-1541976590-713941681591?w=150&h=150&fit=crop",
     },
     {
-      title: 'Manufacturing & Engineering',
-      icon: '⚙️',
-      image:
-        'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=150&h=150&fit=crop',
+      title: "Manufacturing & Engineering",
+      icon: "⚙️",
+      image: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=150&h=150&fit=crop",
     },
     {
-      title: 'Marine & Shipbuilding',
-      icon: '🚢',
-      image:
-        'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&h=150&fit=crop',
+      title: "Marine & Shipbuilding",
+      icon: "🚢",
+      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&h=150&fit=crop",
     },
     {
-      title: 'Heavy Equipment',
-      icon: '🏭',
-      image:
-        'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=150&h=150&fit=crop',
+      title: "Heavy Equipment",
+      icon: "🏭",
+      image: "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=150&h=150&fit=crop",
     },
   ];
 
@@ -159,8 +130,7 @@ const Products = () => {
           <div className="max-w-7xl mx-auto px-6 py-16">
             <h1 className="text-5xl font-bold mb-4">Products</h1>
             <p className="text-xl text-gray-300 max-w-2xl mb-6">
-              Discover our comprehensive range of premium steel products
-              engineered for excellence and built to last.
+              Discover our comprehensive range of premium steel products engineered for excellence and built to last.
             </p>
             <Link
               to="/login"
@@ -175,13 +145,10 @@ const Products = () => {
           {/* Metal Supplies Section */}
           <section className="mb-20">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Metal Supplies
-              </h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Metal Supplies</h2>
               <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mb-6"></div>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Premium quality steel products for industrial, commercial and
-                construction applications
+                Premium quality steel products for industrial, commercial and construction applications
               </p>
             </div>
 
@@ -203,9 +170,7 @@ const Products = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                       {product.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {product.description}
-                    </p>
+                    <p className="text-gray-600 leading-relaxed">{product.description}</p>
                     {/* eslint-disable-next-line local-rules/no-dead-button */}
                     <button className="mt-4 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105">
                       Learn More
@@ -219,9 +184,7 @@ const Products = () => {
           {/* Decorative PVD Sheets */}
           <section className="mb-20">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Decorative PVD Sheets
-              </h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Decorative PVD Sheets</h2>
               <p className="text-2xl text-gradient bg-gradient-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent font-semibold">
                 Metal Elegance
               </p>
@@ -252,9 +215,7 @@ const Products = () => {
           {/* Kitchen Solutions */}
           <section className="mb-20">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Kitchen Solutions
-              </h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Kitchen Solutions</h2>
               <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mx-auto"></div>
             </div>
 
@@ -277,9 +238,7 @@ const Products = () => {
           {/* Elevation Solutions */}
           <section className="mb-20">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Strength & Precision
-              </h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Strength & Precision</h2>
               <p className="text-2xl text-gradient bg-gradient-to-r from-slate-600 to-gray-600 bg-clip-text text-transparent font-semibold">
                 Elevation Solutions
               </p>
@@ -305,9 +264,7 @@ const Products = () => {
           {/* Industries We Serve */}
           <section className="mb-20">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Industries We Serve
-              </h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">Industries We Serve</h2>
               <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto"></div>
             </div>
 
@@ -341,9 +298,8 @@ const Products = () => {
               Excellence in Steel Solutions
             </p>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Explore our wide range of steel products and services. Whether you
-              need bulk orders or custom fabrication, Ultimate Steels is your
-              one-stop destination for premium steel solutions.
+              Explore our wide range of steel products and services. Whether you need bulk orders or custom fabrication,
+              Ultimate Steels is your one-stop destination for premium steel solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {/* eslint-disable-next-line local-rules/no-dead-button */}

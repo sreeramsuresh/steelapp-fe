@@ -155,9 +155,7 @@ describe("AuthService", () => {
     it("should handle login errors", async () => {
       apiService.post.mockRejectedValue(new Error("Invalid credentials"));
 
-      await expect(
-        authService.login("invalid@company.com", "wrongpass")
-      ).rejects.toThrow("Invalid credentials");
+      await expect(authService.login("invalid@company.com", "wrongpass")).rejects.toThrow("Invalid credentials");
     });
 
     it("should populate user permissions after login", async () => {

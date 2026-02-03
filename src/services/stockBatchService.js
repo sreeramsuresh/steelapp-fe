@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 
 /**
  * Stock Batch Service
@@ -28,14 +28,12 @@ export const stockBatchService = {
     };
 
     if (params.productId) queryParams.productId = params.productId;
-    if (params.procurementChannel)
-      queryParams.procurementChannel = params.procurementChannel;
+    if (params.procurementChannel) queryParams.procurementChannel = params.procurementChannel;
     if (params.warehouseId) queryParams.warehouseId = params.warehouseId;
     if (params.hasStock !== undefined) queryParams.hasStock = params.hasStock;
-    if (params.activeOnly !== undefined)
-      queryParams.activeOnly = params.activeOnly;
+    if (params.activeOnly !== undefined) queryParams.activeOnly = params.activeOnly;
 
-    return apiClient.get('/stock-batches', queryParams);
+    return apiClient.get("/stock-batches", queryParams);
   },
 
   /**
@@ -48,8 +46,7 @@ export const stockBatchService = {
   async getBatchesByProduct(productId, params = {}) {
     const queryParams = {};
 
-    if (params.procurementChannel)
-      queryParams.procurementChannel = params.procurementChannel;
+    if (params.procurementChannel) queryParams.procurementChannel = params.procurementChannel;
     if (params.hasStock !== undefined) queryParams.hasStock = params.hasStock;
 
     return apiClient.get(`/stock-batches/product/${productId}`, queryParams);
@@ -66,10 +63,7 @@ export const stockBatchService = {
   async getProcurementSummary(productId, _params = {}) {
     const queryParams = {};
 
-    return apiClient.get(
-      `/stock-batches/product/${productId}/summary`,
-      queryParams,
-    );
+    return apiClient.get(`/stock-batches/product/${productId}/summary`, queryParams);
   },
 
   /**
@@ -95,7 +89,7 @@ export const stockBatchService = {
    * @param {string} data.millName - Mill/manufacturer name for imports
    */
   async createBatch(data) {
-    return apiClient.post('/stock-batches', data);
+    return apiClient.post("/stock-batches", data);
   },
 
   /**

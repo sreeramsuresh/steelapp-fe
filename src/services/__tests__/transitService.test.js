@@ -91,16 +91,10 @@ describe("transitService", () => {
         timestamp: "2024-01-20T10:00:00Z",
       };
 
-      const result = await transitService.updateShipmentLocation(
-        "SHP-001",
-        payload
-      );
+      const result = await transitService.updateShipmentLocation("SHP-001", payload);
 
       expect(result.status).toBe("arrived");
-      expect(api.post).toHaveBeenCalledWith(
-        "/transit/SHP-001/update-location",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/transit/SHP-001/update-location", payload);
     });
   });
 
@@ -140,10 +134,7 @@ describe("transitService", () => {
         delay_days: 3,
       };
 
-      const result = await transitService.notifyDelayedShipment(
-        "SHP-001",
-        payload
-      );
+      const result = await transitService.notifyDelayedShipment("SHP-001", payload);
 
       expect(result.notification_sent).toBe(true);
     });

@@ -4,38 +4,32 @@
 // ============================================================================
 
 // API hooks
-export { useApi, useApiData } from './useApi';
+export { useApi, useApiData } from "./useApi";
 
 // API health monitoring hook
-export { useApiHealth } from './useApiHealth';
-
-// Dashboard permissions hook
-export { useDashboardPermissions } from './useDashboardPermissions';
-
+export { useApiHealth } from "./useApiHealth";
 // Auto-save hook for forms
-export { useAutoSave } from './useAutoSave';
-
+export { useAutoSave } from "./useAutoSave";
 // Confirmation dialog hook
-export { useConfirm } from './useConfirm';
-
+export { useConfirm } from "./useConfirm";
 // Credit note drafts management
-export { useCreditNoteDrafts } from './useCreditNoteDrafts';
+export { useCreditNoteDrafts } from "./useCreditNoteDrafts";
+// Dashboard permissions hook
+export { useDashboardPermissions } from "./useDashboardPermissions";
 
 // Invoice presence (real-time collaboration)
-export { useInvoicePresence } from './useInvoicePresence';
+export { useInvoicePresence } from "./useInvoicePresence";
 
 // Keyboard shortcuts
-export { useKeyboardShortcuts } from './useKeyboardShortcuts';
+export { useKeyboardShortcuts } from "./useKeyboardShortcuts";
 
 // Permission checking hook
-export { usePermission } from './usePermission';
-
-// Stock validation hook
-export { useStockValidation } from './useStockValidation';
-
+export { usePermission } from "./usePermission";
 // Pricing policy hook (Phase 0: SSOT)
 export {
-  usePricingPolicy,
   PRICING_MODES,
   PRIMARY_UNITS,
-} from './usePricingPolicy';
+  usePricingPolicy,
+} from "./usePricingPolicy";
+// Stock validation hook
+export { useStockValidation } from "./useStockValidation";

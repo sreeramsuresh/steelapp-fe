@@ -21,49 +21,49 @@
  *   const { to_quantity } = await convertUnits(productId, 100, 'PCS', 'MT');
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import unitConversionService from '../services/unitConversionService';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import unitConversionService from "../services/unitConversionService";
 
 /**
  * Formula types (matching DB values)
  */
 export const FORMULA_TYPES = {
-  DIMENSIONAL: 'DIMENSIONAL', // L × W × T × density (sheets, plates, coils)
-  WEIGHT_PER_UNIT: 'WEIGHT_PER_UNIT', // qty × weight_per_piece/meter (pipes, fittings)
-  DIRECT: 'DIRECT', // Already in weight units
+  DIMENSIONAL: "DIMENSIONAL", // L × W × T × density (sheets, plates, coils)
+  WEIGHT_PER_UNIT: "WEIGHT_PER_UNIT", // qty × weight_per_piece/meter (pipes, fittings)
+  DIRECT: "DIRECT", // Already in weight units
 };
 
 /**
  * Standard unit codes
  */
 export const UNIT_CODES = {
-  MT: 'MT', // Metric Ton
-  KG: 'KG', // Kilogram
-  PCS: 'PCS', // Pieces
-  METER: 'METER', // Meters
-  SQM: 'SQM', // Square meters
-  SFT: 'SFT', // Square feet (Phase 1.1: UAE market)
+  MT: "MT", // Metric Ton
+  KG: "KG", // Kilogram
+  PCS: "PCS", // Pieces
+  METER: "METER", // Meters
+  SQM: "SQM", // Square meters
+  SFT: "SFT", // Square feet (Phase 1.1: UAE market)
 };
 
 /**
  * Pricing modes (Phase 1.1: Governance)
  */
 export const PRICING_MODES = {
-  MT_ONLY: 'MT_ONLY', // Weight-based only
-  PCS_ONLY: 'PCS_ONLY', // Piece-based only (no conversion)
-  CONVERTIBLE: 'CONVERTIBLE', // Can convert between units
+  MT_ONLY: "MT_ONLY", // Weight-based only
+  PCS_ONLY: "PCS_ONLY", // Piece-based only (no conversion)
+  CONVERTIBLE: "CONVERTIBLE", // Can convert between units
 };
 
 /**
  * Conversion error codes (Phase 1.1)
  */
 export const CONVERSION_ERRORS = {
-  CONVERSION_NOT_ALLOWED: 'CONVERSION_NOT_ALLOWED',
-  DISPLAY_ONLY: 'DISPLAY_ONLY',
-  MISSING_WEIGHT_INPUTS: 'MISSING_WEIGHT_INPUTS',
-  PRODUCT_NOT_FOUND: 'PRODUCT_NOT_FOUND',
-  UNSUPPORTED_UNIT: 'UNSUPPORTED_UNIT',
-  UNKNOWN_PRICING_MODE: 'UNKNOWN_PRICING_MODE',
+  CONVERSION_NOT_ALLOWED: "CONVERSION_NOT_ALLOWED",
+  DISPLAY_ONLY: "DISPLAY_ONLY",
+  MISSING_WEIGHT_INPUTS: "MISSING_WEIGHT_INPUTS",
+  PRODUCT_NOT_FOUND: "PRODUCT_NOT_FOUND",
+  UNSUPPORTED_UNIT: "UNSUPPORTED_UNIT",
+  UNKNOWN_PRICING_MODE: "UNKNOWN_PRICING_MODE",
 };
 
 /**
@@ -105,8 +105,8 @@ export function useUnitConversion(options = {}) {
       const result = await unitConversionService.listConversionFormulas();
       setFormulas(result.formulas || []);
     } catch (err) {
-      console.error('Failed to fetch conversion formulas:', err);
-      setError(err.message || 'Failed to fetch conversion formulas');
+      console.error("Failed to fetch conversion formulas:", err);
+      setError(err.message || "Failed to fetch conversion formulas");
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ export function useUnitConversion(options = {}) {
       if (!category) return null;
       return formulaCache.get(category.toLowerCase()) || null;
     },
-    [formulaCache],
+    [formulaCache]
   );
 
   /**
@@ -134,14 +134,10 @@ export function useUnitConversion(options = {}) {
    */
   const calculateWeight = useCallback(async (productId, quantity, unitCode) => {
     try {
-      const result = await unitConversionService.calculateWeight(
-        productId,
-        quantity,
-        unitCode,
-      );
+      const result = await unitConversionService.calculateWeight(productId, quantity, unitCode);
       return result;
     } catch (err) {
-      console.error('Error calculating weight:', err);
+      console.error("Error calculating weight:", err);
       throw err;
     }
   }, []);
@@ -155,23 +151,15 @@ export function useUnitConversion(options = {}) {
    * @param {string} toUnit - Target unit code
    * @returns {Promise<{to_quantity: number, conversion_factor: number, notes: string, success: boolean, error_code: string|null, message: string|null, missing_fields: string[], pricing_mode: string|null, display_only: boolean}>}
    */
-  const convertUnits = useCallback(
-    async (productId, fromQuantity, fromUnit, toUnit) => {
-      try {
-        const result = await unitConversionService.convertUnits(
-          productId,
-          fromQuantity,
-          fromUnit,
-          toUnit,
-        );
-        return result;
-      } catch (err) {
-        console.error('Error converting units:', err);
-        throw err;
-      }
-    },
-    [],
-  );
+  const convertUnits = useCallback(async (productId, fromQuantity, fromUnit, toUnit) => {
+    try {
+      const result = await unitConversionService.convertUnits(productId, fromQuantity, fromUnit, toUnit);
+      return result;
+    } catch (err) {
+      console.error("Error converting units:", err);
+      throw err;
+    }
+  }, []);
 
   /**
    * Check if conversion is allowed for a pricing mode
@@ -190,18 +178,15 @@ export function useUnitConversion(options = {}) {
       case PRICING_MODES.PCS_ONLY:
         return {
           allowed: false,
-          reason: 'This product category does not support unit conversion',
+          reason: "This product category does not support unit conversion",
         };
       case PRICING_MODES.MT_ONLY:
-        if (
-          (fromUnit === 'MT' || fromUnit === 'KG') &&
-          (toUnit === 'MT' || toUnit === 'KG')
-        ) {
+        if ((fromUnit === "MT" || fromUnit === "KG") && (toUnit === "MT" || toUnit === "KG")) {
           return { allowed: true, reason: null };
         }
         return {
           allowed: false,
-          reason: 'This product category only allows MT↔KG conversion',
+          reason: "This product category only allows MT↔KG conversion",
         };
       case PRICING_MODES.CONVERTIBLE:
         return { allowed: true, reason: null };
@@ -217,11 +202,10 @@ export function useUnitConversion(options = {}) {
    */
   const getProductWeightSpec = useCallback(async (productId) => {
     try {
-      const result =
-        await unitConversionService.getProductWeightSpec(productId);
+      const result = await unitConversionService.getProductWeightSpec(productId);
       return result;
     } catch (err) {
-      console.error('Error fetching weight spec:', err);
+      console.error("Error fetching weight spec:", err);
       throw err;
     }
   }, []);
@@ -235,13 +219,10 @@ export function useUnitConversion(options = {}) {
    */
   const saveProductWeightSpec = useCallback(async (spec, changeReason) => {
     try {
-      const result = await unitConversionService.saveProductWeightSpec(
-        spec,
-        changeReason,
-      );
+      const result = await unitConversionService.saveProductWeightSpec(spec, changeReason);
       return result;
     } catch (err) {
-      console.error('Error saving weight spec:', err);
+      console.error("Error saving weight spec:", err);
       throw err;
     }
   }, []);
@@ -256,7 +237,7 @@ export function useUnitConversion(options = {}) {
       const result = await unitConversionService.batchCalculateWeight(items);
       return result;
     } catch (err) {
-      console.error('Error batch calculating weights:', err);
+      console.error("Error batch calculating weights:", err);
       throw err;
     }
   }, []);
@@ -271,7 +252,7 @@ export function useUnitConversion(options = {}) {
       const formula = getFormulaForCategory(category);
       return formula?.formula_type === FORMULA_TYPES.DIMENSIONAL;
     },
-    [getFormulaForCategory],
+    [getFormulaForCategory]
   );
 
   /**
@@ -284,7 +265,7 @@ export function useUnitConversion(options = {}) {
       const formula = getFormulaForCategory(category);
       return formula?.formula_type === FORMULA_TYPES.WEIGHT_PER_UNIT;
     },
-    [getFormulaForCategory],
+    [getFormulaForCategory]
   );
 
   /**
@@ -297,7 +278,7 @@ export function useUnitConversion(options = {}) {
       const formula = getFormulaForCategory(category);
       return formula?.density_kg_m3 || DEFAULT_DENSITY;
     },
-    [getFormulaForCategory],
+    [getFormulaForCategory]
   );
 
   /**

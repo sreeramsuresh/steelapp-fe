@@ -1,9 +1,9 @@
 // Error handling utilities
 export {
+  DisplayTypes,
+  ErrorTypes,
   getErrorMessage,
   getRawErrorMessage,
-  isSystemError,
   isNetworkError,
-  ErrorTypes,
-  DisplayTypes,
-} from './errorHandler';
+  isSystemError,
+} from "./errorHandler";

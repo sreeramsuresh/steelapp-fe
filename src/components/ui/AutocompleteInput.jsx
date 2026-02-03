@@ -12,17 +12,17 @@
  * - Dark mode support
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronDown, Search, Loader2, AlertCircle } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { AlertCircle, ChevronDown, Loader2, Search } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const AutocompleteInput = ({
   // Data
-  value = '',
+  value = "",
   items = [],
 
   // Display
-  placeholder = 'Search...',
+  placeholder = "Search...",
   displayValue = null, // Function to get display text from selected item
 
   // Callbacks
@@ -50,9 +50,9 @@ const AutocompleteInput = ({
   disabled = false,
 
   // Styling
-  className = '',
-  inputClassName = '',
-  dropdownClassName = '',
+  className = "",
+  inputClassName = "",
+  dropdownClassName = "",
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -111,16 +111,7 @@ const AutocompleteInput = ({
 
     const filtered = items.filter((item) => filterFunction(item, search));
     setFilteredItems(filtered.slice(0, maxResults));
-  }, [
-    searchTerm,
-    items,
-    isOpen,
-    onSearch,
-    filterFn,
-    getItemLabel,
-    minSearchLength,
-    maxResults,
-  ]);
+  }, [searchTerm, items, isOpen, onSearch, filterFn, getItemLabel, minSearchLength, maxResults]);
 
   // Debounced search callback
   useEffect(() => {
@@ -146,17 +137,14 @@ const AutocompleteInput = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
         setHighlightedIndex(-1);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Handle input change
@@ -171,7 +159,7 @@ const AutocompleteInput = ({
         onChange(newValue);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   // Handle item selection
@@ -182,7 +170,7 @@ const AutocompleteInput = ({
       }
 
       if (clearOnSelect) {
-        setSearchTerm('');
+        setSearchTerm("");
       } else if (displayValue) {
         setSearchTerm(displayValue(item));
       } else {
@@ -193,14 +181,14 @@ const AutocompleteInput = ({
       setHighlightedIndex(-1);
       inputRef.current?.blur();
     },
-    [onSelect, clearOnSelect, displayValue, getItemLabel],
+    [onSelect, clearOnSelect, displayValue, getItemLabel]
   );
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e) => {
       if (!isOpen) {
-        if (e.key === 'ArrowDown' || e.key === 'Enter') {
+        if (e.key === "ArrowDown" || e.key === "Enter") {
           setIsOpen(true);
           return;
         }
@@ -208,26 +196,24 @@ const AutocompleteInput = ({
       }
 
       switch (e.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
-          setHighlightedIndex((prev) =>
-            prev < filteredItems.length - 1 ? prev + 1 : prev,
-          );
+          setHighlightedIndex((prev) => (prev < filteredItems.length - 1 ? prev + 1 : prev));
           break;
 
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : -1));
           break;
 
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           if (highlightedIndex >= 0 && filteredItems[highlightedIndex]) {
             handleSelect(filteredItems[highlightedIndex]);
           }
           break;
 
-        case 'Escape':
+        case "Escape":
           e.preventDefault();
           setIsOpen(false);
           setHighlightedIndex(-1);
@@ -238,7 +224,7 @@ const AutocompleteInput = ({
           break;
       }
     },
-    [isOpen, highlightedIndex, filteredItems, handleSelect],
+    [isOpen, highlightedIndex, filteredItems, handleSelect]
   );
 
   // Scroll highlighted item into view
@@ -247,8 +233,8 @@ const AutocompleteInput = ({
       const highlightedElement = dropdownRef.current.children[highlightedIndex];
       if (highlightedElement) {
         highlightedElement.scrollIntoView({
-          block: 'nearest',
-          behavior: 'smooth',
+          block: "nearest",
+          behavior: "smooth",
         });
       }
     }
@@ -270,7 +256,7 @@ const AutocompleteInput = ({
         )}
       </div>
     ),
-    [getItemLabel],
+    [getItemLabel]
   );
 
   const itemRenderer = renderItem || defaultRenderItem;
@@ -289,11 +275,11 @@ const AutocompleteInput = ({
           placeholder={placeholder}
           disabled={disabled}
           className={`w-full px-3 py-2 pr-10 border rounded-lg transition-colors
-            ${disabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : ''}
+            ${disabled ? "bg-gray-100 cursor-not-allowed opacity-60" : ""}
             ${
               isDarkMode
-                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
-                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
             }
             focus:outline-none focus:ring-2 focus:ring-blue-500
             ${inputClassName}
@@ -307,9 +293,7 @@ const AutocompleteInput = ({
           ) : error ? (
             <AlertCircle className="w-4 h-4 text-red-500" />
           ) : (
-            <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-            />
+            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
           )}
         </div>
       </div>
@@ -319,7 +303,7 @@ const AutocompleteInput = ({
         <div
           ref={dropdownRef}
           className={`absolute z-50 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg
-            ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}
+            ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}
             ${dropdownClassName}
           `}
         >
@@ -346,7 +330,7 @@ const AutocompleteInput = ({
               <p className="text-sm">
                 {searchTerm.length < minSearchLength
                   ? `Type at least ${minSearchLength} characters to search`
-                  : 'No results found'}
+                  : "No results found"}
               </p>
             </div>
           )}
@@ -356,8 +340,7 @@ const AutocompleteInput = ({
             !error &&
             filteredItems.map((item, index) => {
               const isHighlighted = index === highlightedIndex;
-              const isSelected =
-                value && getItemKey(item) === getItemKey(value);
+              const isSelected = value && getItemKey(item) === getItemKey(value);
 
               return (
                 <button
@@ -367,14 +350,14 @@ const AutocompleteInput = ({
                   className={`w-full text-left px-3 py-2 text-sm transition-colors
                   ${
                     isHighlighted
-                      ? 'bg-blue-500 text-white'
+                      ? "bg-blue-500 text-white"
                       : isSelected
                         ? isDarkMode
-                          ? 'bg-gray-600 text-white'
-                          : 'bg-gray-100 text-gray-900'
+                          ? "bg-gray-600 text-white"
+                          : "bg-gray-100 text-gray-900"
                         : isDarkMode
-                          ? 'text-gray-200 hover:bg-gray-600'
-                          : 'text-gray-900 hover:bg-gray-100'
+                          ? "text-gray-200 hover:bg-gray-600"
+                          : "text-gray-900 hover:bg-gray-100"
                   }
                 `}
                 >

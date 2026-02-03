@@ -41,10 +41,7 @@ describe("customsDocumentService", () => {
 
       expect(result).toHaveLength(2);
       expect(result[0].document_type).toBe("BOE");
-      expect(api.get).toHaveBeenCalledWith(
-        "/customs-documents",
-        { params: {} }
-      );
+      expect(api.get).toHaveBeenCalledWith("/customs-documents", { params: {} });
     });
 
     it("should support filtering by status", async () => {
@@ -99,15 +96,10 @@ describe("customsDocumentService", () => {
         reference_number: "BOE-2024-001",
       };
 
-      const result = await customsDocumentService.createCustomsDocument(
-        payload
-      );
+      const result = await customsDocumentService.createCustomsDocument(payload);
 
       expect(result.id).toBe(1);
-      expect(api.post).toHaveBeenCalledWith(
-        "/customs-documents",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/customs-documents", payload);
     });
   });
 
@@ -122,16 +114,10 @@ describe("customsDocumentService", () => {
 
       const payload = { reference_number: "BOE-2024-001-UPDATED" };
 
-      const result = await customsDocumentService.updateCustomsDocument(
-        1,
-        payload
-      );
+      const result = await customsDocumentService.updateCustomsDocument(1, payload);
 
       expect(result.reference_number).toBe("BOE-2024-001-UPDATED");
-      expect(api.put).toHaveBeenCalledWith(
-        "/customs-documents/1",
-        payload
-      );
+      expect(api.put).toHaveBeenCalledWith("/customs-documents/1", payload);
     });
   });
 
@@ -209,10 +195,7 @@ describe("customsDocumentService", () => {
 
       expect(result.customs_duty).toBe(5000);
       expect(result.total_duties).toBe(5250);
-      expect(api.post).toHaveBeenCalledWith(
-        "/customs-documents/1/calculate-duties",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/customs-documents/1/calculate-duties", payload);
     });
   });
 

@@ -3,33 +3,33 @@
  * Tests supplier bill CRUD, VAT compliance, payment tracking, approval workflows
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock('../api.js', () => ({
+vi.mock("../api.js", () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
-vi.mock('../utils/fieldAccessors', () => ({
-  normalizeUom: vi.fn((item) => item.unit || 'PCS'),
+vi.mock("../utils/fieldAccessors", () => ({
+  normalizeUom: vi.fn((item) => item.unit || "PCS"),
 }));
 
-import supplierBillService from '../supplierBillService';
-import { apiClient } from '../api';
+import { apiClient } from "../api";
+import supplierBillService from "../supplierBillService";
 
-describe('supplierBillService', () => {
+describe("supplierBillService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('getAll', () => {
-    test('should fetch supplier bills with pagination', async () => {
+  describe("getAll", () => {
+    test("should fetch supplier bills with pagination", async () => {
       const mockResponse = {
         data: [
           {
             id: 1,
-            bill_number: 'SB-001',
-            supplier_invoice_number: 'INV-001',
-            status: 'draft',
+            bill_number: "SB-001",
+            supplier_invoice_number: "INV-001",
+            status: "draft",
             subtotal: 1000,
             vat_amount: 50,
             total: 1050,
@@ -42,11 +42,11 @@ describe('supplierBillService', () => {
       const result = await supplierBillService.getAll({ page: 1 });
 
       expect(result.data).toHaveLength(1);
-      expect(result.data[0].status).toBe('draft');
+      expect(result.data[0].status).toBe("draft");
       expect(result.pagination).toBeDefined();
     });
 
-    test('should filter by supplier ID', async () => {
+    test("should filter by supplier ID", async () => {
       apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
 
       await supplierBillService.getAll({ supplierId: 1 });
@@ -54,39 +54,39 @@ describe('supplierBillService', () => {
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should filter by VAT category', async () => {
+    test("should filter by VAT category", async () => {
       apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
 
-      await supplierBillService.getAll({ vatCategory: 'STANDARD' });
+      await supplierBillService.getAll({ vatCategory: "STANDARD" });
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should filter by date range', async () => {
+    test("should filter by date range", async () => {
       apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
 
       await supplierBillService.getAll({
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
+        startDate: "2024-01-01",
+        endDate: "2024-12-31",
       });
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should handle search parameter', async () => {
+    test("should handle search parameter", async () => {
       apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
 
-      await supplierBillService.getAll({ search: 'supplier name' });
+      await supplierBillService.getAll({ search: "supplier name" });
 
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should handle array response format', async () => {
+    test("should handle array response format", async () => {
       const billsArray = [
         {
           id: 1,
-          bill_number: 'SB-001',
-          status: 'draft',
+          bill_number: "SB-001",
+          status: "draft",
           subtotal: 1000,
           vat_amount: 50,
           total: 1050,
@@ -100,13 +100,13 @@ describe('supplierBillService', () => {
       expect(result.pagination).toBeNull();
     });
 
-    test('should handle items array response format', async () => {
+    test("should handle items array response format", async () => {
       const response = {
         items: [
           {
             id: 1,
-            bill_number: 'SB-001',
-            status: 'draft',
+            bill_number: "SB-001",
+            status: "draft",
             subtotal: 1000,
             vat_amount: 50,
             total: 1050,
@@ -121,7 +121,7 @@ describe('supplierBillService', () => {
       expect(result.data).toHaveLength(1);
     });
 
-    test('should handle empty response', async () => {
+    test("should handle empty response", async () => {
       apiClient.get.mockResolvedValueOnce({ data: null });
 
       const result = await supplierBillService.getAll();
@@ -130,24 +130,24 @@ describe('supplierBillService', () => {
     });
   });
 
-  describe('getById', () => {
-    test('should fetch single supplier bill with items', async () => {
+  describe("getById", () => {
+    test("should fetch single supplier bill with items", async () => {
       const mockResponse = {
         id: 1,
-        bill_number: 'SB-001',
-        supplier_invoice_number: 'INV-001',
-        supplier_name: 'ABC Suppliers',
+        bill_number: "SB-001",
+        supplier_invoice_number: "INV-001",
+        supplier_name: "ABC Suppliers",
         subtotal: 1000,
         vat_amount: 50,
         total: 1050,
-        status: 'draft',
+        status: "draft",
         items: [
           {
-            product_name: 'Material A',
+            product_name: "Material A",
             quantity: 100,
             unit_price: 10,
             vat_rate: 5,
-            vat_category: 'STANDARD',
+            vat_category: "STANDARD",
           },
         ],
       };
@@ -156,11 +156,11 @@ describe('supplierBillService', () => {
       const result = await supplierBillService.getById(1);
 
       expect(result.id).toBe(1);
-      expect(result.supplierName).toBe('ABC Suppliers');
+      expect(result.supplierName).toBe("ABC Suppliers");
       expect(result.items).toBeDefined();
     });
 
-    test('should handle null response', async () => {
+    test("should handle null response", async () => {
       apiClient.get.mockResolvedValueOnce(null);
 
       const result = await supplierBillService.getById(1);
@@ -169,14 +169,14 @@ describe('supplierBillService', () => {
     });
   });
 
-  describe('getBySupplier', () => {
-    test('should fetch bills by supplier ID', async () => {
+  describe("getBySupplier", () => {
+    test("should fetch bills by supplier ID", async () => {
       const mockResponse = [
         {
           id: 1,
-          bill_number: 'SB-001',
+          bill_number: "SB-001",
           supplier_id: 1,
-          status: 'draft',
+          status: "draft",
           subtotal: 1000,
           vat_amount: 50,
           total: 1050,
@@ -190,13 +190,13 @@ describe('supplierBillService', () => {
       expect(result).toHaveLength(1);
     });
 
-    test('should handle data property in response', async () => {
+    test("should handle data property in response", async () => {
       const mockResponse = {
         data: [
           {
             id: 1,
-            bill_number: 'SB-001',
-            status: 'draft',
+            bill_number: "SB-001",
+            status: "draft",
             subtotal: 1000,
             vat_amount: 50,
             total: 1050,
@@ -211,35 +211,35 @@ describe('supplierBillService', () => {
     });
   });
 
-  describe('create', () => {
-    test('should create supplier bill with items', async () => {
+  describe("create", () => {
+    test("should create supplier bill with items", async () => {
       const billData = {
         supplierId: 1,
-        supplierInvoiceNumber: 'INV-001',
-        billDate: '2024-01-01',
+        supplierInvoiceNumber: "INV-001",
+        billDate: "2024-01-01",
         items: [
           {
             productId: 1,
             quantity: 100,
             unitPrice: 10,
             vatRate: 5,
-            vatCategory: 'STANDARD',
+            vatCategory: "STANDARD",
           },
         ],
       };
       apiClient.post.mockResolvedValueOnce({
         id: 1,
-        bill_number: 'SB-001',
+        bill_number: "SB-001",
         ...billData,
       });
 
       const result = await supplierBillService.create(billData);
 
       expect(result.id).toBe(1);
-      expect(apiClient.post).toHaveBeenCalledWith('/supplier-bills', expect.any(Object));
+      expect(apiClient.post).toHaveBeenCalledWith("/supplier-bills", expect.any(Object));
     });
 
-    test('should handle VAT categories in items', async () => {
+    test("should handle VAT categories in items", async () => {
       const billData = {
         supplierId: 1,
         items: [
@@ -247,12 +247,12 @@ describe('supplierBillService', () => {
             productId: 1,
             quantity: 100,
             unitPrice: 10,
-            vatCategory: 'BLOCKED',
+            vatCategory: "BLOCKED",
             isBlockedVat: true,
           },
         ],
       };
-      apiClient.post.mockResolvedValueOnce({ id: 1, bill_number: 'SB-001' });
+      apiClient.post.mockResolvedValueOnce({ id: 1, bill_number: "SB-001" });
 
       await supplierBillService.create(billData);
 
@@ -260,17 +260,17 @@ describe('supplierBillService', () => {
     });
   });
 
-  describe('update', () => {
-    test('should update supplier bill', async () => {
-      const updateData = { status: 'approved' };
-      apiClient.put.mockResolvedValueOnce({ id: 1, status: 'approved' });
+  describe("update", () => {
+    test("should update supplier bill", async () => {
+      const updateData = { status: "approved" };
+      apiClient.put.mockResolvedValueOnce({ id: 1, status: "approved" });
 
       const result = await supplierBillService.update(1, updateData);
 
-      expect(result.status).toBe('approved');
+      expect(result.status).toBe("approved");
     });
 
-    test('should transform data before sending', async () => {
+    test("should transform data before sending", async () => {
       const updateData = {
         supplierId: 1,
         subtotal: 1500,
@@ -280,89 +280,89 @@ describe('supplierBillService', () => {
 
       await supplierBillService.update(1, updateData);
 
-      expect(apiClient.put).toHaveBeenCalledWith('/supplier-bills/1', expect.any(Object));
+      expect(apiClient.put).toHaveBeenCalledWith("/supplier-bills/1", expect.any(Object));
     });
   });
 
-  describe('delete', () => {
-    test('should delete supplier bill with reason', async () => {
+  describe("delete", () => {
+    test("should delete supplier bill with reason", async () => {
       apiClient.delete.mockResolvedValueOnce({ success: true });
 
-      const result = await supplierBillService.delete(1, 'Duplicate entry');
+      const result = await supplierBillService.delete(1, "Duplicate entry");
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete).toHaveBeenCalledWith('/supplier-bills/1', {
-        data: { reason: 'Duplicate entry' },
+      expect(apiClient.delete).toHaveBeenCalledWith("/supplier-bills/1", {
+        data: { reason: "Duplicate entry" },
       });
     });
 
-    test('should handle delete without reason', async () => {
+    test("should handle delete without reason", async () => {
       apiClient.delete.mockResolvedValueOnce({ success: true });
 
       await supplierBillService.delete(1);
 
-      expect(apiClient.delete).toHaveBeenCalledWith('/supplier-bills/1', {
-        data: { reason: '' },
+      expect(apiClient.delete).toHaveBeenCalledWith("/supplier-bills/1", {
+        data: { reason: "" },
       });
     });
   });
 
-  describe('approve', () => {
-    test('should approve bill for payment', async () => {
+  describe("approve", () => {
+    test("should approve bill for payment", async () => {
       apiClient.post.mockResolvedValueOnce({
         id: 1,
-        status: 'approved',
-        approval_status: 'approved',
+        status: "approved",
+        approval_status: "approved",
       });
 
-      const result = await supplierBillService.approve(1, 'Ready for payment');
+      const result = await supplierBillService.approve(1, "Ready for payment");
 
-      expect(result.status).toBe('approved');
-      expect(apiClient.post).toHaveBeenCalledWith('/supplier-bills/1/approve', {
-        notes: 'Ready for payment',
+      expect(result.status).toBe("approved");
+      expect(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/approve", {
+        notes: "Ready for payment",
       });
     });
   });
 
-  describe('reject', () => {
-    test('should reject bill approval', async () => {
+  describe("reject", () => {
+    test("should reject bill approval", async () => {
       apiClient.post.mockResolvedValueOnce({
         id: 1,
-        approval_status: 'rejected',
+        approval_status: "rejected",
       });
 
-      const result = await supplierBillService.reject(1, 'Missing documents');
+      const result = await supplierBillService.reject(1, "Missing documents");
 
-      expect(result.approvalStatus).toBe('rejected');
-      expect(apiClient.post).toHaveBeenCalledWith('/supplier-bills/1/reject', {
-        reason: 'Missing documents',
+      expect(result.approvalStatus).toBe("rejected");
+      expect(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/reject", {
+        reason: "Missing documents",
       });
     });
   });
 
-  describe('cancel', () => {
-    test('should cancel supplier bill', async () => {
+  describe("cancel", () => {
+    test("should cancel supplier bill", async () => {
       apiClient.post.mockResolvedValueOnce({
         id: 1,
-        status: 'cancelled',
+        status: "cancelled",
       });
 
-      const result = await supplierBillService.cancel(1, 'Order cancelled');
+      const result = await supplierBillService.cancel(1, "Order cancelled");
 
-      expect(result.status).toBe('cancelled');
-      expect(apiClient.post).toHaveBeenCalledWith('/supplier-bills/1/cancel', {
-        cancellationReason: 'Order cancelled',
+      expect(result.status).toBe("cancelled");
+      expect(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/cancel", {
+        cancellationReason: "Order cancelled",
       });
     });
   });
 
-  describe('recordPayment', () => {
-    test('should record payment against bill', async () => {
+  describe("recordPayment", () => {
+    test("should record payment against bill", async () => {
       const paymentData = {
         amount: 500,
-        paymentDate: '2024-01-15',
-        paymentMethod: 'bank_transfer',
-        referenceNumber: 'CHQ-123',
+        paymentDate: "2024-01-15",
+        paymentMethod: "bank_transfer",
+        referenceNumber: "CHQ-123",
       };
       apiClient.post.mockResolvedValueOnce({
         id: 1,
@@ -374,18 +374,18 @@ describe('supplierBillService', () => {
 
       expect(result.amountPaid).toBe(500);
       expect(apiClient.post).toHaveBeenCalledWith(
-        '/supplier-bills/1/payments',
-        expect.objectContaining({ amount: 500 }),
+        "/supplier-bills/1/payments",
+        expect.objectContaining({ amount: 500 })
       );
     });
 
-    test('should handle payment with attachment', async () => {
+    test("should handle payment with attachment", async () => {
       const paymentData = {
         amount: 1050,
-        paymentDate: '2024-01-15',
-        paymentMethod: 'bank_transfer',
-        referenceNumber: 'CHQ-123',
-        attachmentUrl: 'https://example.com/receipt.pdf',
+        paymentDate: "2024-01-15",
+        paymentMethod: "bank_transfer",
+        referenceNumber: "CHQ-123",
+        attachmentUrl: "https://example.com/receipt.pdf",
       };
       apiClient.post.mockResolvedValueOnce({
         id: 1,
@@ -397,10 +397,10 @@ describe('supplierBillService', () => {
       expect(apiClient.post).toHaveBeenCalled();
     });
 
-    test('should handle zero payment amount', async () => {
+    test("should handle zero payment amount", async () => {
       const paymentData = {
         amount: 0,
-        paymentDate: '2024-01-15',
+        paymentDate: "2024-01-15",
       };
       apiClient.post.mockResolvedValueOnce({ id: 1 });
 
@@ -410,26 +410,25 @@ describe('supplierBillService', () => {
     });
   });
 
-  describe('voidPayment', () => {
-    test('should void payment on bill', async () => {
+  describe("voidPayment", () => {
+    test("should void payment on bill", async () => {
       apiClient.post.mockResolvedValueOnce({
         id: 1,
         amount_paid: 0,
         balance_due: 1050,
       });
 
-      const result = await supplierBillService.voidPayment(1, 123, 'Erroneous payment');
+      const result = await supplierBillService.voidPayment(1, 123, "Erroneous payment");
 
       expect(result.amountPaid).toBe(0);
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/supplier-bills/1/payments/123/void',
-        { reason: 'Erroneous payment' },
-      );
+      expect(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/payments/123/void", {
+        reason: "Erroneous payment",
+      });
     });
   });
 
-  describe('getVATSummary', () => {
-    test('should get VAT summary for period', async () => {
+  describe("getVATSummary", () => {
+    test("should get VAT summary for period", async () => {
       const mockResponse = {
         standardVat: 5000,
         zeroRatedVat: 0,
@@ -441,35 +440,32 @@ describe('supplierBillService', () => {
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
       const result = await supplierBillService.getVATSummary({
-        startDate: '2024-01-01',
-        endDate: '2024-01-31',
+        startDate: "2024-01-01",
+        endDate: "2024-01-31",
       });
 
       expect(result.totalInputVat).toBe(5250);
-      expect(apiClient.get).toHaveBeenCalledWith(
-        '/supplier-bills/vat-summary',
-        expect.any(Object),
-      );
+      expect(apiClient.get).toHaveBeenCalledWith("/supplier-bills/vat-summary", expect.any(Object));
     });
 
-    test('should filter by VAT category', async () => {
+    test("should filter by VAT category", async () => {
       apiClient.get.mockResolvedValueOnce({
         standardVat: 5000,
         totalInputVat: 5000,
       });
 
       await supplierBillService.getVATSummary({
-        startDate: '2024-01-01',
-        endDate: '2024-01-31',
-        vatCategory: 'STANDARD',
+        startDate: "2024-01-01",
+        endDate: "2024-01-31",
+        vatCategory: "STANDARD",
       });
 
       expect(apiClient.get).toHaveBeenCalled();
     });
   });
 
-  describe('getAnalytics', () => {
-    test('should get supplier bill analytics', async () => {
+  describe("getAnalytics", () => {
+    test("should get supplier bill analytics", async () => {
       const mockResponse = {
         totalBills: 100,
         totalAmount: 50000,
@@ -479,46 +475,46 @@ describe('supplierBillService', () => {
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
       const result = await supplierBillService.getAnalytics({
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
+        startDate: "2024-01-01",
+        endDate: "2024-12-31",
       });
 
       expect(result.totalBills).toBe(100);
     });
 
-    test('should filter by supplier', async () => {
+    test("should filter by supplier", async () => {
       apiClient.get.mockResolvedValueOnce({
         totalBills: 10,
         totalAmount: 5000,
       });
 
       await supplierBillService.getAnalytics({
-        startDate: '2024-01-01',
+        startDate: "2024-01-01",
         supplierId: 1,
       });
 
-      expect(apiClient.get).toHaveBeenCalledWith('/supplier-bills/analytics', expect.any(Object));
+      expect(apiClient.get).toHaveBeenCalledWith("/supplier-bills/analytics", expect.any(Object));
     });
   });
 
-  describe('getNextNumber', () => {
-    test('should get next bill number', async () => {
-      apiClient.get.mockResolvedValueOnce({ billNumber: 'SB-001' });
+  describe("getNextNumber", () => {
+    test("should get next bill number", async () => {
+      apiClient.get.mockResolvedValueOnce({ billNumber: "SB-001" });
 
       const result = await supplierBillService.getNextNumber();
 
-      expect(result.billNumber).toBe('SB-001');
+      expect(result.billNumber).toBe("SB-001");
     });
   });
 
-  describe('search', () => {
-    test('should search supplier bills', async () => {
+  describe("search", () => {
+    test("should search supplier bills", async () => {
       const mockResponse = {
         data: [
           {
             id: 1,
-            bill_number: 'SB-001',
-            status: 'draft',
+            bill_number: "SB-001",
+            status: "draft",
             subtotal: 1000,
             vat_amount: 50,
             total: 1050,
@@ -527,19 +523,19 @@ describe('supplierBillService', () => {
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
-      const result = await supplierBillService.search('ABC Suppliers');
+      const result = await supplierBillService.search("ABC Suppliers");
 
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(1);
     });
 
-    test('should handle search with filters', async () => {
+    test("should handle search with filters", async () => {
       apiClient.get.mockResolvedValueOnce({
         data: [
           {
             id: 1,
-            bill_number: 'SB-001',
-            status: 'approved',
+            bill_number: "SB-001",
+            status: "approved",
             subtotal: 1000,
             vat_amount: 50,
             total: 1050,
@@ -547,18 +543,18 @@ describe('supplierBillService', () => {
         ],
       });
 
-      const result = await supplierBillService.search('ABC', { status: 'approved' });
+      const result = await supplierBillService.search("ABC", { status: "approved" });
 
       expect(result).toHaveLength(1);
     });
 
-    test('should handle items array response', async () => {
+    test("should handle items array response", async () => {
       apiClient.get.mockResolvedValueOnce({
         items: [
           {
             id: 1,
-            bill_number: 'SB-001',
-            status: 'draft',
+            bill_number: "SB-001",
+            status: "draft",
             subtotal: 1000,
             vat_amount: 50,
             total: 1050,
@@ -566,57 +562,57 @@ describe('supplierBillService', () => {
         ],
       });
 
-      const result = await supplierBillService.search('Supplier');
+      const result = await supplierBillService.search("Supplier");
 
       expect(result).toHaveLength(1);
     });
 
-    test('should return empty array for non-array response', async () => {
+    test("should return empty array for non-array response", async () => {
       apiClient.get.mockResolvedValueOnce({ success: true });
 
-      const result = await supplierBillService.search('NoMatch');
+      const result = await supplierBillService.search("NoMatch");
 
       expect(result).toEqual([]);
     });
   });
 
-  describe('downloadPDF', () => {
-    test('should download supplier bill PDF', async () => {
-      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+  describe("downloadPDF", () => {
+    test("should download supplier bill PDF", async () => {
+      const mockBlob = new Blob(["test"], { type: "application/pdf" });
       apiClient.get.mockResolvedValueOnce(mockBlob);
 
       // Mock window.URL and document methods
-      global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
       global.URL.revokeObjectURL = vi.fn();
       document.createElement = vi.fn(() => ({
-        href: '',
-        download: '',
+        href: "",
+        download: "",
         click: vi.fn(),
       }));
       document.body.appendChild = vi.fn();
       document.body.removeChild = vi.fn();
 
-      const result = await supplierBillService.downloadPDF(1, 'SB-001');
+      const result = await supplierBillService.downloadPDF(1, "SB-001");
 
       expect(result).toBe(true);
     });
 
-    test('should handle PDF download error', async () => {
-      apiClient.get.mockRejectedValueOnce(new Error('Network error'));
+    test("should handle PDF download error", async () => {
+      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
 
-      await expect(supplierBillService.downloadPDF(1, 'SB-001')).rejects.toThrow();
+      await expect(supplierBillService.downloadPDF(1, "SB-001")).rejects.toThrow();
     });
   });
 
-  describe('getBlockedVATItems', () => {
-    test('should get blocked VAT items from bill', async () => {
+  describe("getBlockedVATItems", () => {
+    test("should get blocked VAT items from bill", async () => {
       const mockResponse = {
         data: [
           {
             id: 1,
-            product_name: 'Blocked Item',
-            vat_category: 'BLOCKED',
-            blocked_reason: 'Input VAT not recoverable',
+            product_name: "Blocked Item",
+            vat_category: "BLOCKED",
+            blocked_reason: "Input VAT not recoverable",
           },
         ],
       };
@@ -628,12 +624,12 @@ describe('supplierBillService', () => {
       expect(result).toHaveLength(1);
     });
 
-    test('should handle array response', async () => {
+    test("should handle array response", async () => {
       const mockResponse = [
         {
           id: 1,
-          product_name: 'Blocked Item',
-          vat_category: 'BLOCKED',
+          product_name: "Blocked Item",
+          vat_category: "BLOCKED",
         },
       ];
       apiClient.get.mockResolvedValueOnce(mockResponse);
@@ -643,7 +639,7 @@ describe('supplierBillService', () => {
       expect(result).toHaveLength(1);
     });
 
-    test('should return empty array for no blocked items', async () => {
+    test("should return empty array for no blocked items", async () => {
       apiClient.get.mockResolvedValueOnce([]);
 
       const result = await supplierBillService.getBlockedVATItems(1);
@@ -652,66 +648,66 @@ describe('supplierBillService', () => {
     });
   });
 
-  describe('Data Transformation', () => {
-    test('should handle camelCase to snake_case transformation', async () => {
+  describe("Data Transformation", () => {
+    test("should handle camelCase to snake_case transformation", async () => {
       const billData = {
         supplierId: 1,
-        supplierInvoiceNumber: 'INV-001',
-        billDate: '2024-01-01',
-        primaryVatCategory: 'STANDARD',
+        supplierInvoiceNumber: "INV-001",
+        billDate: "2024-01-01",
+        primaryVatCategory: "STANDARD",
       };
       apiClient.post.mockResolvedValueOnce({
         id: 1,
-        bill_number: 'SB-001',
+        bill_number: "SB-001",
       });
 
       await supplierBillService.create(billData);
 
       const callArgs = apiClient.post.mock.calls[0][1];
-      expect(callArgs).toHaveProperty('supplierId', 1);
-      expect(callArgs).toHaveProperty('supplierInvoiceNumber', 'INV-001');
+      expect(callArgs).toHaveProperty("supplierId", 1);
+      expect(callArgs).toHaveProperty("supplierInvoiceNumber", "INV-001");
     });
 
-    test('should handle snake_case from server response', async () => {
+    test("should handle snake_case from server response", async () => {
       const mockResponse = {
         id: 1,
-        bill_number: 'SB-001',
-        supplier_invoice_number: 'INV-001',
+        bill_number: "SB-001",
+        supplier_invoice_number: "INV-001",
         total_amount: 1050,
         vat_amount: 50,
         balance_due: 1050,
-        payment_status: 'unpaid',
+        payment_status: "unpaid",
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
-      expect(result.billNumber).toBe('SB-001');
-      expect(result.supplierInvoiceNumber).toBe('INV-001');
+      expect(result.billNumber).toBe("SB-001");
+      expect(result.supplierInvoiceNumber).toBe("INV-001");
       expect(result.total).toBe(1050);
-      expect(result.paymentStatus).toBe('unpaid');
+      expect(result.paymentStatus).toBe("unpaid");
     });
 
-    test('should handle numeric string conversions', async () => {
+    test("should handle numeric string conversions", async () => {
       const mockResponse = {
         id: 1,
-        bill_number: 'SB-001',
-        subtotal: '1000.00',
-        vat_amount: '50.00',
-        total: '1050.00',
+        bill_number: "SB-001",
+        subtotal: "1000.00",
+        vat_amount: "50.00",
+        total: "1050.00",
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
-      expect(typeof result.subtotal).toBe('number');
-      expect(typeof result.vatAmount).toBe('number');
+      expect(typeof result.subtotal).toBe("number");
+      expect(typeof result.vatAmount).toBe("number");
       expect(result.total).toBe(1050);
     });
   });
 
-  describe('VAT Compliance', () => {
-    test('should track standard VAT at 5%', async () => {
+  describe("VAT Compliance", () => {
+    test("should track standard VAT at 5%", async () => {
       const mockResponse = {
         id: 1,
         items: [
@@ -719,7 +715,7 @@ describe('supplierBillService', () => {
             quantity: 100,
             unit_price: 10,
             vat_rate: 5,
-            vat_category: 'STANDARD',
+            vat_category: "STANDARD",
             vat_amount: 50,
           },
         ],
@@ -729,10 +725,10 @@ describe('supplierBillService', () => {
       const result = await supplierBillService.getById(1);
 
       expect(result.items[0].vatRate).toBe(5);
-      expect(result.items[0].vatCategory).toBe('STANDARD');
+      expect(result.items[0].vatCategory).toBe("STANDARD");
     });
 
-    test('should handle zero-rated supplies', async () => {
+    test("should handle zero-rated supplies", async () => {
       const mockResponse = {
         id: 1,
         items: [
@@ -740,7 +736,7 @@ describe('supplierBillService', () => {
             quantity: 100,
             unit_price: 10,
             vatRate: 0,
-            vat_category: 'ZERO_RATED',
+            vat_category: "ZERO_RATED",
             vat_amount: 0,
           },
         ],
@@ -750,19 +746,19 @@ describe('supplierBillService', () => {
       const result = await supplierBillService.getById(1);
 
       expect(result.items[0].vatRate).toBe(0);
-      expect(result.items[0].vatCategory).toBe('ZERO_RATED');
+      expect(result.items[0].vatCategory).toBe("ZERO_RATED");
     });
 
-    test('should track blocked VAT items', async () => {
+    test("should track blocked VAT items", async () => {
       const mockResponse = {
         id: 1,
         items: [
           {
             quantity: 100,
             unit_price: 10,
-            vat_category: 'BLOCKED',
+            vat_category: "BLOCKED",
             is_blocked_vat: true,
-            blocked_reason: 'Input VAT not recoverable',
+            blocked_reason: "Input VAT not recoverable",
           },
         ],
       };
@@ -771,10 +767,10 @@ describe('supplierBillService', () => {
       const result = await supplierBillService.getById(1);
 
       expect(result.items[0].isBlockedVat).toBe(true);
-      expect(result.items[0].blockedReason).toBe('Input VAT not recoverable');
+      expect(result.items[0].blockedReason).toBe("Input VAT not recoverable");
     });
 
-    test('should handle reverse charge mechanism', async () => {
+    test("should handle reverse charge mechanism", async () => {
       const mockResponse = {
         id: 1,
         is_reverse_charge: true,
@@ -789,8 +785,8 @@ describe('supplierBillService', () => {
     });
   });
 
-  describe('Payment Tracking', () => {
-    test('should track payment status as unpaid', async () => {
+  describe("Payment Tracking", () => {
+    test("should track payment status as unpaid", async () => {
       const mockResponse = {
         id: 1,
         total: 1050,
@@ -801,11 +797,11 @@ describe('supplierBillService', () => {
 
       const result = await supplierBillService.getById(1);
 
-      expect(result.paymentStatus).toBe('unpaid');
+      expect(result.paymentStatus).toBe("unpaid");
       expect(result.balanceDue).toBe(1050);
     });
 
-    test('should track payment status as partial', async () => {
+    test("should track payment status as partial", async () => {
       const mockResponse = {
         id: 1,
         total: 1050,
@@ -816,11 +812,11 @@ describe('supplierBillService', () => {
 
       const result = await supplierBillService.getById(1);
 
-      expect(result.paymentStatus).toBe('partial');
+      expect(result.paymentStatus).toBe("partial");
       expect(result.amountDue).toBe(550);
     });
 
-    test('should track payment status as paid', async () => {
+    test("should track payment status as paid", async () => {
       const mockResponse = {
         id: 1,
         total: 1050,
@@ -831,65 +827,63 @@ describe('supplierBillService', () => {
 
       const result = await supplierBillService.getById(1);
 
-      expect(result.paymentStatus).toBe('paid');
+      expect(result.paymentStatus).toBe("paid");
       expect(result.balanceDue).toBe(0);
     });
   });
 
-  describe('Approval Workflows', () => {
-    test('should track approval status transitions', async () => {
+  describe("Approval Workflows", () => {
+    test("should track approval status transitions", async () => {
       const mockResponse = {
         id: 1,
-        status: 'draft',
-        approval_status: 'pending',
+        status: "draft",
+        approval_status: "pending",
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
-      expect(['pending', 'approved', 'rejected']).toContain(result.approvalStatus);
+      expect(["pending", "approved", "rejected"]).toContain(result.approvalStatus);
     });
 
-    test('should include approval metadata', async () => {
+    test("should include approval metadata", async () => {
       const mockResponse = {
         id: 1,
-        approval_status: 'approved',
-        approved_at: '2024-01-15T10:00:00Z',
-        approved_by: 'user123',
+        approval_status: "approved",
+        approved_at: "2024-01-15T10:00:00Z",
+        approved_by: "user123",
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
-      expect(result.approvedAt).toBe('2024-01-15T10:00:00Z');
-      expect(result.approvedBy).toBe('user123');
+      expect(result.approvedAt).toBe("2024-01-15T10:00:00Z");
+      expect(result.approvedBy).toBe("user123");
     });
   });
 
-  describe('Error Handling', () => {
-    test('should handle network errors', async () => {
-      apiClient.get.mockRejectedValueOnce(new Error('Network error'));
+  describe("Error Handling", () => {
+    test("should handle network errors", async () => {
+      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
 
       await expect(supplierBillService.getAll()).rejects.toThrow();
     });
 
-    test('should handle server errors', async () => {
-      apiClient.post.mockRejectedValueOnce(new Error('Server error'));
+    test("should handle server errors", async () => {
+      apiClient.post.mockRejectedValueOnce(new Error("Server error"));
 
-      await expect(
-        supplierBillService.create({ supplierId: 1 }),
-      ).rejects.toThrow();
+      await expect(supplierBillService.create({ supplierId: 1 })).rejects.toThrow();
     });
 
-    test('should handle invalid bill ID', async () => {
-      apiClient.get.mockRejectedValueOnce(new Error('Bill not found'));
+    test("should handle invalid bill ID", async () => {
+      apiClient.get.mockRejectedValueOnce(new Error("Bill not found"));
 
       await expect(supplierBillService.getById(999)).rejects.toThrow();
     });
   });
 
-  describe('Edge Cases', () => {
-    test('should handle empty bills list', async () => {
+  describe("Edge Cases", () => {
+    test("should handle empty bills list", async () => {
       apiClient.get.mockResolvedValueOnce({ data: [] });
 
       const result = await supplierBillService.getAll();
@@ -897,7 +891,7 @@ describe('supplierBillService', () => {
       expect(result.data).toEqual([]);
     });
 
-    test('should handle large VAT amounts', async () => {
+    test("should handle large VAT amounts", async () => {
       const mockResponse = {
         id: 1,
         subtotal: 1000000,
@@ -912,7 +906,7 @@ describe('supplierBillService', () => {
       expect(result.total).toBe(1050000);
     });
 
-    test('should handle zero VAT amount', async () => {
+    test("should handle zero VAT amount", async () => {
       const mockResponse = {
         id: 1,
         subtotal: 1000,
@@ -926,10 +920,10 @@ describe('supplierBillService', () => {
       expect(result.vatAmount).toBe(0);
     });
 
-    test('should handle decimal currency values', async () => {
+    test("should handle decimal currency values", async () => {
       const mockResponse = {
         id: 1,
-        subtotal: 1000.50,
+        subtotal: 1000.5,
         vat_amount: 50.25,
         total: 1050.75,
       };
@@ -937,14 +931,14 @@ describe('supplierBillService', () => {
 
       const result = await supplierBillService.getById(1);
 
-      expect(result.subtotal).toBe(1000.50);
+      expect(result.subtotal).toBe(1000.5);
       expect(result.vatAmount).toBe(50.25);
     });
 
-    test('should handle undefined items array', async () => {
+    test("should handle undefined items array", async () => {
       const mockResponse = {
         id: 1,
-        bill_number: 'SB-001',
+        bill_number: "SB-001",
         items: undefined,
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
@@ -954,27 +948,27 @@ describe('supplierBillService', () => {
       expect(result.items).toEqual([]);
     });
 
-    test('should handle multiple currency support', async () => {
+    test("should handle multiple currency support", async () => {
       const mockResponse = {
         id: 1,
-        currency: 'USD',
+        currency: "USD",
         exchange_rate: 3.67,
         total: 1050,
-        total_aed: 3853.50,
+        total_aed: 3853.5,
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
-      expect(result.currency).toBe('USD');
+      expect(result.currency).toBe("USD");
       expect(result.exchangeRate).toBe(3.67);
     });
 
-    test('should handle tenant isolation with company_id', async () => {
+    test("should handle tenant isolation with company_id", async () => {
       const mockResponse = {
         id: 1,
         company_id: 1,
-        bill_number: 'SB-001',
+        bill_number: "SB-001",
       };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 

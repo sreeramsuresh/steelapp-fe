@@ -1,5 +1,5 @@
-import FormError from './FormError';
-import RequiredIndicator from './RequiredIndicator';
+import FormError from "./FormError";
+import RequiredIndicator from "./RequiredIndicator";
 
 /**
  * Consistent form field wrapper with label, error, and required indicator
@@ -10,14 +10,7 @@ import RequiredIndicator from './RequiredIndicator';
  *     <input type="email" name="email" />
  *   </FormFieldWrapper>
  */
-const FormFieldWrapper = ({
-  label,
-  required = false,
-  error,
-  children,
-  helpText,
-  className = '',
-}) => {
+const FormFieldWrapper = ({ label, required = false, error, children, helpText, className = "" }) => {
   return (
     <div className={`space-y-1 ${className}`}>
       {label && (
@@ -28,11 +21,7 @@ const FormFieldWrapper = ({
       )}
       {children}
       {error && <FormError message={error} />}
-      {helpText && !error && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {helpText}
-        </p>
-      )}
+      {helpText && !error && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{helpText}</p>}
     </div>
   );
 };

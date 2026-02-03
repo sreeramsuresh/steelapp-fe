@@ -186,15 +186,9 @@ describe("countriesService", () => {
     });
 
     it("should support multiple flag emojis", () => {
-      expect(countriesService.formatCountryDisplay({ name: "China", code: "CHN" })).toBe(
-        "🇨🇳 China"
-      );
-      expect(countriesService.formatCountryDisplay({ name: "India", code: "IND" })).toBe(
-        "🇮🇳 India"
-      );
-      expect(countriesService.formatCountryDisplay({ name: "Germany", code: "DEU" })).toBe(
-        "🇩🇪 Germany"
-      );
+      expect(countriesService.formatCountryDisplay({ name: "China", code: "CHN" })).toBe("🇨🇳 China");
+      expect(countriesService.formatCountryDisplay({ name: "India", code: "IND" })).toBe("🇮🇳 India");
+      expect(countriesService.formatCountryDisplay({ name: "Germany", code: "DEU" })).toBe("🇩🇪 Germany");
     });
 
     it("should handle unknown country codes without emoji", () => {

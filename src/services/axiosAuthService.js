@@ -1,5 +1,5 @@
-import { apiService, tokenUtils } from './axiosApi';
-import { ROLE_PERMISSIONS } from '../config/rolePermissions';
+import { ROLE_PERMISSIONS } from "../config/rolePermissions";
+import { apiService, tokenUtils } from "./axiosApi";
 
 class AuthService {
   constructor() {
@@ -17,7 +17,7 @@ class AuthService {
   _buildPermissionsObject(flatPermissions) {
     const nestedPermissions = {};
     Object.entries(flatPermissions).forEach(([key]) => {
-      const [resource, action] = key.split('.');
+      const [resource, action] = key.split(".");
       if (!nestedPermissions[resource]) {
         nestedPermissions[resource] = {};
       }
@@ -42,13 +42,13 @@ class AuthService {
   // Login user (supporting both response formats)
   async login(email, password) {
     try {
-      const response = await apiService.post('/auth/login', {
+      const response = await apiService.post("/auth/login", {
         email,
         password,
       });
 
       // eslint-disable-next-line no-console
-      console.log('Login response:', response); // Debug log
+      console.log("Login response:", response); // Debug log
 
       // Support both response formats: SteelApp (token) and GigLabz (accessToken)
       const accessToken = response.accessToken || response.token;
@@ -70,30 +70,24 @@ class AuthService {
 
         return response;
       } else {
-         
-        console.error('Missing required fields in response:', {
+        console.error("Missing required fields in response:", {
           accessToken,
           refreshToken,
           user,
         });
-        throw new Error('Invalid response format from server');
+        throw new Error("Invalid response format from server");
       }
     } catch (error) {
-       
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       const data = error.response?.data;
       const status = error.response?.status;
 
       // Handle error messages
       const details = Array.isArray(data?.errors)
-        ? data.errors.map((e) => e.msg).join(', ')
+        ? data.errors.map((e) => e.msg).join(", ")
         : data?.error || data?.message;
 
-      const msg =
-        details ||
-        (status === 400
-          ? 'Invalid input. Check email and password.'
-          : 'Login failed');
+      const msg = details || (status === 400 ? "Invalid input. Check email and password." : "Login failed");
 
       throw new Error(msg);
     }
@@ -105,11 +99,10 @@ class AuthService {
       const refreshToken = tokenUtils.getRefreshToken();
 
       if (refreshToken) {
-        await apiService.post('/auth/logout', { refreshToken });
+        await apiService.post("/auth/logout", { refreshToken });
       }
     } catch (error) {
-       
-      console.warn('Logout API call failed:', error);
+      console.warn("Logout API call failed:", error);
     } finally {
       // Always clear session regardless of API call result
       this.clearSession();
@@ -119,7 +112,7 @@ class AuthService {
   // Register new user
   async register(userData) {
     try {
-      const response = await apiService.post('/auth/register', userData);
+      const response = await apiService.post("/auth/register", userData);
 
       if (response.accessToken && response.refreshToken && response.user) {
         const { accessToken, refreshToken, user } = response;
@@ -135,16 +128,15 @@ class AuthService {
 
       return response;
     } catch (error) {
-       
-      console.error('Registration failed:', error);
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      console.error("Registration failed:", error);
+      throw new Error(error.response?.data?.message || "Registration failed");
     }
   }
 
   // Get current user profile from server
   async getCurrentUser(config = {}) {
     try {
-      const response = await apiService.get('/auth/me', config);
+      const response = await apiService.get("/auth/me", config);
 
       if (response.user) {
         // Populate permissions based on role
@@ -155,8 +147,7 @@ class AuthService {
 
       return response;
     } catch (error) {
-       
-      console.error('Get current user failed:', error);
+      console.error("Get current user failed:", error);
       throw error;
     }
   }
@@ -167,15 +158,15 @@ class AuthService {
       const refreshToken = tokenUtils.getRefreshToken();
 
       if (!refreshToken) {
-        throw new Error('No refresh token available');
+        throw new Error("No refresh token available");
       }
 
-      const response = await apiService.post('/auth/refresh-token', {
+      const response = await apiService.post("/auth/refresh-token", {
         refreshToken,
       });
 
       // eslint-disable-next-line no-console
-      console.log('Refresh response:', response); // Debug log
+      console.log("Refresh response:", response); // Debug log
 
       // Support both response formats
       const newAccessToken = response.accessToken || response.token;
@@ -189,10 +180,9 @@ class AuthService {
         return newAccessToken;
       }
 
-      throw new Error('Token refresh failed - no tokens in response');
+      throw new Error("Token refresh failed - no tokens in response");
     } catch (error) {
-       
-      console.error('Token refresh failed:', error);
+      console.error("Token refresh failed:", error);
       if (error?.response?.status === 401 || error?.response?.status === 403) {
         this.clearSession();
       }
@@ -203,28 +193,25 @@ class AuthService {
   // Change password
   async changePassword(currentPassword, newPassword) {
     try {
-      const response = await apiService.post('/auth/change-password', {
+      const response = await apiService.post("/auth/change-password", {
         currentPassword,
         newPassword,
       });
 
       return response;
     } catch (error) {
-       
-      console.error('Change password failed:', error);
-      throw new Error(
-        error.response?.data?.message || 'Password change failed',
-      );
+      console.error("Change password failed:", error);
+      throw new Error(error.response?.data?.message || "Password change failed");
     }
   }
 
   // Clear all session data (matching GigLabz comprehensive cleanup)
   clearSession() {
     // eslint-disable-next-line no-console
-    console.log('[Auth] Clearing session - User will be logged out');
+    console.log("[Auth] Clearing session - User will be logged out");
     tokenUtils.clearSession();
     // Clear page size preferences on logout
-    sessionStorage.removeItem('invoiceListPageSize');
+    sessionStorage.removeItem("invoiceListPageSize");
   }
 
   // Authentication status
@@ -248,7 +235,7 @@ class AuthService {
     if (!user) return false;
 
     // Admin has all permissions
-    if (user.role === 'admin') return true;
+    if (user.role === "admin") return true;
 
     const permissions = user.permissions || {};
     const resourcePermissions = permissions[resource];

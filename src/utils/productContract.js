@@ -26,42 +26,33 @@ const IS_PRODUCTION = import.meta.env.PROD;
 const CRITICAL_FIELDS = {
   // Required identity fields
   id: {
-    type: 'required',
+    type: "required",
     check: (val) => val !== undefined && val !== null,
-    description: 'Product ID is required',
+    description: "Product ID is required",
   },
   name: {
-    type: 'string',
-    check: (val) => typeof val === 'string' && val.length > 0,
-    description: 'Product name must be a non-empty string',
+    type: "string",
+    check: (val) => typeof val === "string" && val.length > 0,
+    description: "Product name must be a non-empty string",
   },
 
   // Pricing-critical numeric fields (optional but must be valid if present)
   unitWeightKg: {
-    type: 'optional-number',
-    check: (val) =>
-      val === null ||
-      val === undefined ||
-      (typeof val === 'number' && Number.isFinite(val) && val >= 0),
-    description:
-      'unitWeightKg must be a finite non-negative number or null/undefined',
+    type: "optional-number",
+    check: (val) => val === null || val === undefined || (typeof val === "number" && Number.isFinite(val) && val >= 0),
+    description: "unitWeightKg must be a finite non-negative number or null/undefined",
   },
   piecesPerMt: {
-    type: 'optional-number',
-    check: (val) =>
-      val === null ||
-      val === undefined ||
-      (typeof val === 'number' && Number.isFinite(val) && val > 0),
-    description:
-      'piecesPerMt must be a finite positive number or null/undefined',
+    type: "optional-number",
+    check: (val) => val === null || val === undefined || (typeof val === "number" && Number.isFinite(val) && val > 0),
+    description: "piecesPerMt must be a finite positive number or null/undefined",
   },
 
   // UOM fields (optional but must be valid if present)
   primaryUom: {
-    type: 'optional-string',
-    check: (val) =>
-      val === null || val === undefined || typeof val === 'string',
-    description: 'primaryUom must be a string or null/undefined',
+    type: "optional-string",
+    check: (val) => val === null || val === undefined || typeof val === "string",
+    description: "primaryUom must be a string or null/undefined",
   },
 };
 
@@ -70,19 +61,19 @@ const CRITICAL_FIELDS = {
  * If any of these are present, it indicates a normalization leak
  */
 const FORBIDDEN_SNAKE_CASE_KEYS = [
-  'unit_weight_kg',
-  'pieces_per_mt',
-  'product_category',
-  'pricing_basis',
-  'primary_uom',
-  'display_name',
-  'full_name',
-  'unique_name',
-  'selling_price',
-  'cost_price',
-  'current_stock',
-  'min_stock',
-  'max_stock',
+  "unit_weight_kg",
+  "pieces_per_mt",
+  "product_category",
+  "pricing_basis",
+  "primary_uom",
+  "display_name",
+  "full_name",
+  "unique_name",
+  "selling_price",
+  "cost_price",
+  "current_stock",
+  "min_stock",
+  "max_stock",
 ];
 
 /**
@@ -98,10 +89,8 @@ const FORBIDDEN_SNAKE_CASE_KEYS = [
  * @returns {void} Throws in dev, logs in production
  */
 export function assertProductDomain(product) {
-  if (!product || typeof product !== 'object') {
-    const error = new Error(
-      '[ProductContract] Product is null or not an object',
-    );
+  if (!product || typeof product !== "object") {
+    const error = new Error("[ProductContract] Product is null or not an object");
     handleContractViolation(error, { product });
     return;
   }
@@ -113,21 +102,15 @@ export function assertProductDomain(product) {
     const value = product[fieldName];
 
     if (!spec.check(value)) {
-      violations.push(
-        `${fieldName}: ${spec.description} (got: ${JSON.stringify(value)})`,
-      );
+      violations.push(`${fieldName}: ${spec.description} (got: ${JSON.stringify(value)})`);
     }
   }
 
   // RULE 2: Detect normalization leaks (snake_case keys still present)
-  const leakedKeys = FORBIDDEN_SNAKE_CASE_KEYS.filter(
-    (key) => product[key] !== undefined && product[key] !== null,
-  );
+  const leakedKeys = FORBIDDEN_SNAKE_CASE_KEYS.filter((key) => product[key] !== undefined && product[key] !== null);
 
   if (leakedKeys.length > 0) {
-    violations.push(
-      `Normalization leak detected: snake_case keys still present: ${leakedKeys.join(', ')}`,
-    );
+    violations.push(`Normalization leak detected: snake_case keys still present: ${leakedKeys.join(", ")}`);
   }
 
   // Report violations
@@ -146,12 +129,8 @@ export function assertProductDomain(product) {
  * @returns {string} Formatted error message
  */
 function formatViolations(product, violations) {
-  const productId = product.id || 'unknown';
-  const productName =
-    product.displayName ||
-    product.name ||
-    product.uniqueName ||
-    'Unknown Product';
+  const productId = product.id || "unknown";
+  const productName = product.displayName || product.name || product.uniqueName || "Unknown Product";
 
   let message = `[ProductContract] Contract violation for product ID ${productId} ("${productName}"):\n\n`;
 
@@ -175,18 +154,16 @@ function formatViolations(product, violations) {
 function handleContractViolation(error, context) {
   if (IS_DEVELOPMENT) {
     // FAIL IMMEDIATELY in development
-    console.error('❌ PRODUCT CONTRACT VIOLATION (Development Mode)');
+    console.error("❌ PRODUCT CONTRACT VIOLATION (Development Mode)");
     console.error(error.message);
-    console.error('\nProduct object:', context.product);
-    console.error('\nViolations:', context.violations);
+    console.error("\nProduct object:", context.product);
+    console.error("\nViolations:", context.violations);
     throw error;
   } else if (IS_PRODUCTION) {
     // LOG + BLOCK in production (prevent corrupt data from reaching UI)
-    console.error('⚠️  PRODUCT CONTRACT VIOLATION (Production Mode)');
+    console.error("⚠️  PRODUCT CONTRACT VIOLATION (Production Mode)");
     console.error(error.message);
-    console.error(
-      'Product data may be corrupt. Contact support if this error persists.',
-    );
+    console.error("Product data may be corrupt. Contact support if this error persists.");
 
     // Option 1: Throw (strict - prevents corrupt data from rendering)
     // throw error;

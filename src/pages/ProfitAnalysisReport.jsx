@@ -1,20 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Download, TrendingUp, DollarSign, ShoppingCart, BarChart3 } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import api from '../services/api';
-import toast from 'react-hot-toast';
-import { toUAEDateForInput } from '../utils/timezone';
-import { tokenUtils } from '../services/axiosApi';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
-import EmptyState from '../components/shared/EmptyState';
+import { BarChart3, DollarSign, Download, ShoppingCart, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import EmptyState from "../components/shared/EmptyState";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
+import api from "../services/api";
+import { tokenUtils } from "../services/axiosApi";
+import { toUAEDateForInput } from "../utils/timezone";
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
@@ -52,11 +45,11 @@ export default function ProfitAnalysisReport() {
       const companyId = user?.companyId;
 
       if (!companyId) {
-        throw new Error('Company context not found');
+        throw new Error("Company context not found");
       }
 
       // Use the analytics/profit-by-product endpoint instead of raw query
-      const response = await api.get('/analytics/profit-by-product', {
+      const response = await api.get("/analytics/profit-by-product", {
         params: {
           startDate: dateRange.startDate,
           endDate: dateRange.endDate,
@@ -78,25 +71,16 @@ export default function ProfitAnalysisReport() {
       } else {
         const totals = results.reduce(
           (acc, row) => ({
-            totalRevenue:
-              acc.totalRevenue +
-              parseFloat(row.totalRevenue || row.total_revenue || 0),
-            totalCost:
-              acc.totalCost + parseFloat(row.totalCost || row.total_cost || 0),
-            totalProfit:
-              acc.totalProfit +
-              parseFloat(row.totalProfit || row.total_profit || 0),
-            totalQuantity:
-              acc.totalQuantity +
-              parseFloat(row.totalQuantity || row.total_quantity || 0),
+            totalRevenue: acc.totalRevenue + parseFloat(row.totalRevenue || row.total_revenue || 0),
+            totalCost: acc.totalCost + parseFloat(row.totalCost || row.total_cost || 0),
+            totalProfit: acc.totalProfit + parseFloat(row.totalProfit || row.total_profit || 0),
+            totalQuantity: acc.totalQuantity + parseFloat(row.totalQuantity || row.total_quantity || 0),
           }),
-          { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 },
+          { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalQuantity: 0 }
         );
 
         const averageMargin =
-          totals.totalRevenue > 0
-            ? ((totals.totalProfit / totals.totalRevenue) * 100).toFixed(2)
-            : 0;
+          totals.totalRevenue > 0 ? ((totals.totalProfit / totals.totalRevenue) * 100).toFixed(2) : 0;
 
         setSummary({
           ...totals,
@@ -104,12 +88,10 @@ export default function ProfitAnalysisReport() {
         });
       }
     } catch (error) {
-      console.error('Error fetching report:', error);
+      console.error("Error fetching report:", error);
       if (!hasError) {
         setHasError(true);
-        toast.error(
-          'Failed to load profit analysis. The analytics endpoint may not be available.',
-        );
+        toast.error("Failed to load profit analysis. The analytics endpoint may not be available.");
       }
     } finally {
       setLoading(false);
@@ -117,16 +99,7 @@ export default function ProfitAnalysisReport() {
   };
 
   const exportToCSV = () => {
-    const headers = [
-      'Product',
-      'Category',
-      'Grade',
-      'Quantity',
-      'Revenue',
-      'Cost',
-      'Profit',
-      'Margin %',
-    ];
+    const headers = ["Product", "Category", "Grade", "Quantity", "Revenue", "Cost", "Profit", "Margin %"];
     const rows = data.map((row) => [
       row.name,
       row.category,
@@ -138,13 +111,11 @@ export default function ProfitAnalysisReport() {
       row.avgMargin,
     ]);
 
-    const csv = [headers.join(','), ...rows.map((row) => row.join(','))].join(
-      '\n',
-    );
+    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `profit-analysis-${dateRange.startDate}-to-${dateRange.endDate}.csv`;
     a.click();
@@ -157,36 +128,26 @@ export default function ProfitAnalysisReport() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div>
-            <label
-              htmlFor="profit-start-date"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="profit-start-date" className="block text-sm font-medium mb-2">
               Start Date
             </label>
             <input
               id="profit-start-date"
               type="date"
               value={dateRange.startDate}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, startDate: e.target.value })
-              }
+              onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div>
-            <label
-              htmlFor="profit-end-date"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="profit-end-date" className="block text-sm font-medium mb-2">
               End Date
             </label>
             <input
               id="profit-end-date"
               type="date"
               value={dateRange.endDate}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, endDate: e.target.value })
-              }
+              onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
@@ -194,12 +155,7 @@ export default function ProfitAnalysisReport() {
             <Button onClick={fetchReport} disabled={loading}>
               Generate Report
             </Button>
-            <Button
-              variant="outline"
-              onClick={exportToCSV}
-              disabled={loading || data.length === 0}
-              className="gap-2"
-            >
+            <Button variant="outline" onClick={exportToCSV} disabled={loading || data.length === 0} className="gap-2">
               <Download className="w-4 h-4" />
               Export CSV
             </Button>
@@ -225,12 +181,8 @@ export default function ProfitAnalysisReport() {
                   <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Revenue
-                  </p>
-                  <p className="text-xl font-bold">
-                    AED {summary.totalRevenue.toLocaleString()}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
+                  <p className="text-xl font-bold">AED {summary.totalRevenue.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -241,12 +193,8 @@ export default function ProfitAnalysisReport() {
                   <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Profit
-                  </p>
-                  <p className="text-xl font-bold text-green-600">
-                    AED {summary.totalProfit.toLocaleString()}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Profit</p>
+                  <p className="text-xl font-bold text-green-600">AED {summary.totalProfit.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -257,9 +205,7 @@ export default function ProfitAnalysisReport() {
                   <ShoppingCart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Avg Margin
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg Margin</p>
                   <p className="text-xl font-bold">{summary.averageMargin}%</p>
                 </div>
               </div>
@@ -267,12 +213,8 @@ export default function ProfitAnalysisReport() {
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Items Sold
-                </p>
-                <p className="text-xl font-bold">
-                  {summary.totalQuantity.toLocaleString()}
-                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Items Sold</p>
+                <p className="text-xl font-bold">{summary.totalQuantity.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -293,26 +235,15 @@ export default function ProfitAnalysisReport() {
                 </TableHeader>
                 <TableBody>
                   {data.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
+                    <TableRow key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <TableCell>
                         <div className="font-medium text-sm">{row.name}</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {row.grade}
-                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{row.grade}</div>
                       </TableCell>
                       <TableCell>{row.category}</TableCell>
-                      <TableCell className="text-right">
-                        {parseFloat(row.totalQuantity).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        AED {parseFloat(row.totalRevenue).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        AED {parseFloat(row.totalCost).toLocaleString()}
-                      </TableCell>
+                      <TableCell className="text-right">{parseFloat(row.totalQuantity).toLocaleString()}</TableCell>
+                      <TableCell className="text-right">AED {parseFloat(row.totalRevenue).toLocaleString()}</TableCell>
+                      <TableCell className="text-right">AED {parseFloat(row.totalCost).toLocaleString()}</TableCell>
                       <TableCell className="text-right">
                         <span className="font-bold text-green-600">
                           AED {parseFloat(row.totalProfit).toLocaleString()}
@@ -322,10 +253,10 @@ export default function ProfitAnalysisReport() {
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                             parseFloat(row.avgMargin) > 30
-                              ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200'
+                              ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
                               : parseFloat(row.avgMargin) > 20
-                                ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200'
-                                : 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200'
+                                ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200"
+                                : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200"
                           }`}
                         >
                           {parseFloat(row.avgMargin).toFixed(1)}%

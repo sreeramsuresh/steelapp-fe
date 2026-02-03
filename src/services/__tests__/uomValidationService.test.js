@@ -27,17 +27,11 @@ describe("uomValidationService", () => {
 
       api.post.mockResolvedValue(mockResponse);
 
-      const result = await uomValidationService.validateUomForProduct(
-        1,
-        "kg"
-      );
+      const result = await uomValidationService.validateUomForProduct(1, "kg");
 
       expect(result.is_valid).toBe(true);
       expect(result.allowed_uoms).toContain("kg");
-      expect(api.post).toHaveBeenCalledWith(
-        "/uom-validation/validate",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/uom-validation/validate", expect.any(Object));
     });
 
     it("should reject invalid UOM for product", async () => {
@@ -68,10 +62,7 @@ describe("uomValidationService", () => {
 
       api.post.mockResolvedValue(mockResponse);
 
-      const result = await uomValidationService.validateUomConversion(
-        "kg",
-        "mt"
-      );
+      const result = await uomValidationService.validateUomConversion("kg", "mt");
 
       expect(result.is_convertible).toBe(true);
       expect(result.conversion_factor).toBe(0.001);
@@ -111,9 +102,7 @@ describe("uomValidationService", () => {
 
       expect(result.allowed_uoms).toHaveLength(3);
       expect(result.allowed_uoms[0].base).toBe(true);
-      expect(api.get).toHaveBeenCalledWith(
-        "/uom-validation/product/1/uoms"
-      );
+      expect(api.get).toHaveBeenCalledWith("/uom-validation/product/1/uoms");
     });
   });
 
@@ -134,9 +123,7 @@ describe("uomValidationService", () => {
         ],
       };
 
-      const result = await uomValidationService.validateBatchUomConsistency(
-        payload
-      );
+      const result = await uomValidationService.validateBatchUomConsistency(payload);
 
       expect(result.is_valid).toBe(true);
       expect(result.consistency_errors).toHaveLength(0);
@@ -164,9 +151,7 @@ describe("uomValidationService", () => {
         ],
       };
 
-      const result = await uomValidationService.validateBatchUomConsistency(
-        payload
-      );
+      const result = await uomValidationService.validateBatchUomConsistency(payload);
 
       expect(result.is_valid).toBe(false);
       expect(result.consistency_errors).toHaveLength(1);

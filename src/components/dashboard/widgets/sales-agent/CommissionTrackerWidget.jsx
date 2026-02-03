@@ -6,25 +6,17 @@
  * Updated: Connected to real API - removed mock data
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { useTheme } from '../../../../contexts/ThemeContext';
-import { commissionService } from '../../../../services/commissionService';
-import {
-  Wallet,
-  Gift,
-  Info,
-  RefreshCw,
-  CheckCircle,
-  Circle,
-  AlertCircle,
-} from 'lucide-react';
+import { AlertCircle, CheckCircle, Circle, Gift, Info, RefreshCw, Wallet } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "../../../../contexts/ThemeContext";
+import { commissionService } from "../../../../services/commissionService";
 
 // Default empty state when no data is available
 const EMPTY_COMMISSION_DATA = {
   agentId: null,
-  period: new Date().toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
+  period: new Date().toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
   }),
   summary: {
     baseCommission: 0,
@@ -49,12 +41,8 @@ const CommissionTrackerWidget = ({
 }) => {
   const { isDarkMode } = useTheme();
   const [agents, setAgents] = useState([]);
-  const [selectedAgentId, setSelectedAgentId] = useState(
-    propSalesPersonId || null,
-  );
-  const [commissionData, setCommissionData] = useState(
-    propData || EMPTY_COMMISSION_DATA,
-  );
+  const [selectedAgentId, setSelectedAgentId] = useState(propSalesPersonId || null);
+  const [commissionData, setCommissionData] = useState(propData || EMPTY_COMMISSION_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [_showHistory, _setShowHistory] = useState(false);
@@ -68,16 +56,16 @@ const CommissionTrackerWidget = ({
         setAgents(
           agentsList.map((a) => ({
             id: a.user_id || a.userId,
-            name: a.user_name || a.userName || 'Unknown',
-          })),
+            name: a.user_name || a.userName || "Unknown",
+          }))
         );
         // Set first agent as selected if none provided
         if (!propSalesPersonId && agentsList.length > 0) {
           setSelectedAgentId(agentsList[0].user_id || agentsList[0].userId);
         }
       } catch (err) {
-        console.error('Error fetching agents:', err);
-        setError('Failed to load agents');
+        console.error("Error fetching agents:", err);
+        setError("Failed to load agents");
       }
     };
     fetchAgents();
@@ -93,8 +81,8 @@ const CommissionTrackerWidget = ({
       const data = await commissionService.getCommissionTrackerData(agentId);
       setCommissionData(data);
     } catch (err) {
-      console.error('Error fetching commission data:', err);
-      setError('Failed to load commission data');
+      console.error("Error fetching commission data:", err);
+      setError("Failed to load commission data");
       setCommissionData(EMPTY_COMMISSION_DATA);
     } finally {
       setLoading(false);
@@ -126,9 +114,9 @@ const CommissionTrackerWidget = ({
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
     const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: 'AED',
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(safeAmount);
@@ -147,10 +135,10 @@ const CommissionTrackerWidget = ({
   };
 
   const getProgressColor = (percent, achieved) => {
-    if (achieved) return 'bg-green-500';
-    if (percent >= 80) return 'bg-teal-500';
-    if (percent >= 50) return 'bg-yellow-500';
-    return 'bg-gray-400';
+    if (achieved) return "bg-green-500";
+    if (percent >= 80) return "bg-teal-500";
+    if (percent >= 50) return "bg-yellow-500";
+    return "bg-gray-400";
   };
 
   // Loading state
@@ -158,29 +146,19 @@ const CommissionTrackerWidget = ({
     return (
       <div
         className={`rounded-xl border p-6 ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <Wallet size={20} className="text-green-500" />
-          <h3
-            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
-            Commission Tracker
-          </h3>
+          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Commission Tracker</h3>
         </div>
         <div className="text-center py-8">
           <RefreshCw
             size={32}
-            className={`mx-auto mb-4 animate-spin ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            className={`mx-auto mb-4 animate-spin ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
           />
-          <p
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-          >
-            Loading commission data...
-          </p>
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading commission data...</p>
         </div>
       </div>
     );
@@ -191,35 +169,20 @@ const CommissionTrackerWidget = ({
     return (
       <div
         className={`rounded-xl border p-6 ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <Wallet size={20} className="text-green-500" />
-          <h3
-            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
-            Commission Tracker
-          </h3>
+          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Commission Tracker</h3>
         </div>
         <div className="text-center py-8">
-          <AlertCircle
-            size={48}
-            className="mx-auto mb-4 text-red-500 opacity-50"
-          />
-          <p
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-          >
-            {error}
-          </p>
+          <AlertCircle size={48} className="mx-auto mb-4 text-red-500 opacity-50" />
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{error}</p>
           <button
             onClick={handleRefresh}
             className={`mt-4 px-4 py-2 rounded-lg text-sm ${
-              isDarkMode
-                ? 'bg-green-600 hover:bg-green-500 text-white'
-                : 'bg-green-500 hover:bg-green-600 text-white'
+              isDarkMode ? "bg-green-600 hover:bg-green-500 text-white" : "bg-green-500 hover:bg-green-600 text-white"
             }`}
           >
             Retry
@@ -234,29 +197,16 @@ const CommissionTrackerWidget = ({
     return (
       <div
         className={`rounded-xl border p-6 ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <Wallet size={20} className="text-green-500" />
-          <h3
-            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
-            Commission Tracker
-          </h3>
+          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Commission Tracker</h3>
         </div>
         <div className="text-center py-8">
-          <Wallet
-            size={48}
-            className={`mx-auto mb-4 opacity-50 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-          />
-          <p
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-          >
-            No commission data available
-          </p>
+          <Wallet size={48} className={`mx-auto mb-4 opacity-50 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>No commission data available</p>
         </div>
       </div>
     );
@@ -268,8 +218,8 @@ const CommissionTrackerWidget = ({
     <div
       className={`rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-lg ${
         isDarkMode
-          ? 'bg-[#1E2328] border-[#37474F] hover:border-green-600'
-          : 'bg-white border-[#E0E0E0] hover:border-green-500'
+          ? "bg-[#1E2328] border-[#37474F] hover:border-green-600"
+          : "bg-white border-[#E0E0E0] hover:border-green-500"
       }`}
     >
       {/* Header */}
@@ -281,43 +231,32 @@ const CommissionTrackerWidget = ({
           <div>
             <h3
               className={`text-base font-semibold flex items-center gap-1.5 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               Commission Tracker
               <span className="relative group">
-                <Info
-                  size={14}
-                  className="cursor-help opacity-50 hover:opacity-100"
-                />
+                <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
                 <span
                   className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs rounded shadow-md whitespace-nowrap ${
-                    isDarkMode
-                      ? 'bg-gray-700 text-white'
-                      : 'bg-yellow-100 text-gray-800 border border-yellow-300'
+                    isDarkMode ? "bg-gray-700 text-white" : "bg-yellow-100 text-gray-800 border border-yellow-300"
                   }`}
                 >
                   Track commission earnings and bonuses
                 </span>
               </span>
             </h3>
-            <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              {commissionData.period}
-            </p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{commissionData.period}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {agents.length > 0 && (
             <select
-              value={selectedAgentId || ''}
+              value={selectedAgentId || ""}
               onChange={(e) => setSelectedAgentId(parseInt(e.target.value))}
               className={`text-xs px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                isDarkMode
-                  ? 'bg-[#2E3B4E] border-[#37474F] text-white'
-                  : 'bg-gray-50 border-gray-200 text-gray-700'
+                isDarkMode ? "bg-[#2E3B4E] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
               }`}
             >
               {agents.map((agent) => (
@@ -332,9 +271,9 @@ const CommissionTrackerWidget = ({
             disabled={loading || isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
-                ? 'hover:bg-[#2E3B4E] text-gray-400 hover:text-white'
-                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-            } ${loading || isLoading ? 'animate-spin' : ''}`}
+                ? "hover:bg-[#2E3B4E] text-gray-400 hover:text-white"
+                : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+            } ${loading || isLoading ? "animate-spin" : ""}`}
           >
             <RefreshCw size={16} />
           </button>
@@ -345,33 +284,17 @@ const CommissionTrackerWidget = ({
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div
           className={`p-3 rounded-lg border-2 ${
-            isDarkMode
-              ? 'bg-green-900/20 border-green-700'
-              : 'bg-green-50 border-green-200'
+            isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-green-200"
           }`}
         >
-          <p
-            className={`text-xs ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
-          >
-            Total Earned
-          </p>
-          <p
-            className={`text-xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
-          >
+          <p className={`text-xs ${isDarkMode ? "text-green-400" : "text-green-600"}`}>Total Earned</p>
+          <p className={`text-xl font-bold ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
             {formatCurrency(summary.totalEarned)}
           </p>
         </div>
-        <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
-        >
-          <p
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Projected
-          </p>
-          <p
-            className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}>
+          <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Projected</p>
+          <p className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             {formatCurrency(summary.projectedTotal)}
           </p>
         </div>
@@ -380,58 +303,34 @@ const CommissionTrackerWidget = ({
       {/* Commission Tiers */}
       <div className="space-y-3 mb-4">
         {tiers.map((tier, index) => (
-          <div
-            key={index}
-            className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}`}
-          >
+          <div key={index} className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 {tier.achieved ? (
                   <CheckCircle size={16} className="text-green-500" />
                 ) : (
-                  <Circle
-                    size={16}
-                    className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}
-                  />
+                  <Circle size={16} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
                 )}
                 <div>
-                  <p
-                    className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    {tier.name}
-                  </p>
-                  <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
-                    {tier.description}
-                  </p>
+                  <p className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{tier.name}</p>
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{tier.description}</p>
                 </div>
               </div>
               <div className="text-right">
                 <p
                   className={`text-sm font-bold ${
-                    tier.achieved
-                      ? 'text-green-500'
-                      : isDarkMode
-                        ? 'text-gray-400'
-                        : 'text-gray-500'
+                    tier.achieved ? "text-green-500" : isDarkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
                   {formatCurrency(tier.earned)}
                 </p>
                 {tier.target && (
-                  <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
-                    {tier.percent}%
-                  </p>
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{tier.percent}%</p>
                 )}
               </div>
             </div>
             {tier.target && (
-              <div
-                className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
-              >
+              <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
                 <div
                   className={`h-full ${getProgressColor(tier.percent, tier.achieved)} rounded-full transition-all duration-500`}
                   style={{ width: `${Math.min(tier.percent, 100)}%` }}
@@ -446,29 +345,23 @@ const CommissionTrackerWidget = ({
       {specialBonuses && specialBonuses.length > 0 && (
         <div
           className={`p-3 rounded-lg mb-4 ${
-            isDarkMode
-              ? 'bg-purple-900/20 border border-purple-700/30'
-              : 'bg-purple-50 border border-purple-200'
+            isDarkMode ? "bg-purple-900/20 border border-purple-700/30" : "bg-purple-50 border border-purple-200"
           }`}
         >
           <div className="flex items-center gap-2 mb-2">
             <Gift size={14} className="text-purple-500" />
-            <span
-              className={`text-sm font-medium ${isDarkMode ? 'text-purple-400' : 'text-purple-700'}`}
-            >
+            <span className={`text-sm font-medium ${isDarkMode ? "text-purple-400" : "text-purple-700"}`}>
               Special Bonuses
             </span>
           </div>
           <div className="space-y-1">
             {specialBonuses.map((bonus, idx) => (
               <div key={idx} className="flex justify-between text-xs">
-                <span
-                  className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}
-                >
+                <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
                   {bonus.name} ({bonus.count} x {formatCurrency(bonus.rate)})
                 </span>
                 <span
-                  className={`font-medium ${bonus.total > 0 ? 'text-purple-500' : isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                  className={`font-medium ${bonus.total > 0 ? "text-purple-500" : isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                 >
                   {formatCurrency(bonus.total)}
                 </span>
@@ -479,29 +372,15 @@ const CommissionTrackerWidget = ({
       )}
 
       {/* Payment Status */}
-      <div
-        className={`pt-3 border-t ${isDarkMode ? 'border-[#37474F]' : 'border-gray-200'}`}
-      >
+      <div className={`pt-3 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
         <div className="flex justify-between items-center">
           <div>
-            <span
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Paid
-            </span>
-            <p className={`text-sm font-semibold text-green-500`}>
-              {formatCurrency(summary.paidAmount)}
-            </p>
+            <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Paid</span>
+            <p className={`text-sm font-semibold text-green-500`}>{formatCurrency(summary.paidAmount)}</p>
           </div>
           <div className="text-right">
-            <span
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Pending
-            </span>
-            <p
-              className={`text-sm font-semibold ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}
-            >
+            <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Pending</span>
+            <p className={`text-sm font-semibold ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}>
               {formatCurrency(summary.pendingAmount)}
             </p>
           </div>
@@ -513,9 +392,7 @@ const CommissionTrackerWidget = ({
         <button
           onClick={() => onViewDetails(commissionData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
-            isDarkMode
-              ? 'bg-green-600 hover:bg-green-500 text-white'
-              : 'bg-green-500 hover:bg-green-600 text-white'
+            isDarkMode ? "bg-green-600 hover:bg-green-500 text-white" : "bg-green-500 hover:bg-green-600 text-white"
           }`}
         >
           View Full Breakdown

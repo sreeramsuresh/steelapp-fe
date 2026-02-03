@@ -1,15 +1,15 @@
-import { useMemo } from 'react';
-import { Globe } from 'lucide-react';
-import { formatCurrency } from '../../utils/invoiceUtils';
+import { Globe } from "lucide-react";
+import { useMemo } from "react";
+import { formatCurrency } from "../../utils/invoiceUtils";
 
 // Supported currencies for multi-currency payments
 const CURRENCIES = [
-  { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: 'EUR' },
-  { code: 'GBP', name: 'British Pound', symbol: 'GBP' },
-  { code: 'SAR', name: 'Saudi Riyal', symbol: 'SAR' },
-  { code: 'INR', name: 'Indian Rupee', symbol: 'INR' },
+  { code: "AED", name: "UAE Dirham", symbol: "AED" },
+  { code: "USD", name: "US Dollar", symbol: "$" },
+  { code: "EUR", name: "Euro", symbol: "EUR" },
+  { code: "GBP", name: "British Pound", symbol: "GBP" },
+  { code: "SAR", name: "Saudi Riyal", symbol: "SAR" },
+  { code: "INR", name: "Indian Rupee", symbol: "INR" },
 ];
 
 /**
@@ -41,26 +41,26 @@ const CurrencyInput = ({
   amountLabel,
   required = true,
   showAedEquivalent = true,
-  className = '',
+  className = "",
 }) => {
   // Check if using foreign currency (non-AED)
-  const isForeignCurrency = currency !== 'AED';
+  const isForeignCurrency = currency !== "AED";
 
   // Calculate AED equivalent when using foreign currency
   const amountInAed = useMemo(() => {
-    if (currency === 'AED') return Number(amount) || 0;
+    if (currency === "AED") return Number(amount) || 0;
     const rate = parseFloat(exchangeRate) || 1;
     return (Number(amount) || 0) * rate;
   }, [amount, currency, exchangeRate]);
 
   // Helper for number input
-  const numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
+  const numberInput = (v) => (v === "" || isNaN(Number(v)) ? "" : v);
 
   // Handle currency change - reset exchange rate for AED
   const handleCurrencyChange = (newCurrency) => {
     onCurrencyChange(newCurrency);
-    if (newCurrency === 'AED') {
-      onExchangeRateChange('1.0000');
+    if (newCurrency === "AED") {
+      onExchangeRateChange("1.0000");
     }
   };
 
@@ -113,9 +113,7 @@ const CurrencyInput = ({
           required={required}
         />
         {maxAmount !== undefined && Number(amount) > Number(maxAmount) && (
-          <div className="text-xs text-red-600 mt-1">
-            Amount cannot exceed {formatCurrency(maxAmount)}
-          </div>
+          <div className="text-xs text-red-600 mt-1">Amount cannot exceed {formatCurrency(maxAmount)}</div>
         )}
       </div>
 
@@ -137,33 +135,23 @@ const CurrencyInput = ({
             required={required && isForeignCurrency}
           />
           {required && (!exchangeRate || parseFloat(exchangeRate) <= 0) && (
-            <div className="text-xs text-red-600 mt-1">
-              Exchange rate is required for {currency} payments
-            </div>
+            <div className="text-xs text-red-600 mt-1">Exchange rate is required for {currency} payments</div>
           )}
         </div>
       )}
 
       {/* AED Equivalent Display (only shown for foreign currencies) */}
-      {showAedEquivalent &&
-        isForeignCurrency &&
-        amount &&
-        parseFloat(exchangeRate) > 0 && (
-          <div className="sm:col-span-2">
-            <div className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="text-xs text-blue-700 font-medium mb-1">
-                AED Equivalent (for VAT reporting)
-              </div>
-              <div className="text-lg font-bold text-blue-900">
-                {formatCurrency(amountInAed)}
-              </div>
-              <div className="text-xs text-blue-600 mt-1">
-                {amount} {currency} x {exchangeRate} = {amountInAed.toFixed(2)}{' '}
-                AED
-              </div>
+      {showAedEquivalent && isForeignCurrency && amount && parseFloat(exchangeRate) > 0 && (
+        <div className="sm:col-span-2">
+          <div className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="text-xs text-blue-700 font-medium mb-1">AED Equivalent (for VAT reporting)</div>
+            <div className="text-lg font-bold text-blue-900">{formatCurrency(amountInAed)}</div>
+            <div className="text-xs text-blue-600 mt-1">
+              {amount} {currency} x {exchangeRate} = {amountInAed.toFixed(2)} AED
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };

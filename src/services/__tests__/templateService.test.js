@@ -150,10 +150,7 @@ describe("templateService", () => {
       const result = await templateService.previewTemplate(1, sampleData);
 
       expect(result.html).toContain("Invoice");
-      expect(api.post).toHaveBeenCalledWith(
-        "/templates/1/preview",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/templates/1/preview", expect.any(Object));
     });
   });
 
@@ -173,10 +170,7 @@ describe("templateService", () => {
       });
 
       expect(result.id).toBe(2);
-      expect(api.post).toHaveBeenCalledWith(
-        "/templates/1/clone",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/templates/1/clone", expect.any(Object));
     });
   });
 });

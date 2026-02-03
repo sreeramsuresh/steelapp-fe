@@ -1,59 +1,59 @@
-import { useState, useEffect } from 'react';
 import {
+  Alert,
   Box,
   Button,
-  TextField,
-  MenuItem,
-  Grid,
   Card,
   CardContent,
-  Typography,
-  Alert,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  MenuItem,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
-import ConfirmDialog from '../components/ConfirmDialog';
-import { operatingExpenseService } from '../services/operatingExpenseService';
-import { chartOfAccountsService } from '../services/chartOfAccountsService';
+  TextField,
+  Typography,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { chartOfAccountsService } from "../services/chartOfAccountsService";
+import { operatingExpenseService } from "../services/operatingExpenseService";
 
 const EXPENSE_TYPES = [
-  { value: 'RENT', label: 'Rent' },
-  { value: 'UTILITIES', label: 'Utilities' },
-  { value: 'SALARIES', label: 'Salaries & Wages' },
-  { value: 'TRANSPORT', label: 'Transport & Logistics' },
-  { value: 'OTHER', label: 'Other' },
+  { value: "RENT", label: "Rent" },
+  { value: "UTILITIES", label: "Utilities" },
+  { value: "SALARIES", label: "Salaries & Wages" },
+  { value: "TRANSPORT", label: "Transport & Logistics" },
+  { value: "OTHER", label: "Other" },
 ];
 
 const PAYMENT_METHODS = [
-  { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-  { value: 'CASH', label: 'Cash' },
-  { value: 'CHEQUE', label: 'Cheque' },
-  { value: 'CREDIT_CARD', label: 'Credit Card' },
+  { value: "BANK_TRANSFER", label: "Bank Transfer" },
+  { value: "CASH", label: "Cash" },
+  { value: "CHEQUE", label: "Cheque" },
+  { value: "CREDIT_CARD", label: "Credit Card" },
 ];
 
 export default function OperatingExpenseForm() {
-  const [activeTab, setActiveTab] = useState('create');
+  const [activeTab, setActiveTab] = useState("create");
   const [formData, setFormData] = useState({
     expenseDate: dayjs(),
-    expenseType: 'RENT',
-    categoryCode: '',
-    amount: '',
-    narration: '',
-    referenceNumber: '',
-    paymentMethod: 'BANK_TRANSFER',
-    paymentReference: '',
+    expenseType: "RENT",
+    categoryCode: "",
+    amount: "",
+    narration: "",
+    referenceNumber: "",
+    paymentMethod: "BANK_TRANSFER",
+    paymentReference: "",
   });
 
   const [expenseAccounts, setExpenseAccounts] = useState([]);
@@ -75,17 +75,17 @@ export default function OperatingExpenseForm() {
 
   // Load expenses when on list tab
   useEffect(() => {
-    if (activeTab === 'list') {
+    if (activeTab === "list") {
       loadExpenses();
     }
   }, [activeTab]);
 
   const loadExpenseAccounts = async () => {
     try {
-      const accounts = await chartOfAccountsService.getByCategory('EXPENSE');
-      setExpenseAccounts(accounts.filter((acc) => acc.type !== 'HEADER'));
+      const accounts = await chartOfAccountsService.getByCategory("EXPENSE");
+      setExpenseAccounts(accounts.filter((acc) => acc.type !== "HEADER"));
     } catch (err) {
-      console.error('Failed to load expense accounts:', err);
+      console.error("Failed to load expense accounts:", err);
     }
   };
 
@@ -95,8 +95,8 @@ export default function OperatingExpenseForm() {
       const result = await operatingExpenseService.list({ limit: 100 });
       setExpenses(result.data || []);
     } catch (err) {
-      console.error('Failed to load expenses:', err);
-      setError('Failed to load expenses');
+      console.error("Failed to load expenses:", err);
+      setError("Failed to load expenses");
     } finally {
       setLoading(false);
     }
@@ -113,13 +113,13 @@ export default function OperatingExpenseForm() {
   const handleReset = () => {
     setFormData({
       expenseDate: dayjs(),
-      expenseType: 'RENT',
-      categoryCode: '',
-      amount: '',
-      narration: '',
-      referenceNumber: '',
-      paymentMethod: 'BANK_TRANSFER',
-      paymentReference: '',
+      expenseType: "RENT",
+      categoryCode: "",
+      amount: "",
+      narration: "",
+      referenceNumber: "",
+      paymentMethod: "BANK_TRANSFER",
+      paymentReference: "",
     });
     setError(null);
     setSuccess(false);
@@ -133,7 +133,7 @@ export default function OperatingExpenseForm() {
 
     try {
       const submitData = {
-        expense_date: formData.expenseDate.format('YYYY-MM-DD'),
+        expense_date: formData.expenseDate.format("YYYY-MM-DD"),
         expense_type: formData.expenseType,
         category_code: formData.categoryCode,
         amount: parseFloat(formData.amount),
@@ -150,18 +150,14 @@ export default function OperatingExpenseForm() {
       handleReset();
 
       // Reload list if on that tab
-      if (activeTab === 'list') {
+      if (activeTab === "list") {
         loadExpenses();
       }
 
       // Switch to list tab after short delay
-      setTimeout(() => setActiveTab('list'), 1000);
+      setTimeout(() => setActiveTab("list"), 1000);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          'Failed to create expense',
-      );
+      setError(err.response?.data?.message || err.message || "Failed to create expense");
     } finally {
       setLoading(false);
     }
@@ -175,7 +171,7 @@ export default function OperatingExpenseForm() {
       setOpenDialog(false);
       loadExpenses();
     } catch {
-      setError('Failed to approve expense');
+      setError("Failed to approve expense");
     } finally {
       setLoading(false);
     }
@@ -193,7 +189,7 @@ export default function OperatingExpenseForm() {
       setSuccess(true);
       loadExpenses();
     } catch {
-      setError('Failed to delete expense');
+      setError("Failed to delete expense");
     } finally {
       setLoading(false);
     }
@@ -217,36 +213,32 @@ export default function OperatingExpenseForm() {
       )}
 
       {success && (
-        <Alert
-          severity="success"
-          sx={{ mb: 2 }}
-          onClose={() => setSuccess(false)}
-        >
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(false)}>
           Operation completed successfully!
         </Alert>
       )}
 
       {/* Tabs */}
-      <Box sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+      <Box sx={{ mb: 3, borderBottom: 1, borderColor: "divider" }}>
+        <Box sx={{ display: "flex", gap: 2 }}>
           <Button
-            onClick={() => setActiveTab('create')}
+            onClick={() => setActiveTab("create")}
             sx={{
               pb: 1,
-              borderBottom: activeTab === 'create' ? 3 : 0,
-              borderColor: 'primary.main',
-              textTransform: 'none',
+              borderBottom: activeTab === "create" ? 3 : 0,
+              borderColor: "primary.main",
+              textTransform: "none",
             }}
           >
             Create Expense
           </Button>
           <Button
-            onClick={() => setActiveTab('list')}
+            onClick={() => setActiveTab("list")}
             sx={{
               pb: 1,
-              borderBottom: activeTab === 'list' ? 3 : 0,
-              borderColor: 'primary.main',
-              textTransform: 'none',
+              borderBottom: activeTab === "list" ? 3 : 0,
+              borderColor: "primary.main",
+              textTransform: "none",
             }}
           >
             View Expenses
@@ -255,7 +247,7 @@ export default function OperatingExpenseForm() {
       </Box>
 
       {/* Create Tab */}
-      {activeTab === 'create' && (
+      {activeTab === "create" && (
         <Card>
           <CardContent>
             <form onSubmit={handleSubmit}>
@@ -276,7 +268,7 @@ export default function OperatingExpenseForm() {
                     select
                     label="Expense Type"
                     value={formData.expenseType}
-                    onChange={handleChange('expenseType')}
+                    onChange={handleChange("expenseType")}
                     fullWidth
                     required
                   >
@@ -294,7 +286,7 @@ export default function OperatingExpenseForm() {
                     select
                     label="Expense Account"
                     value={formData.categoryCode}
-                    onChange={handleChange('categoryCode')}
+                    onChange={handleChange("categoryCode")}
                     fullWidth
                     required
                     helperText="Select GL account for this expense"
@@ -313,10 +305,10 @@ export default function OperatingExpenseForm() {
                     label="Amount (AED)"
                     type="number"
                     value={formData.amount}
-                    onChange={handleChange('amount')}
+                    onChange={handleChange("amount")}
                     fullWidth
                     required
-                    inputProps={{ step: '0.01', min: '0' }}
+                    inputProps={{ step: "0.01", min: "0" }}
                   />
                 </Grid>
 
@@ -325,7 +317,7 @@ export default function OperatingExpenseForm() {
                   <TextField
                     label="Description / Narration"
                     value={formData.narration}
-                    onChange={handleChange('narration')}
+                    onChange={handleChange("narration")}
                     fullWidth
                     multiline
                     rows={3}
@@ -337,7 +329,7 @@ export default function OperatingExpenseForm() {
                   <TextField
                     label="Reference Number"
                     value={formData.referenceNumber}
-                    onChange={handleChange('referenceNumber')}
+                    onChange={handleChange("referenceNumber")}
                     fullWidth
                   />
                 </Grid>
@@ -348,7 +340,7 @@ export default function OperatingExpenseForm() {
                     select
                     label="Payment Method"
                     value={formData.paymentMethod}
-                    onChange={handleChange('paymentMethod')}
+                    onChange={handleChange("paymentMethod")}
                     fullWidth
                     required
                   >
@@ -365,32 +357,18 @@ export default function OperatingExpenseForm() {
                   <TextField
                     label="Payment Reference (Cheque/Transaction ID)"
                     value={formData.paymentReference}
-                    onChange={handleChange('paymentReference')}
+                    onChange={handleChange("paymentReference")}
                     fullWidth
                   />
                 </Grid>
 
                 {/* Buttons */}
                 <Grid item xs={12}>
-                  <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <CircularProgress size={24} />
-                      ) : (
-                        'Create Expense'
-                      )}
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                      {loading ? <CircularProgress size={24} /> : "Create Expense"}
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outlined"
-                      onClick={handleReset}
-                      disabled={loading}
-                    >
+                    <Button type="button" variant="outlined" onClick={handleReset} disabled={loading}>
                       Reset
                     </Button>
                   </Box>
@@ -402,16 +380,14 @@ export default function OperatingExpenseForm() {
       )}
 
       {/* List Tab */}
-      {activeTab === 'list' && (
+      {activeTab === "list" && (
         <TableContainer component={Paper}>
           {loading && <CircularProgress sx={{ p: 2 }} />}
-          {!loading && expenses.length === 0 && (
-            <Typography sx={{ p: 2 }}>No expenses found</Typography>
-          )}
+          {!loading && expenses.length === 0 && <Typography sx={{ p: 2 }}>No expenses found</Typography>}
           {!loading && expenses.length > 0 && (
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
                   <TableCell>Date</TableCell>
                   <TableCell>Type</TableCell>
                   <TableCell>Account</TableCell>
@@ -426,23 +402,21 @@ export default function OperatingExpenseForm() {
                     <TableCell>{expense.expenseDate}</TableCell>
                     <TableCell>{expense.expenseType}</TableCell>
                     <TableCell>{expense.categoryCode}</TableCell>
-                    <TableCell align="right">
-                      {parseFloat(expense.amount).toFixed(2)}
-                    </TableCell>
+                    <TableCell align="right">{parseFloat(expense.amount).toFixed(2)}</TableCell>
                     <TableCell>
                       <Box
                         sx={{
-                          display: 'inline-block',
+                          display: "inline-block",
                           px: 2,
                           py: 1,
                           backgroundColor:
-                            expense.status === 'POSTED'
-                              ? '#c8e6c9'
-                              : expense.status === 'APPROVED'
-                                ? '#bbdefb'
-                                : expense.status === 'SUBMITTED'
-                                  ? '#fff9c4'
-                                  : '#f5f5f5',
+                            expense.status === "POSTED"
+                              ? "#c8e6c9"
+                              : expense.status === "APPROVED"
+                                ? "#bbdefb"
+                                : expense.status === "SUBMITTED"
+                                  ? "#fff9c4"
+                                  : "#f5f5f5",
                           borderRadius: 1,
                           fontSize: 12,
                           fontWeight: 600,
@@ -452,18 +426,11 @@ export default function OperatingExpenseForm() {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        size="small"
-                        onClick={() => openExpenseDetails(expense)}
-                      >
+                      <Button size="small" onClick={() => openExpenseDetails(expense)}>
                         View
                       </Button>
-                      {expense.status === 'DRAFT' && (
-                        <Button
-                          size="small"
-                          color="error"
-                          onClick={() => handleDelete(expense.id)}
-                        >
+                      {expense.status === "DRAFT" && (
+                        <Button size="small" color="error" onClick={() => handleDelete(expense.id)}>
                           Delete
                         </Button>
                       )}
@@ -477,17 +444,12 @@ export default function OperatingExpenseForm() {
       )}
 
       {/* Details Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
         {selectedExpense && (
           <>
             <DialogTitle>Expense Details</DialogTitle>
             <DialogContent sx={{ pt: 2 }}>
-              <Box sx={{ display: 'grid', gap: 2 }}>
+              <Box sx={{ display: "grid", gap: 2 }}>
                 <Box>
                   <Typography variant="caption" color="textSecondary">
                     Date
@@ -505,17 +467,14 @@ export default function OperatingExpenseForm() {
                     Account
                   </Typography>
                   <Typography>
-                    {selectedExpense.categoryCode} -{' '}
-                    {selectedExpense.categoryName}
+                    {selectedExpense.categoryCode} - {selectedExpense.categoryName}
                   </Typography>
                 </Box>
                 <Box>
                   <Typography variant="caption" color="textSecondary">
                     Amount
                   </Typography>
-                  <Typography>
-                    {parseFloat(selectedExpense.amount).toFixed(2)} AED
-                  </Typography>
+                  <Typography>{parseFloat(selectedExpense.amount).toFixed(2)} AED</Typography>
                 </Box>
                 <Box>
                   <Typography variant="caption" color="textSecondary">
@@ -532,21 +491,13 @@ export default function OperatingExpenseForm() {
               </Box>
             </DialogContent>
             <DialogActions>
-              {selectedExpense.status === 'DRAFT' && (
-                <Button
-                  onClick={() => handleDelete(selectedExpense.id)}
-                  color="error"
-                  disabled={loading}
-                >
+              {selectedExpense.status === "DRAFT" && (
+                <Button onClick={() => handleDelete(selectedExpense.id)} color="error" disabled={loading}>
                   Delete
                 </Button>
               )}
-              {selectedExpense.status === 'SUBMITTED' && (
-                <Button
-                  onClick={() => handleApprove(selectedExpense.id)}
-                  variant="contained"
-                  disabled={loading}
-                >
+              {selectedExpense.status === "SUBMITTED" && (
+                <Button onClick={() => handleApprove(selectedExpense.id)} variant="contained" disabled={loading}>
                   Approve & Post
                 </Button>
               )}

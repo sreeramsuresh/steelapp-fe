@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const MarketingFooter = () => {
   const currentYear = new Date().getFullYear();
@@ -10,22 +10,17 @@ const MarketingFooter = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-primary-500 font-montserrat">
-                ULTIMATE STEELS
-              </span>
+              <span className="text-xl font-bold text-primary-500 font-montserrat">ULTIMATE STEELS</span>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Importers & Stockist of Stainless Steel Products. Powering
-              Industries with Strength and Innovation across UAE & GCC
-              countries.
+              Importers & Stockist of Stainless Steel Products. Powering Industries with Strength and Innovation across
+              UAE & GCC countries.
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Quick Links
-            </h3>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -72,9 +67,7 @@ const MarketingFooter = () => {
 
           {/* Services */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Services
-            </h3>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Services</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>Steel Importing & Supply</li>
               <li>Industrial Solutions</li>
@@ -88,12 +81,8 @@ const MarketingFooter = () => {
         {/* Bottom Section */}
         <div className="mt-8 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm">
-              © {currentYear} Ultimate Steels. All rights reserved.
-            </p>
-            <p className="text-gray-500 text-sm mt-2 md:mt-0">
-              Serving UAE, Dubai, Abu Dhabi, Sharjah & GCC Countries
-            </p>
+            <p className="text-gray-500 text-sm">© {currentYear} Ultimate Steels. All rights reserved.</p>
+            <p className="text-gray-500 text-sm mt-2 md:mt-0">Serving UAE, Dubai, Abu Dhabi, Sharjah & GCC Countries</p>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { authService } from '../services/axiosAuthService';
+import { authService } from "../services/axiosAuthService";
 
 /**
  * Hook to check user permissions
@@ -19,10 +19,10 @@ export const usePermission = () => {
   };
 
   // Convenience methods: can.read('resource'), can.create('resource'), etc.
-  can.read = (resource) => authService.hasPermission(resource, 'read');
-  can.create = (resource) => authService.hasPermission(resource, 'create');
-  can.update = (resource) => authService.hasPermission(resource, 'update');
-  can.delete = (resource) => authService.hasPermission(resource, 'delete');
+  can.read = (resource) => authService.hasPermission(resource, "read");
+  can.create = (resource) => authService.hasPermission(resource, "create");
+  can.update = (resource) => authService.hasPermission(resource, "update");
+  can.delete = (resource) => authService.hasPermission(resource, "delete");
 
   return can;
 };

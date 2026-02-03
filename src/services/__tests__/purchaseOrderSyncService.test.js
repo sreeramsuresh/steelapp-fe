@@ -52,10 +52,7 @@ describe("purchaseOrderSyncService", () => {
 
       expect(result.sync_status).toBe("completed");
       expect(result.external_reference).toBe("EXT-12345");
-      expect(api.post).toHaveBeenCalledWith(
-        "/purchase-orders/1/sync",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/purchase-orders/1/sync", expect.any(Object));
     });
   });
 
@@ -73,16 +70,11 @@ describe("purchaseOrderSyncService", () => {
 
       api.post.mockResolvedValue(mockResponse);
 
-      const result = await purchaseOrderSyncService.syncBulkPurchaseOrders([
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-      ]);
+      const result = await purchaseOrderSyncService.syncBulkPurchaseOrders([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
       expect(result.synced_count).toBe(10);
       expect(result.failed_count).toBe(0);
-      expect(api.post).toHaveBeenCalledWith(
-        "/purchase-orders/sync-bulk",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/purchase-orders/sync-bulk", expect.any(Object));
     });
   });
 
@@ -130,10 +122,7 @@ describe("purchaseOrderSyncService", () => {
       const result = await purchaseOrderSyncService.retryFailedSync(1);
 
       expect(result.sync_status).toBe("completed");
-      expect(api.put).toHaveBeenCalledWith(
-        "/purchase-orders/sync-failures/1/retry",
-        expect.any(Object)
-      );
+      expect(api.put).toHaveBeenCalledWith("/purchase-orders/sync-failures/1/retry", expect.any(Object));
     });
   });
 });

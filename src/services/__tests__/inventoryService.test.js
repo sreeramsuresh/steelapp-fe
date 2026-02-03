@@ -3,22 +3,22 @@
  * Tests inventory tracking, stock balances, and movements
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock('../api.js', () => ({
+vi.mock("../api.js", () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
-import { inventoryService } from '../inventoryService';
-import { apiClient } from '../api';
+import { apiClient } from "../api";
+import { inventoryService } from "../inventoryService";
 
-describe('inventoryService', () => {
+describe("inventoryService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('getInventory', () => {
-    test('should fetch inventory items', async () => {
+  describe("getInventory", () => {
+    test("should fetch inventory items", async () => {
       const mockResponse = {
         data: [{ id: 1, productId: 1, warehouseId: 1, quantityOnHand: 100 }],
         pagination: { page: 1, total: 1 },
@@ -31,7 +31,7 @@ describe('inventoryService', () => {
       expect(result.data[0].quantityOnHand).toBe(100);
     });
 
-    test('should filter by warehouse', async () => {
+    test("should filter by warehouse", async () => {
       apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
 
       await inventoryService.getInventory({ warehouseId: 1 });
@@ -39,7 +39,7 @@ describe('inventoryService', () => {
       expect(apiClient.get).toHaveBeenCalled();
     });
 
-    test('should filter by product', async () => {
+    test("should filter by product", async () => {
       apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
 
       await inventoryService.getInventory({ productId: 1 });
@@ -48,8 +48,8 @@ describe('inventoryService', () => {
     });
   });
 
-  describe('getInventoryItem', () => {
-    test('should fetch single inventory item', async () => {
+  describe("getInventoryItem", () => {
+    test("should fetch single inventory item", async () => {
       const mockResponse = {
         id: 1,
         productId: 1,
@@ -65,8 +65,8 @@ describe('inventoryService', () => {
     });
   });
 
-  describe('updateInventory', () => {
-    test('should update inventory', async () => {
+  describe("updateInventory", () => {
+    test("should update inventory", async () => {
       const updateData = { quantityOnHand: 150 };
       apiClient.put.mockResolvedValueOnce({ id: 1, ...updateData });
 
@@ -76,8 +76,8 @@ describe('inventoryService', () => {
     });
   });
 
-  describe('Stock Balance Calculations', () => {
-    test('should calculate available quantity (on hand - reserved)', async () => {
+  describe("Stock Balance Calculations", () => {
+    test("should calculate available quantity (on hand - reserved)", async () => {
       const mockResponse = {
         id: 1,
         quantityOnHand: 100,
@@ -91,7 +91,7 @@ describe('inventoryService', () => {
       expect(result.available).toBe(80);
     });
 
-    test('should track minimum stock levels', async () => {
+    test("should track minimum stock levels", async () => {
       const mockResponse = {
         id: 1,
         quantityOnHand: 5,
@@ -106,16 +106,16 @@ describe('inventoryService', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    test('should handle network errors', async () => {
-      apiClient.get.mockRejectedValueOnce(new Error('Network error'));
+  describe("Error Handling", () => {
+    test("should handle network errors", async () => {
+      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
 
       await expect(inventoryService.getInventory()).rejects.toThrow();
     });
   });
 
-  describe('Edge Cases', () => {
-    test('should handle zero quantities', async () => {
+  describe("Edge Cases", () => {
+    test("should handle zero quantities", async () => {
       const mockResponse = { id: 1, quantityOnHand: 0, quantityReserved: 0 };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 
@@ -124,7 +124,7 @@ describe('inventoryService', () => {
       expect(result.quantityOnHand).toBe(0);
     });
 
-    test('should handle large quantities', async () => {
+    test("should handle large quantities", async () => {
       const mockResponse = { id: 1, quantityOnHand: 999999 };
       apiClient.get.mockResolvedValueOnce(mockResponse);
 

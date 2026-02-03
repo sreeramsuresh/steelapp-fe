@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import MarketingLayout from './MarketingLayout';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import MarketingLayout from "./MarketingLayout";
 
 const Contact = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -17,7 +17,7 @@ const Contact = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: '50px' },
+      { threshold: 0.1, rootMargin: "50px" }
     );
 
     document.querySelectorAll('[id^="section-"]').forEach((el) => {
@@ -57,9 +57,7 @@ const Contact = () => {
         <section
           id="section-main"
           className={`py-20 transition-all duration-1000 ${
-            isVisible['section-main']
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-20'
+            isVisible["section-main"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">
@@ -69,11 +67,9 @@ const Contact = () => {
                 Let&apos;s Build Something Strong Together!
               </h2>
               <p className="text-xl text-gray-700 max-w-5xl mx-auto leading-relaxed">
-                At Ultimate Steels, we are more than just metal, we are the
-                backbone of industries, the foundation of innovation, and your
-                trusted partner in steel solutions. Whether you have a question,
-                need a quote, or want to discuss a custom project, we&apos;re
-                here to help
+                At Ultimate Steels, we are more than just metal, we are the backbone of industries, the foundation of
+                innovation, and your trusted partner in steel solutions. Whether you have a question, need a quote, or
+                want to discuss a custom project, we&apos;re here to help
               </p>
             </div>
 
@@ -81,9 +77,7 @@ const Contact = () => {
             <div className="grid lg:grid-cols-2 gap-16 items-start mb-20">
               {/* Contact Details */}
               <div className="space-y-8">
-                <h3 className="text-3xl font-bold text-gray-900 mb-8">
-                  Get in Touch
-                </h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-8">Get in Touch</h3>
 
                 {/* Phone Numbers */}
                 <div className="space-y-4">
@@ -92,9 +86,7 @@ const Contact = () => {
                       <span className="text-white text-xl">📞</span>
                     </div>
                     <div>
-                      <div className="text-xl font-semibold text-gray-900">
-                        +971 50 6061 680
-                      </div>
+                      <div className="text-xl font-semibold text-gray-900">+971 50 6061 680</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -102,9 +94,7 @@ const Contact = () => {
                       <span className="text-white text-xl">📞</span>
                     </div>
                     <div>
-                      <div className="text-xl font-semibold text-gray-900">
-                        +971 50 6067 680
-                      </div>
+                      <div className="text-xl font-semibold text-gray-900">+971 50 6067 680</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -112,9 +102,7 @@ const Contact = () => {
                       <span className="text-white text-xl">📞</span>
                     </div>
                     <div>
-                      <div className="text-xl font-semibold text-gray-900">
-                        +971 65 4456 80
-                      </div>
+                      <div className="text-xl font-semibold text-gray-900">+971 65 4456 80</div>
                     </div>
                   </div>
                 </div>
@@ -125,9 +113,7 @@ const Contact = () => {
                     <span className="text-white text-xl">✉️</span>
                   </div>
                   <div>
-                    <div className="text-xl font-semibold text-gray-900">
-                      info@ultimatesteels.com
-                    </div>
+                    <div className="text-xl font-semibold text-gray-900">info@ultimatesteels.com</div>
                   </div>
                 </div>
 
@@ -159,9 +145,7 @@ const Contact = () => {
 
             {/* Get in Touch Section */}
             <div className="text-center mb-16">
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                Get in Touch
-              </h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">Get in Touch</h3>
               <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto"></div>
             </div>
           </div>
@@ -171,66 +155,51 @@ const Contact = () => {
         <section
           id="section-serving"
           className={`py-20 bg-gradient-to-br from-gray-50 to-slate-100 transition-all duration-1000 ${
-            isVisible['section-serving']
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-20'
+            isVisible["section-serving"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
           }`}
         >
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               {/* Content */}
               <div className="space-y-6">
-                <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                  Serving Ajman & Beyond
-                </h2>
+                <h2 className="text-4xl font-bold text-gray-900 mb-6">Serving Ajman & Beyond</h2>
                 <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mb-6"></div>
 
                 <p className="text-xl text-gray-700 leading-relaxed">
-                  While based in Ajman, Ultimate Steels proudly serves clients
-                  across the UAE, including Dubai, Abu Dhabi, Sharjah, and other
-                  emirates. Our mission is to provide top-tier steel solutions
-                  that contribute to the growth and success of construction and
-                  industrial projects throughout the region.
+                  While based in Ajman, Ultimate Steels proudly serves clients across the UAE, including Dubai, Abu
+                  Dhabi, Sharjah, and other emirates. Our mission is to provide top-tier steel solutions that contribute
+                  to the growth and success of construction and industrial projects throughout the region.
                 </p>
 
                 {/* Service Areas */}
                 <div className="grid grid-cols-2 gap-4 mt-8">
                   {[
                     {
-                      name: 'Ajman',
-                      status: 'Headquarters',
-                      color: 'bg-blue-600',
+                      name: "Ajman",
+                      status: "Headquarters",
+                      color: "bg-blue-600",
                     },
                     {
-                      name: 'Dubai',
-                      status: 'Full Service',
-                      color: 'bg-green-600',
+                      name: "Dubai",
+                      status: "Full Service",
+                      color: "bg-green-600",
                     },
                     {
-                      name: 'Abu Dhabi',
-                      status: 'Full Service',
-                      color: 'bg-purple-600',
+                      name: "Abu Dhabi",
+                      status: "Full Service",
+                      color: "bg-purple-600",
                     },
                     {
-                      name: 'Sharjah',
-                      status: 'Full Service',
-                      color: 'bg-orange-600',
+                      name: "Sharjah",
+                      status: "Full Service",
+                      color: "bg-orange-600",
                     },
                   ].map((area, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center space-x-3 p-4 bg-white rounded-xl shadow-lg"
-                    >
-                      <div
-                        className={`w-4 h-4 ${area.color} rounded-full`}
-                      ></div>
+                    <div key={index} className="flex items-center space-x-3 p-4 bg-white rounded-xl shadow-lg">
+                      <div className={`w-4 h-4 ${area.color} rounded-full`}></div>
                       <div>
-                        <div className="font-semibold text-gray-900">
-                          {area.name}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {area.status}
-                        </div>
+                        <div className="font-semibold text-gray-900">{area.name}</div>
+                        <div className="text-sm text-gray-600">{area.status}</div>
                       </div>
                     </div>
                   ))}
@@ -253,12 +222,10 @@ const Contact = () => {
         {/* Call to Action */}
         <section className="py-20 bg-gradient-to-r from-slate-900 via-gray-900 to-slate-800 text-white">
           <div className="max-w-7xl mx-auto px-6 text-center">
-            <h2 className="text-4xl font-bold mb-6">
-              Ready to Start Your Project?
-            </h2>
+            <h2 className="text-4xl font-bold mb-6">Ready to Start Your Project?</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-              Contact Ultimate Steels today for premium steel solutions,
-              competitive pricing, and exceptional service across the UAE.
+              Contact Ultimate Steels today for premium steel solutions, competitive pricing, and exceptional service
+              across the UAE.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">

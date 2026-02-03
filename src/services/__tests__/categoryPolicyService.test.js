@@ -38,10 +38,7 @@ describe("categoryPolicyService", () => {
 
       api.get.mockResolvedValue(mockResponse);
 
-      const result = await categoryPolicyService.listCategoryPolicies(
-        null,
-        true
-      );
+      const result = await categoryPolicyService.listCategoryPolicies(null, true);
 
       expect(result.policies).toHaveLength(2);
       expect(result.policies[0].category).toBe("coil");
@@ -71,9 +68,7 @@ describe("categoryPolicyService", () => {
     it("should handle API errors when fetching policies", async () => {
       api.get.mockRejectedValue(new Error("Network error"));
 
-      await expect(
-        categoryPolicyService.listCategoryPolicies(null, true)
-      ).rejects.toThrow();
+      await expect(categoryPolicyService.listCategoryPolicies(null, true)).rejects.toThrow();
     });
   });
 
@@ -94,10 +89,7 @@ describe("categoryPolicyService", () => {
 
       api.get.mockResolvedValue(mockPolicy);
 
-      const result = await categoryPolicyService.getCategoryPolicy(
-        null,
-        "coil"
-      );
+      const result = await categoryPolicyService.getCategoryPolicy(null, "coil");
 
       expect(result.policy.category).toBe("coil");
       expect(result.policy.pricing_mode).toBe("MT_ONLY");
@@ -107,9 +99,7 @@ describe("categoryPolicyService", () => {
     it("should handle missing category policy", async () => {
       api.get.mockRejectedValue(new Error("Category not found"));
 
-      await expect(
-        categoryPolicyService.getCategoryPolicy(null, "invalid")
-      ).rejects.toThrow();
+      await expect(categoryPolicyService.getCategoryPolicy(null, "invalid")).rejects.toThrow();
     });
   });
 
@@ -130,10 +120,7 @@ describe("categoryPolicyService", () => {
       const result = await categoryPolicyService.getProductSubtypes(null);
 
       expect(result.subtypes).toHaveLength(3);
-      expect(api.get).toHaveBeenCalledWith(
-        "/category-policies/subtypes/list",
-        { params: {} }
-      );
+      expect(api.get).toHaveBeenCalledWith("/category-policies/subtypes/list", { params: {} });
     });
 
     it("should fetch product subtypes with category filter", async () => {
@@ -148,10 +135,7 @@ describe("categoryPolicyService", () => {
 
       api.get.mockResolvedValue(mockResponse);
 
-      const result = await categoryPolicyService.getProductSubtypes(
-        null,
-        "sheet"
-      );
+      const result = await categoryPolicyService.getProductSubtypes(null, "sheet");
 
       expect(result.subtypes).toHaveLength(2);
       expect(api.get).toHaveBeenCalledWith(

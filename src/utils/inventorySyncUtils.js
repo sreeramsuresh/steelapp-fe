@@ -84,19 +84,13 @@ export function normalizeInventoryData(rawData) {
  * @param {Function} productsRefetch - Products module refetch function
  * @param {Function} warehousesRefetch - Warehouses module refetch function
  */
-export async function triggerSynchronizedInventoryRefresh(
-  productsRefetch,
-  warehousesRefetch,
-) {
+export async function triggerSynchronizedInventoryRefresh(productsRefetch, warehousesRefetch) {
   // Clear cache first
   clearInventoryCache();
 
   // Trigger both refetches in parallel
-  await Promise.all([
-    productsRefetch?.(),
-    warehousesRefetch?.(),
-  ]).catch((error) => {
-    console.warn('Error during synchronized inventory refresh:', error);
+  await Promise.all([productsRefetch?.(), warehousesRefetch?.()]).catch((error) => {
+    console.warn("Error during synchronized inventory refresh:", error);
   });
 }
 
@@ -107,10 +101,7 @@ export async function triggerSynchronizedInventoryRefresh(
  * @param {number} minimumStockLevel - Threshold below which stock is considered low
  * @returns {number} Count of low stock items
  */
-export function calculateLowStockCount(
-  products,
-  minimumStockLevel = 50,
-) {
+export function calculateLowStockCount(products, minimumStockLevel = 50) {
   if (!Array.isArray(products)) return 0;
 
   return products.filter((product) => {
@@ -125,21 +116,18 @@ export function calculateLowStockCount(
  * @param {number} minimumLevel - Minimum stock level threshold
  * @returns {string} Stock status: 'in_stock' | 'low_stock' | 'out_of_stock'
  */
-export function getConsistentStockStatus(
-  quantity,
-  minimumLevel = 50,
-) {
+export function getConsistentStockStatus(quantity, minimumLevel = 50) {
   const qty = Number(quantity) || 0;
 
   if (qty === 0) {
-    return 'out_of_stock';
+    return "out_of_stock";
   }
 
   if (qty < minimumLevel) {
-    return 'low_stock';
+    return "low_stock";
   }
 
-  return 'in_stock';
+  return "in_stock";
 }
 
 export default {

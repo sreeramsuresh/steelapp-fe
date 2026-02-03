@@ -9,7 +9,7 @@
  * All date/time displays should use these functions.
  */
 
-const UAE_TIMEZONE = 'Asia/Dubai';
+const UAE_TIMEZONE = "Asia/Dubai";
 const UAE_OFFSET_HOURS = 4;
 
 // Reasonable date range: 1970 to 2100 (for detecting milliseconds in seconds field)
@@ -26,7 +26,7 @@ const parseToDate = (input) => {
   if (!input) return null;
 
   // Handle proto Timestamp objects { seconds: number, nanos?: number }
-  if (typeof input === 'object' && input.seconds !== undefined) {
+  if (typeof input === "object" && input.seconds !== undefined) {
     const seconds = parseInt(input.seconds) || 0;
 
     // Detect milliseconds in seconds field (prevents "year 50115" bug)
@@ -51,119 +51,117 @@ const parseToDate = (input) => {
  */
 export const toUAETime = (utcDate, options = {}) => {
   const date = parseToDate(utcDate);
-  if (!date) return '';
+  if (!date) return "";
 
-  const { format = 'datetime', showTimezone = false } = options;
+  const { format = "datetime", showTimezone = false } = options;
 
   // Format options for different use cases
   const dateOptions = {
     timeZone: UAE_TIMEZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   };
 
   const dateOptionsLong = {
     timeZone: UAE_TIMEZONE,
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   };
 
   const timeOptions = {
     timeZone: UAE_TIMEZONE,
-    hour: '2-digit',
-    minute: '2-digit',
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
   };
 
   const dateTimeOptions = {
     timeZone: UAE_TIMEZONE,
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
   };
 
   let result;
   switch (format) {
-    case 'date':
+    case "date":
       // DD/MM/YYYY format
-      result = date.toLocaleDateString('en-GB', {
+      result = date.toLocaleDateString("en-GB", {
         ...dateOptions,
         timeZone: UAE_TIMEZONE,
       });
       break;
 
-    case 'long':
+    case "long":
       // "January 15, 2025" format
-      result = date.toLocaleDateString('en-AE', {
+      result = date.toLocaleDateString("en-AE", {
         ...dateOptionsLong,
         timeZone: UAE_TIMEZONE,
       });
       break;
 
-    case 'time':
+    case "time":
       // "02:30 PM" format
-      result = date.toLocaleTimeString('en-AE', {
+      result = date.toLocaleTimeString("en-AE", {
         ...timeOptions,
         timeZone: UAE_TIMEZONE,
       });
       break;
 
-    case 'datetime':
+    case "datetime":
       // "Jan 15, 2025, 02:30 PM" format
-      result = date.toLocaleString('en-AE', {
+      result = date.toLocaleString("en-AE", {
         ...dateTimeOptions,
         timeZone: UAE_TIMEZONE,
       });
       break;
 
-    case 'short': {
+    case "short": {
       // "15/01/2025" format (DD/MM/YYYY)
       const dd = String(
-        date.toLocaleString('en-GB', {
-          day: '2-digit',
+        date.toLocaleString("en-GB", {
+          day: "2-digit",
           timeZone: UAE_TIMEZONE,
-        }),
+        })
       );
       const mm = String(
-        date.toLocaleString('en-GB', {
-          month: '2-digit',
+        date.toLocaleString("en-GB", {
+          month: "2-digit",
           timeZone: UAE_TIMEZONE,
-        }),
+        })
       );
-      const yyyy = date.toLocaleString('en-GB', {
-        year: 'numeric',
+      const yyyy = date.toLocaleString("en-GB", {
+        year: "numeric",
         timeZone: UAE_TIMEZONE,
       });
       result = `${dd}/${mm}/${yyyy}`;
       break;
     }
 
-    case 'input':
+    case "input":
       // YYYY-MM-DD format for HTML date inputs
       // This converts UTC to UAE local date for display in input fields
       result = toUAEDateForInput(date);
       break;
 
-    case 'iso': {
+    case "iso": {
       // ISO format with UAE offset: 2025-01-15T14:30:00+04:00
-      const uaeDate = new Date(
-        date.getTime() + UAE_OFFSET_HOURS * 60 * 60 * 1000,
-      );
-      result = uaeDate.toISOString().replace('Z', '+04:00');
+      const uaeDate = new Date(date.getTime() + UAE_OFFSET_HOURS * 60 * 60 * 1000);
+      result = uaeDate.toISOString().replace("Z", "+04:00");
       break;
     }
 
     default:
-      result = date.toLocaleString('en-AE', { timeZone: UAE_TIMEZONE });
+      result = date.toLocaleString("en-AE", { timeZone: UAE_TIMEZONE });
   }
 
-  if (showTimezone && format !== 'iso' && format !== 'input') {
-    result += ' (UAE)';
+  if (showTimezone && format !== "iso" && format !== "input") {
+    result += " (UAE)";
   }
 
   return result;
@@ -176,10 +174,10 @@ export const toUAETime = (utcDate, options = {}) => {
  */
 export const toUAEDateForInput = (utcDate) => {
   const date = parseToDate(utcDate);
-  if (!date) return '';
+  if (!date) return "";
 
   // Use en-CA locale which naturally produces YYYY-MM-DD format
-  return date.toLocaleDateString('en-CA', { timeZone: UAE_TIMEZONE });
+  return date.toLocaleDateString("en-CA", { timeZone: UAE_TIMEZONE });
 };
 
 /**
@@ -191,22 +189,20 @@ export const toUAEDateForInput = (utcDate) => {
  * @param {string} type - 'date' for date-only, 'datetime' for date+time
  * @returns {string} ISO string in UTC
  */
-export const toUTC = (uaeDateString, type = 'date') => {
+export const toUTC = (uaeDateString, type = "date") => {
   if (!uaeDateString) return null;
 
   // For date-only inputs, assume start of day in UAE (00:00:00 UAE = 20:00:00 previous day UTC)
-  if (type === 'date' && !uaeDateString.includes('T')) {
+  if (type === "date" && !uaeDateString.includes("T")) {
     // Parse as UAE local date, then convert to UTC
     // Creating a date with explicit time ensures consistent behavior
-    const [year, month, day] = uaeDateString.split('-').map(Number);
+    const [year, month, day] = uaeDateString.split("-").map(Number);
 
     // Create date at midnight UAE time (which is 4 hours ahead of UTC)
     // So midnight UAE = previous day 20:00 UTC
     const uaeDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
     // Subtract 4 hours to convert from UAE to UTC
-    const utcDate = new Date(
-      uaeDate.getTime() - UAE_OFFSET_HOURS * 60 * 60 * 1000,
-    );
+    const utcDate = new Date(uaeDate.getTime() - UAE_OFFSET_HOURS * 60 * 60 * 1000);
 
     return utcDate.toISOString();
   }
@@ -216,9 +212,7 @@ export const toUTC = (uaeDateString, type = 'date') => {
   if (isNaN(date.getTime())) return null;
 
   // Subtract UAE offset to get UTC
-  return new Date(
-    date.getTime() - UAE_OFFSET_HOURS * 60 * 60 * 1000,
-  ).toISOString();
+  return new Date(date.getTime() - UAE_OFFSET_HOURS * 60 * 60 * 1000).toISOString();
 };
 
 /**
@@ -238,7 +232,7 @@ export const toProtoTimestamp = (date) => {
  * @param {string} format - Output format
  * @returns {string} Current UAE time
  */
-export const nowUAE = (format = 'datetime') => {
+export const nowUAE = (format = "datetime") => {
   return toUAETime(new Date(), { format });
 };
 
@@ -261,12 +255,8 @@ export const isOverdue = (dueDate) => {
 
   // Compare in UAE timezone
   const now = new Date();
-  const currentUAE = new Date(
-    now.toLocaleString('en-US', { timeZone: UAE_TIMEZONE }),
-  );
-  const dueDateUAE = new Date(
-    date.toLocaleString('en-US', { timeZone: UAE_TIMEZONE }),
-  );
+  const currentUAE = new Date(now.toLocaleString("en-US", { timeZone: UAE_TIMEZONE }));
+  const dueDateUAE = new Date(date.toLocaleString("en-US", { timeZone: UAE_TIMEZONE }));
 
   // Set both to start of day for date-only comparison
   currentUAE.setHours(0, 0, 0, 0);
@@ -303,7 +293,7 @@ export const isWithinEditWindow = (issuedAt) => {
  */
 export const formatRelativeTime = (dateInput) => {
   const d = parseToDate(dateInput);
-  if (!d) return '';
+  if (!d) return "";
 
   const now = new Date();
   const diffMs = now - d;
@@ -311,15 +301,13 @@ export const formatRelativeTime = (dateInput) => {
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60)
-    return `${diffMins} minute${diffMins === 1 ? '' : 's'} ago`;
-  if (diffHours < 24)
-    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-  if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
 
   // For older dates, show the actual date
-  return toUAETime(d, { format: 'date' });
+  return toUAETime(d, { format: "date" });
 };
 
 // Export constants for reference
@@ -346,13 +334,13 @@ export const TIMEZONE_CONFIG = {
  */
 export const toUAEDateProfessional = (utcDate) => {
   const date = parseToDate(utcDate);
-  if (!date) return '';
+  if (!date) return "";
 
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString("en-GB", {
     timeZone: UAE_TIMEZONE,
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 };
 
@@ -367,20 +355,20 @@ export const toUAEDateProfessional = (utcDate) => {
  */
 export const toUAEDateTimeProfessional = (utcDate) => {
   const date = parseToDate(utcDate);
-  if (!date) return '';
+  if (!date) return "";
 
-  const dateStr = date.toLocaleDateString('en-GB', {
+  const dateStr = date.toLocaleDateString("en-GB", {
     timeZone: UAE_TIMEZONE,
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
   const timeStr = date
-    .toLocaleTimeString('en-GB', {
+    .toLocaleTimeString("en-GB", {
       timeZone: UAE_TIMEZONE,
-      hour: 'numeric',
-      minute: '2-digit',
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true,
     })
     .toUpperCase(); // Ensure AM/PM is uppercase
@@ -397,13 +385,13 @@ export const toUAEDateTimeProfessional = (utcDate) => {
  */
 export const toUAEDateShort = (utcDate) => {
   const date = parseToDate(utcDate);
-  if (!date) return '';
+  if (!date) return "";
 
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString("en-GB", {
     timeZone: UAE_TIMEZONE,
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 };
 
@@ -411,13 +399,12 @@ export const toUAEDateShort = (utcDate) => {
  * Timezone disclaimer for document footers
  * Use in PDF footers to clarify timezone for international customers
  */
-export const TIMEZONE_DISCLAIMER =
-  'All dates and times are in Gulf Standard Time (GST, UTC+4)';
+export const TIMEZONE_DISCLAIMER = "All dates and times are in Gulf Standard Time (GST, UTC+4)";
 
 /**
  * Short timezone label for inline use
  */
-export const TIMEZONE_LABEL = 'GST (UTC+4)';
+export const TIMEZONE_LABEL = "GST (UTC+4)";
 
 /**
  * Professional format specifically for payment history entries
@@ -428,20 +415,20 @@ export const TIMEZONE_LABEL = 'GST (UTC+4)';
  */
 export const toUAEPaymentDateTime = (utcDate) => {
   const date = parseToDate(utcDate);
-  if (!date) return '';
+  if (!date) return "";
 
-  const dateStr = date.toLocaleDateString('en-GB', {
+  const dateStr = date.toLocaleDateString("en-GB", {
     timeZone: UAE_TIMEZONE,
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 
   const timeStr = date
-    .toLocaleTimeString('en-GB', {
+    .toLocaleTimeString("en-GB", {
       timeZone: UAE_TIMEZONE,
-      hour: 'numeric',
-      minute: '2-digit',
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true,
     })
     .toUpperCase();

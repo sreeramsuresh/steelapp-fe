@@ -1,12 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '../../../../contexts/ThemeContext';
-import {
-  Award,
-  TrendingUp,
-  TrendingDown,
-  Flame,
-  Snowflake,
-} from 'lucide-react';
+import { Award, Flame, Snowflake, TrendingDown, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTheme } from "../../../../contexts/ThemeContext";
 
 const MiniSparkline = ({ data, positive, isDarkMode: _isDarkMode }) => {
   const max = Math.max(...data);
@@ -21,14 +15,14 @@ const MiniSparkline = ({ data, positive, isDarkMode: _isDarkMode }) => {
       const y = height - ((value - min) / range) * height;
       return `${x},${y}`;
     })
-    .join(' ');
+    .join(" ");
 
   return (
     <svg width={width} height={height} className="overflow-visible">
       <polyline
         points={points}
         fill="none"
-        stroke={positive ? '#10B981' : '#EF4444'}
+        stroke={positive ? "#10B981" : "#EF4444"}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -37,7 +31,7 @@ const MiniSparkline = ({ data, positive, isDarkMode: _isDarkMode }) => {
         cx={((data.length - 1) / (data.length - 1)) * width}
         cy={height - ((data[data.length - 1] - min) / range) * height}
         r="2"
-        fill={positive ? '#10B981' : '#EF4444'}
+        fill={positive ? "#10B981" : "#EF4444"}
       />
     </svg>
   );
@@ -46,7 +40,7 @@ const MiniSparkline = ({ data, positive, isDarkMode: _isDarkMode }) => {
 const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
   const { isDarkMode } = useTheme();
   const [grades, setGrades] = useState([]);
-  const [sortBy, setSortBy] = useState('revenue');
+  const [sortBy, setSortBy] = useState("revenue");
 
   useEffect(() => {
     if (!data?.grades || data.grades.length === 0) {
@@ -58,11 +52,11 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
     // Sort by selected criteria
     const gradeData = [...data.grades].sort((a, b) => {
       switch (sortBy) {
-        case 'margin':
+        case "margin":
           return b.margin - a.margin;
-        case 'volume':
+        case "volume":
           return b.volume - a.volume;
-        case 'price':
+        case "price":
           return b.avgPrice - a.avgPrice;
         default:
           return b.revenue - a.revenue;
@@ -80,9 +74,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
     return (
       <div
         className={`rounded-xl border p-4 ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
         {/* Header */}
@@ -92,21 +84,13 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
               <Award size={16} className="text-white" />
             </div>
             <div>
-              <h3
-                className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
-                Grade Analysis
-              </h3>
-              <p
-                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
-                Performance by SS grade
-              </p>
+              <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Grade Analysis</h3>
+              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Performance by SS grade</p>
             </div>
           </div>
         </div>
         <div
-          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
           <span className="text-sm">No data available</span>
         </div>
@@ -126,9 +110,9 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
 
   const getDemandIcon = (demand) => {
     switch (demand) {
-      case 'high':
+      case "high":
         return <Flame size={12} className="text-orange-500" />;
-      case 'low':
+      case "low":
         return <Snowflake size={12} className="text-blue-400" />;
       default:
         return null;
@@ -138,39 +122,33 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
   const getDemandBadge = (demand) => {
     const styles = {
       high: isDarkMode
-        ? 'bg-orange-500/20 text-orange-400 border-orange-500/30'
-        : 'bg-orange-100 text-orange-700 border-orange-200',
+        ? "bg-orange-500/20 text-orange-400 border-orange-500/30"
+        : "bg-orange-100 text-orange-700 border-orange-200",
       medium: isDarkMode
-        ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-        : 'bg-blue-100 text-blue-700 border-blue-200',
-      low: isDarkMode
-        ? 'bg-gray-500/20 text-gray-400 border-gray-500/30'
-        : 'bg-gray-100 text-gray-600 border-gray-200',
+        ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+        : "bg-blue-100 text-blue-700 border-blue-200",
+      low: isDarkMode ? "bg-gray-500/20 text-gray-400 border-gray-500/30" : "bg-gray-100 text-gray-600 border-gray-200",
     };
     return styles[demand] || styles.medium;
   };
 
   const getGradeColor = (grade) => {
     const colors = {
-      'SS 304': 'from-blue-500 to-blue-600',
-      'SS 316': 'from-purple-500 to-purple-600',
-      'SS 430': 'from-amber-500 to-amber-600',
-      'SS 202': 'from-emerald-500 to-emerald-600',
-      'SS 316L': 'from-indigo-500 to-indigo-600',
-      'SS 304L': 'from-cyan-500 to-cyan-600',
+      "SS 304": "from-blue-500 to-blue-600",
+      "SS 316": "from-purple-500 to-purple-600",
+      "SS 430": "from-amber-500 to-amber-600",
+      "SS 202": "from-emerald-500 to-emerald-600",
+      "SS 316L": "from-indigo-500 to-indigo-600",
+      "SS 304L": "from-cyan-500 to-cyan-600",
     };
-    return colors[grade] || 'from-gray-500 to-gray-600';
+    return colors[grade] || "from-gray-500 to-gray-600";
   };
 
   const maxRevenue = Math.max(...grades.map((g) => g.revenue));
 
   return (
     <div
-      className={`rounded-xl border p-4 ${
-        isDarkMode
-          ? 'bg-[#1E2328] border-[#37474F]'
-          : 'bg-white border-[#E0E0E0]'
-      }`}
+      className={`rounded-xl border p-4 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -179,16 +157,8 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
             <Award size={16} className="text-white" />
           </div>
           <div>
-            <h3
-              className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              Grade Analysis
-            </h3>
-            <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Performance by SS grade
-            </p>
+            <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Grade Analysis</h3>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Performance by SS grade</p>
           </div>
         </div>
 
@@ -197,9 +167,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
           className={`text-xs font-medium px-2 py-1 rounded-lg border cursor-pointer ${
-            isDarkMode
-              ? 'bg-[#121418] border-[#37474F] text-white'
-              : 'bg-gray-50 border-gray-200 text-gray-700'
+            isDarkMode ? "bg-[#121418] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
           }`}
         >
           <option value="revenue">By Revenue</option>
@@ -215,13 +183,13 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
           <div
             key={grade.grade}
             className={`p-3 rounded-lg cursor-pointer transition-all ${
-              isDarkMode ? 'hover:bg-[#2E3B4E]' : 'hover:bg-gray-50'
+              isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"
             }`}
             onClick={() => onGradeClick?.(grade)}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 onGradeClick?.(grade);
               }
@@ -232,42 +200,31 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
                 <div
                   className={`w-10 h-10 rounded-lg bg-gradient-to-br ${getGradeColor(grade.grade)} flex items-center justify-center`}
                 >
-                  <span className="text-xs font-bold text-white">
-                    {index + 1}
-                  </span>
+                  <span className="text-xs font-bold text-white">{index + 1}</span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p
-                      className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                    >
+                    <p className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {grade.grade}
                     </p>
                     <span
                       className={`text-xs px-1.5 py-0.5 rounded border flex items-center gap-1 ${getDemandBadge(grade.demand)}`}
                     >
                       {getDemandIcon(grade.demand)}
-                      {grade.demand.charAt(0).toUpperCase() +
-                        grade.demand.slice(1)}
+                      {grade.demand.charAt(0).toUpperCase() + grade.demand.slice(1)}
                     </span>
                   </div>
-                  <p
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     {grade.volume.toFixed(1)} MT sold
                   </p>
                 </div>
               </div>
 
               <div className="text-right">
-                <p
-                  className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <p className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {formatCurrency(grade.revenue)}
                 </p>
-                <p
-                  className={`text-xs font-medium ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
-                >
+                <p className={`text-xs font-medium ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}>
                   {grade.margin.toFixed(1)}% margin
                 </p>
               </div>
@@ -277,42 +234,26 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div>
-                  <span
-                    className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                  >
-                    Avg Price:{' '}
-                  </span>
-                  <span
-                    className={`text-xs font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
+                  <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Avg Price: </span>
+                  <span className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     AED {grade.avgPrice}/kg
                   </span>
                 </div>
                 <div
                   className={`flex items-center gap-1 text-xs ${
-                    grade.priceChange >= 0 ? 'text-green-500' : 'text-red-500'
+                    grade.priceChange >= 0 ? "text-green-500" : "text-red-500"
                   }`}
                 >
-                  {grade.priceChange >= 0 ? (
-                    <TrendingUp size={12} />
-                  ) : (
-                    <TrendingDown size={12} />
-                  )}
+                  {grade.priceChange >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                   {Math.abs(grade.priceChange).toFixed(1)}%
                 </div>
               </div>
 
-              <MiniSparkline
-                data={grade.trend}
-                positive={grade.priceChange >= 0}
-                isDarkMode={isDarkMode}
-              />
+              <MiniSparkline data={grade.trend} positive={grade.priceChange >= 0} isDarkMode={isDarkMode} />
             </div>
 
             {/* Revenue Bar */}
-            <div
-              className={`mt-2 h-1 rounded-full overflow-hidden ${isDarkMode ? 'bg-[#121418]' : 'bg-gray-100'}`}
-            >
+            <div className={`mt-2 h-1 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
               <div
                 className={`h-full rounded-full bg-gradient-to-r ${getGradeColor(grade.grade)} transition-all duration-500`}
                 style={{ width: `${(grade.revenue / maxRevenue) * 100}%` }}
@@ -325,35 +266,23 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
       {/* Legend */}
       <div
         className={`mt-4 pt-3 border-t flex items-center justify-between ${
-          isDarkMode ? 'border-[#37474F]' : 'border-gray-200'
+          isDarkMode ? "border-[#37474F]" : "border-gray-200"
         }`}
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <Flame size={12} className="text-orange-500" />
-            <span
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              High demand
-            </span>
+            <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>High demand</span>
           </div>
           <div className="flex items-center gap-1">
-            <div
-              className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-blue-400' : 'bg-blue-500'}`}
-            />
-            <span
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Medium
-            </span>
+            <div className={`w-2 h-2 rounded-full ${isDarkMode ? "bg-blue-400" : "bg-blue-500"}`} />
+            <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Medium</span>
           </div>
         </div>
         <button
-          onClick={() => onNavigate?.('/products?view=grades')}
+          onClick={() => onNavigate?.("/products?view=grades")}
           className={`text-xs font-medium ${
-            isDarkMode
-              ? 'text-teal-400 hover:text-teal-300'
-              : 'text-teal-600 hover:text-teal-700'
+            isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
           }`}
         >
           View Details

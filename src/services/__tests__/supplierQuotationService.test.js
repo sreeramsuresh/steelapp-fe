@@ -44,10 +44,7 @@ describe("supplierQuotationService", () => {
       const result = await supplierQuotationService.getQuotations();
 
       expect(result.data).toHaveLength(2);
-      expect(api.get).toHaveBeenCalledWith(
-        "/supplier-quotations",
-        expect.any(Object)
-      );
+      expect(api.get).toHaveBeenCalledWith("/supplier-quotations", expect.any(Object));
     });
 
     it("should filter by supplier", async () => {
@@ -109,18 +106,13 @@ describe("supplierQuotationService", () => {
 
       const payload = {
         supplier_id: 100,
-        items: [
-          { product_id: 1, quantity: 100, unit_price: 500 },
-        ],
+        items: [{ product_id: 1, quantity: 100, unit_price: 500 }],
       };
 
       const result = await supplierQuotationService.createQuotation(payload);
 
       expect(result.quotation_number).toBe("SQ-2024-001");
-      expect(api.post).toHaveBeenCalledWith(
-        "/supplier-quotations",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/supplier-quotations", payload);
     });
   });
 
@@ -139,10 +131,7 @@ describe("supplierQuotationService", () => {
       const result = await supplierQuotationService.updateQuotation(1, payload);
 
       expect(result.status).toBe("updated");
-      expect(api.put).toHaveBeenCalledWith(
-        "/supplier-quotations/1",
-        payload
-      );
+      expect(api.put).toHaveBeenCalledWith("/supplier-quotations/1", payload);
     });
   });
 
@@ -170,10 +159,7 @@ describe("supplierQuotationService", () => {
       const result = await supplierQuotationService.acceptQuotation(1);
 
       expect(result.status).toBe("accepted");
-      expect(api.post).toHaveBeenCalledWith(
-        "/supplier-quotations/1/accept",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/supplier-quotations/1/accept", expect.any(Object));
     });
   });
 

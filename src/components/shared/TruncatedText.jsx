@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 /**
  * Truncated text with hover tooltip showing full content
@@ -9,10 +9,10 @@ import { useState } from 'react';
  */
 const TruncatedText = ({
   text,
-  maxWidth = 'w-40',
-  className = '',
-  tag = 'span',
-  tooltipPosition = 'top', // 'top', 'bottom', 'left', 'right'
+  maxWidth = "w-40",
+  className = "",
+  tag = "span",
+  tooltipPosition = "top", // 'top', 'bottom', 'left', 'right'
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -21,19 +21,19 @@ const TruncatedText = ({
   }
 
   const positionClasses = {
-    top: 'bottom-full mb-2',
-    bottom: 'top-full mt-2',
-    left: 'right-full mr-2',
-    right: 'left-full ml-2',
+    top: "bottom-full mb-2",
+    bottom: "top-full mt-2",
+    left: "right-full mr-2",
+    right: "left-full ml-2",
   };
 
   const arrowClasses = {
-    top: 'top-full border-t-4 border-l-4 border-r-4 border-gray-900 dark:border-gray-700 border-l-transparent border-r-transparent',
+    top: "top-full border-t-4 border-l-4 border-r-4 border-gray-900 dark:border-gray-700 border-l-transparent border-r-transparent",
     bottom:
-      'bottom-full border-b-4 border-l-4 border-r-4 border-gray-900 dark:border-gray-700 border-l-transparent border-r-transparent',
-    left: 'left-full border-l-4 border-t-4 border-b-4 border-gray-900 dark:border-gray-700 border-t-transparent border-b-transparent',
+      "bottom-full border-b-4 border-l-4 border-r-4 border-gray-900 dark:border-gray-700 border-l-transparent border-r-transparent",
+    left: "left-full border-l-4 border-t-4 border-b-4 border-gray-900 dark:border-gray-700 border-t-transparent border-b-transparent",
     right:
-      'right-full border-r-4 border-t-4 border-b-4 border-gray-900 dark:border-gray-700 border-t-transparent border-b-transparent',
+      "right-full border-r-4 border-t-4 border-b-4 border-gray-900 dark:border-gray-700 border-t-transparent border-b-transparent",
   };
 
   const Component = tag;

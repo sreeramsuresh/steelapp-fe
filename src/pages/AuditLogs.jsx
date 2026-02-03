@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
-import { apiService } from '../services/axiosApi';
 import {
-  FileText,
-  Filter,
-  Download,
-  Calendar,
-  User,
   Activity,
   AlertCircle,
+  Calendar,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Download,
+  FileText,
+  Filter,
   Search,
+  User,
   X,
-} from 'lucide-react';
-import { toUAETime, toUAEDateForInput } from '../utils/timezone';
-import { FormSelect } from '../components/ui/form-select';
-import { SelectItem } from '../components/ui/select';
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { FormSelect } from "../components/ui/form-select";
+import { SelectItem } from "../components/ui/select";
+import { useTheme } from "../contexts/ThemeContext";
+import { apiService } from "../services/axiosApi";
+import { toUAEDateForInput, toUAETime } from "../utils/timezone";
 
 const AuditLogs = () => {
   const { isDarkMode } = useTheme();
@@ -28,12 +28,12 @@ const AuditLogs = () => {
 
   // Filters
   const [filters, setFilters] = useState({
-    category: '',
-    action: '',
-    status: '',
-    startDate: '',
-    endDate: '',
-    search: '',
+    category: "",
+    action: "",
+    status: "",
+    startDate: "",
+    endDate: "",
+    search: "",
   });
 
   // Pagination
@@ -43,16 +43,8 @@ const AuditLogs = () => {
   const itemsPerPage = 50;
 
   // Categories and actions for filters
-  const categories = [
-    'AUTH',
-    'INVOICE',
-    'PAYMENT',
-    'CUSTOMER',
-    'STATEMENT',
-    'SETTINGS',
-    'EXPORT',
-  ];
-  const statuses = ['success', 'failed'];
+  const categories = ["AUTH", "INVOICE", "PAYMENT", "CUSTOMER", "STATEMENT", "SETTINGS", "EXPORT"];
+  const statuses = ["success", "failed"];
 
   useEffect(() => {
     fetchLogs();
@@ -73,15 +65,15 @@ const AuditLogs = () => {
         ...(filters.endDate && { end_date: filters.endDate }),
       };
 
-      const response = await apiService.get('/audit-logs', { params });
+      const response = await apiService.get("/audit-logs", { params });
 
       setLogs(response.logs || []);
       setTotalPages(response.pagination?.totalPages || 1);
       setTotalLogs(response.pagination?.total || 0);
       setError(null);
     } catch (err) {
-      console.error('Error fetching audit logs:', err);
-      setError('Failed to load audit logs');
+      console.error("Error fetching audit logs:", err);
+      setError("Failed to load audit logs");
     } finally {
       setLoading(false);
     }
@@ -89,10 +81,10 @@ const AuditLogs = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await apiService.get('/audit-logs/stats');
+      const response = await apiService.get("/audit-logs/stats");
       setStats(response);
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      console.error("Error fetching stats:", err);
     }
   };
 
@@ -103,12 +95,12 @@ const AuditLogs = () => {
 
   const clearFilters = () => {
     setFilters({
-      category: '',
-      action: '',
-      status: '',
-      startDate: '',
-      endDate: '',
-      search: '',
+      category: "",
+      action: "",
+      status: "",
+      startDate: "",
+      endDate: "",
+      search: "",
     });
     setCurrentPage(1);
   };
@@ -116,35 +108,25 @@ const AuditLogs = () => {
   const exportToCSV = () => {
     if (logs.length === 0) return;
 
-    const headers = [
-      'Date/Time (UAE)',
-      'User',
-      'Email',
-      'Category',
-      'Action',
-      'Description',
-      'Status',
-      'IP Address',
-    ];
+    const headers = ["Date/Time (UAE)", "User", "Email", "Category", "Action", "Description", "Status", "IP Address"];
     const csvData = logs.map((log) => [
-      toUAETime(log.createdAt, { format: 'datetime' }),
-      log.username || '-',
-      log.userEmail || '-',
+      toUAETime(log.createdAt, { format: "datetime" }),
+      log.username || "-",
+      log.userEmail || "-",
       log.category,
       log.action,
-      log.description || '-',
+      log.description || "-",
       log.status,
-      log.ipAddress || '-',
+      log.ipAddress || "-",
     ]);
 
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
+    const csvContent = [headers.join(","), ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(","))].join(
+      "\n"
+    );
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `audit-logs-${toUAEDateForInput(new Date())}.csv`;
     document.body.appendChild(a);
@@ -155,20 +137,20 @@ const AuditLogs = () => {
 
   const formatDate = (dateString) => {
     // Use UAE timezone for display
-    return toUAETime(dateString, { format: 'datetime' });
+    return toUAETime(dateString, { format: "datetime" });
   };
 
   const getCategoryColor = (category) => {
     const colors = {
-      AUTH: 'blue',
-      INVOICE: 'green',
-      PAYMENT: 'purple',
-      CUSTOMER: 'orange',
-      STATEMENT: 'indigo',
-      SETTINGS: 'red',
-      EXPORT: 'pink',
+      AUTH: "blue",
+      INVOICE: "green",
+      PAYMENT: "purple",
+      CUSTOMER: "orange",
+      STATEMENT: "indigo",
+      SETTINGS: "red",
+      EXPORT: "pink",
     };
-    return colors[category] || 'gray';
+    return colors[category] || "gray";
   };
 
   const filteredLogs = logs.filter((log) => {
@@ -183,27 +165,16 @@ const AuditLogs = () => {
   });
 
   return (
-    <div
-      className={`min-h-screen p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-    >
+    <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <FileText
-                className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}
-                size={32}
-              />
+              <FileText className={isDarkMode ? "text-blue-400" : "text-blue-600"} size={32} />
               <div>
-                <h1
-                  className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
-                  Audit Logs
-                </h1>
-                <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
+                <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Audit Logs</h1>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                   Track all user activities and system events
                 </p>
               </div>
@@ -213,10 +184,10 @@ const AuditLogs = () => {
               disabled={logs.length === 0}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 logs.length === 0
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : isDarkMode
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
               <Download size={18} />
@@ -228,102 +199,54 @@ const AuditLogs = () => {
         {/* Statistics Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
-            >
+            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                  >
-                    Total Logs
-                  </p>
-                  <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    {totalLogs}
-                  </p>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Logs</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{totalLogs}</p>
                 </div>
-                <Activity
-                  className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}
-                  size={32}
-                />
+                <Activity className={isDarkMode ? "text-blue-400" : "text-blue-600"} size={32} />
               </div>
             </div>
 
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
-            >
+            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                  >
-                    Failed Actions
-                  </p>
-                  <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    {stats.categoryStats?.reduce(
-                      (sum, cat) => sum + parseInt(cat.failedCount || 0),
-                      0,
-                    ) || 0}
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Failed Actions</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failedCount || 0), 0) || 0}
                   </p>
                 </div>
                 <AlertCircle className="text-red-500" size={32} />
               </div>
             </div>
 
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
-            >
+            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                  >
-                    Categories
-                  </p>
-                  <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Categories</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     {stats.categoryStats?.length || 0}
                   </p>
                 </div>
-                <Filter
-                  className={isDarkMode ? 'text-green-400' : 'text-green-600'}
-                  size={32}
-                />
+                <Filter className={isDarkMode ? "text-green-400" : "text-green-600"} size={32} />
               </div>
             </div>
           </div>
         )}
 
         {/* Filters */}
-        <div
-          className={`p-4 rounded-lg mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
-        >
+        <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
           <div className="flex items-center gap-2 mb-4">
-            <Filter
-              size={20}
-              className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
-            />
-            <h2
-              className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              Filters
-            </h2>
-            {(filters.category ||
-              filters.status ||
-              filters.startDate ||
-              filters.endDate ||
-              filters.search) && (
+            <Filter size={20} className={isDarkMode ? "text-gray-400" : "text-gray-600"} />
+            <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Filters</h2>
+            {(filters.category || filters.status || filters.startDate || filters.endDate || filters.search) && (
               <button
                 onClick={clearFilters}
                 className={`ml-auto text-sm flex items-center gap-1 px-3 py-1 rounded ${
                   isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                 }`}
               >
                 <X size={14} />
@@ -337,7 +260,7 @@ const AuditLogs = () => {
             <div>
               <label
                 htmlFor="audit-search"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
                 <Search size={16} className="inline mr-1" />
                 Search
@@ -346,12 +269,12 @@ const AuditLogs = () => {
                 id="audit-search"
                 type="text"
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
                 placeholder="User, email, action..."
                 className={`w-full px-3 py-2 rounded-lg border ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 }`}
               />
             </div>
@@ -360,10 +283,8 @@ const AuditLogs = () => {
             <div>
               <FormSelect
                 label="Category"
-                value={filters.category || 'none'}
-                onValueChange={(value) =>
-                  handleFilterChange('category', value === 'none' ? '' : value)
-                }
+                value={filters.category || "none"}
+                onValueChange={(value) => handleFilterChange("category", value === "none" ? "" : value)}
                 showValidation={false}
               >
                 <SelectItem value="none">All Categories</SelectItem>
@@ -379,10 +300,8 @@ const AuditLogs = () => {
             <div>
               <FormSelect
                 label="Status"
-                value={filters.status || 'none'}
-                onValueChange={(value) =>
-                  handleFilterChange('status', value === 'none' ? '' : value)
-                }
+                value={filters.status || "none"}
+                onValueChange={(value) => handleFilterChange("status", value === "none" ? "" : value)}
                 showValidation={false}
               >
                 <SelectItem value="none">All Status</SelectItem>
@@ -398,7 +317,7 @@ const AuditLogs = () => {
             <div>
               <label
                 htmlFor="audit-start-date"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
                 <Calendar size={16} className="inline mr-1" />
                 Start Date
@@ -407,13 +326,9 @@ const AuditLogs = () => {
                 id="audit-start-date"
                 type="date"
                 value={filters.startDate}
-                onChange={(e) =>
-                  handleFilterChange('startDate', e.target.value)
-                }
+                onChange={(e) => handleFilterChange("startDate", e.target.value)}
                 className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
             </div>
@@ -422,7 +337,7 @@ const AuditLogs = () => {
             <div>
               <label
                 htmlFor="audit-end-date"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
                 <Calendar size={16} className="inline mr-1" />
                 End Date
@@ -431,11 +346,9 @@ const AuditLogs = () => {
                 id="audit-end-date"
                 type="date"
                 value={filters.endDate}
-                onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                onChange={(e) => handleFilterChange("endDate", e.target.value)}
                 className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
             </div>
@@ -443,129 +356,95 @@ const AuditLogs = () => {
         </div>
 
         {/* Logs Table */}
-        <div
-          className={`rounded-lg shadow overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-        >
+        <div className={`rounded-lg shadow overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           {loading ? (
             <div className="p-12 text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p
-                className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-              >
-                Loading audit logs...
-              </p>
+              <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading audit logs...</p>
             </div>
           ) : error ? (
             <div className="p-12 text-center">
               <AlertCircle className="mx-auto mb-4 text-red-500" size={48} />
-              <p
-                className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                {error}
-              </p>
+              <p className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{error}</p>
             </div>
           ) : filteredLogs.length === 0 ? (
             <div className="p-12 text-center">
-              <FileText
-                className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
-                size={48}
-              />
-              <p
-                className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-              >
-                No audit logs found
-              </p>
+              <FileText className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} size={48} />
+              <p className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>No audit logs found</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                  <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                     <tr>
                       <th
                         className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
                         Date/Time
                       </th>
                       <th
                         className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
                         User
                       </th>
                       <th
                         className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
                         Category
                       </th>
                       <th
                         className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
                         Action
                       </th>
                       <th
                         className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
                         Description
                       </th>
                       <th
                         className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
                         Status
                       </th>
                       <th
                         className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
                         IP Address
                       </th>
                     </tr>
                   </thead>
-                  <tbody
-                    className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
-                  >
+                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                     {filteredLogs.map((log) => (
                       <tr
                         key={log.id}
-                        className={`${
-                          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
-                        } transition-colors`}
+                        className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
                       >
-                        <td
-                          className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-                        >
+                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
                           {formatDate(log.createdAt)}
                         </td>
-                        <td
-                          className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-                        >
+                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
                           <div className="flex items-center gap-2">
-                            <User
-                              size={16}
-                              className={
-                                isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                              }
-                            />
+                            <User size={16} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
                             <div>
-                              <div className="font-medium">
-                                {log.username || '-'}
-                              </div>
-                              <div
-                                className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                              >
-                                {log.userEmail || '-'}
+                              <div className="font-medium">{log.username || "-"}</div>
+                              <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                                {log.userEmail || "-"}
                               </div>
                             </div>
                           </div>
@@ -578,17 +457,15 @@ const AuditLogs = () => {
                           </span>
                         </td>
                         <td
-                          className={`px-4 py-3 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
+                          className={`px-4 py-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
                         >
                           {log.action}
                         </td>
-                        <td
-                          className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          {log.description || '-'}
+                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                          {log.description || "-"}
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          {log.status === 'success' ? (
+                          {log.status === "success" ? (
                             <span className="flex items-center gap-1 text-green-600">
                               <CheckCircle size={16} />
                               Success
@@ -600,10 +477,8 @@ const AuditLogs = () => {
                             </span>
                           )}
                         </td>
-                        <td
-                          className={`px-4 py-3 text-sm font-mono ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          {log.ipAddress || '-'}
+                        <td className={`px-4 py-3 text-sm font-mono ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                          {log.ipAddress || "-"}
                         </td>
                       </tr>
                     ))}
@@ -614,43 +489,36 @@ const AuditLogs = () => {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div
-                  className={`px-4 py-3 border-t ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}
+                  className={`px-4 py-3 border-t ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
                 >
                   <div className="flex items-center justify-between">
-                    <p
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-                    >
-                      Showing page {currentPage} of {totalPages} ({totalLogs}{' '}
-                      total logs)
+                    <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+                      Showing page {currentPage} of {totalPages} ({totalLogs} total logs)
                     </p>
                     <div className="flex gap-2">
                       <button
-                        onClick={() =>
-                          setCurrentPage((p) => Math.max(1, p - 1))
-                        }
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                         className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
                           currentPage === 1
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : isDarkMode
-                              ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                              : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                              ? "bg-gray-700 hover:bg-gray-600 text-white"
+                              : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
                         }`}
                       >
                         <ChevronLeft size={16} />
                         Previous
                       </button>
                       <button
-                        onClick={() =>
-                          setCurrentPage((p) => Math.min(totalPages, p + 1))
-                        }
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
                         className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
                           currentPage === totalPages
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : isDarkMode
-                              ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                              : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                              ? "bg-gray-700 hover:bg-gray-600 text-white"
+                              : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
                         }`}
                       >
                         Next

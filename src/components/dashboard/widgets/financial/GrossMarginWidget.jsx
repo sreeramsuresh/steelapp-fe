@@ -1,7 +1,6 @@
-import { Percent } from 'lucide-react';
-import BaseWidget from '../BaseWidget';
-import { MetricValue } from '../BaseWidget';
-import { GaugeChartWrapper } from '../../charts';
+import { Percent } from "lucide-react";
+import { GaugeChartWrapper } from "../../charts";
+import BaseWidget, { MetricValue } from "../BaseWidget";
 
 // Mock data for Phase 1 - used when no API data available
 const MOCK_GROSS_MARGIN = 18.5;
@@ -15,16 +14,9 @@ const MOCK_GROSS_MARGIN = 18.5;
  * @param {function} props.onRefresh - Refresh callback
  * @param {boolean} props.showGauge - Show gauge chart instead of simple metric
  */
-const GrossMarginWidget = ({
-  grossMargin,
-  loading = false,
-  onRefresh,
-  showGauge = false,
-  isDarkMode = false,
-}) => {
+const GrossMarginWidget = ({ grossMargin, loading = false, onRefresh, showGauge = false, isDarkMode = false }) => {
   // Use mock data as fallback when real data is 0 or undefined
-  const displayMargin =
-    grossMargin && grossMargin > 0 ? grossMargin : MOCK_GROSS_MARGIN;
+  const displayMargin = grossMargin && grossMargin > 0 ? grossMargin : MOCK_GROSS_MARGIN;
 
   return (
     <BaseWidget
@@ -34,7 +26,7 @@ const GrossMarginWidget = ({
       iconColor="from-blue-500 to-blue-600"
       loading={loading}
       onRefresh={onRefresh}
-      size={showGauge ? 'md' : 'sm'}
+      size={showGauge ? "md" : "sm"}
     >
       {showGauge ? (
         <GaugeChartWrapper
@@ -48,11 +40,7 @@ const GrossMarginWidget = ({
         />
       ) : (
         <>
-          <MetricValue
-            value={`${displayMargin.toFixed(1)}%`}
-            label="Weighted average across all sales"
-            size="md"
-          />
+          <MetricValue value={`${displayMargin.toFixed(1)}%`} label="Weighted average across all sales" size="md" />
         </>
       )}
     </BaseWidget>

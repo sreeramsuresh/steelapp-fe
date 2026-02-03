@@ -1,25 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import pricelistService from '../services/pricelistService';
-import { productService } from '../services/dataService';
-import toast from 'react-hot-toast';
-import { toUAETime } from '../utils/timezone';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
+import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
+import { productService } from "../services/dataService";
+import pricelistService from "../services/pricelistService";
+import { toUAETime } from "../utils/timezone";
 
 export default function PriceHistoryReport() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [pricelists, setPricelists] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState("");
   const [priceHistory, setPriceHistory] = useState([]);
 
   useEffect(() => {
@@ -32,8 +25,8 @@ export default function PriceHistoryReport() {
       const response = await productService.getProducts();
       setProducts((response && (response.data || response.items || response)) || []);
     } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Failed to load products');
+      console.error("Error fetching products:", error);
+      toast.error("Failed to load products");
     }
   };
 
@@ -42,14 +35,14 @@ export default function PriceHistoryReport() {
       const response = await pricelistService.getAll();
       setPricelists((response && (response.data || response.items || response)) || []);
     } catch (error) {
-      console.error('Error fetching pricelists:', error);
-      toast.error('Failed to load price lists');
+      console.error("Error fetching pricelists:", error);
+      toast.error("Failed to load price lists");
     }
   };
 
   const fetchPriceHistory = async () => {
     if (!selectedProduct) {
-      toast.error('Please select a product');
+      toast.error("Please select a product");
       return;
     }
 
@@ -60,9 +53,7 @@ export default function PriceHistoryReport() {
       // Get price from each pricelist
       for (const pricelist of pricelists) {
         const items = await pricelistService.getItems(pricelist.id);
-        const item = items.data?.find(
-          (i) => i.productId === parseInt(selectedProduct),
-        );
+        const item = items.data?.find((i) => i.productId === parseInt(selectedProduct));
 
         if (item) {
           history.push({
@@ -86,8 +77,8 @@ export default function PriceHistoryReport() {
 
       setPriceHistory(history);
     } catch (error) {
-      console.error('Error fetching price history:', error);
-      toast.error('Failed to load price history');
+      console.error("Error fetching price history:", error);
+      toast.error("Failed to load price history");
     } finally {
       setLoading(false);
     }
@@ -105,9 +96,7 @@ export default function PriceHistoryReport() {
     return { diff, diffPercent };
   };
 
-  const selectedProductData = products.find(
-    (p) => p.id === parseInt(selectedProduct),
-  );
+  const selectedProductData = products.find((p) => p.id === parseInt(selectedProduct));
 
   return (
     <div className="p-6">
@@ -116,20 +105,25 @@ export default function PriceHistoryReport() {
       <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
         <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Understanding Price History</h3>
         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
-          <li><strong>Price List:</strong> The name of the price list where this price was set</li>
-          <li><strong>Effective Date:</strong> The date range during which this price was active</li>
-          <li><strong>Change:</strong> Percentage difference compared to the previous price</li>
-          <li><strong>Status:</strong> Whether the price list is currently active or inactive</li>
+          <li>
+            <strong>Price List:</strong> The name of the price list where this price was set
+          </li>
+          <li>
+            <strong>Effective Date:</strong> The date range during which this price was active
+          </li>
+          <li>
+            <strong>Change:</strong> Percentage difference compared to the previous price
+          </li>
+          <li>
+            <strong>Status:</strong> Whether the price list is currently active or inactive
+          </li>
         </ul>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex-1 min-w-max">
-            <label
-              htmlFor="product-select"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="product-select" className="block text-sm font-medium mb-2">
               Select Product
             </label>
             <select
@@ -141,16 +135,12 @@ export default function PriceHistoryReport() {
               <option value="">-- Select Product --</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
-                  {product.uniqueName || product.unique_name || 'N/A'}
+                  {product.uniqueName || product.unique_name || "N/A"}
                 </option>
               ))}
             </select>
           </div>
-          <Button
-            onClick={fetchPriceHistory}
-            disabled={loading || !selectedProduct}
-            className="gap-2 mt-6 sm:mt-0"
-          >
+          <Button onClick={fetchPriceHistory} disabled={loading || !selectedProduct} className="gap-2 mt-6 sm:mt-0">
             <Search className="w-4 h-4" />
             View History
           </Button>
@@ -161,32 +151,20 @@ export default function PriceHistoryReport() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                Product Name
-              </p>
-              <p className="font-bold text-lg">
-                {selectedProductData.displayName || selectedProductData.name}
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Product Name</p>
+              <p className="font-bold text-lg">{selectedProductData.displayName || selectedProductData.name}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                Category
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Category</p>
               <p className="text-lg">{selectedProductData.category}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                Grade
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Grade</p>
               <p className="text-lg">{selectedProductData.grade}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                Current Price
-              </p>
-              <p className="font-bold text-lg text-blue-600">
-                AED {selectedProductData.sellingPrice?.toFixed(2)}
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Price</p>
+              <p className="font-bold text-lg text-blue-600">AED {selectedProductData.sellingPrice?.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -216,10 +194,7 @@ export default function PriceHistoryReport() {
                   const priceDiff = getPriceDiff(index);
 
                   return (
-                    <TableRow
-                      key={row.pricelistId}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
+                    <TableRow key={row.pricelistId} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <span className="text-sm">{row.pricelistName}</span>
@@ -232,34 +207,27 @@ export default function PriceHistoryReport() {
                       </TableCell>
                       <TableCell>
                         <span className="text-sm">
-                          {row.effectiveFrom
-                            ? toUAETime(row.effectiveFrom, { format: 'date' })
-                            : 'No date'}
-                          {row.effectiveTo &&
-                            ` - ${toUAETime(row.effectiveTo, { format: 'date' })}`}
+                          {row.effectiveFrom ? toUAETime(row.effectiveFrom, { format: "date" }) : "No date"}
+                          {row.effectiveTo && ` - ${toUAETime(row.effectiveTo, { format: "date" })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="font-bold">
-                          AED {row.price.toFixed(2)}
-                        </span>
+                        <span className="font-bold">AED {row.price.toFixed(2)}</span>
                       </TableCell>
                       <TableCell className="text-right">
                         {priceDiff ? (
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                               priceDiff.diff >= 0
-                                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200'
-                                : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200'
+                                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200"
+                                : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200"
                             }`}
                           >
-                            {priceDiff.diff >= 0 ? '+' : ''}
+                            {priceDiff.diff >= 0 ? "+" : ""}
                             {priceDiff.diffPercent}%
                           </span>
                         ) : (
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            -
-                          </span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">-</span>
                         )}
                       </TableCell>
                       <TableCell>

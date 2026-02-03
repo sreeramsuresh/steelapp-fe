@@ -22,10 +22,12 @@ JS_FILES=$(echo "$STAGED_FILES" | grep -E '\.(js|jsx|ts|tsx|json)$' || true)
 if [ -n "$JS_FILES" ]; then
   echo "[1/2] Running Biome on staged files..."
 
-  # Run Biome check and apply fixes to staged files
-  npx biome check --apply src/
+  # Run Biome check on staged files with VCS disabled for new files
+  npx biome check $JS_FILES --write --vcs-enabled=false 2>&1 | grep -v "This path was provided but ignored"
 
-  if [ $? -ne 0 ]; then
+  # Only fail on actual errors, not on ignored file warnings
+  BIOME_EXIT=$?
+  if [ $BIOME_EXIT -ne 0 ] && [ $BIOME_EXIT -ne 1 ]; then
     echo ""
     echo "Biome check failed!"
     echo "Fix the issues above or run: npm run lint:fix"

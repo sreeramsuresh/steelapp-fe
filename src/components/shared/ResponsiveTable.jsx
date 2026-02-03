@@ -7,7 +7,7 @@
  *     <table>...</table>
  *   </ResponsiveTable>
  */
-const ResponsiveTable = ({ children, className = '' }) => {
+const ResponsiveTable = ({ children, className = "" }) => {
   return (
     <div className={`overflow-x-auto relative ${className}`}>
       {/* Scroll indicator gradient */}
@@ -16,9 +16,7 @@ const ResponsiveTable = ({ children, className = '' }) => {
       {children}
 
       {/* Scroll hint text */}
-      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-right pr-2">
-        ← Scroll right for more
-      </div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-right pr-2">← Scroll right for more</div>
     </div>
   );
 };

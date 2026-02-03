@@ -6,170 +6,170 @@
 /* eslint-disable local-rules/no-dead-button */
 // Test fixtures intentionally render buttons without handlers to test utility functions
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import {
-  findButtonByRole,
-  clickButton,
-  assertButtonEnabled,
   assertButtonDisabled,
+  assertButtonEnabled,
+  clickButton,
+  findAllButtons,
+  findButtonByRole,
+  getButtonVariant,
   isButtonLoading,
   waitForButtonEnabled,
-  findAllButtons,
-  getButtonVariant,
-} from '../buttonTestUtils';
+} from "../buttonTestUtils";
 
-describe('buttonTestUtils', () => {
-  describe('findButtonByRole', () => {
-    it('finds button by role name', () => {
+describe("buttonTestUtils", () => {
+  describe("findButtonByRole", () => {
+    it("finds button by role name", () => {
       render(<button>Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       expect(button).toBeInTheDocument();
-      expect(button.textContent).toBe('Save');
+      expect(button.textContent).toBe("Save");
     });
 
-    it('returns null when button not found', () => {
+    it("returns null when button not found", () => {
       render(<button>Save</button>);
-      const button = findButtonByRole('Delete', { throwError: false });
+      const button = findButtonByRole("Delete", { throwError: false });
       expect(button).toBeNull();
     });
 
-    it('throws error when button not found and throwError is true', () => {
+    it("throws error when button not found and throwError is true", () => {
       render(<button>Save</button>);
       expect(() => {
-        findButtonByRole('Delete', { throwError: true });
+        findButtonByRole("Delete", { throwError: true });
       }).toThrow();
     });
 
-    it('supports case-insensitive search', () => {
+    it("supports case-insensitive search", () => {
       render(<button>SAVE DRAFT</button>);
-      const button = findButtonByRole('save draft');
+      const button = findButtonByRole("save draft");
       expect(button).toBeInTheDocument();
     });
 
-    it('supports partial name matching', () => {
+    it("supports partial name matching", () => {
       render(<button>Save Invoice</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       expect(button).toBeInTheDocument();
     });
   });
 
-  describe('clickButton', () => {
-    it('clicks button successfully', async () => {
+  describe("clickButton", () => {
+    it("clicks button successfully", async () => {
       const mockHandler = vi.fn();
       render(<button onClick={mockHandler}>Click me</button>);
 
-      const button = findButtonByRole('Click me');
+      const button = findButtonByRole("Click me");
       await clickButton(button);
 
       expect(mockHandler).toHaveBeenCalledTimes(1);
     });
 
-    it('handles async button click', async () => {
+    it("handles async button click", async () => {
       const mockHandler = vi.fn().mockResolvedValue({});
       render(<button onClick={mockHandler}>Async</button>);
 
-      const button = findButtonByRole('Async');
+      const button = findButtonByRole("Async");
       await clickButton(button);
 
       expect(mockHandler).toHaveBeenCalled();
     });
   });
 
-  describe('assertButtonEnabled', () => {
-    it('passes when button is enabled', () => {
+  describe("assertButtonEnabled", () => {
+    it("passes when button is enabled", () => {
       render(<button>Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       expect(() => {
         assertButtonEnabled(button);
       }).not.toThrow();
     });
 
-    it('fails when button is disabled', () => {
+    it("fails when button is disabled", () => {
       render(<button disabled>Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       expect(() => {
         assertButtonEnabled(button);
       }).toThrow();
     });
 
-    it('provides custom error message', () => {
+    it("provides custom error message", () => {
       render(<button disabled>Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       expect(() => {
-        assertButtonEnabled(button, 'Button should be enabled for submission');
-      }).toThrow('Button should be enabled for submission');
+        assertButtonEnabled(button, "Button should be enabled for submission");
+      }).toThrow("Button should be enabled for submission");
     });
   });
 
-  describe('assertButtonDisabled', () => {
-    it('passes when button is disabled', () => {
+  describe("assertButtonDisabled", () => {
+    it("passes when button is disabled", () => {
       render(<button disabled>Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       expect(() => {
         assertButtonDisabled(button);
       }).not.toThrow();
     });
 
-    it('fails when button is enabled', () => {
+    it("fails when button is enabled", () => {
       render(<button>Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       expect(() => {
         assertButtonDisabled(button);
       }).toThrow();
     });
   });
 
-  describe('isButtonLoading', () => {
-    it('detects loading state from disabled attribute', () => {
+  describe("isButtonLoading", () => {
+    it("detects loading state from disabled attribute", () => {
       const { rerender } = render(<button>Save</button>);
-      let button = findButtonByRole('Save');
+      let button = findButtonByRole("Save");
       expect(isButtonLoading(button)).toBe(false);
 
       rerender(<button disabled>Saving...</button>);
-      button = findButtonByRole('Saving');
+      button = findButtonByRole("Saving");
       expect(isButtonLoading(button)).toBe(true);
     });
 
-    it('detects loading state from aria-busy', () => {
+    it("detects loading state from aria-busy", () => {
       render(<button aria-busy="true">Loading</button>);
-      const button = findButtonByRole('Loading');
+      const button = findButtonByRole("Loading");
       expect(isButtonLoading(button)).toBe(true);
     });
 
-    it('detects loading spinner child element', () => {
+    it("detects loading spinner child element", () => {
       render(
         <button>
           <span className="spinner" />
           Loading
-        </button>,
+        </button>
       );
-      const button = findButtonByRole('Loading');
+      const button = findButtonByRole("Loading");
       expect(isButtonLoading(button)).toBe(true);
     });
   });
 
-  describe('findAllButtons', () => {
-    it('finds all buttons on page', () => {
+  describe("findAllButtons", () => {
+    it("finds all buttons on page", () => {
       render(
         <>
           <button>Save</button>
           <button>Delete</button>
           <button>Cancel</button>
-        </>,
+        </>
       );
 
       const buttons = findAllButtons();
       expect(buttons).toHaveLength(3);
     });
 
-    it('filters buttons by role name', () => {
+    it("filters buttons by role name", () => {
       render(
         <>
           <button>Save</button>
           <button>Delete</button>
           <button>Save Draft</button>
-        </>,
+        </>
       );
 
       const saveButtons = findAllButtons({ name: /save/i });
@@ -177,35 +177,35 @@ describe('buttonTestUtils', () => {
     });
   });
 
-  describe('getButtonVariant', () => {
-    it('detects button variant from className', () => {
+  describe("getButtonVariant", () => {
+    it("detects button variant from className", () => {
       render(<button className="btn btn-primary">Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
       const variant = getButtonVariant(button);
       expect(variant).toMatch(/primary/);
     });
 
-    it('detects Button component variant from data-variant', () => {
+    it("detects Button component variant from data-variant", () => {
       render(<button data-variant="outline">Cancel</button>);
-      const button = findButtonByRole('Cancel');
+      const button = findButtonByRole("Cancel");
       const variant = getButtonVariant(button);
-      expect(variant).toBe('outline');
+      expect(variant).toBe("outline");
     });
 
-    it('returns default variant when not found', () => {
+    it("returns default variant when not found", () => {
       render(<button>Click</button>);
-      const button = findButtonByRole('Click');
+      const button = findButtonByRole("Click");
       const variant = getButtonVariant(button);
       expect(variant).toMatch(/default|primary|button/);
     });
   });
 
-  describe('waitForButtonEnabled', () => {
-    it('waits for button to become enabled', async () => {
+  describe("waitForButtonEnabled", () => {
+    it("waits for button to become enabled", async () => {
       let isDisabled = true;
       const { rerender } = render(<button disabled={isDisabled}>Save</button>);
 
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
 
       // Simulate async operation enabling the button
       setTimeout(() => {
@@ -217,9 +217,9 @@ describe('buttonTestUtils', () => {
       expect(button).toBeEnabled();
     });
 
-    it('times out if button never enables', async () => {
+    it("times out if button never enables", async () => {
       render(<button disabled>Save</button>);
-      const button = findButtonByRole('Save');
+      const button = findButtonByRole("Save");
 
       await expect(waitForButtonEnabled(button, 100)).rejects.toThrow();
     });

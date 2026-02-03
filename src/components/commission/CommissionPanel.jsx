@@ -1,31 +1,12 @@
-import { useState, useContext, useEffect } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
-import { DarkModeContext } from '../../context/DarkModeContext';
-import {
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  DollarSign,
-  Edit2,
-  ThumbsUp,
-} from 'lucide-react';
-import { notificationService } from '../../services/notificationService';
-import ConfirmDialog from '../ConfirmDialog';
+import { AlertCircle, CheckCircle, Clock, DollarSign, Edit2, ThumbsUp } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import { DarkModeContext } from "../../context/DarkModeContext";
+import { notificationService } from "../../services/notificationService";
+import ConfirmDialog from "../ConfirmDialog";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 
 /**
  * CommissionPanel Component
@@ -48,10 +29,8 @@ const CommissionPanel = ({
 }) => {
   const { isDarkMode } = useContext(DarkModeContext);
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
-  const [adjustedAmount, setAdjustedAmount] = useState(
-    invoice.commissionAmount || 0,
-  );
-  const [adjustmentReason, setAdjustmentReason] = useState('');
+  const [adjustedAmount, setAdjustedAmount] = useState(invoice.commissionAmount || 0);
+  const [adjustmentReason, setAdjustmentReason] = useState("");
   const [daysUntilGraceExpiry, setDaysUntilGraceExpiry] = useState(0);
   const [actionConfirm, setActionConfirm] = useState({
     open: false,
@@ -73,13 +52,12 @@ const CommissionPanel = ({
   // Get status color based on commission status
   const getStatusColor = (status) => {
     const colorMap = {
-      PENDING:
-        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      APPROVED: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      PAID: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      VOIDED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      PENDING: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      APPROVED: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      PAID: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      VOIDED: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
     };
-    return colorMap[status] || 'bg-gray-100 text-gray-800';
+    return colorMap[status] || "bg-gray-100 text-gray-800";
   };
 
   const getStatusIcon = (status) => {
@@ -94,7 +72,7 @@ const CommissionPanel = ({
 
   const handleAdjustCommission = () => {
     if (adjustedAmount < 0) {
-      notificationService.warning('Commission amount cannot be negative');
+      notificationService.warning("Commission amount cannot be negative");
       return;
     }
     onAdjustCommission({
@@ -104,13 +82,13 @@ const CommissionPanel = ({
     });
     setIsAdjustModalOpen(false);
     setAdjustedAmount(invoice.commissionAmount || 0);
-    setAdjustmentReason('');
+    setAdjustmentReason("");
   };
 
   const handleApprove = () => {
     setActionConfirm({
       open: true,
-      action: 'approve',
+      action: "approve",
     });
   };
 
@@ -124,7 +102,7 @@ const CommissionPanel = ({
   const handleMarkAsPaid = () => {
     setActionConfirm({
       open: true,
-      action: 'paid',
+      action: "paid",
     });
   };
 
@@ -135,10 +113,10 @@ const CommissionPanel = ({
     });
   };
 
-  const cardBg = isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white';
-  const textColor = isDarkMode ? 'text-gray-100' : 'text-gray-900';
-  const mutedColor = isDarkMode ? 'text-gray-400' : 'text-gray-600';
-  const dividerColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const cardBg = isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white";
+  const textColor = isDarkMode ? "text-gray-100" : "text-gray-900";
+  const mutedColor = isDarkMode ? "text-gray-400" : "text-gray-600";
+  const dividerColor = isDarkMode ? "border-gray-700" : "border-gray-200";
 
   return (
     <>
@@ -149,12 +127,10 @@ const CommissionPanel = ({
               <DollarSign className="w-5 h-5 text-blue-600" />
               <CardTitle className={textColor}>Commission Details</CardTitle>
             </div>
-            <Badge
-              className={getStatusColor(invoice.commissionStatus || 'PENDING')}
-            >
+            <Badge className={getStatusColor(invoice.commissionStatus || "PENDING")}>
               <span className="flex items-center gap-1">
-                {getStatusIcon(invoice.commissionStatus || 'PENDING')}
-                {invoice.commissionStatus || 'PENDING'}
+                {getStatusIcon(invoice.commissionStatus || "PENDING")}
+                {invoice.commissionStatus || "PENDING"}
               </span>
             </Badge>
           </div>
@@ -166,60 +142,38 @@ const CommissionPanel = ({
         <CardContent className="space-y-6">
           {/* Commission Amount Section */}
           <div className="grid grid-cols-2 gap-4">
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-            >
-              <p className={`${mutedColor} text-sm font-medium mb-1`}>
-                Commission Amount
-              </p>
-              <p className={`${textColor} text-2xl font-bold`}>
-                AED {(invoice.commissionAmount || 0).toFixed(2)}
-              </p>
-              <p className={`${mutedColor} text-xs mt-2`}>
-                {invoice.commissionPercentage || 10}% of invoice total
-              </p>
+            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+              <p className={`${mutedColor} text-sm font-medium mb-1`}>Commission Amount</p>
+              <p className={`${textColor} text-2xl font-bold`}>AED {(invoice.commissionAmount || 0).toFixed(2)}</p>
+              <p className={`${mutedColor} text-xs mt-2`}>{invoice.commissionPercentage || 10}% of invoice total</p>
             </div>
 
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-            >
-              <p className={`${mutedColor} text-sm font-medium mb-1`}>
-                Sales Person
-              </p>
-              <p className={`${textColor} text-lg font-semibold`}>
-                {invoice.salesPersonName || 'Not assigned'}
-              </p>
-              <p className={`${mutedColor} text-xs mt-2`}>
-                ID: {invoice.salesPersonId || 'N/A'}
-              </p>
+            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+              <p className={`${mutedColor} text-sm font-medium mb-1`}>Sales Person</p>
+              <p className={`${textColor} text-lg font-semibold`}>{invoice.salesPersonName || "Not assigned"}</p>
+              <p className={`${mutedColor} text-xs mt-2`}>ID: {invoice.salesPersonId || "N/A"}</p>
             </div>
           </div>
 
           {/* Grace Period & Key Dates */}
           <div className="space-y-3">
-            <h3 className={`${textColor} font-semibold text-sm`}>
-              Timeline & Dates
-            </h3>
+            <h3 className={`${textColor} font-semibold text-sm`}>Timeline & Dates</h3>
             <div className="space-y-2">
               {/* Grace Period Status */}
               <div className="flex items-start justify-between">
                 <div>
                   <p className={`${mutedColor} text-sm`}>Grace Period</p>
                   <p className={`${textColor} text-sm font-medium`}>
-                    Adjustments allowed until{' '}
+                    Adjustments allowed until{" "}
                     {invoice.commissionGracePeriodEndDate
-                      ? new Date(
-                          invoice.commissionGracePeriodEndDate,
-                        ).toLocaleDateString()
-                      : 'N/A'}
+                      ? new Date(invoice.commissionGracePeriodEndDate).toLocaleDateString()
+                      : "N/A"}
                   </p>
                 </div>
                 {daysUntilGraceExpiry > 0 && (
                   <Badge
                     className={
-                      daysUntilGraceExpiry > 5
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-orange-100 text-orange-800'
+                      daysUntilGraceExpiry > 5 ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"
                     }
                   >
                     {daysUntilGraceExpiry} days
@@ -233,9 +187,7 @@ const CommissionPanel = ({
                   <div>
                     <p className={`${mutedColor} text-sm`}>Approved</p>
                     <p className={`${textColor} text-sm font-medium`}>
-                      {new Date(
-                        invoice.commissionApprovedDate,
-                      ).toLocaleDateString()}
+                      {new Date(invoice.commissionApprovedDate).toLocaleDateString()}
                     </p>
                   </div>
                   <CheckCircle className="w-4 h-4 text-green-600" />
@@ -248,9 +200,7 @@ const CommissionPanel = ({
                   <div>
                     <p className={`${mutedColor} text-sm`}>Paid</p>
                     <p className={`${textColor} text-sm font-medium`}>
-                      {new Date(
-                        invoice.commissionPayoutDate,
-                      ).toLocaleDateString()}
+                      {new Date(invoice.commissionPayoutDate).toLocaleDateString()}
                     </p>
                   </div>
                   <CheckCircle className="w-4 h-4 text-green-600" />
@@ -261,13 +211,10 @@ const CommissionPanel = ({
 
           {/* Status-based Actions */}
           {!readOnly && (
-            <div
-              className="border-t pt-4"
-              style={{ borderColor: isDarkMode ? '#374151' : '#e5e7eb' }}
-            >
+            <div className="border-t pt-4" style={{ borderColor: isDarkMode ? "#374151" : "#e5e7eb" }}>
               <div className="flex flex-wrap gap-2">
                 {/* PENDING: Allow adjustments and approval */}
-                {invoice.commissionStatus === 'PENDING' && (
+                {invoice.commissionStatus === "PENDING" && (
                   <>
                     {daysUntilGraceExpiry > 0 && (
                       <Button
@@ -280,11 +227,7 @@ const CommissionPanel = ({
                         Adjust Amount
                       </Button>
                     )}
-                    <Button
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={handleApprove}
-                    >
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleApprove}>
                       <ThumbsUp className="w-4 h-4 mr-2" />
                       Approve for Payout
                     </Button>
@@ -292,12 +235,8 @@ const CommissionPanel = ({
                 )}
 
                 {/* APPROVED: Allow marking as paid */}
-                {invoice.commissionStatus === 'APPROVED' && (
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={handleMarkAsPaid}
-                  >
+                {invoice.commissionStatus === "APPROVED" && (
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={handleMarkAsPaid}>
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Mark as Paid
                   </Button>
@@ -313,7 +252,7 @@ const CommissionPanel = ({
 
           {/* Information Box */}
           <div
-            className={`p-3 rounded-lg border ${isDarkMode ? 'bg-blue-900 border-blue-700 text-blue-100' : 'bg-blue-50 border-blue-200 text-blue-900'}`}
+            className={`p-3 rounded-lg border ${isDarkMode ? "bg-blue-900 border-blue-700 text-blue-100" : "bg-blue-50 border-blue-200 text-blue-900"}`}
           >
             <div className="flex gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -333,25 +272,17 @@ const CommissionPanel = ({
 
       {/* Adjustment Modal */}
       <Dialog open={isAdjustModalOpen} onOpenChange={setIsAdjustModalOpen}>
-        <DialogContent
-          className={isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}
-        >
+        <DialogContent className={isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"}>
           <DialogHeader>
-            <DialogTitle className={textColor}>
-              Adjust Commission Amount
-            </DialogTitle>
+            <DialogTitle className={textColor}>Adjust Commission Amount</DialogTitle>
             <DialogDescription className={mutedColor}>
-              You can adjust the commission during the grace period. All
-              adjustments are logged for audit purposes.
+              You can adjust the commission during the grace period. All adjustments are logged for audit purposes.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <label
-                htmlFor="commission-amount"
-                className={`${textColor} block text-sm font-medium mb-2`}
-              >
+              <label htmlFor="commission-amount" className={`${textColor} block text-sm font-medium mb-2`}>
                 New Commission Amount (AED)
               </label>
               <input
@@ -362,21 +293,14 @@ const CommissionPanel = ({
                 step="0.01"
                 min="0"
                 className={`w-full px-3 py-2 rounded border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300'
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               />
-              <p className={`${mutedColor} text-xs mt-1`}>
-                Original: AED {(invoice.commissionAmount || 0).toFixed(2)}
-              </p>
+              <p className={`${mutedColor} text-xs mt-1`}>Original: AED {(invoice.commissionAmount || 0).toFixed(2)}</p>
             </div>
 
             <div>
-              <label
-                htmlFor="adjustment-reason"
-                className={`${textColor} block text-sm font-medium mb-2`}
-              >
+              <label htmlFor="adjustment-reason" className={`${textColor} block text-sm font-medium mb-2`}>
                 Reason for Adjustment
               </label>
               <textarea
@@ -386,8 +310,8 @@ const CommissionPanel = ({
                 placeholder="Enter reason for adjustment (required)"
                 className={`w-full px-3 py-2 rounded border text-sm ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 placeholder-gray-400'
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 placeholder-gray-400"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 rows="3"
               />
@@ -399,7 +323,7 @@ const CommissionPanel = ({
                 onClick={() => {
                   setIsAdjustModalOpen(false);
                   setAdjustedAmount(invoice.commissionAmount || 0);
-                  setAdjustmentReason('');
+                  setAdjustmentReason("");
                 }}
               >
                 Cancel
@@ -419,21 +343,17 @@ const CommissionPanel = ({
       {/* Action Confirmation Dialog */}
       {actionConfirm.open && (
         <ConfirmDialog
-          title={
-            actionConfirm.action === 'approve'
-              ? 'Approve Commission?'
-              : 'Mark Commission as Paid?'
-          }
+          title={actionConfirm.action === "approve" ? "Approve Commission?" : "Mark Commission as Paid?"}
           message={
-            actionConfirm.action === 'approve'
-              ? 'Approve this commission for payout? This action cannot be undone.'
-              : 'Mark this commission as paid? This will finalize the payout record.'
+            actionConfirm.action === "approve"
+              ? "Approve this commission for payout? This action cannot be undone."
+              : "Mark this commission as paid? This will finalize the payout record."
           }
-          variant={actionConfirm.action === 'approve' ? 'warning' : 'info'}
+          variant={actionConfirm.action === "approve" ? "warning" : "info"}
           onConfirm={() => {
-            if (actionConfirm.action === 'approve') {
+            if (actionConfirm.action === "approve") {
               confirmApprove();
-            } else if (actionConfirm.action === 'paid') {
+            } else if (actionConfirm.action === "paid") {
               confirmMarkAsPaid();
             }
             setActionConfirm({ open: false, action: null });

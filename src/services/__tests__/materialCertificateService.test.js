@@ -40,10 +40,7 @@ describe("materialCertificateService", () => {
 
       expect(result).toHaveLength(2);
       expect(result[0].material).toBe("SS304");
-      expect(api.get).toHaveBeenCalledWith(
-        "/material-certificates",
-        { params: {} }
-      );
+      expect(api.get).toHaveBeenCalledWith("/material-certificates", { params: {} });
     });
 
     it("should filter by material type", async () => {
@@ -103,15 +100,10 @@ describe("materialCertificateService", () => {
         batch_number: "BATCH-123",
       };
 
-      const result = await materialCertificateService.createMaterialCertificate(
-        payload
-      );
+      const result = await materialCertificateService.createMaterialCertificate(payload);
 
       expect(result.certificate_number).toBe("CERT-304-001");
-      expect(api.post).toHaveBeenCalledWith(
-        "/material-certificates",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/material-certificates", payload);
     });
   });
 
@@ -127,16 +119,10 @@ describe("materialCertificateService", () => {
 
       const payload = { status: "verified" };
 
-      const result = await materialCertificateService.updateMaterialCertificate(
-        1,
-        payload
-      );
+      const result = await materialCertificateService.updateMaterialCertificate(1, payload);
 
       expect(result.status).toBe("verified");
-      expect(api.put).toHaveBeenCalledWith(
-        "/material-certificates/1",
-        payload
-      );
+      expect(api.put).toHaveBeenCalledWith("/material-certificates/1", payload);
     });
   });
 
@@ -144,9 +130,7 @@ describe("materialCertificateService", () => {
     it("should delete certificate", async () => {
       api.delete.mockResolvedValue({ success: true });
 
-      const result = await materialCertificateService.deleteMaterialCertificate(
-        1
-      );
+      const result = await materialCertificateService.deleteMaterialCertificate(1);
 
       expect(result.success).toBe(true);
       expect(api.delete).toHaveBeenCalledWith("/material-certificates/1");
@@ -163,16 +147,10 @@ describe("materialCertificateService", () => {
 
       api.post.mockResolvedValue(mockResponse);
 
-      const result = await materialCertificateService.uploadTestReport(
-        1,
-        "file-content"
-      );
+      const result = await materialCertificateService.uploadTestReport(1, "file-content");
 
       expect(result.test_report_url).toContain("test-report");
-      expect(api.post).toHaveBeenCalledWith(
-        "/material-certificates/1/test-report",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/material-certificates/1/test-report", expect.any(Object));
     });
   });
 
@@ -193,10 +171,7 @@ describe("materialCertificateService", () => {
 
       expect(result.all_tests_pass).toBe(true);
       expect(result.results).toHaveLength(3);
-      expect(api.post).toHaveBeenCalledWith(
-        "/material-certificates/1/verify",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/material-certificates/1/verify", expect.any(Object));
     });
   });
 });

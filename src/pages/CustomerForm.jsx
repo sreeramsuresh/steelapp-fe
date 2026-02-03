@@ -14,31 +14,15 @@
  * - Accordion for optional sections
  */
 
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import {
-  ArrowLeft,
-  Save,
-  AlertCircle,
-  Info,
-  Loader2,
-  User,
-  Building2,
-  CreditCard,
-  ChevronDown,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { customerService } from '../services/customerService';
-import { notificationService } from '../services/notificationService';
-import CustomerCreditPanel from '../components/credit/CustomerCreditPanel';
-import TRNInput from '../components/TRNInput';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../components/ui/dialog';
+import { AlertCircle, ArrowLeft, Building2, ChevronDown, CreditCard, Info, Loader2, Save, User } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import CustomerCreditPanel from "../components/credit/CustomerCreditPanel";
+import TRNInput from "../components/TRNInput";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { useTheme } from "../contexts/ThemeContext";
+import { customerService } from "../services/customerService";
+import { notificationService } from "../services/notificationService";
 
 /**
  * ISO 3166-1 alpha-2 country codes for address validation
@@ -48,252 +32,252 @@ import {
  * Pattern copied from SupplierForm.jsx (lines 90-100)
  */
 const VALID_ISO_COUNTRY_CODES = new Set([
-  'AE',
-  'AF',
-  'AL',
-  'AM',
-  'AO',
-  'AQ',
-  'AR',
-  'AS',
-  'AT',
-  'AU',
-  'AW',
-  'AX',
-  'AZ',
-  'BA',
-  'BB',
-  'BD',
-  'BE',
-  'BF',
-  'BG',
-  'BH',
-  'BI',
-  'BJ',
-  'BL',
-  'BM',
-  'BN',
-  'BO',
-  'BQ',
-  'BR',
-  'BS',
-  'BT',
-  'BV',
-  'BW',
-  'BY',
-  'BZ',
-  'CA',
-  'CC',
-  'CD',
-  'CF',
-  'CG',
-  'CH',
-  'CI',
-  'CK',
-  'CL',
-  'CM',
-  'CN',
-  'CO',
-  'CR',
-  'CU',
-  'CV',
-  'CW',
-  'CX',
-  'CY',
-  'CZ',
-  'DE',
-  'DJ',
-  'DK',
-  'DM',
-  'DO',
-  'DZ',
-  'EC',
-  'EE',
-  'EG',
-  'EH',
-  'ER',
-  'ES',
-  'ET',
-  'FI',
-  'FJ',
-  'FK',
-  'FM',
-  'FO',
-  'FR',
-  'GA',
-  'GB',
-  'GD',
-  'GE',
-  'GF',
-  'GG',
-  'GH',
-  'GI',
-  'GL',
-  'GM',
-  'GN',
-  'GP',
-  'GQ',
-  'GR',
-  'GS',
-  'GT',
-  'GU',
-  'GW',
-  'GY',
-  'HK',
-  'HM',
-  'HN',
-  'HR',
-  'HT',
-  'HU',
-  'ID',
-  'IE',
-  'IL',
-  'IM',
-  'IN',
-  'IO',
-  'IQ',
-  'IR',
-  'IS',
-  'IT',
-  'JE',
-  'JM',
-  'JO',
-  'JP',
-  'KE',
-  'KG',
-  'KH',
-  'KI',
-  'KM',
-  'KN',
-  'KP',
-  'KR',
-  'KW',
-  'KY',
-  'KZ',
-  'LA',
-  'LB',
-  'LC',
-  'LI',
-  'LK',
-  'LR',
-  'LS',
-  'LT',
-  'LU',
-  'LV',
-  'LY',
-  'MA',
-  'MC',
-  'MD',
-  'ME',
-  'MF',
-  'MG',
-  'MH',
-  'MK',
-  'ML',
-  'MM',
-  'MN',
-  'MO',
-  'MP',
-  'MQ',
-  'MR',
-  'MS',
-  'MT',
-  'MU',
-  'MV',
-  'MW',
-  'MX',
-  'MY',
-  'MZ',
-  'NA',
-  'NC',
-  'NE',
-  'NF',
-  'NG',
-  'NI',
-  'NL',
-  'NO',
-  'NP',
-  'NR',
-  'NU',
-  'NZ',
-  'OM',
-  'PA',
-  'PE',
-  'PF',
-  'PG',
-  'PH',
-  'PK',
-  'PL',
-  'PM',
-  'PN',
-  'PR',
-  'PS',
-  'PT',
-  'PW',
-  'PY',
-  'QA',
-  'RE',
-  'RO',
-  'RS',
-  'RU',
-  'RW',
-  'SA',
-  'SB',
-  'SC',
-  'SD',
-  'SE',
-  'SG',
-  'SH',
-  'SI',
-  'SJ',
-  'SK',
-  'SL',
-  'SM',
-  'SN',
-  'SO',
-  'SR',
-  'SS',
-  'ST',
-  'SV',
-  'SX',
-  'SY',
-  'SZ',
-  'TC',
-  'TD',
-  'TF',
-  'TG',
-  'TH',
-  'TJ',
-  'TK',
-  'TL',
-  'TM',
-  'TN',
-  'TO',
-  'TR',
-  'TT',
-  'TV',
-  'TW',
-  'TZ',
-  'UA',
-  'UG',
-  'UM',
-  'US',
-  'UY',
-  'UZ',
-  'VA',
-  'VC',
-  'VE',
-  'VG',
-  'VI',
-  'VN',
-  'VU',
-  'WF',
-  'WS',
-  'YE',
-  'YT',
-  'ZA',
-  'ZM',
-  'ZW',
+  "AE",
+  "AF",
+  "AL",
+  "AM",
+  "AO",
+  "AQ",
+  "AR",
+  "AS",
+  "AT",
+  "AU",
+  "AW",
+  "AX",
+  "AZ",
+  "BA",
+  "BB",
+  "BD",
+  "BE",
+  "BF",
+  "BG",
+  "BH",
+  "BI",
+  "BJ",
+  "BL",
+  "BM",
+  "BN",
+  "BO",
+  "BQ",
+  "BR",
+  "BS",
+  "BT",
+  "BV",
+  "BW",
+  "BY",
+  "BZ",
+  "CA",
+  "CC",
+  "CD",
+  "CF",
+  "CG",
+  "CH",
+  "CI",
+  "CK",
+  "CL",
+  "CM",
+  "CN",
+  "CO",
+  "CR",
+  "CU",
+  "CV",
+  "CW",
+  "CX",
+  "CY",
+  "CZ",
+  "DE",
+  "DJ",
+  "DK",
+  "DM",
+  "DO",
+  "DZ",
+  "EC",
+  "EE",
+  "EG",
+  "EH",
+  "ER",
+  "ES",
+  "ET",
+  "FI",
+  "FJ",
+  "FK",
+  "FM",
+  "FO",
+  "FR",
+  "GA",
+  "GB",
+  "GD",
+  "GE",
+  "GF",
+  "GG",
+  "GH",
+  "GI",
+  "GL",
+  "GM",
+  "GN",
+  "GP",
+  "GQ",
+  "GR",
+  "GS",
+  "GT",
+  "GU",
+  "GW",
+  "GY",
+  "HK",
+  "HM",
+  "HN",
+  "HR",
+  "HT",
+  "HU",
+  "ID",
+  "IE",
+  "IL",
+  "IM",
+  "IN",
+  "IO",
+  "IQ",
+  "IR",
+  "IS",
+  "IT",
+  "JE",
+  "JM",
+  "JO",
+  "JP",
+  "KE",
+  "KG",
+  "KH",
+  "KI",
+  "KM",
+  "KN",
+  "KP",
+  "KR",
+  "KW",
+  "KY",
+  "KZ",
+  "LA",
+  "LB",
+  "LC",
+  "LI",
+  "LK",
+  "LR",
+  "LS",
+  "LT",
+  "LU",
+  "LV",
+  "LY",
+  "MA",
+  "MC",
+  "MD",
+  "ME",
+  "MF",
+  "MG",
+  "MH",
+  "MK",
+  "ML",
+  "MM",
+  "MN",
+  "MO",
+  "MP",
+  "MQ",
+  "MR",
+  "MS",
+  "MT",
+  "MU",
+  "MV",
+  "MW",
+  "MX",
+  "MY",
+  "MZ",
+  "NA",
+  "NC",
+  "NE",
+  "NF",
+  "NG",
+  "NI",
+  "NL",
+  "NO",
+  "NP",
+  "NR",
+  "NU",
+  "NZ",
+  "OM",
+  "PA",
+  "PE",
+  "PF",
+  "PG",
+  "PH",
+  "PK",
+  "PL",
+  "PM",
+  "PN",
+  "PR",
+  "PS",
+  "PT",
+  "PW",
+  "PY",
+  "QA",
+  "RE",
+  "RO",
+  "RS",
+  "RU",
+  "RW",
+  "SA",
+  "SB",
+  "SC",
+  "SD",
+  "SE",
+  "SG",
+  "SH",
+  "SI",
+  "SJ",
+  "SK",
+  "SL",
+  "SM",
+  "SN",
+  "SO",
+  "SR",
+  "SS",
+  "ST",
+  "SV",
+  "SX",
+  "SY",
+  "SZ",
+  "TC",
+  "TD",
+  "TF",
+  "TG",
+  "TH",
+  "TJ",
+  "TK",
+  "TL",
+  "TM",
+  "TN",
+  "TO",
+  "TR",
+  "TT",
+  "TV",
+  "TW",
+  "TZ",
+  "UA",
+  "UG",
+  "UM",
+  "US",
+  "UY",
+  "UZ",
+  "VA",
+  "VC",
+  "VE",
+  "VG",
+  "VI",
+  "VN",
+  "VU",
+  "WF",
+  "WS",
+  "YE",
+  "YT",
+  "ZA",
+  "ZM",
+  "ZW",
 ]);
 
 const CustomerForm = () => {
@@ -303,22 +287,22 @@ const CustomerForm = () => {
 
   // Form State
   const [formData, setFormData] = useState({
-    id: '',
-    name: '',
-    company: '',
-    email: '',
-    phone: '',
+    id: "",
+    name: "",
+    company: "",
+    email: "",
+    phone: "",
     // Address fields (structured - matches supplier pattern)
-    street: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: 'AE', // Default to UAE (ISO alpha-2)
-    vatNumber: '',
-    trn: '',
+    street: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "AE", // Default to UAE (ISO alpha-2)
+    vatNumber: "",
+    trn: "",
     creditLimit: 0,
-    paymentTerms: '',
-    customerCode: '',
+    paymentTerms: "",
+    customerCode: "",
     dsoValue: 0,
     creditUtilization: 0,
   });
@@ -331,7 +315,7 @@ const CustomerForm = () => {
     creditUsed: 0,
     creditAvailable: 0,
     creditScore: 0,
-    creditGrade: 'A',
+    creditGrade: "A",
     dsoDays: 0,
     agingCurrent: 0,
     aging1To30: 0,
@@ -346,13 +330,12 @@ const CustomerForm = () => {
   // UI State
   const [loading, setLoading] = useState(!!customerId);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isEditMode, setIsEditMode] = useState(!customerId);
 
   // Modals
   const [isAgingModalOpen, setIsAgingModalOpen] = useState(false);
-  const [isPaymentHistoryModalOpen, setIsPaymentHistoryModalOpen] =
-    useState(false);
+  const [isPaymentHistoryModalOpen, setIsPaymentHistoryModalOpen] = useState(false);
   const [paymentHistory, setPaymentHistory] = useState([]);
 
   // Fetch customer data if editing
@@ -366,29 +349,29 @@ const CustomerForm = () => {
   const fetchCustomer = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError("");
       const customer = await customerService.getCustomerById(customerId);
 
       // Parse address field if it's a JSON string (matches supplier pattern)
       const parseAddress = (addressData) => {
         if (!addressData)
           return {
-            street: '',
-            city: '',
-            state: '',
-            postalCode: '',
-            country: 'AE',
+            street: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            country: "AE",
           };
-        if (typeof addressData === 'string') {
+        if (typeof addressData === "string") {
           try {
             return JSON.parse(addressData);
           } catch {
             return {
               street: addressData,
-              city: '',
-              state: '',
-              postalCode: '',
-              country: 'AE',
+              city: "",
+              state: "",
+              postalCode: "",
+              country: "AE",
             };
           }
         }
@@ -398,22 +381,22 @@ const CustomerForm = () => {
       const addressParsed = parseAddress(customer.address);
 
       setFormData({
-        id: customer.id || '',
-        name: customer.name || '',
-        company: customer.company || '',
-        email: customer.email || '',
-        phone: customer.phone || '',
+        id: customer.id || "",
+        name: customer.name || "",
+        company: customer.company || "",
+        email: customer.email || "",
+        phone: customer.phone || "",
         // Structured address fields
-        street: addressParsed.street || '',
-        city: customer.city || addressParsed.city || '', // Prioritize generated column
-        state: addressParsed.state || '',
-        postalCode: addressParsed.postalCode || '',
-        country: customer.country || addressParsed.country || 'AE', // Prioritize generated column
-        vatNumber: customer.vatNumber || '',
-        trn: customer.trn || '',
+        street: addressParsed.street || "",
+        city: customer.city || addressParsed.city || "", // Prioritize generated column
+        state: addressParsed.state || "",
+        postalCode: addressParsed.postalCode || "",
+        country: customer.country || addressParsed.country || "AE", // Prioritize generated column
+        vatNumber: customer.vatNumber || "",
+        trn: customer.trn || "",
         creditLimit: customer.creditLimit || 0,
-        paymentTerms: customer.paymentTerms || '',
-        customerCode: customer.customerCode || '',
+        paymentTerms: customer.paymentTerms || "",
+        customerCode: customer.customerCode || "",
         dsoValue: customer.dsoValue || 0,
         creditUtilization: customer.creditUtilization || 0,
       });
@@ -422,7 +405,7 @@ const CustomerForm = () => {
         creditUsed: customer.creditUsed || 0,
         creditAvailable: customer.creditAvailable || 0,
         creditScore: customer.creditScore || 0,
-        creditGrade: customer.creditGrade || 'A',
+        creditGrade: customer.creditGrade || "A",
         dsoDays: customer.dsoDay || customer.dsoDays || 0,
         agingCurrent: customer.agingCurrent || 0,
         aging1To30: customer.aging1To30 || 0,
@@ -434,8 +417,8 @@ const CustomerForm = () => {
         lastCreditUpdated: customer.lastCreditUpdated || null,
       });
     } catch (err) {
-      console.error('Error fetching customer:', err);
-      setError('Failed to load customer data');
+      console.error("Error fetching customer:", err);
+      setError("Failed to load customer data");
     } finally {
       setLoading(false);
     }
@@ -449,16 +432,16 @@ const CustomerForm = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      setError('');
+      setError("");
       const newErrors = {};
 
       if (!formData.name.trim()) {
-        newErrors.name = 'Customer name is required';
+        newErrors.name = "Customer name is required";
       }
 
       // Address validation - Country is required and must be ISO alpha-2 format (VAT compliance)
       if (!formData.country?.trim()) {
-        newErrors.country = 'Country is required (ISO alpha-2 code)';
+        newErrors.country = "Country is required (ISO alpha-2 code)";
       } else {
         const countryCode = formData.country.trim().toUpperCase();
         if (!VALID_ISO_COUNTRY_CODES.has(countryCode)) {
@@ -475,18 +458,17 @@ const CustomerForm = () => {
       setErrors({});
 
       // Extract address fields from formData
-      const { street, city, state, postalCode, country, ...otherFields } =
-        formData;
+      const { street, city, state, postalCode, country, ...otherFields } = formData;
 
       const payload = {
         ...otherFields,
         // Structure address as JSON string (API Gateway will parse it)
         address: JSON.stringify({
-          street: street || '',
-          city: city || '',
-          state: state || '',
-          postal_code: postalCode || '',
-          country: country || 'AE',
+          street: street || "",
+          city: city || "",
+          state: state || "",
+          postal_code: postalCode || "",
+          country: country || "AE",
         }),
         vat_number: formData.vatNumber,
         trn: formData.trn,
@@ -503,44 +485,36 @@ const CustomerForm = () => {
         await customerService.createCustomer(payload);
       }
 
-      notificationService.success(
-        customerId
-          ? 'Customer updated successfully'
-          : 'Customer created successfully',
-      );
-      navigate('/payables');
+      notificationService.success(customerId ? "Customer updated successfully" : "Customer created successfully");
+      navigate("/payables");
     } catch (err) {
-      console.error('Error saving customer:', err);
-      setError(err.message || 'Failed to save customer');
+      console.error("Error saving customer:", err);
+      setError(err.message || "Failed to save customer");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleUpdateCreditLimit = async ({
-    customerId: cId,
-    newLimit,
-    reason,
-  }) => {
+  const handleUpdateCreditLimit = async ({ customerId: cId, newLimit, reason }) => {
     try {
       setSaving(true);
-      setError('');
+      setError("");
 
       await customerService.updateCreditLimit(cId, {
         credit_limit: parseFloat(newLimit),
         review_reason: reason,
       });
 
-      notificationService.success('Credit limit updated successfully');
+      notificationService.success("Credit limit updated successfully");
       setFormData((prev) => ({ ...prev, creditLimit: newLimit }));
 
       if (customerId) {
         fetchCustomer();
       }
     } catch (err) {
-      console.error('Error updating credit limit:', err);
-      setError('Failed to update credit limit');
-      notificationService.error('Failed to update credit limit');
+      console.error("Error updating credit limit:", err);
+      setError("Failed to update credit limit");
+      notificationService.error("Failed to update credit limit");
     } finally {
       setSaving(false);
     }
@@ -556,8 +530,8 @@ const CustomerForm = () => {
       setPaymentHistory(history || []);
       setIsPaymentHistoryModalOpen(true);
     } catch (err) {
-      console.error('Error fetching payment history:', err);
-      notificationService.error('Failed to load payment history');
+      console.error("Error fetching payment history:", err);
+      notificationService.error("Failed to load payment history");
     }
   };
 
@@ -569,26 +543,23 @@ const CustomerForm = () => {
       creditLimit: formData.creditLimit,
       ...creditData,
     }),
-    [formData, creditData],
+    [formData, creditData]
   );
 
   // ===================== THEME CLASSES =====================
-  const cardBg = isDarkMode ? 'bg-[#141a20]' : 'bg-white';
-  const cardBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-200';
-  const inputBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-white';
-  const inputBorder = isDarkMode ? 'border-[#2a3640]' : 'border-gray-300';
-  const textPrimary = isDarkMode ? 'text-[#e6edf3]' : 'text-gray-900';
-  const textMuted = isDarkMode ? 'text-[#93a4b4]' : 'text-gray-500';
-  const accordionBg = isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50';
-  const inputFocus =
-    'focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20';
+  const cardBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
+  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
+  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
+  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
+  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
+  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
+  const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
+  const inputFocus = "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
 
   // Loading state
   if (loading && customerId) {
     return (
-      <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
-      >
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
           <p className={textMuted}>Loading customer...</p>
@@ -598,43 +569,32 @@ const CustomerForm = () => {
   }
 
   return (
-    <div
-      className={`h-full overflow-auto ${isDarkMode ? 'bg-[#0b0f14]' : 'bg-gray-50'}`}
-      data-testid="customer-form"
-    >
+    <div className={`h-full overflow-auto ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`} data-testid="customer-form">
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
-        <div
-          className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}
-        >
+        <div className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}>
           {/* Sticky Header */}
           <div
             className={`sticky top-0 z-10 backdrop-blur-md ${
-              isDarkMode
-                ? 'bg-[#0f151b]/94 border-b border-[#2a3640]'
-                : 'bg-white/94 border-b border-gray-200'
+              isDarkMode ? "bg-[#0f151b]/94 border-b border-[#2a3640]" : "bg-white/94 border-b border-gray-200"
             } px-4 py-3`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate('/payables')}
+                  onClick={() => navigate("/payables")}
                   className={`p-2 rounded-xl transition-colors ${
-                    isDarkMode
-                      ? 'hover:bg-[#141a20] text-[#93a4b4]'
-                      : 'hover:bg-gray-100 text-gray-600'
+                    isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                   }`}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
                   <h1 className={`text-lg font-extrabold ${textPrimary}`}>
-                    {customerId ? 'Edit Customer' : 'New Customer'}
+                    {customerId ? "Edit Customer" : "New Customer"}
                   </h1>
                   <p className={`text-xs ${textMuted}`}>
-                    {customerId
-                      ? 'Update customer details'
-                      : 'Add new customer to system'}
+                    {customerId ? "Update customer details" : "Add new customer to system"}
                   </p>
                 </div>
               </div>
@@ -645,14 +605,14 @@ const CustomerForm = () => {
                     className={`px-3 py-2 rounded-xl text-sm border transition-colors ${
                       isEditMode
                         ? isDarkMode
-                          ? 'border-red-500/50 bg-red-500/12 text-red-400'
-                          : 'border-red-200 bg-red-50 text-red-700'
+                          ? "border-red-500/50 bg-red-500/12 text-red-400"
+                          : "border-red-200 bg-red-50 text-red-700"
                         : isDarkMode
-                          ? 'border-[#4aa3ff]/50 bg-[#4aa3ff]/12 text-[#4aa3ff]'
-                          : 'border-teal-200 bg-teal-50 text-teal-700'
+                          ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/12 text-[#4aa3ff]"
+                          : "border-teal-200 bg-teal-50 text-teal-700"
                     }`}
                   >
-                    {isEditMode ? 'Cancel Edit' : 'Edit'}
+                    {isEditMode ? "Cancel Edit" : "Edit"}
                   </button>
                 )}
                 {isEditMode && (
@@ -661,17 +621,13 @@ const CustomerForm = () => {
                     disabled={saving}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
                       isDarkMode
-                        ? 'bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]'
-                        : 'bg-teal-600 text-white hover:bg-teal-700'
-                    } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
+                        : "bg-teal-600 text-white hover:bg-teal-700"
+                    } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
                     data-testid="save-button"
                   >
-                    {saving ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                    {saving ? 'Saving...' : customerId ? 'Update' : 'Create'}
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {saving ? "Saving..." : customerId ? "Update" : "Create"}
                   </button>
                 )}
               </div>
@@ -684,16 +640,11 @@ const CustomerForm = () => {
             {error && (
               <div
                 className={`col-span-12 p-4 rounded-[14px] border ${
-                  isDarkMode
-                    ? 'bg-red-900/20 border-red-600/50 text-red-200'
-                    : 'bg-red-50 border-red-300 text-red-800'
+                  isDarkMode ? "bg-red-900/20 border-red-600/50 text-red-200" : "bg-red-50 border-red-300 text-red-800"
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <AlertCircle
-                    className={isDarkMode ? 'text-red-400' : 'text-red-600'}
-                    size={20}
-                  />
+                  <AlertCircle className={isDarkMode ? "text-red-400" : "text-red-600"} size={20} />
                   <div>
                     <h4 className="font-bold text-sm">Error</h4>
                     <p className="text-xs">{error}</p>
@@ -707,24 +658,17 @@ const CustomerForm = () => {
               {/* Section 1: Basic Information */}
               <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
                 <div className="mb-3">
-                  <div
-                    className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}
-                  >
+                  <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
                     <User className="h-4 w-4" />
                     Basic Information
                   </div>
-                  <div className={`text-xs ${textMuted}`}>
-                    Customer identity and contact details
-                  </div>
+                  <div className={`text-xs ${textMuted}`}>Customer identity and contact details</div>
                 </div>
 
                 <div className="grid grid-cols-12 gap-3">
                   {/* Customer Name */}
                   <div className="col-span-12 md:col-span-6">
-                    <label
-                      htmlFor="customer-name"
-                      className={`block text-xs ${textMuted} mb-1.5`}
-                    >
+                    <label htmlFor="customer-name" className={`block text-xs ${textMuted} mb-1.5`}>
                       Customer Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -742,10 +686,7 @@ const CustomerForm = () => {
 
                   {/* Company Name */}
                   <div className="col-span-12 md:col-span-6">
-                    <label
-                      htmlFor="customer-company"
-                      className={`block text-xs ${textMuted} mb-1.5`}
-                    >
+                    <label htmlFor="customer-company" className={`block text-xs ${textMuted} mb-1.5`}>
                       Company Name
                     </label>
                     <input
@@ -763,10 +704,7 @@ const CustomerForm = () => {
 
                   {/* Email */}
                   <div className="col-span-12 md:col-span-6">
-                    <label
-                      htmlFor="customer-email"
-                      className={`block text-xs ${textMuted} mb-1.5`}
-                    >
+                    <label htmlFor="customer-email" className={`block text-xs ${textMuted} mb-1.5`}>
                       Email
                     </label>
                     <input
@@ -784,10 +722,7 @@ const CustomerForm = () => {
 
                   {/* Phone */}
                   <div className="col-span-12 md:col-span-6">
-                    <label
-                      htmlFor="customer-phone"
-                      className={`block text-xs ${textMuted} mb-1.5`}
-                    >
+                    <label htmlFor="customer-phone" className={`block text-xs ${textMuted} mb-1.5`}>
                       Phone
                     </label>
                     <input
@@ -805,10 +740,7 @@ const CustomerForm = () => {
 
                   {/* Customer Code */}
                   <div className="col-span-6 md:col-span-4">
-                    <label
-                      htmlFor="customer-code"
-                      className={`block text-xs ${textMuted} mb-1.5`}
-                    >
+                    <label htmlFor="customer-code" className={`block text-xs ${textMuted} mb-1.5`}>
                       Customer Code
                     </label>
                     <input
@@ -825,10 +757,7 @@ const CustomerForm = () => {
 
                   {/* Payment Terms */}
                   <div className="col-span-6 md:col-span-4">
-                    <label
-                      htmlFor="customer-payment-terms"
-                      className={`block text-xs ${textMuted} mb-1.5`}
-                    >
+                    <label htmlFor="customer-payment-terms" className={`block text-xs ${textMuted} mb-1.5`}>
                       Payment Terms
                     </label>
                     <input
@@ -848,24 +777,17 @@ const CustomerForm = () => {
               {/* Section 2: Tax Compliance */}
               <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
                 <div className="mb-3">
-                  <div
-                    className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}
-                  >
+                  <div className={`text-sm font-extrabold ${textPrimary} flex items-center gap-2`}>
                     <Building2 className="h-4 w-4" />
                     Tax & VAT Compliance
                   </div>
-                  <div className={`text-xs ${textMuted}`}>
-                    UAE Federal Decree-Law No. 8 of 2017
-                  </div>
+                  <div className={`text-xs ${textMuted}`}>UAE Federal Decree-Law No. 8 of 2017</div>
                 </div>
 
                 <div className="grid grid-cols-12 gap-3">
                   {/* VAT Number */}
                   <div className="col-span-12 md:col-span-6">
-                    <label
-                      htmlFor="customer-vat-number"
-                      className={`block text-xs ${textMuted} mb-1.5`}
-                    >
+                    <label htmlFor="customer-vat-number" className={`block text-xs ${textMuted} mb-1.5`}>
                       VAT Number
                     </label>
                     <input
@@ -885,9 +807,7 @@ const CustomerForm = () => {
                   <div className="col-span-12 md:col-span-6">
                     <TRNInput
                       value={formData.trn}
-                      onChange={(value) =>
-                        setFormData((prev) => ({ ...prev, trn: value }))
-                      }
+                      onChange={(value) => setFormData((prev) => ({ ...prev, trn: value }))}
                       disabled={!isEditMode}
                       label="Tax Registration Number (TRN)"
                       required={false}
@@ -897,31 +817,19 @@ const CustomerForm = () => {
               </div>
 
               {/* Section 3: Address Accordion */}
-              <details
-                open
-                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
-              >
+              <details open className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
                 <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
                   <div>
-                    <div className={`text-sm font-bold ${textPrimary}`}>
-                      Address
-                    </div>
-                    <div className={`text-xs ${textMuted}`}>
-                      Physical business address (structured format)
-                    </div>
+                    <div className={`text-sm font-bold ${textPrimary}`}>Address</div>
+                    <div className={`text-xs ${textMuted}`}>Physical business address (structured format)</div>
                   </div>
-                  <ChevronDown
-                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
-                  />
+                  <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
                 </summary>
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Street Address */}
                     <div className="md:col-span-2">
-                      <label
-                        htmlFor="customer-street"
-                        className={`block text-xs font-medium ${textMuted} mb-1.5`}
-                      >
+                      <label htmlFor="customer-street" className={`block text-xs font-medium ${textMuted} mb-1.5`}>
                         Street Address
                       </label>
                       <input
@@ -938,10 +846,7 @@ const CustomerForm = () => {
 
                     {/* City */}
                     <div>
-                      <label
-                        htmlFor="customer-city"
-                        className={`block text-xs font-medium ${textMuted} mb-1.5`}
-                      >
+                      <label htmlFor="customer-city" className={`block text-xs font-medium ${textMuted} mb-1.5`}>
                         City
                       </label>
                       <input
@@ -959,10 +864,7 @@ const CustomerForm = () => {
 
                     {/* State/Province */}
                     <div>
-                      <label
-                        htmlFor="customer-state"
-                        className={`block text-xs font-medium ${textMuted} mb-1.5`}
-                      >
+                      <label htmlFor="customer-state" className={`block text-xs font-medium ${textMuted} mb-1.5`}>
                         State/Province
                       </label>
                       <input
@@ -979,10 +881,7 @@ const CustomerForm = () => {
 
                     {/* Postal Code */}
                     <div>
-                      <label
-                        htmlFor="customer-postal-code"
-                        className={`block text-xs font-medium ${textMuted} mb-1.5`}
-                      >
+                      <label htmlFor="customer-postal-code" className={`block text-xs font-medium ${textMuted} mb-1.5`}>
                         Postal Code
                       </label>
                       <input
@@ -999,15 +898,10 @@ const CustomerForm = () => {
 
                     {/* Country (ISO alpha-2) */}
                     <div>
-                      <label
-                        htmlFor="customer-country"
-                        className={`block text-xs font-medium ${textMuted} mb-1.5`}
-                      >
+                      <label htmlFor="customer-country" className={`block text-xs font-medium ${textMuted} mb-1.5`}>
                         Country
                         <span className="text-red-500 ml-1">*</span>
-                        <span className="text-xs text-gray-500 ml-1">
-                          (ISO alpha-2 code)
-                        </span>
+                        <span className="text-xs text-gray-500 ml-1">(ISO alpha-2 code)</span>
                       </label>
                       <input
                         id="customer-country"
@@ -1018,17 +912,11 @@ const CustomerForm = () => {
                         disabled={!isEditMode}
                         placeholder="e.g., AE (UAE), IN (India), CN (China)"
                         maxLength={2}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50 ${errors.country ? 'border-red-500' : ''}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50 ${errors.country ? "border-red-500" : ""}`}
                       />
-                      {errors.country && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.country}
-                        </p>
-                      )}
+                      {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
                       {!errors.country && formData.country && (
-                        <p className="text-green-500 text-sm mt-1">
-                          ✓ Valid ISO country code
-                        </p>
+                        <p className="text-green-500 text-sm mt-1">✓ Valid ISO country code</p>
                       )}
                     </div>
                   </div>
@@ -1036,35 +924,23 @@ const CustomerForm = () => {
               </details>
 
               {/* Section 4: Credit Management Accordion */}
-              <details
-                open
-                className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}
-              >
+              <details open className={`${accordionBg} border ${cardBorder} rounded-[14px] overflow-hidden group`}>
                 <summary className="list-none cursor-pointer p-3 flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <CreditCard className={`h-4 w-4 ${textMuted}`} />
                     <div>
-                      <div className={`text-sm font-bold ${textPrimary}`}>
-                        Credit Management
-                      </div>
-                      <div className={`text-xs ${textMuted}`}>
-                        Credit limits, utilization, and DSO
-                      </div>
+                      <div className={`text-sm font-bold ${textPrimary}`}>Credit Management</div>
+                      <div className={`text-xs ${textMuted}`}>Credit limits, utilization, and DSO</div>
                     </div>
                   </div>
-                  <ChevronDown
-                    className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`}
-                  />
+                  <ChevronDown className={`w-4 h-4 ${textMuted} transition-transform group-open:rotate-180`} />
                 </summary>
                 <div className={`p-3 border-t ${cardBorder} space-y-3`}>
                   {/* Credit Limit Input */}
                   {isEditMode && (
                     <div className="grid grid-cols-12 gap-3">
                       <div className="col-span-6 md:col-span-4">
-                        <label
-                          htmlFor="customer-credit-limit"
-                          className={`block text-xs ${textMuted} mb-1.5`}
-                        >
+                        <label htmlFor="customer-credit-limit" className={`block text-xs ${textMuted} mb-1.5`}>
                           Credit Limit (AED)
                         </label>
                         <input
@@ -1081,10 +957,7 @@ const CustomerForm = () => {
                       </div>
 
                       <div className="col-span-6 md:col-span-4">
-                        <label
-                          htmlFor="customer-dso-value"
-                          className={`block text-xs ${textMuted} mb-1.5`}
-                        >
+                        <label htmlFor="customer-dso-value" className={`block text-xs ${textMuted} mb-1.5`}>
                           DSO Value
                         </label>
                         <input
@@ -1101,10 +974,7 @@ const CustomerForm = () => {
                       </div>
 
                       <div className="col-span-6 md:col-span-4">
-                        <label
-                          htmlFor="customer-credit-util"
-                          className={`block text-xs ${textMuted} mb-1.5`}
-                        >
+                        <label htmlFor="customer-credit-util" className={`block text-xs ${textMuted} mb-1.5`}>
                           Credit Utilization (%)
                         </label>
                         <input
@@ -1137,14 +1007,10 @@ const CustomerForm = () => {
                   {!customerId && (
                     <div
                       className={`p-3 rounded-xl text-center ${
-                        isDarkMode
-                          ? 'bg-[#0a0f14] text-[#93a4b4]'
-                          : 'bg-gray-100 text-gray-500'
+                        isDarkMode ? "bg-[#0a0f14] text-[#93a4b4]" : "bg-gray-100 text-gray-500"
                       }`}
                     >
-                      <p className="text-xs">
-                        Save the customer first to view credit management
-                      </p>
+                      <p className="text-xs">Save the customer first to view credit management</p>
                     </div>
                   )}
                 </div>
@@ -1155,42 +1021,29 @@ const CustomerForm = () => {
             <div className="col-span-12 lg:col-span-4">
               <div className="lg:sticky lg:top-24 space-y-3">
                 {/* Customer Summary */}
-                <div
-                  className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}
-                >
-                  <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>
-                    Customer Summary
-                  </div>
+                <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                  <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>Customer Summary</div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Name:</span>
-                      <span className={`font-medium ${textPrimary}`}>
-                        {formData.name || '-'}
-                      </span>
+                      <span className={`font-medium ${textPrimary}`}>{formData.name || "-"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Company:</span>
-                      <span className={textPrimary}>
-                        {formData.company || '-'}
-                      </span>
+                      <span className={textPrimary}>{formData.company || "-"}</span>
                     </div>
                     {formData.trn && (
                       <div className="flex justify-between text-sm">
                         <span className={textMuted}>TRN:</span>
-                        <span className={`font-mono ${textPrimary}`}>
-                          {formData.trn}
-                        </span>
+                        <span className={`font-mono ${textPrimary}`}>{formData.trn}</span>
                       </div>
                     )}
                     <div className={`h-px ${cardBorder} my-2`}></div>
                     <div className="flex justify-between text-sm">
                       <span className={textMuted}>Credit Limit:</span>
-                      <span
-                        className={`font-mono font-bold ${isDarkMode ? 'text-[#4aa3ff]' : 'text-teal-600'}`}
-                      >
-                        AED{' '}
-                        {parseFloat(formData.creditLimit || 0).toLocaleString()}
+                      <span className={`font-mono font-bold ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}>
+                        AED {parseFloat(formData.creditLimit || 0).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -1198,30 +1051,22 @@ const CustomerForm = () => {
 
                 {/* Credit Grade Card */}
                 {customerId && (
-                  <div
-                    className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}
-                  >
-                    <div
-                      className={`text-sm font-extrabold ${textPrimary} mb-3`}
-                    >
-                      Credit Status
-                    </div>
+                  <div className={`${cardBg} border ${cardBorder} rounded-2xl p-4`}>
+                    <div className={`text-sm font-extrabold ${textPrimary} mb-3`}>Credit Status</div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className={`text-xs ${textMuted}`}>
-                          Credit Grade
-                        </div>
+                        <div className={`text-xs ${textMuted}`}>Credit Grade</div>
                         <div
                           className={`text-2xl font-extrabold ${
-                            creditData.creditGrade === 'A'
-                              ? 'text-green-500'
-                              : creditData.creditGrade === 'B'
-                                ? 'text-green-400'
-                                : creditData.creditGrade === 'C'
-                                  ? 'text-yellow-500'
-                                  : creditData.creditGrade === 'D'
-                                    ? 'text-orange-500'
-                                    : 'text-red-500'
+                            creditData.creditGrade === "A"
+                              ? "text-green-500"
+                              : creditData.creditGrade === "B"
+                                ? "text-green-400"
+                                : creditData.creditGrade === "C"
+                                  ? "text-yellow-500"
+                                  : creditData.creditGrade === "D"
+                                    ? "text-orange-500"
+                                    : "text-red-500"
                           }`}
                         >
                           {creditData.creditGrade}
@@ -1229,30 +1074,22 @@ const CustomerForm = () => {
                       </div>
                       <div className="text-right">
                         <div className={`text-xs ${textMuted}`}>DSO Days</div>
-                        <div
-                          className={`text-xl font-bold font-mono ${textPrimary}`}
-                        >
-                          {creditData.dsoDays}
-                        </div>
+                        <div className={`text-xl font-bold font-mono ${textPrimary}`}>{creditData.dsoDays}</div>
                       </div>
                     </div>
                     <div
                       className="mt-3 pt-3 border-t border-dashed"
                       style={{
-                        borderColor: isDarkMode ? '#2a3640' : '#e5e7eb',
+                        borderColor: isDarkMode ? "#2a3640" : "#e5e7eb",
                       }}
                     >
                       <div className="flex justify-between text-sm">
                         <span className={textMuted}>Credit Used:</span>
-                        <span className={`font-mono ${textPrimary}`}>
-                          AED {creditData.creditUsed.toLocaleString()}
-                        </span>
+                        <span className={`font-mono ${textPrimary}`}>AED {creditData.creditUsed.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between text-sm mt-1">
                         <span className={textMuted}>Available:</span>
-                        <span
-                          className={`font-mono ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
-                        >
+                        <span className={`font-mono ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
                           AED {creditData.creditAvailable.toLocaleString()}
                         </span>
                       </div>
@@ -1263,26 +1100,18 @@ const CustomerForm = () => {
                 {/* Info Card */}
                 <div
                   className={`p-3 rounded-[14px] border ${
-                    isDarkMode
-                      ? 'bg-[#4aa3ff]/10 border-[#4aa3ff]/30'
-                      : 'bg-blue-50 border-blue-200'
+                    isDarkMode ? "bg-[#4aa3ff]/10 border-[#4aa3ff]/30" : "bg-blue-50 border-blue-200"
                   }`}
                 >
                   <div className="flex items-start gap-2">
-                    <Info
-                      className={`h-4 w-4 mt-0.5 ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-600'}`}
-                    />
+                    <Info className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`} />
                     <div>
-                      <div
-                        className={`text-xs font-bold ${isDarkMode ? 'text-[#4aa3ff]' : 'text-blue-700'}`}
-                      >
+                      <div className={`text-xs font-bold ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-700"}`}>
                         Credit Management
                       </div>
-                      <p
-                        className={`text-xs mt-1 ${isDarkMode ? 'text-[#93a4b4]' : 'text-blue-600'}`}
-                      >
-                        Credit grades (A-E) are calculated from DSO and payment
-                        history. Lower DSO indicates faster payments.
+                      <p className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-blue-600"}`}>
+                        Credit grades (A-E) are calculated from DSO and payment history. Lower DSO indicates faster
+                        payments.
                       </p>
                     </div>
                   </div>
@@ -1295,69 +1124,61 @@ const CustomerForm = () => {
 
       {/* Aging Analysis Modal */}
       <Dialog open={isAgingModalOpen} onOpenChange={setIsAgingModalOpen}>
-        <DialogContent
-          className={isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white'}
-        >
+        <DialogContent className={isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white"}>
           <DialogHeader>
-            <DialogTitle className={textPrimary}>
-              Aging Analysis - {formData.name}
-            </DialogTitle>
-            <DialogDescription className={textMuted}>
-              Invoice aging breakdown as of today
-            </DialogDescription>
+            <DialogTitle className={textPrimary}>Aging Analysis - {formData.name}</DialogTitle>
+            <DialogDescription className={textMuted}>Invoice aging breakdown as of today</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
             {[
               {
-                label: 'Current (0 days)',
+                label: "Current (0 days)",
                 value: creditData.agingCurrent,
-                color: 'text-green-500',
+                color: "text-green-500",
               },
               {
-                label: '1-30 days overdue',
+                label: "1-30 days overdue",
                 value: creditData.aging1To30,
-                color: 'text-yellow-500',
+                color: "text-yellow-500",
               },
               {
-                label: '31-60 days overdue',
+                label: "31-60 days overdue",
                 value: creditData.aging31To60,
-                color: 'text-orange-500',
+                color: "text-orange-500",
               },
               {
-                label: '61-90 days overdue',
+                label: "61-90 days overdue",
                 value: creditData.aging61To90,
-                color: 'text-orange-600',
+                color: "text-orange-600",
               },
               {
-                label: '90+ days overdue',
+                label: "90+ days overdue",
                 value: creditData.aging90Plus,
-                color: 'text-red-500',
+                color: "text-red-500",
               },
             ].map((bucket, idx) => (
               <div key={idx} className="flex items-center justify-between">
                 <span className={textMuted}>{bucket.label}</span>
                 <span className={`font-mono font-bold ${bucket.color}`}>
-                  AED{' '}
-                  {bucket.value.toLocaleString('en-US', {
+                  AED{" "}
+                  {bucket.value.toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
               </div>
             ))}
-            <div
-              className={`border-t pt-3 flex items-center justify-between font-bold ${cardBorder}`}
-            >
+            <div className={`border-t pt-3 flex items-center justify-between font-bold ${cardBorder}`}>
               <span className={textPrimary}>Total Outstanding</span>
               <span className={`font-mono ${textPrimary}`}>
-                AED{' '}
+                AED{" "}
                 {(
                   creditData.agingCurrent +
                   creditData.aging1To30 +
                   creditData.aging31To60 +
                   creditData.aging61To90 +
                   creditData.aging90Plus
-                ).toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                ).toLocaleString("en-US", { maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -1365,81 +1186,47 @@ const CustomerForm = () => {
       </Dialog>
 
       {/* Payment History Modal */}
-      <Dialog
-        open={isPaymentHistoryModalOpen}
-        onOpenChange={setIsPaymentHistoryModalOpen}
-      >
-        <DialogContent
-          className={`${isDarkMode ? 'bg-[#141a20] border-[#2a3640]' : 'bg-white'} max-w-2xl`}
-        >
+      <Dialog open={isPaymentHistoryModalOpen} onOpenChange={setIsPaymentHistoryModalOpen}>
+        <DialogContent className={`${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white"} max-w-2xl`}>
           <DialogHeader>
-            <DialogTitle className={textPrimary}>
-              Payment History - {formData.name}
-            </DialogTitle>
-            <DialogDescription className={textMuted}>
-              Recent payments received
-            </DialogDescription>
+            <DialogTitle className={textPrimary}>Payment History - {formData.name}</DialogTitle>
+            <DialogDescription className={textMuted}>Recent payments received</DialogDescription>
           </DialogHeader>
 
           <div className={`rounded-xl border overflow-hidden ${cardBorder}`}>
-            <table
-              className="min-w-full divide-y"
-              style={{ borderColor: isDarkMode ? '#2a3640' : '#e5e7eb' }}
-            >
-              <thead className={isDarkMode ? 'bg-[#0f151b]' : 'bg-gray-50'}>
+            <table className="min-w-full divide-y" style={{ borderColor: isDarkMode ? "#2a3640" : "#e5e7eb" }}>
+              <thead className={isDarkMode ? "bg-[#0f151b]" : "bg-gray-50"}>
                 <tr>
-                  <th
-                    className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}
-                  >
-                    Date
-                  </th>
-                  <th
-                    className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}
-                  >
-                    Amount (AED)
-                  </th>
-                  <th
-                    className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}
-                  >
-                    Reference
-                  </th>
-                  <th
-                    className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}
-                  >
-                    Status
-                  </th>
+                  <th className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}>Date</th>
+                  <th className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}>Amount (AED)</th>
+                  <th className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}>Reference</th>
+                  <th className={`px-3 py-2 text-left text-xs font-medium ${textMuted}`}>Status</th>
                 </tr>
               </thead>
-              <tbody
-                className={`divide-y ${isDarkMode ? 'divide-[#2a3640]' : 'divide-gray-200'}`}
-              >
+              <tbody className={`divide-y ${isDarkMode ? "divide-[#2a3640]" : "divide-gray-200"}`}>
                 {paymentHistory.length > 0 ? (
                   paymentHistory.map((payment, idx) => (
                     <tr key={idx}>
                       <td className={`px-3 py-2 text-sm ${textMuted}`}>
                         {new Date(payment.paymentDate).toLocaleDateString()}
                       </td>
-                      <td
-                        className={`px-3 py-2 text-sm font-mono ${textPrimary}`}
-                      >
-                        AED{' '}
-                        {payment.amount.toLocaleString('en-US', {
+                      <td className={`px-3 py-2 text-sm font-mono ${textPrimary}`}>
+                        AED{" "}
+                        {payment.amount.toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })}
                       </td>
-                      <td className={`px-3 py-2 text-sm ${textMuted}`}>
-                        {payment.reference || '-'}
-                      </td>
+                      <td className={`px-3 py-2 text-sm ${textMuted}`}>{payment.reference || "-"}</td>
                       <td className="px-3 py-2 text-sm">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                            payment.status === 'completed'
+                            payment.status === "completed"
                               ? isDarkMode
-                                ? 'bg-green-900/30 text-green-400'
-                                : 'bg-green-100 text-green-700'
+                                ? "bg-green-900/30 text-green-400"
+                                : "bg-green-100 text-green-700"
                               : isDarkMode
-                                ? 'bg-yellow-900/30 text-yellow-400'
-                                : 'bg-yellow-100 text-yellow-700'
+                                ? "bg-yellow-900/30 text-yellow-400"
+                                : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
                           {payment.status}
@@ -1449,10 +1236,7 @@ const CustomerForm = () => {
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan={4}
-                      className={`px-3 py-6 text-center text-sm ${textMuted}`}
-                    >
+                    <td colSpan={4} className={`px-3 py-6 text-center text-sm ${textMuted}`}>
                       No payment history available
                     </td>
                   </tr>

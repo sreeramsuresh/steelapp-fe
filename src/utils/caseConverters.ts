@@ -10,12 +10,12 @@
  * @returns snake_case string
  */
 export function toSnakeCase(str: string): string {
-  if (!str || typeof str !== 'string') return str;
+  if (!str || typeof str !== "string") return str;
 
   return str
-    .replace(/([A-Z])/g, '_$1')
+    .replace(/([A-Z])/g, "_$1")
     .toLowerCase()
-    .replace(/^_/, ''); // Remove leading underscore if first char was uppercase
+    .replace(/^_/, ""); // Remove leading underscore if first char was uppercase
 }
 
 /**
@@ -24,7 +24,7 @@ export function toSnakeCase(str: string): string {
  * @returns camelCase string
  */
 export function toCamelCase(str: string): string {
-  if (!str || typeof str !== 'string') return str;
+  if (!str || typeof str !== "string") return str;
 
   return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 }
@@ -35,7 +35,7 @@ export function toCamelCase(str: string): string {
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
     value !== null &&
-    typeof value === 'object' &&
+    typeof value === "object" &&
     !Array.isArray(value) &&
     !(value instanceof Date) &&
     !(value instanceof RegExp) &&
@@ -108,10 +108,7 @@ export function toCamelCaseDeep<T = unknown>(obj: T): T {
  * @param entityName - Name for error messages
  * @returns Array of snake_case keys found (empty if valid)
  */
-export function findSnakeCaseKeys(
-  obj: unknown,
-  entityName = 'object',
-): string[] {
+export function findSnakeCaseKeys(obj: unknown, entityName = "object"): string[] {
   const snakeCaseKeys: string[] = [];
 
   if (!isPlainObject(obj)) {
@@ -119,7 +116,7 @@ export function findSnakeCaseKeys(
   }
 
   for (const key of Object.keys(obj)) {
-    if (key.includes('_')) {
+    if (key.includes("_")) {
       snakeCaseKeys.push(key);
     }
 
@@ -130,10 +127,7 @@ export function findSnakeCaseKeys(
     } else if (Array.isArray(value)) {
       value.forEach((item, index) => {
         if (isPlainObject(item)) {
-          const nested = findSnakeCaseKeys(
-            item,
-            `${entityName}.${key}[${index}]`,
-          );
+          const nested = findSnakeCaseKeys(item, `${entityName}.${key}[${index}]`);
           snakeCaseKeys.push(...nested.map((k) => `${key}[${index}].${k}`));
         }
       });

@@ -4,15 +4,15 @@
  * Validates that Debit = Credit and supports filtering by source module
  */
 
-import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import financialReportsService from '../../services/financialReportsService';
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import financialReportsService from "../../services/financialReportsService";
 
 export default function JournalRegisterReport() {
   const { user: _user } = useAuth();
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [sourceModule, setSourceModule] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sourceModule, setSourceModule] = useState("");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -20,12 +20,12 @@ export default function JournalRegisterReport() {
 
   const handleGenerateReport = async () => {
     if (!startDate || !endDate) {
-      setError('Please select both start and end dates');
+      setError("Please select both start and end dates");
       return;
     }
 
     if (new Date(startDate) > new Date(endDate)) {
-      setError('Start date must be before end date');
+      setError("Start date must be before end date");
       return;
     }
 
@@ -43,14 +43,14 @@ export default function JournalRegisterReport() {
       });
 
       if (!result.success) {
-        setError(result.error || 'Failed to generate report');
+        setError(result.error || "Failed to generate report");
         return;
       }
 
       setData(result);
     } catch (err) {
-      console.error('Error generating Journal Register:', err);
-      setError(err.message || 'An error occurred');
+      console.error("Error generating Journal Register:", err);
+      setError(err.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export default function JournalRegisterReport() {
         setCurrentPage(newPage);
       }
     } catch (err) {
-      console.error('Error fetching page:', err);
+      console.error("Error fetching page:", err);
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function JournalRegisterReport() {
 
   const handleExportToExcel = async () => {
     // TODO: Implement Excel export using ExcelJS
-    alert('Excel export will be implemented in the next phase');
+    alert("Excel export will be implemented in the next phase");
   };
 
   return (
@@ -88,10 +88,7 @@ export default function JournalRegisterReport() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Journal Register</h1>
-        <p className="text-gray-600 mt-2">
-          Complete record of all journal entries posted during the selected
-          period
-        </p>
+        <p className="text-gray-600 mt-2">Complete record of all journal entries posted during the selected period</p>
       </div>
 
       {/* Filters */}
@@ -152,7 +149,7 @@ export default function JournalRegisterReport() {
               disabled={loading}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
             >
-              {loading ? 'Generating...' : 'Generate'}
+              {loading ? "Generating..." : "Generate"}
             </button>
           </div>
         </div>
@@ -182,27 +179,14 @@ export default function JournalRegisterReport() {
           </div>
           <div
             className={`rounded-lg shadow p-4 ${
-              data.totals.variance < 0.01
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-red-50 border border-red-200'
+              data.totals.variance < 0.01 ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
             }`}
           >
-            <p
-              className={`text-sm ${
-                data.totals.variance < 0.01 ? 'text-green-700' : 'text-red-700'
-              }`}
-            >
-              {data.totals.variance < 0.01
-                ? 'Status: Balanced'
-                : 'Status: Unbalanced'}
+            <p className={`text-sm ${data.totals.variance < 0.01 ? "text-green-700" : "text-red-700"}`}>
+              {data.totals.variance < 0.01 ? "Status: Balanced" : "Status: Unbalanced"}
             </p>
-            <p
-              className={`text-2xl font-bold mt-2 ${
-                data.totals.variance < 0.01 ? 'text-green-900' : 'text-red-900'
-              }`}
-            >
-              Variance:{' '}
-              {financialReportsService.formatCurrency(data.totals.variance)}
+            <p className={`text-2xl font-bold mt-2 ${data.totals.variance < 0.01 ? "text-green-900" : "text-red-900"}`}>
+              Variance: {financialReportsService.formatCurrency(data.totals.variance)}
             </p>
           </div>
         </div>
@@ -214,9 +198,7 @@ export default function JournalRegisterReport() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Date
-                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Journal #
                 </th>
@@ -243,29 +225,17 @@ export default function JournalRegisterReport() {
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {financialReportsService.formatDate(entry.entry_date)}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                    {entry.journal_number}
-                  </td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{entry.journal_number}</td>
                   <td className="px-4 py-3 text-sm text-gray-700">
                     {entry.account_code} - {entry.account_name}
                   </td>
                   <td className="px-4 py-3 text-sm text-right font-mono">
-                    {entry.debit_amount > 0
-                      ? financialReportsService.formatCurrency(
-                          entry.debit_amount,
-                        )
-                      : '-'}
+                    {entry.debit_amount > 0 ? financialReportsService.formatCurrency(entry.debit_amount) : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm text-right font-mono">
-                    {entry.credit_amount > 0
-                      ? financialReportsService.formatCurrency(
-                          entry.credit_amount,
-                        )
-                      : '-'}
+                    {entry.credit_amount > 0 ? financialReportsService.formatCurrency(entry.credit_amount) : "-"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {entry.narration}
-                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{entry.narration}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
                       {entry.source_module}
@@ -282,12 +252,8 @@ export default function JournalRegisterReport() {
       {data && data.pagination && (
         <div className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            Showing {(currentPage - 1) * data.pagination.limit + 1} to{' '}
-            {Math.min(
-              currentPage * data.pagination.limit,
-              data.pagination.total,
-            )}{' '}
-            of {data.pagination.total} entries
+            Showing {(currentPage - 1) * data.pagination.limit + 1} to{" "}
+            {Math.min(currentPage * data.pagination.limit, data.pagination.total)} of {data.pagination.total} entries
           </div>
           <div className="flex space-x-2">
             <button
@@ -326,18 +292,14 @@ export default function JournalRegisterReport() {
       {/* Empty State */}
       {!loading && !data && !error && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600">
-            Select date range and click &quot;Generate&quot;
-          </p>
+          <p className="text-gray-600">Select date range and click &quot;Generate&quot;</p>
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
         <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600 animate-pulse">
-            Generating Journal Register...
-          </p>
+          <p className="text-gray-600 animate-pulse">Generating Journal Register...</p>
         </div>
       )}
     </div>

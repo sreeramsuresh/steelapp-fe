@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import FormError from './FormError';
-import RequiredIndicator from './RequiredIndicator';
+import { useState } from "react";
+import FormError from "./FormError";
+import RequiredIndicator from "./RequiredIndicator";
 
 /**
  * Currency input with AED formatting and validation
@@ -22,32 +22,29 @@ const CurrencyInput = ({
   error,
   required = false,
   disabled = false,
-  className = '',
+  className = "",
   helpText,
   name,
   id,
-  placeholder = '0.00',
-  currency = 'AED',
+  placeholder = "0.00",
+  currency = "AED",
   ...props
 }) => {
   const inputId = id || name;
-  const [displayValue, setDisplayValue] = useState(value || '');
+  const [displayValue, setDisplayValue] = useState(value || "");
 
   const handleChange = (e) => {
-    const inputValue = e.target.value.replace(/[^\d.]/g, ''); // Remove non-numeric characters except decimal point
-    if (inputValue === '' || /^\d*\.?\d{0,2}$/.test(inputValue)) {
+    const inputValue = e.target.value.replace(/[^\d.]/g, ""); // Remove non-numeric characters except decimal point
+    if (inputValue === "" || /^\d*\.?\d{0,2}$/.test(inputValue)) {
       setDisplayValue(inputValue);
-      onChange(inputValue ? parseFloat(inputValue) : '');
+      onChange(inputValue ? parseFloat(inputValue) : "");
     }
   };
 
   return (
     <div className="space-y-1">
       {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
           {required && <RequiredIndicator />}
         </label>
@@ -66,23 +63,15 @@ const CurrencyInput = ({
           disabled={disabled}
           placeholder={placeholder}
           className={`w-full pl-12 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors ${
-            error
-              ? 'border-red-500 dark:border-red-500'
-              : 'border-gray-300 dark:border-gray-600'
+            error ? "border-red-500 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
           } ${
-            disabled
-              ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed'
-              : 'bg-white dark:bg-gray-800'
+            disabled ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : "bg-white dark:bg-gray-800"
           } text-gray-900 dark:text-white ${className}`}
           {...props}
         />
       </div>
       {error && <FormError message={error} />}
-      {helpText && !error && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {helpText}
-        </p>
-      )}
+      {helpText && !error && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{helpText}</p>}
     </div>
   );
 };

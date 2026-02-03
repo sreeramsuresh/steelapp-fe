@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, FileText, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { suppliersAPI } from "../services/api";
 import {
-  getSupplierQuotation,
   createSupplierQuotation,
+  getSupplierQuotation,
   updateSupplierQuotation,
-} from '../services/supplierQuotationService';
-import { suppliersAPI } from '../services/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowLeft, Save, Plus, Trash2, FileText } from 'lucide-react';
-import toast from 'react-hot-toast';
+} from "../services/supplierQuotationService";
 
 /**
  * Supplier Quotation Form Page
@@ -28,18 +28,18 @@ export function SupplierQuotationForm() {
   const [suppliers, setSuppliers] = useState([]);
 
   const [formData, setFormData] = useState({
-    supplierId: '',
-    supplierReference: '',
-    quoteDate: '',
-    validityDate: '',
-    receivedDate: new Date().toISOString().split('T')[0],
-    deliveryTerms: '',
-    paymentTerms: '',
-    incoterms: '',
-    notes: '',
-    currency: 'AED',
+    supplierId: "",
+    supplierReference: "",
+    quoteDate: "",
+    validityDate: "",
+    receivedDate: new Date().toISOString().split("T")[0],
+    deliveryTerms: "",
+    paymentTerms: "",
+    incoterms: "",
+    notes: "",
+    currency: "AED",
     exchangeRate: 1,
-    discountType: '',
+    discountType: "",
     discountPercentage: 0,
     discountAmount: 0,
     shippingCharges: 0,
@@ -55,7 +55,7 @@ export function SupplierQuotationForm() {
         const response = await suppliersAPI.getAll();
         setSuppliers(response?.suppliers || []);
       } catch (err) {
-        console.error('Failed to load suppliers:', err);
+        console.error("Failed to load suppliers:", err);
       }
     };
     loadSuppliers();
@@ -74,18 +74,18 @@ export function SupplierQuotationForm() {
       setLoading(true);
       const data = await getSupplierQuotation(id);
       setFormData({
-        supplierId: data.supplierId || '',
-        supplierReference: data.supplierReference || '',
-        quoteDate: data.quoteDate?.split('T')[0] || '',
-        validityDate: data.validityDate?.split('T')[0] || '',
-        receivedDate: data.receivedDate?.split('T')[0] || '',
-        deliveryTerms: data.deliveryTerms || '',
-        paymentTerms: data.paymentTerms || '',
-        incoterms: data.incoterms || '',
-        notes: data.notes || '',
-        currency: data.currency || 'AED',
+        supplierId: data.supplierId || "",
+        supplierReference: data.supplierReference || "",
+        quoteDate: data.quoteDate?.split("T")[0] || "",
+        validityDate: data.validityDate?.split("T")[0] || "",
+        receivedDate: data.receivedDate?.split("T")[0] || "",
+        deliveryTerms: data.deliveryTerms || "",
+        paymentTerms: data.paymentTerms || "",
+        incoterms: data.incoterms || "",
+        notes: data.notes || "",
+        currency: data.currency || "AED",
         exchangeRate: data.exchangeRate || 1,
-        discountType: data.discountType || '',
+        discountType: data.discountType || "",
         discountPercentage: data.discountPercentage || 0,
         discountAmount: data.discountAmount || 0,
         shippingCharges: data.shippingCharges || 0,
@@ -94,8 +94,8 @@ export function SupplierQuotationForm() {
         items: data.items || [],
       });
     } catch (err) {
-      console.error('Failed to load quotation:', err);
-      toast.error('Failed to load quotation');
+      console.error("Failed to load quotation:", err);
+      toast.error("Failed to load quotation");
     } finally {
       setLoading(false);
     }
@@ -111,7 +111,7 @@ export function SupplierQuotationForm() {
       items[index] = { ...items[index], [field]: value };
 
       // Auto-calculate amount
-      if (field === 'quantity' || field === 'unitPrice') {
+      if (field === "quantity" || field === "unitPrice") {
         const qty = parseFloat(items[index].quantity) || 0;
         const price = parseFloat(items[index].unitPrice) || 0;
         items[index].amount = qty * price;
@@ -127,18 +127,18 @@ export function SupplierQuotationForm() {
       items: [
         ...prev.items,
         {
-          description: '',
-          specifications: '',
-          grade: '',
-          finish: '',
-          thickness: '',
-          width: '',
-          length: '',
-          size: '',
-          dimensions: '',
-          originCountry: '',
+          description: "",
+          specifications: "",
+          grade: "",
+          finish: "",
+          thickness: "",
+          width: "",
+          length: "",
+          size: "",
+          dimensions: "",
+          originCountry: "",
           quantity: 0,
-          unit: 'KG',
+          unit: "KG",
           unitPrice: 0,
           amount: 0,
           vatRate: 5,
@@ -155,10 +155,7 @@ export function SupplierQuotationForm() {
   };
 
   const calculateTotals = () => {
-    const subtotal = formData.items.reduce(
-      (sum, item) => sum + (parseFloat(item.amount) || 0),
-      0,
-    );
+    const subtotal = formData.items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     const discount = parseFloat(formData.discountAmount) || 0;
     const shipping = parseFloat(formData.shippingCharges) || 0;
     const freight = parseFloat(formData.freightCharges) || 0;
@@ -173,12 +170,12 @@ export function SupplierQuotationForm() {
     e.preventDefault();
 
     if (!formData.supplierId) {
-      toast.error('Please select a supplier');
+      toast.error("Please select a supplier");
       return;
     }
 
     if (formData.items.length === 0) {
-      toast.error('Please add at least one line item');
+      toast.error("Please add at least one line item");
       return;
     }
 
@@ -187,27 +184,27 @@ export function SupplierQuotationForm() {
 
       if (isEdit) {
         await updateSupplierQuotation(id, formData);
-        toast.success('Quotation updated');
+        toast.success("Quotation updated");
       } else {
         const result = await createSupplierQuotation(formData);
-        toast.success('Quotation created');
+        toast.success("Quotation created");
         navigate(`/app/supplier-quotations/${result.id}`);
         return;
       }
 
       navigate(`/app/supplier-quotations/${id}`);
     } catch (err) {
-      console.error('Failed to save quotation:', err);
-      toast.error('Failed to save quotation');
+      console.error("Failed to save quotation:", err);
+      toast.error("Failed to save quotation");
     } finally {
       setSaving(false);
     }
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: formData.currency || 'AED',
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: formData.currency || "AED",
       minimumFractionDigits: 2,
     }).format(amount || 0);
   };
@@ -227,26 +224,17 @@ export function SupplierQuotationForm() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/app/supplier-quotations')}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={() => navigate("/app/supplier-quotations")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
           <h1 className="text-xl font-bold flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            {isEdit ? 'Edit Quotation' : 'New Supplier Quotation'}
+            {isEdit ? "Edit Quotation" : "New Supplier Quotation"}
           </h1>
         </div>
         <Button type="submit" disabled={saving}>
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
+          {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
           Save
         </Button>
       </div>
@@ -262,7 +250,7 @@ export function SupplierQuotationForm() {
               <Label>Supplier *</Label>
               <select
                 value={formData.supplierId}
-                onChange={(e) => handleChange('supplierId', e.target.value)}
+                onChange={(e) => handleChange("supplierId", e.target.value)}
                 className="w-full px-3 py-2 border rounded-md"
                 required
               >
@@ -278,9 +266,7 @@ export function SupplierQuotationForm() {
               <Label>Supplier Reference</Label>
               <Input
                 value={formData.supplierReference}
-                onChange={(e) =>
-                  handleChange('supplierReference', e.target.value)
-                }
+                onChange={(e) => handleChange("supplierReference", e.target.value)}
                 placeholder="Supplier's quote number"
               />
             </div>
@@ -288,7 +274,7 @@ export function SupplierQuotationForm() {
               <Label>Currency</Label>
               <select
                 value={formData.currency}
-                onChange={(e) => handleChange('currency', e.target.value)}
+                onChange={(e) => handleChange("currency", e.target.value)}
                 className="w-full px-3 py-2 border rounded-md"
               >
                 <option value="AED">AED</option>
@@ -302,7 +288,7 @@ export function SupplierQuotationForm() {
               <Input
                 type="date"
                 value={formData.quoteDate}
-                onChange={(e) => handleChange('quoteDate', e.target.value)}
+                onChange={(e) => handleChange("quoteDate", e.target.value)}
               />
             </div>
             <div>
@@ -310,7 +296,7 @@ export function SupplierQuotationForm() {
               <Input
                 type="date"
                 value={formData.validityDate}
-                onChange={(e) => handleChange('validityDate', e.target.value)}
+                onChange={(e) => handleChange("validityDate", e.target.value)}
               />
             </div>
             <div>
@@ -318,14 +304,14 @@ export function SupplierQuotationForm() {
               <Input
                 type="date"
                 value={formData.receivedDate}
-                onChange={(e) => handleChange('receivedDate', e.target.value)}
+                onChange={(e) => handleChange("receivedDate", e.target.value)}
               />
             </div>
             <div>
               <Label>Delivery Terms</Label>
               <Input
                 value={formData.deliveryTerms}
-                onChange={(e) => handleChange('deliveryTerms', e.target.value)}
+                onChange={(e) => handleChange("deliveryTerms", e.target.value)}
                 placeholder="e.g., 2 weeks"
               />
             </div>
@@ -333,7 +319,7 @@ export function SupplierQuotationForm() {
               <Label>Payment Terms</Label>
               <Input
                 value={formData.paymentTerms}
-                onChange={(e) => handleChange('paymentTerms', e.target.value)}
+                onChange={(e) => handleChange("paymentTerms", e.target.value)}
                 placeholder="e.g., Net 30"
               />
             </div>
@@ -341,7 +327,7 @@ export function SupplierQuotationForm() {
               <Label>Incoterms</Label>
               <select
                 value={formData.incoterms}
-                onChange={(e) => handleChange('incoterms', e.target.value)}
+                onChange={(e) => handleChange("incoterms", e.target.value)}
                 className="w-full px-3 py-2 border rounded-md"
               >
                 <option value="">Select</option>
@@ -357,7 +343,7 @@ export function SupplierQuotationForm() {
             <Label>Notes</Label>
             <Textarea
               value={formData.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
+              onChange={(e) => handleChange("notes", e.target.value)}
               placeholder="Additional notes..."
               rows={3}
             />
@@ -368,9 +354,7 @@ export function SupplierQuotationForm() {
       {/* Line Items */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">
-            Line Items ({formData.items.length})
-          </CardTitle>
+          <CardTitle className="text-base">Line Items ({formData.items.length})</CardTitle>
           <Button type="button" variant="outline" size="sm" onClick={addItem}>
             <Plus className="h-4 w-4 mr-2" />
             Add Item
@@ -384,14 +368,9 @@ export function SupplierQuotationForm() {
           ) : (
             <div className="space-y-4">
               {formData.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="border rounded-lg p-4 bg-gray-50 space-y-3"
-                >
+                <div key={index} className="border rounded-lg p-4 bg-gray-50 space-y-3">
                   <div className="flex justify-between items-start">
-                    <span className="text-sm font-medium text-gray-500">
-                      Item #{index + 1}
-                    </span>
+                    <span className="text-sm font-medium text-gray-500">Item #{index + 1}</span>
                     <Button
                       type="button"
                       variant="ghost"
@@ -407,9 +386,7 @@ export function SupplierQuotationForm() {
                       <Label>Description *</Label>
                       <Input
                         value={item.description}
-                        onChange={(e) =>
-                          handleItemChange(index, 'description', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "description", e.target.value)}
                         placeholder="Product description"
                         required
                       />
@@ -418,9 +395,7 @@ export function SupplierQuotationForm() {
                       <Label>Grade</Label>
                       <Input
                         value={item.grade}
-                        onChange={(e) =>
-                          handleItemChange(index, 'grade', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "grade", e.target.value)}
                         placeholder="e.g., 304, 316L"
                       />
                     </div>
@@ -428,9 +403,7 @@ export function SupplierQuotationForm() {
                       <Label>Finish</Label>
                       <Input
                         value={item.finish}
-                        onChange={(e) =>
-                          handleItemChange(index, 'finish', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "finish", e.target.value)}
                         placeholder="e.g., 2B, BA"
                       />
                     </div>
@@ -438,9 +411,7 @@ export function SupplierQuotationForm() {
                       <Label>Dimensions</Label>
                       <Input
                         value={item.dimensions}
-                        onChange={(e) =>
-                          handleItemChange(index, 'dimensions', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "dimensions", e.target.value)}
                         placeholder="e.g., 1.0mm x 1219mm x 2438mm"
                       />
                     </div>
@@ -450,13 +421,7 @@ export function SupplierQuotationForm() {
                         type="number"
                         step="0.01"
                         value={item.quantity}
-                        onChange={(e) =>
-                          handleItemChange(
-                            index,
-                            'quantity',
-                            parseFloat(e.target.value) || 0,
-                          )
-                        }
+                        onChange={(e) => handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)}
                         required
                       />
                     </div>
@@ -464,9 +429,7 @@ export function SupplierQuotationForm() {
                       <Label>Unit</Label>
                       <select
                         value={item.unit}
-                        onChange={(e) =>
-                          handleItemChange(index, 'unit', e.target.value)
-                        }
+                        onChange={(e) => handleItemChange(index, "unit", e.target.value)}
                         className="w-full px-3 py-2 border rounded-md"
                       >
                         <option value="KG">KG</option>
@@ -482,23 +445,13 @@ export function SupplierQuotationForm() {
                         type="number"
                         step="0.01"
                         value={item.unitPrice}
-                        onChange={(e) =>
-                          handleItemChange(
-                            index,
-                            'unitPrice',
-                            parseFloat(e.target.value) || 0,
-                          )
-                        }
+                        onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
                         required
                       />
                     </div>
                     <div>
                       <Label>Amount</Label>
-                      <Input
-                        value={formatCurrency(item.amount)}
-                        disabled
-                        className="bg-gray-100"
-                      />
+                      <Input value={formatCurrency(item.amount)} disabled className="bg-gray-100" />
                     </div>
                   </div>
                 </div>
@@ -522,12 +475,7 @@ export function SupplierQuotationForm() {
                   type="number"
                   step="0.01"
                   value={formData.discountAmount}
-                  onChange={(e) =>
-                    handleChange(
-                      'discountAmount',
-                      parseFloat(e.target.value) || 0,
-                    )
-                  }
+                  onChange={(e) => handleChange("discountAmount", parseFloat(e.target.value) || 0)}
                 />
               </div>
               <div>
@@ -536,12 +484,7 @@ export function SupplierQuotationForm() {
                   type="number"
                   step="0.01"
                   value={formData.shippingCharges}
-                  onChange={(e) =>
-                    handleChange(
-                      'shippingCharges',
-                      parseFloat(e.target.value) || 0,
-                    )
-                  }
+                  onChange={(e) => handleChange("shippingCharges", parseFloat(e.target.value) || 0)}
                 />
               </div>
               <div>
@@ -550,12 +493,7 @@ export function SupplierQuotationForm() {
                   type="number"
                   step="0.01"
                   value={formData.freightCharges}
-                  onChange={(e) =>
-                    handleChange(
-                      'freightCharges',
-                      parseFloat(e.target.value) || 0,
-                    )
-                  }
+                  onChange={(e) => handleChange("freightCharges", parseFloat(e.target.value) || 0)}
                 />
               </div>
               <div>
@@ -564,12 +502,7 @@ export function SupplierQuotationForm() {
                   type="number"
                   step="0.01"
                   value={formData.otherCharges}
-                  onChange={(e) =>
-                    handleChange(
-                      'otherCharges',
-                      parseFloat(e.target.value) || 0,
-                    )
-                  }
+                  onChange={(e) => handleChange("otherCharges", parseFloat(e.target.value) || 0)}
                 />
               </div>
             </div>
@@ -617,20 +550,12 @@ export function SupplierQuotationForm() {
 
       {/* Submit */}
       <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => navigate('/app/supplier-quotations')}
-        >
+        <Button type="button" variant="outline" onClick={() => navigate("/app/supplier-quotations")}>
           Cancel
         </Button>
         <Button type="submit" disabled={saving}>
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          {isEdit ? 'Update Quotation' : 'Create Quotation'}
+          {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+          {isEdit ? "Update Quotation" : "Create Quotation"}
         </Button>
       </div>
     </form>

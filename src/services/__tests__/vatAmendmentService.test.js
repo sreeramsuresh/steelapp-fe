@@ -45,10 +45,7 @@ describe("vatAmendmentService", () => {
 
       expect(result.data).toHaveLength(2);
       expect(result.pagination.total).toBe(2);
-      expect(api.get).toHaveBeenCalledWith(
-        "/vat-amendments",
-        expect.any(Object)
-      );
+      expect(api.get).toHaveBeenCalledWith("/vat-amendments", expect.any(Object));
     });
 
     it("should filter by status", async () => {
@@ -117,10 +114,7 @@ describe("vatAmendmentService", () => {
       const result = await vatAmendmentService.createAmendment(payload);
 
       expect(result.amendment_number).toBe("VAAM-2024-001");
-      expect(api.post).toHaveBeenCalledWith(
-        "/vat-amendments",
-        payload
-      );
+      expect(api.post).toHaveBeenCalledWith("/vat-amendments", payload);
     });
   });
 
@@ -140,10 +134,7 @@ describe("vatAmendmentService", () => {
       const result = await vatAmendmentService.updateAmendment(1, payload);
 
       expect(result.reason).toBe("Updated reason");
-      expect(api.put).toHaveBeenCalledWith(
-        "/vat-amendments/1",
-        payload
-      );
+      expect(api.put).toHaveBeenCalledWith("/vat-amendments/1", payload);
     });
   });
 
@@ -173,10 +164,7 @@ describe("vatAmendmentService", () => {
 
       expect(result.status).toBe("filed");
       expect(result.acknowledgment_number).toContain("ACK");
-      expect(api.post).toHaveBeenCalledWith(
-        "/vat-amendments/1/file",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/vat-amendments/1/file", expect.any(Object));
     });
   });
 

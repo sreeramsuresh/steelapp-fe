@@ -1,43 +1,37 @@
-import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Layout,
-  Type,
-  Eye,
-  Settings,
-  RotateCcw,
-  Save,
+  AlertTriangle,
   ChevronDown,
   ChevronUp,
-  AlertTriangle,
-  X,
-  Palette,
+  CreditCard,
+  Eye,
+  FileBarChart,
   FileText,
+  Layout,
+  Link2,
+  Palette,
+  RotateCcw,
+  Save,
+  Settings,
   ShoppingCart,
   Truck,
-  CreditCard,
-  FileBarChart,
-  Link2,
-} from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+  Type,
+  X,
+} from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  getDefaultTemplateSettings,
-  validateTemplateSettings,
-  mergeTemplateSettings,
   DEFAULT_DOCUMENT_TEMPLATE_COLORS,
+  getDefaultTemplateSettings,
   mergeDocumentTemplateSettings,
-} from '../constants/defaultTemplateSettings';
-import {
-  PDF_FONT_SIZES,
-  PDF_FONT_FAMILIES,
-} from '../constants/pdfAlignedStyles';
-import { generateConfigurablePDF } from '../utils/configurablePdfGenerator';
-import ConfirmDialog from './ConfirmDialog';
-import { useConfirm } from '../hooks/useConfirm';
-import { notificationService } from '../services/notificationService';
-import {
-  INVOICE_TEMPLATES,
-  TemplateSelector,
-} from '../hooks/useInvoiceTemplates';
+  mergeTemplateSettings,
+  validateTemplateSettings,
+} from "../constants/defaultTemplateSettings";
+import { PDF_FONT_FAMILIES, PDF_FONT_SIZES } from "../constants/pdfAlignedStyles";
+import { useTheme } from "../contexts/ThemeContext";
+import { useConfirm } from "../hooks/useConfirm";
+import { INVOICE_TEMPLATES, TemplateSelector } from "../hooks/useInvoiceTemplates";
+import { notificationService } from "../services/notificationService";
+import { generateConfigurablePDF } from "../utils/configurablePdfGenerator";
+import ConfirmDialog from "./ConfirmDialog";
 
 // Error Boundary for graceful error handling
 class ErrorBoundary extends React.Component {
@@ -51,19 +45,16 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('InvoiceTemplateSettings Error:', error, errorInfo);
+    console.error("InvoiceTemplateSettings Error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <div className="p-6 rounded-lg bg-red-50 border border-red-200">
-          <h2 className="text-xl font-bold text-red-800 mb-2">
-            Something went wrong
-          </h2>
+          <h2 className="text-xl font-bold text-red-800 mb-2">Something went wrong</h2>
           <p className="text-red-600 mb-4">
-            Failed to load invoice template settings. Please refresh the page or
-            contact support.
+            Failed to load invoice template settings. Please refresh the page or contact support.
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -92,20 +83,19 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   const [isPreviewing, setIsPreviewing] = useState(false);
 
   // Selected template state (Classic, Custom, Elegant, Print Ready)
-  const [selectedTemplateId, setSelectedTemplateId] = useState('standard');
-  const [originalTemplateId, setOriginalTemplateId] = useState('standard');
+  const [selectedTemplateId, setSelectedTemplateId] = useState("standard");
+  const [originalTemplateId, setOriginalTemplateId] = useState("standard");
   const [customColors, setCustomColors] = useState(null);
   const [originalCustomColors, setOriginalCustomColors] = useState(null);
 
   // Document template colors state
   const [documentTemplates, setDocumentTemplates] = useState(
-    JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)),
+    JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS))
   );
-  const [originalDocumentTemplates, setOriginalDocumentTemplates] =
-    useState(null);
+  const [originalDocumentTemplates, setOriginalDocumentTemplates] = useState(null);
 
   // UI state
-  const [activeSection, setActiveSection] = useState('basic');
+  const [activeSection, setActiveSection] = useState("basic");
   const [expandedSections, setExpandedSections] = useState({
     layout: false,
     typography: false,
@@ -141,8 +131,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
       // Load custom colors - compare against base template to detect customization
       if (invoiceTemplate.colors) {
-        const baseTemplate =
-          INVOICE_TEMPLATES[invoiceTemplate.id] || INVOICE_TEMPLATES.standard;
+        const baseTemplate = INVOICE_TEMPLATES[invoiceTemplate.id] || INVOICE_TEMPLATES.standard;
         // Check if colors differ from base template
         if (invoiceTemplate.colors.primary !== baseTemplate.colors.primary) {
           setCustomColors(invoiceTemplate.colors);
@@ -158,42 +147,25 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
     // Load document template colors
     if (company?.settings?.documentTemplates) {
-      const mergedDocTemplates = mergeDocumentTemplateSettings(
-        company.settings.documentTemplates,
-      );
+      const mergedDocTemplates = mergeDocumentTemplateSettings(company.settings.documentTemplates);
       setDocumentTemplates(mergedDocTemplates);
       setOriginalDocumentTemplates(mergedDocTemplates);
     } else {
-      const defaultDocTemplates = JSON.parse(
-        JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS),
-      );
+      const defaultDocTemplates = JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS));
       setDocumentTemplates(defaultDocTemplates);
       setOriginalDocumentTemplates(defaultDocTemplates);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    company?.id,
-    company?.settings?.invoiceTemplate,
-    company?.settings?.documentTemplates,
-  ]); // Helper functions and constants are stable imports
+  }, [company?.id, company?.settings?.invoiceTemplate, company?.settings?.documentTemplates]); // Helper functions and constants are stable imports
 
   // Check for changes
   useEffect(() => {
     if (originalSettings) {
-      const settingsChanged =
-        JSON.stringify(settings) !== JSON.stringify(originalSettings);
+      const settingsChanged = JSON.stringify(settings) !== JSON.stringify(originalSettings);
       const templateChanged = selectedTemplateId !== originalTemplateId;
-      const colorsChanged =
-        JSON.stringify(customColors) !== JSON.stringify(originalCustomColors);
-      const docTemplatesChanged =
-        JSON.stringify(documentTemplates) !==
-        JSON.stringify(originalDocumentTemplates);
-      setHasChanges(
-        settingsChanged ||
-          templateChanged ||
-          colorsChanged ||
-          docTemplatesChanged,
-      );
+      const colorsChanged = JSON.stringify(customColors) !== JSON.stringify(originalCustomColors);
+      const docTemplatesChanged = JSON.stringify(documentTemplates) !== JSON.stringify(originalDocumentTemplates);
+      setHasChanges(settingsChanged || templateChanged || colorsChanged || docTemplatesChanged);
     }
   }, [
     settings,
@@ -211,20 +183,20 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     const handleBeforeUnload = (e) => {
       if (hasChanges) {
         e.preventDefault();
-        e.returnValue = ''; // Chrome requires returnValue to be set
-        return ''; // Some browsers require a return value
+        e.returnValue = ""; // Chrome requires returnValue to be set
+        return ""; // Some browsers require a return value
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasChanges]);
 
   // Update setting
   const updateSetting = useCallback((path, value) => {
     setSettings((prev) => {
       const newSettings = JSON.parse(JSON.stringify(prev));
-      const keys = path.split('.');
+      const keys = path.split(".");
       let current = newSettings;
 
       for (let i = 0; i < keys.length - 1; i++) {
@@ -240,11 +212,10 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   // Discard changes and revert to saved settings
   const handleDiscardChanges = async () => {
     const confirmed = await confirm({
-      title: 'Discard Changes?',
-      message:
-        'Are you sure you want to discard all unsaved changes? This will revert to your last saved settings.',
-      confirmText: 'Discard',
-      variant: 'warning',
+      title: "Discard Changes?",
+      message: "Are you sure you want to discard all unsaved changes? This will revert to your last saved settings.",
+      confirmText: "Discard",
+      variant: "warning",
     });
 
     if (!confirmed) return;
@@ -258,20 +229,17 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     setCustomColors(originalCustomColors);
     // Reset document templates
     if (originalDocumentTemplates) {
-      setDocumentTemplates(
-        JSON.parse(JSON.stringify(originalDocumentTemplates)),
-      );
+      setDocumentTemplates(JSON.parse(JSON.stringify(originalDocumentTemplates)));
     }
   };
 
   // Reset to defaults
   const handleResetToDefaults = async () => {
     const confirmed = await confirm({
-      title: 'Reset to Defaults?',
-      message:
-        'Are you sure you want to reset all template settings to defaults? This cannot be undone.',
-      confirmText: 'Reset',
-      variant: 'warning',
+      title: "Reset to Defaults?",
+      message: "Are you sure you want to reset all template settings to defaults? This cannot be undone.",
+      confirmText: "Reset",
+      variant: "warning",
     });
 
     if (!confirmed) return;
@@ -280,19 +248,17 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     setSettings(defaults);
     setValidationErrors([]);
     // Reset template selection to default (Classic)
-    setSelectedTemplateId('standard');
+    setSelectedTemplateId("standard");
     setCustomColors(null);
     // Reset document templates to defaults
-    setDocumentTemplates(
-      JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)),
-    );
+    setDocumentTemplates(JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)));
   };
 
   // Handle template selection change
   const handleTemplateSelect = (templateId) => {
     setSelectedTemplateId(templateId);
     // Reset custom colors when changing template (unless it's the Custom template)
-    if (templateId !== 'modern') {
+    if (templateId !== "modern") {
       setCustomColors(null);
     }
   };
@@ -318,7 +284,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     const validation = validateTemplateSettings(settings);
     if (!validation.valid) {
       setValidationErrors(validation.errors);
-      notificationService.error('Please fix validation errors before saving.');
+      notificationService.error("Please fix validation errors before saving.");
       return;
     }
 
@@ -327,11 +293,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
     try {
       // Get base template colors and merge with any custom overrides
-      const baseTemplate =
-        INVOICE_TEMPLATES[selectedTemplateId] || INVOICE_TEMPLATES.standard;
-      const finalColors = customColors
-        ? { ...baseTemplate.colors, ...customColors }
-        : baseTemplate.colors;
+      const baseTemplate = INVOICE_TEMPLATES[selectedTemplateId] || INVOICE_TEMPLATES.standard;
+      const finalColors = customColors ? { ...baseTemplate.colors, ...customColors } : baseTemplate.colors;
 
       // Save in unified invoiceTemplate format compatible with backend PDF generation
       // Backend reads: company.settings.invoiceTemplate.colors.primary
@@ -347,16 +310,12 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       setOriginalSettings(settings);
       setOriginalTemplateId(selectedTemplateId);
       setOriginalCustomColors(customColors);
-      setOriginalDocumentTemplates(
-        JSON.parse(JSON.stringify(documentTemplates)),
-      );
+      setOriginalDocumentTemplates(JSON.parse(JSON.stringify(documentTemplates)));
       setHasChanges(false);
-      notificationService.success('Template settings saved successfully!');
+      notificationService.success("Template settings saved successfully!");
     } catch (error) {
-      console.error('Error saving template settings:', error);
-      notificationService.error(
-        'Failed to save template settings. Please try again.',
-      );
+      console.error("Error saving template settings:", error);
+      notificationService.error("Failed to save template settings. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -386,9 +345,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
   // Restore document template colors to defaults
   const handleRestoreDocTemplateDefaults = () => {
-    setDocumentTemplates(
-      JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)),
-    );
+    setDocumentTemplates(JSON.parse(JSON.stringify(DEFAULT_DOCUMENT_TEMPLATE_COLORS)));
   };
 
   // Sync all document templates to invoice settings
@@ -417,7 +374,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       return template.colors.primary;
     }
     // Fallback to settings or default teal
-    return settings?.colors?.primary || '#0d9488';
+    return settings?.colors?.primary || "#0d9488";
   };
 
   // Preview PDF
@@ -427,7 +384,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       // Generate test invoice number: TestINV-YYYYMM-001
       const now = new Date();
       const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, "0");
       const testInvoiceNumber = `TestINV-${year}${month}-001`;
 
       // Create a sample invoice
@@ -436,44 +393,41 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         date: new Date(),
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         customer: {
-          name: 'Sample Customer LLC',
-          email: 'customer@example.com',
-          phone: '+971 50 123 4567',
-          vatNumber: '100123456700003',
+          name: "Sample Customer LLC",
+          email: "customer@example.com",
+          phone: "+971 50 123 4567",
+          vatNumber: "100123456700003",
           address: {
-            street: '123 Business Street',
-            city: 'Dubai',
-            country: 'UAE',
+            street: "123 Business Street",
+            city: "Dubai",
+            country: "UAE",
           },
         },
         items: [
           {
-            name: 'Stainless Steel Sheet 304 - 4x8',
+            name: "Stainless Steel Sheet 304 - 4x8",
             quantity: 10,
             rate: 850,
             amount: 8500,
             vatRate: 5,
           },
           {
-            name: 'Stainless Steel Pipe 316L - 2 inch',
+            name: "Stainless Steel Pipe 316L - 2 inch",
             quantity: 25,
             rate: 120,
             amount: 3000,
             vatRate: 5,
           },
         ],
-        notes: 'Thank you for your business!',
-        terms: 'Payment due within 30 days',
-        warehouseName: 'Main Warehouse',
-        warehouseCode: 'WH-001',
+        notes: "Thank you for your business!",
+        terms: "Payment due within 30 days",
+        warehouseName: "Main Warehouse",
+        warehouseCode: "WH-001",
       };
 
       // Get base template colors and merge with any custom overrides for preview
-      const baseTemplate =
-        INVOICE_TEMPLATES[selectedTemplateId] || INVOICE_TEMPLATES.standard;
-      const finalColors = customColors
-        ? { ...baseTemplate.colors, ...customColors }
-        : baseTemplate.colors;
+      const baseTemplate = INVOICE_TEMPLATES[selectedTemplateId] || INVOICE_TEMPLATES.standard;
+      const finalColors = customColors ? { ...baseTemplate.colors, ...customColors } : baseTemplate.colors;
 
       // Create temporary company object with current settings (including document templates)
       const tempCompany = {
@@ -495,10 +449,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         isPreview: true,
       });
     } catch (error) {
-      console.error('Error generating preview:', error);
-      notificationService.error(
-        'Failed to generate preview. Please check your settings.',
-      );
+      console.error("Error generating preview:", error);
+      notificationService.error("Failed to generate preview. Please check your settings.");
     } finally {
       setIsPreviewing(false);
     }
@@ -513,29 +465,12 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   };
 
   // Number input component
-  const NumberInput = ({
-    label,
-    value,
-    onChange,
-    min,
-    max,
-    step = 1,
-    unit = '',
-    description,
-  }) => (
+  const NumberInput = ({ label, value, onChange, min, max, step = 1, unit = "", description }) => (
     <div className="mb-4">
-      <label
-        className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-      >
+      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
         {label}
       </label>
-      {description && (
-        <p
-          className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-        >
-          {description}
-        </p>
-      )}
+      {description && <p className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>}
       <div className="flex items-center gap-2">
         <input
           type="number"
@@ -545,16 +480,10 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           max={max}
           step={step}
           className={`flex-1 px-3 py-2 border rounded-lg ${
-            isDarkMode
-              ? 'bg-gray-700 border-gray-600 text-white'
-              : 'bg-white border-gray-300 text-gray-900'
+            isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
           }`}
         />
-        {unit && (
-          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-            {unit}
-          </span>
-        )}
+        {unit && <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>{unit}</span>}
       </div>
     </div>
   );
@@ -570,18 +499,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           className="mt-1 h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
         />
         <div>
-          <span
-            className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-          >
-            {label}
-          </span>
-          {description && (
-            <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              {description}
-            </p>
-          )}
+          <span className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{label}</span>
+          {description && <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>}
         </div>
       </label>
     </div>
@@ -592,65 +511,38 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
     <button
       onClick={onToggle}
       className={`w-full flex items-center justify-between p-4 rounded-lg transition-colors ${
-        isDarkMode
-          ? 'bg-gray-700 hover:bg-gray-600'
-          : 'bg-gray-100 hover:bg-gray-200'
+        isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-100 hover:bg-gray-200"
       }`}
     >
       <div className="flex items-center gap-2">
-        <Icon
-          size={20}
-          className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
-        />
-        <span
-          className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-        >
-          {title}
-        </span>
+        <Icon size={20} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
+        <span className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</span>
       </div>
       {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
     </button>
   );
 
   return (
-    <div
-      className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-    >
+    <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
       {/* Header */}
       <div className="mb-6">
-        <h2
-          className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-        >
+        <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           Document Template Settings
         </h2>
-        <p
-          className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-        >
-          Customize appearance and colors for invoices, quotations, purchase
-          orders, delivery notes, credit notes, and statements.
+        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+          Customize appearance and colors for invoices, quotations, purchase orders, delivery notes, credit notes, and
+          statements.
         </p>
       </div>
 
       {/* Template Style Selector - 4 Templates (Classic, Custom, Elegant, Print Ready) */}
-      <div
-        className={`mb-6 p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-      >
+      <div className={`mb-6 p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
         <div className="flex items-center gap-2 mb-4">
-          <Palette
-            size={20}
-            className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
-          />
-          <h3
-            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
-            Template Style
-          </h3>
+          <Palette size={20} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
+          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Template Style</h3>
         </div>
-        <p
-          className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-        >
-          Choose a base template style for your invoices. This selection syncs
-          with the Create Invoice page.
+        <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+          Choose a base template style for your invoices. This selection syncs with the Create Invoice page.
         </p>
         <TemplateSelector
           templates={availableTemplates}
@@ -664,18 +556,11 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       </div>
 
       {/* Document Type Colors Section */}
-      <div
-        className={`mb-6 p-4 rounded-lg max-w-3xl ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-      >
+      <div className={`mb-6 p-4 rounded-lg max-w-3xl ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <FileText
-              size={20}
-              className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
-            />
-            <h3
-              className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
+            <FileText size={20} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
+            <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Document Type Colors
             </h3>
           </div>
@@ -683,9 +568,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <button
               onClick={handleRestoreDocTemplateDefaults}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-gray-600 text-white hover:bg-gray-500'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                isDarkMode ? "bg-gray-600 text-white hover:bg-gray-500" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
               <RotateCcw size={14} />
@@ -694,9 +577,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <button
               onClick={handleSyncAllToInvoice}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'bg-teal-700 text-white hover:bg-teal-600'
-                  : 'bg-teal-100 text-teal-800 hover:bg-teal-200'
+                isDarkMode ? "bg-teal-700 text-white hover:bg-teal-600" : "bg-teal-100 text-teal-800 hover:bg-teal-200"
               }`}
             >
               <Link2 size={14} />
@@ -704,55 +585,39 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             </button>
           </div>
         </div>
-        <p
-          className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-        >
-          Customize the header/accent color for each document type. Toggle
-          &quot;Use Invoice Color&quot; to sync with the main invoice template.
+        <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+          Customize the header/accent color for each document type. Toggle &quot;Use Invoice Color&quot; to sync with
+          the main invoice template.
         </p>
 
         {/* Document Type Color List - List view */}
         <div className="flex flex-col gap-3 max-w-2xl">
           {/* Invoice Color Reference - read-only, syncs with template selection above */}
           <div
-            className={`flex items-center gap-3 p-3 rounded-lg border-2 border-dashed ${isDarkMode ? 'bg-teal-900/30 border-teal-600' : 'bg-teal-50 border-teal-300'}`}
+            className={`flex items-center gap-3 p-3 rounded-lg border-2 border-dashed ${isDarkMode ? "bg-teal-900/30 border-teal-600" : "bg-teal-50 border-teal-300"}`}
           >
-            <FileText
-              size={18}
-              className={isDarkMode ? 'text-teal-400' : 'text-teal-600'}
-            />
-            <span
-              className={`font-medium min-w-[120px] ${isDarkMode ? 'text-teal-200' : 'text-teal-800'}`}
-            >
+            <FileText size={18} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? "text-teal-200" : "text-teal-800"}`}>
               Invoice
             </span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm flex-shrink-0"
               style={{ backgroundColor: getInvoiceColor() }}
             />
-            <span
-              className={`text-xs w-16 ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
-            >
+            <span className={`text-xs w-16 ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}>
               {getInvoiceColor()}
             </span>
-            <span
-              className={`text-xs ml-auto italic ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
-            >
+            <span className={`text-xs ml-auto italic ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}>
               (from template style)
             </span>
           </div>
 
           {/* Quotation */}
           <div
-            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}
+            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"}`}
           >
-            <FileText
-              size={18}
-              className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}
-            />
-            <span
-              className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-            >
+            <FileText size={18} className={isDarkMode ? "text-gray-300" : "text-gray-600"} />
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
               Quotation
             </span>
             <div
@@ -765,18 +630,14 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             >
               <input
                 type="color"
-                value={documentTemplates.quotation?.primaryColor || '#009999'}
-                onChange={(e) =>
-                  handleDocTemplateColorChange('quotation', e.target.value)
-                }
+                value={documentTemplates.quotation?.primaryColor || "#009999"}
+                onChange={(e) => handleDocTemplateColorChange("quotation", e.target.value)}
                 disabled={documentTemplates.quotation?.useInvoiceSettings}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                 title="Pick a color"
               />
             </div>
-            <span
-              className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
+            <span className={`text-xs w-16 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {documentTemplates.quotation?.useInvoiceSettings
                 ? getInvoiceColor()
                 : documentTemplates.quotation?.primaryColor}
@@ -784,17 +645,11 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
               <input
                 type="checkbox"
-                checked={
-                  documentTemplates.quotation?.useInvoiceSettings || false
-                }
-                onChange={(e) =>
-                  handleDocTemplateSync('quotation', e.target.checked)
-                }
+                checked={documentTemplates.quotation?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync("quotation", e.target.checked)}
                 className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
               />
-              <span
-                className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Use Invoice Color
               </span>
             </label>
@@ -802,42 +657,30 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
           {/* Purchase Order */}
           <div
-            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}
+            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"}`}
           >
-            <ShoppingCart
-              size={18}
-              className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}
-            />
-            <span
-              className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-            >
+            <ShoppingCart size={18} className={isDarkMode ? "text-gray-300" : "text-gray-600"} />
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
               Purchase Order
             </span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
-                backgroundColor: documentTemplates.purchaseOrder
-                  ?.useInvoiceSettings
+                backgroundColor: documentTemplates.purchaseOrder?.useInvoiceSettings
                   ? getInvoiceColor()
                   : documentTemplates.purchaseOrder?.primaryColor,
               }}
             >
               <input
                 type="color"
-                value={
-                  documentTemplates.purchaseOrder?.primaryColor || '#2563eb'
-                }
-                onChange={(e) =>
-                  handleDocTemplateColorChange('purchaseOrder', e.target.value)
-                }
+                value={documentTemplates.purchaseOrder?.primaryColor || "#2563eb"}
+                onChange={(e) => handleDocTemplateColorChange("purchaseOrder", e.target.value)}
                 disabled={documentTemplates.purchaseOrder?.useInvoiceSettings}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                 title="Pick a color"
               />
             </div>
-            <span
-              className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
+            <span className={`text-xs w-16 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {documentTemplates.purchaseOrder?.useInvoiceSettings
                 ? getInvoiceColor()
                 : documentTemplates.purchaseOrder?.primaryColor}
@@ -845,17 +688,11 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
               <input
                 type="checkbox"
-                checked={
-                  documentTemplates.purchaseOrder?.useInvoiceSettings || false
-                }
-                onChange={(e) =>
-                  handleDocTemplateSync('purchaseOrder', e.target.checked)
-                }
+                checked={documentTemplates.purchaseOrder?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync("purchaseOrder", e.target.checked)}
                 className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
               />
-              <span
-                className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Use Invoice Color
               </span>
             </label>
@@ -863,42 +700,30 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
           {/* Delivery Note */}
           <div
-            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}
+            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"}`}
           >
-            <Truck
-              size={18}
-              className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}
-            />
-            <span
-              className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-            >
+            <Truck size={18} className={isDarkMode ? "text-gray-300" : "text-gray-600"} />
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
               Delivery Note
             </span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
-                backgroundColor: documentTemplates.deliveryNote
-                  ?.useInvoiceSettings
+                backgroundColor: documentTemplates.deliveryNote?.useInvoiceSettings
                   ? getInvoiceColor()
                   : documentTemplates.deliveryNote?.primaryColor,
               }}
             >
               <input
                 type="color"
-                value={
-                  documentTemplates.deliveryNote?.primaryColor || '#0d9488'
-                }
-                onChange={(e) =>
-                  handleDocTemplateColorChange('deliveryNote', e.target.value)
-                }
+                value={documentTemplates.deliveryNote?.primaryColor || "#0d9488"}
+                onChange={(e) => handleDocTemplateColorChange("deliveryNote", e.target.value)}
                 disabled={documentTemplates.deliveryNote?.useInvoiceSettings}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                 title="Pick a color"
               />
             </div>
-            <span
-              className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
+            <span className={`text-xs w-16 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {documentTemplates.deliveryNote?.useInvoiceSettings
                 ? getInvoiceColor()
                 : documentTemplates.deliveryNote?.primaryColor}
@@ -906,17 +731,11 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
               <input
                 type="checkbox"
-                checked={
-                  documentTemplates.deliveryNote?.useInvoiceSettings || false
-                }
-                onChange={(e) =>
-                  handleDocTemplateSync('deliveryNote', e.target.checked)
-                }
+                checked={documentTemplates.deliveryNote?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync("deliveryNote", e.target.checked)}
                 className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
               />
-              <span
-                className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Use Invoice Color
               </span>
             </label>
@@ -924,40 +743,30 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
           {/* Credit Note */}
           <div
-            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}
+            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"}`}
           >
-            <CreditCard
-              size={18}
-              className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}
-            />
-            <span
-              className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-            >
+            <CreditCard size={18} className={isDarkMode ? "text-gray-300" : "text-gray-600"} />
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
               Credit Note
             </span>
             <div
               className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
               style={{
-                backgroundColor: documentTemplates.creditNote
-                  ?.useInvoiceSettings
+                backgroundColor: documentTemplates.creditNote?.useInvoiceSettings
                   ? getInvoiceColor()
                   : documentTemplates.creditNote?.primaryColor,
               }}
             >
               <input
                 type="color"
-                value={documentTemplates.creditNote?.primaryColor || '#dc2626'}
-                onChange={(e) =>
-                  handleDocTemplateColorChange('creditNote', e.target.value)
-                }
+                value={documentTemplates.creditNote?.primaryColor || "#dc2626"}
+                onChange={(e) => handleDocTemplateColorChange("creditNote", e.target.value)}
                 disabled={documentTemplates.creditNote?.useInvoiceSettings}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                 title="Pick a color"
               />
             </div>
-            <span
-              className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
+            <span className={`text-xs w-16 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {documentTemplates.creditNote?.useInvoiceSettings
                 ? getInvoiceColor()
                 : documentTemplates.creditNote?.primaryColor}
@@ -965,17 +774,11 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
               <input
                 type="checkbox"
-                checked={
-                  documentTemplates.creditNote?.useInvoiceSettings || false
-                }
-                onChange={(e) =>
-                  handleDocTemplateSync('creditNote', e.target.checked)
-                }
+                checked={documentTemplates.creditNote?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync("creditNote", e.target.checked)}
                 className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
               />
-              <span
-                className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Use Invoice Color
               </span>
             </label>
@@ -983,15 +786,10 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
 
           {/* Statement */}
           <div
-            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}
+            className={`flex items-center gap-3 p-3 rounded-lg border ${isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"}`}
           >
-            <FileBarChart
-              size={18}
-              className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}
-            />
-            <span
-              className={`font-medium min-w-[120px] ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-            >
+            <FileBarChart size={18} className={isDarkMode ? "text-gray-300" : "text-gray-600"} />
+            <span className={`font-medium min-w-[120px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
               Statement
             </span>
             <div
@@ -1004,18 +802,14 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             >
               <input
                 type="color"
-                value={documentTemplates.statement?.primaryColor || '#4f46e5'}
-                onChange={(e) =>
-                  handleDocTemplateColorChange('statement', e.target.value)
-                }
+                value={documentTemplates.statement?.primaryColor || "#4f46e5"}
+                onChange={(e) => handleDocTemplateColorChange("statement", e.target.value)}
                 disabled={documentTemplates.statement?.useInvoiceSettings}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                 title="Pick a color"
               />
             </div>
-            <span
-              className={`text-xs w-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
+            <span className={`text-xs w-16 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {documentTemplates.statement?.useInvoiceSettings
                 ? getInvoiceColor()
                 : documentTemplates.statement?.primaryColor}
@@ -1023,17 +817,11 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <label className="flex items-center gap-1.5 cursor-pointer ml-auto">
               <input
                 type="checkbox"
-                checked={
-                  documentTemplates.statement?.useInvoiceSettings || false
-                }
-                onChange={(e) =>
-                  handleDocTemplateSync('statement', e.target.checked)
-                }
+                checked={documentTemplates.statement?.useInvoiceSettings || false}
+                onChange={(e) => handleDocTemplateSync("statement", e.target.checked)}
                 className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
               />
-              <span
-                className={`text-xs whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <span className={`text-xs whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Use Invoice Color
               </span>
             </label>
@@ -1045,14 +833,9 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {validationErrors.length > 0 && (
         <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded-lg">
           <div className="flex items-start gap-2">
-            <AlertTriangle
-              className="text-red-600 flex-shrink-0 mt-0.5"
-              size={20}
-            />
+            <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
             <div>
-              <h4 className="font-semibold text-red-800 mb-1">
-                Validation Errors:
-              </h4>
+              <h4 className="font-semibold text-red-800 mb-1">Validation Errors:</h4>
               <ul className="text-sm text-red-700 list-disc list-inside">
                 {validationErrors.map((error, i) => (
                   <li key={i}>{error}</li>
@@ -1096,7 +879,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           ) : (
             <>
               <Save size={18} />
-              Save Changes {hasChanges && '(*)'}
+              Save Changes {hasChanges && "(*)"}
             </>
           )}
         </button>
@@ -1105,9 +888,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           onClick={handleDiscardChanges}
           disabled={!hasChanges}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-            isDarkMode
-              ? 'bg-gray-700 text-white hover:bg-gray-600'
-              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
           }`}
         >
           <X size={18} />
@@ -1127,33 +908,21 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {hasChanges && (
         <div
           className={`mb-6 p-4 rounded-lg border-l-4 ${
-            isDarkMode
-              ? 'bg-yellow-900/20 border-yellow-500 border'
-              : 'bg-yellow-50 border-yellow-400 border'
+            isDarkMode ? "bg-yellow-900/20 border-yellow-500 border" : "bg-yellow-50 border-yellow-400 border"
           }`}
         >
           <div className="flex items-start gap-3">
             <AlertTriangle
-              className={`flex-shrink-0 mt-0.5 ${
-                isDarkMode ? 'text-yellow-400' : 'text-yellow-600'
-              }`}
+              className={`flex-shrink-0 mt-0.5 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
               size={20}
             />
             <div className="flex-1">
-              <p
-                className={`text-sm font-semibold mb-1 ${
-                  isDarkMode ? 'text-yellow-300' : 'text-yellow-800'
-                }`}
-              >
+              <p className={`text-sm font-semibold mb-1 ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
                 You have unsaved changes
               </p>
-              <p
-                className={`text-xs ${
-                  isDarkMode ? 'text-yellow-400/80' : 'text-yellow-700'
-                }`}
-              >
-                Click &quot;Save Changes&quot; to apply your modifications, or
-                &quot;Reset to Defaults&quot; to discard them.
+              <p className={`text-xs ${isDarkMode ? "text-yellow-400/80" : "text-yellow-700"}`}>
+                Click &quot;Save Changes&quot; to apply your modifications, or &quot;Reset to Defaults&quot; to discard
+                them.
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -1162,19 +931,17 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 disabled={isSaving}
                 className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
                   isDarkMode
-                    ? 'bg-yellow-600 text-white hover:bg-yellow-500'
-                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    ? "bg-yellow-600 text-white hover:bg-yellow-500"
+                    : "bg-yellow-600 text-white hover:bg-yellow-700"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {isSaving ? 'Saving...' : 'Save Now'}
+                {isSaving ? "Saving..." : "Save Now"}
               </button>
               <button
                 onClick={handleDiscardChanges}
                 title="Discard changes"
                 className={`p-1.5 rounded transition-colors ${
-                  isDarkMode
-                    ? 'text-yellow-400 hover:bg-yellow-900/50'
-                    : 'text-yellow-700 hover:bg-yellow-100'
+                  isDarkMode ? "text-yellow-400 hover:bg-yellow-900/50" : "text-yellow-700 hover:bg-yellow-100"
                 }`}
               >
                 <X size={16} />
@@ -1187,29 +954,29 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-gray-300 dark:border-gray-600">
         <button
-          onClick={() => setActiveSection('basic')}
+          onClick={() => setActiveSection("basic")}
           className={`px-4 py-2 font-medium transition-colors ${
-            activeSection === 'basic'
+            activeSection === "basic"
               ? isDarkMode
-                ? 'text-teal-400 border-b-2 border-teal-400'
-                : 'text-teal-600 border-b-2 border-teal-600'
+                ? "text-teal-400 border-b-2 border-teal-400"
+                : "text-teal-600 border-b-2 border-teal-600"
               : isDarkMode
-                ? 'text-gray-400 hover:text-gray-300'
-                : 'text-gray-600 hover:text-gray-800'
+                ? "text-gray-400 hover:text-gray-300"
+                : "text-gray-600 hover:text-gray-800"
           }`}
         >
           Basic Settings
         </button>
         <button
-          onClick={() => setActiveSection('advanced')}
+          onClick={() => setActiveSection("advanced")}
           className={`px-4 py-2 font-medium transition-colors ${
-            activeSection === 'advanced'
+            activeSection === "advanced"
               ? isDarkMode
-                ? 'text-teal-400 border-b-2 border-teal-400'
-                : 'text-teal-600 border-b-2 border-teal-600'
+                ? "text-teal-400 border-b-2 border-teal-400"
+                : "text-teal-600 border-b-2 border-teal-600"
               : isDarkMode
-                ? 'text-gray-400 hover:text-gray-300'
-                : 'text-gray-600 hover:text-gray-800'
+                ? "text-gray-400 hover:text-gray-300"
+                : "text-gray-600 hover:text-gray-800"
           }`}
         >
           Advanced Settings
@@ -1217,83 +984,67 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       </div>
 
       {/* BASIC SETTINGS TAB */}
-      {activeSection === 'basic' && (
+      {activeSection === "basic" && (
         <div className="space-y-6 max-w-3xl">
           {/* Logo & Branding */}
-          <div
-            className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-          >
-            <h3
-              className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Logo & Branding
             </h3>
             <CheckboxInput
               label="Show Company Logo"
               checked={settings.branding.showLogo}
-              onChange={(val) => updateSetting('branding.showLogo', val)}
+              onChange={(val) => updateSetting("branding.showLogo", val)}
               description="Display company logo on invoice"
             />
             <CheckboxInput
               label="Show Company Seal/Stamp"
               checked={settings.branding.showSeal}
-              onChange={(val) => updateSetting('branding.showSeal', val)}
+              onChange={(val) => updateSetting("branding.showSeal", val)}
               description="Display company seal in footer"
             />
             <CheckboxInput
               label="Show Company Name in Header"
               checked={settings.branding.companyNameInHeader}
-              onChange={(val) =>
-                updateSetting('branding.companyNameInHeader', val)
-              }
+              onChange={(val) => updateSetting("branding.companyNameInHeader", val)}
             />
             <CheckboxInput
               label="Show VAT Registration Number"
               checked={settings.branding.showVATNumber}
-              onChange={(val) => updateSetting('branding.showVATNumber', val)}
+              onChange={(val) => updateSetting("branding.showVATNumber", val)}
             />
           </div>
 
           {/* Basic Visibility */}
-          <div
-            className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-          >
-            <h3
-              className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Show/Hide Sections
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <CheckboxInput
                 label="Notes"
                 checked={settings.visibility.showNotes}
-                onChange={(val) => updateSetting('visibility.showNotes', val)}
+                onChange={(val) => updateSetting("visibility.showNotes", val)}
               />
               <CheckboxInput
                 label="Payment Terms"
                 checked={settings.visibility.showTerms}
-                onChange={(val) => updateSetting('visibility.showTerms', val)}
+                onChange={(val) => updateSetting("visibility.showTerms", val)}
               />
               <CheckboxInput
                 label="Warehouse Information"
                 checked={settings.visibility.showWarehouse}
-                onChange={(val) =>
-                  updateSetting('visibility.showWarehouse', val)
-                }
+                onChange={(val) => updateSetting("visibility.showWarehouse", val)}
               />
               <CheckboxInput
                 label="Signature Section"
                 checked={settings.visibility.showSignature}
-                onChange={(val) =>
-                  updateSetting('visibility.showSignature', val)
-                }
+                onChange={(val) => updateSetting("visibility.showSignature", val)}
               />
               <CheckboxInput
                 label="Page Numbers"
                 checked={settings.visibility.showPageNumbers}
-                onChange={(val) =>
-                  updateSetting('visibility.showPageNumbers', val)
-                }
+                onChange={(val) => updateSetting("visibility.showPageNumbers", val)}
               />
             </div>
           </div>
@@ -1301,24 +1052,17 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       )}
 
       {/* ADVANCED SETTINGS TAB */}
-      {activeSection === 'advanced' && (
+      {activeSection === "advanced" && (
         <div className="space-y-4 max-w-3xl">
           {/* Warning Banner */}
           <div className="p-4 bg-yellow-100 border border-yellow-400 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertTriangle
-                className="text-yellow-600 flex-shrink-0 mt-0.5"
-                size={20}
-              />
+              <AlertTriangle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
               <div>
-                <h4 className="font-semibold text-yellow-800 mb-1">
-                  Advanced Settings
-                </h4>
+                <h4 className="font-semibold text-yellow-800 mb-1">Advanced Settings</h4>
                 <p className="text-sm text-yellow-700">
-                  These settings control the detailed appearance of your
-                  invoices. Incorrect values may cause layout issues. Use the
-                  &quot;Preview PDF&quot; button to test your changes before
-                  saving.
+                  These settings control the detailed appearance of your invoices. Incorrect values may cause layout
+                  issues. Use the &quot;Preview PDF&quot; button to test your changes before saving.
                 </p>
               </div>
             </div>
@@ -1330,17 +1074,15 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               title="Layout & Spacing"
               icon={Layout}
               expanded={expandedSections.layout}
-              onToggle={() => toggleSection('layout')}
+              onToggle={() => toggleSection("layout")}
             />
             {expandedSections.layout && (
-              <div
-                className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-              >
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <NumberInput
                     label="Margin Top"
                     value={settings.layout.marginTop}
-                    onChange={(val) => updateSetting('layout.marginTop', val)}
+                    onChange={(val) => updateSetting("layout.marginTop", val)}
                     min={5}
                     max={50}
                     unit="mm"
@@ -1348,9 +1090,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Margin Bottom"
                     value={settings.layout.marginBottom}
-                    onChange={(val) =>
-                      updateSetting('layout.marginBottom', val)
-                    }
+                    onChange={(val) => updateSetting("layout.marginBottom", val)}
                     min={5}
                     max={50}
                     unit="mm"
@@ -1358,7 +1098,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Margin Left"
                     value={settings.layout.marginLeft}
-                    onChange={(val) => updateSetting('layout.marginLeft', val)}
+                    onChange={(val) => updateSetting("layout.marginLeft", val)}
                     min={5}
                     max={50}
                     unit="mm"
@@ -1366,7 +1106,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Margin Right"
                     value={settings.layout.marginRight}
-                    onChange={(val) => updateSetting('layout.marginRight', val)}
+                    onChange={(val) => updateSetting("layout.marginRight", val)}
                     min={5}
                     max={50}
                     unit="mm"
@@ -1374,7 +1114,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Line Spacing"
                     value={settings.layout.lineSpacing}
-                    onChange={(val) => updateSetting('layout.lineSpacing', val)}
+                    onChange={(val) => updateSetting("layout.lineSpacing", val)}
                     min={2}
                     max={10}
                     unit="mm"
@@ -1383,9 +1123,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Section Spacing"
                     value={settings.layout.sectionSpacing}
-                    onChange={(val) =>
-                      updateSetting('layout.sectionSpacing', val)
-                    }
+                    onChange={(val) => updateSetting("layout.sectionSpacing", val)}
                     min={4}
                     max={20}
                     unit="mm"
@@ -1402,53 +1140,41 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               title="Typography"
               icon={Type}
               expanded={expandedSections.typography}
-              onToggle={() => toggleSection('typography')}
+              onToggle={() => toggleSection("typography")}
             />
             {expandedSections.typography && (
-              <div
-                className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-              >
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 {/* PDF-Aligned Typography Reference */}
                 <div
-                  className={`mb-4 p-3 rounded-lg border ${isDarkMode ? 'bg-teal-900/20 border-teal-700' : 'bg-teal-50 border-teal-200'}`}
+                  className={`mb-4 p-3 rounded-lg border ${isDarkMode ? "bg-teal-900/20 border-teal-700" : "bg-teal-50 border-teal-200"}`}
                 >
-                  <p
-                    className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-teal-300' : 'text-teal-700'}`}
-                  >
+                  <p className={`text-xs font-medium mb-1 ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}>
                     PDF Typography Reference (Source of Truth)
                   </p>
-                  <p
-                    className={`text-xs ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
-                  >
-                    Company: {PDF_FONT_SIZES.companyName} | Title:{' '}
-                    {PDF_FONT_SIZES.documentTitle} | Headers:{' '}
-                    {PDF_FONT_SIZES.sectionHeader} | Body: {PDF_FONT_SIZES.body}{' '}
-                    | Table: {PDF_FONT_SIZES.tableBody}
+                  <p className={`text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}>
+                    Company: {PDF_FONT_SIZES.companyName} | Title: {PDF_FONT_SIZES.documentTitle} | Headers:{" "}
+                    {PDF_FONT_SIZES.sectionHeader} | Body: {PDF_FONT_SIZES.body} | Table: {PDF_FONT_SIZES.tableBody}
                   </p>
                 </div>
 
                 <div className="mb-4">
                   <label
                     htmlFor="font-family-display"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Font Family
                   </label>
                   <p
                     id="font-family-display"
-                    className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     PDF uses: {PDF_FONT_FAMILIES.base}
                   </p>
                   <select
                     value={settings.typography.fontFamily}
-                    onChange={(e) =>
-                      updateSetting('typography.fontFamily', e.target.value)
-                    }
+                    onChange={(e) => updateSetting("typography.fontFamily", e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
+                      isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   >
                     <option value="helvetica">Helvetica (PDF Default)</option>
@@ -1458,18 +1184,14 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   </select>
                 </div>
 
-                <h4
-                  className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                >
+                <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Font Sizes (in points)
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <NumberInput
                     label="Extra Large (Company Name)"
                     value={settings.typography.fontSize.xlarge}
-                    onChange={(val) =>
-                      updateSetting('typography.fontSize.xlarge', val)
-                    }
+                    onChange={(val) => updateSetting("typography.fontSize.xlarge", val)}
                     min={10}
                     max={24}
                     unit="pt"
@@ -1478,9 +1200,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Large (Document Title)"
                     value={settings.typography.fontSize.large}
-                    onChange={(val) =>
-                      updateSetting('typography.fontSize.large', val)
-                    }
+                    onChange={(val) => updateSetting("typography.fontSize.large", val)}
                     min={9}
                     max={18}
                     unit="pt"
@@ -1489,9 +1209,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Medium (Section Headers)"
                     value={settings.typography.fontSize.medium}
-                    onChange={(val) =>
-                      updateSetting('typography.fontSize.medium', val)
-                    }
+                    onChange={(val) => updateSetting("typography.fontSize.medium", val)}
                     min={7}
                     max={14}
                     unit="pt"
@@ -1500,9 +1218,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Base (Body Text)"
                     value={settings.typography.fontSize.base}
-                    onChange={(val) =>
-                      updateSetting('typography.fontSize.base', val)
-                    }
+                    onChange={(val) => updateSetting("typography.fontSize.base", val)}
                     min={7}
                     max={14}
                     unit="pt"
@@ -1511,9 +1227,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Small (Table & Footer)"
                     value={settings.typography.fontSize.small}
-                    onChange={(val) =>
-                      updateSetting('typography.fontSize.small', val)
-                    }
+                    onChange={(val) => updateSetting("typography.fontSize.small", val)}
                     min={6}
                     max={12}
                     unit="pt"
@@ -1530,175 +1244,129 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               title="Visibility Controls"
               icon={Eye}
               expanded={expandedSections.visibility}
-              onToggle={() => toggleSection('visibility')}
+              onToggle={() => toggleSection("visibility")}
             />
             {expandedSections.visibility && (
-              <div
-                className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-              >
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <div className="space-y-4">
                   <div>
-                    <h4
-                      className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                    >
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       Company Information
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <CheckboxInput
                         label="Company Address"
                         checked={settings.visibility.showCompanyAddress}
-                        onChange={(val) =>
-                          updateSetting('visibility.showCompanyAddress', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showCompanyAddress", val)}
                       />
                       <CheckboxInput
                         label="Company Phone"
                         checked={settings.visibility.showCompanyPhone}
-                        onChange={(val) =>
-                          updateSetting('visibility.showCompanyPhone', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showCompanyPhone", val)}
                       />
                       <CheckboxInput
                         label="Company Email"
                         checked={settings.visibility.showCompanyEmail}
-                        onChange={(val) =>
-                          updateSetting('visibility.showCompanyEmail', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showCompanyEmail", val)}
                       />
                       <CheckboxInput
                         label="Company Website"
                         checked={settings.visibility.showCompanyWebsite}
-                        onChange={(val) =>
-                          updateSetting('visibility.showCompanyWebsite', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showCompanyWebsite", val)}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <h4
-                      className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                    >
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       Invoice Details
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <CheckboxInput
                         label="Invoice Date"
                         checked={settings.visibility.showInvoiceDate}
-                        onChange={(val) =>
-                          updateSetting('visibility.showInvoiceDate', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showInvoiceDate", val)}
                       />
                       <CheckboxInput
                         label="Due Date"
                         checked={settings.visibility.showDueDate}
-                        onChange={(val) =>
-                          updateSetting('visibility.showDueDate', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showDueDate", val)}
                       />
                       <CheckboxInput
                         label="Customer PO Number"
                         checked={settings.visibility.showCustomerPO}
-                        onChange={(val) =>
-                          updateSetting('visibility.showCustomerPO', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showCustomerPO", val)}
                       />
                       <CheckboxInput
                         label="Customer PO Date"
                         checked={settings.visibility.showCustomerPODate}
-                        onChange={(val) =>
-                          updateSetting('visibility.showCustomerPODate', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showCustomerPODate", val)}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <h4
-                      className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                    >
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       Table Columns
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       <CheckboxInput
                         label="Serial Number"
                         checked={settings.visibility.showItemNumber}
-                        onChange={(val) =>
-                          updateSetting('visibility.showItemNumber', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showItemNumber", val)}
                       />
                       <CheckboxInput
                         label="Description"
                         checked={settings.visibility.showDescription}
-                        onChange={(val) =>
-                          updateSetting('visibility.showDescription', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showDescription", val)}
                       />
                       <CheckboxInput
                         label="Quantity"
                         checked={settings.visibility.showQuantity}
-                        onChange={(val) =>
-                          updateSetting('visibility.showQuantity', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showQuantity", val)}
                       />
                       <CheckboxInput
                         label="Unit Price"
                         checked={settings.visibility.showUnitPrice}
-                        onChange={(val) =>
-                          updateSetting('visibility.showUnitPrice', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showUnitPrice", val)}
                       />
                       <CheckboxInput
                         label="VAT %"
                         checked={settings.visibility.showVAT}
-                        onChange={(val) =>
-                          updateSetting('visibility.showVAT', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showVAT", val)}
                       />
                       <CheckboxInput
                         label="Price"
                         checked={settings.visibility.showPrice}
-                        onChange={(val) =>
-                          updateSetting('visibility.showPrice', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showPrice", val)}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <h4
-                      className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                    >
+                    <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       Summary Section
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <CheckboxInput
                         label="Subtotal"
                         checked={settings.visibility.showSubtotal}
-                        onChange={(val) =>
-                          updateSetting('visibility.showSubtotal', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showSubtotal", val)}
                       />
                       <CheckboxInput
                         label="Discount"
                         checked={settings.visibility.showDiscount}
-                        onChange={(val) =>
-                          updateSetting('visibility.showDiscount', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showDiscount", val)}
                       />
                       <CheckboxInput
                         label="VAT Amount"
                         checked={settings.visibility.showVATAmount}
-                        onChange={(val) =>
-                          updateSetting('visibility.showVATAmount', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showVATAmount", val)}
                       />
                       <CheckboxInput
                         label="Total"
                         checked={settings.visibility.showTotal}
-                        onChange={(val) =>
-                          updateSetting('visibility.showTotal', val)
-                        }
+                        onChange={(val) => updateSetting("visibility.showTotal", val)}
                       />
                     </div>
                   </div>
@@ -1713,33 +1381,27 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               title="Table Configuration"
               icon={Settings}
               expanded={expandedSections.table}
-              onToggle={() => toggleSection('table')}
+              onToggle={() => toggleSection("table")}
             />
             {expandedSections.table && (
-              <div
-                className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-              >
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <NumberInput
                   label="Row Height"
                   value={settings.table.rowHeight}
-                  onChange={(val) => updateSetting('table.rowHeight', val)}
+                  onChange={(val) => updateSetting("table.rowHeight", val)}
                   min={5}
                   max={15}
                   unit="mm"
                 />
 
-                <h4
-                  className={`text-sm font-semibold mt-4 mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                >
+                <h4 className={`text-sm font-semibold mt-4 mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Column Widths (% - must total 100%)
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <NumberInput
                     label="Serial No."
                     value={settings.table.columnWidths.sno}
-                    onChange={(val) =>
-                      updateSetting('table.columnWidths.sno', val)
-                    }
+                    onChange={(val) => updateSetting("table.columnWidths.sno", val)}
                     min={5}
                     max={15}
                     unit="%"
@@ -1747,9 +1409,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Description"
                     value={settings.table.columnWidths.description}
-                    onChange={(val) =>
-                      updateSetting('table.columnWidths.description', val)
-                    }
+                    onChange={(val) => updateSetting("table.columnWidths.description", val)}
                     min={30}
                     max={60}
                     unit="%"
@@ -1757,9 +1417,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Quantity"
                     value={settings.table.columnWidths.quantity}
-                    onChange={(val) =>
-                      updateSetting('table.columnWidths.quantity', val)
-                    }
+                    onChange={(val) => updateSetting("table.columnWidths.quantity", val)}
                     min={8}
                     max={15}
                     unit="%"
@@ -1767,9 +1425,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Unit Price"
                     value={settings.table.columnWidths.unitPrice}
-                    onChange={(val) =>
-                      updateSetting('table.columnWidths.unitPrice', val)
-                    }
+                    onChange={(val) => updateSetting("table.columnWidths.unitPrice", val)}
                     min={10}
                     max={20}
                     unit="%"
@@ -1777,9 +1433,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="VAT"
                     value={settings.table.columnWidths.vat}
-                    onChange={(val) =>
-                      updateSetting('table.columnWidths.vat', val)
-                    }
+                    onChange={(val) => updateSetting("table.columnWidths.vat", val)}
                     min={8}
                     max={15}
                     unit="%"
@@ -1787,30 +1441,16 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                   <NumberInput
                     label="Price"
                     value={settings.table.columnWidths.price}
-                    onChange={(val) =>
-                      updateSetting('table.columnWidths.price', val)
-                    }
+                    onChange={(val) => updateSetting("table.columnWidths.price", val)}
                     min={12}
                     max={20}
                     unit="%"
                   />
                 </div>
-                <p
-                  className={`text-xs mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                >
-                  Total:{' '}
-                  {Object.values(settings.table.columnWidths).reduce(
-                    (a, b) => a + b,
-                    0,
-                  )}
-                  %
-                  {Object.values(settings.table.columnWidths).reduce(
-                    (a, b) => a + b,
-                    0,
-                  ) !== 100 && (
-                    <span className="text-red-500 ml-2">
-                      (Warning: Should total 100%)
-                    </span>
+                <p className={`text-xs mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  Total: {Object.values(settings.table.columnWidths).reduce((a, b) => a + b, 0)}%
+                  {Object.values(settings.table.columnWidths).reduce((a, b) => a + b, 0) !== 100 && (
+                    <span className="text-red-500 ml-2">(Warning: Should total 100%)</span>
                   )}
                 </p>
               </div>
@@ -1823,16 +1463,14 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               title="Number & Date Formatting"
               icon={Settings}
               expanded={expandedSections.formatting}
-              onToggle={() => toggleSection('formatting')}
+              onToggle={() => toggleSection("formatting")}
             />
             {expandedSections.formatting && (
-              <div
-                className={`p-4 mt-2 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}
-              >
+              <div className={`p-4 mt-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <div className="mb-4">
                   <label
                     htmlFor="currency-symbol"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Currency Symbol
                   </label>
@@ -1840,13 +1478,9 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                     id="currency-symbol"
                     type="text"
                     value={settings.formatting.currencySymbol}
-                    onChange={(e) =>
-                      updateSetting('formatting.currencySymbol', e.target.value)
-                    }
+                    onChange={(e) => updateSetting("formatting.currencySymbol", e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
+                      isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                     placeholder="AED"
                   />
@@ -1855,9 +1489,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 <NumberInput
                   label="Decimal Places"
                   value={settings.formatting.decimalPlaces}
-                  onChange={(val) =>
-                    updateSetting('formatting.decimalPlaces', val)
-                  }
+                  onChange={(val) => updateSetting("formatting.decimalPlaces", val)}
                   min={0}
                   max={4}
                   description="Number of decimal places for amounts"
@@ -1866,20 +1498,16 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 <div className="mb-4">
                   <label
                     htmlFor="date-format"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Date Format
                   </label>
                   <select
                     id="date-format"
                     value={settings.formatting.dateFormat}
-                    onChange={(e) =>
-                      updateSetting('formatting.dateFormat', e.target.value)
-                    }
+                    onChange={(e) => updateSetting("formatting.dateFormat", e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg ${
-                      isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
+                      isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   >
                     <option value="DD-MM-YYYY">DD-MM-YYYY (09-01-2025)</option>

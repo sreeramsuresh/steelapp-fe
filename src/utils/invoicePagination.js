@@ -106,15 +106,9 @@ export function calculatePagination(invoice) {
   const otherPageHeight = getOtherPageItemsHeight();
   const lastPageHeight = getLastPageItemsHeight();
 
-  const maxItemsFirstPage = Math.floor(
-    firstPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT,
-  );
-  const maxItemsOtherPage = Math.floor(
-    otherPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT,
-  );
-  const maxItemsLastPage = Math.floor(
-    lastPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT,
-  );
+  const maxItemsFirstPage = Math.floor(firstPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT);
+  const maxItemsOtherPage = Math.floor(otherPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT);
+  const maxItemsLastPage = Math.floor(lastPageHeight / PAGE_CONFIG.LINE_ITEM_HEIGHT);
 
   // Single page case
   if (itemCount <= maxItemsFirstPage) {
@@ -180,8 +174,7 @@ export function calculatePagination(invoice) {
     distribution: {
       firstPage: itemsOnFirstPage,
       middlePages,
-      lastPage:
-        remainingItems > 0 ? remainingItems : itemsPerPage[totalPages - 1],
+      lastPage: remainingItems > 0 ? remainingItems : itemsPerPage[totalPages - 1],
     },
     limits: {
       maxItemsFirstPage,
@@ -237,7 +230,7 @@ export function getPaginationSummary(pagination) {
   summary += `- Page 1: ${firstPage} items (with customer info)\n`;
 
   if (middlePageCount > 0) {
-    summary += `- Pages 2-${middlePageCount + 1}: ${middlePages.join(', ')} items (continued)\n`;
+    summary += `- Pages 2-${middlePageCount + 1}: ${middlePages.join(", ")} items (continued)\n`;
   }
 
   summary += `- Page ${pagination.pages}: ${lastPage} items (with totals & signature)`;

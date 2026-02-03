@@ -13,21 +13,21 @@
  * - TC-006: Issued, partially paid, 5 days overdue
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 // Mock dependencies before imports
-vi.mock('../../services/axiosAuthService', () => ({
+vi.mock("../../services/axiosAuthService", () => ({
   authService: {
     hasPermission: vi.fn(),
   },
 }));
 
-vi.mock('../../utils/reminderUtils', () => ({
+vi.mock("../../utils/reminderUtils", () => ({
   getInvoiceReminderInfo: vi.fn(),
   generatePaymentReminder: vi.fn(),
 }));
 
-vi.mock('../../services/notificationService', () => ({
+vi.mock("../../services/notificationService", () => ({
   notificationService: {
     error: vi.fn(),
     success: vi.fn(),
@@ -36,9 +36,9 @@ vi.mock('../../services/notificationService', () => ({
 }));
 
 // Import after mocks
-import { authService } from '../../services/axiosAuthService';
-import { getInvoiceReminderInfo } from '../../utils/reminderUtils';
-import { getInvoiceActionButtonConfig } from '../invoiceActionsConfig';
+import { authService } from "../../services/axiosAuthService";
+import { getInvoiceReminderInfo } from "../../utils/reminderUtils";
+import { getInvoiceActionButtonConfig } from "../invoiceActionsConfig";
 
 /**
  * Helper: Validate invoice completeness for download
@@ -46,18 +46,11 @@ import { getInvoiceActionButtonConfig } from '../invoiceActionsConfig';
  * Keeping it here to maintain test independence.
  */
 const validateInvoiceForDownload = (invoice) => {
-  const hasCustomer =
-    invoice.customer?.name && invoice.customer.name.trim() !== '';
+  const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== "";
   const hasItems = invoice.items && invoice.items.length > 0;
   const hasValidItems =
     hasItems &&
-    invoice.items.every(
-      (item) =>
-        item.name &&
-        item.name.trim() !== '' &&
-        item.quantity > 0 &&
-        item.rate > 0,
-    );
+    invoice.items.every((item) => item.name && item.name.trim() !== "" && item.quantity > 0 && item.rate > 0);
   const hasDate = !!invoice.date;
   const hasDueDate = !!invoice.dueDate;
 
@@ -72,7 +65,7 @@ const validateInvoiceForDownload = (invoice) => {
   };
 };
 
-describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
+describe("InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -82,20 +75,20 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Enabled: View, Download (with warning), Phone, Statement
    * Expected Disabled: Edit (no perm), Credit Note, Reminder, Commission, Delivery Note, Delete
    */
-  test('TC-001: Draft, unpaid, no delete → correct icon enabled/disabled matrix', () => {
+  test("TC-001: Draft, unpaid, no delete → correct icon enabled/disabled matrix", () => {
     const invoice = {
       id: 1,
-      invoiceNumber: 'INV-001',
-      status: 'draft',
-      paymentStatus: 'unpaid',
+      invoiceNumber: "INV-001",
+      status: "draft",
+      paymentStatus: "unpaid",
       deletedAt: null,
       balanceDue: 1000,
       total: 1000,
       salesAgentId: null,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 1000 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 1000 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -115,7 +108,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED
@@ -140,20 +133,20 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Disabled: Edit, Commission
    * Note: Credit Note is actually ENABLED per logic (issued invoices)
    */
-  test('TC-002: Issued, unpaid, all perms → correct icon enabled/disabled matrix', () => {
+  test("TC-002: Issued, unpaid, all perms → correct icon enabled/disabled matrix", () => {
     const invoice = {
       id: 2,
-      invoiceNumber: 'INV-002',
-      status: 'issued',
-      paymentStatus: 'unpaid',
+      invoiceNumber: "INV-002",
+      status: "issued",
+      paymentStatus: "unpaid",
       deletedAt: null,
       balanceDue: 5000,
       total: 5000,
       salesAgentId: 10,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 5000 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 5000 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -176,7 +169,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       deliveryNoteStatus,
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED
@@ -201,20 +194,20 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Disabled: Edit, Reminder
    * Note: Credit Note and Delivery Note are ENABLED per logic
    */
-  test('TC-003: Issued, paid, has agent → correct icon enabled/disabled matrix', () => {
+  test("TC-003: Issued, paid, has agent → correct icon enabled/disabled matrix", () => {
     const invoice = {
       id: 3,
-      invoiceNumber: 'INV-003',
-      status: 'issued',
-      paymentStatus: 'paid',
+      invoiceNumber: "INV-003",
+      status: "issued",
+      paymentStatus: "paid",
       deletedAt: null,
       balanceDue: 0,
       total: 10000,
       salesAgentId: 15,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 10000 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 10000 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -237,7 +230,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       deliveryNoteStatus,
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED
@@ -261,20 +254,20 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Enabled: View, Restore
    * Expected Disabled: All others
    */
-  test('TC-004: Deleted, all perms → correct icon enabled/disabled matrix', () => {
+  test("TC-004: Deleted, all perms → correct icon enabled/disabled matrix", () => {
     const invoice = {
       id: 4,
-      invoiceNumber: 'INV-004',
-      status: 'issued',
-      paymentStatus: 'unpaid',
-      deletedAt: '2025-01-15T10:00:00Z', // DELETED
+      invoiceNumber: "INV-004",
+      status: "issued",
+      paymentStatus: "unpaid",
+      deletedAt: "2025-01-15T10:00:00Z", // DELETED
       balanceDue: 2000,
       total: 2000,
       salesAgentId: null,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 2000 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 2000 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -294,7 +287,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED
@@ -320,20 +313,20 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Enabled: Edit, View, Download, Phone, Statement, Delete
    * Expected Disabled: Credit Note, Reminder, Commission, Delivery Note
    */
-  test('TC-005: Proforma, all perms → correct icon enabled/disabled matrix', () => {
+  test("TC-005: Proforma, all perms → correct icon enabled/disabled matrix", () => {
     const invoice = {
       id: 5,
-      invoiceNumber: 'PRO-001',
-      status: 'proforma',
-      paymentStatus: 'unpaid',
+      invoiceNumber: "PRO-001",
+      status: "proforma",
+      paymentStatus: "unpaid",
       deletedAt: null,
       balanceDue: 3000,
       total: 3000,
       salesAgentId: null,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 3000 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 3000 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -353,7 +346,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED
@@ -378,24 +371,24 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Disabled: Edit, Commission
    * Note: Credit Note is ENABLED per logic
    */
-  test('TC-006: Issued, partially paid, 5 days overdue → correct icon enabled/disabled matrix', () => {
+  test("TC-006: Issued, partially paid, 5 days overdue → correct icon enabled/disabled matrix", () => {
     const today = new Date();
     const overdueDate = new Date(today);
     overdueDate.setDate(today.getDate() - 5); // 5 days ago
 
     const invoice = {
       id: 6,
-      invoiceNumber: 'INV-006',
-      status: 'issued',
-      paymentStatus: 'partially_paid',
+      invoiceNumber: "INV-006",
+      status: "issued",
+      paymentStatus: "partially_paid",
       deletedAt: null,
       balanceDue: 2500,
       total: 5000,
       salesAgentId: 20,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 5000 }],
-      date: '2025-01-01',
-      dueDate: overdueDate.toISOString().split('T')[0],
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 5000 }],
+      date: "2025-01-01",
+      dueDate: overdueDate.toISOString().split("T")[0],
     };
 
     const permissions = {
@@ -411,7 +404,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
     // Mock reminder (issued + partially paid + overdue = show urgent reminder)
     getInvoiceReminderInfo.mockReturnValue({
       shouldShowReminder: true,
-      type: 'polite_overdue',
+      type: "polite_overdue",
       isOverdue: true,
     });
 
@@ -420,7 +413,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED
@@ -445,20 +438,20 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Enabled: View, Download, Payment, Credit Note, Reminder, Phone, Statement, Delivery, Delete
    * Expected Disabled: Edit, Commission
    */
-  test('TC-007: Sent, unpaid, all perms → correct icon enabled/disabled matrix', () => {
+  test("TC-007: Sent, unpaid, all perms → correct icon enabled/disabled matrix", () => {
     const invoice = {
       id: 7,
-      invoiceNumber: 'INV-007',
-      status: 'sent',
-      paymentStatus: 'unpaid',
+      invoiceNumber: "INV-007",
+      status: "sent",
+      paymentStatus: "unpaid",
       deletedAt: null,
       balanceDue: 8000,
       total: 8000,
       salesAgentId: 25,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 8000 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 8000 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -481,7 +474,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       deliveryNoteStatus,
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED
@@ -505,20 +498,20 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Expected Enabled: View, Download, Statement
    * Expected Disabled: Edit, Credit Note, Payment, Reminder, Commission, Phone, Delivery, Delete
    */
-  test('TC-008: Cancelled, all perms → correct icon enabled/disabled matrix', () => {
+  test("TC-008: Cancelled, all perms → correct icon enabled/disabled matrix", () => {
     const invoice = {
       id: 8,
-      invoiceNumber: 'INV-008',
-      status: 'cancelled',
-      paymentStatus: 'unpaid',
+      invoiceNumber: "INV-008",
+      status: "cancelled",
+      paymentStatus: "unpaid",
       deletedAt: null,
       balanceDue: 3500,
       total: 3500,
       salesAgentId: null,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 3500 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 3500 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -538,7 +531,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Expected ENABLED (read-only operations)
@@ -563,21 +556,21 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
    * Simulates backend returning proto enum (STATUS_UNSPECIFIED, STATUS_DRAFT, etc.)
    * Frontend normalizer should convert to lowercase and handle gracefully
    */
-  test('TC-009: Corrupted DB status → defensive frontend behavior', () => {
+  test("TC-009: Corrupted DB status → defensive frontend behavior", () => {
     // Simulate invoice with proto enum status (corrupted data from DB)
     const invoice = {
       id: 9,
-      invoiceNumber: 'INV-009',
-      status: 'draft', // Frontend normalizer already converted STATUS_UNSPECIFIED → draft
-      paymentStatus: 'unpaid',
+      invoiceNumber: "INV-009",
+      status: "draft", // Frontend normalizer already converted STATUS_UNSPECIFIED → draft
+      paymentStatus: "unpaid",
       deletedAt: null,
       balanceDue: 1500,
       total: 1500,
       salesAgentId: null,
-      customer: { name: 'Test Customer' },
-      items: [{ name: 'Item 1', quantity: 1, rate: 1500 }],
-      date: '2025-01-01',
-      dueDate: '2025-01-31',
+      customer: { name: "Test Customer" },
+      items: [{ name: "Item 1", quantity: 1, rate: 1500 }],
+      date: "2025-01-01",
+      dueDate: "2025-01-31",
     };
 
     const permissions = {
@@ -598,7 +591,7 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Should behave as draft invoice (edit enabled, credit note disabled)
@@ -611,18 +604,18 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
     expect(actions.delete.enabled).toBe(true);
 
     // Verify no exceptions were thrown by checking all properties exist
-    expect(actions).toHaveProperty('edit');
-    expect(actions).toHaveProperty('creditNote');
-    expect(actions).toHaveProperty('view');
-    expect(actions).toHaveProperty('download');
-    expect(actions).toHaveProperty('recordPayment');
-    expect(actions).toHaveProperty('commission');
-    expect(actions).toHaveProperty('reminder');
-    expect(actions).toHaveProperty('phone');
-    expect(actions).toHaveProperty('statement');
-    expect(actions).toHaveProperty('deliveryNote');
-    expect(actions).toHaveProperty('delete');
-    expect(actions).toHaveProperty('restore');
+    expect(actions).toHaveProperty("edit");
+    expect(actions).toHaveProperty("creditNote");
+    expect(actions).toHaveProperty("view");
+    expect(actions).toHaveProperty("download");
+    expect(actions).toHaveProperty("recordPayment");
+    expect(actions).toHaveProperty("commission");
+    expect(actions).toHaveProperty("reminder");
+    expect(actions).toHaveProperty("phone");
+    expect(actions).toHaveProperty("statement");
+    expect(actions).toHaveProperty("deliveryNote");
+    expect(actions).toHaveProperty("delete");
+    expect(actions).toHaveProperty("restore");
   });
 
   /**
@@ -633,10 +626,10 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
   test('TC-010: Paid invoice with salesAgentId="0" (string) → commission disabled', () => {
     const invoice = {
       id: 110,
-      invoiceNumber: 'INV-TC010',
-      status: 'issued',
-      paymentStatus: 'paid',
-      salesAgentId: '0', // String zero (common from API)
+      invoiceNumber: "INV-TC010",
+      status: "issued",
+      paymentStatus: "paid",
+      salesAgentId: "0", // String zero (common from API)
       deletedAt: null,
     };
 
@@ -655,24 +648,24 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     // Commission should be DISABLED for string "0"
     expect(config.commission.enabled).toBe(false);
-    expect(config.commission.tooltip).toBe('No sales agent assigned');
+    expect(config.commission.tooltip).toBe("No sales agent assigned");
   });
 
   /**
    * TC-011: Commission Icon - Numeric Zero Sales Agent ID
    * Tests that salesAgentId=0 (number) correctly disables commission icon
    */
-  test('TC-011: Paid invoice with salesAgentId=0 (number) → commission disabled', () => {
+  test("TC-011: Paid invoice with salesAgentId=0 (number) → commission disabled", () => {
     const invoice = {
       id: 111,
-      invoiceNumber: 'INV-TC011',
-      status: 'issued',
-      paymentStatus: 'paid',
+      invoiceNumber: "INV-TC011",
+      status: "issued",
+      paymentStatus: "paid",
       salesAgentId: 0, // Numeric zero
       deletedAt: null,
     };
@@ -692,23 +685,23 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     expect(config.commission.enabled).toBe(false);
-    expect(config.commission.tooltip).toBe('No sales agent assigned');
+    expect(config.commission.tooltip).toBe("No sales agent assigned");
   });
 
   /**
    * TC-012: Commission Icon - Null Sales Agent ID
    * Tests that salesAgentId=null correctly disables commission icon
    */
-  test('TC-012: Paid invoice with salesAgentId=null → commission disabled', () => {
+  test("TC-012: Paid invoice with salesAgentId=null → commission disabled", () => {
     const invoice = {
       id: 112,
-      invoiceNumber: 'INV-TC012',
-      status: 'issued',
-      paymentStatus: 'paid',
+      invoiceNumber: "INV-TC012",
+      status: "issued",
+      paymentStatus: "paid",
       salesAgentId: null,
       deletedAt: null,
     };
@@ -728,11 +721,11 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     expect(config.commission.enabled).toBe(false);
-    expect(config.commission.tooltip).toBe('No sales agent assigned');
+    expect(config.commission.tooltip).toBe("No sales agent assigned");
   });
 
   /**
@@ -742,10 +735,10 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
   test('TC-013: Paid invoice with salesAgentId="5" (string, valid) → commission enabled', () => {
     const invoice = {
       id: 113,
-      invoiceNumber: 'INV-TC013',
-      status: 'issued',
-      paymentStatus: 'paid',
-      salesAgentId: '5', // Valid string ID
+      invoiceNumber: "INV-TC013",
+      status: "issued",
+      paymentStatus: "paid",
+      salesAgentId: "5", // Valid string ID
       deletedAt: null,
     };
 
@@ -764,10 +757,10 @@ describe('InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)', () => {
       permissions,
       {},
       getInvoiceReminderInfo,
-      validateInvoiceForDownload,
+      validateInvoiceForDownload
     );
 
     expect(config.commission.enabled).toBe(true);
-    expect(config.commission.tooltip).toBe('Calculate Commission');
+    expect(config.commission.tooltip).toBe("Calculate Commission");
   });
 });

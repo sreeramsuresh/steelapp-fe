@@ -1,16 +1,16 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { v4 as uuidv4 } from 'uuid';
-import ProductSelector from './ProductSelector';
-import BatchAllocationPanel from './BatchAllocationPanel';
-import ReservationTimer from './ReservationTimer';
-import SourceTypeSelector from './SourceTypeSelector';
-import WarehouseAvailability from './WarehouseAvailability';
-import ConfirmDialog from '../ConfirmDialog';
-import { useReservations } from '../../hooks/useReservations';
-import pricelistService from '../../services/pricelistService';
-import { authService } from '../../services/axiosAuthService';
-import './AllocationDrawer.css';
+import PropTypes from "prop-types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { useReservations } from "../../hooks/useReservations";
+import { authService } from "../../services/axiosAuthService";
+import pricelistService from "../../services/pricelistService";
+import ConfirmDialog from "../ConfirmDialog";
+import BatchAllocationPanel from "./BatchAllocationPanel";
+import ProductSelector from "./ProductSelector";
+import ReservationTimer from "./ReservationTimer";
+import SourceTypeSelector from "./SourceTypeSelector";
+import WarehouseAvailability from "./WarehouseAvailability";
+import "./AllocationDrawer.css";
 
 /**
  * AllocationDrawer Component
@@ -45,11 +45,11 @@ const AllocationDrawer = ({
   const [drawerState, setDrawerState] = useState({
     product: null,
     productId: null,
-    productName: '',
-    quantity: '',
-    unit: 'PCS',
-    unitPrice: '',
-    sourceType: 'WAREHOUSE', // WAREHOUSE | LOCAL_DROP_SHIP | IMPORT_DROP_SHIP
+    productName: "",
+    quantity: "",
+    unit: "PCS",
+    unitPrice: "",
+    sourceType: "WAREHOUSE", // WAREHOUSE | LOCAL_DROP_SHIP | IMPORT_DROP_SHIP
     selectedAllocations: [],
     allocationMethod: null, // 'FIFO' | 'MANUAL' | null - tracks how allocation was made
     loading: false,
@@ -97,15 +97,12 @@ const AllocationDrawer = ({
     if (!product) return false;
 
     // Priority 1: Check product_category field
-    if (
-      product.productCategory &&
-      product.productCategory.toUpperCase() === 'COIL'
-    ) {
+    if (product.productCategory && product.productCategory.toUpperCase() === "COIL") {
       return true;
     }
 
     // Priority 2: Check form field (fallback)
-    if (product.form && product.form.toLowerCase().includes('coil')) {
+    if (product.form && product.form.toLowerCase().includes("coil")) {
       return true;
     }
 
@@ -116,26 +113,26 @@ const AllocationDrawer = ({
   const deriveBasisCode = (pricingBasis) => {
     // pricingBasis is the enum value (0=UNSPECIFIED, 1=PER_KG, 2=PER_MT, 3=PER_PCS, 4=PER_METER, 5=PER_LOT)
     const basisMap = {
-      0: 'UNSPECIFIED',
-      1: 'PER_KG',
-      2: 'PER_MT',
-      3: 'PER_PCS',
-      4: 'PER_METER',
-      5: 'PER_LOT',
+      0: "UNSPECIFIED",
+      1: "PER_KG",
+      2: "PER_MT",
+      3: "PER_PCS",
+      4: "PER_METER",
+      5: "PER_LOT",
     };
-    return basisMap[pricingBasis] || 'PER_PCS'; // Default to PER_PCS if unknown
+    return basisMap[pricingBasis] || "PER_PCS"; // Default to PER_PCS if unknown
   };
 
   // Helper: Derive base unit from pricing basis code
   const deriveBaseUnit = (basisCode) => {
     const unitMap = {
-      PER_KG: 'KG',
-      PER_MT: 'MT',
-      PER_PCS: 'PCS',
-      PER_METER: 'M',
-      PER_LOT: 'LOT',
+      PER_KG: "KG",
+      PER_MT: "MT",
+      PER_PCS: "PCS",
+      PER_METER: "M",
+      PER_LOT: "LOT",
     };
-    return unitMap[basisCode] || 'PCS'; // Default to PCS if unknown
+    return unitMap[basisCode] || "PCS"; // Default to PCS if unknown
   };
 
   // Helper: Calculate price per piece from price per MT (audit team requirement)
@@ -171,31 +168,23 @@ const AllocationDrawer = ({
   // Phase 2: Conversion Logic
 
   // Check if conversion between units is supported
-  const isConversionSupported = (
-    fromUnit,
-    toUnit,
-    unitWeightKg,
-    pricingBasisCode,
-  ) => {
+  const isConversionSupported = (fromUnit, toUnit, unitWeightKg, pricingBasisCode) => {
     if (fromUnit === toUnit) return true; // Same unit, no conversion needed
 
     // Block PER_METER and PER_LOT conversions (unsupported)
-    if (pricingBasisCode === 'PER_METER' || pricingBasisCode === 'PER_LOT') {
+    if (pricingBasisCode === "PER_METER" || pricingBasisCode === "PER_LOT") {
       return false;
     }
 
     // Weight conversions (MT ↔ KG) - always supported
-    if (
-      (fromUnit === 'MT' && toUnit === 'KG') ||
-      (fromUnit === 'KG' && toUnit === 'MT')
-    ) {
+    if ((fromUnit === "MT" && toUnit === "KG") || (fromUnit === "KG" && toUnit === "MT")) {
       return true;
     }
 
     // Piece-to-weight conversions (PCS ↔ KG/MT) - require unitWeightKg
     const isPieceToWeight =
-      (fromUnit === 'PCS' && (toUnit === 'KG' || toUnit === 'MT')) ||
-      ((fromUnit === 'KG' || fromUnit === 'MT') && toUnit === 'PCS');
+      (fromUnit === "PCS" && (toUnit === "KG" || toUnit === "MT")) ||
+      ((fromUnit === "KG" || fromUnit === "MT") && toUnit === "PCS");
 
     if (isPieceToWeight) {
       return unitWeightKg != null && unitWeightKg > 0;
@@ -207,40 +196,40 @@ const AllocationDrawer = ({
 
   // CRITICAL FIX: Pure function to get conversion factor (basis → targetUnit)
   // Returns null if conversion impossible; throws if guardconditions violated
-  const getFactor = useCallback(
-    (pricingBasisCode, targetUnit, unitWeightKg) => {
-      if (!pricingBasisCode) return null;
+  const getFactor = useCallback((pricingBasisCode, targetUnit, unitWeightKg) => {
+    if (!pricingBasisCode) return null;
 
-      const basisCode = pricingBasisCode.toUpperCase();
-      const unit = (targetUnit || '').toUpperCase();
+    const basisCode = pricingBasisCode.toUpperCase();
+    const unit = (targetUnit || "").toUpperCase();
 
-      // Block unsupported bases
-      if (basisCode === 'PER_METER' || basisCode === 'PER_LOT') {
-        return null; // Cannot convert
-      }
+    // Block unsupported bases
+    if (basisCode === "PER_METER" || basisCode === "PER_LOT") {
+      return null; // Cannot convert
+    }
 
-      // Map basis to its native unit and factor
-      const mapping = {
-        PER_MT: { nativeUnit: 'MT', factors: { MT: 1, KG: 1 / 1000, PCS: unitWeightKg ? unitWeightKg / 1000 : null } },
-        PER_KG: { nativeUnit: 'KG', factors: { KG: 1, MT: 1000, PCS: unitWeightKg ? unitWeightKg : null } },
-        PER_PCS: { nativeUnit: 'PCS', factors: { PCS: 1, KG: unitWeightKg ? 1 / unitWeightKg : null, MT: unitWeightKg ? 1000 / unitWeightKg : null } },
-      };
+    // Map basis to its native unit and factor
+    const mapping = {
+      PER_MT: { nativeUnit: "MT", factors: { MT: 1, KG: 1 / 1000, PCS: unitWeightKg ? unitWeightKg / 1000 : null } },
+      PER_KG: { nativeUnit: "KG", factors: { KG: 1, MT: 1000, PCS: unitWeightKg ? unitWeightKg : null } },
+      PER_PCS: {
+        nativeUnit: "PCS",
+        factors: { PCS: 1, KG: unitWeightKg ? 1 / unitWeightKg : null, MT: unitWeightKg ? 1000 / unitWeightKg : null },
+      },
+    };
 
-      const basisData = mapping[basisCode];
-      if (!basisData) return null;
+    const basisData = mapping[basisCode];
+    if (!basisData) return null;
 
-      const factor = basisData.factors[unit];
-      return factor; // May be null if PCS conversion blocked by missing unitWeightKg
-    },
-    [],
-  );
+    const factor = basisData.factors[unit];
+    return factor; // May be null if PCS conversion blocked by missing unitWeightKg
+  }, []);
 
   // CRITICAL FIX: Pure function that derives display rate from immutable base
   // Returns { displayRate, isValid, error }
   const deriveDisplayRate = useCallback(
     (baseRate, basePricingBasis, targetUnit, unitWeightKg) => {
       if (baseRate == null || !basePricingBasis || !targetUnit) {
-        return { displayRate: '', isValid: false, error: null };
+        return { displayRate: "", isValid: false, error: null };
       }
 
       const factor = getFactor(basePricingBasis, targetUnit, unitWeightKg);
@@ -248,22 +237,21 @@ const AllocationDrawer = ({
       // Factor is null if conversion unsupported or blocked
       if (factor === null) {
         const errorMsg =
-          basePricingBasis === 'PER_METER'
-            ? 'Conversions from per-meter not supported'
-            : basePricingBasis === 'PER_LOT'
-            ? 'Fixed lot pricing cannot be converted'
-            : targetUnit === 'PCS' && (!unitWeightKg || unitWeightKg <= 0)
-            ? 'Unit weight (kg/pcs) required to convert to pieces'
-            : 'Conversion not supported';
-        return { displayRate: '', isValid: false, error: errorMsg };
+          basePricingBasis === "PER_METER"
+            ? "Conversions from per-meter not supported"
+            : basePricingBasis === "PER_LOT"
+              ? "Fixed lot pricing cannot be converted"
+              : targetUnit === "PCS" && (!unitWeightKg || unitWeightKg <= 0)
+                ? "Unit weight (kg/pcs) required to convert to pieces"
+                : "Conversion not supported";
+        return { displayRate: "", isValid: false, error: errorMsg };
       }
 
       const displayRate = baseRate * factor;
       return { displayRate: Math.round(displayRate * 100) / 100, isValid: true, error: null };
     },
-    [getFactor],
+    [getFactor]
   );
-
 
   // Convert quantity from one unit to another (preserves physical amount)
   const convertQuantity = (qty, fromUnit, toUnit, unitWeightKg) => {
@@ -273,35 +261,35 @@ const AllocationDrawer = ({
     if (isNaN(numQty)) return qty;
 
     // MT to KG: 10 MT = 10,000 KG
-    if (fromUnit === 'MT' && toUnit === 'KG') {
+    if (fromUnit === "MT" && toUnit === "KG") {
       return numQty * 1000;
     }
 
     // KG to MT: 10,000 KG = 10 MT
-    if (fromUnit === 'KG' && toUnit === 'MT') {
+    if (fromUnit === "KG" && toUnit === "MT") {
       return numQty / 1000;
     }
 
     // PCS to KG: 10 PCS × 2.5 kg/pcs = 25 KG
-    if (fromUnit === 'PCS' && toUnit === 'KG') {
+    if (fromUnit === "PCS" && toUnit === "KG") {
       if (!unitWeightKg || unitWeightKg === 0) return numQty;
       return numQty * unitWeightKg;
     }
 
     // KG to PCS: 25 KG / 2.5 kg/pcs = 10 PCS
-    if (fromUnit === 'KG' && toUnit === 'PCS') {
+    if (fromUnit === "KG" && toUnit === "PCS") {
       if (!unitWeightKg || unitWeightKg === 0) return numQty;
       return numQty / unitWeightKg;
     }
 
     // PCS to MT: 10 PCS × (2.5 kg/pcs / 1000) = 0.025 MT
-    if (fromUnit === 'PCS' && toUnit === 'MT') {
+    if (fromUnit === "PCS" && toUnit === "MT") {
       if (!unitWeightKg || unitWeightKg === 0) return numQty;
       return numQty * (unitWeightKg / 1000);
     }
 
     // MT to PCS: 0.025 MT / (2.5 kg/pcs / 1000) = 10 PCS
-    if (fromUnit === 'MT' && toUnit === 'PCS') {
+    if (fromUnit === "MT" && toUnit === "PCS") {
       if (!unitWeightKg || unitWeightKg === 0) return numQty;
       return numQty / (unitWeightKg / 1000);
     }
@@ -312,7 +300,7 @@ const AllocationDrawer = ({
   // Format price with backend-aligned precision
   const formatPrice = (price) => {
     const numPrice = parseFloat(price);
-    if (isNaN(numPrice)) return '';
+    if (isNaN(numPrice)) return "";
 
     // CRITICAL: Format with proper decimal places to avoid floating-point display artifacts
     // All prices display with 2 decimal places for consistency and audit trail
@@ -322,10 +310,10 @@ const AllocationDrawer = ({
   // Format quantity with unit-appropriate precision
   const formatQuantity = (qty, unit) => {
     const numQty = parseFloat(qty);
-    if (isNaN(numQty)) return '';
+    if (isNaN(numQty)) return "";
 
     // PCS: whole numbers only
-    if (unit === 'PCS') {
+    if (unit === "PCS") {
       return Math.round(numQty);
     }
     return numQty; // Return numeric value
@@ -333,7 +321,7 @@ const AllocationDrawer = ({
 
   // Phase 4: Get available units based on product and pricing basis
   const getAvailableUnits = useCallback(() => {
-    const allUnits = ['KG', 'PCS', 'MT', 'M'];
+    const allUnits = ["KG", "PCS", "MT", "M"];
     const currentUnit = drawerState.unit;
 
     // If no product selected, allow all units
@@ -347,11 +335,11 @@ const AllocationDrawer = ({
 
     return allUnits.map((unit) => {
       // AUDIT TEAM REQUIREMENT: Disable PCS for coils (coils should stay in MT/KG only)
-      if (unit === 'PCS' && isCoil(drawerState.product)) {
+      if (unit === "PCS" && isCoil(drawerState.product)) {
         return {
           value: unit,
           disabled: true,
-          reason: 'Coils cannot be sold in pieces',
+          reason: "Coils cannot be sold in pieces",
         };
       }
 
@@ -365,24 +353,18 @@ const AllocationDrawer = ({
         currentUnit,
         unit,
         drawerState.unitWeightKg,
-        drawerState.pricingBasisCode,
+        drawerState.pricingBasisCode
       );
 
       if (!supported) {
-        let reason = 'Conversion not available';
+        let reason = "Conversion not available";
 
-        if (drawerState.pricingBasisCode === 'PER_METER' && unit !== 'M') {
-          reason = 'Product priced per meter';
-        } else if (
-          drawerState.pricingBasisCode === 'PER_LOT' &&
-          unit !== 'LOT'
-        ) {
-          reason = 'Product priced per lot';
-        } else if (
-          !drawerState.unitWeightKg &&
-          (unit === 'KG' || unit === 'MT')
-        ) {
-          reason = 'Product weight required';
+        if (drawerState.pricingBasisCode === "PER_METER" && unit !== "M") {
+          reason = "Product priced per meter";
+        } else if (drawerState.pricingBasisCode === "PER_LOT" && unit !== "LOT") {
+          reason = "Product priced per lot";
+        } else if (!drawerState.unitWeightKg && (unit === "KG" || unit === "MT")) {
+          reason = "Product weight required";
         }
 
         return { value: unit, disabled: true, reason };
@@ -399,25 +381,22 @@ const AllocationDrawer = ({
   ]);
 
   // Compute available units with useMemo
-  const availableUnits = useMemo(
-    () => getAvailableUnits(),
-    [getAvailableUnits],
-  );
+  const availableUnits = useMemo(() => getAvailableUnits(), [getAvailableUnits]);
 
   // Phase 5: Get pricing basis label for UI indicator
   // BUGFIX: Use currentDisplayUnit instead of pricingBasisCode so label matches displayed price
   const getPricingBasisLabel = () => {
-    if (!drawerState.currentDisplayUnit) return '';
+    if (!drawerState.currentDisplayUnit) return "";
 
     const unitToLabel = {
-      KG: 'per KG',
-      MT: 'per MT',
-      PCS: 'per PCS',
-      M: 'per M',
-      LOT: 'per LOT',
+      KG: "per KG",
+      MT: "per MT",
+      PCS: "per PCS",
+      M: "per M",
+      LOT: "per LOT",
     };
 
-    return unitToLabel[drawerState.currentDisplayUnit] || '';
+    return unitToLabel[drawerState.currentDisplayUnit] || "";
   };
 
   // NOTE: Removed useEffect that initialized selectedWarehouseId from parent's warehouseId.
@@ -441,10 +420,7 @@ const AllocationDrawer = ({
         if (priceListId) params.pricelist_id = priceListId;
         if (quantity > 0) params.quantity = quantity;
 
-        const response = await pricelistService.getProductPrice(
-          productId,
-          params,
-        );
+        const response = await pricelistService.getProductPrice(productId, params);
 
         // Only apply if this is the latest request (race-safe)
         if (requestId === priceRequestIdRef.current) {
@@ -464,31 +440,26 @@ const AllocationDrawer = ({
             let autoCalcError = null;
 
             // If non-coil product priced in /MT and current unit is PCS, auto-calculate /PCS
-            if (
-              !isCoil(prev.product) &&
-              basisCode === 'PER_MT' &&
-              prev.unit === 'PCS'
-            ) {
-              const pricePerPCS = calculatePricePerPCS(
-                response.price,
-                prev.product,
-              );
+            if (!isCoil(prev.product) && basisCode === "PER_MT" && prev.unit === "PCS") {
+              const pricePerPCS = calculatePricePerPCS(response.price, prev.product);
 
               if (pricePerPCS !== null) {
                 displayPrice = pricePerPCS;
-                displayUnit = 'PCS';
+                displayUnit = "PCS";
               } else {
                 // Missing weight data - block with clear error
                 autoCalcError =
-                  'Cannot compute AED/PCS: missing kg-per-piece (or pieces-per-MT). Change unit or contact admin.';
+                  "Cannot compute AED/PCS: missing kg-per-piece (or pieces-per-MT). Change unit or contact admin.";
               }
             }
 
             return {
               ...prev,
               unitPrice: autoCalcError
-                ? ''
-                : displayPrice ? (Math.round(displayPrice * 100) / 100).toString() : prev.unitPrice,
+                ? ""
+                : displayPrice
+                  ? (Math.round(displayPrice * 100) / 100).toString()
+                  : prev.unitPrice,
               priceLoading: false,
               // Store pricing basis metadata
               pricingBasisCode: basisCode,
@@ -500,7 +471,7 @@ const AllocationDrawer = ({
           });
         }
       } catch (err) {
-        console.error('Failed to fetch product price:', err);
+        console.error("Failed to fetch product price:", err);
 
         // Only update error if this is the latest request
         if (requestId === priceRequestIdRef.current) {
@@ -513,16 +484,13 @@ const AllocationDrawer = ({
             if (!prev.unitPrice) {
               if (status === 404) {
                 // Product not in pricelist - non-blocking, user can enter manually
-                errorMessage =
-                  'Price not available for this product. Please enter manually.';
+                errorMessage = "Price not available for this product. Please enter manually.";
               } else if (status === 422) {
                 // Configuration error - admin needs to fix
-                errorMessage =
-                  'Contact administrator: No default pricelist configured for your company.';
+                errorMessage = "Contact administrator: No default pricelist configured for your company.";
               } else {
                 // Other errors (500, network, etc.)
-                errorMessage =
-                  'Could not fetch price from price list. Please enter manually.';
+                errorMessage = "Could not fetch price from price list. Please enter manually.";
               }
             }
 
@@ -535,7 +503,7 @@ const AllocationDrawer = ({
         }
       }
     },
-    [customerId, priceListId],
+    [customerId, priceListId]
   );
 
   // Fetch price on product selection
@@ -545,20 +513,11 @@ const AllocationDrawer = ({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProductPrice(drawerState.productId, qty);
     }
-  }, [
-    drawerState.productId,
-    drawerState.quantity,
-    drawerState.unitPriceOverridden,
-    fetchProductPrice,
-  ]);
+  }, [drawerState.productId, drawerState.quantity, drawerState.unitPriceOverridden, fetchProductPrice]);
 
   // Re-fetch price on quantity change (volume discounts) with debounce
   useEffect(() => {
-    if (
-      drawerState.productId &&
-      drawerState.quantity &&
-      !drawerState.unitPriceOverridden
-    ) {
+    if (drawerState.productId && drawerState.quantity && !drawerState.unitPriceOverridden) {
       const qty = parseFloat(drawerState.quantity);
       if (qty > 0) {
         const timer = setTimeout(() => {
@@ -567,12 +526,7 @@ const AllocationDrawer = ({
         return () => clearTimeout(timer);
       }
     }
-  }, [
-    drawerState.quantity,
-    drawerState.productId,
-    drawerState.unitPriceOverridden,
-    fetchProductPrice,
-  ]);
+  }, [drawerState.quantity, drawerState.productId, drawerState.unitPriceOverridden, fetchProductPrice]);
 
   // Handle product selection
   const handleProductSelect = useCallback(
@@ -581,7 +535,7 @@ const AllocationDrawer = ({
         ...prev,
         product,
         productId: product?.id || null,
-        productName: product?.displayName || product?.name || '',
+        productName: product?.displayName || product?.name || "",
         // Reset allocations when product changes
         selectedAllocations: [],
         // Clear error when product changes
@@ -596,7 +550,7 @@ const AllocationDrawer = ({
         cancelReservation();
       }
     },
-    [reservationId, cancelReservation],
+    [reservationId, cancelReservation]
   );
 
   // Handle quantity change (PCS-CENTRIC: Integer comparison)
@@ -604,26 +558,23 @@ const AllocationDrawer = ({
     (e) => {
       const value = e.target.value;
       // Allow empty or valid decimal numbers
-      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      if (value === "" || /^\d*\.?\d*$/.test(value)) {
         // P2-2: Warn if changing quantity with active allocations
         if (
-          drawerState.sourceType === 'WAREHOUSE' &&
+          drawerState.sourceType === "WAREHOUSE" &&
           allocations?.length > 0 &&
-          drawerState.quantity !== '' &&
+          drawerState.quantity !== "" &&
           value !== drawerState.quantity
         ) {
           const currentPcs = Math.floor(parseFloat(drawerState.quantity) || 0);
           const newPcs = Math.floor(parseFloat(value) || 0);
-          const allocatedPcs = allocations.reduce(
-            (sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)),
-            0,
-          );
+          const allocatedPcs = allocations.reduce((sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)), 0);
 
           // PCS-CENTRIC: Only warn if integer PCS changes
           if (newPcs !== currentPcs) {
             setConfirmDialog({
               open: true,
-              type: 'quantity_change',
+              type: "quantity_change",
               newValue: value,
               allocatedPcs,
               currentPcs,
@@ -641,7 +592,7 @@ const AllocationDrawer = ({
         }));
       }
     },
-    [drawerState.sourceType, drawerState.quantity, allocations],
+    [drawerState.sourceType, drawerState.quantity, allocations]
   );
 
   // Confirm quantity change
@@ -654,98 +605,87 @@ const AllocationDrawer = ({
   }, [confirmDialog.newValue]);
 
   // Handle unit change - CRITICAL FIX: Derive display rate from baseRate, never in-place convert
-  const handleUnitChange = useCallback((e) => {
-    const newUnit = e.target.value;
+  const handleUnitChange = useCallback(
+    (e) => {
+      const newUnit = e.target.value;
 
-    setDrawerState((prev) => {
-      const oldUnit = prev.unit;
+      setDrawerState((prev) => {
+        const oldUnit = prev.unit;
 
-      // No change needed if same unit
-      if (oldUnit === newUnit) return prev;
+        // No change needed if same unit
+        if (oldUnit === newUnit) return prev;
 
-      // Check if conversion is supported
-      const canConvert = isConversionSupported(
-        oldUnit,
-        newUnit,
-        prev.unitWeightKg,
-        prev.pricingBasisCode,
-      );
+        // Check if conversion is supported
+        const canConvert = isConversionSupported(oldUnit, newUnit, prev.unitWeightKg, prev.pricingBasisCode);
 
-      if (!canConvert) {
-        // Show error and don't change unit
-        let errorMsg = 'Cannot convert to this unit.';
+        if (!canConvert) {
+          // Show error and don't change unit
+          let errorMsg = "Cannot convert to this unit.";
 
-        if (prev.pricingBasisCode === 'PER_METER') {
-          errorMsg =
-            'Length-based conversions not available. Please use meters.';
-        } else if (prev.pricingBasisCode === 'PER_LOT') {
-          errorMsg = 'Lot-based conversions not available. Please use lots.';
-        } else if (
-          !prev.unitWeightKg &&
-          (newUnit === 'KG' || newUnit === 'MT')
-        ) {
-          errorMsg = 'Weight conversions require product weight data.';
+          if (prev.pricingBasisCode === "PER_METER") {
+            errorMsg = "Length-based conversions not available. Please use meters.";
+          } else if (prev.pricingBasisCode === "PER_LOT") {
+            errorMsg = "Lot-based conversions not available. Please use lots.";
+          } else if (!prev.unitWeightKg && (newUnit === "KG" || newUnit === "MT")) {
+            errorMsg = "Weight conversions require product weight data.";
+          }
+
+          return {
+            ...prev,
+            error: errorMsg,
+          };
         }
+
+        // CRITICAL FIX: ALWAYS derive new display price from immutable baseRate + basePricingBasis
+        // Do NOT convert the already-displayed price (which may be auto-calculated or user-entered)
+        let newPrice = prev.unitPrice; // Default: keep existing if override
+        let newError = null;
+
+        if (!prev.unitPriceOverridden && prev.basePrice != null && prev.pricingBasisCode) {
+          // Re-derive display price from base (single source of truth)
+          const { displayRate, isValid, error } = deriveDisplayRate(
+            prev.basePrice,
+            prev.pricingBasisCode,
+            newUnit,
+            prev.unitWeightKg
+          );
+
+          if (isValid) {
+            newPrice = displayRate;
+          } else {
+            // Conversion failed (e.g., PCS without weight)
+            newPrice = "";
+            newError = error;
+          }
+        }
+
+        // ALWAYS convert quantity to preserve physical meaning
+        let newQuantity = prev.quantity;
+        if (prev.quantity) {
+          newQuantity = convertQuantity(prev.quantity, oldUnit, newUnit, prev.unitWeightKg);
+        }
+
+        // Format values
+        const formattedPrice = formatPrice(newPrice);
+        const formattedQuantity = formatQuantity(newQuantity, newUnit);
 
         return {
           ...prev,
-          error: errorMsg,
+          unit: newUnit,
+          unitPrice: formattedPrice.toString(),
+          quantity: formattedQuantity.toString(),
+          currentDisplayUnit: newUnit, // Track that price is now displayed in newUnit
+          error: newError || null,
         };
-      }
-
-      // CRITICAL FIX: ALWAYS derive new display price from immutable baseRate + basePricingBasis
-      // Do NOT convert the already-displayed price (which may be auto-calculated or user-entered)
-      let newPrice = prev.unitPrice; // Default: keep existing if override
-      let newError = null;
-
-      if (!prev.unitPriceOverridden && prev.basePrice != null && prev.pricingBasisCode) {
-        // Re-derive display price from base (single source of truth)
-        const { displayRate, isValid, error } = deriveDisplayRate(
-          prev.basePrice,
-          prev.pricingBasisCode,
-          newUnit,
-          prev.unitWeightKg,
-        );
-
-        if (isValid) {
-          newPrice = displayRate;
-        } else {
-          // Conversion failed (e.g., PCS without weight)
-          newPrice = '';
-          newError = error;
-        }
-      }
-
-      // ALWAYS convert quantity to preserve physical meaning
-      let newQuantity = prev.quantity;
-      if (prev.quantity) {
-        newQuantity = convertQuantity(
-          prev.quantity,
-          oldUnit,
-          newUnit,
-          prev.unitWeightKg,
-        );
-      }
-
-      // Format values
-      const formattedPrice = formatPrice(newPrice);
-      const formattedQuantity = formatQuantity(newQuantity, newUnit);
-
-      return {
-        ...prev,
-        unit: newUnit,
-        unitPrice: formattedPrice.toString(),
-        quantity: formattedQuantity.toString(),
-        currentDisplayUnit: newUnit, // Track that price is now displayed in newUnit
-        error: newError || null,
-      };
-    });
-  }, [deriveDisplayRate]);
+      });
+    },
+    [deriveDisplayRate]
+  );
 
   // Handle unit price change
   const handleUnitPriceChange = useCallback((e) => {
     const value = e.target.value;
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
       // Format price to 2 decimal places if it's a valid number
       let formattedValue = value;
       if (value && !isNaN(parseFloat(value))) {
@@ -767,7 +707,7 @@ const AllocationDrawer = ({
     setDrawerState((prev) => ({
       ...prev,
       unitPriceOverridden: false,
-      unitPrice: '',
+      unitPrice: "",
     }));
     const qty = parseFloat(drawerState.quantity) || 1;
     fetchProductPrice(drawerState.productId, qty);
@@ -778,19 +718,15 @@ const AllocationDrawer = ({
     (sourceType) => {
       // P2-3: Warn if switching FROM warehouse TO drop-ship with active allocations
       if (
-        drawerState.sourceType === 'WAREHOUSE' &&
-        (sourceType === 'LOCAL_DROP_SHIP' ||
-          sourceType === 'IMPORT_DROP_SHIP') &&
+        drawerState.sourceType === "WAREHOUSE" &&
+        (sourceType === "LOCAL_DROP_SHIP" || sourceType === "IMPORT_DROP_SHIP") &&
         allocations?.length > 0
       ) {
-        const allocatedQty = allocations.reduce(
-          (sum, a) => sum + parseFloat(a.quantity || 0),
-          0,
-        );
+        const allocatedQty = allocations.reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0);
 
         setConfirmDialog({
           open: true,
-          type: 'source_type_change',
+          type: "source_type_change",
           newValue: sourceType,
           allocatedQty,
         });
@@ -801,13 +737,11 @@ const AllocationDrawer = ({
         ...prev,
         sourceType,
         // Clear allocations when switching away from warehouse
-        selectedAllocations:
-          sourceType === 'WAREHOUSE' ? prev.selectedAllocations : [],
-        allocationMethod:
-          sourceType === 'WAREHOUSE' ? prev.allocationMethod : null,
+        selectedAllocations: sourceType === "WAREHOUSE" ? prev.selectedAllocations : [],
+        allocationMethod: sourceType === "WAREHOUSE" ? prev.allocationMethod : null,
       }));
     },
-    [drawerState.sourceType, allocations],
+    [drawerState.sourceType, allocations]
   );
 
   // Confirm source type change
@@ -819,10 +753,7 @@ const AllocationDrawer = ({
       try {
         await cancelReservation();
       } catch (err) {
-        console.warn(
-          'Failed to cancel reservation on source type change:',
-          err,
-        );
+        console.warn("Failed to cancel reservation on source type change:", err);
       }
     }
 
@@ -830,10 +761,8 @@ const AllocationDrawer = ({
       ...prev,
       sourceType,
       // Clear allocations when switching away from warehouse
-      selectedAllocations:
-        sourceType === 'WAREHOUSE' ? prev.selectedAllocations : [],
-      allocationMethod:
-        sourceType === 'WAREHOUSE' ? prev.allocationMethod : null,
+      selectedAllocations: sourceType === "WAREHOUSE" ? prev.selectedAllocations : [],
+      allocationMethod: sourceType === "WAREHOUSE" ? prev.allocationMethod : null,
     }));
   }, [confirmDialog.newValue, reservationId, cancelReservation]);
 
@@ -849,13 +778,10 @@ const AllocationDrawer = ({
   const handleWarehouseSelect = useCallback(
     (newWarehouseId) => {
       // Warn if changing warehouse with active allocations
-      if (
-        drawerState.selectedWarehouseId !== newWarehouseId &&
-        allocations?.length > 0
-      ) {
+      if (drawerState.selectedWarehouseId !== newWarehouseId && allocations?.length > 0) {
         setConfirmDialog({
           open: true,
-          type: 'warehouse_change',
+          type: "warehouse_change",
           newValue: newWarehouseId,
         });
         return;
@@ -870,7 +796,7 @@ const AllocationDrawer = ({
         error: null,
       }));
     },
-    [drawerState.selectedWarehouseId, allocations],
+    [drawerState.selectedWarehouseId, allocations]
   );
 
   // Confirm warehouse change
@@ -882,10 +808,7 @@ const AllocationDrawer = ({
       try {
         await cancelReservation();
       } catch (err) {
-        console.warn(
-          'Failed to cancel reservation on warehouse change:',
-          err,
-        );
+        console.warn("Failed to cancel reservation on warehouse change:", err);
       }
     }
 
@@ -904,24 +827,19 @@ const AllocationDrawer = ({
     setDrawerState((prev) => ({
       ...prev,
       selectedAllocations: [],
-      error: 'Reservation expired. Please re-allocate batches.',
+      error: "Reservation expired. Please re-allocate batches.",
     }));
   }, []);
 
   // Validate form (PCS-CENTRIC: Integer comparison for warehouse allocations)
   const isValid = useMemo(() => {
     if (!drawerState.productId) return false;
-    if (!drawerState.quantity || parseFloat(drawerState.quantity) <= 0)
-      return false;
-    if (!drawerState.unitPrice || parseFloat(drawerState.unitPrice) <= 0)
-      return false;
+    if (!drawerState.quantity || parseFloat(drawerState.quantity) <= 0) return false;
+    if (!drawerState.unitPrice || parseFloat(drawerState.unitPrice) <= 0) return false;
 
-    if (drawerState.sourceType === 'WAREHOUSE') {
+    if (drawerState.sourceType === "WAREHOUSE") {
       // PCS-CENTRIC: Must have allocations matching quantity (integer comparison)
-      const allocatedPcs = (allocations || []).reduce(
-        (sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)),
-        0,
-      );
+      const allocatedPcs = (allocations || []).reduce((sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)), 0);
       const requiredPcs = Math.floor(parseFloat(drawerState.quantity));
       return allocatedPcs >= requiredPcs; // Must have allocated at least the required PCS
     }
@@ -931,10 +849,7 @@ const AllocationDrawer = ({
 
   // Calculate allocated quantity
   const allocatedQuantity = useMemo(() => {
-    return (allocations || []).reduce(
-      (sum, a) => sum + parseFloat(a.quantity || 0),
-      0,
-    );
+    return (allocations || []).reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0);
   }, [allocations]);
 
   // Calculate total cost (selling amount = qty × unitPrice)
@@ -947,18 +862,15 @@ const AllocationDrawer = ({
 
   // Calculate COGS separately for margin tracking (optional - for future margin reports)
   const totalCogs = useMemo(() => {
-    if (drawerState.sourceType === 'WAREHOUSE' && allocations?.length > 0) {
-      return allocations.reduce(
-        (sum, a) => sum + parseFloat(a.totalCost || 0),
-        0,
-      );
+    if (drawerState.sourceType === "WAREHOUSE" && allocations?.length > 0) {
+      return allocations.reduce((sum, a) => sum + parseFloat(a.totalCost || 0), 0);
     }
     return 0;
   }, [drawerState.sourceType, allocations]);
 
   // Check if user can view margins (CEO, CFO, Sales Manager, Admin, Dev)
   const canViewMargins = useMemo(() => {
-    return authService.hasRole(['ceo', 'cfo', 'sales_manager', 'admin', 'dev']);
+    return authService.hasRole(["ceo", "cfo", "sales_manager", "admin", "dev"]);
   }, []);
 
   // Per-piece unit cost (buying price from batch)
@@ -983,9 +895,9 @@ const AllocationDrawer = ({
 
   // Margin color based on percentage (Red < 5%, Yellow 5-10%, Green > 10%)
   const marginColor = useMemo(() => {
-    if (marginPercent < 5) return 'text-red-600';
-    if (marginPercent < 10) return 'text-yellow-600';
-    return 'text-green-600';
+    if (marginPercent < 5) return "text-red-600";
+    if (marginPercent < 10) return "text-yellow-600";
+    return "text-green-600";
   }, [marginPercent]);
 
   // Handle clear
@@ -1002,11 +914,11 @@ const AllocationDrawer = ({
     setDrawerState({
       product: null,
       productId: null,
-      productName: '',
-      quantity: '',
-      unit: 'PCS',
-      unitPrice: '',
-      sourceType: 'WAREHOUSE',
+      productName: "",
+      quantity: "",
+      unit: "PCS",
+      unitPrice: "",
+      sourceType: "WAREHOUSE",
       selectedAllocations: [],
       allocationMethod: null,
       loading: false,
@@ -1029,10 +941,10 @@ const AllocationDrawer = ({
     if (!isValid) return;
 
     // GUARDRAIL: If PCS conversion involved, require unitWeightKg
-    if (drawerState.unit === 'PCS' && (!drawerState.unitWeightKg || drawerState.unitWeightKg <= 0)) {
+    if (drawerState.unit === "PCS" && (!drawerState.unitWeightKg || drawerState.unitWeightKg <= 0)) {
       setDrawerState((prev) => ({
         ...prev,
-        error: 'Unit weight (kg/pcs) required for PCS pricing. Contact admin.',
+        error: "Unit weight (kg/pcs) required for PCS pricing. Contact admin.",
       }));
       return;
     }
@@ -1057,12 +969,9 @@ const AllocationDrawer = ({
 
       // Stock allocation metadata
       sourceType: drawerState.sourceType,
-      warehouseId: drawerState.sourceType === 'WAREHOUSE' ? warehouseId : null,
-      allocations: drawerState.sourceType === 'WAREHOUSE' ? allocations : [],
-      allocationMode:
-        drawerState.sourceType === 'WAREHOUSE'
-          ? drawerState.allocationMethod || 'AUTO_FIFO'
-          : null,
+      warehouseId: drawerState.sourceType === "WAREHOUSE" ? warehouseId : null,
+      allocations: drawerState.sourceType === "WAREHOUSE" ? allocations : [],
+      allocationMode: drawerState.sourceType === "WAREHOUSE" ? drawerState.allocationMethod || "AUTO_FIFO" : null,
 
       // Reservation tracking
       reservationId,
@@ -1108,11 +1017,7 @@ const AllocationDrawer = ({
       <div className="drawer-header">
         <h3>Add Product Line</h3>
         {onCancel && (
-          <button
-            type="button"
-            className="drawer-close-btn"
-            onClick={handleCancel}
-          >
+          <button type="button" className="drawer-close-btn" onClick={handleCancel}>
             x
           </button>
         )}
@@ -1150,17 +1055,13 @@ const AllocationDrawer = ({
                     onChange={handleQuantityChange}
                     placeholder="0.00"
                   />
-                  <select
-                    className="unit-select"
-                    value={drawerState.unit}
-                    onChange={handleUnitChange}
-                  >
+                  <select className="unit-select" value={drawerState.unit} onChange={handleUnitChange}>
                     {availableUnits.map((unitOption) => (
                       <option
                         key={unitOption.value}
                         value={unitOption.value}
                         disabled={unitOption.disabled}
-                        title={unitOption.disabled ? unitOption.reason : ''}
+                        title={unitOption.disabled ? unitOption.reason : ""}
                       >
                         {unitOption.value}
                       </option>
@@ -1174,19 +1075,14 @@ const AllocationDrawer = ({
                 <div className="price-label-group">
                   <label htmlFor="unitPrice">
                     Unit Price (AED) *
-                    {drawerState.priceLoading && (
-                      <span className="price-loading-indicator">
-                        {' '}
-                        (Fetching...)
-                      </span>
-                    )}
+                    {drawerState.priceLoading && <span className="price-loading-indicator"> (Fetching...)</span>}
                     {!drawerState.priceLoading && getPricingBasisLabel() && (
                       <span
                         className="pricing-basis-label"
                         style={{
-                          fontSize: '0.85em',
-                          color: '#666',
-                          marginLeft: '8px',
+                          fontSize: "0.85em",
+                          color: "#666",
+                          marginLeft: "8px",
                         }}
                       >
                         ({getPricingBasisLabel()})
@@ -1208,12 +1104,10 @@ const AllocationDrawer = ({
                   type="number"
                   id="unitPrice"
                   data-testid="drawer-unit-price"
-                  className={`form-input ${drawerState.priceLoading ? 'loading' : ''}`}
+                  className={`form-input ${drawerState.priceLoading ? "loading" : ""}`}
                   value={drawerState.unitPrice}
                   onChange={handleUnitPriceChange}
-                  placeholder={
-                    drawerState.priceLoading ? 'Loading price...' : '0.00'
-                  }
+                  placeholder={drawerState.priceLoading ? "Loading price..." : "0.00"}
                   disabled={drawerState.priceLoading}
                   step="0.01"
                   inputMode="decimal"
@@ -1225,13 +1119,10 @@ const AllocationDrawer = ({
         )}
 
         {/* Source Type Selector */}
-        <SourceTypeSelector
-          value={drawerState.sourceType}
-          onChange={handleSourceTypeChange}
-        />
+        <SourceTypeSelector value={drawerState.sourceType} onChange={handleSourceTypeChange} />
 
         {/* Batch Allocation Panel (only for Warehouse source) */}
-        {drawerState.sourceType === 'WAREHOUSE' && drawerState.productId && (
+        {drawerState.sourceType === "WAREHOUSE" && drawerState.productId && (
           <BatchAllocationPanel
             productId={drawerState.productId}
             warehouseId={drawerState.selectedWarehouseId}
@@ -1250,55 +1141,45 @@ const AllocationDrawer = ({
         )}
 
         {/* Reservation Timer */}
-        {expiresAt && drawerState.sourceType === 'WAREHOUSE' && (
-          <ReservationTimer
-            expiresAt={expiresAt}
-            onExpired={handleReservationExpired}
-            onExtend={extendReservation}
-          />
+        {expiresAt && drawerState.sourceType === "WAREHOUSE" && (
+          <ReservationTimer expiresAt={expiresAt} onExpired={handleReservationExpired} onExtend={extendReservation} />
         )}
 
         {/* Pricing & Margin Section - Only for authorized users */}
-        {canViewMargins &&
-          unitCogs > 0 &&
-          drawerState.sourceType === 'WAREHOUSE' && (
-            <div className="pricing-margin-section">
-              <div className="section-header">Pricing & Margin</div>
-              <div className="pricing-row">
-                <span>Buying:</span>
-                <span className="price-value">
-                  {unitCogs.toFixed(2)} AED/{drawerState.unit}
-                </span>
-              </div>
-              <div className="pricing-row">
-                <span>Selling:</span>
-                <span className="price-value">
-                  {parseFloat(drawerState.unitPrice || 0).toFixed(2)} AED/
-                  {drawerState.unit}
-                </span>
-              </div>
-              <div className="pricing-divider"></div>
-              <div className="pricing-row margin-row">
-                <span>Margin:</span>
-                <span className={`margin-value ${marginColor}`}>
-                  {unitMargin.toFixed(2)} AED/{drawerState.unit} (
-                  {marginPercent.toFixed(1)}%)
-                </span>
-              </div>
+        {canViewMargins && unitCogs > 0 && drawerState.sourceType === "WAREHOUSE" && (
+          <div className="pricing-margin-section">
+            <div className="section-header">Pricing & Margin</div>
+            <div className="pricing-row">
+              <span>Buying:</span>
+              <span className="price-value">
+                {unitCogs.toFixed(2)} AED/{drawerState.unit}
+              </span>
             </div>
-          )}
+            <div className="pricing-row">
+              <span>Selling:</span>
+              <span className="price-value">
+                {parseFloat(drawerState.unitPrice || 0).toFixed(2)} AED/
+                {drawerState.unit}
+              </span>
+            </div>
+            <div className="pricing-divider"></div>
+            <div className="pricing-row margin-row">
+              <span>Margin:</span>
+              <span className={`margin-value ${marginColor}`}>
+                {unitMargin.toFixed(2)} AED/{drawerState.unit} ({marginPercent.toFixed(1)}%)
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Allocation Summary - Shown to all users */}
-        {drawerState.sourceType === 'WAREHOUSE' && allocations?.length > 0 && (
+        {drawerState.sourceType === "WAREHOUSE" && allocations?.length > 0 && (
           <div className="allocation-summary">
             <div className="summary-row">
               <span>Allocated:</span>
               <strong>
-                {Math.floor(allocatedQuantity)} / {Math.floor(requiredQty)}{' '}
-                {drawerState.unit}
-                {allocatedQuantity >= requiredQty && (
-                  <span className="allocation-check"> ✓</span>
-                )}
+                {Math.floor(allocatedQuantity)} / {Math.floor(requiredQty)} {drawerState.unit}
+                {allocatedQuantity >= requiredQty && <span className="allocation-check"> ✓</span>}
               </strong>
             </div>
             {shortfall >= 1 && (
@@ -1311,28 +1192,19 @@ const AllocationDrawer = ({
             )}
             <div className="summary-row line-amount">
               <span>Line Amount:</span>
-              <strong className="amount-value">
-                {totalCost.toFixed(2)} AED
-              </strong>
+              <strong className="amount-value">{totalCost.toFixed(2)} AED</strong>
             </div>
           </div>
         )}
 
         {/* Error Display */}
         {(drawerState.error || reservationError) && (
-          <div className="drawer-error">
-            {drawerState.error || reservationError}
-          </div>
+          <div className="drawer-error">{drawerState.error || reservationError}</div>
         )}
       </div>
 
       <div className="drawer-footer">
-        <button
-          type="button"
-          className="btn-secondary"
-          data-testid="drawer-clear"
-          onClick={handleClear}
-        >
+        <button type="button" className="btn-secondary" data-testid="drawer-clear" onClick={handleClear}>
           Clear
         </button>
         <button
@@ -1342,12 +1214,12 @@ const AllocationDrawer = ({
           onClick={handleAddToInvoice}
           disabled={!isValid || reservationLoading}
         >
-          {reservationLoading ? 'Loading...' : 'Add to Invoice'}
+          {reservationLoading ? "Loading..." : "Add to Invoice"}
         </button>
       </div>
 
       {/* Quantity Change Confirmation */}
-      {confirmDialog.open && confirmDialog.type === 'quantity_change' && (
+      {confirmDialog.open && confirmDialog.type === "quantity_change" && (
         <ConfirmDialog
           title="Quantity Change Warning"
           message={`Current batch allocations (${confirmDialog.allocatedPcs} PCS) match the existing quantity (${confirmDialog.currentPcs} PCS).\n\nChanging to ${confirmDialog.newPcs} PCS will require re-allocation.\n\nContinue?`}
@@ -1361,7 +1233,7 @@ const AllocationDrawer = ({
       )}
 
       {/* Source Type Change Confirmation */}
-      {confirmDialog.open && confirmDialog.type === 'source_type_change' && (
+      {confirmDialog.open && confirmDialog.type === "source_type_change" && (
         <ConfirmDialog
           title="Source Type Change Warning"
           message={`Current allocations: ${confirmDialog.allocatedQty.toFixed(2)} ${drawerState.unit} from ${allocations.length} batch(es)\n\nSwitching to Drop-Ship will:\n• Release all warehouse batch reservations\n• Clear allocation data\n• Mark this item as drop-ship (no warehouse stock impact)\n\nContinue?`}
@@ -1375,7 +1247,7 @@ const AllocationDrawer = ({
       )}
 
       {/* Warehouse Change Confirmation */}
-      {confirmDialog.open && confirmDialog.type === 'warehouse_change' && (
+      {confirmDialog.open && confirmDialog.type === "warehouse_change" && (
         <ConfirmDialog
           title="Warehouse Change Warning"
           message="Changing warehouse will clear current batch allocations. Continue?"

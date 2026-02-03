@@ -53,9 +53,7 @@ describe("unitConversionService", () => {
 
       expect(result.formula).toContain("weight");
       expect(result.variables).toContain("width");
-      expect(api.get).toHaveBeenCalledWith(
-        "/unit-conversions/formulas/sheet"
-      );
+      expect(api.get).toHaveBeenCalledWith("/unit-conversions/formulas/sheet");
     });
   });
 
@@ -74,10 +72,7 @@ describe("unitConversionService", () => {
 
       expect(result.weight_kg).toBe(100);
       expect(result.weight_mt).toBe(0.1);
-      expect(api.post).toHaveBeenCalledWith(
-        "/unit-conversions/calculate-weight",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/unit-conversions/calculate-weight", expect.any(Object));
     });
   });
 
@@ -92,19 +87,11 @@ describe("unitConversionService", () => {
 
       api.post.mockResolvedValue({ data: mockResponse });
 
-      const result = await unitConversionService.convertUnits(
-        1,
-        1000,
-        "KG",
-        "MT"
-      );
+      const result = await unitConversionService.convertUnits(1, 1000, "KG", "MT");
 
       expect(result.to_quantity).toBe(0.5);
       expect(result.success).toBe(true);
-      expect(api.post).toHaveBeenCalledWith(
-        "/unit-conversions/convert",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/unit-conversions/convert", expect.any(Object));
     });
 
     it("should handle conversion errors gracefully", async () => {

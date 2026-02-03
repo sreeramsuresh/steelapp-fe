@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Download, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
-import auditHubService from '../../services/auditHubService';
-import toast from 'react-hot-toast';
+import { AlertCircle, CheckCircle, Download, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import auditHubService from "../../services/auditHubService";
 
 /**
  * Export Panel Component
@@ -9,13 +9,7 @@ import toast from 'react-hot-toast';
  * Implements FIX 4: Deterministic export verification
  */
 
-export default function ExportPanel({
-  datasetId,
-  onExportGenerated,
-  onVerifyRegeneration,
-  verifying,
-  exportStatus,
-}) {
+export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRegeneration, verifying, exportStatus }) {
   const [generating, setGenerating] = useState({
     EXCEL: false,
     PDF: false,
@@ -24,25 +18,25 @@ export default function ExportPanel({
 
   const exportConfigs = [
     {
-      type: 'EXCEL',
-      label: 'Excel Workbook',
-      description: 'Multi-sheet spreadsheet with all modules',
-      icon: '📊',
-      color: 'emerald',
+      type: "EXCEL",
+      label: "Excel Workbook",
+      description: "Multi-sheet spreadsheet with all modules",
+      icon: "📊",
+      color: "emerald",
     },
     {
-      type: 'PDF',
-      label: 'PDF Report',
-      description: 'Formatted audit package with TOC',
-      icon: '📄',
-      color: 'blue',
+      type: "PDF",
+      label: "PDF Report",
+      description: "Formatted audit package with TOC",
+      icon: "📄",
+      color: "blue",
     },
     {
-      type: 'CSV',
-      label: 'CSV Data',
-      description: 'Transaction-level raw data export',
-      icon: '📋',
-      color: 'amber',
+      type: "CSV",
+      label: "CSV Data",
+      description: "Transaction-level raw data export",
+      icon: "📋",
+      color: "amber",
     },
   ];
 
@@ -55,7 +49,7 @@ export default function ExportPanel({
 
       // Trigger download
       if (result.downloadUrl) {
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = result.downloadUrl;
         link.download = result.filename;
         document.body.appendChild(link);
@@ -78,9 +72,7 @@ export default function ExportPanel({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700 p-6">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-          Export & Verification
-        </h3>
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Export & Verification</h3>
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Generate deterministic exports from immutable snapshot (FIX 4)
         </p>
@@ -100,12 +92,8 @@ export default function ExportPanel({
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <p className="text-xl">{config.icon}</p>
-                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white mt-2">
-                    {config.label}
-                  </h4>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                    {config.description}
-                  </p>
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white mt-2">{config.label}</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{config.description}</p>
                 </div>
               </div>
 
@@ -133,7 +121,7 @@ export default function ExportPanel({
                   disabled={isGenerating || verifying}
                   className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isGenerating || verifying
-                      ? 'opacity-50 cursor-not-allowed bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                      ? "opacity-50 cursor-not-allowed bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                       : `bg-${config.color}-100 dark:bg-${config.color}-900/30 text-${config.color}-700 dark:text-${config.color}-300 hover:bg-${config.color}-200 dark:hover:bg-${config.color}-900/50`
                   }`}
                 >
@@ -176,10 +164,9 @@ export default function ExportPanel({
       {/* FIX 4 Explanation */}
       <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
         <p className="text-xs text-blue-900 dark:text-blue-100">
-          <strong>FIX 4 - Deterministic Snapshots:</strong> Exports use
-          canonical ordering, fixed decimal places, and deterministic null
-          handling. Regenerating the same export will produce byte-identical
-          files. Click &quot;Verify&quot; to compare SHA-256 hashes.
+          <strong>FIX 4 - Deterministic Snapshots:</strong> Exports use canonical ordering, fixed decimal places, and
+          deterministic null handling. Regenerating the same export will produce byte-identical files. Click
+          &quot;Verify&quot; to compare SHA-256 hashes.
         </p>
       </div>
     </div>

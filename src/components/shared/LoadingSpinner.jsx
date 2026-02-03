@@ -1,20 +1,15 @@
-
-const LoadingSpinner = ({
-  size = 'md',
-  mode = 'inline',
-  message = 'Loading...',
-}) => {
+const LoadingSpinner = ({ size = "md", mode = "inline", message = "Loading..." }) => {
   const sizeMap = {
-    sm: 'w-4 h-4',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
+    sm: "w-4 h-4",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
   };
 
   const spinner = (
     <div className={`${sizeMap[size]} border-2 border-muted-foreground border-t-primary rounded-full animate-spin`} />
   );
 
-  if (mode === 'fullscreen') {
+  if (mode === "fullscreen") {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-background/50">
         {spinner}
@@ -23,7 +18,7 @@ const LoadingSpinner = ({
     );
   }
 
-  if (mode === 'block') {
+  if (mode === "block") {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4">
         {spinner}

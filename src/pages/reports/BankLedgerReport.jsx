@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import bankReconciliationService from '../../services/bankReconciliationService';
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import bankReconciliationService from "../../services/bankReconciliationService";
 
 export default function BankLedgerReport() {
   const { user: _user } = useAuth();
   const [data, setData] = useState(null);
   const [filters, setFilters] = useState({
-    accountCode: '1100', // Default to Cash
+    accountCode: "1100", // Default to Cash
     startDate: null,
     endDate: null,
   });
@@ -15,7 +15,7 @@ export default function BankLedgerReport() {
 
   const fetchData = async () => {
     if (!filters.startDate || !filters.endDate) {
-      setError('Please select both start and end dates');
+      setError("Please select both start and end dates");
       return;
     }
 
@@ -25,11 +25,11 @@ export default function BankLedgerReport() {
       const result = await bankReconciliationService.getBankLedger(
         filters.accountCode,
         filters.startDate,
-        filters.endDate,
+        filters.endDate
       );
       setData(result);
     } catch (err) {
-      setError(err.message || 'Failed to fetch bank ledger');
+      setError(err.message || "Failed to fetch bank ledger");
       console.error(err);
     } finally {
       setLoading(false);
@@ -50,9 +50,7 @@ export default function BankLedgerReport() {
             <select
               id="bank-account"
               value={filters.accountCode}
-              onChange={(e) =>
-                setFilters({ ...filters, accountCode: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, accountCode: e.target.value })}
               className="w-full border rounded px-3 py-2"
             >
               <option value="1100">1100 - Cash on Hand</option>
@@ -69,9 +67,7 @@ export default function BankLedgerReport() {
               id="start-date"
               type="date"
               value={filters.startDate}
-              onChange={(e) =>
-                setFilters({ ...filters, startDate: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
               className="w-full border rounded px-3 py-2"
             />
           </div>
@@ -83,9 +79,7 @@ export default function BankLedgerReport() {
               id="end-date"
               type="date"
               value={filters.endDate}
-              onChange={(e) =>
-                setFilters({ ...filters, endDate: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
               className="w-full border rounded px-3 py-2"
             />
           </div>
@@ -95,17 +89,13 @@ export default function BankLedgerReport() {
               disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded px-4 py-2"
             >
-              {loading ? 'Loading...' : 'Generate'}
+              {loading ? "Loading..." : "Generate"}
             </button>
           </div>
         </div>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-          {error}
-        </div>
-      )}
+      {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
 
       {/* Summary Cards */}
       {data && (
@@ -147,59 +137,31 @@ export default function BankLedgerReport() {
           <table className="min-w-full">
             <thead>
               <tr className="bg-gray-50 border-b">
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
-                  Journal #
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
-                  Batch #
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
-                  Narration
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                  Debit
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                  Credit
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                  Balance
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
-                  Module
-                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Date</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Journal #</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Batch #</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Narration</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Debit</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Credit</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Balance</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Module</th>
               </tr>
             </thead>
             <tbody>
               {data.transactions.map((txn, idx) => (
                 <tr key={idx} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm">
-                    {bankReconciliationService.formatDate(txn.entry_date)}
-                  </td>
+                  <td className="px-4 py-3 text-sm">{bankReconciliationService.formatDate(txn.entry_date)}</td>
                   <td className="px-4 py-3 text-sm">{txn.journal_number}</td>
                   <td className="px-4 py-3 text-sm">{txn.batch_number}</td>
                   <td className="px-4 py-3 text-sm">{txn.narration}</td>
                   <td className="px-4 py-3 text-right text-sm text-green-600">
-                    {txn.debit_amount > 0
-                      ? bankReconciliationService.formatCurrency(
-                          txn.debit_amount,
-                        )
-                      : '-'}
+                    {txn.debit_amount > 0 ? bankReconciliationService.formatCurrency(txn.debit_amount) : "-"}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-red-600">
-                    {txn.credit_amount > 0
-                      ? bankReconciliationService.formatCurrency(
-                          txn.credit_amount,
-                        )
-                      : '-'}
+                    {txn.credit_amount > 0 ? bankReconciliationService.formatCurrency(txn.credit_amount) : "-"}
                   </td>
                   <td className="px-4 py-3 text-right text-sm font-medium">
-                    {bankReconciliationService.formatCurrency(
-                      txn.running_balance,
-                    )}
+                    {bankReconciliationService.formatCurrency(txn.running_balance)}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">

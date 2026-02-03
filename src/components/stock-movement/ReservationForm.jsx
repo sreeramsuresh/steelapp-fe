@@ -6,28 +6,20 @@
  * Migrated from Material-UI to Tailwind CSS
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  X,
-  Bookmark,
-  AlertTriangle,
-  Loader2,
-  ChevronDown,
-  Package,
-  Layers,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { stockMovementService } from '../../services/stockMovementService';
-import { warehouseService } from '../../services/warehouseService';
-import { productService } from '../../services/dataService';
-import { validateSsotPattern } from '../../utils/productSsotValidation';
-import { batchReservationService } from '../../services/batchReservationService';
+import { AlertTriangle, Bookmark, ChevronDown, Layers, Loader2, Package, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { batchReservationService } from "../../services/batchReservationService";
+import { productService } from "../../services/dataService";
+import { stockMovementService } from "../../services/stockMovementService";
+import { warehouseService } from "../../services/warehouseService";
+import { validateSsotPattern } from "../../utils/productSsotValidation";
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = 'KG') => {
-  return `${parseFloat(qty || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+const formatQuantity = (qty, unit = "KG") => {
+  return `${parseFloat(qty || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -54,14 +46,14 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   const [loadingProducts, setLoadingProducts] = useState(true);
 
   // Form fields
-  const [warehouseId, setWarehouseId] = useState('');
-  const [productId, setProductId] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [notes, setNotes] = useState('');
-  const [batchId, setBatchId] = useState(''); // Epic 4: Batch selection
-  const [reservationReason, setReservationReason] = useState(''); // Epic 10: RESV-003
-  const [customReason, setCustomReason] = useState(''); // Epic 10: RESV-003 - for OTHER option
+  const [warehouseId, setWarehouseId] = useState("");
+  const [productId, setProductId] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [batchId, setBatchId] = useState(""); // Epic 4: Batch selection
+  const [reservationReason, setReservationReason] = useState(""); // Epic 10: RESV-003
+  const [customReason, setCustomReason] = useState(""); // Epic 10: RESV-003 - for OTHER option
   const [autoExpire, setAutoExpire] = useState(true); // Epic 10: RESV-004 - auto-expiry enabled by default
 
   // Stock info
@@ -76,7 +68,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
-  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [productSearchTerm, setProductSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   // Refs
@@ -91,12 +83,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
         if (result.data?.length > 0) {
-          const defaultWh =
-            result.data.find((w) => w.isDefault) || result.data[0];
+          const defaultWh = result.data.find((w) => w.isDefault) || result.data[0];
           setWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error('Error loading warehouses:', err);
+        console.error("Error loading warehouses:", err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -116,7 +107,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         setProducts(result.data || []);
         setFilteredProducts(result.data || []);
       } catch (err) {
-        console.error('Error loading products:', err);
+        console.error("Error loading products:", err);
       } finally {
         setLoadingProducts(false);
       }
@@ -136,9 +127,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
     const search = productSearchTerm.toLowerCase();
     const filtered = products.filter(
-      (p) =>
-        p.name?.toLowerCase().includes(search) ||
-        p.sku?.toLowerCase().includes(search),
+      (p) => p.name?.toLowerCase().includes(search) || p.sku?.toLowerCase().includes(search)
     );
     setFilteredProducts(filtered);
   }, [productSearchTerm, products]);
@@ -153,20 +142,15 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
       try {
         setLoadingStock(true);
-        const result = await stockMovementService.getCurrentStock(
-          productId,
-          warehouseId,
-        );
-        const warehouse = result.warehouses?.find(
-          (w) => w.warehouseId === warehouseId,
-        );
+        const result = await stockMovementService.getCurrentStock(productId, warehouseId);
+        const warehouse = result.warehouses?.find((w) => w.warehouseId === warehouseId);
         setAvailableStock({
           quantityOnHand: parseFloat(warehouse?.quantityOnHand) || 0,
           quantityAvailable: parseFloat(warehouse?.quantityAvailable) || 0,
-          unit: warehouse?.unit || 'KG',
+          unit: warehouse?.unit || "KG",
         });
       } catch (err) {
-        console.error('Error loading stock:', err);
+        console.error("Error loading stock:", err);
         setAvailableStock(null);
       } finally {
         setLoadingStock(false);
@@ -181,7 +165,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
     const loadBatches = async () => {
       if (!warehouseId || !productId) {
         setBatches([]);
-        setBatchId('');
+        setBatchId("");
         return;
       }
 
@@ -195,9 +179,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         const availableBatches = response.batches || [];
         // Sort by FIFO (oldest first)
         availableBatches.sort(
-          (a, b) =>
-            new Date(a.created_at || a.procurementDate) -
-            new Date(b.created_at || b.procurementDate),
+          (a, b) => new Date(a.created_at || a.procurementDate) - new Date(b.created_at || b.procurementDate)
         );
 
         setBatches(availableBatches);
@@ -207,7 +189,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           setBatchId(availableBatches[0].id || availableBatches[0].batchId);
         }
       } catch (err) {
-        console.error('Error loading batches:', err);
+        console.error("Error loading batches:", err);
         setBatches([]);
       } finally {
         setLoadingBatches(false);
@@ -220,14 +202,14 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   // Reset form when opened
   useEffect(() => {
     if (open) {
-      setProductId('');
-      setProductSearchTerm('');
-      setQuantity('');
-      setExpiryDate('');
-      setNotes('');
-      setBatchId('');
-      setReservationReason('');
-      setCustomReason('');
+      setProductId("");
+      setProductSearchTerm("");
+      setQuantity("");
+      setExpiryDate("");
+      setNotes("");
+      setBatchId("");
+      setReservationReason("");
+      setCustomReason("");
       setAutoExpire(true);
       setError(null);
       setShowProductDropdown(false);
@@ -246,26 +228,23 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Handle product selection
   const handleProductSelect = useCallback((product) => {
-    const uniqueName =
-      product.uniqueName || product.unique_name || product.name || '';
+    const uniqueName = product.uniqueName || product.unique_name || product.name || "";
 
     // SSOT validation (Epic 5 - RESV-002)
     const ssotValidation = validateSsotPattern(uniqueName);
     if (!ssotValidation.isValid) {
-      setError(
-        `Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`,
-      );
+      setError(`Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`);
       return;
     }
 
     setProductId(product.id);
-    setProductSearchTerm(`${uniqueName} (${product.sku || 'No SKU'})`);
+    setProductSearchTerm(`${uniqueName} (${product.sku || "No SKU"})`);
     setShowProductDropdown(false);
     setError(null); // Clear any previous errors
   }, []);
@@ -273,31 +252,31 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
   // Validate form
   const validateForm = () => {
     if (!warehouseId) {
-      setError('Please select a warehouse');
+      setError("Please select a warehouse");
       return false;
     }
     if (!productId) {
-      setError('Please select a product');
+      setError("Please select a product");
       return false;
     }
     // Epic 4: Batch validation
     if (!batchId) {
-      setError('Please select a batch');
+      setError("Please select a batch");
       return false;
     }
     // Epic 10: RESV-003 - Custom reason validation
-    if (reservationReason === 'OTHER' && !customReason.trim()) {
+    if (reservationReason === "OTHER" && !customReason.trim()) {
       setError("Please specify custom reason when 'Other' is selected");
       return false;
     }
     const qty = parseFloat(quantity) || 0;
     if (qty <= 0) {
-      setError('Quantity must be greater than 0');
+      setError("Quantity must be greater than 0");
       return false;
     }
     if (availableStock && qty > availableStock.quantityAvailable) {
       setError(
-        `Insufficient available stock. Available: ${formatQuantity(availableStock.quantityAvailable, availableStock.unit)}`,
+        `Insufficient available stock. Available: ${formatQuantity(availableStock.quantityAvailable, availableStock.unit)}`
       );
       return false;
     }
@@ -323,17 +302,16 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         expiryDate: expiryDate || null,
         autoExpire, // Epic 10: RESV-004
         reservationReason: reservationReason || null, // Epic 10: RESV-003
-        customReason: reservationReason === 'OTHER' ? customReason : null, // Epic 10: RESV-003
+        customReason: reservationReason === "OTHER" ? customReason : null, // Epic 10: RESV-003
         notes,
       };
 
-      const result =
-        await stockMovementService.createReservation(reservationData);
+      const result = await stockMovementService.createReservation(reservationData);
       onSuccess?.(result);
       onClose();
     } catch (err) {
-      console.error('Error creating reservation:', err);
-      setError(err.message || 'Failed to create reservation');
+      console.error("Error creating reservation:", err);
+      setError(err.message || "Failed to create reservation");
     } finally {
       setSaving(false);
     }
@@ -345,7 +323,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`max-w-lg w-full mx-4 p-6 rounded-lg shadow-xl ${
-          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
         }`}
       >
         {/* Header */}
@@ -358,7 +336,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             onClick={onClose}
             disabled={saving}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              saving ? 'opacity-50 cursor-not-allowed' : ''
+              saving ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <X className="w-5 h-5" />
@@ -369,19 +347,14 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         {error && (
           <div
             className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
-              isDarkMode
-                ? 'bg-red-900 bg-opacity-30 border border-red-700'
-                : 'bg-red-50 border border-red-200'
+              isDarkMode ? "bg-red-900 bg-opacity-30 border border-red-700" : "bg-red-50 border border-red-200"
             }`}
           >
             <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
-            <button
-              onClick={() => setError(null)}
-              className="text-red-500 hover:text-red-700"
-            >
+            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -393,9 +366,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <div>
             <label
               htmlFor="warehouse-select"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Warehouse *
             </label>
@@ -406,17 +377,15 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 onChange={(e) => setWarehouseId(e.target.value)}
                 disabled={loadingWarehouses}
                 className={`w-full px-3 py-2 rounded-lg border appearance-none ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  loadingWarehouses ? 'opacity-50 cursor-not-allowed' : ''
+                  loadingWarehouses ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <option value="">Select warehouse...</option>
                 {warehouses.map((wh) => (
                   <option key={wh.id} value={wh.id}>
-                    {wh.name} {wh.code ? `(${wh.code})` : ''}
+                    {wh.name} {wh.code ? `(${wh.code})` : ""}
                   </option>
                 ))}
               </select>
@@ -428,14 +397,10 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <div>
             <label
               htmlFor="product-search"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Product *
-              <span
-                className={`ml-2 text-xs font-normal ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <span className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 (Pattern: SS-Grade-Form-Finish-Width-Thickness-Length)
               </span>
             </label>
@@ -454,8 +419,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   placeholder="Select product..."
                   className={`w-full px-3 py-2 pl-10 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
                 <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -469,9 +434,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 <div
                   ref={productDropdownRef}
                   className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg border shadow-lg ${
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600'
-                      : 'bg-white border-gray-300'
+                    isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"
                   }`}
                 >
                   {filteredProducts.slice(0, 20).map((product) => (
@@ -481,20 +444,14 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                       onClick={() => handleProductSelect(product)}
                       className={`w-full text-left px-3 py-2 hover:bg-blue-500 hover:text-white transition-colors ${
                         productId === product.id
-                          ? 'bg-blue-500 text-white'
+                          ? "bg-blue-500 text-white"
                           : isDarkMode
-                            ? 'text-gray-200'
-                            : 'text-gray-900'
+                            ? "text-gray-200"
+                            : "text-gray-900"
                       }`}
                     >
-                      <div className="font-medium">
-                        {product.uniqueName ||
-                          product.unique_name ||
-                          product.name}
-                      </div>
-                      <div className="text-sm opacity-75">
-                        {product.sku || 'No SKU'}
-                      </div>
+                      <div className="font-medium">{product.uniqueName || product.unique_name || product.name}</div>
+                      <div className="text-sm opacity-75">{product.sku || "No SKU"}</div>
                     </button>
                   ))}
                 </div>
@@ -507,33 +464,23 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <div className="flex gap-2">
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-gray-300'
-                    : 'bg-gray-100 border-gray-300 text-gray-700'
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-gray-300" : "bg-gray-100 border-gray-300 text-gray-700"
                 }`}
               >
-                On Hand:{' '}
-                {formatQuantity(
-                  availableStock.quantityOnHand,
-                  availableStock.unit,
-                )}
+                On Hand: {formatQuantity(availableStock.quantityOnHand, availableStock.unit)}
               </span>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
                   availableStock.quantityAvailable > 0
                     ? isDarkMode
-                      ? 'bg-green-900 bg-opacity-30 border-green-700 text-green-300'
-                      : 'bg-green-100 border-green-300 text-green-700'
+                      ? "bg-green-900 bg-opacity-30 border-green-700 text-green-300"
+                      : "bg-green-100 border-green-300 text-green-700"
                     : isDarkMode
-                      ? 'bg-red-900 bg-opacity-30 border-red-700 text-red-300'
-                      : 'bg-red-100 border-red-300 text-red-700'
+                      ? "bg-red-900 bg-opacity-30 border-red-700 text-red-300"
+                      : "bg-red-100 border-red-300 text-red-700"
                 }`}
               >
-                Available:{' '}
-                {formatQuantity(
-                  availableStock.quantityAvailable,
-                  availableStock.unit,
-                )}
+                Available: {formatQuantity(availableStock.quantityAvailable, availableStock.unit)}
               </span>
             </div>
           )}
@@ -549,9 +496,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <div>
               <label
                 htmlFor="batch-selector"
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
                 <div className="flex items-center gap-2">
                   <Layers className="w-4 h-4" />
@@ -574,30 +519,22 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   value={batchId}
                   onChange={(e) => setBatchId(e.target.value)}
                   className={`w-full px-3 py-2 rounded-lg border ${
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300 text-gray-900'
+                    isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                   } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                 >
                   <option value="">Select Batch</option>
                   {batches.map((batch, idx) => {
                     const bId = batch.id || batch.batchId;
-                    const bNum =
-                      batch.batchNumber || batch.batch_number || `BATCH-${bId}`;
-                    const available = parseFloat(
-                      batch.quantityAvailable || batch.quantity_available || 0,
-                    );
-                    const supplier =
-                      batch.supplier || batch.supplierName || 'N/A';
-                    const date = new Date(
-                      batch.created_at || batch.procurementDate,
-                    ).toLocaleDateString();
+                    const bNum = batch.batchNumber || batch.batch_number || `BATCH-${bId}`;
+                    const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
+                    const supplier = batch.supplier || batch.supplierName || "N/A";
+                    const date = new Date(batch.created_at || batch.procurementDate).toLocaleDateString();
 
                     return (
                       <option key={bId} value={bId}>
-                        {idx === 0 ? '🔹 ' : ''}
+                        {idx === 0 ? "🔹 " : ""}
                         {bNum} | {available.toFixed(2)} KG | {supplier} | {date}
-                        {idx === 0 ? ' (FIFO - Oldest)' : ''}
+                        {idx === 0 ? " (FIFO - Oldest)" : ""}
                       </option>
                     );
                   })}
@@ -606,37 +543,24 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               {batchId &&
                 batches.length > 0 &&
                 (() => {
-                  const selectedBatch = batches.find(
-                    (b) =>
-                      (b.id || b.batchId).toString() === batchId.toString(),
-                  );
-                  const channel =
-                    selectedBatch?.procurementChannel ||
-                    selectedBatch?.procurement_channel ||
-                    'UNKNOWN';
+                  const selectedBatch = batches.find((b) => (b.id || b.batchId).toString() === batchId.toString());
+                  const channel = selectedBatch?.procurementChannel || selectedBatch?.procurement_channel || "UNKNOWN";
                   return (
                     <div className="mt-2 flex items-center gap-2">
                       <p className="text-xs text-gray-500">
-                        Selected:{' '}
-                        {selectedBatch?.batchNumber ||
-                          selectedBatch?.batch_number ||
-                          batchId}
+                        Selected: {selectedBatch?.batchNumber || selectedBatch?.batch_number || batchId}
                       </p>
                       {/* Epic 10: RESV-005 - Procurement Channel Badge */}
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                          channel === 'LOCAL'
-                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                            : channel === 'IMPORTED'
-                              ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
-                              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                          channel === "LOCAL"
+                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                            : channel === "IMPORTED"
+                              ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                              : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                         }`}
                       >
-                        {channel === 'LOCAL'
-                          ? '🔵 LOCAL'
-                          : channel === 'IMPORTED'
-                            ? '🟠 IMPORTED'
-                            : '❓ UNKNOWN'}
+                        {channel === "LOCAL" ? "🔵 LOCAL" : channel === "IMPORTED" ? "🟠 IMPORTED" : "❓ UNKNOWN"}
                       </span>
                     </div>
                   );
@@ -648,9 +572,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <div>
             <label
               htmlFor="quantity-input"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Quantity to Reserve *
             </label>
@@ -662,12 +584,11 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               min="0"
               step="0.01"
               className={`w-full px-3 py-2 rounded-lg border ${
-                availableStock &&
-                parseFloat(quantity) > availableStock.quantityAvailable
-                  ? 'border-red-500 focus:ring-red-500'
+                availableStock && parseFloat(quantity) > availableStock.quantityAvailable
+                  ? "border-red-500 focus:ring-red-500"
                   : isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             {availableStock && (
@@ -681,9 +602,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <div>
             <label
               htmlFor="reservation-reason"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Reservation Reason
             </label>
@@ -692,29 +611,23 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               value={reservationReason}
               onChange={(e) => setReservationReason(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             >
               <option value="">Select reason...</option>
               <option value="SALES_ORDER">Reserved for customer order</option>
               <option value="PRODUCTION">Reserved for manufacturing</option>
-              <option value="MAINTENANCE">
-                Reserved for maintenance/internal use
-              </option>
+              <option value="MAINTENANCE">Reserved for maintenance/internal use</option>
               <option value="OTHER">Other (please specify)</option>
             </select>
           </div>
 
           {/* Custom Reason - shown when OTHER selected */}
-          {reservationReason === 'OTHER' && (
+          {reservationReason === "OTHER" && (
             <div>
               <label
                 htmlFor="custom-reason"
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
                 Custom Reason *
               </label>
@@ -726,8 +639,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 placeholder="Specify custom reason..."
                 className={`w-full px-3 py-2 rounded-lg border ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               />
             </div>
@@ -737,9 +650,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <div>
             <label
               htmlFor="expiry-date"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Expiry Date (Optional)
             </label>
@@ -748,44 +659,33 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               type="date"
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
               className={`w-full px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             {expiryDate &&
               (() => {
                 const daysUntilExpiry = getDaysUntilExpiry(expiryDate);
-                const isExpiringSoon =
-                  daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+                const isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
                 const isExpired = daysUntilExpiry < 0;
                 return (
                   <p
                     className={`mt-1 text-sm font-medium ${
-                      isExpired
-                        ? 'text-red-500'
-                        : isExpiringSoon
-                          ? 'text-orange-500'
-                          : 'text-gray-500'
+                      isExpired ? "text-red-500" : isExpiringSoon ? "text-orange-500" : "text-gray-500"
                     }`}
                   >
                     {isExpired
                       ? `⚠ Expired ${Math.abs(daysUntilExpiry)} days ago`
                       : daysUntilExpiry === 0
-                        ? '⚠ Expires today'
+                        ? "⚠ Expires today"
                         : isExpiringSoon
                           ? `⚠ Expires in ${daysUntilExpiry} days`
                           : `Expires in ${daysUntilExpiry} days`}
                   </p>
                 );
               })()}
-            {!expiryDate && (
-              <p className="mt-1 text-sm text-gray-500">
-                Leave empty for no expiry
-              </p>
-            )}
+            {!expiryDate && <p className="mt-1 text-sm text-gray-500">Leave empty for no expiry</p>}
           </div>
 
           {/* Auto-Expire Checkbox - Epic 10: RESV-004 */}
@@ -800,9 +700,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               />
               <label
                 htmlFor="auto-expire"
-                className={`text-sm cursor-pointer ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}
+                className={`text-sm cursor-pointer ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
                 Auto-release reservation when expiry date passes
               </label>
@@ -813,9 +711,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           <div>
             <label
               htmlFor="notes-textarea"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               Notes
             </label>
@@ -827,8 +723,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               placeholder="Optional notes about this reservation..."
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
@@ -840,10 +736,8 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             onClick={onClose}
             disabled={saving}
             className={`px-4 py-2 rounded-lg font-medium ${
-              isDarkMode
-                ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+              isDarkMode ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Cancel
           </button>
@@ -852,12 +746,12 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             disabled={saving || !productId || !quantity}
             className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
               saving || !productId || !quantity
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
             }`}
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {saving ? 'Creating...' : 'Create Reservation'}
+            {saving ? "Creating..." : "Create Reservation"}
           </button>
         </div>
       </div>

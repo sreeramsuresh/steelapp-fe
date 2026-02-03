@@ -1,18 +1,14 @@
-import { apiService } from './axiosApi';
+import { apiService } from "./axiosApi";
 
 export const userAdminAPI = {
   async list(params = {}) {
-    const res = await apiService.get('/users', { params });
-    return Array.isArray(res?.users)
-      ? res.users
-      : Array.isArray(res)
-        ? res
-        : res || [];
+    const res = await apiService.get("/users", { params });
+    return Array.isArray(res?.users) ? res.users : Array.isArray(res) ? res : res || [];
   },
   async create({ name, email, password, role, permissions }) {
     const body = { name, email, password, role };
     if (permissions) body.permissions = permissions;
-    const res = await apiService.post('/users', body);
+    const res = await apiService.post("/users", body);
     return res?.user || res;
   },
   async update(id, payload) {

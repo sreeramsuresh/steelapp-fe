@@ -47,10 +47,7 @@ export interface DeliveryNote {
  * Type guard to check if object is a valid DeliveryNote
  */
 export function isDeliveryNote(obj: unknown): obj is DeliveryNote {
-  if (!obj || typeof obj !== 'object') return false;
+  if (!obj || typeof obj !== "object") return false;
   const record = obj as Record<string, unknown>;
-  return (
-    typeof record.id === 'number' &&
-    typeof record.deliveryNoteNumber === 'string'
-  );
+  return typeof record.id === "number" && typeof record.deliveryNoteNumber === "string";
 }

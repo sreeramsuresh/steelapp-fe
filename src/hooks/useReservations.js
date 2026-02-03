@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { batchReservationService } from '../services/batchReservationService';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { batchReservationService } from "../services/batchReservationService";
 
 /**
  * useReservations Hook
@@ -23,13 +23,7 @@ import { batchReservationService } from '../services/batchReservationService';
  * @param {number} options.companyId - Company ID for multi-tenancy
  * @returns {Object} Reservation state and methods
  */
-export function useReservations({
-  draftInvoiceId,
-  productId,
-  warehouseId,
-  lineItemTempId,
-  companyId: _companyId,
-}) {
+export function useReservations({ draftInvoiceId, productId, warehouseId, lineItemTempId, companyId: _companyId }) {
   // Reservation state
   const [reservationId, setReservationId] = useState(null);
   const [expiresAt, setExpiresAt] = useState(null);
@@ -61,11 +55,9 @@ export function useReservations({
 
       // Cancel any active reservations when component unmounts
       if (activeReservationRef.current) {
-        batchReservationService
-          .cancelReservation(activeReservationRef.current)
-          .catch((err) => {
-            console.warn('Failed to cancel reservation on unmount:', err);
-          });
+        batchReservationService.cancelReservation(activeReservationRef.current).catch((err) => {
+          console.warn("Failed to cancel reservation on unmount:", err);
+        });
       }
     };
   }, []);
@@ -91,11 +83,11 @@ export function useReservations({
       setError(null);
 
       // Check for partial allocation warning
-      if (response.message && response.message.includes('partial')) {
+      if (response.message && response.message.includes("partial")) {
         setError(response.message);
       }
     } else {
-      setError(response.message || 'Reservation failed');
+      setError(response.message || "Reservation failed");
     }
   }, []);
 
@@ -107,15 +99,15 @@ export function useReservations({
    * @param {string} unit - Unit of measure (default: 'KG')
    */
   const reserveFIFO = useCallback(
-    async (requiredQuantity, unit = 'KG') => {
+    async (requiredQuantity, unit = "KG") => {
       if (!productId || !warehouseId || !lineItemTempId) {
-        setError('Missing required parameters for reservation');
+        setError("Missing required parameters for reservation");
         return;
       }
 
       // Prevent infinite retry loops: stop after max failed attempts
       if (failedAttemptsRef.current >= maxFailedAttempts) {
-        setError('Reservation service is temporarily unavailable. Please try again later.');
+        setError("Reservation service is temporarily unavailable. Please try again later.");
         setLoading(false);
         return;
       }
@@ -135,8 +127,7 @@ export function useReservations({
       // console.log('[FIFO Reserve] Request params:', requestParams);
 
       try {
-        const response =
-          await batchReservationService.reserveFIFO(requestParams);
+        const response = await batchReservationService.reserveFIFO(requestParams);
 
         // Reset failure counter on success
         failedAttemptsRef.current = 0;
@@ -147,12 +138,9 @@ export function useReservations({
           failedAttemptsRef.current += 1;
 
           const errorMessage =
-            err.response?.data?.message ||
-            err.response?.data?.error ||
-            err.message ||
-            'Failed to reserve batches';
+            err.response?.data?.message || err.response?.data?.error || err.message || "Failed to reserve batches";
           setError(errorMessage);
-          console.error('FIFO reservation error:', err);
+          console.error("FIFO reservation error:", err);
         }
       } finally {
         if (isMountedRef.current) {
@@ -160,13 +148,7 @@ export function useReservations({
         }
       }
     },
-    [
-      draftInvoiceId,
-      productId,
-      warehouseId,
-      lineItemTempId,
-      processReservationResponse,
-    ],
+    [draftInvoiceId, productId, warehouseId, lineItemTempId, processReservationResponse]
   );
 
   /**
@@ -177,18 +159,18 @@ export function useReservations({
   const reserveManual = useCallback(
     async (manualAllocations) => {
       if (!productId || !warehouseId || !lineItemTempId) {
-        setError('Missing required parameters for reservation');
+        setError("Missing required parameters for reservation");
         return;
       }
 
       if (!manualAllocations || manualAllocations.length === 0) {
-        setError('No allocations provided');
+        setError("No allocations provided");
         return;
       }
 
       // Prevent infinite retry loops: stop after max failed attempts
       if (failedAttemptsRef.current >= maxFailedAttempts) {
-        setError('Reservation service is temporarily unavailable. Please try again later.');
+        setError("Reservation service is temporarily unavailable. Please try again later.");
         setLoading(false);
         return;
       }
@@ -214,12 +196,9 @@ export function useReservations({
           failedAttemptsRef.current += 1;
 
           const errorMessage =
-            err.response?.data?.message ||
-            err.response?.data?.error ||
-            err.message ||
-            'Failed to reserve batches';
+            err.response?.data?.message || err.response?.data?.error || err.message || "Failed to reserve batches";
           setError(errorMessage);
-          console.error('Manual reservation error:', err);
+          console.error("Manual reservation error:", err);
         }
       } finally {
         if (isMountedRef.current) {
@@ -227,13 +206,7 @@ export function useReservations({
         }
       }
     },
-    [
-      draftInvoiceId,
-      productId,
-      warehouseId,
-      lineItemTempId,
-      processReservationResponse,
-    ],
+    [draftInvoiceId, productId, warehouseId, lineItemTempId, processReservationResponse]
   );
 
   /**
@@ -258,7 +231,7 @@ export function useReservations({
       }
     } catch (err) {
       if (isMountedRef.current) {
-        console.error('Failed to cancel reservation:', err);
+        console.error("Failed to cancel reservation:", err);
         // Don't set error for cancel failures - just log it
       }
     } finally {
@@ -293,12 +266,9 @@ export function useReservations({
     } catch (err) {
       if (isMountedRef.current) {
         const errorMessage =
-          err.response?.data?.message ||
-          err.response?.data?.error ||
-          err.message ||
-          'Failed to extend reservation';
+          err.response?.data?.message || err.response?.data?.error || err.message || "Failed to extend reservation";
         setError(errorMessage);
-        console.error('Extend reservation error:', err);
+        console.error("Extend reservation error:", err);
       }
     } finally {
       if (isMountedRef.current) {
@@ -313,15 +283,12 @@ export function useReservations({
    */
   const loadExistingReservations = useCallback(async () => {
     // Only load if we have a valid numeric draft invoice ID
-    if (!draftInvoiceId || typeof draftInvoiceId !== 'number') return;
+    if (!draftInvoiceId || typeof draftInvoiceId !== "number") return;
 
     setLoading(true);
 
     try {
-      const response = await batchReservationService.getDraftReservations(
-        draftInvoiceId,
-        lineItemTempId,
-      );
+      const response = await batchReservationService.getDraftReservations(draftInvoiceId, lineItemTempId);
 
       if (isMountedRef.current && response.success) {
         // Map reservations to allocations format
@@ -346,7 +313,7 @@ export function useReservations({
       }
     } catch (err) {
       if (isMountedRef.current) {
-        console.error('Failed to load existing reservations:', err);
+        console.error("Failed to load existing reservations:", err);
         // Don't set error - not critical if we can't load existing
       }
     } finally {
@@ -380,14 +347,8 @@ export function useReservations({
 
     // Computed values
     hasAllocations: allocations.length > 0,
-    totalAllocated: allocations.reduce(
-      (sum, a) => sum + parseFloat(a.quantity || 0),
-      0,
-    ),
-    totalCost: allocations.reduce(
-      (sum, a) => sum + parseFloat(a.totalCost || 0),
-      0,
-    ),
+    totalAllocated: allocations.reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0),
+    totalCost: allocations.reduce((sum, a) => sum + parseFloat(a.totalCost || 0), 0),
   };
 }
 

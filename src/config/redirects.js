@@ -9,70 +9,70 @@
 
 export const REDIRECTS = {
   // Root redirect
-  '/': '/app',
+  "/": "/app",
 
   // Dashboard - goes to analytics (full dashboard is analytics)
-  '/dashboard': '/analytics/dashboard',
+  "/dashboard": "/analytics/dashboard",
 
   // Sales (operational → /app)
-  '/quotations': '/app/quotations',
-  '/invoices': '/app/invoices',
-  '/delivery-notes': '/app/delivery-notes',
-  '/credit-notes': '/app/credit-notes',
+  "/quotations": "/app/quotations",
+  "/invoices": "/app/invoices",
+  "/delivery-notes": "/app/delivery-notes",
+  "/credit-notes": "/app/credit-notes",
 
   // Purchases (operational → /app)
-  '/purchases': '/app/purchases',
-  '/purchase-orders': '/app/purchase-orders',
-  '/supplier-bills': '/app/supplier-bills',
-  '/vendor-bills': '/app/supplier-bills', // Legacy redirect
-  '/purchases/vendor-bills': '/app/supplier-bills', // Legacy redirect (nested)
-  '/app/vendor-bills': '/app/supplier-bills', // Legacy redirect (app prefix)
-  '/debit-notes': '/app/debit-notes',
-  '/advance-payments': '/app/advance-payments',
+  "/purchases": "/app/purchases",
+  "/purchase-orders": "/app/purchase-orders",
+  "/supplier-bills": "/app/supplier-bills",
+  "/vendor-bills": "/app/supplier-bills", // Legacy redirect
+  "/purchases/vendor-bills": "/app/supplier-bills", // Legacy redirect (nested)
+  "/app/vendor-bills": "/app/supplier-bills", // Legacy redirect (app prefix)
+  "/debit-notes": "/app/debit-notes",
+  "/advance-payments": "/app/advance-payments",
 
   // Finance (operational → /app)
-  '/finance': '/app/finance',
-  '/dashboards/commission-approvals': '/app/finance', // Now a tab in Finance
-  '/dashboards/customer-credit': '/app/finance', // Now a tab in Finance
-  '/commission-approvals': '/app/finance', // Now a tab in Finance
-  '/credit-management': '/app/finance', // Now a tab in Finance
-  '/receivables': '/app/receivables',
-  '/payables': '/app/payables',
-  '/account-statements': '/app/account-statements',
+  "/finance": "/app/finance",
+  "/dashboards/commission-approvals": "/app/finance", // Now a tab in Finance
+  "/dashboards/customer-credit": "/app/finance", // Now a tab in Finance
+  "/commission-approvals": "/app/finance", // Now a tab in Finance
+  "/credit-management": "/app/finance", // Now a tab in Finance
+  "/receivables": "/app/receivables",
+  "/payables": "/app/payables",
+  "/account-statements": "/app/account-statements",
 
   // Inventory (operational → /app)
-  '/warehouses': '/app/warehouses',
-  '/inventory': '/app/inventory',
-  '/stock-movements': '/app/stock-movements',
+  "/warehouses": "/app/warehouses",
+  "/inventory": "/app/inventory",
+  "/stock-movements": "/app/stock-movements",
 
   // Trade (operational → /app)
-  '/import-export': '/app/import-export',
-  '/containers': '/app/containers',
-  '/import-orders': '/app/import-orders',
-  '/export-orders': '/app/export-orders',
+  "/import-export": "/app/import-export",
+  "/containers": "/app/containers",
+  "/import-orders": "/app/import-orders",
+  "/export-orders": "/app/export-orders",
 
   // Masters (operational → /app)
-  '/customers': '/app/customers',
-  '/products': '/app/products',
-  '/pricelists': '/app/pricelists',
-  '/suppliers': '/app/suppliers',
+  "/customers": "/app/customers",
+  "/products": "/app/products",
+  "/pricelists": "/app/pricelists",
+  "/suppliers": "/app/suppliers",
 
   // Settings (operational → /app)
-  '/settings': '/app/settings',
-  '/roles': '/app/roles',
-  '/audit-logs': '/app/audit-logs',
+  "/settings": "/app/settings",
+  "/roles": "/app/roles",
+  "/audit-logs": "/app/audit-logs",
 
   // Analytics redirects (reports/dashboards → /analytics)
-  '/reports': '/analytics/reports',
-  '/dashboards/ar-aging': '/analytics/ar-aging',
-  '/batch-analytics': '/analytics/batch-analytics',
-  '/dashboards/delivery-variance': '/analytics/delivery-performance',
-  '/profit-analysis': '/analytics/profit-analysis',
-  '/price-history': '/analytics/price-history',
-  '/stock-movement-report': '/analytics/stock-movement-report',
-  '/supplier-performance': '/analytics/supplier-performance',
-  '/commission-dashboard': '/analytics/commission-dashboard',
-  '/agent-commission-dashboard': '/analytics/agent-commission-dashboard',
+  "/reports": "/analytics/reports",
+  "/dashboards/ar-aging": "/analytics/ar-aging",
+  "/batch-analytics": "/analytics/batch-analytics",
+  "/dashboards/delivery-variance": "/analytics/delivery-performance",
+  "/profit-analysis": "/analytics/profit-analysis",
+  "/price-history": "/analytics/price-history",
+  "/stock-movement-report": "/analytics/stock-movement-report",
+  "/supplier-performance": "/analytics/supplier-performance",
+  "/commission-dashboard": "/analytics/commission-dashboard",
+  "/agent-commission-dashboard": "/analytics/agent-commission-dashboard",
 };
 
 /**

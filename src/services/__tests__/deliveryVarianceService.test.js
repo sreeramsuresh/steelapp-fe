@@ -112,10 +112,7 @@ describe("deliveryVarianceService", () => {
 
       api.get.mockResolvedValue(mockResponse);
 
-      const result = await deliveryVarianceService.getRecentLateDeliveries(
-        20,
-        90
-      );
+      const result = await deliveryVarianceService.getRecentLateDeliveries(20, 90);
 
       expect(result).toHaveLength(2);
       expect(result[0].variance_days).toBe(2);

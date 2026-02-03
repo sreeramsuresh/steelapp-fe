@@ -5,44 +5,34 @@
  * Dashboard for stock reconciliation and audit trail
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import {
-  FileText,
-  History,
-  AlertTriangle,
-  CheckCircle,
-  RotateCcw,
-  Loader2,
-  X,
-} from 'lucide-react';
-import { stockMovementService } from '../../services/stockMovementService';
-import { warehouseService } from '../../services/warehouseService';
+import { AlertTriangle, CheckCircle, FileText, History, Loader2, RotateCcw, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { stockMovementService } from "../../services/stockMovementService";
+import { warehouseService } from "../../services/warehouseService";
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
-  if (!dateValue) return '-';
+  if (!dateValue) return "-";
   const date =
-    typeof dateValue === 'object' && dateValue.seconds
-      ? new Date(dateValue.seconds * 1000)
-      : new Date(dateValue);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    typeof dateValue === "object" && dateValue.seconds ? new Date(dateValue.seconds * 1000) : new Date(dateValue);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 /**
  * Format quantity with unit
  */
-const formatQuantity = (qty, unit = 'KG') => {
+const formatQuantity = (qty, unit = "KG") => {
   const num = parseFloat(qty) || 0;
-  const sign = num >= 0 ? '' : '-';
-  return `${sign}${Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  const sign = num >= 0 ? "" : "-";
+  return `${sign}${Math.abs(num).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
 /**
@@ -59,9 +49,9 @@ const TabPanel = ({ children, value, index, ...other }) => (
  */
 const getStatusBadgeClasses = (color) => {
   const colorMap = {
-    success: 'bg-green-50 text-green-700 border-green-200',
-    warning: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    error: 'bg-red-50 text-red-700 border-red-200',
+    success: "bg-green-50 text-green-700 border-green-200",
+    warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    error: "bg-red-50 text-red-700 border-red-200",
   };
   return colorMap[color] || colorMap.success;
 };
@@ -69,7 +59,7 @@ const getStatusBadgeClasses = (color) => {
 const ReconciliationDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
 
   // Reconciliation state
@@ -84,8 +74,8 @@ const ReconciliationDashboard = () => {
   const [auditPage, setAuditPage] = useState(0);
   const [auditRowsPerPage, setAuditRowsPerPage] = useState(50);
   const [auditTotalCount, setAuditTotalCount] = useState(0);
-  const [auditStartDate, setAuditStartDate] = useState('');
-  const [auditEndDate, setAuditEndDate] = useState('');
+  const [auditStartDate, setAuditStartDate] = useState("");
+  const [auditEndDate, setAuditEndDate] = useState("");
 
   // Load warehouses
   useEffect(() => {
@@ -95,12 +85,11 @@ const ReconciliationDashboard = () => {
         const result = await warehouseService.getAll({ isActive: true });
         setWarehouses(result.data || []);
         if (result.data?.length > 0) {
-          const defaultWh =
-            result.data.find((w) => w.isDefault) || result.data[0];
+          const defaultWh = result.data.find((w) => w.isDefault) || result.data[0];
           setSelectedWarehouseId(defaultWh.id);
         }
       } catch (err) {
-        console.error('Error loading warehouses:', err);
+        console.error("Error loading warehouses:", err);
       } finally {
         setLoadingWarehouses(false);
       }
@@ -116,14 +105,11 @@ const ReconciliationDashboard = () => {
       setLoadingReconciliation(true);
       setReconciliationError(null);
 
-      const result =
-        await stockMovementService.getReconciliationReport(selectedWarehouseId);
+      const result = await stockMovementService.getReconciliationReport(selectedWarehouseId);
       setReconciliationData(result);
     } catch (err) {
-      console.error('Error loading reconciliation:', err);
-      setReconciliationError(
-        err.message || 'Failed to load reconciliation report',
-      );
+      console.error("Error loading reconciliation:", err);
+      setReconciliationError(err.message || "Failed to load reconciliation report");
     } finally {
       setLoadingReconciliation(false);
     }
@@ -144,22 +130,14 @@ const ReconciliationDashboard = () => {
       });
 
       setAuditEntries(result.entries || []);
-      setAuditTotalCount(
-        result.pagination?.totalItems || result.entries?.length || 0,
-      );
+      setAuditTotalCount(result.pagination?.totalItems || result.entries?.length || 0);
     } catch (err) {
-      console.error('Error loading audit trail:', err);
-      setAuditError(err.message || 'Failed to load audit trail');
+      console.error("Error loading audit trail:", err);
+      setAuditError(err.message || "Failed to load audit trail");
     } finally {
       setLoadingAudit(false);
     }
-  }, [
-    selectedWarehouseId,
-    auditPage,
-    auditRowsPerPage,
-    auditStartDate,
-    auditEndDate,
-  ]);
+  }, [selectedWarehouseId, auditPage, auditRowsPerPage, auditStartDate, auditEndDate]);
 
   // Load data when warehouse changes or tab changes
   useEffect(() => {
@@ -191,9 +169,7 @@ const ReconciliationDashboard = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <FileText className="text-teal-600" size={32} />
-          <h1 className="text-2xl font-bold text-gray-900">
-            Stock Reconciliation & Audit
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Stock Reconciliation & Audit</h1>
         </div>
       </div>
 
@@ -204,8 +180,8 @@ const ReconciliationDashboard = () => {
             onClick={() => setActiveTab(0)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 0
-                ? 'text-teal-600 border-b-2 border-teal-600 bg-gray-50'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? "text-teal-600 border-b-2 border-teal-600 bg-gray-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
             <FileText size={18} />
@@ -215,8 +191,8 @@ const ReconciliationDashboard = () => {
             onClick={() => setActiveTab(1)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 1
-                ? 'text-teal-600 border-b-2 border-teal-600 bg-gray-50'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? "text-teal-600 border-b-2 border-teal-600 bg-gray-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
             <History size={18} />
@@ -238,7 +214,7 @@ const ReconciliationDashboard = () => {
             <option value="">Select Warehouse</option>
             {warehouses.map((wh) => (
               <option key={wh.id} value={wh.id}>
-                {wh.name} {wh.code ? `(${wh.code})` : ''}
+                {wh.name} {wh.code ? `(${wh.code})` : ""}
               </option>
             ))}
           </select>
@@ -256,10 +232,7 @@ const ReconciliationDashboard = () => {
         {reconciliationError && (
           <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
             <span>{reconciliationError}</span>
-            <button
-              onClick={() => setReconciliationError(null)}
-              className="text-red-600 hover:text-red-800"
-            >
+            <button onClick={() => setReconciliationError(null)} className="text-red-600 hover:text-red-800">
               <X size={18} />
             </button>
           </div>
@@ -276,15 +249,11 @@ const ReconciliationDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="rounded-xl border bg-white border-gray-200 p-4">
                 <div className="text-sm text-gray-500 mb-1">Warehouse</div>
-                <div className="text-xl font-semibold text-gray-900">
-                  {reconciliationData.warehouseName}
-                </div>
+                <div className="text-xl font-semibold text-gray-900">{reconciliationData.warehouseName}</div>
               </div>
               <div className="rounded-xl border bg-white border-gray-200 p-4">
                 <div className="text-sm text-gray-500 mb-1">Total Products</div>
-                <div className="text-xl font-semibold text-gray-900">
-                  {reconciliationData.items?.length || 0}
-                </div>
+                <div className="text-xl font-semibold text-gray-900">{reconciliationData.items?.length || 0}</div>
               </div>
               <div className="rounded-xl border bg-white border-gray-200 p-4">
                 <div className="text-sm text-gray-500 mb-1">Total Quantity</div>
@@ -295,8 +264,8 @@ const ReconciliationDashboard = () => {
               <div
                 className={`rounded-xl border p-4 ${
                   reconciliationData.discrepancyCount > 0
-                    ? 'bg-yellow-50 border-yellow-200'
-                    : 'bg-green-50 border-green-200'
+                    ? "bg-yellow-50 border-yellow-200"
+                    : "bg-green-50 border-green-200"
                 }`}
               >
                 <div className="text-sm text-gray-500 mb-1">Discrepancies</div>
@@ -306,9 +275,7 @@ const ReconciliationDashboard = () => {
                   ) : (
                     <CheckCircle className="text-green-600" size={20} />
                   )}
-                  <div className="text-xl font-semibold text-gray-900">
-                    {reconciliationData.discrepancyCount}
-                  </div>
+                  <div className="text-xl font-semibold text-gray-900">{reconciliationData.discrepancyCount}</div>
                 </div>
               </div>
             </div>
@@ -345,10 +312,7 @@ const ReconciliationDashboard = () => {
                   <tbody className="divide-y divide-gray-200">
                     {(reconciliationData.items || []).length === 0 ? (
                       <tr>
-                        <td
-                          colSpan={7}
-                          className="px-4 py-8 text-center text-gray-500"
-                        >
+                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                           No inventory items found
                         </td>
                       </tr>
@@ -358,18 +322,9 @@ const ReconciliationDashboard = () => {
                         const hasDiscrepancy = Math.abs(discrepancy) > 0.01;
 
                         return (
-                          <tr
-                            key={idx}
-                            className={`hover:bg-gray-50 ${
-                              hasDiscrepancy ? 'bg-yellow-50' : ''
-                            }`}
-                          >
-                            <td className="px-4 py-3 text-sm text-gray-900">
-                              {item.productName}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                              {item.productSku || '-'}
-                            </td>
+                          <tr key={idx} className={`hover:bg-gray-50 ${hasDiscrepancy ? "bg-yellow-50" : ""}`}>
+                            <td className="px-4 py-3 text-sm text-gray-900">{item.productName}</td>
+                            <td className="px-4 py-3 text-sm text-gray-600">{item.productSku || "-"}</td>
                             <td className="px-4 py-3 text-sm text-gray-600 text-right">
                               {formatQuantity(item.systemQuantity)}
                             </td>
@@ -377,26 +332,18 @@ const ReconciliationDashboard = () => {
                               {formatQuantity(item.lastPhysicalCount)}
                             </td>
                             <td className="px-4 py-3 text-sm text-right">
-                              <span
-                                className={`${
-                                  hasDiscrepancy
-                                    ? 'text-red-600 font-bold'
-                                    : 'text-green-600'
-                                }`}
-                              >
+                              <span className={`${hasDiscrepancy ? "text-red-600 font-bold" : "text-green-600"}`}>
                                 {formatQuantity(discrepancy)}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                              {formatDate(item.lastCountDate)}
-                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">{formatDate(item.lastCountDate)}</td>
                             <td className="px-4 py-3 text-sm">
                               <span
                                 className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
-                                  hasDiscrepancy ? 'warning' : 'success',
+                                  hasDiscrepancy ? "warning" : "success"
                                 )}`}
                               >
-                                {hasDiscrepancy ? 'Discrepancy' : 'OK'}
+                                {hasDiscrepancy ? "Discrepancy" : "OK"}
                               </span>
                             </td>
                           </tr>
@@ -437,10 +384,7 @@ const ReconciliationDashboard = () => {
             </select>
 
             <div>
-              <label
-                htmlFor="audit-start-date"
-                className="block text-xs text-gray-500 mb-1"
-              >
+              <label htmlFor="audit-start-date" className="block text-xs text-gray-500 mb-1">
                 Start Date
               </label>
               <input
@@ -456,10 +400,7 @@ const ReconciliationDashboard = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="audit-end-date"
-                className="block text-xs text-gray-500 mb-1"
-              >
+              <label htmlFor="audit-end-date" className="block text-xs text-gray-500 mb-1">
                 End Date
               </label>
               <input
@@ -489,10 +430,7 @@ const ReconciliationDashboard = () => {
         {auditError && (
           <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
             <span>{auditError}</span>
-            <button
-              onClick={() => setAuditError(null)}
-              className="text-red-600 hover:text-red-800"
-            >
+            <button onClick={() => setAuditError(null)} className="text-red-600 hover:text-red-800">
               <X size={18} />
             </button>
           </div>
@@ -538,58 +476,40 @@ const ReconciliationDashboard = () => {
                   <tr>
                     <td colSpan={9} className="px-4 py-8 text-center">
                       <div className="flex justify-center">
-                        <Loader2
-                          className="animate-spin text-teal-500"
-                          size={32}
-                        />
+                        <Loader2 className="animate-spin text-teal-500" size={32} />
                       </div>
                     </td>
                   </tr>
                 ) : auditEntries.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={9}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                       {!selectedWarehouseId
-                        ? 'Please select a warehouse to view audit history'
-                        : 'No audit entries found for the selected warehouse and date range'}
+                        ? "Please select a warehouse to view audit history"
+                        : "No audit entries found for the selected warehouse and date range"}
                     </td>
                   </tr>
                 ) : (
                   auditEntries.map((entry) => {
                     const change = parseFloat(entry.quantityChange) || 0;
-                    const isIncrease =
-                      change > 0 ||
-                      ['IN', 'TRANSFER_IN', 'RELEASE'].includes(entry.action);
+                    const isIncrease = change > 0 || ["IN", "TRANSFER_IN", "RELEASE"].includes(entry.action);
 
                     return (
                       <tr key={entry.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-600">
-                          {formatDate(entry.timestamp)}
-                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{formatDate(entry.timestamp)}</td>
                         <td className="px-4 py-3 text-sm">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
-                              isIncrease ? 'success' : 'error',
+                              isIncrease ? "success" : "error"
                             )}`}
                           >
                             {entry.action}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {entry.productName}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
-                          {entry.warehouseName || '-'}
-                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{entry.productName}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{entry.warehouseName || "-"}</td>
                         <td className="px-4 py-3 text-sm text-right font-medium">
-                          <span
-                            className={
-                              isIncrease ? 'text-green-600' : 'text-red-600'
-                            }
-                          >
-                            {isIncrease ? '+' : '-'}
+                          <span className={isIncrease ? "text-green-600" : "text-red-600"}>
+                            {isIncrease ? "+" : "-"}
                             {formatQuantity(Math.abs(change))}
                           </span>
                         </td>
@@ -600,11 +520,9 @@ const ReconciliationDashboard = () => {
                           {formatQuantity(entry.balanceAfter)}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
-                          {entry.referenceNumber || entry.referenceType || '-'}
+                          {entry.referenceNumber || entry.referenceType || "-"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
-                          {entry.userName || '-'}
-                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{entry.userName || "-"}</td>
                       </tr>
                     );
                   })
@@ -629,9 +547,8 @@ const ReconciliationDashboard = () => {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-500">
-                {auditPage * auditRowsPerPage + 1}-
-                {Math.min((auditPage + 1) * auditRowsPerPage, auditTotalCount)}{' '}
-                of {auditTotalCount}
+                {auditPage * auditRowsPerPage + 1}-{Math.min((auditPage + 1) * auditRowsPerPage, auditTotalCount)} of{" "}
+                {auditTotalCount}
               </span>
               <div className="flex gap-1">
                 <button
@@ -643,10 +560,7 @@ const ReconciliationDashboard = () => {
                 </button>
                 <button
                   onClick={(e) => handleAuditPageChange(e, auditPage + 1)}
-                  disabled={
-                    auditPage >=
-                    Math.ceil(auditTotalCount / auditRowsPerPage) - 1
-                  }
+                  disabled={auditPage >= Math.ceil(auditTotalCount / auditRowsPerPage) - 1}
                   className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
                 >
                   Next

@@ -1,6 +1,6 @@
-import '@testing-library/jest-dom';
-import { afterEach, vi, beforeEach } from 'vitest';
-import { cleanup } from '@testing-library/react';
+import "@testing-library/jest-dom";
+import { cleanup } from "@testing-library/react";
+import { afterEach, beforeEach, vi } from "vitest";
 
 // Mock localStorage with actual storage behavior
 let storage = {};
@@ -67,6 +67,6 @@ afterEach(() => {
 global.vi = vi;
 
 // Polyfill for scrollIntoView (JSDOM doesn't implement this)
-if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
-  Element.prototype.scrollIntoView = function () {};
+if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
 }

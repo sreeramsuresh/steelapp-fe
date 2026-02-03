@@ -1,5 +1,5 @@
-import { apiService } from './axiosApi';
-import { normalizeProduct } from '../utils/fieldAccessors.js';
+import { normalizeProduct } from "../utils/fieldAccessors.js";
+import { apiService } from "./axiosApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -7,18 +7,18 @@ class ApiClient {
   constructor() {
     this.baseURL = API_BASE_URL;
     this.defaultHeaders = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
   }
 
   setAuthHeader(token) {
-    this.defaultHeaders['Authorization'] = `Bearer ${token}`;
+    this.defaultHeaders["Authorization"] = `Bearer ${token}`;
     // Also set on axios-based service so interceptors use it
     apiService.setAuthToken(token);
   }
 
   removeAuthHeader() {
-    delete this.defaultHeaders['Authorization'];
+    delete this.defaultHeaders["Authorization"];
     apiService.removeAuthToken();
   }
 
@@ -26,23 +26,23 @@ class ApiClient {
   // New code should use the axios-based methods below which benefit from interceptors
   async request(endpoint, options = {}) {
     // Delegate to axios-based apiService
-    const method = (options.method || 'GET').toUpperCase();
+    const method = (options.method || "GET").toUpperCase();
     const data =
       options.body instanceof FormData
         ? options.body
-        : typeof options.body === 'string'
+        : typeof options.body === "string"
           ? JSON.parse(options.body)
           : options.body;
     switch (method) {
-      case 'GET':
+      case "GET":
         return apiService.get(endpoint);
-      case 'POST':
+      case "POST":
         return apiService.post(endpoint, data);
-      case 'PUT':
+      case "PUT":
         return apiService.put(endpoint, data);
-      case 'PATCH':
+      case "PATCH":
         return apiService.patch(endpoint, data);
-      case 'DELETE':
+      case "DELETE":
         return apiService.delete(endpoint);
       default:
         return apiService.request({ method, url: endpoint, data });
@@ -76,7 +76,7 @@ export const apiClient = new ApiClient();
 export const invoicesAPI = {
   // Get all invoices with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/invoices', params);
+    return apiClient.get("/invoices", params);
   },
 
   // Get invoice by ID
@@ -86,7 +86,7 @@ export const invoicesAPI = {
 
   // Create invoice
   create: (invoiceData) => {
-    return apiClient.post('/invoices', invoiceData);
+    return apiClient.post("/invoices", invoiceData);
   },
 
   // Update invoice
@@ -106,28 +106,28 @@ export const invoicesAPI = {
 
   // Get next invoice number
   getNextNumber: () => {
-    return apiClient.get('/invoices/number/next');
+    return apiClient.get("/invoices/number/next");
   },
 
   // Get analytics
   getAnalytics: (params = {}) => {
-    return apiClient.get('/invoices/analytics', params);
+    return apiClient.get("/invoices/analytics", params);
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     // eslint-disable-next-line no-console
-    console.log('[invoicesAPI.downloadPDF] Starting PDF download for id:', id);
+    console.log("[invoicesAPI.downloadPDF] Starting PDF download for id:", id);
 
     const blob = await apiService.request({
-      method: 'GET',
+      method: "GET",
       url: `/invoices/${id}/pdf`,
-      responseType: 'blob',
+      responseType: "blob",
       timeout: 60000, // 60 seconds for PDF generation
     });
 
     // eslint-disable-next-line no-console
-    console.log('[invoicesAPI.downloadPDF] Received blob:', {
+    console.log("[invoicesAPI.downloadPDF] Received blob:", {
       type: blob?.type,
       size: blob?.size,
       isBlob: blob instanceof Blob,
@@ -135,46 +135,36 @@ export const invoicesAPI = {
 
     // Check if the response is actually a PDF or an error
     if (!blob || !(blob instanceof Blob)) {
-       
-      console.error('[invoicesAPI.downloadPDF] Response is not a blob:', blob);
-      throw new Error('Invalid response from server - expected PDF blob');
+      console.error("[invoicesAPI.downloadPDF] Response is not a blob:", blob);
+      throw new Error("Invalid response from server - expected PDF blob");
     }
 
     // If the blob is JSON (error response), parse and throw
-    if (blob.type === 'application/json') {
+    if (blob.type === "application/json") {
       const errorText = await blob.text();
-       
-      console.error(
-        '[invoicesAPI.downloadPDF] Server returned error JSON:',
-        errorText,
-      );
+
+      console.error("[invoicesAPI.downloadPDF] Server returned error JSON:", errorText);
       const errorData = JSON.parse(errorText);
-      throw new Error(
-        errorData.message || errorData.error || 'PDF generation failed',
-      );
+      throw new Error(errorData.message || errorData.error || "PDF generation failed");
     }
 
     // Verify it's a PDF
-    if (blob.type !== 'application/pdf' && blob.size < 1000) {
-       
-      console.warn(
-        '[invoicesAPI.downloadPDF] Unexpected blob type:',
-        blob.type,
-      );
+    if (blob.type !== "application/pdf" && blob.size < 1000) {
+      console.warn("[invoicesAPI.downloadPDF] Unexpected blob type:", blob.type);
     }
 
     const downloadUrl = window.URL.createObjectURL(blob);
     // eslint-disable-next-line no-console
-    console.log('[invoicesAPI.downloadPDF] Created download URL:', downloadUrl);
+    console.log("[invoicesAPI.downloadPDF] Created download URL:", downloadUrl);
 
     // Get invoice number for filename
     const invoice = await invoicesAPI.getById(id);
     const filename = `invoice-${invoice.invoiceNumber}.pdf`;
     // eslint-disable-next-line no-console
-    console.log('[invoicesAPI.downloadPDF] Downloading as:', filename);
+    console.log("[invoicesAPI.downloadPDF] Downloading as:", filename);
 
     // Create download link
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);
@@ -184,7 +174,7 @@ export const invoicesAPI = {
     // Clean up
     window.URL.revokeObjectURL(downloadUrl);
     // eslint-disable-next-line no-console
-    console.log('[invoicesAPI.downloadPDF] Download complete');
+    console.log("[invoicesAPI.downloadPDF] Download complete");
   },
 };
 
@@ -192,7 +182,7 @@ export const invoicesAPI = {
 export const customersAPI = {
   // Get all customers with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/customers', params);
+    return apiClient.get("/customers", params);
   },
 
   // Get customer by ID
@@ -202,7 +192,7 @@ export const customersAPI = {
 
   // Create customer
   create: (customerData) => {
-    return apiClient.post('/customers', customerData);
+    return apiClient.post("/customers", customerData);
   },
 
   // Update customer
@@ -217,7 +207,7 @@ export const customersAPI = {
 
   // Search customers
   search: (query) => {
-    return apiClient.get('/customers/search', { query });
+    return apiClient.get("/customers/search", { query });
   },
 };
 
@@ -226,7 +216,7 @@ export const productsAPI = {
   // Get all products with pagination and filters
   // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
   getAll: async (params = {}) => {
-    const response = await apiClient.get('/products', params);
+    const response = await apiClient.get("/products", params);
     if (response.data?.products) {
       response.data.products = response.data.products.map(normalizeProduct);
     }
@@ -245,7 +235,7 @@ export const productsAPI = {
 
   // Create product
   create: (productData) => {
-    return apiClient.post('/products', productData);
+    return apiClient.post("/products", productData);
   },
 
   // Update product
@@ -261,7 +251,7 @@ export const productsAPI = {
   // Search products
   // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
   search: async (query) => {
-    const response = await apiClient.get('/products/search', { query });
+    const response = await apiClient.get("/products/search", { query });
     if (response.data?.products) {
       response.data.products = response.data.products.map(normalizeProduct);
     }
@@ -270,7 +260,7 @@ export const productsAPI = {
 
   // Get product categories
   getCategories: () => {
-    return apiClient.get('/products/categories');
+    return apiClient.get("/products/categories");
   },
 
   // Get products by category
@@ -291,7 +281,7 @@ export const api = apiClient;
 export const suppliersAPI = {
   // Get all suppliers with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/suppliers', params);
+    return apiClient.get("/suppliers", params);
   },
 
   // Get supplier by ID
@@ -301,7 +291,7 @@ export const suppliersAPI = {
 
   // Create supplier
   create: (supplierData) => {
-    return apiClient.post('/suppliers', supplierData);
+    return apiClient.post("/suppliers", supplierData);
   },
 
   // Update supplier
@@ -316,7 +306,7 @@ export const suppliersAPI = {
 
   // Search suppliers
   search: (query) => {
-    return apiClient.get('/suppliers/search', { query });
+    return apiClient.get("/suppliers/search", { query });
   },
 
   // Get suppliers by category
@@ -352,18 +342,18 @@ export const suppliersAPI = {
   // Upload suppliers from file
   uploadFile: (file) => {
     const formData = new FormData();
-    formData.append('file', file);
-    return apiClient.post('/suppliers/upload', formData, {
+    formData.append("file", file);
+    return apiClient.post("/suppliers/upload", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
   },
 
   // Download upload template
   downloadTemplate: () => {
-    return apiClient.get('/suppliers/upload/template', {
-      responseType: 'blob',
+    return apiClient.get("/suppliers/upload/template", {
+      responseType: "blob",
     });
   },
 };
@@ -372,7 +362,7 @@ export const suppliersAPI = {
 export const paymentsAPI = {
   // Get all payments with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/payments', params);
+    return apiClient.get("/payments", params);
   },
 
   // Get payment by ID
@@ -387,7 +377,7 @@ export const paymentsAPI = {
 
   // Create payment
   create: (paymentData) => {
-    return apiClient.post('/payments', paymentData);
+    return apiClient.post("/payments", paymentData);
   },
 
   // Void payment

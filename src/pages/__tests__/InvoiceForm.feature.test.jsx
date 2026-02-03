@@ -3,24 +3,24 @@
  * Tests core invoice functionality: creation, editing, stock deduction, VAT calculation
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  findButtonByRole,
-  clickAndWait,
-  assertSuccessToast,
   assertFormErrorAppears,
   assertListItemAdded,
-} from '../../test/utils';
+  assertSuccessToast,
+  clickAndWait,
+  findButtonByRole,
+} from "../../test/utils";
 
-describe('Invoice Feature', () => {
-  describe('Creating a New Invoice', () => {
-    it('should create invoice with customer and product selection', async () => {
+describe("Invoice Feature", () => {
+  describe("Creating a New Invoice", () => {
+    it("should create invoice with customer and product selection", async () => {
       const MockInvoiceForm = () => {
         const [invoice, setInvoice] = React.useState({
-          customerName: '',
+          customerName: "",
           items: [],
           subtotal: 0,
           vat: 0,
@@ -30,10 +30,7 @@ describe('Invoice Feature', () => {
         const handleAddItem = () => {
           setInvoice({
             ...invoice,
-            items: [
-              ...invoice.items,
-              { product: 'SS-304-Sheet', qty: 50, price: 100 },
-            ],
+            items: [...invoice.items, { product: "SS-304-Sheet", qty: 50, price: 100 }],
             subtotal: 5000,
             vat: 250,
             total: 5250,
@@ -49,9 +46,7 @@ describe('Invoice Feature', () => {
             <input
               placeholder="Customer Name"
               value={invoice.customerName}
-              onChange={(e) =>
-                setInvoice({ ...invoice, customerName: e.target.value })
-              }
+              onChange={(e) => setInvoice({ ...invoice, customerName: e.target.value })}
             />
             <button onClick={handleAddItem}>Add Product</button>
             <div className="items-list">
@@ -71,10 +66,10 @@ describe('Invoice Feature', () => {
 
       render(<MockInvoiceForm />);
 
-      const customerInput = screen.getByPlaceholderText('Customer Name');
-      await userEvent.type(customerInput, 'ABC Corp');
+      const customerInput = screen.getByPlaceholderText("Customer Name");
+      await userEvent.type(customerInput, "ABC Corp");
 
-      const addProductBtn = findButtonByRole('Add Product');
+      const addProductBtn = findButtonByRole("Add Product");
       await userEvent.click(addProductBtn);
 
       // Verify item was added
@@ -84,14 +79,14 @@ describe('Invoice Feature', () => {
       expect(screen.getByText(/Total: 5250/)).toBeInTheDocument();
     });
 
-    it('should validate required fields before saving', async () => {
+    it("should validate required fields before saving", async () => {
       const MockInvoiceForm = () => {
         const [errors, setErrors] = React.useState({});
 
         const handleSave = () => {
           const newErrors = {};
-          if (!screen.getByPlaceholderText('Customer Name').value) {
-            newErrors.customer = 'Customer is required';
+          if (!screen.getByPlaceholderText("Customer Name").value) {
+            newErrors.customer = "Customer is required";
           }
           setErrors(newErrors);
         };
@@ -99,25 +94,21 @@ describe('Invoice Feature', () => {
         return (
           <>
             <input placeholder="Customer Name" />
-            <div>
-              {errors.customer && (
-                <span id="customer-error">{errors.customer}</span>
-              )}
-            </div>
+            <div>{errors.customer && <span id="customer-error">{errors.customer}</span>}</div>
             <button onClick={handleSave}>Save</button>
           </>
         );
       };
 
       render(<MockInvoiceForm />);
-      const saveBtn = findButtonByRole('Save');
+      const saveBtn = findButtonByRole("Save");
       await userEvent.click(saveBtn);
 
       // Should show error
-      await assertFormErrorAppears('Customer', 'Customer is required');
+      await assertFormErrorAppears("Customer", "Customer is required");
     });
 
-    it('should calculate VAT correctly for UAE sales (5%)', async () => {
+    it("should calculate VAT correctly for UAE sales (5%)", async () => {
       const MockInvoiceForm = () => {
         const [subtotal, setSubtotal] = React.useState(1000);
         const vat = subtotal * 0.05;
@@ -134,14 +125,14 @@ describe('Invoice Feature', () => {
 
       render(<MockInvoiceForm />);
 
-      expect(screen.getByText('Subtotal: 1000')).toBeInTheDocument();
-      expect(screen.getByText('VAT: 50')).toBeInTheDocument();
-      expect(screen.getByText('Total: 1050')).toBeInTheDocument();
+      expect(screen.getByText("Subtotal: 1000")).toBeInTheDocument();
+      expect(screen.getByText("VAT: 50")).toBeInTheDocument();
+      expect(screen.getByText("Total: 1050")).toBeInTheDocument();
     });
   });
 
-  describe('Stock Deduction on Invoice', () => {
-    it('should deduct stock from warehouse when invoice is saved', async () => {
+  describe("Stock Deduction on Invoice", () => {
+    it("should deduct stock from warehouse when invoice is saved", async () => {
       const MockInvoiceWithStock = () => {
         const [stockLevel, setStockLevel] = React.useState(100);
         const [invoiceSaved, setInvoiceSaved] = React.useState(false);
@@ -156,33 +147,31 @@ describe('Invoice Feature', () => {
           <>
             <div>Stock Level: {stockLevel}</div>
             <button onClick={handleSaveInvoice}>Save Invoice (50 units)</button>
-            {invoiceSaved && (
-              <div className="alert-success">Invoice saved, stock updated</div>
-            )}
+            {invoiceSaved && <div className="alert-success">Invoice saved, stock updated</div>}
           </>
         );
       };
 
       render(<MockInvoiceWithStock />);
 
-      expect(screen.getByText('Stock Level: 100')).toBeInTheDocument();
+      expect(screen.getByText("Stock Level: 100")).toBeInTheDocument();
 
-      const saveBtn = findButtonByRole('Save Invoice');
+      const saveBtn = findButtonByRole("Save Invoice");
       await userEvent.click(saveBtn);
 
       await assertSuccessToast(/stock updated/i);
-      expect(screen.getByText('Stock Level: 50')).toBeInTheDocument();
+      expect(screen.getByText("Stock Level: 50")).toBeInTheDocument();
     });
 
-    it('should prevent saving invoice if stock is insufficient', async () => {
+    it("should prevent saving invoice if stock is insufficient", async () => {
       const MockInvoiceWithStock = () => {
         const [stockLevel] = React.useState(30);
-        const [error, setError] = React.useState('');
+        const [error, setError] = React.useState("");
         const requestedQty = 50;
 
         const handleSaveInvoice = () => {
           if (requestedQty > stockLevel) {
-            setError('Insufficient stock. Available: 30, Requested: 50');
+            setError("Insufficient stock. Available: 30, Requested: 50");
           }
         };
 
@@ -197,7 +186,7 @@ describe('Invoice Feature', () => {
 
       render(<MockInvoiceWithStock />);
 
-      const saveBtn = findButtonByRole('Save Invoice');
+      const saveBtn = findButtonByRole("Save Invoice");
       await userEvent.click(saveBtn);
 
       // Should show error
@@ -205,25 +194,19 @@ describe('Invoice Feature', () => {
     });
   });
 
-  describe('Invoice Status & Workflow', () => {
-    it('should transition invoice through states: Draft → Saved → Delivered → Paid', async () => {
+  describe("Invoice Status & Workflow", () => {
+    it("should transition invoice through states: Draft → Saved → Delivered → Paid", async () => {
       const MockInvoiceWorkflow = () => {
-        const [status, setStatus] = React.useState('draft');
+        const [status, setStatus] = React.useState("draft");
 
         return (
           <>
             <div>Status: {status}</div>
-            <button onClick={() => setStatus('saved')}>Save</button>
-            <button
-              onClick={() => setStatus('delivered')}
-              disabled={status !== 'saved'}
-            >
+            <button onClick={() => setStatus("saved")}>Save</button>
+            <button onClick={() => setStatus("delivered")} disabled={status !== "saved"}>
               Mark Delivered
             </button>
-            <button
-              onClick={() => setStatus('paid')}
-              disabled={status !== 'delivered'}
-            >
+            <button onClick={() => setStatus("paid")} disabled={status !== "delivered"}>
               Mark Paid
             </button>
           </>
@@ -232,39 +215,35 @@ describe('Invoice Feature', () => {
 
       render(<MockInvoiceWorkflow />);
 
-      expect(screen.getByText('Status: draft')).toBeInTheDocument();
+      expect(screen.getByText("Status: draft")).toBeInTheDocument();
 
       // Draft -> Saved
-      const saveBtn = findButtonByRole('Save');
+      const saveBtn = findButtonByRole("Save");
       await userEvent.click(saveBtn);
-      expect(screen.getByText('Status: saved')).toBeInTheDocument();
+      expect(screen.getByText("Status: saved")).toBeInTheDocument();
 
       // Saved -> Delivered
-      const deliverBtn = findButtonByRole('Mark Delivered', {
+      const deliverBtn = findButtonByRole("Mark Delivered", {
         disabled: false,
       });
       await userEvent.click(deliverBtn);
-      expect(screen.getByText('Status: delivered')).toBeInTheDocument();
+      expect(screen.getByText("Status: delivered")).toBeInTheDocument();
 
       // Delivered -> Paid
-      const paidBtn = findButtonByRole('Mark Paid', { disabled: false });
+      const paidBtn = findButtonByRole("Mark Paid", { disabled: false });
       await userEvent.click(paidBtn);
-      expect(screen.getByText('Status: paid')).toBeInTheDocument();
+      expect(screen.getByText("Status: paid")).toBeInTheDocument();
     });
   });
 
-  describe('Invoice Editing & Deletion', () => {
-    it('should allow editing saved invoice lines', async () => {
+  describe("Invoice Editing & Deletion", () => {
+    it("should allow editing saved invoice lines", async () => {
       const MockInvoiceEdit = () => {
         const [quantity, setQuantity] = React.useState(50);
 
         return (
           <>
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value))}
-            />
+            <input type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} />
             <div>Total Units: {quantity}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button>Save Changes</button>
@@ -274,21 +253,21 @@ describe('Invoice Feature', () => {
 
       render(<MockInvoiceEdit />);
 
-      const qtyInput = screen.getByDisplayValue('50');
+      const qtyInput = screen.getByDisplayValue("50");
       await userEvent.clear(qtyInput);
-      await userEvent.type(qtyInput, '75');
+      await userEvent.type(qtyInput, "75");
 
-      expect(screen.getByText('Total Units: 75')).toBeInTheDocument();
+      expect(screen.getByText("Total Units: 75")).toBeInTheDocument();
     });
 
-    it('should prevent deletion of paid invoices', async () => {
+    it("should prevent deletion of paid invoices", async () => {
       const MockInvoiceDelete = () => {
-        const [status] = React.useState('paid');
-        const [error, setError] = React.useState('');
+        const [status] = React.useState("paid");
+        const [error, setError] = React.useState("");
 
         const handleDelete = () => {
-          if (status === 'paid') {
-            setError('Cannot delete paid invoice');
+          if (status === "paid") {
+            setError("Cannot delete paid invoice");
           }
         };
 
@@ -303,26 +282,21 @@ describe('Invoice Feature', () => {
 
       render(<MockInvoiceDelete />);
 
-      const deleteBtn = findButtonByRole('Delete Invoice');
+      const deleteBtn = findButtonByRole("Delete Invoice");
       await userEvent.click(deleteBtn);
 
-      expect(
-        screen.getByText(/Cannot delete paid invoice/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Cannot delete paid invoice/)).toBeInTheDocument();
     });
   });
 
-  describe('Multi-line Invoices', () => {
-    it('should correctly calculate totals for invoices with multiple line items', async () => {
+  describe("Multi-line Invoices", () => {
+    it("should correctly calculate totals for invoices with multiple line items", async () => {
       const MockMultiLineInvoice = () => {
         const items = [
-          { product: 'SS-304-Sheet', qty: 50, unitPrice: 100 }, // 5000
-          { product: 'SS-316-Pipe', qty: 30, unitPrice: 150 }, // 4500
+          { product: "SS-304-Sheet", qty: 50, unitPrice: 100 }, // 5000
+          { product: "SS-316-Pipe", qty: 30, unitPrice: 150 }, // 4500
         ];
-        const subtotal = items.reduce(
-          (sum, item) => sum + item.qty * item.unitPrice,
-          0,
-        );
+        const subtotal = items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0);
         const vat = subtotal * 0.05;
         const total = subtotal + vat;
 
@@ -330,8 +304,7 @@ describe('Invoice Feature', () => {
           <>
             {items.map((item, idx) => (
               <div key={idx}>
-                {item.product}: {item.qty} × {item.unitPrice} ={' '}
-                {item.qty * item.unitPrice}
+                {item.product}: {item.qty} × {item.unitPrice} = {item.qty * item.unitPrice}
               </div>
             ))}
             <div>Subtotal: {subtotal}</div>
@@ -345,9 +318,9 @@ describe('Invoice Feature', () => {
 
       expect(screen.getByText(/SS-304-Sheet.*5000/)).toBeInTheDocument();
       expect(screen.getByText(/SS-316-Pipe.*4500/)).toBeInTheDocument();
-      expect(screen.getByText('Subtotal: 9500')).toBeInTheDocument();
-      expect(screen.getByText('VAT (5%): 475')).toBeInTheDocument();
-      expect(screen.getByText('Total: 9975')).toBeInTheDocument();
+      expect(screen.getByText("Subtotal: 9500")).toBeInTheDocument();
+      expect(screen.getByText("VAT (5%): 475")).toBeInTheDocument();
+      expect(screen.getByText("Total: 9975")).toBeInTheDocument();
     });
   });
 });

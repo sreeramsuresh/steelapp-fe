@@ -15,8 +15,8 @@ vi.mock("../notificationService.js", () => ({
   },
 }));
 
-import { productService } from "../productService.js";
 import { notificationService } from "../notificationService.js";
+import { productService } from "../productService.js";
 
 describe("DemoDataService", () => {
   let demoService;
@@ -45,9 +45,7 @@ describe("DemoDataService", () => {
 
       expect(productService.createProduct).toHaveBeenCalled();
       const calls = productService.createProduct.mock.calls;
-      const sheetCall = calls.find((call) =>
-        call[0].name?.includes("Sheet")
-      );
+      const sheetCall = calls.find((call) => call[0].name?.includes("Sheet"));
       expect(sheetCall).toBeDefined();
     });
 
@@ -86,9 +84,7 @@ describe("DemoDataService", () => {
     });
 
     it("should handle product creation errors gracefully", async () => {
-      productService.createProduct.mockRejectedValue(
-        new Error("Failed to create product")
-      );
+      productService.createProduct.mockRejectedValue(new Error("Failed to create product"));
 
       await expect(demoService.initializeDemoProducts()).rejects.toThrow();
     });

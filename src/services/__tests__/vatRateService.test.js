@@ -109,10 +109,7 @@ describe("vatRateService", () => {
 
       expect(result.vat_amount).toBe(5000);
       expect(result.total_with_vat).toBe(105000);
-      expect(api.post).toHaveBeenCalledWith(
-        "/vat-rates/calculate",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/vat-rates/calculate", expect.any(Object));
     });
 
     it("should return zero VAT for zero-rated supplies", async () => {
@@ -148,9 +145,7 @@ describe("vatRateService", () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].rate_percentage).toBe(5.0);
-      expect(api.get).toHaveBeenCalledWith(
-        "/vat-rates/standard/history"
-      );
+      expect(api.get).toHaveBeenCalledWith("/vat-rates/standard/history");
     });
   });
 
@@ -164,16 +159,10 @@ describe("vatRateService", () => {
 
       api.post.mockResolvedValue(mockResponse);
 
-      const result = await vatRateService.getApplicableRate(
-        "standard",
-        "2024-01-15"
-      );
+      const result = await vatRateService.getApplicableRate("standard", "2024-01-15");
 
       expect(result.rate_percentage).toBe(5.0);
-      expect(api.post).toHaveBeenCalledWith(
-        "/vat-rates/applicable",
-        expect.any(Object)
-      );
+      expect(api.post).toHaveBeenCalledWith("/vat-rates/applicable", expect.any(Object));
     });
   });
 });

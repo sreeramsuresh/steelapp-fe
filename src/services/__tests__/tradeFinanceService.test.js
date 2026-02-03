@@ -42,10 +42,7 @@ describe("tradeFinanceService", () => {
 
       expect(result).toHaveLength(2);
       expect(result[0].type).toBe("letter_of_credit");
-      expect(api.get).toHaveBeenCalledWith(
-        "/trade-finance",
-        { params: {} }
-      );
+      expect(api.get).toHaveBeenCalledWith("/trade-finance", { params: {} });
     });
   });
 
@@ -87,9 +84,7 @@ describe("tradeFinanceService", () => {
         amount: 100000,
       };
 
-      const result = await tradeFinanceService.createTradeFinanceRecord(
-        payload
-      );
+      const result = await tradeFinanceService.createTradeFinanceRecord(payload);
 
       expect(result.reference_number).toBe("TF-2024-001");
       expect(api.post).toHaveBeenCalledWith("/trade-finance", payload);
@@ -108,10 +103,7 @@ describe("tradeFinanceService", () => {
 
       const payload = { status: "approved" };
 
-      const result = await tradeFinanceService.updateTradeFinanceRecord(
-        1,
-        payload
-      );
+      const result = await tradeFinanceService.updateTradeFinanceRecord(1, payload);
 
       expect(result.status).toBe("approved");
       expect(api.put).toHaveBeenCalledWith("/trade-finance/1", payload);

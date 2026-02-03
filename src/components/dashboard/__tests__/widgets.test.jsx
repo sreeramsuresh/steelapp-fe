@@ -2,20 +2,18 @@
  * Widget Integration Tests
  */
 
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
-import { ThemeContext } from '../../../contexts/ThemeContext';
+import { fireEvent, render, screen } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it, vi } from "vitest";
+import { ThemeContext } from "../../../contexts/ThemeContext";
 
 const renderWithTheme = (component, isDarkMode = false) => {
   return render(
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme: vi.fn() }}>
-      {component}
-    </ThemeContext.Provider>,
+    <ThemeContext.Provider value={{ isDarkMode, toggleTheme: vi.fn() }}>{component}</ThemeContext.Provider>
   );
 };
 
-vi.mock('../widgets/BaseWidget', () => ({
+vi.mock("../widgets/BaseWidget", () => ({
   default: ({ title, children, loading, error, onRefresh }) => (
     <div data-testid="base-widget">
       <h3>{title}</h3>
@@ -30,59 +28,57 @@ vi.mock('../widgets/BaseWidget', () => ({
   WidgetListItem: ({ title }) => <div>{title}</div>,
 }));
 
-vi.mock('../charts/RechartsWrapper', () => ({
+vi.mock("../charts/RechartsWrapper", () => ({
   BarChartWrapper: () => <div data-testid="bar-chart" />,
   LineChartWrapper: () => <div data-testid="line-chart" />,
   PieChartWrapper: () => <div data-testid="pie-chart" />,
   DonutChartWrapper: () => <div data-testid="donut-chart" />,
 }));
 
-vi.mock('../charts/EChartsWrapper', () => ({
+vi.mock("../charts/EChartsWrapper", () => ({
   GaugeChartWrapper: () => <div data-testid="gauge-chart" />,
   TreemapChartWrapper: () => <div data-testid="treemap-chart" />,
   FunnelChartWrapper: () => <div data-testid="funnel-chart" />,
 }));
 
-import RevenueKPIWidget from '../widgets/financial/RevenueKPIWidget';
-import VATCollectionWidget from '../widgets/vat/VATCollectionWidget';
-import InventoryHealthWidget from '../widgets/inventory/InventoryHealthWidget';
+import RevenueKPIWidget from "../widgets/financial/RevenueKPIWidget";
+import InventoryHealthWidget from "../widgets/inventory/InventoryHealthWidget";
+import VATCollectionWidget from "../widgets/vat/VATCollectionWidget";
 
-describe('RevenueKPIWidget', () => {
-  it('renders widget', () => {
-    renderWithTheme(
-      <RevenueKPIWidget totalRevenue={500000} revenueChange={12.5} />,
-    );
-    expect(screen.getByTestId('base-widget')).toBeInTheDocument();
+describe("RevenueKPIWidget", () => {
+  it("renders widget", () => {
+    renderWithTheme(<RevenueKPIWidget totalRevenue={500000} revenueChange={12.5} />);
+    expect(screen.getByTestId("base-widget")).toBeInTheDocument();
   });
 
-  it('handles loading state', () => {
+  it("handles loading state", () => {
     renderWithTheme(<RevenueKPIWidget loading={true} />);
-    expect(screen.getByTestId('loading')).toBeInTheDocument();
+    expect(screen.getByTestId("loading")).toBeInTheDocument();
   });
 
-  it('handles refresh', () => {
+  it("handles refresh", () => {
     const onRefresh = vi.fn();
     renderWithTheme(<RevenueKPIWidget onRefresh={onRefresh} />);
-    fireEvent.click(screen.getByText('Refresh'));
+    fireEvent.click(screen.getByText("Refresh"));
     expect(onRefresh).toHaveBeenCalled();
   });
 });
 
-describe('VATCollectionWidget', () => {
-  it('renders widget', () => {
+describe("VATCollectionWidget", () => {
+  it("renders widget", () => {
     renderWithTheme(<VATCollectionWidget outputVAT={25000} inputVAT={18000} />);
-    expect(screen.getByText('VAT Collection')).toBeInTheDocument();
+    expect(screen.getByText("VAT Collection")).toBeInTheDocument();
   });
 
-  it('handles loading state', () => {
+  it("handles loading state", () => {
     renderWithTheme(<VATCollectionWidget isLoading={true} />);
     // VATCollectionWidget shows content even while loading (spinner on refresh button)
-    expect(screen.getByText('VAT Collection')).toBeInTheDocument();
+    expect(screen.getByText("VAT Collection")).toBeInTheDocument();
   });
 });
 
-describe('InventoryHealthWidget', () => {
-  it('renders widget', () => {
+describe("InventoryHealthWidget", () => {
+  it("renders widget", () => {
     renderWithTheme(
       <InventoryHealthWidget
         data={{
@@ -92,27 +88,25 @@ describe('InventoryHealthWidget', () => {
           breakdown: {},
           alerts: {},
         }}
-      />,
+      />
     );
-    expect(screen.getByText('Inventory Health')).toBeInTheDocument();
+    expect(screen.getByText("Inventory Health")).toBeInTheDocument();
   });
 
-  it('handles no data state', () => {
+  it("handles no data state", () => {
     renderWithTheme(<InventoryHealthWidget />);
-    expect(screen.getByText('No data available')).toBeInTheDocument();
+    expect(screen.getByText("No data available")).toBeInTheDocument();
   });
 });
 
-describe('Widget Edge Cases', () => {
-  it('handles zero values', () => {
+describe("Widget Edge Cases", () => {
+  it("handles zero values", () => {
     renderWithTheme(<RevenueKPIWidget totalRevenue={0} revenueChange={0} />);
-    expect(screen.getByTestId('base-widget')).toBeInTheDocument();
+    expect(screen.getByTestId("base-widget")).toBeInTheDocument();
   });
 
-  it('handles negative changes', () => {
-    renderWithTheme(
-      <RevenueKPIWidget totalRevenue={100000} revenueChange={-5.5} />,
-    );
-    expect(screen.getByTestId('base-widget')).toBeInTheDocument();
+  it("handles negative changes", () => {
+    renderWithTheme(<RevenueKPIWidget totalRevenue={100000} revenueChange={-5.5} />);
+    expect(screen.getByTestId("base-widget")).toBeInTheDocument();
   });
 });
