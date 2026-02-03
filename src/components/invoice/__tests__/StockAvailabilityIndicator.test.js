@@ -7,7 +7,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
-import { createMockBatch, createMockArray } from "../../../test/mock-factories";
+import { createMockArray, createMockBatch } from "../../../test/mock-factories";
 import StockAvailabilityIndicator from "../StockAvailabilityIndicator";
 
 vi.mock("../../../services/api", () => ({
@@ -105,7 +105,7 @@ describe("StockAvailabilityIndicator", () => {
       });
 
       const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty: 225 />
+        <StockAvailabilityIndicator {...defaultProps} requiredQty={225} />
       );
 
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -186,7 +186,7 @@ describe("StockAvailabilityIndicator", () => {
 
   describe("API Integration", () => {
     it("should call API with productId", async () => {
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <StockAvailabilityIndicator {...defaultProps} productId={999} />
       );
 
@@ -196,7 +196,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should include warehouseId in API call", async () => {
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <StockAvailabilityIndicator {...defaultProps} warehouseId="WH-SPECIAL" />
       );
 
@@ -206,7 +206,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should handle missing productId gracefully", async () => {
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <StockAvailabilityIndicator {...defaultProps} productId={null} />
       );
 
@@ -216,7 +216,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should handle invalid productId", async () => {
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <StockAvailabilityIndicator {...defaultProps} productId={0} />
       );
 
@@ -226,7 +226,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should skip warehouseId when undefined", async () => {
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <StockAvailabilityIndicator {...defaultProps} warehouseId={undefined} />
       );
 
@@ -394,7 +394,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should handle string productId", async () => {
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <StockAvailabilityIndicator {...defaultProps} productId="123" />
       );
 
