@@ -307,9 +307,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should include companyId in API call", async () => {
-      renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} companyId="CUSTOM-COMPANY" />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} companyId="CUSTOM-COMPANY" />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -367,9 +365,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should use warehouse code as fallback", async () => {
-      renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-1", code: "WH1" }]} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-1", code: "WH1" }]} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -377,9 +373,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should use warehouse id as last resort", async () => {
-      renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-123" }]} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-123" }]} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -401,9 +395,7 @@ describe("WarehouseStockSelector", () => {
     it("should handle many warehouses", async () => {
       const manyWarehouses = createMockArray(createMockWarehouse, 10);
 
-      renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} warehouses={manyWarehouses} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} warehouses={manyWarehouses} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 

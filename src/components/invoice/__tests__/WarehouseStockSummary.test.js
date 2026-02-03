@@ -134,9 +134,7 @@ describe("WarehouseStockSummary", () => {
 
   describe("Stock Status Indicators", () => {
     it("should indicate high stock availability", async () => {
-      const highStockWarehouses = [
-        { ...mockWarehouses[0], totalStock: 1000, availableStock: 950 },
-      ];
+      const highStockWarehouses = [{ ...mockWarehouses[0], totalStock: 1000, availableStock: 950 }];
       api.get.mockResolvedValue({ warehouses: highStockWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -147,9 +145,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should indicate low stock availability", async () => {
-      const lowStockWarehouses = [
-        { ...mockWarehouses[0], totalStock: 1000, availableStock: 50 },
-      ];
+      const lowStockWarehouses = [{ ...mockWarehouses[0], totalStock: 1000, availableStock: 50 }];
       api.get.mockResolvedValue({ warehouses: lowStockWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -160,9 +156,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should indicate zero stock availability", async () => {
-      const zeroStockWarehouses = [
-        { ...mockWarehouses[0], totalStock: 0, availableStock: 0 },
-      ];
+      const zeroStockWarehouses = [{ ...mockWarehouses[0], totalStock: 0, availableStock: 0 }];
       api.get.mockResolvedValue({ warehouses: zeroStockWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -183,9 +177,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should use amber for low stock", async () => {
-      const lowStockWarehouses = [
-        { ...mockWarehouses[0], availableStock: 20, totalStock: 100 },
-      ];
+      const lowStockWarehouses = [{ ...mockWarehouses[0], availableStock: 20, totalStock: 100 }];
       api.get.mockResolvedValue({ warehouses: lowStockWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -196,9 +188,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should use red for out of stock", async () => {
-      const outOfStockWarehouses = [
-        { ...mockWarehouses[0], availableStock: 0, totalStock: 0 },
-      ];
+      const outOfStockWarehouses = [{ ...mockWarehouses[0], availableStock: 0, totalStock: 0 }];
       api.get.mockResolvedValue({ warehouses: outOfStockWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -292,9 +282,7 @@ describe("WarehouseStockSummary", () => {
 
   describe("Quantity Formatting", () => {
     it("should format quantities with proper decimals", async () => {
-      const decimalWarehouses = [
-        { ...mockWarehouses[0], totalStock: 1000.5, availableStock: 800.75 },
-      ];
+      const decimalWarehouses = [{ ...mockWarehouses[0], totalStock: 1000.5, availableStock: 800.75 }];
       api.get.mockResolvedValue({ warehouses: decimalWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -305,9 +293,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should handle zero quantities", async () => {
-      const zeroWarehouses = [
-        { ...mockWarehouses[0], totalStock: 0, availableStock: 0, reservedStock: 0 },
-      ];
+      const zeroWarehouses = [{ ...mockWarehouses[0], totalStock: 0, availableStock: 0, reservedStock: 0 }];
       api.get.mockResolvedValue({ warehouses: zeroWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -318,9 +304,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should format very large quantities", async () => {
-      const largeWarehouses = [
-        { ...mockWarehouses[0], totalStock: 999999.99, availableStock: 888888.88 },
-      ];
+      const largeWarehouses = [{ ...mockWarehouses[0], totalStock: 999999.99, availableStock: 888888.88 }];
       api.get.mockResolvedValue({ warehouses: largeWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -458,9 +442,7 @@ describe("WarehouseStockSummary", () => {
 
   describe("Edge Cases", () => {
     it("should handle warehouse with all reserved stock", async () => {
-      const reservedWarehouses = [
-        { ...mockWarehouses[0], totalStock: 1000, availableStock: 0, reservedStock: 1000 },
-      ];
+      const reservedWarehouses = [{ ...mockWarehouses[0], totalStock: 1000, availableStock: 0, reservedStock: 1000 }];
       api.get.mockResolvedValue({ warehouses: reservedWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -471,9 +453,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should handle warehouse with no reserved stock", async () => {
-      const noReserveWarehouses = [
-        { ...mockWarehouses[0], totalStock: 1000, availableStock: 1000, reservedStock: 0 },
-      ];
+      const noReserveWarehouses = [{ ...mockWarehouses[0], totalStock: 1000, availableStock: 1000, reservedStock: 0 }];
       api.get.mockResolvedValue({ warehouses: noReserveWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);
@@ -484,9 +464,7 @@ describe("WarehouseStockSummary", () => {
     });
 
     it("should handle reserved exceeding total", async () => {
-      const invalidWarehouses = [
-        { ...mockWarehouses[0], totalStock: 100, availableStock: 50, reservedStock: 200 },
-      ];
+      const invalidWarehouses = [{ ...mockWarehouses[0], totalStock: 100, availableStock: 50, reservedStock: 200 }];
       api.get.mockResolvedValue({ warehouses: invalidWarehouses });
 
       const { container } = renderWithProviders(<WarehouseStockSummary {...defaultProps} />);

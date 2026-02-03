@@ -60,9 +60,7 @@ describe("InvoiceFooterNotes", () => {
 
     it("should display multiple lines in notes", () => {
       const multilineNotes = "Line 1\nLine 2\nLine 3";
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes={multilineNotes} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes={multilineNotes} />);
 
       expect(container.textContent).toContain("Line 1");
       expect(container.textContent).toContain("Line 2");
@@ -83,9 +81,7 @@ describe("InvoiceFooterNotes", () => {
 
     it("should handle very long notes", () => {
       const longNotes = "A".repeat(500);
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes={longNotes} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes={longNotes} />);
 
       expect(container.textContent).toContain("A");
     });
@@ -106,9 +102,7 @@ describe("InvoiceFooterNotes", () => {
     });
 
     it("should handle empty terms", () => {
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} termsAndConditions="" />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} termsAndConditions="" />);
 
       expect(container).toBeInTheDocument();
     });
@@ -321,27 +315,21 @@ describe("InvoiceFooterNotes", () => {
   describe("Special Characters", () => {
     it("should handle special characters in notes", () => {
       const specialNotes = "Payment: €100 @ 3% = extra €3!";
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes={specialNotes} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes={specialNotes} />);
 
       expect(container.textContent).toContain("Payment");
     });
 
     it("should handle Unicode characters", () => {
       const unicodeNotes = "Nota: 你好 مرحبا";
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes={unicodeNotes} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes={unicodeNotes} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle HTML-like text safely", () => {
       const htmlLikeNotes = "Please <do> <not> <remove> this";
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes={htmlLikeNotes} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes={htmlLikeNotes} />);
 
       // Should render as text, not as HTML
       expect(container.textContent).toContain("<do>");
@@ -351,9 +339,7 @@ describe("InvoiceFooterNotes", () => {
   describe("Edge Cases", () => {
     it("should handle extremely long notes", () => {
       const veryLongNotes = "A".repeat(5000);
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes={veryLongNotes} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes={veryLongNotes} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -404,9 +390,7 @@ describe("InvoiceFooterNotes", () => {
 
   describe("Placeholder Text", () => {
     it("should show placeholder for empty notes field", () => {
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes="" readOnly={false} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes="" readOnly={false} />);
 
       const textareas = container.querySelectorAll("textarea");
       if (textareas.length > 0) {
@@ -415,9 +399,7 @@ describe("InvoiceFooterNotes", () => {
     });
 
     it("should show helpful placeholder text", () => {
-      const { container } = renderWithProviders(
-        <InvoiceFooterNotes {...defaultProps} notes="" readOnly={false} />
-      );
+      const { container } = renderWithProviders(<InvoiceFooterNotes {...defaultProps} notes="" readOnly={false} />);
 
       expect(container).toBeInTheDocument();
     });

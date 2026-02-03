@@ -62,9 +62,7 @@ describe("StockAvailabilityIndicator", () => {
     it("should show sufficient stock indicator", async () => {
       api.get.mockResolvedValue({ batches: [{ quantityAvailable: 200 }] });
 
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -74,9 +72,7 @@ describe("StockAvailabilityIndicator", () => {
     it("should show partial stock indicator", async () => {
       api.get.mockResolvedValue({ batches: [{ quantityAvailable: 50 }] });
 
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -86,9 +82,7 @@ describe("StockAvailabilityIndicator", () => {
     it("should show zero stock indicator", async () => {
       api.get.mockResolvedValue({ batches: [] });
 
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -97,16 +91,10 @@ describe("StockAvailabilityIndicator", () => {
 
     it("should calculate total available from multiple batches", async () => {
       api.get.mockResolvedValue({
-        batches: [
-          { quantityAvailable: 50 },
-          { quantityAvailable: 75 },
-          { quantityAvailable: 100 },
-        ],
+        batches: [{ quantityAvailable: 50 }, { quantityAvailable: 75 }, { quantityAvailable: 100 }],
       });
 
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={225} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={225} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -118,9 +106,7 @@ describe("StockAvailabilityIndicator", () => {
     it("should calculate shortfall correctly", async () => {
       api.get.mockResolvedValue({ batches: [{ quantityAvailable: 50 }] });
 
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -130,9 +116,7 @@ describe("StockAvailabilityIndicator", () => {
     it("should handle zero shortfall when sufficient stock", async () => {
       api.get.mockResolvedValue({ batches: [{ quantityAvailable: 200 }] });
 
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -142,9 +126,7 @@ describe("StockAvailabilityIndicator", () => {
     it("should handle decimal quantities", async () => {
       api.get.mockResolvedValue({ batches: [{ quantityAvailable: 123.45 }] });
 
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -154,9 +136,7 @@ describe("StockAvailabilityIndicator", () => {
 
   describe("Compact Mode", () => {
     it("should render compact version when compact prop is true", async () => {
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} compact={true} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} compact={true} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -186,9 +166,7 @@ describe("StockAvailabilityIndicator", () => {
 
   describe("API Integration", () => {
     it("should call API with productId", async () => {
-      renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} productId={999} />
-      );
+      renderWithProviders(<StockAvailabilityIndicator {...defaultProps} productId={999} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -196,9 +174,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should include warehouseId in API call", async () => {
-      renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} warehouseId="WH-SPECIAL" />
-      );
+      renderWithProviders(<StockAvailabilityIndicator {...defaultProps} warehouseId="WH-SPECIAL" />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -206,9 +182,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should handle missing productId gracefully", async () => {
-      renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} productId={null} />
-      );
+      renderWithProviders(<StockAvailabilityIndicator {...defaultProps} productId={null} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -216,9 +190,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should handle invalid productId", async () => {
-      renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} productId={0} />
-      );
+      renderWithProviders(<StockAvailabilityIndicator {...defaultProps} productId={0} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -226,9 +198,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should skip warehouseId when undefined", async () => {
-      renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} warehouseId={undefined} />
-      );
+      renderWithProviders(<StockAvailabilityIndicator {...defaultProps} warehouseId={undefined} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -384,9 +354,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should handle zero required quantity", async () => {
-      const { container } = renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} requiredQty={0} />
-      );
+      const { container } = renderWithProviders(<StockAvailabilityIndicator {...defaultProps} requiredQty={0} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -394,9 +362,7 @@ describe("StockAvailabilityIndicator", () => {
     });
 
     it("should handle string productId", async () => {
-      renderWithProviders(
-        <StockAvailabilityIndicator {...defaultProps} productId="123" />
-      );
+      renderWithProviders(<StockAvailabilityIndicator {...defaultProps} productId="123" />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -433,11 +399,7 @@ describe("StockAvailabilityIndicator", () => {
   describe("Batch Count Display", () => {
     it("should track number of batches", async () => {
       api.get.mockResolvedValue({
-        batches: [
-          { quantityAvailable: 100 },
-          { quantityAvailable: 50 },
-          { quantityAvailable: 25 },
-        ],
+        batches: [{ quantityAvailable: 100 }, { quantityAvailable: 50 }, { quantityAvailable: 25 }],
       });
 
       const { container } = renderWithProviders(

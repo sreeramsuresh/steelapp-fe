@@ -7,7 +7,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
-import { createMockArray, createMockAllocation } from "../../../test/mock-factories";
+import { createMockAllocation, createMockArray } from "../../../test/mock-factories";
 import StockDeductionPreview from "../StockDeductionPreview";
 
 describe("StockDeductionPreview", () => {
@@ -127,9 +127,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should indicate batches with insufficient stock", () => {
-      const lowStockAllocations = [
-        { ...mockAllocations[0], quantityAvailable: 10, quantity: 30 },
-      ];
+      const lowStockAllocations = [{ ...mockAllocations[0], quantityAvailable: 10, quantity: 30 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={lowStockAllocations} />
@@ -176,9 +174,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should handle decimal costs", () => {
-      const decimalAllocations = [
-        { ...mockAllocations[0], unitCost: 123.45 },
-      ];
+      const decimalAllocations = [{ ...mockAllocations[0], unitCost: 123.45 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={decimalAllocations} />
@@ -190,17 +186,13 @@ describe("StockDeductionPreview", () => {
 
   describe("Empty State", () => {
     it("should handle empty allocations", () => {
-      const { container } = renderWithProviders(
-        <StockDeductionPreview {...defaultProps} allocations={[]} />
-      );
+      const { container } = renderWithProviders(<StockDeductionPreview {...defaultProps} allocations={[]} />);
 
       expect(container.textContent).toContain("No allocations");
     });
 
     it("should show helpful message for no deductions", () => {
-      const { container } = renderWithProviders(
-        <StockDeductionPreview {...defaultProps} allocations={[]} />
-      );
+      const { container } = renderWithProviders(<StockDeductionPreview {...defaultProps} allocations={[]} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -234,9 +226,7 @@ describe("StockDeductionPreview", () => {
 
   describe("Quantity Formatting", () => {
     it("should format quantities with decimals", () => {
-      const decimalAllocations = [
-        { ...mockAllocations[0], quantity: 30.5, quantityAvailable: 100.75 },
-      ];
+      const decimalAllocations = [{ ...mockAllocations[0], quantity: 30.5, quantityAvailable: 100.75 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={decimalAllocations} />
@@ -252,9 +242,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should handle zero quantities", () => {
-      const zeroAllocations = [
-        { ...mockAllocations[0], quantity: 0 },
-      ];
+      const zeroAllocations = [{ ...mockAllocations[0], quantity: 0 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={zeroAllocations} />
@@ -264,9 +252,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should handle very large quantities", () => {
-      const largeAllocations = [
-        { ...mockAllocations[0], quantity: 999999.99, quantityAvailable: 1000000 },
-      ];
+      const largeAllocations = [{ ...mockAllocations[0], quantity: 999999.99, quantityAvailable: 1000000 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={largeAllocations} />
@@ -342,9 +328,7 @@ describe("StockDeductionPreview", () => {
 
   describe("Edge Cases", () => {
     it("should handle allocation exceeding available quantity", () => {
-      const overAllocations = [
-        { ...mockAllocations[0], quantity: 150, quantityAvailable: 100 },
-      ];
+      const overAllocations = [{ ...mockAllocations[0], quantity: 150, quantityAvailable: 100 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={overAllocations} />
@@ -354,9 +338,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should handle batch with exactly matching quantities", () => {
-      const exactAllocations = [
-        { ...mockAllocations[0], quantity: 100, quantityAvailable: 100 },
-      ];
+      const exactAllocations = [{ ...mockAllocations[0], quantity: 100, quantityAvailable: 100 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={exactAllocations} />
@@ -366,9 +348,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should handle very small quantities", () => {
-      const smallAllocations = [
-        { ...mockAllocations[0], quantity: 0.01, quantityAvailable: 1 },
-      ];
+      const smallAllocations = [{ ...mockAllocations[0], quantity: 0.01, quantityAvailable: 1 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={smallAllocations} />
@@ -378,9 +358,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should handle missing optional fields", () => {
-      const minimalAllocations = [
-        { batchNumber: "BATCH-001", quantity: 50 },
-      ];
+      const minimalAllocations = [{ batchNumber: "BATCH-001", quantity: 50 }];
 
       const { container } = renderWithProviders(
         <StockDeductionPreview {...defaultProps} allocations={minimalAllocations} />

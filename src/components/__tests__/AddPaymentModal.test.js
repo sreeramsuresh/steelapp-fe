@@ -282,9 +282,7 @@ describe("AddPaymentModal", () => {
     it("should preserve createdAt when editing", async () => {
       const user = setupUser();
       const editingPayment = createMockPayment({ createdAt: "2024-01-01T10:00:00Z" });
-      const { container } = renderWithProviders(
-        <AddPaymentModal {...defaultProps} editingPayment={editingPayment} />
-      );
+      const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} editingPayment={editingPayment} />);
 
       const saveButton = container.querySelector(".bg-teal-600");
       await user.click(saveButton);
@@ -336,9 +334,7 @@ describe("AddPaymentModal", () => {
         paymentMethod: "check",
       });
 
-      const { container } = renderWithProviders(
-        <AddPaymentModal {...defaultProps} editingPayment={editingPayment} />
-      );
+      const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} editingPayment={editingPayment} />);
 
       const amountField = container.querySelector("#payment-amount");
       expect(amountField.value).toBe("5000");
@@ -352,9 +348,7 @@ describe("AddPaymentModal", () => {
         date: "2024-01-15",
       });
 
-      const { container } = renderWithProviders(
-        <AddPaymentModal {...defaultProps} editingPayment={editingPayment} />
-      );
+      const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} editingPayment={editingPayment} />);
 
       const dateField = container.querySelector("#payment-date");
       expect(dateField.value).toBeTruthy();
@@ -362,9 +356,7 @@ describe("AddPaymentModal", () => {
 
     it("should show 'Update Payment' button when editing", () => {
       const editingPayment = createMockPayment();
-      const { container } = renderWithProviders(
-        <AddPaymentModal {...defaultProps} editingPayment={editingPayment} />
-      );
+      const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} editingPayment={editingPayment} />);
 
       const saveButton = container.querySelector(".bg-teal-600");
       expect(saveButton.textContent).toContain("Update Payment");
@@ -487,18 +479,14 @@ describe("AddPaymentModal", () => {
 
   describe("Edge Cases", () => {
     it("should handle zero invoice total", () => {
-      const { container } = renderWithProviders(
-        <AddPaymentModal {...defaultProps} invoiceTotal={0} />
-      );
+      const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} invoiceTotal={0} />);
 
       expect(container.textContent).toContain("Balance Due");
     });
 
     it("should handle large payment amounts", async () => {
       const user = setupUser();
-      const { container } = renderWithProviders(
-        <AddPaymentModal {...defaultProps} invoiceTotal={999999.99} />
-      );
+      const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} invoiceTotal={999999.99} />);
 
       const amountField = container.querySelector("#payment-amount");
       await user.type(amountField, "999999.99");

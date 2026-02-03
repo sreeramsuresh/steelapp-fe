@@ -356,9 +356,7 @@ describe("ReallocationModal", () => {
   describe("Validation", () => {
     it("should validate total allocation meets requirement", async () => {
       const user = setupUser();
-      const { container } = renderWithProviders(
-        <ReallocationModal {...defaultProps} requiredQty={200} />
-      );
+      const { container } = renderWithProviders(<ReallocationModal {...defaultProps} requiredQty={200} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -374,9 +372,7 @@ describe("ReallocationModal", () => {
       api.post.mockResolvedValue({ success: false, error: "Insufficient allocation" });
 
       const user = setupUser();
-      const { container } = renderWithProviders(
-        <ReallocationModal {...defaultProps} requiredQty={200} />
-      );
+      const { container } = renderWithProviders(<ReallocationModal {...defaultProps} requiredQty={200} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -482,22 +478,16 @@ describe("ReallocationModal", () => {
     });
 
     it("should handle large quantities", () => {
-      const largeBatches = [
-        { ...mockBatches[0], quantityAvailable: 999999.99 },
-      ];
+      const largeBatches = [{ ...mockBatches[0], quantityAvailable: 999999.99 }];
       api.get.mockResolvedValue({ batches: largeBatches });
 
-      const { container } = renderWithProviders(
-        <ReallocationModal {...defaultProps} requiredQty={999999.99} />
-      );
+      const { container } = renderWithProviders(<ReallocationModal {...defaultProps} requiredQty={999999.99} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle zero available quantity", () => {
-      const zeroBatches = [
-        { ...mockBatches[0], quantityAvailable: 0 },
-      ];
+      const zeroBatches = [{ ...mockBatches[0], quantityAvailable: 0 }];
       api.get.mockResolvedValue({ batches: zeroBatches });
 
       const { container } = renderWithProviders(<ReallocationModal {...defaultProps} />);

@@ -65,15 +65,15 @@ describe("InvoiceSignatureSection", () => {
     });
 
     it("should show signature line for authorized person", () => {
-      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />);
+      const { container } = renderWithProviders(
+        <InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />
+      );
 
       expect(container.textContent).toContain("Authorized");
     });
 
     it("should handle missing authorized person", () => {
-      const { container } = renderWithProviders(
-        <InvoiceSignatureSection {...defaultProps} authorizedBy={null} />
-      );
+      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} authorizedBy={null} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -99,15 +99,15 @@ describe("InvoiceSignatureSection", () => {
     });
 
     it("should show signature line for approver", () => {
-      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />);
+      const { container } = renderWithProviders(
+        <InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />
+      );
 
       expect(container.textContent).toContain("Approved");
     });
 
     it("should handle missing approver", () => {
-      const { container } = renderWithProviders(
-        <InvoiceSignatureSection {...defaultProps} approvedBy={null} />
-      );
+      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} approvedBy={null} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -115,19 +115,25 @@ describe("InvoiceSignatureSection", () => {
 
   describe("Signature Lines", () => {
     it("should show signature lines when enabled", () => {
-      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />);
+      const { container } = renderWithProviders(
+        <InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />
+      );
 
       expect(container.textContent).toContain("Signature");
     });
 
     it("should hide signature lines when disabled", () => {
-      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} showSignatureLines={false} />);
+      const { container } = renderWithProviders(
+        <InvoiceSignatureSection {...defaultProps} showSignatureLines={false} />
+      );
 
       expect(container).toBeInTheDocument();
     });
 
     it("should have proper spacing for signature lines", () => {
-      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />);
+      const { container } = renderWithProviders(
+        <InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />
+      );
 
       expect(container).toBeInTheDocument();
     });
@@ -204,7 +210,9 @@ describe("InvoiceSignatureSection", () => {
     });
 
     it("should show signature lines for printing", () => {
-      const { container } = renderWithProviders(<InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />);
+      const { container } = renderWithProviders(
+        <InvoiceSignatureSection {...defaultProps} showSignatureLines={true} />
+      );
 
       expect(container.textContent).toContain("Signature");
     });
