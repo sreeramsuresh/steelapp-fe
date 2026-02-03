@@ -19,8 +19,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import { deliveryNoteService, transformDeliveryNoteFromServer } from "../deliveryNoteService";
+import { apiClient } from "../api.js";
+import { deliveryNoteService, transformDeliveryNoteFromServer } from "../deliveryNoteService.js";
 
 describe("deliveryNoteService", () => {
   beforeEach(() => {

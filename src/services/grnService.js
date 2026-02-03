@@ -8,7 +8,7 @@
  * enabling variance detection and landed cost allocation.
  */
 
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 /**
  * Transform GRN data for server submission

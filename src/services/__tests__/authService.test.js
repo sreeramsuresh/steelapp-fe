@@ -3,8 +3,8 @@ import { authService } from '../authService';
 import { apiClient } from '../api';
 import { tokenUtils } from '../axiosApi';
 
-vi.mock('../api');
-vi.mock('../axiosApi');
+vi.mock("../api.js);
+vi.mock("../axiosApi.js);
 
 // Mock localStorage
 const localStorageMock = (() => {

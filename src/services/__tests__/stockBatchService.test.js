@@ -16,8 +16,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import stockBatchService from "../stockBatchService";
+import { apiClient } from "../api.js";
+import stockBatchService from "../stockBatchService.js";
 
 describe("stockBatchService", () => {
   beforeEach(() => {

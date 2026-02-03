@@ -17,8 +17,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import api from "../api";
-import { commissionService } from "../commissionService";
+import api from "../api.js";
+import { commissionService } from "../commissionService.js";
 
 describe("commissionService", () => {
   beforeEach(() => {

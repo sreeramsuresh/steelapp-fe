@@ -13,8 +13,8 @@ vi.mock("../utils/fieldAccessors", () => ({
   normalizeUom: vi.fn((item) => item.unit || "PCS"),
 }));
 
-import { apiClient } from "../api";
-import supplierBillService from "../supplierBillService";
+import { apiClient } from "../api.js";
+import supplierBillService from "../supplierBillService.js";
 
 describe("supplierBillService", () => {
   beforeEach(() => {

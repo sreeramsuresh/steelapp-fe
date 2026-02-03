@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 /**
  * Transform customer data from server (snake_case) to frontend (camelCase)

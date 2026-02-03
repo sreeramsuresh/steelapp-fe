@@ -1,5 +1,5 @@
 import { normalizeUom } from "../utils/fieldAccessors";
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 // ============================================================================
 // DATA TRANSFORMERS

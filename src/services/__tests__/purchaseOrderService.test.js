@@ -25,9 +25,9 @@ vi.mock("../axiosApi.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import { apiService } from "../axiosApi";
-import { purchaseOrderService } from "../purchaseOrderService";
+import { apiClient } from "../api.js";
+import { apiService } from "../axiosApi.js";
+import { purchaseOrderService } from "../purchaseOrderService.js";
 
 describe("purchaseOrderService", () => {
   beforeEach(() => {

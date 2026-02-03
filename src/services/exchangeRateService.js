@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from "./api.js";
 
 export const exchangeRateService = {
   // Get all exchange rates

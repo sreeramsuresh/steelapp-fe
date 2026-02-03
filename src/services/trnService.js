@@ -10,7 +10,7 @@
  * - Support for UAE and GCC country TRN formats
  */
 
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 /**
  * TRN Format patterns for client-side validation

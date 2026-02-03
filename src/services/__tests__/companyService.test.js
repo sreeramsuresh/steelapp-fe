@@ -25,9 +25,9 @@ vi.mock("../axiosApi.js", () => ({
 
 global.fetch = vi.fn();
 
-import { apiClient } from "../api";
-import { tokenUtils } from "../axiosApi";
-import { companyService } from "../companyService";
+import { apiClient } from "../api.js";
+import { tokenUtils } from "../axiosApi.js";
+import { companyService } from "../companyService.js";
 
 describe("companyService", () => {
   beforeEach(() => {

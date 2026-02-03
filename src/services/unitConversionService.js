@@ -8,7 +8,7 @@
  * Note: company_id is extracted from authenticated user context (JWT token).
  */
 
-import { api } from "./api";
+import { api } from "./api.js";
 
 export const unitConversionService = {
   /**

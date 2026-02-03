@@ -25,9 +25,9 @@ vi.mock("../axiosApi.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import { apiService } from "../axiosApi";
-import { quotationService } from "../quotationService";
+import { apiClient } from "../api.js";
+import { apiService } from "../axiosApi.js";
+import { quotationService } from "../quotationService.js";
 
 describe("quotationService", () => {
   beforeEach(() => {

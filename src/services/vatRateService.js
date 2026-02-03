@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from "./api.js";
 
 const vatRateService = {
   // Get all VAT rates for the authenticated user's company

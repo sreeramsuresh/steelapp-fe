@@ -15,8 +15,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import api from "../api";
-import auditHubService from "../auditHubService";
+import api from "../api.js";
+import auditHubService from "../auditHubService.js";
 
 describe("auditHubService", () => {
   const companyId = "company-123";

@@ -3,8 +3,8 @@ import { demoDataService } from '../demoDataService';
 import { productService } from '../productService';
 import { notificationService } from '../notificationService';
 
-vi.mock('../productService');
-vi.mock('../notificationService');
+vi.mock("../productService);
+vi.mock("../notificationService);
 
 describe('demoDataService', () => {
   beforeEach(() => {

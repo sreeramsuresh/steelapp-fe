@@ -4,7 +4,7 @@
  * Manage third-party API integrations (FTA, Central Bank, etc.)
  */
 
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 export const integrationService = {
   /**

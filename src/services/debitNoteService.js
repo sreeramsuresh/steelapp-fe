@@ -9,7 +9,7 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 // ============================================================================
 // DATA TRANSFORMERS

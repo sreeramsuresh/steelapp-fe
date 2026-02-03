@@ -4,7 +4,7 @@
  * Handles HTTP requests with multi-tenancy headers
  */
 
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 class FinancialReportsService {
   /**

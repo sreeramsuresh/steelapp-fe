@@ -3,7 +3,7 @@
  * Connects to backend VAT Management gRPC service via API Gateway
  */
 
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 export const vatService = {
   // ============================================

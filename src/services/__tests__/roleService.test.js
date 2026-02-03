@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { roleService } from '../roleService';
 import { apiClient } from '../api';
 
-vi.mock('../api');
+vi.mock("../api);
 
 describe('roleService', () => {
   beforeEach(() => {

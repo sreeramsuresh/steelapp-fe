@@ -9,14 +9,14 @@ import { productService } from '../productService';
 import { vatService } from '../vatService';
 import { warehouseService } from '../warehouseService';
 
-vi.mock('../analyticsService');
-vi.mock('../commissionService');
-vi.mock('../customerService');
-vi.mock('../inventoryService');
-vi.mock('../invoiceService');
-vi.mock('../productService');
-vi.mock('../vatService');
-vi.mock('../warehouseService');
+vi.mock("../analyticsService);
+vi.mock("../commissionService);
+vi.mock("../customerService);
+vi.mock("../inventoryService);
+vi.mock("../invoiceService);
+vi.mock("../productService);
+vi.mock("../vatService);
+vi.mock("../warehouseService);
 
 describe('dashboardService', () => {
   beforeEach(() => {

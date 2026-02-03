@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 export const analyticsService = {
   // Normalize common date param names to snake_case expected by API

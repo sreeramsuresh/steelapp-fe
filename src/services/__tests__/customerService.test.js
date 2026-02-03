@@ -23,9 +23,9 @@ vi.mock("../api.js", async () => {
   };
 });
 
-import { apiClient } from "../api";
+import { apiClient } from "../api.js";
 // Import after mocks are set up
-import { customerService, transformCustomerFromServer } from "../customerService";
+import { customerService, transformCustomerFromServer } from "../customerService.js";
 
 describe("customerService", () => {
   beforeEach(() => {

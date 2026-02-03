@@ -20,7 +20,7 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
+import { apiClient } from "../api.js";
 
 // Create a mock accounting service based on auditHubService pattern
 const accountingService = {

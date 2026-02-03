@@ -1,5 +1,5 @@
-import { userAdminAPI } from "../userAdminApi";
-import { userPreferencesService } from "../userPreferencesService";
+import { userAdminAPI } from "../userAdminApi.js";
+import { userPreferencesService } from "../userPreferencesService.js";
 
 // Mock userAdminAPI
 jest.mock("../userAdminApi", () => ({

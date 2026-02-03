@@ -1,5 +1,5 @@
-import { apiClient } from "./api";
-import { apiService } from "./axiosApi";
+import { apiClient } from "./api.js";
+import { apiService } from "./axiosApi.js";
 
 export const purchaseOrderService = {
   // Get all purchase orders with pagination and filters

@@ -13,8 +13,8 @@ vi.mock("../utils/uuid", () => ({
   uuid: vi.fn(() => "uuid-123"),
 }));
 
-import { apiClient } from "../api";
-import { payablesService } from "../payablesService";
+import { apiClient } from "../api.js";
+import { payablesService } from "../payablesService.js";
 
 // Mock localStorage - define mock object
 const localStorageMock = (() => {

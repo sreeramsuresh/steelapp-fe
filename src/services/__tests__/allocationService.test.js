@@ -22,8 +22,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import allocationService from "../allocationService";
-import { apiClient } from "../api";
+import allocationService from "../allocationService.js";
+import { apiClient } from "../api.js";
 
 describe("allocationService", () => {
   beforeEach(() => {

@@ -37,9 +37,9 @@ global.document.createElement = vi.fn(() => ({
 global.document.body.appendChild = vi.fn();
 global.document.body.removeChild = vi.fn();
 
-import { apiClient } from "../api";
+import { apiClient } from "../api.js";
 // Import after mocks
-import { productService, transformProductFromServer } from "../productService";
+import { productService, transformProductFromServer } from "../productService.js";
 
 describe("productService", () => {
   beforeEach(() => {

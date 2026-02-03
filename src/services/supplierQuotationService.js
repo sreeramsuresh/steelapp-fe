@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 /**
  * Transform quotation from server to frontend format

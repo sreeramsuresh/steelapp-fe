@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { shippingDocumentService } from '../shippingDocumentService';
 import { api } from '../api';
 
-vi.mock('../api');
+vi.mock("../api);
 
 describe('shippingDocumentService', () => {
   beforeEach(() => {

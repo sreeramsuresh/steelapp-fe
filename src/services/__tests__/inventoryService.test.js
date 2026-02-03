@@ -15,8 +15,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import { inventoryService } from "../inventoryService";
+import { apiClient } from "../api.js";
+import { inventoryService } from "../inventoryService.js";
 
 describe("inventoryService", () => {
   beforeEach(() => {

@@ -18,8 +18,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import api from "../api";
-import pricelistService from "../pricelistService";
+import api from "../api.js";
+import pricelistService from "../pricelistService.js";
 
 describe("pricelistService", () => {
   beforeEach(() => {

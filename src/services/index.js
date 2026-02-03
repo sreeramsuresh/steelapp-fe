@@ -1,5 +1,5 @@
 export { analyticsService } from "./analyticsService";
-export { apiClient } from "./api";
+export { apiClient } from "./api.js";
 export { commissionService } from "./commissionService";
 export { companyService } from "./companyService";
 export { customerService } from "./customerService";

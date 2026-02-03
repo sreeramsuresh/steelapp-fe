@@ -1,5 +1,5 @@
-import { apiClient } from "./api";
-import { tokenUtils } from "./axiosApi";
+import { apiClient } from "./api.js";
+import { tokenUtils } from "./axiosApi.js";
 
 // Simple, direct upload function like Google uses for profile pictures
 const uploadFile = async (endpoint, fieldName, file) => {

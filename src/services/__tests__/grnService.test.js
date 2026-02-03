@@ -18,8 +18,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import grnService from "../grnService";
+import { apiClient } from "../api.js";
+import grnService from "../grnService.js";
 
 describe("grnService", () => {
   beforeEach(() => {

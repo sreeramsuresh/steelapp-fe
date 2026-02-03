@@ -20,8 +20,8 @@ vi.mock("../axiosApi.js", () => ({
   },
 }));
 
-import { apiService } from "../axiosApi";
-import { userAdminAPI } from "../userAdminApi";
+import { apiService } from "../axiosApi.js";
+import { userAdminAPI } from "../userAdminApi.js";
 
 describe("usersService (userAdminAPI)", () => {
   beforeEach(() => {

@@ -20,8 +20,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import { invoiceService } from "../invoiceService";
+import { apiClient } from "../api.js";
+import { invoiceService } from "../invoiceService.js";
 
 describe("invoiceService", () => {
   beforeEach(() => {

@@ -15,7 +15,7 @@ import {
   PAYMENT_METHOD_OPTIONS,
   transformPaymentFromServer,
   validatePayment,
-} from "../paymentService";
+} from "../paymentService.js";
 
 describe("paymentService", () => {
   // ============================================================================

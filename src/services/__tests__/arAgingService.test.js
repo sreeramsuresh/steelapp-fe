@@ -20,7 +20,7 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
+import { apiClient } from "../api.js";
 
 // Create a mock AR aging service based on payablesService pattern
 const arAgingService = {

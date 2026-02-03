@@ -5,7 +5,7 @@
  * Validates quantities before form submission to provide instant feedback.
  */
 
-import { apiClient } from "./api";
+import { apiClient } from "./api.js";
 
 export const uomValidationService = {
   /**

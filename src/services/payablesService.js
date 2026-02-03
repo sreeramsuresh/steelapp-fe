@@ -1,7 +1,7 @@
 import { PAYMENT_MODES } from "../utils/paymentUtils";
 import { uuid } from "../utils/uuid";
-import { apiClient } from "./api";
-import { apiService } from "./axiosApi";
+import { apiClient } from "./api.js";
+import { apiService } from "./axiosApi.js";
 
 // Re-export PAYMENT_MODES for convenience
 export { PAYMENT_MODES };

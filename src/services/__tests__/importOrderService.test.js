@@ -9,8 +9,8 @@ vi.mock("../api.js", () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
-import { apiClient } from "../api";
-import importOrderService from "../importOrderService";
+import { apiClient } from "../api.js";
+import importOrderService from "../importOrderService.js";
 
 describe("importOrderService", () => {
   beforeEach(() => {

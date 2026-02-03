@@ -17,8 +17,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { apiClient } from "../api";
-import bankReconciliationService from "../bankReconciliationService";
+import { apiClient } from "../api.js";
+import bankReconciliationService from "../bankReconciliationService.js";
 
 describe("bankReconciliationService", () => {
   beforeEach(() => {
