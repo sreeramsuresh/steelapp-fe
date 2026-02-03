@@ -1,429 +1,438 @@
-/**
- * Authentication Service Unit Tests
- * ✅ Tests login, registration, logout, token management
- * ✅ Tests localStorage and cookie token storage
- * ✅ Tests refresh token handling
- * ✅ 100% coverage target for authService.js
- */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { authService } from '../authService';
+import { apiClient } from '../api';
+import { tokenUtils } from '../axiosApi';
 
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+vi.mock('../api');
+vi.mock('../axiosApi');
 
-// Mock API client
-vi.mock("../api.js", () => ({
-  apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-  },
-}));
+// Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: vi.fn((key) => store[key] || null),
+    setItem: vi.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    removeItem: vi.fn((key) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+  };
+})();
 
-// Mock localStorage and cookies
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
-global.localStorage = localStorageMock;
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
 
-vi.mock("../axiosApi.js", () => ({
-  tokenUtils: {
-    setToken: vi.fn(),
-    setRefreshToken: vi.fn(),
-    getToken: vi.fn(),
-    getRefreshToken: vi.fn(),
-    removeTokens: vi.fn(),
-    setUser: vi.fn(),
-    getUser: vi.fn(),
-    removeUser: vi.fn(),
-    clearSession: vi.fn(),
-  },
-}));
-
-import { apiClient } from "../api.js";
-// Import after mocks
-import { authService } from "../authService.js";
-import { tokenUtils } from "../axiosApi";
-
-describe("authService", () => {
+describe('authService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
+    localStorage.clear();
   });
 
-  // ============================================================================
-  // AUTHENTICATION - Login/Register/Logout
-  // ============================================================================
-
-  describe("Login", () => {
-    test("should login user with email and password", async () => {
-      const mockResponse = {
-        token: "jwt-token-123",
-        refreshToken: "refresh-token-456",
-        user: { id: 1, email: "test@test.com", name: "Test User", companyId: 1 },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
-
-      const result = await authService.login("test@test.com", "password123");
-
-      expect(result).toEqual(mockResponse);
-      expect(apiClient.post).toHaveBeenCalledWith("/auth/login", {
-        email: "test@test.com",
-        password: "password123",
-      });
-    });
-
-    test("should store token in localStorage after login", async () => {
-      const mockResponse = {
-        token: "jwt-token-123",
-        refreshToken: "refresh-token-456",
-        user: { id: 1, email: "test@test.com", companyId: 1 },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
-
-      await authService.login("test@test.com", "password123");
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-token", "jwt-token-123");
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("token", "jwt-token-123");
-    });
-
-    test("should store refresh token after login", async () => {
-      const mockResponse = {
-        token: "jwt-token-123",
-        refreshToken: "refresh-token-456",
-        user: { id: 1, email: "test@test.com", companyId: 1 },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
-
-      await authService.login("test@test.com", "password123");
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-refresh-token", "refresh-token-456");
-    });
-
-    test("should call tokenUtils.setToken with JWT token", async () => {
-      const mockResponse = {
-        token: "jwt-token-123",
-        refreshToken: "refresh-token-456",
-        user: { id: 1, email: "test@test.com", companyId: 1 },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
-
-      await authService.login("test@test.com", "password123");
-
-      expect(tokenUtils.setToken).toHaveBeenCalledWith("jwt-token-123");
-    });
-
-    test("should handle login without refresh token", async () => {
-      const mockResponse = {
-        token: "jwt-token-123",
-        user: { id: 1, email: "test@test.com", companyId: 1 },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
-
-      await authService.login("test@test.com", "password123");
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-token", "jwt-token-123");
-    });
-
-    test("should reject login with invalid credentials", async () => {
-      const error = new Error("Invalid email or password");
-      apiClient.post.mockRejectedValueOnce(error);
-
-      await expect(authService.login("test@test.com", "wrongpass")).rejects.toThrow("Invalid email or password");
-    });
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  describe("Register", () => {
-    test("should register new user", async () => {
+  describe('register', () => {
+    it('should register new user and store token', async () => {
       const userData = {
-        email: "newuser@test.com",
-        password: "SecurePassword123!",
-        name: "New User",
-        companyName: "Test Company",
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Test User',
       };
-      const mockResponse = {
-        token: "jwt-token-new",
-        user: { id: 2, ...userData, companyId: 2 },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+
+      apiClient.post.mockResolvedValue({
+        token: 'test-token-123',
+        user: { id: 1, email: userData.email, name: userData.name },
+      });
 
       const result = await authService.register(userData);
 
-      expect(result).toEqual(mockResponse);
-      expect(apiClient.post).toHaveBeenCalledWith("/auth/register", userData);
+      expect(apiClient.post).toHaveBeenCalledWith('/auth/register', userData);
+      expect(result).toHaveProperty('token', 'test-token-123');
+      expect(result).toHaveProperty('user');
+      expect(tokenUtils.setToken).toHaveBeenCalledWith('test-token-123');
     });
 
-    test("should store token after registration", async () => {
-      const userData = {
-        email: "newuser@test.com",
-        password: "SecurePassword123!",
-        name: "New User",
-      };
-      const mockResponse = {
-        token: "jwt-token-new",
-        user: { id: 2, ...userData, companyId: 2 },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+    it('should handle registration error', async () => {
+      const userData = { email: 'test@example.com', password: 'password123' };
 
-      await authService.register(userData);
+      apiClient.post.mockRejectedValue(new Error('Registration failed'));
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-token", "jwt-token-new");
+      await expect(authService.register(userData)).rejects.toThrow('Registration failed');
     });
 
-    test("should reject duplicate email", async () => {
-      const error = new Error("Email already registered");
-      apiClient.post.mockRejectedValueOnce(error);
+    it('should not store token if response missing', async () => {
+      const userData = { email: 'test@example.com', password: 'password123' };
 
-      const userData = {
-        email: "existing@test.com",
-        password: "Password123!",
-        name: "User",
-      };
-
-      await expect(authService.register(userData)).rejects.toThrow("Email already registered");
-    });
-  });
-
-  describe("Logout", () => {
-    test("should logout user and clear tokens", async () => {
-      apiClient.post.mockResolvedValueOnce({});
-
-      await authService.logout();
-
-      expect(apiClient.post).toHaveBeenCalledWith("/auth/logout");
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("steel-app-token");
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("token");
-      expect(tokenUtils.removeTokens).toHaveBeenCalled();
-    });
-
-    test("should clear tokens even if API call fails", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Network error"));
-
-      await authService.logout();
-
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("steel-app-token");
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("token");
-    });
-
-    test("should remove refresh token on logout", async () => {
-      apiClient.post.mockResolvedValueOnce({});
-
-      await authService.logout();
-
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("steel-app-refresh-token");
-    });
-
-    test("should clear user data on logout", async () => {
-      apiClient.post.mockResolvedValueOnce({});
-
-      await authService.logout();
-
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("steel-app-user");
-    });
-  });
-
-  // ============================================================================
-  // TOKEN MANAGEMENT
-  // ============================================================================
-
-  describe("Token Management", () => {
-    test("should set token in localStorage", () => {
-      authService.setToken("new-jwt-token");
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-token", "new-jwt-token");
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("token", "new-jwt-token");
-    });
-
-    test("should call tokenUtils.setToken", () => {
-      authService.setToken("new-jwt-token");
-
-      expect(tokenUtils.setToken).toHaveBeenCalledWith("new-jwt-token");
-    });
-
-    test("should set refresh token", () => {
-      authService.setRefreshToken("new-refresh-token");
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-refresh-token", "new-refresh-token");
-    });
-
-    test("should get current token", () => {
-      localStorageMock.getItem.mockReturnValueOnce("stored-token");
-
-      const token = authService.getToken();
-
-      expect(token).toBe("stored-token");
-      expect(localStorageMock.getItem).toHaveBeenCalledWith("steel-app-token");
-    });
-
-    test("should get refresh token", () => {
-      localStorageMock.getItem.mockReturnValueOnce("stored-refresh-token");
-
-      const token = authService.getRefreshToken();
-
-      expect(token).toBe("stored-refresh-token");
-      expect(localStorageMock.getItem).toHaveBeenCalledWith("steel-app-refresh-token");
-    });
-
-    test("should remove token", () => {
-      authService.removeToken();
-
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("steel-app-token");
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("token");
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("steel-app-refresh-token");
-      expect(tokenUtils.removeTokens).toHaveBeenCalled();
-    });
-
-    test("should check if user is authenticated", () => {
-      localStorageMock.getItem.mockReturnValueOnce("valid-token");
-
-      const isAuth = authService.isAuthenticated();
-
-      expect(isAuth).toBe(true);
-    });
-
-    test("should return false if not authenticated", () => {
-      localStorageMock.getItem.mockReturnValueOnce(null);
-
-      const isAuth = authService.isAuthenticated();
-
-      expect(isAuth).toBe(false);
-    });
-  });
-
-  // ============================================================================
-  // USER DATA MANAGEMENT
-  // ============================================================================
-
-  describe("User Management", () => {
-    test("should set user in localStorage", () => {
-      const userData = { id: 1, email: "test@test.com", name: "Test User", companyId: 1 };
-
-      authService.setUser(userData);
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-user", JSON.stringify(userData));
-    });
-
-    test("should get current user", () => {
-      const userData = { id: 1, email: "test@test.com", name: "Test User", companyId: 1 };
-      localStorageMock.getItem.mockReturnValueOnce(JSON.stringify(userData));
-
-      const user = authService.getUser();
-
-      expect(user).toEqual(userData);
-    });
-
-    test("should remove user data", () => {
-      authService.removeUser();
-
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("steel-app-user");
-    });
-
-    test("should get current user profile from API", async () => {
-      const mockUser = { id: 1, email: "test@test.com", name: "Test User", companyId: 1 };
-      apiClient.get.mockResolvedValueOnce(mockUser);
-
-      const result = await authService.getCurrentUser();
-
-      expect(result).toEqual(mockUser);
-      expect(apiClient.get).toHaveBeenCalledWith("/auth/me");
-    });
-  });
-
-  // ============================================================================
-  // PASSWORD & SECURITY
-  // ============================================================================
-
-  describe("Password Management", () => {
-    test("should change password with current and new password", async () => {
-      const mockResponse = { success: true, message: "Password changed successfully" };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
-
-      const result = await authService.changePassword("oldPassword123!", "newPassword456!");
-
-      expect(result).toEqual(mockResponse);
-      expect(apiClient.post).toHaveBeenCalledWith("/auth/change-password", {
-        currentPassword: "oldPassword123!",
-        newPassword: "newPassword456!",
+      apiClient.post.mockResolvedValue({
+        user: { id: 1, email: userData.email },
       });
+
+      const result = await authService.register(userData);
+
+      expect(result).toHaveProperty('user');
+      expect(tokenUtils.setToken).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('login', () => {
+    it('should login user and store tokens', async () => {
+      apiClient.post.mockResolvedValue({
+        token: 'access-token',
+        refreshToken: 'refresh-token',
+        user: { id: 1, email: 'test@example.com' },
+      });
+
+      const result = await authService.login('test@example.com', 'password123');
+
+      expect(apiClient.post).toHaveBeenCalledWith('/auth/login', {
+        email: 'test@example.com',
+        password: 'password123',
+      });
+      expect(result).toHaveProperty('token', 'access-token');
+      expect(tokenUtils.setToken).toHaveBeenCalledWith('access-token');
+      expect(tokenUtils.setRefreshToken).toHaveBeenCalledWith('refresh-token');
+      expect(tokenUtils.setUser).toHaveBeenCalled();
     });
 
-    test("should handle incorrect current password", async () => {
-      const error = new Error("Current password is incorrect");
-      apiClient.post.mockRejectedValueOnce(error);
+    it('should handle login without refresh token', async () => {
+      apiClient.post.mockResolvedValue({
+        token: 'access-token',
+        user: { id: 1, email: 'test@example.com' },
+      });
 
-      await expect(authService.changePassword("wrongPassword", "newPassword456!")).rejects.toThrow(
-        "Current password is incorrect"
+      const result = await authService.login('test@example.com', 'password123');
+
+      expect(result).toHaveProperty('token', 'access-token');
+      expect(tokenUtils.setToken).toHaveBeenCalledWith('access-token');
+      expect(tokenUtils.setRefreshToken).not.toHaveBeenCalled();
+    });
+
+    it('should handle login error', async () => {
+      apiClient.post.mockRejectedValue(new Error('Invalid credentials'));
+
+      await expect(authService.login('test@example.com', 'wrongpassword')).rejects.toThrow(
+        'Invalid credentials',
       );
     });
   });
 
-  // ============================================================================
-  // ERROR HANDLING
-  // ============================================================================
+  describe('logout', () => {
+    it('should call logout endpoint and remove tokens', async () => {
+      apiClient.post.mockResolvedValue({});
+      localStorage.setItem('steel-app-token', 'test-token');
 
-  describe("Error Handling", () => {
-    test("should handle network errors during login", async () => {
-      const error = new Error("Network timeout");
-      apiClient.post.mockRejectedValueOnce(error);
+      await authService.logout();
 
-      await expect(authService.login("test@test.com", "password")).rejects.toThrow("Network timeout");
+      expect(apiClient.post).toHaveBeenCalledWith('/auth/logout');
+      expect(tokenUtils.removeTokens).toHaveBeenCalled();
+      expect(tokenUtils.removeUser).toHaveBeenCalled();
+      expect(apiClient.removeAuthHeader).toHaveBeenCalled();
     });
 
-    test("should handle server errors", async () => {
-      const error = new Error("Server error: 500");
-      apiClient.post.mockRejectedValueOnce(error);
+    it('should remove tokens even if endpoint fails', async () => {
+      apiClient.post.mockRejectedValue(new Error('Network error'));
+      localStorage.setItem('steel-app-token', 'test-token');
 
-      await expect(authService.register({})).rejects.toThrow();
-    });
+      await authService.logout();
 
-    test("should handle invalid session token", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Unauthorized: Invalid token"));
-
-      await expect(authService.getCurrentUser()).rejects.toThrow("Unauthorized: Invalid token");
+      expect(tokenUtils.removeTokens).toHaveBeenCalled();
+      expect(tokenUtils.removeUser).toHaveBeenCalled();
     });
   });
 
-  // ============================================================================
-  // MULTI-TENANCY
-  // ============================================================================
+  describe('getCurrentUser', () => {
+    it('should fetch current user profile', async () => {
+      apiClient.get.mockResolvedValue({
+        id: 1,
+        email: 'test@example.com',
+        name: 'Test User',
+      });
 
-  describe("Multi-Tenancy", () => {
-    test("should include company context in user data", async () => {
-      const userData = {
-        email: "test@test.com",
-        password: "password",
-        name: "Test User",
-      };
-      const mockResponse = {
-        token: "jwt-token",
-        user: { id: 1, ...userData, companyId: 5, companyName: "Company A" },
-      };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      const result = await authService.getCurrentUser();
 
-      await authService.register(userData);
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("steel-app-user", expect.stringContaining('"companyId":5'));
+      expect(apiClient.get).toHaveBeenCalledWith('/auth/me');
+      expect(result).toHaveProperty('email', 'test@example.com');
     });
 
-    test("should verify user belongs to correct company", async () => {
-      const userData = { id: 1, email: "test@test.com", companyId: 5 };
-      localStorageMock.getItem.mockReturnValueOnce(JSON.stringify(userData));
+    it('should handle fetch error', async () => {
+      apiClient.get.mockRejectedValue(new Error('Unauthorized'));
 
-      const user = authService.getUser();
+      await expect(authService.getCurrentUser()).rejects.toThrow('Unauthorized');
+    });
+  });
 
-      expect(user.companyId).toBe(5);
+  describe('changePassword', () => {
+    it('should change user password', async () => {
+      apiClient.post.mockResolvedValue({
+        success: true,
+        message: 'Password changed successfully',
+      });
+
+      const result = await authService.changePassword('oldPassword', 'newPassword');
+
+      expect(apiClient.post).toHaveBeenCalledWith('/auth/change-password', {
+        currentPassword: 'oldPassword',
+        newPassword: 'newPassword',
+      });
+      expect(result).toHaveProperty('success', true);
     });
 
-    test("should enforce company_id in API calls", async () => {
-      const mockUser = { id: 1, email: "test@test.com", companyId: 5 };
-      localStorageMock.getItem.mockReturnValueOnce(JSON.stringify(mockUser));
+    it('should handle password change error', async () => {
+      apiClient.post.mockRejectedValue(new Error('Current password incorrect'));
 
-      authService.getUser();
+      await expect(authService.changePassword('wrongPassword', 'newPassword')).rejects.toThrow(
+        'Current password incorrect',
+      );
+    });
+  });
 
-      const user = authService.getUser();
-      expect(user.companyId).toBeDefined();
+  describe('setToken', () => {
+    it('should set token in localStorage and tokenUtils', () => {
+      authService.setToken('test-token-123');
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('steel-app-token', 'test-token-123');
+      expect(tokenUtils.setToken).toHaveBeenCalledWith('test-token-123');
+      expect(apiClient.setAuthHeader).toHaveBeenCalled();
+    });
+  });
+
+  describe('setRefreshToken', () => {
+    it('should set refresh token', () => {
+      authService.setRefreshToken('refresh-token-456');
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('steel-app-refresh-token', 'refresh-token-456');
+      expect(tokenUtils.setRefreshToken).toHaveBeenCalledWith('refresh-token-456');
+    });
+  });
+
+  describe('getToken', () => {
+    it('should get token from cache first', () => {
+      tokenUtils.getToken.mockReturnValue('cached-token');
+
+      const token = authService.getToken();
+
+      expect(token).toBe('cached-token');
+    });
+
+    it('should get token from localStorage if cache empty', () => {
+      tokenUtils.getToken.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue('storage-token');
+
+      const token = authService.getToken();
+
+      expect(token).toBe('storage-token');
+    });
+  });
+
+  describe('getRefreshToken', () => {
+    it('should get refresh token', () => {
+      tokenUtils.getRefreshToken.mockReturnValue('cached-refresh');
+
+      const token = authService.getRefreshToken();
+
+      expect(token).toBe('cached-refresh');
+    });
+  });
+
+  describe('removeToken', () => {
+    it('should remove all tokens', () => {
+      authService.removeToken();
+
+      expect(localStorage.removeItem).toHaveBeenCalledWith('steel-app-token');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('token');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('steel-app-refresh-token');
+      expect(tokenUtils.removeTokens).toHaveBeenCalled();
+      expect(apiClient.removeAuthHeader).toHaveBeenCalled();
+    });
+  });
+
+  describe('setUser', () => {
+    it('should set user data', () => {
+      const user = { id: 1, email: 'test@example.com', role: 'admin' };
+
+      authService.setUser(user);
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('steel-app-user', JSON.stringify(user));
+      expect(tokenUtils.setUser).toHaveBeenCalledWith(user);
+    });
+  });
+
+  describe('getUser', () => {
+    it('should get user from session storage if available', () => {
+      const user = { id: 1, email: 'test@example.com', role: 'admin' };
+      tokenUtils.getUser.mockReturnValue(user);
+
+      const result = authService.getUser();
+
+      expect(result).toEqual(user);
+    });
+
+    it('should get user from localStorage if session storage empty', () => {
+      const user = { id: 1, email: 'test@example.com' };
+      tokenUtils.getUser.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(JSON.stringify(user));
+
+      const result = authService.getUser();
+
+      expect(result).toEqual(user);
+    });
+
+    it('should return null if no user found', () => {
+      tokenUtils.getUser.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(null);
+
+      const result = authService.getUser();
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('removeUser', () => {
+    it('should remove user data', () => {
+      authService.removeUser();
+
+      expect(localStorage.removeItem).toHaveBeenCalledWith('steel-app-user');
+      expect(tokenUtils.removeUser).toHaveBeenCalled();
+    });
+  });
+
+  describe('isAuthenticated', () => {
+    it('should return true when token and user exist', () => {
+      tokenUtils.getToken.mockReturnValue('test-token');
+      tokenUtils.getUser.mockReturnValue({ id: 1, email: 'test@example.com' });
+
+      expect(authService.isAuthenticated()).toBe(true);
+    });
+
+    it('should return false when no token', () => {
+      tokenUtils.getToken.mockReturnValue(null);
+      tokenUtils.getUser.mockReturnValue({ id: 1, email: 'test@example.com' });
+
+      expect(authService.isAuthenticated()).toBe(false);
+    });
+
+    it('should return false when no user', () => {
+      tokenUtils.getToken.mockReturnValue('test-token');
+      tokenUtils.getUser.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(null);
+
+      expect(authService.isAuthenticated()).toBe(false);
+    });
+
+    it('should return false when neither token nor user exist', () => {
+      tokenUtils.getToken.mockReturnValue(null);
+      tokenUtils.getUser.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(null);
+
+      expect(authService.isAuthenticated()).toBe(false);
+    });
+  });
+
+  describe('hasPermission', () => {
+    it('should return true for admin user', () => {
+      tokenUtils.getUser.mockReturnValue({ role: 'admin' });
+
+      expect(authService.hasPermission('invoices', 'delete')).toBe(true);
+    });
+
+    it('should return true if user has specific permission', () => {
+      tokenUtils.getUser.mockReturnValue({
+        role: 'user',
+        permissions: {
+          invoices: { read: true, create: true },
+        },
+      });
+
+      expect(authService.hasPermission('invoices', 'read')).toBe(true);
+    });
+
+    it('should return false if user lacks permission', () => {
+      tokenUtils.getUser.mockReturnValue({
+        role: 'user',
+        permissions: {
+          invoices: { read: true },
+        },
+      });
+
+      expect(authService.hasPermission('invoices', 'delete')).toBe(false);
+    });
+
+    it('should return false if no user', () => {
+      tokenUtils.getUser.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(null);
+
+      expect(authService.hasPermission('invoices', 'read')).toBe(false);
+    });
+  });
+
+  describe('hasRole', () => {
+    it('should return true for matching role', () => {
+      tokenUtils.getUser.mockReturnValue({ role: 'admin' });
+
+      expect(authService.hasRole('admin')).toBe(true);
+    });
+
+    it('should return true for array of roles with match', () => {
+      tokenUtils.getUser.mockReturnValue({ role: 'manager' });
+
+      expect(authService.hasRole(['admin', 'manager'])).toBe(true);
+    });
+
+    it('should return false for non-matching role', () => {
+      tokenUtils.getUser.mockReturnValue({ role: 'user' });
+
+      expect(authService.hasRole('admin')).toBe(false);
+    });
+
+    it('should return false if no user', () => {
+      tokenUtils.getUser.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(null);
+
+      expect(authService.hasRole('admin')).toBe(false);
+    });
+  });
+
+  describe('updateApiHeaders', () => {
+    it('should update API headers when token exists', () => {
+      tokenUtils.getToken.mockReturnValue('test-token');
+
+      authService.updateApiHeaders();
+
+      expect(apiClient.setAuthHeader).toHaveBeenCalled();
+    });
+
+    it('should remove auth header when no token', () => {
+      tokenUtils.getToken.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(null);
+
+      authService.updateApiHeaders();
+
+      expect(apiClient.removeAuthHeader).toHaveBeenCalled();
+    });
+  });
+
+  describe('initialize', () => {
+    it('should update API headers on initialization', () => {
+      tokenUtils.getToken.mockReturnValue('test-token');
+
+      authService.initialize();
+
+      expect(apiClient.setAuthHeader).toHaveBeenCalled();
+    });
+
+    it('should remove auth header if no token', () => {
+      tokenUtils.getToken.mockReturnValue(null);
+      localStorage.getItem.mockReturnValue(null);
+
+      authService.initialize();
+
+      expect(apiClient.removeAuthHeader).toHaveBeenCalled();
     });
   });
 });

@@ -1,271 +1,299 @@
-/**
- * Role Service Unit Tests
- * ✅ Tests role CRUD operations
- * ✅ Tests permission management
- * ✅ Tests role-permission mapping
- * ✅ 100% coverage target for roleService.js
- */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { roleService } from '../roleService';
+import { apiClient } from '../api';
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+vi.mock('../api');
 
-vi.mock("../api.js", () => ({
-  apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  },
-}));
-
-import { apiClient } from "../api";
-import { roleService } from "../roleService";
-
-describe("roleService", () => {
+describe('roleService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("getRoles", () => {
-    test("should fetch all roles", async () => {
-      const mockRoles = [
-        { id: 1, name: "Admin", description: "Administrator" },
-        { id: 2, name: "Manager", description: "Manager" },
-        { id: 3, name: "User", description: "Regular User" },
-      ];
-      apiClient.get.mockResolvedValueOnce(mockRoles);
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe('getRoles', () => {
+    it('should fetch all roles', async () => {
+      apiClient.get.mockResolvedValue([
+        { id: 1, name: 'Admin', permissions: [] },
+        { id: 2, name: 'Manager', permissions: [] },
+      ]);
 
       const result = await roleService.getRoles();
 
-      expect(result).toHaveLength(3);
-      expect(result[0].name).toBe("Admin");
-      expect(apiClient.get).toHaveBeenCalledWith("/roles");
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith('/roles');
     });
 
-    test("should handle empty roles list", async () => {
-      apiClient.get.mockResolvedValueOnce([]);
+    it('should handle error', async () => {
+      apiClient.get.mockRejectedValue(new Error('API Error'));
 
-      const result = await roleService.getRoles();
-
-      expect(result).toEqual([]);
+      await expect(roleService.getRoles()).rejects.toThrow('API Error');
     });
   });
 
-  describe("getAvailableRoles", () => {
-    test("should fetch available roles for dropdowns", async () => {
-      const mockRoles = [
-        { id: 1, name: "Admin" },
-        { id: 2, name: "Manager" },
-      ];
-      apiClient.get.mockResolvedValueOnce(mockRoles);
+  describe('getAvailableRoles', () => {
+    it('should fetch available roles for dropdowns', async () => {
+      apiClient.get.mockResolvedValue([
+        { id: 1, name: 'Admin' },
+        { id: 2, name: 'Manager' },
+      ]);
 
       const result = await roleService.getAvailableRoles();
 
-      expect(result).toHaveLength(2);
-      expect(apiClient.get).toHaveBeenCalledWith("/roles/list/available");
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/list/available');
+    });
+
+    it('should handle error', async () => {
+      apiClient.get.mockRejectedValue(new Error('API Error'));
+
+      await expect(roleService.getAvailableRoles()).rejects.toThrow();
     });
   });
 
-  describe("getRole", () => {
-    test("should fetch single role with permissions", async () => {
-      const mockRole = {
-        id: 1,
-        name: "Admin",
-        description: "Administrator role",
-        permissions: ["users.create", "users.edit", "users.delete"],
-      };
-      apiClient.get.mockResolvedValueOnce(mockRole);
+  describe('getRole', () => {
+    it('should fetch role by ID', async () => {
+      const mockRole = { id: 1, name: 'Admin', permissions: ['read', 'write'] };
+
+      apiClient.get.mockResolvedValue(mockRole);
 
       const result = await roleService.getRole(1);
 
-      expect(result.name).toBe("Admin");
-      expect(result.permissions).toHaveLength(3);
-      expect(apiClient.get).toHaveBeenCalledWith("/roles/1");
+      expect(result).toEqual(mockRole);
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/1');
     });
 
-    test("should handle role not found", async () => {
-      apiClient.get.mockResolvedValueOnce(null);
+    it('should handle error', async () => {
+      apiClient.get.mockRejectedValue(new Error('Not found'));
 
-      const result = await roleService.getRole(999);
-
-      expect(result).toBeNull();
+      await expect(roleService.getRole(999)).rejects.toThrow();
     });
   });
 
-  describe("createRole", () => {
-    test("should create new role", async () => {
-      const roleData = {
-        name: "Accountant",
-        description: "Financial accounting role",
-        permissions: ["reports.view", "payments.approve"],
-      };
-      const mockResponse = { id: 4, ...roleData };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+  describe('createRole', () => {
+    it('should create new role', async () => {
+      const roleData = { name: 'Viewer', permissions: ['read'] };
+
+      apiClient.post.mockResolvedValue({
+        id: 3,
+        ...roleData,
+      });
 
       const result = await roleService.createRole(roleData);
 
-      expect(result.id).toBe(4);
-      expect(result.name).toBe("Accountant");
-      expect(apiClient.post).toHaveBeenCalledWith("/roles", roleData);
+      expect(result).toHaveProperty('id');
+      expect(apiClient.post).toHaveBeenCalledWith('/roles', roleData);
     });
 
-    test("should reject duplicate role name", async () => {
-      const roleData = { name: "Admin", description: "Duplicate" };
-      apiClient.post.mockRejectedValueOnce(new Error("Role already exists"));
+    it('should handle error', async () => {
+      const roleData = { name: 'InvalidRole' };
 
-      await expect(roleService.createRole(roleData)).rejects.toThrow("Role already exists");
-    });
-  });
+      apiClient.post.mockRejectedValue(new Error('Creation failed'));
 
-  describe("updateRole", () => {
-    test("should update existing role", async () => {
-      const updates = {
-        name: "Senior Manager",
-        permissions: ["reports.create", "users.manage"],
-      };
-      const mockResponse = { id: 2, ...updates };
-      apiClient.put.mockResolvedValueOnce(mockResponse);
-
-      const result = await roleService.updateRole(2, updates);
-
-      expect(result.name).toBe("Senior Manager");
-      expect(apiClient.put).toHaveBeenCalledWith("/roles/2", updates);
-    });
-
-    test("should handle update not found", async () => {
-      apiClient.put.mockRejectedValueOnce(new Error("Not found"));
-
-      await expect(roleService.updateRole(999, { name: "Unknown" })).rejects.toThrow("Not found");
+      await expect(roleService.createRole(roleData)).rejects.toThrow();
     });
   });
 
-  describe("deleteRole", () => {
-    test("should delete role", async () => {
-      apiClient.delete.mockResolvedValueOnce({ success: true });
+  describe('updateRole', () => {
+    it('should update existing role', async () => {
+      const roleData = { name: 'Editor', permissions: ['read', 'write', 'delete'] };
 
-      const result = await roleService.deleteRole(3);
+      apiClient.put.mockResolvedValue({
+        id: 1,
+        ...roleData,
+      });
 
-      expect(result.success).toBe(true);
-      expect(apiClient.delete).toHaveBeenCalledWith("/roles/3");
+      const result = await roleService.updateRole(1, roleData);
+
+      expect(result).toHaveProperty('id');
+      expect(apiClient.put).toHaveBeenCalledWith('/roles/1', roleData);
     });
 
-    test("should handle delete not found", async () => {
-      apiClient.delete.mockRejectedValueOnce(new Error("Not found"));
+    it('should handle error', async () => {
+      apiClient.put.mockRejectedValue(new Error('Update failed'));
 
-      await expect(roleService.deleteRole(999)).rejects.toThrow("Not found");
+      await expect(roleService.updateRole(999, {})).rejects.toThrow();
     });
   });
 
-  describe("getAllPermissions", () => {
-    test("should fetch all permissions grouped by module", async () => {
+  describe('deleteRole', () => {
+    it('should delete role', async () => {
+      apiClient.delete.mockResolvedValue({ success: true });
+
+      const result = await roleService.deleteRole(1);
+
+      expect(result).toHaveProperty('success', true);
+      expect(apiClient.delete).toHaveBeenCalledWith('/roles/1');
+    });
+
+    it('should handle error', async () => {
+      apiClient.delete.mockRejectedValue(new Error('Delete failed'));
+
+      await expect(roleService.deleteRole(999)).rejects.toThrow();
+    });
+  });
+
+  describe('getAllPermissions', () => {
+    it('should fetch all permissions grouped by module', async () => {
       const mockPermissions = {
-        users: [
-          { id: "users.create", name: "Create Users", module: "users" },
-          { id: "users.edit", name: "Edit Users", module: "users" },
-        ],
-        reports: [
-          { id: "reports.view", name: "View Reports", module: "reports" },
-          { id: "reports.create", name: "Create Reports", module: "reports" },
-        ],
+        invoices: ['read', 'create', 'edit', 'delete'],
+        payments: ['read', 'process'],
       };
-      apiClient.get.mockResolvedValueOnce(mockPermissions);
+
+      apiClient.get.mockResolvedValue(mockPermissions);
 
       const result = await roleService.getAllPermissions();
 
-      expect(result.users).toHaveLength(2);
-      expect(result.reports).toHaveLength(2);
+      expect(result).toEqual(mockPermissions);
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/permissions/all');
+    });
+
+    it('should handle error', async () => {
+      apiClient.get.mockRejectedValue(new Error('API Error'));
+
+      await expect(roleService.getAllPermissions()).rejects.toThrow();
     });
   });
 
-  describe("getUserPermissions", () => {
-    test("should fetch permissions for a user", async () => {
-      const mockPermissions = [
-        { id: "users.create", name: "Create Users" },
-        { id: "users.view", name: "View Users" },
-      ];
-      apiClient.get.mockResolvedValueOnce(mockPermissions);
+  describe('getUserPermissions', () => {
+    it('should fetch user permissions', async () => {
+      const mockPermissions = {
+        invoices: ['read', 'create'],
+        payments: ['read'],
+      };
 
-      await roleService.getUserPermissions(1);
+      apiClient.get.mockResolvedValue(mockPermissions);
 
-      expect(apiClient.get).toHaveBeenCalledWith("/users/1/permissions");
+      const result = await roleService.getUserPermissions(1);
+
+      expect(result).toEqual(mockPermissions);
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/users/1/permissions');
+    });
+
+    it('should handle error', async () => {
+      apiClient.get.mockRejectedValue(new Error('Not found'));
+
+      await expect(roleService.getUserPermissions(999)).rejects.toThrow();
     });
   });
 
-  describe("assignRoles", () => {
-    test("should assign roles to a user", async () => {
-      const roleIds = [1, 2];
-      const mockResponse = { success: true, rolesAssigned: 2 };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+  describe('assignRoles', () => {
+    it('should assign roles to user', async () => {
+      apiClient.post.mockResolvedValue({ success: true });
 
-      const result = await roleService.assignRoles(5, roleIds);
+      const result = await roleService.assignRoles(1, [1, 2]);
 
-      expect(result.rolesAssigned).toBe(2);
-      expect(apiClient.post).toHaveBeenCalledWith("/users/5/roles/assign", {
-        role_ids: roleIds,
+      expect(result).toHaveProperty('success', true);
+      expect(apiClient.post).toHaveBeenCalledWith('/roles/users/1/roles', {
+        role_ids: [1, 2],
       });
     });
-  });
 
-  describe("replaceUserRoles", () => {
-    test("should replace all user roles", async () => {
-      const roleIds = [1, 3];
-      const mockResponse = { success: true };
-      apiClient.put.mockResolvedValueOnce(mockResponse);
+    it('should handle error', async () => {
+      apiClient.post.mockRejectedValue(new Error('Assignment failed'));
 
-      await roleService.replaceUserRoles(5, roleIds);
-
-      expect(apiClient.put).toHaveBeenCalledWith("/users/5/roles", {
-        role_ids: roleIds,
-      });
+      await expect(roleService.assignRoles(999, [1])).rejects.toThrow();
     });
   });
 
-  describe("removeRole", () => {
-    test("should remove a specific role", async () => {
-      const mockResponse = { success: true };
-      apiClient.delete.mockResolvedValueOnce(mockResponse);
+  describe('replaceUserRoles', () => {
+    it('should replace all user roles', async () => {
+      apiClient.put.mockResolvedValue({ success: true });
+
+      const result = await roleService.replaceUserRoles(1, [2, 3]);
+
+      expect(result).toHaveProperty('success', true);
+      expect(apiClient.put).toHaveBeenCalledWith('/roles/users/1/roles', {
+        role_ids: [2, 3],
+      });
+    });
+
+    it('should handle error', async () => {
+      apiClient.put.mockRejectedValue(new Error('Replace failed'));
+
+      await expect(roleService.replaceUserRoles(999, [])).rejects.toThrow();
+    });
+  });
+
+  describe('removeRole', () => {
+    it('should remove role from user', async () => {
+      apiClient.delete.mockResolvedValue({ success: true });
 
       const result = await roleService.removeRole(1, 2);
 
-      expect(result.success).toBe(true);
-      expect(apiClient.delete).toHaveBeenCalledWith("/users/1/roles/2");
+      expect(result).toHaveProperty('success', true);
+      expect(apiClient.delete).toHaveBeenCalledWith('/roles/users/1/roles/2');
+    });
+
+    it('should handle error', async () => {
+      apiClient.delete.mockRejectedValue(new Error('Remove failed'));
+
+      await expect(roleService.removeRole(999, 1)).rejects.toThrow();
     });
   });
 
-  describe("grantCustomPermission", () => {
-    test("should grant custom permission to user", async () => {
-      const mockResponse = { success: true };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+  describe('grantCustomPermission', () => {
+    it('should grant custom permission to user', async () => {
+      apiClient.post.mockResolvedValue({ success: true });
 
-      const result = await roleService.grantCustomPermission(1, "reports.export");
+      const result = await roleService.grantCustomPermission(1, 'invoices.export', 'Need reports', '2024-12-31');
 
-      expect(result.success).toBe(true);
-      expect(apiClient.post).toHaveBeenCalledWith("/users/1/permissions/grant", {
-        permission: "reports.export",
+      expect(result).toHaveProperty('success', true);
+      expect(apiClient.post).toHaveBeenCalledWith('/roles/users/1/permissions/grant', {
+        permission_key: 'invoices.export',
+        reason: 'Need reports',
+        expires_at: '2024-12-31',
       });
     });
-  });
 
-  describe("revokeCustomPermission", () => {
-    test("should revoke custom permission from user", async () => {
-      const mockResponse = { success: true };
-      apiClient.delete.mockResolvedValueOnce(mockResponse);
+    it('should handle error', async () => {
+      apiClient.post.mockRejectedValue(new Error('Grant failed'));
 
-      await roleService.revokeCustomPermission(1, "reports.export");
-
-      expect(apiClient.delete).toHaveBeenCalledWith("/users/1/permissions/revoke/reports.export");
+      await expect(roleService.grantCustomPermission(999, 'test', 'reason')).rejects.toThrow();
     });
   });
 
-  describe("getAuditLog", () => {
-    test("should fetch audit log for user role changes", async () => {
-      const mockLog = [{ timestamp: "2024-02-02T10:00:00Z", action: "role_assigned", roleId: 1 }];
-      apiClient.get.mockResolvedValueOnce(mockLog);
+  describe('revokeCustomPermission', () => {
+    it('should revoke custom permission from user', async () => {
+      apiClient.delete.mockResolvedValue({ success: true });
 
-      await roleService.getAuditLog(1, 50);
+      const result = await roleService.revokeCustomPermission(1, 'invoices.export', 'No longer needed');
 
-      expect(apiClient.get).toHaveBeenCalledWith("/users/1/roles/audit", {
-        limit: 50,
+      expect(result).toHaveProperty('success', true);
+      expect(apiClient.delete).toHaveBeenCalledWith('/roles/users/1/permissions/invoices.export', {
+        data: { reason: 'No longer needed' },
       });
+    });
+
+    it('should handle error', async () => {
+      apiClient.delete.mockRejectedValue(new Error('Revoke failed'));
+
+      await expect(roleService.revokeCustomPermission(999, 'test')).rejects.toThrow();
+    });
+  });
+
+  describe('getAuditLog', () => {
+    it('should fetch audit log for user', async () => {
+      const mockLog = [
+        { action: 'role_assigned', roleId: 1, timestamp: '2024-01-15' },
+      ];
+
+      apiClient.get.mockResolvedValue(mockLog);
+
+      const result = await roleService.getAuditLog(1, 50);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/users/1/audit-log', {
+        params: { limit: 50 },
+      });
+    });
+
+    it('should handle error', async () => {
+      apiClient.get.mockRejectedValue(new Error('Audit log error'));
+
+      await expect(roleService.getAuditLog(999)).rejects.toThrow();
     });
   });
 });

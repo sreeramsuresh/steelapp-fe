@@ -1,160 +1,189 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { uomValidationService } from "../uomValidationService.js";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import uomValidationService from '../uomValidationService';
+import { apiClient } from '../api';
 
-vi.mock("../api.js", () => ({
-  api: {
-    get: vi.fn(),
-    post: vi.fn(),
-  },
-}));
+vi.mock('../api');
 
-import { api } from "../api.js";
-
-describe("uomValidationService", () => {
+describe('uomValidationService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("validateUomForProduct", () => {
-    it("should validate UOM is compatible with product type", async () => {
-      const mockResponse = {
-        product_id: 1,
-        product_name: "SS304 Sheet",
-        requested_uom: "kg",
-        is_valid: true,
-        allowed_uoms: ["kg", "pcs", "mt"],
-      };
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-      api.post.mockResolvedValue(mockResponse);
+  describe('validateQuantity', () => {
+    it('should validate quantity for PCS unit', async () => {
+      apiClient.post.mockResolvedValue({
+        valid: true,
+        message: 'Valid whole number',
+      });
 
-      const result = await uomValidationService.validateUomForProduct(1, "kg");
+      const result = await uomValidationService.validateQuantity(10, 'PCS');
 
-      expect(result.is_valid).toBe(true);
-      expect(result.allowed_uoms).toContain("kg");
-      expect(api.post).toHaveBeenCalledWith("/uom-validation/validate", expect.any(Object));
+      expect(result).toHaveProperty('valid', true);
+      expect(apiClient.post).toHaveBeenCalledWith('/uom/validate-quantity', {
+        quantity: 10,
+        unit: 'PCS',
+      });
     });
 
-    it("should reject invalid UOM for product", async () => {
-      const mockResponse = {
-        product_id: 1,
-        requested_uom: "meter",
-        is_valid: false,
-        error: "UOM 'meter' not allowed for sheet products",
-        allowed_uoms: ["kg", "pcs", "mt"],
-      };
+    it('should validate quantity for KG unit', async () => {
+      apiClient.post.mockResolvedValue({
+        valid: true,
+      });
 
-      api.post.mockResolvedValue(mockResponse);
+      const result = await uomValidationService.validateQuantity(25.5, 'KG');
 
-      const result = await uomValidationService.validateUomForProduct(1, "meter");
+      expect(result).toHaveProperty('valid', true);
+      expect(apiClient.post).toHaveBeenCalledWith('/uom/validate-quantity', {
+        quantity: 25.5,
+        unit: 'KG',
+      });
+    });
 
-      expect(result.is_valid).toBe(false);
+    it('should return valid=true on API error (fail open)', async () => {
+      apiClient.post.mockRejectedValue(new Error('API Error'));
+
+      const result = await uomValidationService.validateQuantity(10, 'PCS');
+
+      expect(result).toHaveProperty('valid', true);
     });
   });
 
-  describe("validateUomConversion", () => {
-    it("should validate UOM conversion is valid", async () => {
-      const mockResponse = {
-        from_uom: "kg",
-        to_uom: "mt",
-        is_convertible: true,
-        conversion_factor: 0.001,
-      };
+  describe('convert', () => {
+    it('should convert between units', async () => {
+      apiClient.post.mockResolvedValue({
+        success: true,
+        converted: 100,
+      });
 
-      api.post.mockResolvedValue(mockResponse);
+      const result = await uomValidationService.convert(10, 'PCS', 'KG', 10);
 
-      const result = await uomValidationService.validateUomConversion("kg", "mt");
-
-      expect(result.is_convertible).toBe(true);
-      expect(result.conversion_factor).toBe(0.001);
+      expect(result).toHaveProperty('success', true);
+      expect(apiClient.post).toHaveBeenCalledWith('/uom/convert', {
+        quantity: 10,
+        fromUnit: 'PCS',
+        toUnit: 'KG',
+        unitWeightKg: 10,
+      });
     });
 
-    it("should reject non-convertible UOM pairs", async () => {
-      const mockResponse = {
-        from_uom: "kg",
-        to_uom: "meter",
-        is_convertible: false,
-        error: "Cannot convert weight to length",
-      };
+    it('should handle conversion error', async () => {
+      apiClient.post.mockRejectedValue(new Error('Conversion failed'));
 
-      api.post.mockResolvedValue(mockResponse);
+      const result = await uomValidationService.convert(10, 'PCS', 'INVALID');
 
-      const result = await uomValidationService.validateUomConversion("kg", "meter");
-
-      expect(result.is_convertible).toBe(false);
+      expect(result).toHaveProperty('success', false);
     });
   });
 
-  describe("getProductUomOptions", () => {
-    it("should fetch allowed UOMs for product", async () => {
-      const mockResponse = {
-        product_id: 1,
-        product_name: "SS304 Sheet",
-        allowed_uoms: [
-          { value: "kg", label: "Kilogram", base: true },
-          { value: "mt", label: "Metric Ton", base: false },
-          { value: "pcs", label: "Pieces", base: false },
-        ],
-      };
+  describe('validateWeightTolerance', () => {
+    it('should validate weight tolerance', async () => {
+      apiClient.post.mockResolvedValue({
+        valid: true,
+        varianceKg: 1.5,
+        variancePct: 2.5,
+        tolerancePct: 5,
+      });
 
-      api.get.mockResolvedValue(mockResponse);
+      const result = await uomValidationService.validateWeightTolerance(101.5, 100, 'PLATES');
 
-      const result = await uomValidationService.getProductUomOptions(1);
+      expect(result).toHaveProperty('valid', true);
+      expect(apiClient.post).toHaveBeenCalledWith('/uom/validate-weight-tolerance', {
+        actualWeightKg: 101.5,
+        theoreticalWeightKg: 100,
+        productCategory: 'PLATES',
+      });
+    });
 
-      expect(result.allowed_uoms).toHaveLength(3);
-      expect(result.allowed_uoms[0].base).toBe(true);
-      expect(api.get).toHaveBeenCalledWith("/uom-validation/product/1/uoms");
+    it('should fail open on error', async () => {
+      apiClient.post.mockRejectedValue(new Error('Validation failed'));
+
+      const result = await uomValidationService.validateWeightTolerance(101.5, 100);
+
+      expect(result).toHaveProperty('valid', true);
     });
   });
 
-  describe("validateBatchUomConsistency", () => {
-    it("should validate all line items use compatible UOMs", async () => {
-      const mockResponse = {
-        is_valid: true,
-        consistency_errors: [],
-        conversion_required: false,
-      };
+  describe('calculateVariance', () => {
+    it('should calculate weight variance', async () => {
+      apiClient.post.mockResolvedValue({
+        varianceKg: 1.5,
+        variancePct: 1.48,
+      });
 
-      api.post.mockResolvedValue(mockResponse);
+      const result = await uomValidationService.calculateVariance(101.5, 100);
 
-      const payload = {
-        line_items: [
-          { product_id: 1, uom: "kg", quantity: 500 },
-          { product_id: 1, uom: "mt", quantity: 0.5 },
-        ],
-      };
-
-      const result = await uomValidationService.validateBatchUomConsistency(payload);
-
-      expect(result.is_valid).toBe(true);
-      expect(result.consistency_errors).toHaveLength(0);
+      expect(result).toHaveProperty('varianceKg');
+      expect(apiClient.post).toHaveBeenCalledWith('/uom/calculate-variance', {
+        actualWeightKg: 101.5,
+        theoreticalWeightKg: 100,
+      });
     });
 
-    it("should detect UOM inconsistencies in batch", async () => {
-      const mockResponse = {
-        is_valid: false,
-        consistency_errors: [
-          {
-            line_index: 1,
-            product_id: 2,
-            error: "UOM 'meter' not allowed for pipe products",
-          },
+    it('should return zero on error', async () => {
+      apiClient.post.mockRejectedValue(new Error('Calculation failed'));
+
+      const result = await uomValidationService.calculateVariance(101.5, 100);
+
+      expect(result).toHaveProperty('varianceKg', 0);
+    });
+  });
+
+  describe('getValidUnits', () => {
+    it('should get list of valid units', async () => {
+      apiClient.get.mockResolvedValue({
+        units: ['PCS', 'KG', 'MT', 'BUNDLE', 'METER'],
+      });
+
+      const result = await uomValidationService.getValidUnits();
+
+      expect(result).toHaveProperty('units');
+      expect(Array.isArray(result.units)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith('/uom/valid-units');
+    });
+
+    it('should return defaults on error', async () => {
+      apiClient.get.mockRejectedValue(new Error('API Error'));
+
+      const result = await uomValidationService.getValidUnits();
+
+      expect(result.units).toContain('PCS');
+      expect(result.units).toContain('KG');
+    });
+  });
+
+  describe('validateInvoiceItems', () => {
+    it('should validate multiple invoice items', async () => {
+      const items = [
+        { name: 'Item1', quantity: 10, unit: 'PCS' },
+        { name: 'Item2', quantity: 25.5, unit: 'KG' },
+      ];
+
+      apiClient.post.mockResolvedValue({
+        valid: true,
+        results: [
+          { name: 'Item1', valid: true },
+          { name: 'Item2', valid: true },
         ],
-        conversion_required: false,
-      };
+      });
 
-      api.post.mockResolvedValue(mockResponse);
+      const result = await uomValidationService.validateInvoiceItems(items);
 
-      const payload = {
-        line_items: [
-          { product_id: 1, uom: "kg", quantity: 500 },
-          { product_id: 2, uom: "meter", quantity: 100 },
-        ],
-      };
+      expect(result).toHaveProperty('valid', true);
+      expect(apiClient.post).toHaveBeenCalledWith('/uom/validate-invoice-items', { items });
+    });
 
-      const result = await uomValidationService.validateBatchUomConsistency(payload);
+    it('should fail open on error', async () => {
+      const items = [{ name: 'Item1', quantity: 10, unit: 'PCS' }];
 
-      expect(result.is_valid).toBe(false);
-      expect(result.consistency_errors).toHaveLength(1);
+      apiClient.post.mockRejectedValue(new Error('Validation failed'));
+
+      const result = await uomValidationService.validateInvoiceItems(items);
+
+      expect(result).toHaveProperty('valid', true);
     });
   });
 });

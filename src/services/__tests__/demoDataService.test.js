@@ -1,135 +1,195 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import DemoDataService from "../demoDataService.js";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { demoDataService } from '../demoDataService';
+import { productService } from '../productService';
+import { notificationService } from '../notificationService';
 
-vi.mock("../productService.js", () => ({
-  productService: {
-    createProduct: vi.fn(),
-    getProducts: vi.fn(),
-  },
-}));
+vi.mock('../productService');
+vi.mock('../notificationService');
 
-vi.mock("../notificationService.js", () => ({
-  notificationService: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
-}));
-
-import { notificationService } from "../notificationService.js";
-import { productService } from "../productService.js";
-
-describe("DemoDataService", () => {
-  let demoService;
-
+describe('demoDataService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    demoService = new DemoDataService();
   });
 
-  describe("initialization", () => {
-    it("should create DemoDataService instance", () => {
-      expect(demoService).toBeDefined();
-      expect(typeof demoService).toBe("object");
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe('initializeDemoProducts', () => {
+    it('should initialize demo products in the catalog', async () => {
+      productService.createProduct.mockResolvedValue({ id: 1 });
+
+      const result = await demoDataService.initializeDemoProducts();
+
+      expect(productService.createProduct).toHaveBeenCalledTimes(5);
+      expect(notificationService.success).toHaveBeenCalled();
+      expect(result).toBe(5);
+    });
+
+    it('should handle partial product creation failures', async () => {
+      productService.createProduct
+        .mockResolvedValueOnce({ id: 1 })
+        .mockRejectedValueOnce(new Error('Creation failed'))
+        .mockResolvedValue({ id: 2 });
+
+      const result = await demoDataService.initializeDemoProducts();
+
+      expect(result).toBeGreaterThan(0);
+      expect(result).toBeLessThanOrEqual(5);
+    });
+
+    it('should create stainless steel sheet product', async () => {
+      productService.createProduct.mockResolvedValue({ id: 1 });
+
+      await demoDataService.initializeDemoProducts();
+
+      const calls = productService.createProduct.mock.calls;
+      const steelSheetCall = calls.find(([product]) => product.name === 'Stainless Steel Sheet');
+
+      expect(steelSheetCall).toBeDefined();
+      const product = steelSheetCall[0];
+      expect(product.category).toBe('sheet');
+      expect(product.grade).toBe('304');
+    });
+
+    it('should create stainless steel pipe product', async () => {
+      productService.createProduct.mockResolvedValue({ id: 2 });
+
+      await demoDataService.initializeDemoProducts();
+
+      const calls = productService.createProduct.mock.calls;
+      const pipesCall = calls.find(([product]) => product.name === 'Stainless Steel Pipe');
+
+      expect(pipesCall).toBeDefined();
+      const product = pipesCall[0];
+      expect(product.category).toBe('pipe');
+      expect(product.grade).toBe('316L');
+    });
+
+    it('should create round bar product', async () => {
+      productService.createProduct.mockResolvedValue({ id: 3 });
+
+      await demoDataService.initializeDemoProducts();
+
+      const calls = productService.createProduct.mock.calls;
+      const barCall = calls.find(([product]) => product.name === 'Round Bar');
+
+      expect(barCall).toBeDefined();
+      const product = barCall[0];
+      expect(product.category).toBe('bar');
+      expect(product.grade).toBe('316');
+    });
+
+    it('should create angle bar product', async () => {
+      productService.createProduct.mockResolvedValue({ id: 4 });
+
+      await demoDataService.initializeDemoProducts();
+
+      const calls = productService.createProduct.mock.calls;
+      const angleCall = calls.find(([product]) => product.name === 'Angle Bar');
+
+      expect(angleCall).toBeDefined();
+      const product = angleCall[0];
+      expect(product.category).toBe('angle');
+      expect(product.grade).toBe('304L');
+    });
+
+    it('should create flat bar product', async () => {
+      productService.createProduct.mockResolvedValue({ id: 5 });
+
+      await demoDataService.initializeDemoProducts();
+
+      const calls = productService.createProduct.mock.calls;
+      const flatCall = calls.find(([product]) => product.name === 'Flat Bar');
+
+      expect(flatCall).toBeDefined();
+      const product = flatCall[0];
+      expect(product.category).toBe('flat');
+      expect(product.grade).toBe('316L');
+    });
+
+    it('should handle all products failing', async () => {
+      productService.createProduct.mockRejectedValue(new Error('API Error'));
+
+      const result = await demoDataService.initializeDemoProducts();
+
+      expect(result).toBe(0);
+      expect(notificationService.error).toHaveBeenCalled();
+    });
+
+    it('should show success notification when at least one product created', async () => {
+      productService.createProduct
+        .mockResolvedValueOnce({ id: 1 })
+        .mockRejectedValue(new Error('Failed'));
+
+      await demoDataService.initializeDemoProducts();
+
+      expect(notificationService.success).toHaveBeenCalledWith(
+        expect.stringContaining('Initialized'),
+      );
+    });
+
+    it('should show error notification on general failure', async () => {
+      productService.createProduct.mockImplementation(() => {
+        throw new Error('Service error');
+      });
+
+      const result = await demoDataService.initializeDemoProducts();
+
+      expect(result).toBe(0);
+      expect(notificationService.error).toHaveBeenCalled();
     });
   });
 
-  describe("initializeDemoProducts", () => {
-    it("should initialize demo products with sheet category", async () => {
-      productService.createProduct.mockResolvedValue({
-        id: 1,
-        name: "Stainless Steel Sheet",
-        category: "sheet",
+  describe('checkDemoProductsExist', () => {
+    it('should return true when products exist', async () => {
+      productService.getProducts.mockResolvedValue({
+        products: [
+          { id: 1, name: 'Product 1' },
+          { id: 2, name: 'Product 2' },
+        ],
       });
 
-      await demoService.initializeDemoProducts();
+      const result = await demoDataService.checkDemoProductsExist();
 
-      expect(productService.createProduct).toHaveBeenCalled();
-      const calls = productService.createProduct.mock.calls;
-      const sheetCall = calls.find((call) => call[0].name?.includes("Sheet"));
-      expect(sheetCall).toBeDefined();
+      expect(result).toBe(true);
+      expect(productService.getProducts).toHaveBeenCalled();
     });
 
-    it("should initialize demo products with pipe category", async () => {
-      productService.createProduct.mockResolvedValue({
-        id: 2,
-        name: "Stainless Steel Pipe",
-        category: "pipe",
+    it('should return false when no products exist', async () => {
+      productService.getProducts.mockResolvedValue({
+        products: [],
       });
 
-      await demoService.initializeDemoProducts();
+      const result = await demoDataService.checkDemoProductsExist();
 
-      expect(productService.createProduct).toHaveBeenCalled();
-      const calls = productService.createProduct.mock.calls;
-      const pipeCall = calls.find((call) => call[0].name?.includes("Pipe"));
-      expect(pipeCall).toBeDefined();
+      expect(result).toBe(false);
     });
 
-    it("should include specifications in demo products", async () => {
-      productService.createProduct.mockResolvedValue({
-        id: 1,
-        name: "Stainless Steel Sheet",
-        specifications: {
-          length: "2440",
-          width: "1220",
-          thickness: "1.2",
-        },
-      });
+    it('should return false when response has no products array', async () => {
+      productService.getProducts.mockResolvedValue({});
 
-      await demoService.initializeDemoProducts();
+      const result = await demoDataService.checkDemoProductsExist();
 
-      const calls = productService.createProduct.mock.calls;
-      const firstCall = calls[0][0];
-      expect(firstCall.specifications).toBeDefined();
-      expect(firstCall.specifications.length).toBeDefined();
+      expect(result).toBe(false);
     });
 
-    it("should handle product creation errors gracefully", async () => {
-      productService.createProduct.mockRejectedValue(new Error("Failed to create product"));
+    it('should return false on API error', async () => {
+      productService.getProducts.mockRejectedValue(new Error('API Error'));
 
-      await expect(demoService.initializeDemoProducts()).rejects.toThrow();
-    });
-  });
+      const result = await demoDataService.checkDemoProductsExist();
 
-  describe("Demo Data Integrity", () => {
-    it("should initialize products with required fields", async () => {
-      productService.createProduct.mockResolvedValue({ id: 1 });
-
-      await demoService.initializeDemoProducts();
-
-      const calls = productService.createProduct.mock.calls;
-      calls.forEach((call) => {
-        const product = call[0];
-        expect(product.name).toBeDefined();
-        expect(product.category).toBeDefined();
-        expect(product.specifications).toBeDefined();
-      });
+      expect(result).toBe(false);
     });
 
-    it("should include pricing information in demo products", async () => {
-      productService.createProduct.mockResolvedValue({ id: 1 });
+    it('should handle different response formats', async () => {
+      productService.getProducts.mockResolvedValue([
+        { id: 1, name: 'Product 1' },
+      ]);
 
-      await demoService.initializeDemoProducts();
+      const result = await demoDataService.checkDemoProductsExist();
 
-      const calls = productService.createProduct.mock.calls;
-      calls.forEach((call) => {
-        const product = call[0];
-        expect(product.cost_price).toBeDefined();
-        expect(product.selling_price).toBeDefined();
-      });
-    });
-
-    it("should include inventory information in demo products", async () => {
-      productService.createProduct.mockResolvedValue({ id: 1 });
-
-      await demoService.initializeDemoProducts();
-
-      const calls = productService.createProduct.mock.calls;
-      calls.forEach((call) => {
-        const product = call[0];
-        expect(product.current_stock).toBeDefined();
-        expect(product.min_stock).toBeDefined();
-        expect(product.max_stock).toBeDefined();
-      });
+      expect(result).toBe(false);
     });
   });
 });

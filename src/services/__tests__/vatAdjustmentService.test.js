@@ -1,166 +1,295 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { vatAdjustmentService } from "../vatAdjustmentService.js";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import vatAdjustmentService from '../vatAdjustmentService';
+import { apiClient } from '../api';
 
-vi.mock("../api.js", () => ({
-  api: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  },
-}));
+vi.mock('../api');
 
-import { api } from "../api.js";
-
-describe("vatAdjustmentService", () => {
+describe('vatAdjustmentService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("getAdjustments", () => {
-    it("should fetch all VAT adjustments with pagination", async () => {
-      const mockResponse = {
-        data: [
-          {
-            id: 1,
-            adjustment_number: "VATA-2024-001",
-            type: "input_vat_credit",
-            amount: 5000,
-            status: "approved",
-          },
-          {
-            id: 2,
-            adjustment_number: "VATA-2024-002",
-            type: "reverse_charge",
-            amount: 2500,
-            status: "pending",
-          },
-        ],
-        pagination: { total: 2, page: 1 },
-      };
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-      api.get.mockResolvedValue(mockResponse);
-
-      const result = await vatAdjustmentService.getAdjustments();
-
-      expect(result.data).toHaveLength(2);
-      expect(result.pagination.total).toBe(2);
-      expect(api.get).toHaveBeenCalledWith("/vat-adjustments", expect.any(Object));
-    });
-
-    it("should filter by adjustment type", async () => {
-      api.get.mockResolvedValue({ data: [], pagination: {} });
-
-      await vatAdjustmentService.getAdjustments({
-        type: "input_vat_credit",
+  describe('getAll', () => {
+    it('should fetch all VAT adjustments with pagination', async () => {
+      apiClient.get.mockResolvedValue({
+        data: [{ id: 1, adjustmentNumber: 'VA001', status: 'draft' }],
+        pagination: { page: 1, totalPages: 1 },
       });
 
-      expect(api.get).toHaveBeenCalledWith(
-        "/vat-adjustments",
-        expect.objectContaining({
-          params: expect.objectContaining({
-            type: "input_vat_credit",
-          }),
-        })
-      );
+      const result = await vatAdjustmentService.getAll({ page: 1, pageSize: 50 });
+
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('pagination');
+      expect(Array.isArray(result.data)).toBe(true);
+    });
+
+    it('should handle array response', async () => {
+      apiClient.get.mockResolvedValue([{ id: 1, adjustmentNumber: 'VA001' }]);
+
+      const result = await vatAdjustmentService.getAll();
+
+      expect(Array.isArray(result.data)).toBe(true);
+    });
+
+    it('should handle error', async () => {
+      apiClient.get.mockRejectedValue(new Error('API Error'));
+
+      await expect(vatAdjustmentService.getAll()).rejects.toThrow();
     });
   });
 
-  describe("getAdjustment", () => {
-    it("should fetch single VAT adjustment with details", async () => {
-      const mockResponse = {
+  describe('getById', () => {
+    it('should fetch adjustment by ID', async () => {
+      apiClient.get.mockResolvedValue({ id: 1, adjustmentNumber: 'VA001' });
+
+      const result = await vatAdjustmentService.getById(1);
+
+      expect(apiClient.get).toHaveBeenCalledWith('/vat-adjustments/1');
+      expect(result).toHaveProperty('id', 1);
+    });
+  });
+
+  describe('getByPeriod', () => {
+    it('should fetch adjustments for a period', async () => {
+      apiClient.get.mockResolvedValue([
+        { id: 1, adjustmentNumber: 'VA001' },
+      ]);
+
+      const result = await vatAdjustmentService.getByPeriod('2024-01-01', '2024-12-31');
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith('/vat-adjustments/by-period', {
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+      });
+    });
+  });
+
+  describe('getPendingApproval', () => {
+    it('should fetch pending adjustments', async () => {
+      apiClient.get.mockResolvedValue([
+        { id: 1, status: 'pending_approval' },
+      ]);
+
+      const result = await vatAdjustmentService.getPendingApproval();
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith('/vat-adjustments/pending-approval');
+    });
+  });
+
+  describe('create', () => {
+    it('should create new VAT adjustment', async () => {
+      const adjustmentData = {
+        adjustmentType: 'BAD_DEBT_RELIEF',
+        direction: 'DECREASE',
+        status: 'draft',
+      };
+
+      apiClient.post.mockResolvedValue({
         id: 1,
-        adjustment_number: "VATA-2024-001",
-        type: "input_vat_credit",
-        amount: 5000,
-        description: "Recovered VAT on supplies",
-        status: "approved",
-        approved_by: "tax_officer@company.com",
-        approval_date: "2024-01-15",
-      };
-
-      api.get.mockResolvedValue(mockResponse);
-
-      const result = await vatAdjustmentService.getAdjustment(1);
-
-      expect(result.type).toBe("input_vat_credit");
-      expect(result.amount).toBe(5000);
-      expect(api.get).toHaveBeenCalledWith("/vat-adjustments/1");
-    });
-  });
-
-  describe("createAdjustment", () => {
-    it("should create new VAT adjustment", async () => {
-      const mockResponse = {
-        id: 1,
-        adjustment_number: "VATA-2024-001",
-        type: "input_vat_credit",
-        status: "pending",
-      };
-
-      api.post.mockResolvedValue(mockResponse);
-
-      const payload = {
-        type: "input_vat_credit",
-        amount: 5000,
-        description: "Recovered VAT on supplies",
-        reference_invoices: ["INV-001", "INV-002"],
-      };
-
-      const result = await vatAdjustmentService.createAdjustment(payload);
-
-      expect(result.adjustment_number).toBe("VATA-2024-001");
-      expect(api.post).toHaveBeenCalledWith("/vat-adjustments", payload);
-    });
-  });
-
-  describe("updateAdjustment", () => {
-    it("should update VAT adjustment details", async () => {
-      const mockResponse = {
-        id: 1,
-        adjustment_number: "VATA-2024-001",
-        amount: 5500,
-        status: "pending",
-      };
-
-      api.put.mockResolvedValue(mockResponse);
-
-      const payload = { amount: 5500 };
-
-      const result = await vatAdjustmentService.updateAdjustment(1, payload);
-
-      expect(result.amount).toBe(5500);
-      expect(api.put).toHaveBeenCalledWith("/vat-adjustments/1", payload);
-    });
-  });
-
-  describe("deleteAdjustment", () => {
-    it("should delete VAT adjustment", async () => {
-      api.delete.mockResolvedValue({ success: true });
-
-      const result = await vatAdjustmentService.deleteAdjustment(1);
-
-      expect(result.success).toBe(true);
-      expect(api.delete).toHaveBeenCalledWith("/vat-adjustments/1");
-    });
-  });
-
-  describe("approveAdjustment", () => {
-    it("should approve VAT adjustment", async () => {
-      const mockResponse = {
-        id: 1,
-        status: "approved",
-        approved_by: "tax_officer@company.com",
-        approval_date: "2024-01-15T10:00:00Z",
-      };
-
-      api.put.mockResolvedValue(mockResponse);
-
-      const result = await vatAdjustmentService.approveAdjustment(1, {
-        comments: "Approved for processing",
+        ...adjustmentData,
       });
 
-      expect(result.status).toBe("approved");
+      const result = await vatAdjustmentService.create(adjustmentData);
+
+      expect(apiClient.post).toHaveBeenCalledWith('/vat-adjustments', expect.any(Object));
+      expect(result).toHaveProperty('id');
+    });
+  });
+
+  describe('update', () => {
+    it('should update existing adjustment', async () => {
+      const adjustmentData = { status: 'pending_approval' };
+
+      apiClient.put.mockResolvedValue({
+        id: 1,
+        ...adjustmentData,
+      });
+
+      const result = await vatAdjustmentService.update(1, adjustmentData);
+
+      expect(apiClient.put).toHaveBeenCalledWith('/vat-adjustments/1', expect.any(Object));
+      expect(result).toHaveProperty('id');
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete adjustment', async () => {
+      apiClient.delete.mockResolvedValue({ success: true });
+
+      await vatAdjustmentService.delete(1);
+
+      expect(apiClient.delete).toHaveBeenCalledWith('/vat-adjustments/1');
+    });
+  });
+
+  describe('submitForApproval', () => {
+    it('should submit adjustment for approval', async () => {
+      apiClient.post.mockResolvedValue({
+        id: 1,
+        status: 'pending_approval',
+      });
+
+      const result = await vatAdjustmentService.submitForApproval(1);
+
+      expect(apiClient.post).toHaveBeenCalledWith('/vat-adjustments/1/submit');
+      expect(result).toHaveProperty('status', 'pending_approval');
+    });
+  });
+
+  describe('approve', () => {
+    it('should approve adjustment', async () => {
+      apiClient.post.mockResolvedValue({
+        id: 1,
+        status: 'approved',
+      });
+
+      const result = await vatAdjustmentService.approve(1, 'Approved');
+
+      expect(apiClient.post).toHaveBeenCalledWith('/vat-adjustments/1/approve', {
+        notes: 'Approved',
+      });
+      expect(result).toHaveProperty('status', 'approved');
+    });
+  });
+
+  describe('reject', () => {
+    it('should reject adjustment', async () => {
+      apiClient.post.mockResolvedValue({
+        id: 1,
+        status: 'rejected',
+      });
+
+      const result = await vatAdjustmentService.reject(1, 'Incomplete');
+
+      expect(apiClient.post).toHaveBeenCalledWith('/vat-adjustments/1/reject', {
+        rejectionReason: 'Incomplete',
+      });
+      expect(result).toHaveProperty('status', 'rejected');
+    });
+  });
+
+  describe('applyToVatReturn', () => {
+    it('should apply adjustment to VAT return', async () => {
+      apiClient.post.mockResolvedValue({
+        id: 1,
+        status: 'applied',
+      });
+
+      const result = await vatAdjustmentService.applyToVatReturn(1, 100);
+
+      expect(apiClient.post).toHaveBeenCalledWith('/vat-adjustments/1/apply', {
+        vatReturnId: 100,
+      });
+      expect(result).toHaveProperty('status', 'applied');
+    });
+  });
+
+  describe('cancel', () => {
+    it('should cancel adjustment', async () => {
+      apiClient.post.mockResolvedValue({
+        id: 1,
+        status: 'cancelled',
+      });
+
+      const result = await vatAdjustmentService.cancel(1, 'Changed mind');
+
+      expect(apiClient.post).toHaveBeenCalledWith('/vat-adjustments/1/cancel', {
+        cancellationReason: 'Changed mind',
+      });
+      expect(result).toHaveProperty('status', 'cancelled');
+    });
+  });
+
+  describe('getNextNumber', () => {
+    it('should get next adjustment number', async () => {
+      apiClient.get.mockResolvedValue({
+        adjustmentNumber: 'VA025',
+      });
+
+      const result = await vatAdjustmentService.getNextNumber();
+
+      expect(apiClient.get).toHaveBeenCalledWith('/vat-adjustments/number/next');
+      expect(result).toHaveProperty('adjustmentNumber');
+    });
+  });
+
+  describe('checkBadDebtEligibility', () => {
+    it('should check bad debt eligibility', async () => {
+      apiClient.get.mockResolvedValue({
+        eligible: true,
+        debtAgeDays: 180,
+      });
+
+      const result = await vatAdjustmentService.checkBadDebtEligibility(1);
+
+      expect(apiClient.get).toHaveBeenCalledWith('/vat-adjustments/bad-debt-eligibility/1');
+      expect(result).toHaveProperty('eligible', true);
+    });
+  });
+
+  describe('createBadDebtRelief', () => {
+    it('should create bad debt relief adjustment', async () => {
+      apiClient.post.mockResolvedValue({
+        id: 1,
+        adjustmentType: 'BAD_DEBT_RELIEF',
+      });
+
+      const result = await vatAdjustmentService.createBadDebtRelief(1, { notes: 'Test' });
+
+      expect(apiClient.post).toHaveBeenCalledWith('/vat-adjustments/bad-debt-relief', {
+        invoiceId: 1,
+        notes: 'Test',
+        supportingDocuments: [],
+      });
+      expect(result).toHaveProperty('id');
+    });
+  });
+
+  describe('getSummary', () => {
+    it('should get adjustment summary', async () => {
+      const params = { startDate: '2024-01-01', endDate: '2024-12-31' };
+
+      apiClient.get.mockResolvedValue({
+        totalAdjustments: 10,
+        totalAmount: 50000,
+      });
+
+      const result = await vatAdjustmentService.getSummary(params);
+
+      expect(apiClient.get).toHaveBeenCalledWith('/vat-adjustments/summary', params);
+      expect(result).toHaveProperty('totalAdjustments');
+    });
+  });
+
+  describe('getAuditTrail', () => {
+    it('should get audit trail', async () => {
+      apiClient.get.mockResolvedValue([
+        { action: 'created', timestamp: '2024-01-15' },
+      ]);
+
+      const result = await vatAdjustmentService.getAuditTrail(1);
+
+      expect(apiClient.get).toHaveBeenCalledWith('/vat-adjustments/1/audit-trail');
+      expect(Array.isArray(result)).toBe(true);
+    });
+  });
+
+  describe('search', () => {
+    it('should search adjustments', async () => {
+      apiClient.get.mockResolvedValue({
+        data: [{ id: 1, adjustmentNumber: 'VA001' }],
+      });
+
+      const result = await vatAdjustmentService.search('VA', { status: 'draft' });
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalled();
     });
   });
 });
