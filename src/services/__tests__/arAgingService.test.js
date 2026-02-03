@@ -729,7 +729,7 @@ describe("arAgingService", () => {
     });
 
     test("should handle malformed response data", async () => {
-      apiClient.get.mockResolvedValueOnce(null);
+      apiClient.get.mockResolvedValueOnce({});
 
       const result = await arAgingService.getAgingReport(companyId, "2024-02-15");
 

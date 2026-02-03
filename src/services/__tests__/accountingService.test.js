@@ -621,7 +621,7 @@ describe("accountingService", () => {
     });
 
     test("should handle malformed response data", async () => {
-      apiClient.get.mockResolvedValueOnce(null);
+      apiClient.get.mockResolvedValueOnce({});
 
       const result = await accountingService.getAccounts(companyId);
 
