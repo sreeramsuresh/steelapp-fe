@@ -1,16 +1,17 @@
-import { userAdminAPI } from "../userAdminApi.js";
-import { userPreferencesService } from "../userPreferencesService.js";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
-// Mock userAdminAPI
-jest.mock("../userAdminApi", () => ({
+vi.mock("../userAdminApi.js", () => ({
   userAdminAPI: {
-    update: jest.fn(),
+    update: vi.fn(),
   },
 }));
 
+import { userAdminAPI } from "../userAdminApi.js";
+import { userPreferencesService } from "../userPreferencesService.js";
+
 describe("userPreferencesService", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
   });
 
@@ -136,10 +137,10 @@ describe("userPreferencesService", () => {
 
     test("should handle localStorage errors gracefully", () => {
       const mockOrder = ["a", "b", "c"];
-      const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       // Mock localStorage.setItem to throw
-      Storage.prototype.setItem = jest.fn(() => {
+      Storage.prototype.setItem = vi.fn(() => {
         throw new Error("QuotaExceededError");
       });
 
