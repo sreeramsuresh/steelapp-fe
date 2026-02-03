@@ -433,9 +433,7 @@ describe("InvoiceHeader", () => {
 
   describe("Color Theming", () => {
     it("should use primaryColor prop", () => {
-      const { container } = renderWithProviders(
-        <InvoiceHeader {...defaultProps} primaryColor="#FF0000" />
-      );
+      const { container } = renderWithProviders(<InvoiceHeader {...defaultProps} primaryColor="#FF0000" />);
 
       const header = container.querySelector(".invoice-header");
       expect(header).toBeInTheDocument();
@@ -531,9 +529,7 @@ describe("InvoiceHeader", () => {
 
   describe("Document Type Support", () => {
     it("should support invoice document type", () => {
-      const { container } = renderWithProviders(
-        <InvoiceHeader {...defaultProps} documentType="invoice" />
-      );
+      const { container } = renderWithProviders(<InvoiceHeader {...defaultProps} documentType="invoice" />);
 
       expect(container.textContent).toContain("DRAFT INVOICE");
     });
@@ -563,9 +559,7 @@ describe("InvoiceHeader", () => {
 
   describe("Edge Cases", () => {
     it("should handle missing company object", () => {
-      const { container } = renderWithProviders(
-        <InvoiceHeader {...defaultProps} company={null} />
-      );
+      const { container } = renderWithProviders(<InvoiceHeader {...defaultProps} company={null} />);
 
       expect(container.querySelector(".invoice-header")).toBeInTheDocument();
     });

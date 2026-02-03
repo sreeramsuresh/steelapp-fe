@@ -5,10 +5,10 @@
  * Tests invoice line items display with various template settings and styles
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
-import InvoiceItemsTable from "../InvoiceItemsTable";
+import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
-import { createMockLineItem, createMockArray } from "../../../test/mock-factories";
+import { createMockArray, createMockLineItem } from "../../../test/mock-factories";
+import InvoiceItemsTable from "../InvoiceItemsTable";
 
 describe("InvoiceItemsTable", () => {
   let mockItems;
@@ -19,34 +19,26 @@ describe("InvoiceItemsTable", () => {
 
   describe("Rendering", () => {
     it("should render with default props", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
 
     it("should render empty state when no items", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[]} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
 
     it("should render correct number of rows", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       const rows = container.querySelectorAll("tbody tr");
       expect(rows.length).toBe(mockItems.length);
     });
 
     it("should render table headers", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       const headerRow = container.querySelector("thead tr");
       expect(headerRow).toBeInTheDocument();
@@ -61,9 +53,7 @@ describe("InvoiceItemsTable", () => {
         productOrigin: "UAE",
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[uaeItem]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[uaeItem]} />);
 
       expect(container.textContent).toContain("SS-304-Sheet");
       expect(container.textContent).not.toContain("UAE");
@@ -76,9 +66,7 @@ describe("InvoiceItemsTable", () => {
         productOrigin: "Germany",
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[importItem]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[importItem]} />);
 
       expect(container.textContent).toContain("Stainless Steel Coil - Germany");
     });
@@ -86,17 +74,13 @@ describe("InvoiceItemsTable", () => {
     it("should handle missing product name", () => {
       const itemWithoutName = { ...mockItems[0], name: undefined };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[itemWithoutName]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[itemWithoutName]} />);
 
       expect(container.querySelector("tbody")).toBeInTheDocument();
     });
 
     it("should display quantity and price columns", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       const cells = container.querySelectorAll("tbody td");
       expect(cells.length).toBeGreaterThan(0);
@@ -110,9 +94,7 @@ describe("InvoiceItemsTable", () => {
         layout: { itemsStyle: "full-grid" },
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={template} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={template} />);
 
       const headerRow = container.querySelector("thead tr");
       expect(headerRow.style.backgroundColor).toBe("rgb(255, 87, 51)");
@@ -127,9 +109,7 @@ describe("InvoiceItemsTable", () => {
         layout: { itemsStyle: "full-grid" },
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={template} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={template} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -143,9 +123,7 @@ describe("InvoiceItemsTable", () => {
         layout: { itemsStyle: "full-grid" },
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={template} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={template} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -161,18 +139,14 @@ describe("InvoiceItemsTable", () => {
           colors: { primary: "#000000" },
         };
 
-        const { container } = renderWithProviders(
-          <InvoiceItemsTable items={mockItems} template={template} />,
-        );
+        const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={template} />);
 
         expect(container.querySelector("table")).toBeInTheDocument();
       });
     });
 
     it("should use default layout when template not provided", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -185,9 +159,7 @@ describe("InvoiceItemsTable", () => {
         colors: { primary: "#000000", accent: "#F5F5F5" },
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={template} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={template} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -198,9 +170,7 @@ describe("InvoiceItemsTable", () => {
         colors: { primary: "#000000" },
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={template} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={template} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -208,25 +178,19 @@ describe("InvoiceItemsTable", () => {
 
   describe("Pagination Props", () => {
     it("should handle startingIndex prop", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} startingIndex={1} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} startingIndex={1} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
 
     it("should handle isFirstPage prop", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} isFirstPage={true} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} isFirstPage={true} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
 
     it("should handle isContinued prop", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} isContinued={true} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} isContinued={true} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -234,9 +198,7 @@ describe("InvoiceItemsTable", () => {
 
   describe("Primary Color", () => {
     it("should use provided primaryColor prop", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} primaryColor="#2563EB" />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} primaryColor="#2563EB" />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -248,11 +210,7 @@ describe("InvoiceItemsTable", () => {
       };
 
       const { container } = renderWithProviders(
-        <InvoiceItemsTable
-          items={mockItems}
-          primaryColor="#0000FF"
-          template={template}
-        />,
+        <InvoiceItemsTable items={mockItems} primaryColor="#0000FF" template={template} />
       );
 
       const headerRow = container.querySelector("thead tr");
@@ -261,9 +219,7 @@ describe("InvoiceItemsTable", () => {
     });
 
     it("should use default color when neither provided", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -276,9 +232,7 @@ describe("InvoiceItemsTable", () => {
         name: "SS-304 (BA) & Stainless Steel Sheet™",
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[specialItem]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[specialItem]} />);
 
       expect(container.textContent).toContain("SS-304 (BA) & Stainless Steel Sheet™");
     });
@@ -289,9 +243,7 @@ describe("InvoiceItemsTable", () => {
         name: "Extra Long Product Name With Multiple Descriptors And Additional Information That Spans Multiple Words",
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[longNameItem]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[longNameItem]} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -302,9 +254,7 @@ describe("InvoiceItemsTable", () => {
         quantity: 123.456,
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[decimalItem]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[decimalItem]} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -315,9 +265,7 @@ describe("InvoiceItemsTable", () => {
         quantity: 0,
       };
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={[zeroItem]} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={[zeroItem]} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -327,34 +275,26 @@ describe("InvoiceItemsTable", () => {
     it("should handle very large item arrays", () => {
       const largeItemArray = createMockArray(createMockLineItem, 100);
 
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={largeItemArray} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={largeItemArray} />);
 
       const rows = container.querySelectorAll("tbody tr");
       expect(rows.length).toBe(100);
     });
 
     it("should handle null template gracefully", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={null} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={null} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
 
     it("should handle undefined template gracefully", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={undefined} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={undefined} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
 
     it("should handle empty template object", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} template={{}} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} template={{}} />);
 
       expect(container.querySelector("table")).toBeInTheDocument();
     });
@@ -362,18 +302,14 @@ describe("InvoiceItemsTable", () => {
 
   describe("Accessibility", () => {
     it("should have table structure with thead and tbody", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       expect(container.querySelector("thead")).toBeInTheDocument();
       expect(container.querySelector("tbody")).toBeInTheDocument();
     });
 
     it("should have proper header row", () => {
-      const { container } = renderWithProviders(
-        <InvoiceItemsTable items={mockItems} />,
-      );
+      const { container } = renderWithProviders(<InvoiceItemsTable items={mockItems} />);
 
       const headerCells = container.querySelectorAll("thead th");
       expect(headerCells.length).toBeGreaterThan(0);

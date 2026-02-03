@@ -7,7 +7,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import { createMockWarehouse, createMockArray } from "../../../test/mock-factories";
+import { createMockArray, createMockWarehouse } from "../../../test/mock-factories";
 import WarehouseStockSelector from "../WarehouseStockSelector";
 
 // Mock the API service
@@ -43,16 +43,13 @@ describe("WarehouseStockSelector", () => {
     };
 
     api.get.mockResolvedValue({
-      batches: [
-        { quantityAvailable: 100 + index },
-        { quantityAvailable: 50 + index },
-      ],
+      batches: [{ quantityAvailable: 100 + index }, { quantityAvailable: 50 + index }],
     });
   });
 
   describe("Rendering", () => {
     it("should render selector component", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -60,7 +57,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should display stock availability label", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -68,7 +65,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should render warehouse buttons", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -77,7 +74,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should display warehouse names", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -89,7 +86,7 @@ describe("WarehouseStockSelector", () => {
     it("should show loading state initially", async () => {
       api.get.mockImplementation(() => new Promise(() => {}));
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       expect(container.textContent).toContain("Loading");
     });
@@ -97,7 +94,7 @@ describe("WarehouseStockSelector", () => {
     it("should display loading spinner", async () => {
       api.get.mockImplementation(() => new Promise(() => {}));
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -105,7 +102,7 @@ describe("WarehouseStockSelector", () => {
 
   describe("Stock Display", () => {
     it("should display available stock quantities", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -115,7 +112,7 @@ describe("WarehouseStockSelector", () => {
     it("should show zero stock correctly", async () => {
       api.get.mockResolvedValue({ batches: [] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -127,7 +124,7 @@ describe("WarehouseStockSelector", () => {
         batches: [{ quantityAvailable: 123.45 }],
       });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -136,14 +133,10 @@ describe("WarehouseStockSelector", () => {
 
     it("should accumulate quantities from multiple batches", async () => {
       api.get.mockResolvedValue({
-        batches: [
-          { quantityAvailable: 100 },
-          { quantityAvailable: 50 },
-          { quantityAvailable: 25 },
-        ],
+        batches: [{ quantityAvailable: 100 }, { quantityAvailable: 50 }, { quantityAvailable: 25 }],
       });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -151,7 +144,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should show warehouse in title attribute", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -175,7 +168,7 @@ describe("WarehouseStockSelector", () => {
 
     it("should call onWarehouseSelect when warehouse clicked", async () => {
       const user = setupUser();
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -188,7 +181,7 @@ describe("WarehouseStockSelector", () => {
 
     it("should pass warehouseId and hasStock to callback", async () => {
       const user = setupUser();
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -203,7 +196,7 @@ describe("WarehouseStockSelector", () => {
       const user = setupUser();
       api.get.mockResolvedValue({ batches: [{ quantityAvailable: 100 }] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -219,7 +212,7 @@ describe("WarehouseStockSelector", () => {
       const user = setupUser();
       api.get.mockResolvedValue({ batches: [] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -236,7 +229,7 @@ describe("WarehouseStockSelector", () => {
     it("should notify parent when all warehouses have zero stock", async () => {
       api.get.mockResolvedValue({ batches: [] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -248,7 +241,7 @@ describe("WarehouseStockSelector", () => {
       api.get.mockResolvedValueOnce({ batches: [] });
       api.get.mockResolvedValueOnce({ batches: [] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -260,7 +253,7 @@ describe("WarehouseStockSelector", () => {
     it("should display error message on API failure", async () => {
       api.get.mockRejectedValue(new Error("API Error"));
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -272,7 +265,7 @@ describe("WarehouseStockSelector", () => {
       api.get.mockRejectedValueOnce(new Error("Warehouse offline"));
       api.get.mockResolvedValueOnce({ batches: [{ quantityAvailable: 50 }] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -282,17 +275,13 @@ describe("WarehouseStockSelector", () => {
 
   describe("Empty State", () => {
     it("should show message when no warehouses provided", () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} warehouses={[]} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} warehouses={[]} />);
 
       expect(container.textContent).toContain("No warehouses");
     });
 
     it("should not call API when no warehouses", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} warehouses={[]} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} warehouses={[]} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -302,7 +291,7 @@ describe("WarehouseStockSelector", () => {
 
   describe("API Integration", () => {
     it("should call API with correct parameters", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -310,9 +299,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should include productId in API call", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} productId={999} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} productId={999} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -320,7 +307,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should include companyId in API call", async () => {
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <WarehouseStockSelector {...defaultProps} companyId="CUSTOM-COMPANY" />
       );
 
@@ -330,9 +317,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should handle missing productId gracefully", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} productId={null} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} productId={null} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -340,9 +325,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should handle missing companyId gracefully", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector {...defaultProps} companyId={null} />
-      );
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} companyId={null} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -354,7 +337,7 @@ describe("WarehouseStockSelector", () => {
     it("should show green icon for warehouse with stock", async () => {
       api.get.mockResolvedValue({ batches: [{ quantityAvailable: 100 }] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -364,7 +347,7 @@ describe("WarehouseStockSelector", () => {
     it("should show red icon for warehouse without stock", async () => {
       api.get.mockResolvedValue({ batches: [] });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -374,11 +357,8 @@ describe("WarehouseStockSelector", () => {
 
   describe("Warehouse Display", () => {
     it("should display warehouse name", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector
-          {...defaultProps}
-          warehouses={[{ id: "WH-1", name: "Main Warehouse", code: "WH1" }]}
-        />
+      renderWithProviders(
+        <WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-1", name: "Main Warehouse", code: "WH1" }]} />
       );
 
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -387,11 +367,8 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should use warehouse code as fallback", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector
-          {...defaultProps}
-          warehouses={[{ id: "WH-1", code: "WH1" }]}
-        />
+      renderWithProviders(
+        <WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-1", code: "WH1" }]} />
       );
 
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -400,11 +377,8 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should use warehouse id as last resort", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector
-          {...defaultProps}
-          warehouses={[{ id: "WH-123" }]}
-        />
+      renderWithProviders(
+        <WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-123" }]} />
       );
 
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -415,11 +389,8 @@ describe("WarehouseStockSelector", () => {
 
   describe("Edge Cases", () => {
     it("should handle single warehouse", async () => {
-      const { container } = renderWithProviders(
-        <WarehouseStockSelector
-          {...defaultProps}
-          warehouses={[{ id: "WH-1", name: "Single Warehouse" }]}
-        />
+      renderWithProviders(
+        <WarehouseStockSelector {...defaultProps} warehouses={[{ id: "WH-1", name: "Single Warehouse" }]} />
       );
 
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -430,7 +401,7 @@ describe("WarehouseStockSelector", () => {
     it("should handle many warehouses", async () => {
       const manyWarehouses = createMockArray(createMockWarehouse, 10);
 
-      const { container } = renderWithProviders(
+      renderWithProviders(
         <WarehouseStockSelector {...defaultProps} warehouses={manyWarehouses} />
       );
 
@@ -444,7 +415,7 @@ describe("WarehouseStockSelector", () => {
         batches: [{ quantityAvailable: 999999.99 }],
       });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -456,7 +427,7 @@ describe("WarehouseStockSelector", () => {
         batches: [{ quantityAvailable: 10.5 }],
       });
 
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -466,7 +437,7 @@ describe("WarehouseStockSelector", () => {
 
   describe("Accessibility", () => {
     it("should have warehouse buttons with type button", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -475,7 +446,7 @@ describe("WarehouseStockSelector", () => {
     });
 
     it("should have title attribute with warehouse info", async () => {
-      const { container } = renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
+      renderWithProviders(<WarehouseStockSelector {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 

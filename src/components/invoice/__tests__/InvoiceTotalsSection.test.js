@@ -7,7 +7,7 @@
 
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
-import { createMockInvoice, createMockLineItem, createMockArray } from "../../../test/mock-factories";
+import { createMockArray, createMockInvoice, createMockLineItem } from "../../../test/mock-factories";
 import InvoiceTotalsSection from "../InvoiceTotalsSection";
 
 describe("InvoiceTotalsSection", () => {
@@ -234,9 +234,7 @@ describe("InvoiceTotalsSection", () => {
     it("should have bold styling on TOTAL", () => {
       const { container } = renderWithProviders(<InvoiceTotalsSection {...defaultProps} />);
 
-      const totalDiv = Array.from(container.querySelectorAll("div")).find((div) =>
-        div.textContent.includes("TOTAL")
-      );
+      const totalDiv = Array.from(container.querySelectorAll("div")).find((div) => div.textContent.includes("TOTAL"));
       expect(totalDiv?.style?.fontWeight).toBe("bold");
     });
   });
@@ -244,10 +242,7 @@ describe("InvoiceTotalsSection", () => {
   describe("Additional Charges", () => {
     it("should include packing charges", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, packingCharges: 100 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, packingCharges: 100 }} />
       );
 
       expect(container.textContent).toContain("TOTAL");
@@ -255,10 +250,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should include freight charges", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, freightCharges: 200 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, freightCharges: 200 }} />
       );
 
       expect(container.textContent).toContain("TOTAL");
@@ -266,10 +258,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should include loading charges", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, loadingCharges: 50 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, loadingCharges: 50 }} />
       );
 
       expect(container.textContent).toContain("TOTAL");
@@ -277,10 +266,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should include other charges", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, otherCharges: 150 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, otherCharges: 150 }} />
       );
 
       expect(container.textContent).toContain("TOTAL");
@@ -345,10 +331,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should display advance section when advance received", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, advanceReceived: 5000 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, advanceReceived: 5000 }} />
       );
 
       expect(container.textContent).toContain("Advance Received");
@@ -357,10 +340,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should calculate correct balance due", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, advanceReceived: 5000 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, advanceReceived: 5000 }} />
       );
 
       expect(container.textContent).toContain("Balance Due");
@@ -368,10 +348,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should show advance with minus sign", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, advanceReceived: 5000 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, advanceReceived: 5000 }} />
       );
 
       expect(container.textContent).toContain("-");
@@ -380,10 +357,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should show balance due in red when amount due", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, advanceReceived: 5000 }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, advanceReceived: 5000 }} />
       );
 
       const balanceDueDiv = Array.from(container.querySelectorAll("div")).find((div) =>
@@ -418,10 +392,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should handle string advance values", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, advanceReceived: "5000.50" }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, advanceReceived: "5000.50" }} />
       );
 
       expect(container.textContent).toContain("Balance Due");
@@ -430,9 +401,7 @@ describe("InvoiceTotalsSection", () => {
 
   describe("Color Theming", () => {
     it("should use primaryColor prop", () => {
-      const { container } = renderWithProviders(
-        <InvoiceTotalsSection {...defaultProps} primaryColor="#FF0000" />
-      );
+      const { container } = renderWithProviders(<InvoiceTotalsSection {...defaultProps} primaryColor="#FF0000" />);
 
       expect(container.textContent).toContain("TOTAL");
     });
@@ -452,9 +421,7 @@ describe("InvoiceTotalsSection", () => {
     });
 
     it("should apply color to TOTAL border", () => {
-      const { container } = renderWithProviders(
-        <InvoiceTotalsSection {...defaultProps} primaryColor="#0891b2" />
-      );
+      const { container } = renderWithProviders(<InvoiceTotalsSection {...defaultProps} primaryColor="#0891b2" />);
 
       expect(container.textContent).toContain("TOTAL");
     });
@@ -536,10 +503,7 @@ describe("InvoiceTotalsSection", () => {
 
     it("should handle zero amounts", () => {
       const { container } = renderWithProviders(
-        <InvoiceTotalsSection
-          {...defaultProps}
-          invoice={{ ...mockInvoice, items: [] }}
-        />
+        <InvoiceTotalsSection {...defaultProps} invoice={{ ...mockInvoice, items: [] }} />
       );
 
       expect(container.textContent).toContain("SubTotal");
@@ -610,9 +574,7 @@ describe("InvoiceTotalsSection", () => {
     it("should clearly separate sections with styling", () => {
       const { container } = renderWithProviders(<InvoiceTotalsSection {...defaultProps} />);
 
-      const totalDiv = Array.from(container.querySelectorAll("div")).find((div) =>
-        div.textContent.includes("TOTAL")
-      );
+      const totalDiv = Array.from(container.querySelectorAll("div")).find((div) => div.textContent.includes("TOTAL"));
       expect(totalDiv).toBeInTheDocument();
     });
   });

@@ -4,12 +4,12 @@
  * Phase 5.3 Infrastructure
  */
 
-import React from "react";
+import { configureStore } from "@reduxjs/toolkit";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { BrowserRouter } from "react-router-dom";
+import React from "react";
 import { Provider } from "react-redux";
-import { configureStore } from "@reduxjs/toolkit";
+import { BrowserRouter } from "react-router-dom";
 import { vi } from "vitest";
 
 /**
@@ -61,11 +61,7 @@ export function createMockStore(initialState = {}) {
  * @returns {Object} Render result + utilities
  */
 export function renderWithProviders(component, options = {}) {
-  const {
-    store = createMockStore(options.reduxState),
-    initialRoute = "/",
-    ...renderOptions
-  } = options;
+  const { store = createMockStore(options.reduxState), initialRoute = "/", ...renderOptions } = options;
 
   // Set up router initial entry
   window.history.pushState({}, "Test page", initialRoute);
