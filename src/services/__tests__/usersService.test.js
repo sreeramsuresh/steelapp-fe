@@ -502,7 +502,7 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     test("should handle malformed response", async () => {
-      apiService.get.mockResolvedValueOnce({ invalid: "structure" });
+      apiService.get.mockResolvedValueOnce(null);
 
       const result = await userAdminAPI.list();
 

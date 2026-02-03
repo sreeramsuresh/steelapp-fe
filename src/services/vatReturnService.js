@@ -103,12 +103,16 @@ const transformVatReturnFromServer = (serverData) => {
     // Filing info
     filedAt: serverData.filedAt || null,
     filedBy: serverData.filedBy || null,
-    ftaReferenceNumber: serverData.ftaReferenceNumber || "",
-    ftaSubmissionDate: serverData.ftaSubmissionDate || null,
+    ftaReferenceNumber: serverData.ftaReferenceNumber || serverData.fta_reference_number || "",
+    ftaSubmissionDate: serverData.ftaSubmissionDate || serverData.fta_submission_date || null,
+    acknowledgmentNumber: serverData.acknowledgmentNumber || serverData.acknowledgment_number || "",
+    // Submission info
+    submittedAt: serverData.submittedAt || serverData.submitted_at || null,
+    submittedBy: serverData.submittedBy || serverData.submitted_by || null,
     // Timestamps
-    createdAt: serverData.createdAt || null,
-    updatedAt: serverData.updatedAt || null,
-    generatedAt: serverData.generatedAt || null,
+    createdAt: serverData.createdAt || serverData.created_at || null,
+    updatedAt: serverData.updatedAt || serverData.updated_at || null,
+    generatedAt: serverData.generatedAt || serverData.generated_at || null,
     // Notes
     notes: serverData.notes || "",
   };
