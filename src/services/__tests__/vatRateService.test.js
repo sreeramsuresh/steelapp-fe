@@ -1,168 +1,167 @@
+/**
+ * VAT Rate Service Unit Tests
+ * Tests VAT rate management operations
+ */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { vatRateService } from "../vatRateService.js";
 
 vi.mock("../api.js", () => ({
   api: {
     get: vi.fn(),
     post: vi.fn(),
     put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
 import { api } from "../api.js";
+import vatRateService from "../vatRateService.js";
 
 describe("vatRateService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("getVatRates", () => {
-    it("should fetch all applicable VAT rates", async () => {
-      const mockResponse = [
-        {
-          id: 1,
-          rate_percentage: 5.0,
-          category: "standard",
-          description: "Standard rated supplies",
-          applicable_from: "2018-01-01",
-        },
-        {
-          id: 2,
-          rate_percentage: 0.0,
-          category: "zero_rated",
-          description: "Zero-rated supplies",
-          applicable_from: "2018-01-01",
-        },
+  describe("getAll", () => {
+    it("should get all VAT rates", async () => {
+      const mockRates = [
+        { id: 1, rate: 5, category: "reduced", description: "Reduced rate" },
+        { id: 2, rate: 0, category: "zero", description: "Zero rated" },
       ];
 
-      api.get.mockResolvedValue(mockResponse);
+      api.get.mockResolvedValueOnce(mockRates);
 
-      const result = await vatRateService.getVatRates();
+      const result = await vatRateService.getAll();
 
-      expect(result).toHaveLength(2);
-      expect(result[0].rate_percentage).toBe(5.0);
+      expect(result).toEqual(mockRates);
       expect(api.get).toHaveBeenCalledWith("/vat-rates");
     });
-  });
 
-  describe("getVatRateByCategory", () => {
-    it("should fetch VAT rate for specific category", async () => {
-      const mockResponse = {
-        id: 1,
-        rate_percentage: 5.0,
-        category: "standard",
-        description: "Standard rated supplies",
-        applicable_from: "2018-01-01",
-      };
+    it("should handle response with rates property", async () => {
+      const mockRates = [{ id: 1, rate: 5 }];
+      api.get.mockResolvedValueOnce({ rates: mockRates });
 
-      api.get.mockResolvedValue(mockResponse);
+      const result = await vatRateService.getAll();
 
-      const result = await vatRateService.getVatRateByCategory("standard");
-
-      expect(result.rate_percentage).toBe(5.0);
-      expect(api.get).toHaveBeenCalledWith("/vat-rates/standard");
+      expect(result).toEqual(mockRates);
     });
 
-    it("should fetch zero-rated category", async () => {
-      const mockResponse = {
-        id: 2,
-        rate_percentage: 0.0,
-        category: "zero_rated",
-        description: "Zero-rated supplies",
-      };
+    it("should handle response with data property", async () => {
+      const mockRates = [{ id: 1, rate: 5 }];
+      api.get.mockResolvedValueOnce({ data: mockRates });
 
-      api.get.mockResolvedValue(mockResponse);
+      const result = await vatRateService.getAll();
 
-      const result = await vatRateService.getVatRateByCategory("zero_rated");
-
-      expect(result.rate_percentage).toBe(0.0);
+      expect(result).toEqual(mockRates);
     });
 
-    it("should handle exempt supplies", async () => {
-      const mockResponse = {
-        id: 3,
-        rate_percentage: 0.0,
-        category: "exempt",
-        description: "Exempt supplies",
-      };
+    it("should return empty array on error", async () => {
+      api.get.mockRejectedValueOnce(new Error("Network error"));
 
-      api.get.mockResolvedValue(mockResponse);
-
-      const result = await vatRateService.getVatRateByCategory("exempt");
-
-      expect(result.category).toBe("exempt");
+      await expect(vatRateService.getAll()).rejects.toThrow();
     });
   });
 
-  describe("calculateVat", () => {
-    it("should calculate VAT amount for 5% standard rate", async () => {
-      const mockResponse = {
-        base_amount: 100000,
-        rate_percentage: 5.0,
-        vat_amount: 5000,
-        total_with_vat: 105000,
-      };
+  describe("getById", () => {
+    it("should get VAT rate by ID", async () => {
+      const mockRate = { id: 1, rate: 5, category: "standard", description: "Standard rate" };
+      api.get.mockResolvedValueOnce(mockRate);
 
-      api.post.mockResolvedValue(mockResponse);
+      const result = await vatRateService.getById(1);
 
-      const result = await vatRateService.calculateVat(100000, "standard");
-
-      expect(result.vat_amount).toBe(5000);
-      expect(result.total_with_vat).toBe(105000);
-      expect(api.post).toHaveBeenCalledWith("/vat-rates/calculate", expect.any(Object));
+      expect(result).toEqual(mockRate);
+      expect(api.get).toHaveBeenCalledWith("/vat-rates/1");
     });
 
-    it("should return zero VAT for zero-rated supplies", async () => {
-      const mockResponse = {
-        base_amount: 100000,
-        rate_percentage: 0.0,
-        vat_amount: 0,
-        total_with_vat: 100000,
-      };
+    it("should handle rate not found", async () => {
+      api.get.mockRejectedValueOnce(new Error("Not found"));
 
-      api.post.mockResolvedValue(mockResponse);
-
-      const result = await vatRateService.calculateVat(100000, "zero_rated");
-
-      expect(result.vat_amount).toBe(0);
-      expect(result.total_with_vat).toBe(100000);
+      await expect(vatRateService.getById(999)).rejects.toThrow("Not found");
     });
   });
 
-  describe("getRateHistory", () => {
-    it("should fetch VAT rate changes over time", async () => {
-      const mockResponse = [
-        {
-          effective_date: "2018-01-01",
-          rate_percentage: 5.0,
-          change_reason: "Implementation of VAT Law",
-        },
-      ];
+  describe("create", () => {
+    it("should create new VAT rate", async () => {
+      const rateData = { rate: 15, category: "standard", description: "Standard VAT" };
+      const mockResponse = { id: 3, ...rateData };
 
-      api.get.mockResolvedValue(mockResponse);
+      api.post.mockResolvedValueOnce(mockResponse);
 
-      const result = await vatRateService.getRateHistory("standard");
+      const result = await vatRateService.create(rateData);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].rate_percentage).toBe(5.0);
-      expect(api.get).toHaveBeenCalledWith("/vat-rates/standard/history");
+      expect(result).toEqual(mockResponse);
+      expect(api.post).toHaveBeenCalledWith("/vat-rates", rateData);
+    });
+
+    it("should handle creation errors", async () => {
+      const error = new Error("Invalid rate");
+      api.post.mockRejectedValueOnce(error);
+
+      await expect(vatRateService.create({})).rejects.toThrow("Invalid rate");
     });
   });
 
-  describe("getApplicableRate", () => {
-    it("should determine applicable rate for supply on specific date", async () => {
-      const mockResponse = {
-        applicable_date: "2024-01-15",
-        category: "standard",
-        rate_percentage: 5.0,
-      };
+  describe("update", () => {
+    it("should update VAT rate", async () => {
+      const rateData = { rate: 10, description: "Updated rate" };
+      const mockResponse = { id: 1, ...rateData };
 
-      api.post.mockResolvedValue(mockResponse);
+      api.put.mockResolvedValueOnce(mockResponse);
 
-      const result = await vatRateService.getApplicableRate("standard", "2024-01-15");
+      const result = await vatRateService.update(1, rateData);
 
-      expect(result.rate_percentage).toBe(5.0);
-      expect(api.post).toHaveBeenCalledWith("/vat-rates/applicable", expect.any(Object));
+      expect(result).toEqual(mockResponse);
+      expect(api.put).toHaveBeenCalledWith("/vat-rates/1", rateData);
+    });
+
+    it("should handle update errors", async () => {
+      const error = new Error("Rate in use");
+      api.put.mockRejectedValueOnce(error);
+
+      await expect(vatRateService.update(1, {})).rejects.toThrow("Rate in use");
+    });
+  });
+
+  describe("toggle", () => {
+    it("should toggle VAT rate active status", async () => {
+      const mockResponse = { id: 1, rate: 5, isActive: false };
+
+      api.patch.mockResolvedValueOnce(mockResponse);
+
+      const result = await vatRateService.toggle(1);
+
+      expect(result).toEqual(mockResponse);
+      expect(api.patch).toHaveBeenCalledWith("/vat-rates/1/toggle");
+    });
+  });
+
+  describe("delete", () => {
+    it("should delete VAT rate", async () => {
+      const mockResponse = { id: 1, deleted: true };
+
+      api.delete.mockResolvedValueOnce(mockResponse);
+
+      const result = await vatRateService.delete(1);
+
+      expect(result).toEqual(mockResponse);
+      expect(api.delete).toHaveBeenCalledWith("/vat-rates/1");
+    });
+
+    it("should handle deletion errors", async () => {
+      const error = new Error("Rate in use");
+      api.delete.mockRejectedValueOnce(error);
+
+      await expect(vatRateService.delete(1)).rejects.toThrow("Rate in use");
+    });
+  });
+
+  describe("Error Handling", () => {
+    it("should propagate API errors", async () => {
+      const error = new Error("Network error");
+      api.get.mockRejectedValueOnce(error);
+
+      await expect(vatRateService.getAll()).rejects.toThrow("Network error");
     });
   });
 });

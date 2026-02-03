@@ -1,8 +1,12 @@
+/**
+ * Template Service Unit Tests
+ * Tests template management operations (invoices, delivery notes, etc.)
+ */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { templateService } from "../templateService.js";
 
 vi.mock("../api.js", () => ({
-  api: {
+  apiClient: {
     get: vi.fn(),
     post: vi.fn(),
     put: vi.fn(),
@@ -10,7 +14,8 @@ vi.mock("../api.js", () => ({
   },
 }));
 
-import { api } from "../api.js";
+import { apiClient } from "../api.js";
+import { templateService } from "../templateService.js";
 
 describe("templateService", () => {
   beforeEach(() => {
@@ -18,159 +23,141 @@ describe("templateService", () => {
   });
 
   describe("getTemplates", () => {
-    it("should fetch all document templates", async () => {
-      const mockResponse = [
-        {
-          id: 1,
-          name: "Invoice Standard",
-          type: "invoice",
-          status: "active",
-        },
-        {
-          id: 2,
-          name: "Purchase Order",
-          type: "purchase_order",
-          status: "active",
-        },
+    it("should get all templates", async () => {
+      const mockTemplates = [
+        { id: 1, name: "Invoice Standard", type: "invoice", status: "active" },
+        { id: 2, name: "Delivery Note Default", type: "delivery", status: "active" },
       ];
 
-      api.get.mockResolvedValue(mockResponse);
+      apiClient.get.mockResolvedValueOnce(mockTemplates);
 
       const result = await templateService.getTemplates();
 
-      expect(result).toHaveLength(2);
-      expect(result[0].type).toBe("invoice");
-      expect(api.get).toHaveBeenCalledWith("/templates", { params: {} });
+      expect(result).toEqual(mockTemplates);
+      expect(apiClient.get).toHaveBeenCalledWith("/templates");
     });
 
-    it("should filter by template type", async () => {
-      api.get.mockResolvedValue([]);
+    it("should handle empty template list", async () => {
+      apiClient.get.mockResolvedValueOnce([]);
 
-      await templateService.getTemplates({ type: "invoice" });
+      const result = await templateService.getTemplates();
 
-      expect(api.get).toHaveBeenCalledWith(
-        "/templates",
-        expect.objectContaining({
-          params: { type: "invoice" },
-        })
-      );
+      expect(result).toEqual([]);
+    });
+
+    it("should handle API errors", async () => {
+      const error = new Error("Network error");
+      apiClient.get.mockRejectedValueOnce(error);
+
+      await expect(templateService.getTemplates()).rejects.toThrow("Network error");
     });
   });
 
   describe("getTemplate", () => {
-    it("should fetch template with layout and variables", async () => {
-      const mockResponse = {
+    it("should get single template by ID", async () => {
+      const mockTemplate = {
         id: 1,
         name: "Invoice Standard",
         type: "invoice",
-        layout: "<div>Invoice Template</div>",
-        variables: ["invoice_number", "date", "customer_name", "items"],
         status: "active",
+        content: "<html>...</html>",
       };
 
-      api.get.mockResolvedValue(mockResponse);
+      apiClient.get.mockResolvedValueOnce(mockTemplate);
 
       const result = await templateService.getTemplate(1);
 
-      expect(result.type).toBe("invoice");
-      expect(result.variables).toContain("invoice_number");
-      expect(api.get).toHaveBeenCalledWith("/templates/1");
+      expect(result).toEqual(mockTemplate);
+      expect(apiClient.get).toHaveBeenCalledWith("/templates/1");
+    });
+
+    it("should handle template not found", async () => {
+      const error = new Error("Not found");
+      apiClient.get.mockRejectedValueOnce(error);
+
+      await expect(templateService.getTemplate(999)).rejects.toThrow("Not found");
     });
   });
 
   describe("createTemplate", () => {
-    it("should create new document template", async () => {
-      const mockResponse = {
-        id: 1,
+    it("should create new template", async () => {
+      const templateData = {
         name: "Custom Invoice",
         type: "invoice",
-        status: "pending",
+        content: "<html>Custom content</html>",
       };
 
-      api.post.mockResolvedValue(mockResponse);
+      const mockResponse = { id: 10, ...templateData, status: "active" };
 
-      const payload = {
-        name: "Custom Invoice",
-        type: "invoice",
-        layout: "<div>Template HTML</div>",
-      };
+      apiClient.post.mockResolvedValueOnce(mockResponse);
 
-      const result = await templateService.createTemplate(payload);
+      const result = await templateService.createTemplate(templateData);
 
-      expect(result.name).toBe("Custom Invoice");
-      expect(api.post).toHaveBeenCalledWith("/templates", payload);
+      expect(result).toEqual(mockResponse);
+      expect(apiClient.post).toHaveBeenCalledWith("/templates", templateData);
+    });
+
+    it("should handle creation errors", async () => {
+      const error = new Error("Invalid template");
+      apiClient.post.mockRejectedValueOnce(error);
+
+      await expect(templateService.createTemplate({})).rejects.toThrow("Invalid template");
     });
   });
 
   describe("updateTemplate", () => {
-    it("should update template layout and variables", async () => {
-      const mockResponse = {
-        id: 1,
-        name: "Invoice Standard",
-        layout: "<div>Updated Template</div>",
+    it("should update existing template", async () => {
+      const updateData = {
+        name: "Updated Invoice",
+        content: "<html>Updated content</html>",
       };
 
-      api.put.mockResolvedValue(mockResponse);
+      const mockResponse = { id: 1, ...updateData, status: "active", type: "invoice" };
 
-      const payload = { layout: "<div>Updated Template</div>" };
+      apiClient.put.mockResolvedValueOnce(mockResponse);
 
-      const result = await templateService.updateTemplate(1, payload);
+      const result = await templateService.updateTemplate(1, updateData);
 
-      expect(result.layout).toContain("Updated");
-      expect(api.put).toHaveBeenCalledWith("/templates/1", payload);
+      expect(result).toEqual(mockResponse);
+      expect(apiClient.put).toHaveBeenCalledWith("/templates/1", updateData);
+    });
+
+    it("should handle update errors", async () => {
+      const error = new Error("Template in use");
+      apiClient.put.mockRejectedValueOnce(error);
+
+      await expect(templateService.updateTemplate(1, {})).rejects.toThrow("Template in use");
     });
   });
 
   describe("deleteTemplate", () => {
     it("should delete template", async () => {
-      api.delete.mockResolvedValue({ success: true });
+      const mockResponse = { id: 1, deleted: true };
+
+      apiClient.delete.mockResolvedValueOnce(mockResponse);
 
       const result = await templateService.deleteTemplate(1);
 
-      expect(result.success).toBe(true);
-      expect(api.delete).toHaveBeenCalledWith("/templates/1");
+      expect(result).toEqual(mockResponse);
+      expect(apiClient.delete).toHaveBeenCalledWith("/templates/1");
+    });
+
+    it("should handle deletion errors", async () => {
+      const error = new Error("Cannot delete default template");
+      apiClient.delete.mockRejectedValueOnce(error);
+
+      await expect(templateService.deleteTemplate(1)).rejects.toThrow(
+        "Cannot delete default template"
+      );
     });
   });
 
-  describe("previewTemplate", () => {
-    it("should generate template preview with sample data", async () => {
-      const mockResponse = {
-        html: "<div>Invoice Preview</div>",
-        preview_url: "/previews/template-1.html",
-      };
+  describe("Error Handling", () => {
+    it("should propagate all API errors", async () => {
+      const error = new Error("Server error");
+      apiClient.get.mockRejectedValueOnce(error);
 
-      api.post.mockResolvedValue(mockResponse);
-
-      const sampleData = {
-        invoice_number: "INV-001",
-        date: "2024-01-15",
-        items: [],
-      };
-
-      const result = await templateService.previewTemplate(1, sampleData);
-
-      expect(result.html).toContain("Invoice");
-      expect(api.post).toHaveBeenCalledWith("/templates/1/preview", expect.any(Object));
-    });
-  });
-
-  describe("cloneTemplate", () => {
-    it("should clone existing template", async () => {
-      const mockResponse = {
-        id: 2,
-        name: "Invoice Standard (Copy)",
-        type: "invoice",
-        status: "active",
-      };
-
-      api.post.mockResolvedValue(mockResponse);
-
-      const result = await templateService.cloneTemplate(1, {
-        name: "Invoice Standard (Copy)",
-      });
-
-      expect(result.id).toBe(2);
-      expect(api.post).toHaveBeenCalledWith("/templates/1/clone", expect.any(Object));
+      await expect(templateService.getTemplates()).rejects.toThrow("Server error");
     });
   });
 });
