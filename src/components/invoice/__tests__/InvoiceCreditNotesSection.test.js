@@ -7,7 +7,6 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import { createMockArray } from "../../../test/mock-factories";
 import InvoiceCreditNotesSection from "../InvoiceCreditNotesSection";
 
 // Mock the API service
