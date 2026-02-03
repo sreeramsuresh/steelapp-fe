@@ -261,9 +261,7 @@ describe("CreditNotePreview", () => {
         ],
       };
 
-      const { container } = renderWithProviders(
-        <CreditNotePreview {...defaultProps} creditNote={multiItemNote} />
-      );
+      const { container } = renderWithProviders(<CreditNotePreview {...defaultProps} creditNote={multiItemNote} />);
 
       expect(container.textContent).toContain("Item 1");
       expect(container.textContent).toContain("Item 2");
@@ -297,9 +295,7 @@ describe("CreditNotePreview", () => {
         totalCredit: 5250,
       };
 
-      const { container } = renderWithProviders(
-        <CreditNotePreview {...defaultProps} creditNote={snakeCaseNote} />
-      );
+      const { container } = renderWithProviders(<CreditNotePreview {...defaultProps} creditNote={snakeCaseNote} />);
 
       expect(container.textContent).toContain("5000");
     });
@@ -366,9 +362,7 @@ describe("CreditNotePreview", () => {
         items: [],
       };
 
-      const { container } = renderWithProviders(
-        <CreditNotePreview {...defaultProps} creditNote={noItemsNote} />
-      );
+      const { container } = renderWithProviders(<CreditNotePreview {...defaultProps} creditNote={noItemsNote} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -379,17 +373,13 @@ describe("CreditNotePreview", () => {
         customer: null,
       };
 
-      const { container } = renderWithProviders(
-        <CreditNotePreview {...defaultProps} creditNote={noCustomerNote} />
-      );
+      const { container } = renderWithProviders(<CreditNotePreview {...defaultProps} creditNote={noCustomerNote} />);
 
       expect(container).toBeInTheDocument();
     });
 
     it("should handle missing company data", () => {
-      const { container } = renderWithProviders(
-        <CreditNotePreview {...defaultProps} company={null} />
-      );
+      const { container } = renderWithProviders(<CreditNotePreview {...defaultProps} company={null} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -408,9 +398,7 @@ describe("CreditNotePreview", () => {
         totalCredit: 500000,
       };
 
-      const { container } = renderWithProviders(
-        <CreditNotePreview {...defaultProps} creditNote={largeNote} />
-      );
+      const { container } = renderWithProviders(<CreditNotePreview {...defaultProps} creditNote={largeNote} />);
 
       expect(container).toBeInTheDocument();
     });
