@@ -105,7 +105,7 @@ export function validatePagination(
   if (!result.success) {
     console.warn(
       `[API Contract Violation] Pagination schema mismatch${context ? ` in ${context}` : ""}:`,
-      result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ")
+      result.error.issues.map((i: any) => `${i.path.join(".")}: ${i.message}`).join(", ")
     );
     return { success: false, error: result.error, data: null };
   }
@@ -124,7 +124,7 @@ export function validateInvoiceListResponse(
   if (!result.success) {
     console.warn(
       "[API Contract Violation] Invoice list response schema mismatch:",
-      result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ")
+      result.error.issues.map((i: any) => `${i.path.join(".")}: ${i.message}`).join(", ")
     );
     return { success: false, error: result.error, data: null };
   }
