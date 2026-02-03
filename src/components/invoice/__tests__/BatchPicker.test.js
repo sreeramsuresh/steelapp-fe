@@ -7,7 +7,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import { createMockBatch, createMockArray } from "../../../test/mock-factories";
+import { createMockArray, createMockBatch } from "../../../test/mock-factories";
 import BatchPicker from "../BatchPicker";
 
 // Mock the API service
@@ -183,9 +183,7 @@ describe("BatchPicker", () => {
 
   describe("Status Indicator", () => {
     it("should show required vs selected quantities", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -194,9 +192,7 @@ describe("BatchPicker", () => {
     });
 
     it("should display remaining quantity", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -204,9 +200,7 @@ describe("BatchPicker", () => {
     });
 
     it("should show green status when fully allocated", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -214,9 +208,7 @@ describe("BatchPicker", () => {
     });
 
     it("should show red status when over allocated", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -224,9 +216,7 @@ describe("BatchPicker", () => {
     });
 
     it("should show amber status when incomplete", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} requiredQty={100} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} requiredQty={100} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -244,9 +234,7 @@ describe("BatchPicker", () => {
     });
 
     it("should hide buttons when disabled", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} disabled={true} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} disabled={true} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -316,9 +304,7 @@ describe("BatchPicker", () => {
     it("should display warehouse info in no batches message", async () => {
       api.get.mockResolvedValue({ batches: [] });
 
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} warehouseId="WH-001" />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} warehouseId="WH-001" />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -328,9 +314,7 @@ describe("BatchPicker", () => {
 
   describe("Disabled State", () => {
     it("should disable input fields when disabled", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} disabled={true} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} disabled={true} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -341,9 +325,7 @@ describe("BatchPicker", () => {
     });
 
     it("should show visual disabled state", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} disabled={true} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} disabled={true} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -353,9 +335,7 @@ describe("BatchPicker", () => {
 
   describe("API Integration", () => {
     it("should fetch batches with productId", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} productId={456} />
-      );
+      renderWithProviders(<BatchPicker {...defaultProps} productId={456} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -365,9 +345,7 @@ describe("BatchPicker", () => {
     it("should handle invalid productId", async () => {
       api.get.mockResolvedValue({ batches: [] });
 
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} productId={null} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} productId={null} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -375,9 +353,7 @@ describe("BatchPicker", () => {
     });
 
     it("should include warehouseId in API call", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} warehouseId="WH-SPECIAL" />
-      );
+      renderWithProviders(<BatchPicker {...defaultProps} warehouseId="WH-SPECIAL" />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -385,9 +361,7 @@ describe("BatchPicker", () => {
     });
 
     it("should skip warehouseId if not provided", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} warehouseId={undefined} />
-      );
+      renderWithProviders(<BatchPicker {...defaultProps} warehouseId={undefined} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -448,9 +422,7 @@ describe("BatchPicker", () => {
     });
 
     it("should handle zero required quantity", async () => {
-      const { container } = renderWithProviders(
-        <BatchPicker {...defaultProps} requiredQty={0} />
-      );
+      const { container } = renderWithProviders(<BatchPicker {...defaultProps} requiredQty={0} />);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
