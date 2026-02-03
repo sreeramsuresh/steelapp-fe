@@ -3,8 +3,28 @@ import { authService } from '../authService';
 import { apiClient } from '../api';
 import { tokenUtils } from '../axiosApi';
 
-vi.mock("../api.js);
-vi.mock("../axiosApi.js);
+vi.mock("../api.js", () => ({
+  apiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+vi.mock("../axiosApi.js", () => ({
+  tokenUtils: {
+    setToken: vi.fn(),
+    getToken: vi.fn(),
+    setRefreshToken: vi.fn(),
+    getRefreshToken: vi.fn(),
+    setUser: vi.fn(),
+    getUser: vi.fn(),
+    removeTokens: vi.fn(),
+    removeUser: vi.fn(),
+  },
+}));
 
 // Mock localStorage
 const localStorageMock = (() => {
