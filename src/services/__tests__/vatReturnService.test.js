@@ -6,6 +6,7 @@ vi.mock("../api.js", () => ({
     get: vi.fn(),
     post: vi.fn(),
     put: vi.fn(),
+    patch: vi.fn(),
     delete: vi.fn(),
   },
 }));
@@ -266,56 +267,343 @@ describe("vatReturnService", () => {
     });
   });
 
-  describe("amendReturn", () => {
-    it("should create amended VAT return", async () => {
-      const mockResponse = {
-        id: 2,
-        originalReturnId: 1,
-        returnNumber: "VAT-2024-Q1-AMENDED",
-        status: "amended",
-        amendmentReason: "Correction of Box 8 expense",
-        box8Amount: 320000,
-        box8Vat: 16000,
-        box10Vat: 16000,
-        box11Vat: 9000,
-      };
+  describe("getPeriods", () => {
+    it("should fetch available VAT periods", async () => {
+      const mockResponse = [
+        { year: 2024, quarter: 1, startDate: "2024-01-01", endDate: "2024-03-31" },
+        { year: 2024, quarter: 2, startDate: "2024-04-01", endDate: "2024-06-30" },
+      ];
 
-      apiClient.post.mockResolvedValue(mockResponse);
+      apiClient.get.mockResolvedValue(mockResponse);
 
-      const result = await vatReturnService.amendReturn(1, {
-        reason: "Correction of Box 8 expense",
-        box8Amount: 320000,
-      });
+      const result = await vatReturnService.getPeriods();
 
-      expect(result.status).toBe("amended");
-      expect(result.returnNumber).toContain("AMENDED");
-      expect(apiClient.post).toHaveBeenCalledWith("/vat-returns/1/amend", expect.any(Object));
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-return/periods");
     });
   });
 
-  describe("getVatSummary", () => {
-    it("should get VAT summary for period", async () => {
+  describe("generateReport", () => {
+    it("should generate VAT report for period", async () => {
       const mockResponse = {
+        returnNumber: "VAT-2024-Q1",
         periodStart: "2024-01-01",
         periodEnd: "2024-03-31",
-        totalOutputVat: 25000,
-        totalInputVat: 15000,
-        netVatDue: 10000,
-        returnsSubmitted: 1,
-        amendments: 0,
+        box1Amount: 500000,
       };
 
       apiClient.get.mockResolvedValue(mockResponse);
 
-      const result = await vatReturnService.getVatSummary({
-        periodStart: "2024-01-01",
-        periodEnd: "2024-03-31",
-      });
+      const result = await vatReturnService.generateReport("2024-01-01", "2024-03-31");
 
-      expect(result.totalOutputVat).toBe(25000);
-      expect(result.netVatDue).toBe(10000);
+      expect(result.returnNumber).toBe("VAT-2024-Q1");
+      expect(apiClient.get).toHaveBeenCalled();
     });
   });
+
+  describe("saveReport", () => {
+    it("should save VAT return", async () => {
+      const mockResponse = {
+        id: 1,
+        status: "draft",
+        box1Amount: 500000,
+      };
+
+      apiClient.post.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.saveReport("2024-01-01", "2024-03-31");
+
+      expect(result.status).toBe("draft");
+      expect(apiClient.post).toHaveBeenCalledWith(
+        "/vat-return/save",
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe("getEmirates", () => {
+    it("should fetch list of UAE emirates", async () => {
+      const mockResponse = [
+        { code: "AE-AZ", name: "Abu Dhabi" },
+        { code: "AE-DU", name: "Dubai" },
+      ];
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getEmirates();
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-return/emirates");
+    });
+  });
+
+  describe("getPreview", () => {
+    it("should get preview of VAT return before filing", async () => {
+      const mockResponse = {
+        id: 1,
+        returnNumber: "VAT-2024-Q1",
+        documents: [],
+      };
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getPreview(1);
+
+      expect(result.returnNumber).toBe("VAT-2024-Q1");
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/preview");
+    });
+  });
+
+  describe("markAsFiled", () => {
+    it("should mark VAT return as filed", async () => {
+      const mockResponse = {
+        id: 1,
+        status: "filed",
+        ftaReferenceNumber: "FTA-12345",
+      };
+
+      apiClient.post.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.markAsFiled(1, {
+        ftaReferenceNumber: "FTA-12345",
+      });
+
+      expect(result.status).toBe("filed");
+      expect(apiClient.post).toHaveBeenCalledWith(
+        "/vat-returns/1/file",
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe("getForm201Data", () => {
+    it("should get Form 201 data with all 11 boxes", async () => {
+      const mockResponse = {
+        box1Amount: 500000,
+        box1Vat: 25000,
+        box7Vat: 25000,
+      };
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getForm201Data(1);
+
+      expect(result.box1Amount).toBe(500000);
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/form-201");
+    });
+  });
+
+  describe("getAuditTrail", () => {
+    it("should get audit trail for VAT return", async () => {
+      const mockResponse = [
+        { action: "created", timestamp: "2024-01-15T10:00:00Z", user: "admin" },
+      ];
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getAuditTrail(1);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/audit-trail");
+    });
+  });
+
+  describe("getReconciliation", () => {
+    it("should get reconciliation report for VAT return", async () => {
+      const mockResponse = {
+        box1: { amount: 500000, vat: 25000 },
+        box8: { amount: 300000, vat: 15000 },
+      };
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getReconciliation(1);
+
+      expect(result.box1).toBeDefined();
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/reconciliation");
+    });
+  });
+
+  describe("getSupportingDocuments", () => {
+    it("should get supporting documents for VAT return", async () => {
+      const mockResponse = {
+        invoices: [],
+        purchases: [],
+      };
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getSupportingDocuments(1);
+
+      expect(result.invoices).toBeDefined();
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/vat-returns/1/supporting-documents"
+      );
+    });
+  });
+
+  describe("getBlockedVATCategories", () => {
+    it("should get blocked VAT categories", async () => {
+      const mockResponse = [
+        { code: "FUEL", description: "Fuel expenses" },
+      ];
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getBlockedVATCategories();
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-return/blocked-vat/categories");
+    });
+  });
+
+  describe("getBlockedVATLog", () => {
+    it("should get blocked VAT log for a period", async () => {
+      const mockResponse = { items: [] };
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getBlockedVATLog({
+        startDate: "2024-01-01",
+      });
+
+      expect(result.items).toBeDefined();
+      expect(apiClient.get).toHaveBeenCalled();
+    });
+  });
+
+  describe("updateStatus", () => {
+    it("should update VAT return status", async () => {
+      const mockResponse = {
+        id: 1,
+        status: "review",
+      };
+
+      apiClient.patch.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.updateStatus(1, "review");
+
+      expect(result.status).toBe("review");
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        "/vat-returns/1/status",
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe("addNotes", () => {
+    it("should add notes to VAT return", async () => {
+      const mockResponse = {
+        id: 1,
+        notes: "Updated notes",
+      };
+
+      apiClient.patch.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.addNotes(1, "Updated notes");
+
+      expect(result.notes).toBe("Updated notes");
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        "/vat-returns/1/notes",
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe("delete", () => {
+    it("should delete VAT return (draft only)", async () => {
+      const mockResponse = { success: true };
+
+      apiClient.delete.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.delete(1);
+
+      expect(result.success).toBe(true);
+      expect(apiClient.delete).toHaveBeenCalledWith("/vat-returns/1");
+    });
+  });
+
+  describe("downloadPDF", () => {
+    it("should download VAT return as PDF", async () => {
+      const mockBlob = new Blob(["PDF content"], { type: "application/pdf" });
+      apiClient.get.mockResolvedValue(mockBlob);
+
+      const result = await vatReturnService.downloadPDF(1, "VAT-2024-Q1");
+
+      expect(result).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/vat-returns/1/pdf",
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe("exportExcel", () => {
+    it("should export VAT return as Excel", async () => {
+      const mockBlob = new Blob(["Excel content"], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      apiClient.get.mockResolvedValue(mockBlob);
+
+      const result = await vatReturnService.exportExcel(1);
+
+      expect(result).toBe(true);
+      expect(apiClient.get).toHaveBeenCalled();
+    });
+  });
+
+  describe("getAnalytics", () => {
+    it("should get VAT return analytics", async () => {
+      const mockResponse = {
+        totalReturns: 4,
+        averageVat: 15000,
+      };
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.getAnalytics({ year: 2024 });
+
+      expect(result.totalReturns).toBe(4);
+      expect(apiClient.get).toHaveBeenCalled();
+    });
+  });
+
+  describe("validate", () => {
+    it("should validate VAT return before submission", async () => {
+      const mockResponse = {
+        valid: true,
+        errors: [],
+        warnings: [],
+      };
+
+      apiClient.get.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.validate(1);
+
+      expect(result.valid).toBe(true);
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/validate");
+    });
+  });
+
+  describe("recalculate", () => {
+    it("should recalculate VAT return", async () => {
+      const mockResponse = {
+        id: 1,
+        box7Vat: 25000,
+        box10Vat: 15000,
+        box11Vat: 10000,
+      };
+
+      apiClient.post.mockResolvedValue(mockResponse);
+
+      const result = await vatReturnService.recalculate(1);
+
+      expect(result.box11Vat).toBe(10000);
+      expect(apiClient.post).toHaveBeenCalledWith(
+        "/vat-returns/1/recalculate"
+      );
+    });
+  })
 
   describe("Multi-tenancy", () => {
     it("should maintain company context", async () => {

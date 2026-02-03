@@ -2,141 +2,106 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { transitService } from "../transitService.js";
 
 vi.mock("../api.js", () => ({
-  api: {
+  apiClient: {
     get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
+    patch: vi.fn(),
   },
 }));
 
-import { api } from "../api.js";
+import { apiClient } from "../api.js";
 
 describe("transitService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("getInTransitShipments", () => {
-    it("should fetch all in-transit shipments", async () => {
+  describe("getAll", () => {
+    it("should fetch all items in transit", async () => {
       const mockResponse = {
         data: [
           {
             id: 1,
-            shipment_id: "SHP-001",
-            origin_port: "Shanghai",
-            destination_port: "Jebel Ali",
-            departure_date: "2024-01-10",
-            expected_arrival: "2024-01-20",
+            type: "shipment",
+            origin: "Shanghai",
+            destination: "Dubai",
             status: "in_transit",
           },
         ],
-        pagination: { total: 1, page: 1 },
       };
 
-      api.get.mockResolvedValue(mockResponse);
+      apiClient.get.mockResolvedValue(mockResponse);
 
-      const result = await transitService.getInTransitShipments();
+      const result = await transitService.getAll({ page: 1 });
 
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0].status).toBe("in_transit");
+      expect(result.data).toBeDefined();
+      expect(apiClient.get).toHaveBeenCalledWith("/transit", expect.any(Object));
+    });
+
+    it("should support parameters", async () => {
+      apiClient.get.mockResolvedValue({ data: [] });
+
+      await transitService.getAll({ page: 2, limit: 50 });
+
+      expect(apiClient.get).toHaveBeenCalled();
     });
   });
 
-  describe("getShipmentTracking", () => {
-    it("should fetch shipment tracking details with milestones", async () => {
+  describe("getTracking", () => {
+    it("should fetch transit tracking for specific item", async () => {
       const mockResponse = {
         id: 1,
-        shipment_id: "SHP-001",
-        current_location: "Port of Singapore",
-        current_status: "in_transit",
-        milestones: [
-          {
-            date: "2024-01-10T08:00:00Z",
-            location: "Shanghai Port",
-            event: "Container Loaded",
-          },
-          {
-            date: "2024-01-15T12:00:00Z",
-            location: "Singapore Strait",
-            event: "In Transit",
-          },
-        ],
+        type: "shipment",
+        status: "in_transit",
+        location: "Port of Singapore",
+        expected_arrival: "2024-01-20",
       };
 
-      api.get.mockResolvedValue(mockResponse);
+      apiClient.get.mockResolvedValue(mockResponse);
 
-      const result = await transitService.getShipmentTracking("SHP-001");
+      const result = await transitService.getTracking("shipment", 1);
 
-      expect(result.milestones).toHaveLength(2);
-      expect(result.current_status).toBe("in_transit");
-      expect(api.get).toHaveBeenCalledWith("/transit/SHP-001/tracking");
+      expect(result.status).toBe("in_transit");
+      expect(apiClient.get).toHaveBeenCalledWith("/transit/shipment/1");
+    });
+
+    it("should handle different item types", async () => {
+      apiClient.get.mockResolvedValue({ status: "in_transit" });
+
+      await transitService.getTracking("purchase_order", 5);
+
+      expect(apiClient.get).toHaveBeenCalledWith("/transit/purchase_order/5");
     });
   });
 
-  describe("updateShipmentLocation", () => {
-    it("should update shipment current location and status", async () => {
+  describe("updateStatus", () => {
+    it("should update transit status", async () => {
       const mockResponse = {
         id: 1,
-        shipment_id: "SHP-001",
-        current_location: "Port of Jebel Ali",
+        type: "shipment",
         status: "arrived",
-        last_updated: "2024-01-20T10:00:00Z",
+        updated_at: "2024-01-20T10:00:00Z",
       };
 
-      api.post.mockResolvedValue(mockResponse);
+      apiClient.patch.mockResolvedValue(mockResponse);
 
-      const payload = {
-        location: "Port of Jebel Ali",
-        status: "arrived",
-        timestamp: "2024-01-20T10:00:00Z",
-      };
-
-      const result = await transitService.updateShipmentLocation("SHP-001", payload);
+      const result = await transitService.updateStatus("shipment", 1, "arrived");
 
       expect(result.status).toBe("arrived");
-      expect(api.post).toHaveBeenCalledWith("/transit/SHP-001/update-location", payload);
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        "/transit/shipment/1/status",
+        { status: "arrived" }
+      );
     });
-  });
 
-  describe("getEstimatedArrival", () => {
-    it("should calculate estimated arrival date", async () => {
-      const mockResponse = {
-        shipment_id: "SHP-001",
-        current_location: "Singapore Strait",
-        estimated_arrival: "2024-01-20T14:00:00Z",
-        days_remaining: 5,
-        on_schedule: true,
-      };
+    it("should handle status changes", async () => {
+      apiClient.patch.mockResolvedValue({ status: "in_transit" });
 
-      api.get.mockResolvedValue(mockResponse);
+      await transitService.updateStatus("invoice", 2, "in_transit");
 
-      const result = await transitService.getEstimatedArrival("SHP-001");
-
-      expect(result.on_schedule).toBe(true);
-      expect(result.days_remaining).toBe(5);
-    });
-  });
-
-  describe("notifyDelayedShipment", () => {
-    it("should create alert for delayed shipment", async () => {
-      const mockResponse = {
-        alert_id: 1,
-        shipment_id: "SHP-001",
-        delay_reason: "Weather delays",
-        delay_days: 3,
-        notification_sent: true,
-      };
-
-      api.post.mockResolvedValue(mockResponse);
-
-      const payload = {
-        delay_reason: "Weather delays",
-        delay_days: 3,
-      };
-
-      const result = await transitService.notifyDelayedShipment("SHP-001", payload);
-
-      expect(result.notification_sent).toBe(true);
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        "/transit/invoice/2/status",
+        expect.any(Object)
+      );
     });
   });
 });

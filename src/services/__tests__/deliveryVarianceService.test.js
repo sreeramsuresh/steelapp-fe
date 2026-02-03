@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import deliveryVarianceService from "../deliveryVarianceService.js";
+import { deliveryVarianceService } from "../deliveryVarianceService.js";
 
 vi.mock("../api.js", () => ({
   default: {
@@ -135,6 +135,111 @@ describe("deliveryVarianceService", () => {
           params: { limit: 50, daysBack: 180 },
         })
       );
+    });
+  });
+
+  describe("getSupplierPerformanceComparison", () => {
+    it("should fetch supplier performance comparison", async () => {
+      const mockResponse = [
+        {
+          supplier_id: 1,
+          supplier_name: "Supplier A",
+          on_time_percentage: 95,
+          avg_delay_days: 0.5,
+        },
+      ];
+
+      api.get.mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getSupplierPerformanceComparison(10, 90);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/supplier-comparison",
+        expect.objectContaining({ params: { limit: 10, daysBack: 90 } })
+      );
+    });
+  });
+
+  describe("getHealthReport", () => {
+    it("should fetch delivery health report", async () => {
+      const mockResponse = {
+        overall_health: "good",
+        on_time_percentage: 92,
+        critical_suppliers: 2,
+      };
+
+      api.get.mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getHealthReport(90);
+
+      expect(result.overall_health).toBe("good");
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/health-report",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
+    });
+  });
+
+  describe("generateRecommendations", () => {
+    it("should generate recommendations for improvements", async () => {
+      const mockResponse = [
+        {
+          id: 1,
+          title: "Address supplier performance",
+          priority: "high",
+        },
+      ];
+
+      api.get.mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.generateRecommendations(90);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/recommendations",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
+    });
+  });
+
+  describe("getSupplierScorecard", () => {
+    it("should fetch supplier scorecard", async () => {
+      const mockResponse = {
+        supplier_id: 1,
+        supplier_name: "Supplier A",
+        score: 85,
+        metrics: [],
+      };
+
+      api.get.mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getSupplierScorecard(1, 90);
+
+      expect(result.supplier_name).toBe("Supplier A");
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/supplier/1/scorecard",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
+    });
+  });
+
+  describe("getAtRiskSuppliers", () => {
+    it("should fetch at-risk suppliers list", async () => {
+      const mockResponse = [
+        {
+          supplier_id: 1,
+          supplier_name: "At Risk Supplier",
+          risk_level: "high",
+        },
+      ];
+
+      api.get.mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getAtRiskSuppliers();
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/at-risk-suppliers");
     });
   });
 });
