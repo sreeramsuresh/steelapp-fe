@@ -507,7 +507,15 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(creditNote.status)}</td>
-                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-6 py-4"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation();
+                          }
+                        }}
+                      >
                         <CreditNoteStatusActions
                           creditNoteId={creditNote.id}
                           currentStatus={creditNote.status}
@@ -543,8 +551,6 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                               e.stopPropagation();
                             }
                           }}
-                          role="button"
-                          tabIndex={0}
                         >
                           {/* Preview Button */}
                           <button
