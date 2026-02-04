@@ -1,5 +1,5 @@
 import { AlertCircle, Check, Download, FileText, Loader2, Package, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -73,12 +73,7 @@ export default function StockMovementReport() {
     totalValue: 0,
   });
 
-  useEffect(() => {
-    fetchWarehouses();
-    fetchProducts();
-  }, [fetchProducts, fetchWarehouses]);
-
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       setLoadingWarehouses(true);
       setWarehouseError(null);
@@ -94,9 +89,9 @@ export default function StockMovementReport() {
     } finally {
       setLoadingWarehouses(false);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoadingProducts(true);
       setProductError(null);
@@ -109,7 +104,12 @@ export default function StockMovementReport() {
     } finally {
       setLoadingProducts(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchWarehouses();
+    fetchProducts();
+  }, [fetchWarehouses, fetchProducts]);
 
   const fetchMovements = async (pageNum = 1) => {
     if (!dateFrom || !dateTo) {
